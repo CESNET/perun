@@ -53,14 +53,6 @@ public interface PerunWebConstants extends Constants {
 	String perunRpcUrlKrbEinfra();
 
 	/**
-	 * Base timeout for all callbacks to RPC when callback is
-	 * removed from page and marked as ServerError (request timeout exceeded)
-	 *
-	 * @return Callbacks timeout (time in milliseconds)
-	 */
-	int jsonTimeout();
-
-	/**
 	 * Default interval for refreshing window with pending requests
 	 *
 	 * @return time in milliseconds

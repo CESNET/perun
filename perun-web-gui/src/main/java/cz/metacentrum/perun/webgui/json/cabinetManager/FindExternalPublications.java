@@ -292,7 +292,7 @@ public class FindExternalPublications implements JsonCallback, JsonCallbackTable
 	 */
 	public void retrieveData()
 	{
-		JsonClient js = new JsonClient(60000); // 1 minute to retrieve data from external source
+		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, "user=" + this.userId + "&yearSince=" + yearSince + "&yearTill=" + yearTill+ "&pubSysNamespace="+namespace, this);
 		return;
 	}

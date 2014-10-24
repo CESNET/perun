@@ -9,6 +9,10 @@ import com.google.gwt.regexp.shared.RegExp;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.PerunRequest;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class for POST requests to RPC.
@@ -50,6 +54,7 @@ public class JsonPostClient {
 	 * Hidden callback do not show error pop-up
 	 */
 	private boolean hidden = false;
+	private Map<String, PerunRequest> runningRequests = new HashMap<>();
 
 
 	/**
@@ -144,17 +149,26 @@ public class JsonPostClient {
 		// url to call
 		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + callbackName);
 
+
+		String data = "";
+		if (sendNative) {
+			data = json;
+		} else {
+			data = jsonObject.toString();
+		}
+
+		PerunRequest perunRequest = new JSONObject().getJavaScriptObject().cast();
+		perunRequest.setStartTime();
+		perunRequest.setManager(url.split("\\/")[0]);
+		perunRequest.setMethod(url.split("\\/")[1]);
+		perunRequest.setParamString("?callback=" + callbackName + "&" + data);
+
 		// request building
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, requestUrl);
 		try {
 			// sends the request
 			onRequestLoadingStart();
-			String data = "";
-			if (sendNative) {
-				data = json;
-			} else {
-				data = jsonObject.toString();
-			}
+
 			final String payload = data;
 			builder.sendRequest(payload, new RequestCallback() {
 				@Override
@@ -167,6 +181,7 @@ public class JsonPostClient {
 						// if null - finished
 						if (jso == null) {
 							session.getUiElements().setLogText("Response NULL.");
+							runningRequests.remove(requestUrl);
 							onRequestFinished(null);
 							return;
 						}
@@ -176,6 +191,7 @@ public class JsonPostClient {
 						if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
 							// not error, OK
 							session.getUiElements().setLogText("Response not NULL, not ERROR.");
+							runningRequests.remove(requestUrl);
 							onRequestFinished(jso);
 							return;
 						}
@@ -184,20 +200,101 @@ public class JsonPostClient {
 						session.getUiElements().setLogText("Response ERROR.");
 						error.setRequestURL(requestUrl);
 						error.setPostData(payload);
+						runningRequests.remove(requestUrl);
 						onRequestError(error);
 						return;
+
+					} else if (resp.getStatusCode() == 401) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("401");
+						error.setName("NotAuthorized");
+						error.setErrorInfo("You are not authorized to server. Your session might have expired. Please refresh the browser window to re-login.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData(payload);
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
+					} else if (resp.getStatusCode() == 500) {
+
+						if (runningRequests.get(requestUrl) != null) {
+
+							if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
+								// 5 minute timeout
+
+								PerunError error = new JSONObject().getJavaScriptObject().cast();
+								error.setErrorId("408");
+								error.setName("RequestTimeout");
+								error.setErrorInfo("Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.");
+								error.setObjectType("PerunError");
+								error.setRequestURL(requestUrl);
+								error.setPostData("");
+								runningRequests.remove(requestUrl);
+								onRequestError(error);
+								return;
+
+							} else {
+
+								PerunError error = new JSONObject().getJavaScriptObject().cast();
+								error.setErrorId("500");
+								error.setName("ServerInternalError");
+								error.setErrorInfo("Server encounter internal error while processing your request. Please report this error and retry.");
+								error.setObjectType("PerunError");
+								error.setRequestURL(requestUrl);
+								error.setPostData(payload);
+								runningRequests.remove(requestUrl);
+								onRequestError(error);
+								return;
+
+							}
+
+						}
+
+					} else if (resp.getStatusCode() == 503) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("503");
+						error.setName("Server Temporarily Unavailable");
+						error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData(payload);
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
+					} else if (resp.getStatusCode() == 404) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("404");
+						error.setName("Not found");
+						error.setErrorInfo("Server is probably being restarted at the moment. Please try again later.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData(payload);
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
 					}
 
 					// triggers onError
+					runningRequests.remove(requestUrl);
 					onRequestError(parseResponse(resp.getText()));
 				}
 
 				@Override
 				public void onError(Request req, Throwable exc) {
 					// request not sent
+					runningRequests.remove(requestUrl);
 					onRequestError(parseResponse(exc.toString()));
 				}
 			});
+
+			runningRequests.put(requestUrl, perunRequest);
+
 		} catch (RequestException exc) {
 			// usually couldn't connect to server
 			onRequestError(parseResponse(exc.toString()));

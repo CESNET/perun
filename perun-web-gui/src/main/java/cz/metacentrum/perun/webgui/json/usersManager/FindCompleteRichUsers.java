@@ -252,7 +252,7 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 		// skip empty searches
 		if(searchString==null || searchString.isEmpty()) return;
 
-		JsonClient js = new JsonClient(120000);
+		JsonClient js = new JsonClient();
 
 		String param = "searchString=" + this.searchString;
 		if (!attributes.isEmpty()) {

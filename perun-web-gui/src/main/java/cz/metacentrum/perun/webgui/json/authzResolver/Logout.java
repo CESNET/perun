@@ -52,7 +52,7 @@ public class Logout implements JsonCallback {
 
 	@Override
 	public void retrieveData() {
-		JsonClient js = new JsonClient(true);
+		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, this);
 	}
 

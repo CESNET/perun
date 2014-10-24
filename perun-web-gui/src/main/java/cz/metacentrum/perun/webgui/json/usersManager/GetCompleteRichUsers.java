@@ -218,7 +218,7 @@ public class GetCompleteRichUsers implements JsonCallback, JsonCallbackTable<Use
 	 */
 	public void retrieveData()
 	{
-		JsonClient js = new JsonClient(120000);
+		JsonClient js = new JsonClient();
 
 		String param = "";
 		if (hideService) {

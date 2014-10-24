@@ -63,8 +63,8 @@ public class GetPendingRequests implements JsonCallback{
 		widget.setWidget(2, 0, startStopButton);
 	}
 
-	public void setRequestsRefreshing(boolean requestsRefreshing)
-	{
+	public void setRequestsRefreshing(boolean requestsRefreshing) {
+
 		if(requestsRefreshing && !this.requestsRefreshing){
 			Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
 				public boolean execute() {
@@ -75,6 +75,7 @@ public class GetPendingRequests implements JsonCallback{
 		}
 
 		this.requestsRefreshing = requestsRefreshing;
+
 	}
 
 	protected boolean isRequestsRefreshing(){
@@ -85,7 +86,6 @@ public class GetPendingRequests implements JsonCallback{
 	public void retrieveData()
 	{
 		JsonClient client = new JsonClient();
-		client.setSilent(true);
 		client.retrieveData(JSON_URL, this);
 	}
 

@@ -74,7 +74,7 @@ public class GetVosWhereUserIsAdmin implements JsonCallback, JsonCallbackTable<V
 	 */
 	public void retrieveData(){
 		String param = "user=" + userId;
-		JsonClient js = new JsonClient(true);
+		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
 

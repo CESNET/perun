@@ -219,7 +219,7 @@ public class GetGroupRichMembers implements JsonCallback, JsonCallbackTable<Rich
 	public void retrieveData()
 	{
 		final String param = "group=" + this.groupId;
-		JsonClient js = new JsonClient(60000);
+		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
 

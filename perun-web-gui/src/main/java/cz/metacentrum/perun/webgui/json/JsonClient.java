@@ -1,460 +1,357 @@
 package cz.metacentrum.perun.webgui.json;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.user.client.ui.*;
-import cz.metacentrum.perun.webgui.client.PerunWebConstants;
+import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.UiElements;
-import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.model.PerunRequest;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Class with a client for JSON calls. For each call a new instance must be created.
+ * Class for GET requests to RPC.
  *
- * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class JsonClient {
 
-	// Request number
-	private static int jsonRequestId = 0;
-
-	// Module called when operation is finished
-	private JsonCallback module;
-
-	// default timeout for JSON calls
-	public final static int DEFAULT_TIMEOUT = PerunWebConstants.INSTANCE.jsonTimeout();
-
-	// the timeout
-	private int timeout;
-
-	// important - cannot be deleted
-	private boolean important = false;
-
-	private boolean cacheEnabled = false;
+	/**
+	 * Perun web session
+	 */
+	private PerunWebSession session = PerunWebSession.getInstance();
 
 	/**
-	 * Unique request key
+	 * Custom events - onFinished, onError
 	 */
-	private String cacheKey;
-
-	static private Map<String, JavaScriptObject> cache = new HashMap<String, JavaScriptObject>();
-
-	// loading widget
-	static private FlexTable loadingWidget = new FlexTable();
-
-	// map with active requests info
-	// KEY = requestId, VALUE = JsonClientRequest
-	static private Map<Integer, JsonClientRequest> activeRequestsMap = new HashMap<Integer, JsonClientRequest>();
-
-	// dialogbox
-	static private DialogBox activeRequestsDialog = new DialogBox(true);
-
-	// silent - doesn't display the loading image - use only if you know what are you doing
-	private boolean silent = false;
+	private JsonCallbackEvents events = new JsonCallbackEvents();
 
 	/**
-	 * URL prefix of RPC
+	 * Callback name - can be anything, just for internal purpose
 	 */
-	private String urlPrefix;
+	private String callbackName = "callbackGet";
 
-	// whether should not trigger the alert box if error
+	/**
+	 * Hidden callback do not show error pop-up
+	 */
 	private boolean hidden = false;
 
-	/**
-	 * Is callback silent ? (doesn't show processing)
-	 *
-	 * @return TRUE = silent / FALSE = normal
-	 */
-	public boolean isSilent() {
-		return silent;
-	}
+	private boolean isCacheEnabled = false;
+
+	private Map<String, JavaScriptObject> cache = new HashMap<String, JavaScriptObject>();
+	private Map<String, PerunRequest> runningRequests = new HashMap<>();
 
 	/**
-	 * Whether should the json client show "Loading" or not
-	 *
-	 * @param silent TRUE = do not show call as processing / FALSE = normal
-	 */
-	public void setSilent(boolean silent) {
-		this.silent = silent;
-	}
-
-	/**
-	 * Sets the timeout - in milliseconds.
-	 * The core constructor
-	 *
-	 * @param timeout
-	 */
-	public JsonClient(int timeout) {
-		this.timeout = timeout;
-
-		// get json URL
-		this.urlPrefix = PerunWebSession.getInstance().getRpcUrl();
-	}
-
-	/**
-	 * Default instance of the client
+	 * New JsonPostClient
 	 */
 	public JsonClient() {
-		this(DEFAULT_TIMEOUT);
 	}
 
 	/**
-	 * This action won't be deleted on page change.
+	 * New JsonPostClient
 	 *
-	 * @param important
+	 * @param events
 	 */
-	public JsonClient(boolean important) {
-		this();
-		this.important = important;
-	}
-
-	/**
-	 * This action won't be deleted on page change.
-	 *
-	 * @param important
-	 * @param timeout
-	 */
-	public JsonClient(boolean important, int timeout) {
-		this(timeout);
-		this.important = important;
-	}
-
-	/**
-	 * Builds a new JsonClient with custom PREFIX URL - other than Perun RPC
-	 *
-	 * @param url
-	 */
-	public JsonClient(String url) {
-		this();
-		this.urlPrefix = url;
-	}
-
-	/**
-	 * Calls a URL with specified parameters.
-	 * When operation finishes, calles the JsonCallback
-	 *
-	 * @param url        URL after the prefix.
-	 * @param parameters Parameters to send.
-	 * @param m          JsonCallback, which is called after it finishes.
-	 * @return ID of request
-	 */
-	public int retrieveData(String url, String parameters, JsonCallback m) {
-
-		this.module = m;
-		cacheKey = url + "?" + parameters;
-
-		if (cacheEnabled) {
-			if (cache.containsKey(cacheKey)) {
-				JavaScriptObject jso = cache.get(cacheKey);
-				handleJsonResponseFromCache(jso);
-				return ++jsonRequestId;
-			}
-		}
-
-		this.module.onLoadingStart();
-
-		// if new loading
-		if (activeRequestsMap.size() == 0 && !silent) {
-			loadingStarted();
-		}
-
-		String rpcUrl = URL.encode(urlPrefix + url) + "?callback=";
-
-		// params - cache
-		parameters = "cache=" + cacheEnabled + "&" + URL.encode(parameters);
-
-		// new request ID
-		jsonRequestId++;
-		getJson(jsonRequestId, rpcUrl, this, parameters, timeout, important);
-
-		if (!silent) {
-			// sets the active request
-			JsonClientRequest request = new JsonClientRequest(jsonRequestId, url, parameters, important, timeout);
-			activeRequestsMap.put(jsonRequestId, request);
-
-			// refreshes loading details
-			refreshLoadingDetails();
-		}
-
-		return jsonRequestId;
+	public JsonClient(JsonCallbackEvents events) {
+		this.events = events;
 	}
 
 
-	/**
-	 * Calls a url
-	 * When operation finishes, calles the JsonCallback
-	 *
-	 * @param url URL after the prefix.
-	 * @param m   JsonCallback, which is called after it finishes.
-	 * @return ID of request
-	 */
-	public int retrieveData(String url, JsonCallback m) {
-		return this.retrieveData(url, "", m);
+	public boolean isCacheEnabled() {
+		return isCacheEnabled;
 	}
 
-
-	/**
-	 * Makes a call to remote server
-	 *
-	 * @param requestId Number of the request.
-	 * @param url       Requested URL.
-	 * @param handler   JsonHandler - this.
-	 * @param params    Parameters
-	 * @param timeout   Timeout
-	 */
-	private native static void getJson(int requestId, String url, JsonClient handler, String params, int timeout, boolean important) /*-{
-
-        var callback = "callback" + requestId;
-        var parameters = "&" + params;
-
-        // [2] Define the callback function on the window object.
-        window[callback] = function (jso) {
-
-            // if not already done - expired?
-            if (window[callback + "done"]) {
-                return;
-            }
-            // [3]
-            // basic type or not?
-            try {
-                if ((typeof jso) != "object") {
-                    jso = {value: jso};
-                }
-            } catch (err) {
-
-            }
-            window[callback + "done"] = true;
-            handler.@cz.metacentrum.perun.webgui.json.JsonClient::handleJsonResponse(ILcom/google/gwt/core/client/JavaScriptObject;)(requestId, jso);
-        }
-
-        // [1] Create a script element.
-        var script = document.createElement("script");
-        script.setAttribute("src", url + callback + parameters);
-        script.setAttribute("type", "text/javascript");
-
-        // [4] JSON download has a timeout.
-        setTimeout(
-            function () {
-                if (!window[callback + "done"]) {
-                    handler.@cz.metacentrum.perun.webgui.json.JsonClient::handleJsonResponse(ILcom/google/gwt/core/client/JavaScriptObject;)(requestId, null);
-                }
-
-
-                // [5] Cleanup. Remove script and callback elements.
-                document.body.removeChild(script);
-                delete window[callback];
-                delete window[callback + "done"];
-            }, timeout);
-
-        // [6] Attach the script element to the document body.
-        document.body.appendChild(script);
-    }-*/;
-
-
-	/**
-	 * Removes all running requests, which are NOT IMPORTANT (auth, ...)
-	 */
-	public static void removeRunningRequests() {
-		Set<Integer> requestsToRemove = new HashSet<Integer>();
-
-
-		for (Map.Entry<Integer, JsonClientRequest> entry : activeRequestsMap.entrySet()) {
-			JsonClientRequest request = entry.getValue();
-			if (!request.isImportant()) {
-				requestsToRemove.add(request.getId());
-			}
-		}
-
-
-		for (int request : requestsToRemove) {
-			removeRunningRequest(request);
-		}
-	}
-
-
-	/**
-	 * Removes one running request
-	 *
-	 * @param requestId
-	 */
-	public static boolean removeRunningRequest(int requestId) {
-
-		// if the request doesn't exist, return false
-		if (!activeRequestsMap.containsKey(requestId)) {
-			return false;
-		}
-
-		// remove request
-		removeRunningRequestNative(requestId);
-		activeRequestsMap.remove(requestId);
-		return true;
+	public void setCacheEnabled(boolean isCacheEnabled) {
+		this.isCacheEnabled = isCacheEnabled;
 	}
 
 	/**
-	 * Removes the request in javascript
-	 *
-	 * @param requestId
+	 * Sends the data
 	 */
-	private static native void removeRunningRequestNative(int requestId) /*-{
-        var callback = "callback" + requestId;
-        window[callback + "done"] = true;
-    }-*/;
+	public void retrieveData(String url, JsonCallback callback) {
+		retrieveData(url, "", callback);
+	}
 
 	/**
-	 * Handle the response to the request for stock data from a remote server.
-	 *
-	 * @param jso JavaScriptObject to be processed. If null, the error is called.
+	 * Sends the data
 	 */
-	public void handleJsonResponseFromCache(final JavaScriptObject jso) {
+	public void retrieveData(String url, String params, final JsonCallback callback) {
 
-		// if an ERROR
-		if (jso == null) {
-			this.module.onError(null);
-		} else {
-			// try to recognize an error
-			PerunError error = jso.cast();
-			if (!error.getErrorId().equals("")) {
-				// if error, alert it
-				error.setRequestURL(cacheKey);
-				if (!hidden) {
-					JsonErrorHandler.alertBox(error);
+		// create events
+		if (callback != null) {
+			this.events = new JsonCallbackEvents(){
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					callback.onFinished(jso);
 				}
-				module.onError(error);
 
-			} else { // no error
-				// OK
-				module.onFinished(jso);
+				@Override
+				public void onError(PerunError error) {
+					callback.onError(error);
+				}
 
-				// fire the resize event
-				UiElements.runResizeCommands();
+				@Override
+				public void onLoadingStart() {
+					callback.onLoadingStart();
+				}
+			};
+		}
+
+		// url to call
+		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + callbackName + "&" + params);
+
+		PerunRequest perunRequest = new JSONObject().getJavaScriptObject().cast();
+		perunRequest.setStartTime();
+		perunRequest.setManager(url.split("\\/")[0]);
+		perunRequest.setMethod(url.split("\\/")[1]);
+		perunRequest.setParamString("?callback=" + callbackName + "&" + params);
+
+		// request building
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, requestUrl);
+		try {
+
+			// sends the request
+			onRequestLoadingStart();
+
+			if (isCacheEnabled) {
+				if (cache.get(requestUrl) != null) {
+
+					// jso
+					JavaScriptObject jso = cache.get(requestUrl);
+
+					// Return DATA if not error, otherwise start new call
+					PerunError error = (PerunError) jso;
+					if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
+						// not error, OK
+						session.getUiElements().setLogText("Response not NULL, not ERROR.");
+						onRequestFinished(jso);
+						return;
+					}
+
+				}
 			}
+
+			Request request = builder.sendRequest("", new RequestCallback() {
+				@Override
+				public void onResponseReceived(Request req, Response resp) {
+
+					// if response = OK
+					if (resp.getStatusCode() == 200) {
+
+						// jso
+						JavaScriptObject jso = parseResponse(resp.getText());
+
+						// if null - finished
+						if (jso == null) {
+							session.getUiElements().setLogText("Response NULL.");
+							runningRequests.remove(requestUrl);
+							onRequestFinished(null);
+							return;
+						}
+
+						// if error?
+						PerunError error = (PerunError) jso;
+						if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
+
+							// not error, OK
+							session.getUiElements().setLogText("Response not NULL, not ERROR.");
+							runningRequests.remove(requestUrl);
+							onRequestFinished(jso);
+
+							if (isCacheEnabled) {
+								cache.put(requestUrl, jso);
+							}
+
+							return;
+						}
+
+						// triggers onError
+						session.getUiElements().setLogText("Response ERROR.");
+						error.setRequestURL(requestUrl);
+						error.setPostData("");
+						onRequestError(error);
+						runningRequests.remove(requestUrl);
+						return;
+
+					} else if (resp.getStatusCode() == 401) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("401");
+						error.setName("NotAuthorized");
+						error.setErrorInfo("You are not authorized to server. Your session might have expired. Please refresh the browser window to re-login.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData("");
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
+					} else if (resp.getStatusCode() == 500) {
+
+						if (runningRequests.get(requestUrl) != null) {
+
+							if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
+								// 5 minute timeout
+
+								PerunError error = new JSONObject().getJavaScriptObject().cast();
+								error.setErrorId("408");
+								error.setName("Request Timeout");
+								error.setErrorInfo("Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.");
+								error.setObjectType("PerunError");
+								error.setRequestURL(requestUrl);
+								error.setPostData("");
+								runningRequests.remove(requestUrl);
+								onRequestError(error);
+								return;
+
+							} else {
+
+								PerunError error = new JSONObject().getJavaScriptObject().cast();
+								error.setErrorId("500");
+								error.setName("Server Internal Error");
+								error.setErrorInfo("Server encounter internal error while processing your request. Please report this error and retry.");
+								error.setObjectType("PerunError");
+								error.setRequestURL(requestUrl);
+								error.setPostData("");
+								runningRequests.remove(requestUrl);
+								onRequestError(error);
+								return;
+
+							}
+
+						}
+
+					} else if (resp.getStatusCode() == 503) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("503");
+						error.setName("Server Temporarily Unavailable");
+						error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData("");
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
+					} else if (resp.getStatusCode() == 404) {
+
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("404");
+						error.setName("Not found");
+						error.setErrorInfo("Server is probably being restarted at the moment. Please try again later.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData("");
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
+					}
+
+					runningRequests.remove(requestUrl);
+					// triggers onError
+					onRequestError(parseResponse(resp.getText()));
+				}
+
+				@Override
+				public void onError(Request req, Throwable exc) {
+					// request not sent
+					runningRequests.remove(requestUrl);
+					onRequestError(parseResponse(exc.toString()));
+				}
+			});
+
+			runningRequests.put(requestUrl, perunRequest);
+
+		} catch (RequestException exc) {
+			// usually couldn't connect to server
+			onRequestError(parseResponse(exc.toString()));
 		}
 
 	}
 
 	/**
-	 * Handle the response to the request for stock data from a remote server.
+	 * Parses the responce to an object.
 	 *
-	 * @param requestId ID of the called request
-	 * @param jso       JavaScriptObject to be processed. If null, the error is called.
-	 */
-	public void handleJsonResponse(int requestId, final JavaScriptObject jso) {
-		handleJsonResponseFromCache(jso);
-
-		// remove active requests
-		activeRequestsMap.remove(requestId);
-		if (activeRequestsMap.size() == 0) {
-			loadingFinished();
-		}
-
-		if (cacheEnabled) {
-			cache.put(cacheKey, jso);
-		}
-
-		refreshLoadingDetails();
-	}
-
-
-	/**
-	 * Returns the loading widget
-	 *
+	 * @param resp JSON string
 	 * @return
 	 */
-	static public FlexTable getLoadingWidget() {
-		return loadingWidget;
+	protected JavaScriptObject parseResponse(String resp) {
+		// trims the whitespace
+		resp = resp.trim();
+
+		// short comparing
+		if ((callbackName + "(null);").equalsIgnoreCase(resp)) {
+			return null;
+		}
+
+		// if starts with callbackName( and ends with ) or ); - wrapped, must be unwrapped
+		RegExp re = RegExp.compile("^" + callbackName + "\\((.*)\\)|\\);$");
+		MatchResult result = re.exec(resp);
+		if (result != null) {
+			resp = result.getGroup(1);
+		}
+
+		// if response = null - return null
+		if (resp.equals("null")) {
+			return null;
+		}
+
+		// normal object
+		JavaScriptObject jso = JsonUtils.parseJson(resp);
+		return jso;
+
 	}
 
 	/**
-	 * Displays the loading widget
+	 * Called when loading starts
 	 */
-	static private void loadingStarted() {
+	protected void onRequestLoadingStart() {
+		events.onLoadingStart();
+	}
 
-		Anchor text = new Anchor("Loading");
-		Image image = new Image(AjaxLoaderImage.SMALL_IMAGE_URL);
-		image.setTitle("Click to view pending calls");
+	/**
+	 * Called when loading finishes
+	 *
+	 * @param jso
+	 */
+	protected void onRequestFinished(JavaScriptObject jso) {
+		events.onFinished(jso);
+	}
 
-		loadingWidget.setWidget(0, 0, image);
+	/**
+	 * Called when error occured.
+	 *
+	 * @param jso
+	 */
+	protected void onRequestError(JavaScriptObject jso) {
 
-		text.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				if (activeRequestsMap.size() == 0) {
-					loadingFinished();
-					return;
-				}
-
-				activeRequestsDialog.setModal(false);
-				activeRequestsDialog.setWidth("400px");
-				activeRequestsDialog.setGlassEnabled(true);
-				activeRequestsDialog.center();
-				activeRequestsDialog.show();
-
-				refreshLoadingDetails();
+		if (jso != null) {
+			PerunError e = (PerunError) jso;
+			session.getUiElements().setLogErrorText("Error while sending request: " + e.getName());
+			if (!hidden) {
+				// creates a alert box
+				JsonErrorHandler.alertBox(e);
 			}
-		});
-		loadingWidget.setWidget(0, 1, text);
+			events.onError(e);
+		} else {
+			PerunError e = (PerunError) JsonUtils.parseJson("{\"errorId\":\"0\",\"name\":\"Cross-site request\",\"type\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteType() + "\",\"message\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteText() + "\"}").cast();
+			session.getUiElements().setLogErrorText("Error while sending request: The response was null or cross-site request.");
+			JsonErrorHandler.alertBox(e);
+			events.onError(null);
+		}
+
 	}
 
 	/**
-	 * Displays no active requests
-	 */
-	static private void loadingFinished() {
-
-		Label text = new Label("No active requests");
-		Image image = new Image(SmallIcons.INSTANCE.acceptIcon());
-		image.setTitle("No active requests");
-
-		loadingWidget.setWidget(0, 0, image);
-		loadingWidget.setWidget(0, 1, text);
-
-		activeRequestsDialog.hide();
-	}
-
-	/**
-	 * Refreshes loading details
-	 */
-	static private void refreshLoadingDetails() {
-		// only if dialog visible
-		if (!activeRequestsDialog.isShowing()) {
-			return;
-		}
-
-		// if requests count != 0
-		if (activeRequestsMap.size() == 0) {
-			return;
-		}
-
-		VerticalPanel vp = new VerticalPanel();
-		vp.clear();
-		activeRequestsDialog.setText(activeRequestsMap.size() + " active requests");
-		for (Map.Entry<Integer, JsonClientRequest> entry : activeRequestsMap.entrySet()) {
-			vp.add(new Label(entry.getValue().toString()));
-		}
-		activeRequestsDialog.setWidget(vp);
-		activeRequestsDialog.center();
-	}
-
-	/**
-	 * Enable caching of call results
+	 * Set callback hidden (do not show error pop-up)
 	 *
-	 * @param enable TRUE = cache enabled / FALSE = cache disabled
-	 */
-	public void setCacheEnabled(boolean enable) {
-		this.cacheEnabled = enable;
-	}
-
-	/**
-	 * Set callback as hidden, meaning DO NOT SHOW ERROR if occurs
-	 *
-	 * @param hidden TRUE = hidden / FALSE = normal
+	 * @param hidden (true=hidden/false=show - default)
 	 */
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
