@@ -121,7 +121,7 @@ public class GetGroupsWhereUserIsAdmin implements JsonCallback, JsonCallbackTabl
 	public void retrieveData()
 	{
 		final String param = "user=" + this.userId;
-		JsonClient js = new JsonClient(true);
+		JsonClient js = new JsonClient();
 		js.retrieveData(JSON_URL, param, this);
 	}
 
