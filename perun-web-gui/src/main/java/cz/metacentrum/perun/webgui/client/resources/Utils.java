@@ -71,7 +71,8 @@ public class Utils {
 		if (value != null && !value.isEmpty()) {
 
 			if (target) {
-				value += "?target_url=" + URL.decode(Window.Location.getHref());
+				// FIXME - ENCODE QUERY STRING 3 TIMES BECAUSE OF CONSOLIDATOR APP
+				value += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() +  URL.encodeQueryString(URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString())));
 			}
 			return value;
 
@@ -103,7 +104,8 @@ public class Utils {
 			}
 
 			if (target) {
-				link += "?target_url=" + URL.decode(Window.Location.getHref());
+				// FIXME - ENCODE QUERY STRING 3 TIMES BECAUSE OF CONSOLIDATOR APP
+				link += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() +  URL.encodeQueryString(URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString())));
 			}
 
 			return link;
@@ -129,7 +131,8 @@ public class Utils {
 		if (value != null && !value.isEmpty()) {
 
 			if (target) {
-				value += "?target_url=" + Window.Location.getHref();
+				// FIXME - ENCODE QUERY STRING 3 TIMES BECAUSE OF CONSOLIDATOR APP
+				value += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() +  URL.encodeQueryString(URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString())));
 			}
 			return value;
 
@@ -156,7 +159,8 @@ public class Utils {
 			}
 
 			if (target) {
-				link += "?target_url=" + Window.Location.getHref();
+				// FIXME - ENCODE QUERY STRING 3 TIMES BECAUSE OF CONSOLIDATOR APP
+				link += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() +  URL.encodeQueryString(URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString())));
 			}
 
 			return link;
