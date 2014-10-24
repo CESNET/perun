@@ -334,7 +334,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			Iterator<Attribute> iter = list.iterator();
 			while(iter.hasNext()) {
 				Attribute a = iter.next();
-				if (!"contactEmail".equals(a.getFriendlyName()) || !"voLogoURL".equals(a.getFriendlyName())) {
+				if (!"contactEmail".equals(a.getFriendlyName()) && !"voLogoURL".equals(a.getFriendlyName())) {
 					iter.remove();
 				}
 			}
