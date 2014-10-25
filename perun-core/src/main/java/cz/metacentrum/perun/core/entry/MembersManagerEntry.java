@@ -331,6 +331,7 @@ public class MembersManagerEntry implements MembersManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)){
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 				}

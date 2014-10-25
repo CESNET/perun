@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -673,6 +675,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getGroups");
 				}
@@ -695,6 +698,10 @@ public class GroupsManagerEntry implements GroupsManager {
 				}
 			}
 			return groups;
+		}
+
+		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.TOPGROUPCREATOR)) {
+			return new ArrayList<Group>();
 		}
 
 		// This shouldn't happen
