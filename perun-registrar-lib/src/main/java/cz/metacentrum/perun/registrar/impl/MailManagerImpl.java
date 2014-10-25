@@ -823,7 +823,8 @@ public class MailManagerImpl implements MailManager {
 	public void sendInvitation(PerunSession sess, Vo vo, Group group, String name, String email, String language) throws PerunException {
 
 		if (group == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+			    !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		} else {
