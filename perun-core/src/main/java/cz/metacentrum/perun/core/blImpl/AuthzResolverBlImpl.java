@@ -1010,6 +1010,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
 			init(sess);
+		} else {
+			refreshAuthz(sess);
 		}
 
 		return sess.getPerunPrincipal();
