@@ -22,6 +22,7 @@ import cz.metacentrum.perun.notif.entities.PerunNotifObject;
 import cz.metacentrum.perun.notif.entities.PerunNotifRegex;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.exceptions.NotExistsException;
+import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
 import java.util.ArrayList;
 
@@ -95,7 +96,15 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 		return perunNotifRegexDao.getAll();
 	}
 
-	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
+	@Override
+	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException, NotifRegexAlreadyExistsException {
+
+		// check if there is no other Notif regex with the same regular expression
+		for (PerunNotifRegex item: getAllPerunNotifRegexes()) {
+			if (item.getRegex().equals(regex.getRegex())) {
+				throw new NotifRegexAlreadyExistsException(regex);
+			}
+		}
 
 		PerunNotifRegex perunNotifRegex = perunNotifRegexDao.saveInternals(regex);
 

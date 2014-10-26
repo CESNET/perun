@@ -5,6 +5,7 @@ import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
 import cz.metacentrum.perun.notif.entities.PerunNotifRegex;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
+import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
 import java.util.List;
 
 import java.util.Set;
@@ -41,8 +42,9 @@ public interface PerunNotifRegexManager {
 	 * @param regex
 	 * @return perunNotifRegex with new id set
 	 * @throws InternalErrorException
+	 * @throws NotifRegexAlreadyExistsException
 	 */
-	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
+	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException, NotifRegexAlreadyExistsException;
 
 	/**
 	 * Updates perunNotifRegex and relations between objects and regex, not
