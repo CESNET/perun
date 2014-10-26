@@ -35,6 +35,9 @@ public class EduGain implements RegistrarModule {
 
 			AuthzResolver.setRole(session, user, vo, Role.TOPGROUPCREATOR);
 
+			Group membersGroup = session.getPerun().getGroupsManager().getGroupByName(session, vo, "members");
+			AuthzResolver.setRole(session, user, membersGroup, Role.GROUPADMIN);
+
 		}
 
 		return app;
