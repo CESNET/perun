@@ -1,4 +1,4 @@
-ackage cz.metacentrum.perun.dispatcher.dao;
+package cz.metacentrum.perun.dispatcher.dao;
 
 import java.util.List;
 import java.util.Map;
