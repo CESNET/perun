@@ -1838,8 +1838,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						continue;
 					}
 					itemW.setPrefilledValue(s);
-					String loa = federValues.get(shibLoAVar);
-					itemW.setAssuranceLevel(loa);
+					itemW.setAssuranceLevel(federValues.get(shibLoAVar));
 				}
 			}
 		}
@@ -1871,6 +1870,33 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				String lastName = parsedName.get("lastName");
 				if (lastName != null && !lastName.trim().isEmpty())
 					itemW.setPrefilledValue(lastName);
+			} else if (URN_USER_DISPLAY_NAME.equals(dstAtt)) {
+
+				// overwrite only if not filled by Perun
+				if (itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) {
+
+					String displayName = "";
+
+					if (parsedName.get("titleBefore") != null && !parsedName.get("titleBefore").isEmpty())
+						displayName += parsedName.get("titleBefore");
+
+					if (parsedName.get("firstName") != null && !parsedName.get("firstName").isEmpty()) {
+						if (!displayName.isEmpty()) displayName += " ";
+						displayName += parsedName.get("firstName");
+					}
+					if (parsedName.get("lastName") != null && !parsedName.get("lastName").isEmpty()) {
+						if (!displayName.isEmpty()) displayName += " ";
+						displayName += parsedName.get("lastName");
+					}
+					if (parsedName.get("titleAfter") != null && !parsedName.get("titleAfter").isEmpty()) {
+						if (!displayName.isEmpty()) displayName += " ";
+						displayName += parsedName.get("titleAfter");
+					}
+
+					itemW.setPrefilledValue(displayName);
+
+				}
+
 			}
 		}
 
