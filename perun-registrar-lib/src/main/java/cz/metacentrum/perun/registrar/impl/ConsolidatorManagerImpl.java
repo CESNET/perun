@@ -210,20 +210,22 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 					name = item.getValue();
 					// use parsed name to drop mistakes on IDP side
 					try {
-						Map<String, String> nameMap = Utils.parseCommonName(name);
-						// drop name titles to spread search
-						String newName = "";
-						if (nameMap.get("firstName") != null
-								&& !nameMap.get("firstName").isEmpty()) {
-							newName += nameMap.get("firstName") + " ";
-						}
-						if (nameMap.get("lastName") != null
-								&& !nameMap.get("lastName").isEmpty()) {
-							newName += nameMap.get("lastName");
-						}
-						// fill parsed name instead of input
-						if (newName != null && !newName.isEmpty()) {
-							name = newName;
+						if (name != null && !name.isEmpty()) {
+							Map<String, String> nameMap = Utils.parseCommonName(name);
+							// drop name titles to spread search
+							String newName = "";
+							if (nameMap.get("firstName") != null
+									&& !nameMap.get("firstName").isEmpty()) {
+								newName += nameMap.get("firstName") + " ";
+							}
+							if (nameMap.get("lastName") != null
+									&& !nameMap.get("lastName").isEmpty()) {
+								newName += nameMap.get("lastName");
+							}
+							// fill parsed name instead of input
+							if (newName != null && !newName.isEmpty()) {
+								name = newName;
+							}
 						}
 					} catch (Exception ex) {
 						log.error("[REGISTRAR] Unable to parse new user's display/common name when searching for similar users. Exception: {}", ex);

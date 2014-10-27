@@ -29,7 +29,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
     <bean id="registrarManager" class="cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl" init-method="initialize">
         <property name="dataSource" ref="dataSource"/>
-        <property name="shibDisplayNameVar" value="Shib-Person-displayName"/>
         <property name="registrarManager" ref="registrarManager"/>
     </bean>
 
