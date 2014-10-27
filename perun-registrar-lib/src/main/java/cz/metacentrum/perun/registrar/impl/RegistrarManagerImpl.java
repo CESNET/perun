@@ -2143,19 +2143,21 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	/**
-	 * Extract names for User from his federation attributes
+	 * Extract names for User from his federation attributes. It first tries
+	 * to parse displayName, then commonName (cn), if they are empty or null,
+	 * tries to make whole name by givenName and surname (sn).
 	 *
-	 * @param federValues
-	 * @return map with names
+	 * @param federValues Map of attributes from IDP Federation.
+	 * @return Map with name split into it's parts (first,last name etc.).
 	 */
 	private Map<String, String> extractNames(Map<String, String> federValues) throws PerunException {
 
 		String commonName = federValues.get(shibCommonNameVar);
 		String displayName = federValues.get(shibDisplayNameVar);
 		Map<String, String> parsedName;
-		if (displayName != null) {
+		if (displayName != null && !displayName.isEmpty()) {
 			parsedName = Utils.parseCommonName(displayName);
-		} else if (commonName != null) {
+		} else if (commonName != null && !commonName.isEmpty()) {
 			parsedName = Utils.parseCommonName(commonName);
 		} else {
 			parsedName = new HashMap<String, String>();
@@ -2224,14 +2226,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			for (ApplicationFormItemData item : data) {
 				if (URN_USER_DISPLAY_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
 					try {
-						Map<String, String> commonName = Utils.parseCommonName(item.getValue());
-						if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
-							user.setTitleBefore(commonName.get("titleBefore"));
-							found = true;
-						}
-						if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
-							user.setTitleAfter(commonName.get("titleAfter"));
-							found = true;
+						if (item.getValue() != null && !item.getValue().isEmpty()) {
+							// parse only valid input
+							Map<String, String> commonName = Utils.parseCommonName(item.getValue());
+							if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
+								user.setTitleBefore(commonName.get("titleBefore"));
+								found = true;
+							}
+							if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
+								user.setTitleAfter(commonName.get("titleAfter"));
+								found = true;
+							}
 						}
 					} catch (InternalErrorException ex) {
 						// we don't care so much, try also other possibilities
