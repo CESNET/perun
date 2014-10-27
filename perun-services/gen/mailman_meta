@@ -48,6 +48,16 @@ foreach my $rData (@resourcesData) {
 	my $allowNonvalidUsers = (defined($resourceAttributes{$A_RESOURCE_MAILING_LIST_NONVALID_USERS}) && ($resourceAttributes{$A_RESOURCE_MAILING_LIST_NONVALID_USERS} eq "true") );
 
 	my $listName = "$resourceAttributes{$A_RESOURCE_MAILING_LIST_NAME}";
+	my $listNameEN = $listName . "-en";
+	my $listNameCS = $listName . "-cs";
+
+	#create mailing list in structure (even if is empty)
+	if($useLangVariants) {
+		$mailinglistStruc->{$listNameCS} = {};
+		$mailinglistStruc->{$listNameEN} = {};
+	} else {
+		$mailinglistStruc->{$listName} = {};
+	}
 
 	foreach my $memberAttributes (dataToAttributesHashes @membersData) {
 		#list only VALID members except if allowNonvalidUsers is true
@@ -58,9 +68,9 @@ foreach my $rData (@resourcesData) {
 		my $listNameWithLang = $listName;
 		if($useLangVariants) {
 			if(defined($memberAttributes->{$A_USER_LANG}) && $memberAttributes->{$A_USER_LANG} eq "cs") {
-				$listNameWithLang .= '-cs';
+				$listNameWithLang = $listNameCS;
 			} else {
-				$listNameWithLang .= '-en';
+				$listNameWithLang = $listNameEN;
 			}
 		}
 		
