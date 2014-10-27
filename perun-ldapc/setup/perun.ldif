@@ -1,0 +1,24 @@
+dn: cn=perun,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: perun
+olcAttributeTypes: {0}( 1.3.6.1.4.1.8057.2.80.1 NAME 'perunUserId' DESC 'Unique user identifier managed by Perun' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {1}( 1.3.6.1.4.1.8057.2.80.2 NAME 'perunGroupId' DESC 'Unique group identifier managed by Perun' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {2}( 1.3.6.1.4.1.8057.2.80.3 NAME 'perunVoId' DESC 'Unique VO identifier managed by Perun' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {3}( 1.3.6.1.4.1.8057.2.80.16 NAME 'perunResourceId' DESC 'Unique resource identifier managed by Perun' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {4}( 1.3.6.1.4.1.8057.2.80.17 NAME 'perunFacilityId' DESC 'Unique facilityId identifier managed by Perun' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {5}( 1.3.6.1.4.1.8057.2.80.12 NAME 'isServiceUser' DESC 'If user is Service User then 1, else 0' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {6}( 1.3.6.1.4.1.8057.2.80.11 NAME 'assignedToResourceId' DESC 'Identifier of resource which is group assigned to.' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {7}( 1.3.6.1.4.1.8057.2.80.18 NAME 'assignedGroupId' DESC 'Identifier of group which is assigned to this resource' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {8}( 1.3.6.1.4.1.8057.2.84.7 NAME 'preferredMail' DESC 'RFC1274: RFC822 Mailbox' EQUALITY caseIgnoreIA5Match SUBSTR caseIgnoreIA5SubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+olcAttributeTypes: {9}( 1.3.6.1.4.1.8057.2.80.9 NAME 'login' DESC 'User login for namespace' EQUALITY caseIgnoreIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+olcAttributeTypes: {10}( 1.3.6.1.4.1.8057.2.80.14 NAME 'perunUniqueGroupName' DESC 'uniqueName of group like "VoName:ParentGroupName:GroupName"' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {11}( 1.3.6.1.4.1.8057.2.80.10 NAME 'eduPersonPrincipalNames' DESC 'User ExtLogin for UserExtSource with Type IDP' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: {12}( 1.3.6.1.4.1.11433.2.2.1.9 NAME 'userCertificateSubject' SUP name)
+olcAttributeTypes: {13}( 1.3.6.1.4.1.8057.2.80.8 NAME 'perunParentGroupId' DESC 'identifier (perunGroupId) of the parent group as managed by Perun' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+olcAttributeTypes: {14}( 1.3.6.1.4.1.8057.2.80.13 NAME 'perunParentGroup' DESC 'Dn of the parentGroup' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+olcAttributeTypes: {15}( 1.3.6.1.4.1.8057.2.80.19 NAME 'memberOfPerunVo' DESC 'Identifier of vo where user has member' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15  )
+olcObjectClasses: {0}( 1.3.6.1.4.1.8057.2.80.4 NAME 'perunUser' DESC 'User managed by Perun' SUP inetOrgPerson STRUCTURAL MUST ( perunUserId $ isServiceUser ) MAY ( preferredMail $ userCertificateSubject $ uidNumber $ login $ eduPersonPrincipalNames $ userPassword $ memberOfPerunVo ) )
+olcObjectClasses: {1}( 1.3.6.1.4.1.8057.2.80.5 NAME 'perunGroup' DESC 'Group managed by Perun' SUP groupOfUniqueNames STRUCTURAL MUST ( perunGroupId $ perunVoId $ perunUniqueGroupName ) MAY ( perunParentGroup $ perunParentGroupId $ assignedToResourceId ) )
+olcObjectClasses: {2}( 1.3.6.1.4.1.8057.2.80.6 NAME 'perunVO' DESC 'VO managed by Perun' SUP organization STRUCTURAL MUST perunVoId MAY uniqueMember )
+olcObjectClasses: {3}( 1.3.6.1.4.1.8057.2.80.15 NAME 'perunResource' DESC 'Resource managed by Perun' SUP groupOfUniqueNames STRUCTURAL MUST ( perunResourceId $ perunVoId $ perunFacilityId ) MAY assignedGroupId )
+

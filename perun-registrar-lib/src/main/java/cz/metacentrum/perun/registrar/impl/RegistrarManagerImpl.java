@@ -334,7 +334,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			Iterator<Attribute> iter = list.iterator();
 			while(iter.hasNext()) {
 				Attribute a = iter.next();
-				if (!"contactEmail".equals(a.getFriendlyName()) || !"voLogoURL".equals(a.getFriendlyName())) {
+				if (!"contactEmail".equals(a.getFriendlyName()) && !"voLogoURL".equals(a.getFriendlyName())) {
 					iter.remove();
 				}
 			}
@@ -357,6 +357,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			} catch (ExtendMembershipException ex) {
 				// can't become member of VO
 				result.put("voFormInitialException", ex);
+			} catch (MissingRequiredDataException ex) {
+				// can't display form
+				result.put("voFormInitialException", ex);
 			}
 
 			// ONLY EXISTING USERS CAN EXTEND VO MEMBERSHIP
@@ -376,6 +379,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} catch (MemberNotExistsException ex) {
 					// is not member -> can't extend
 					result.put("voFormExtensionException", ex);
+				} catch (MissingRequiredDataException ex) {
+					// can't display form
+					result.put("voFormInitialException", ex);
 				}
 
 			}
@@ -401,6 +407,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				} catch (ExtendMembershipException ex) {
 					// can't become member of VO -> then can't be member of group either
 					result.put("groupFormInitialException", ex);
+				}  catch (MissingRequiredDataException ex) {
+					// can't display form
+					result.put("voFormInitialException", ex);
 				}
 
 			}
