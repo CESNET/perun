@@ -451,12 +451,12 @@ public class Utils {
 				lastName = rawName.trim();
 			} else {
 				Matcher matcher = patternForCommonNameParsing.matcher(rawName);
-				matcher.find();
-
-				titleBefore = matcher.group(1).trim();
-				firstName = matcher.group(3);
-				lastName = matcher.group(4);
-				titleAfter = matcher.group(5);
+				if (matcher.find()) {
+					titleBefore = matcher.group(1).trim();
+					firstName = matcher.group(3);
+					lastName = matcher.group(4);
+					titleAfter = matcher.group(5);
+				}
 			}
 		} catch (Exception ex) {
 			throw new InternalErrorException("Problem with parsing of rawName='" + rawName + "'", ex);

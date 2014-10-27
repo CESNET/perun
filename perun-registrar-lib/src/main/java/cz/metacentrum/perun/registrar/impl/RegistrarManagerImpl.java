@@ -1838,8 +1838,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						continue;
 					}
 					itemW.setPrefilledValue(s);
-					String loa = federValues.get(shibLoAVar);
-					itemW.setAssuranceLevel(loa);
+					itemW.setAssuranceLevel(federValues.get(shibLoAVar));
 				}
 			}
 		}
@@ -1871,6 +1870,33 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				String lastName = parsedName.get("lastName");
 				if (lastName != null && !lastName.trim().isEmpty())
 					itemW.setPrefilledValue(lastName);
+			} else if (URN_USER_DISPLAY_NAME.equals(dstAtt)) {
+
+				// overwrite only if not filled by Perun
+				if (itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) {
+
+					String displayName = "";
+
+					if (parsedName.get("titleBefore") != null && !parsedName.get("titleBefore").isEmpty())
+						displayName += parsedName.get("titleBefore");
+
+					if (parsedName.get("firstName") != null && !parsedName.get("firstName").isEmpty()) {
+						if (!displayName.isEmpty()) displayName += " ";
+						displayName += parsedName.get("firstName");
+					}
+					if (parsedName.get("lastName") != null && !parsedName.get("lastName").isEmpty()) {
+						if (!displayName.isEmpty()) displayName += " ";
+						displayName += parsedName.get("lastName");
+					}
+					if (parsedName.get("titleAfter") != null && !parsedName.get("titleAfter").isEmpty()) {
+						if (!displayName.isEmpty()) displayName += " ";
+						displayName += parsedName.get("titleAfter");
+					}
+
+					itemW.setPrefilledValue(displayName);
+
+				}
+
 			}
 		}
 
@@ -2152,10 +2178,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		String commonName = federValues.get(shibCommonNameVar);
 		String displayName = federValues.get(shibDisplayNameVar);
+
 		Map<String, String> parsedName;
-		if (displayName != null) {
+		if (displayName != null && !displayName.isEmpty()) {
 			parsedName = Utils.parseCommonName(displayName);
-		} else if (commonName != null) {
+		} else if (commonName != null && !commonName.isEmpty()) {
 			parsedName = Utils.parseCommonName(commonName);
 		} else {
 			parsedName = new HashMap<String, String>();
@@ -2224,14 +2251,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			for (ApplicationFormItemData item : data) {
 				if (URN_USER_DISPLAY_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
 					try {
-						Map<String, String> commonName = Utils.parseCommonName(item.getValue());
-						if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
-							user.setTitleBefore(commonName.get("titleBefore"));
-							found = true;
-						}
-						if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
-							user.setTitleAfter(commonName.get("titleAfter"));
-							found = true;
+						if (item.getValue() != null && !item.getValue().isEmpty()) {
+							Map<String, String> commonName = Utils.parseCommonName(item.getValue());
+							if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
+								user.setTitleBefore(commonName.get("titleBefore"));
+								found = true;
+							}
+							if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
+								user.setTitleAfter(commonName.get("titleAfter"));
+								found = true;
+							}
 						}
 					} catch (InternalErrorException ex) {
 						// we don't care so much, try also other possibilities
