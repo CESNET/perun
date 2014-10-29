@@ -97,6 +97,13 @@ public class PerunNotifRegexManagerImpl implements PerunNotifRegexManager {
 
 	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
 
+		// check if there is no other Notif regex with the same regular expression
+		for (PerunNotifRegex item: getAllPerunNotifRegexes()) {
+			if (item.getRegex().equals(regex.getRegex())) {
+				throw new IllegalArgumentException("Regex with regular expression: " + regex.getRegex() + "already exists.");
+			}
+		}
+
 		PerunNotifRegex perunNotifRegex = perunNotifRegexDao.saveInternals(regex);
 
 		for (PerunNotifObject object : regex.getObjects()) {
