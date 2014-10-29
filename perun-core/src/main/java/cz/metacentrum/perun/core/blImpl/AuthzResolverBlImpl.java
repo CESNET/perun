@@ -257,9 +257,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				}
 				if(roles.contains(Role.GROUPADMIN)) {
-					List<Group> groups = getPerunBlImpl().getGroupsManagerBl().getGroupsByPerunBean(sess, member);
-					groups.retainAll(getPerunBlImpl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource));
-					groups = new ArrayList<Group>(new HashSet<Group>(groups));
+					//If groupManager has right on any group assigned to resource
+					List<Group> groups = getPerunBlImpl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
 					for(Group g: groups) {
 						if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 					}
@@ -284,7 +283,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 						if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
 					}
 				}
-				if(roles.contains(Role.GROUPADMIN)) if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
+				if(roles.contains(Role.GROUPADMIN)) {
+					//If groupManager has right on the group
+					if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
+				}
 				if(roles.contains(Role.FACILITYADMIN)) {
 					//IMPORTANT "for now possible, but need to discuss"
 					if(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource).contains(group)) {
@@ -329,21 +331,21 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				}
 				if(roles.contains(Role.GROUPADMIN)) {
-					List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
-					List<Group> groupsFromUser = new ArrayList<Group>();
-					for(Member memberElement: membersFromUser) {
-						groupsFromUser.addAll(getPerunBlImpl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
+					//If groupManager has rights on "any group which is assigned to any resource from the facility" and "the user has also member in vo where exists this group"
+					List<Vo> userVos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+					Set<Integer> userVosIds = new HashSet<>();
+					for(Vo voElement: userVos) {
+						userVosIds.add(voElement.getId());
 					}
 
 					List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-					List<Group> groupsFromFacility = new ArrayList<Group>();
+					Set<Group> groupsFromFacility = new HashSet<Group>();
 					for(Resource resourceElement: resourcesFromFacility) {
 						groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
 					}
-					groupsFromUser.retainAll(groupsFromFacility);
-					groupsFromUser = new ArrayList<Group>(new HashSet<Group>(groupsFromUser));
-					for(Group g: groupsFromUser) {
-						if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
+
+					for(Group groupElement: groupsFromFacility) {
+						if(isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId())) return true;
 					}
 				}
 				if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
@@ -364,13 +366,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					}
 				}
 				if(roles.contains(Role.GROUPADMIN)) {
-					List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
-					List<Group> groupsFromUser = new ArrayList<Group>();
-					for(Member memberElement: membersFromUser) {
-						groupsFromUser.addAll(getPerunBlImpl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
-					}
-					for(Group g: groupsFromUser) {
-						if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
+					//If principal is groupManager in any vo where user has member
+					List<Vo> userVos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+					for(Vo voElement: userVos) {
+							if(isAuthorized(sess, Role.GROUPADMIN, voElement)) return true;
 					}
 				}
 				if(roles.contains(Role.FACILITYADMIN)); //Not allowed
@@ -385,10 +384,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
 				}
 				if(roles.contains(Role.GROUPADMIN)) {
-					List<Group> groupsFromMember = getPerunBlImpl().getGroupsManagerBl().getAllMemberGroups(sess, member);
-					for(Group g: groupsFromMember) {
-						if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
-					}
+					//if principal is groupManager in vo where the member has membership
+					Vo v = getPerunBlImpl().getMembersManagerBl().getMemberVo(sess, member);
+					if(isAuthorized(sess, Role.GROUPADMIN, v)) return true;
 				}
 				if(roles.contains(Role.FACILITYADMIN)); //Not allowed
 				if(roles.contains(Role.SELF)) {
@@ -402,7 +400,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if(roles.contains(Role.VOOBSERVER)) {
 					if(isAuthorized(sess, Role.VOOBSERVER, vo)) return true;
 				}
-				if(roles.contains(Role.GROUPADMIN)); //Not allowed
+				if(roles.contains(Role.GROUPADMIN)) {
+					//if Principal is GroupManager in the vo
+					if(isAuthorized(sess, Role.GROUPADMIN, vo)) return true;
+				}
 				if(roles.contains(Role.FACILITYADMIN)); //Not allowed
 				if(roles.contains(Role.SELF)); //Not allowed
 			} else if(group != null) {
