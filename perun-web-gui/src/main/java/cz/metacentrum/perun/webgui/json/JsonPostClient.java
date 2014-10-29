@@ -278,6 +278,20 @@ public class JsonPostClient {
 						onRequestError(error);
 						return;
 
+					} else if (resp.getStatusCode() == 0) {
+
+						// request aborted
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("0");
+						error.setName("Aborted");
+						error.setErrorInfo("Can't contact remote server, connection was lost.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData("");
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
 					}
 
 					// triggers onError
@@ -368,7 +382,10 @@ public class JsonPostClient {
 		} else {
 			PerunError e = (PerunError) JsonUtils.parseJson("{\"errorId\":\"0\",\"name\":\"Cross-site request\",\"type\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteType() + "\",\"message\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteText() + "\"}").cast();
 			session.getUiElements().setLogErrorText("Error while sending request: The response was null or cross-site request.");
-			JsonErrorHandler.alertBox(e);
+			if (!hidden) {
+				// creates a alert box
+				JsonErrorHandler.alertBox(e);
+			}
 			events.onError(null);
 		}
 
