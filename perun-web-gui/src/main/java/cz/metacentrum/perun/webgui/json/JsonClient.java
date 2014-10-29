@@ -5,6 +5,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -135,7 +136,7 @@ public class JsonClient {
 				}
 			}
 
-			Request request = builder.sendRequest("", new RequestCallback() {
+			final Request request = builder.sendRequest("", new RequestCallback() {
 				@Override
 				public void onResponseReceived(Request req, Response resp) {
 
@@ -251,6 +252,21 @@ public class JsonClient {
 						onRequestError(error);
 						return;
 
+
+					} else if (resp.getStatusCode() == 0) {
+
+						// request aborted
+						PerunError error = new JSONObject().getJavaScriptObject().cast();
+						error.setErrorId("0");
+						error.setName("Aborted");
+						error.setErrorInfo("Can't contact remote server, connection was lost.");
+						error.setObjectType("PerunError");
+						error.setRequestURL(requestUrl);
+						error.setPostData("");
+						runningRequests.remove(requestUrl);
+						onRequestError(error);
+						return;
+
 					}
 
 					runningRequests.remove(requestUrl);
@@ -264,6 +280,7 @@ public class JsonClient {
 					runningRequests.remove(requestUrl);
 					onRequestError(parseResponse(exc.toString()));
 				}
+
 			});
 
 			runningRequests.put(requestUrl, perunRequest);
@@ -342,7 +359,10 @@ public class JsonClient {
 		} else {
 			PerunError e = (PerunError) JsonUtils.parseJson("{\"errorId\":\"0\",\"name\":\"Cross-site request\",\"type\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteType() + "\",\"message\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteText() + "\"}").cast();
 			session.getUiElements().setLogErrorText("Error while sending request: The response was null or cross-site request.");
-			JsonErrorHandler.alertBox(e);
+			if (!hidden) {
+				// creates a alert box
+				JsonErrorHandler.alertBox(e);
+			}
 			events.onError(null);
 		}
 

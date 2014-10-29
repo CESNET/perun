@@ -221,31 +221,31 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 									public void onLoadingStart(){
 										checkPending = true;
 									}
-								@Override
-								public void onFinished(JavaScriptObject jso){
-									BasicOverlayType type = jso.cast();
-									checkPending = false;
-									connected = true;
-									if (type.getString().equals("OK")) {
-										if (c.isShowing()) {
-											c.hide();
+									@Override
+									public void onFinished(JavaScriptObject jso){
+										BasicOverlayType type = jso.cast();
+										checkPending = false;
+										connected = true;
+										if (type.getString().equals("OK")) {
+											if (c.isShowing()) {
+												c.hide();
+											}
+										}
+										// If ok, append new keepalive checker
+										appendKeepAliveChecker(c);
+									}
+									@Override
+									public void onError(PerunError error){
+										checkPending = false;
+										// connection lost only IF TIMEOUT
+										if (error != null && error.getErrorId().equals("0")) {
+											connected = false;
+											if (!c.isShowing()) {
+												c.show();
+											}
+											layout.setVisible(true);
 										}
 									}
-									// If ok, append new keepalive checker
-									appendKeepAliveChecker(c);
-								}
-								@Override
-								public void onError(PerunError error){
-									checkPending = false;
-									// connection lost only IF TIMEOUT
-									if (error == null) {
-										connected = false;
-										if (!c.isShowing()) {
-											c.show();
-										}
-										layout.setVisible(true);
-									}
-								}
 								}));
 								call.retrieveData();
 							}
@@ -294,26 +294,26 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 						session.getUiElements().getMenu().prepare();
 
 					}
-				@Override
-				public void onError(PerunError error) {
+					@Override
+					public void onError(PerunError error) {
 
-					// hides the loading box
-					loadingBox.hide();
+						// hides the loading box
+						loadingBox.hide();
 
-					// shows error box
-					PopupPanel loadingFailedBox;
-					if (error == null) {
-						loadingFailedBox = session.getUiElements().perunLoadingFailedBox("Request timeout exceeded.");
-					} else {
-						if (error.getName().contains("UserNotExistsException")) {
-							loadingFailedBox = session.getUiElements().perunLoadingFailedBox("You are not registered to any Virtual Organization.</br></br>" + error.getErrorInfo());
+						// shows error box
+						PopupPanel loadingFailedBox;
+						if (error != null) {
+							loadingFailedBox = session.getUiElements().perunLoadingFailedBox("Request timeout exceeded.");
 						} else {
-							loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
+							if (error.getName().contains("UserNotExistsException")) {
+								loadingFailedBox = session.getUiElements().perunLoadingFailedBox("You are not registered to any Virtual Organization.</br></br>" + error.getErrorInfo());
+							} else {
+								loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
+							}
 						}
-					}
-					loadingFailedBox.show();
+						loadingFailedBox.show();
 
-				}
+					}
 				});
 				getConfig.retrieveData();
 			}
@@ -509,50 +509,50 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 						body.add(ft);
 					}
-				@Override
-				public void onLoadingStart() {
+					@Override
+					public void onLoadingStart() {
 
-					RootLayoutPanel body = RootLayoutPanel.get();
-					body.clear();
-					FlexTable ft = new FlexTable();
-					ft.setSize("100%", "300px");
-					ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-					ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-					ft.setWidget(0, 0, new AjaxLoaderImage());
-					body.add(ft);
+						RootLayoutPanel body = RootLayoutPanel.get();
+						body.clear();
+						FlexTable ft = new FlexTable();
+						ft.setSize("100%", "300px");
+						ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+						ft.setWidget(0, 0, new AjaxLoaderImage());
+						body.add(ft);
 
-				}
-				@Override
-				public void onError(PerunError error) {
-
-					RootLayoutPanel body = RootLayoutPanel.get();
-					body.clear();
-					FlexTable ft = new FlexTable();
-					ft.setSize("100%", "300px");
-					ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.deleteIcon())+"<h2>Your new email address couldn't be verified !</h2>");
-					ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
-					ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-
-					if (error == null) {
-						ft.setHTML(1, 0, "Request timeout exceeded.");
-						ft.getFlexCellFormatter().setStyleName(1, 0, "serverResponseLabelError");
-					} else {
-						// display raw message
-						ft.setHTML(1, 0, "<strong>"+error.getErrorInfo()+"</strong>");
 					}
-					ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
-					ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+					@Override
+					public void onError(PerunError error) {
 
-					body.add(ft);
+						RootLayoutPanel body = RootLayoutPanel.get();
+						body.clear();
+						FlexTable ft = new FlexTable();
+						ft.setSize("100%", "300px");
+						ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.deleteIcon())+"<h2>Your new email address couldn't be verified !</h2>");
+						ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+						ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 
-				}
+						if (error == null) {
+							ft.setHTML(1, 0, "Request timeout exceeded.");
+							ft.getFlexCellFormatter().setStyleName(1, 0, "serverResponseLabelError");
+						} else {
+							// display raw message
+							ft.setHTML(1, 0, "<strong>"+error.getErrorInfo()+"</strong>");
+						}
+						ft.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+						ft.getFlexCellFormatter().setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+
+						body.add(ft);
+
+					}
 				});
 				call.retrieveData();
-					}
+			}
 
 			return true;
 
-				}
+		}
 
 		return false;
 
@@ -575,27 +575,27 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 					public void onLoadingStart(){
 						checkPending = true;
 					}
-				@Override
-				public void onFinished(JavaScriptObject jso) {
-					BasicOverlayType type = jso.cast();
-					checkPending = false;
-					if (type.getString().equals("OK")) {
-						if (c.isShowing()) {
-							c.hide();
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						BasicOverlayType type = jso.cast();
+						checkPending = false;
+						if (type.getString().equals("OK")) {
+							if (c.isShowing()) {
+								c.hide();
+							}
 						}
 					}
-				}
-				@Override
-				public void onError(PerunError error) {
-					checkPending = false;
-					if (error == null) {
-						// connection lost only IF TIMEOUT
-						if (!c.isShowing()) {
-							c.show();
+					@Override
+					public void onError(PerunError error) {
+						checkPending = false;
+						if (error != null && error.getErrorId().equals("0")) {
+							// connection lost only IF TIMEOUT
+							if (!c.isShowing()) {
+								c.show();
+							}
+							connected = false;
 						}
-						connected = false;
 					}
-				}
 				});
 				if (!checkPending && perunLoaded && connected) {
 					call.retrieveData();
