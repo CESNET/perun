@@ -141,7 +141,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 */
 	banExecServiceOnFacility {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().banExecServiceOnFacility(ac.getExecServiceById(parms.readInt("service")),
+			ac.getGeneralServiceManager().banExecServiceOnFacility(ac.getSession(),ac.getExecServiceById(parms.readInt("service")),
 					ac.getFacilityById(parms.readInt("facility")));
 			return null;
 		}
@@ -155,7 +155,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 */
 	banExecServiceOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().banExecServiceOnDestination(ac.getExecServiceById(parms.readInt("execService")),parms.readInt("destination"));
+			ac.getGeneralServiceManager().banExecServiceOnDestination(ac.getSession(),ac.getExecServiceById(parms.readInt("execService")),parms.readInt("destination"));
 			return null;
 		}
 	},
@@ -244,7 +244,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 */
 	freeAllDenialsOnFacility {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().freeAllDenialsOnFacility(ac.getFacilityById(parms.readInt("facility")));
+			ac.getGeneralServiceManager().freeAllDenialsOnFacility(ac.getSession(),ac.getFacilityById(parms.readInt("facility")));
 			return null;
 		}
 	},
@@ -256,7 +256,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 */
 	freeAllDenialsOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().freeAllDenialsOnDestination(parms.readInt("destination"));
+			ac.getGeneralServiceManager().freeAllDenialsOnDestination(ac.getSession(), parms.readInt("destination"));
 			return null;
 		}
 	},
@@ -271,7 +271,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 */
 	freeDenialOfExecServiceOnFacility {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().freeDenialOfExecServiceOnFacility(ac.getExecServiceById(parms.readInt("execService")),
+			ac.getGeneralServiceManager().freeDenialOfExecServiceOnFacility(ac.getSession(), ac.getExecServiceById(parms.readInt("execService")),
 					ac.getFacilityById(parms.readInt("facility")));
 			return null;
 		}
@@ -287,7 +287,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 */
 	freeDenialOfExecServiceOnDestination {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.getGeneralServiceManager().freeDenialOfExecServiceOnDestination(ac.getExecServiceById(parms.readInt("execService")),parms.readInt("destination"));
+			ac.getGeneralServiceManager().freeDenialOfExecServiceOnDestination(ac.getSession(), ac.getExecServiceById(parms.readInt("execService")),parms.readInt("destination"));
 			return null;
 		}
 	},

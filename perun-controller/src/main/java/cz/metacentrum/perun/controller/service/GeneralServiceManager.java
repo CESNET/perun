@@ -140,22 +140,24 @@ public interface GeneralServiceManager {
 	 * Bans execService on facility.
 	 * It wouldn't be possible to execute the given execService on the whole facility nor on any of its destinations.
 	 *
+         * @param perunSession
 	 * @param execService The execService to be banned on the facility
 	 * @param facility The facility on which we want to ban the execService
 	 * @throws InternalErrorException
 	 */
-	public void banExecServiceOnFacility(ExecService execService, Facility facility) throws InternalErrorException;
+	public void banExecServiceOnFacility(PerunSession perunSession, ExecService execService, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Bans execService on destination.
 	 * It wouldn't be possible to execute the given execService on this destination, however,
 	 * it still can be executed on all the other destinations in the facility.
 	 *
+         * @param perunSession
 	 * @param execService The execService to be banned on this particular destination
 	 * @param destinationId The destination on which we want to ban the execService
 	 * @throws InternalErrorException
 	 */
-	public void banExecServiceOnDestination(ExecService execService, int destinationId) throws InternalErrorException;
+	public void banExecServiceOnDestination(PerunSession perunSession, ExecService execService, int destinationId) throws InternalErrorException;
 
 	/**
 	 * List all the execServices that are banned on this facility.
@@ -207,37 +209,42 @@ public interface GeneralServiceManager {
 	 * Erase all the possible denials on this facility.
 	 * From this moment on, there are no execServices being denied on this facility.
 	 *
-	 * @param facility Facility we want to clear of all the denials.
+         * @param perunSession
+	 * @param facility Facility we want to clear of all the denials
 	 */
-	public void freeAllDenialsOnFacility(Facility facility);
+	//public void freeAllDenialsOnFacility(Facility facility);
+         public void freeAllDenialsOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Erase all the possible denials on this destination.
 	 * From this moment on, there are no execServices being denied on this destination.
 	 *
+         * @param perunSession
 	 * @param destinationId The id of a destination we want to clear of all the denials.
 	 */
-	public void freeAllDenialsOnDestination(int destinationId);
+	public void freeAllDenialsOnDestination(PerunSession perunSession, int destinationId) throws InternalErrorException;
 
 	/**
 	 * Free the denial of the execService on this facility.
 	 * If the execService was banned on this facility, it will be freed.
 	 * In case the execService was not banned on this facility, nothing will happen.
 	 *
+         * @param perunSession
 	 * @param execService The execService, the denial of which we want to free on this facility.
 	 * @param facility The facility on which we want to free the denial of the execService.
 	 */
-	public void freeDenialOfExecServiceOnFacility(ExecService execService, Facility facility);
+	public void freeDenialOfExecServiceOnFacility(PerunSession perunSession, ExecService execService, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Free the denial of the execService on this destination.
 	 * If the execService was banned on this destination, it will be freed.
 	 * In case the execService was not banned on this destination, nothing will happen.
 	 *
+         * @param perunSession
 	 * @param execService The execService, the denial of which we want to free on this destination.
 	 * @param destinationId The id of a destination on which we want to free the denial of the execService.
 	 */
-	public void freeDenialOfExecServiceOnDestination(ExecService execService, int destinationId);
+	public void freeDenialOfExecServiceOnDestination(PerunSession perunSession, ExecService execService, int destinationId) throws InternalErrorException;
 
 	/**
 	 * Create a dependency
