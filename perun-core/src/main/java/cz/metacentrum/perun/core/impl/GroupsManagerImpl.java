@@ -142,11 +142,11 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 		// Check if the group already exists
 		if(group.getParentGroupId() == null) {
-			if (1 == jdbc.queryForInt("select count('x') from groups where name=? and vo_id=? and parent_group_id IS NULL", group.getShortName(), vo.getId())) {
+			if (1 == jdbc.queryForInt("select count('x') from groups where lower(name)=lower(?) and vo_id=? and parent_group_id IS NULL", group.getShortName(), vo.getId())) {
 				throw new GroupExistsException("Group [" + group.getName() + "] already exists under VO [" + vo.getShortName() + "] and has parent Group with id is [NULL]");
 			} 
 		} else {
-			if (1 == jdbc.queryForInt("select count('x') from groups where name=? and vo_id=? and parent_group_id=?", group.getShortName(), vo.getId(), group.getParentGroupId())) {
+			if (1 == jdbc.queryForInt("select count('x') from groups where lower(name)=lower(?) and vo_id=? and parent_group_id=?", group.getShortName(), vo.getId(), group.getParentGroupId())) {
 				throw new GroupExistsException("Group [" + group.getName() + "] already exists under VO [" + vo.getShortName() + "] and has parent Group with id [" + group.getParentGroupId() + "]");
 			}
 		}
