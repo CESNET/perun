@@ -366,13 +366,21 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		System.setProperty("java.protocol.handler.pkgs","com.sun.net.ssl.internal.www.protocol");
 
 		//prepare sslFactory
-		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();            
+		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		HttpsURLConnection.setDefaultSSLSocketFactory(factory);
 		
 		URL myurl = new URL(uri);
-    HttpURLConnection uc = (HttpURLConnection) myurl.openConnection();
-		
-		return uc.getInputStream();
+		con = (HttpURLConnection) myurl.openConnection();
+
+		//set request header if is required (set in extSource xml)
+		String reqHeaderKey = getAttributes().get("requestHeaderKey");
+		String reqHeaderValue = getAttributes().get("requestHeaderValue");
+		if(reqHeaderKey != null) {
+			if(reqHeaderValue == null) reqHeaderValue = "";
+			con.setRequestProperty(reqHeaderKey, reqHeaderValue);
+		}
+
+		return con.getInputStream();
 	}
 	
 	
