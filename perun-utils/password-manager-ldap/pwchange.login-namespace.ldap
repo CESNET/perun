@@ -5,7 +5,10 @@
 #
 # Replace whole file content like following and do not keep any whitespace / empty lines / comments etc.:
 #
-# 1st line - LDAP server location like: "ldap://address:port" or "localhost:port" (port is optional)
+# While using LDAPs server must provide valid certificate or it must be imported between trusted
+# by directive in /etc/ldap/ldap.conf.
+#
+# 1st line - LDAP server location like: "ldaps://address:port" or "localhost:port" (port is optional)
 # 2nd line - login for LDAP admin access
 # 3rd line - pass for LDAP admin access
 # 4th line - base DN like: ou=authz,dc=perun,dc=domain,dc=com
