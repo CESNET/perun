@@ -344,14 +344,13 @@ sub ldap_search {
 
 #
 # Log any message to pwdm.log file located in same folder as script.
-#
-# Each message starts at new line.
+# Each message starts at new line with date.
 #
 sub ldap_log() {
 
 	my $message = (@_)[0];
 	open(LOGFILE, ">>/usr/local/bin/pwdm.log");
-	print LOGFILE ($message . "\n");
+	print LOGFILE (localtime(time) . ": " . $message . "\n");
 	close(LOGFILE);
 
 }
