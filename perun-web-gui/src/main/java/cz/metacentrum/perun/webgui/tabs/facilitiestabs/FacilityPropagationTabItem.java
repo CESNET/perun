@@ -162,11 +162,19 @@ public class FacilityPropagationTabItem implements TabItem, TabItemWithUrl{
 
 				// show propagation status page on last call start
 				JsonCallbackEvents events = new JsonCallbackEvents(){
+					@Override
 					public void onLoadingStart() {
 						if (tabPanel != null) {
 							tabPanel.selectTab(2);
 						} else {
 							session.getTabManager().addTab(new FacilityPropagationTabItem(facility));
+						}
+					}
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						// unselect all services
+						for (RichService service : forceList) {
+							jsonCallback.getSelectionModel().setSelected(service, false);
 						}
 					}
 				};
