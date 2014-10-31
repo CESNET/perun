@@ -231,21 +231,6 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if (status == null) {
 				task.setStatus(TaskStatus.NONE);
 			}
-			/*
-			 * TESTING ONLY: skip all tasks for other facilities then alcor,
-			 * aldor and ascor
-			 */
-			if (task.getFacility().getName().equals("alcor.ics.muni.cz")
-					|| task.getFacility().getName().equals("aldor.ics.muni.cz")
-					|| task.getFacility().getName().equals("ascor.ics.muni.cz")
-					|| task.getFacility().getName()
-							.equals("torque.ics.muni.cz")) {
-			} else {
-				log.debug(
-						"Skipping task for facility {} not meant for testing.",
-						task.getFacility().getName());
-				continue;
-			}
 			if (!pool.get(task.getStatus()).contains(task.getId())) {
 				pool.get(task.getStatus()).add(task);
 			}
