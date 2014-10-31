@@ -10,7 +10,7 @@ sub processGroupMembership;
 
 local $::SERVICE_NAME = "ldap";
 local $::PROTOCOL_VERSION = "3.0.0";
-my $SCRIPT_VERSION = "3.0.1";
+my $SCRIPT_VERSION = "3.0.2";
 
 perunServicesInit::init;
 my $DIRECTORY = perunServicesInit::getDirectory;
@@ -124,6 +124,8 @@ if ($facilityAttributes{$A_F_BASE_DN} =~ m/^dc=/) {
 		$dc = substr $facilityAttributes{$A_F_BASE_DN}, 3, $position-3;
 	}
 	print FILE "dc: " . $dc . "\n";
+	print FILE "objectclass: top\n";
+	print FILE "objectclass: domain\n";  # we need at least one structural class
 	print FILE "objectclass: dcObject\n";
 }
 # IF base start with ou=[something]

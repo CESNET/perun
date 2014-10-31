@@ -30,7 +30,7 @@ function process {
 	BASE_DN=`head -n 1 "${WORK_DIR}/baseDN"`
 
 	# list only entries that service should manage
-	LDAP_FILTER="(&(|(objectclass=organizationalunit)(objectclass=perunEduroamUser))(!(ou=authz))(!(ou=users))(!(ou=policies))(!(ou=groups)))"
+	LDAP_FILTER="(&(|(objectclass=organizationalunit)(objectclass=perunEduroamUser)(objectclass=dcObject))(!(ou=authz))(!(ou=users))(!(ou=policies))(!(ou=groups)))"
 
 	# Create lock
 	create_lock
