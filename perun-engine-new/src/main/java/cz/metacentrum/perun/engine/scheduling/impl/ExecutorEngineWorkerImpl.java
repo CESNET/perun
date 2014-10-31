@@ -102,10 +102,14 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				log.error(e.toString(), e);
 				// task.setStatus(TaskStatus.ERROR);
 				task.setEndTime(new Date(System.currentTimeMillis()));
+				resultListener.onTaskDestinationError(task, destination,
+						null);
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 				// task.setStatus(TaskStatus.ERROR);
 				task.setEndTime(new Date(System.currentTimeMillis()));
+				resultListener.onTaskDestinationError(task, destination,
+						null);
 			} finally {
 				String ret = returnCode == -1 ? "unknown" : String
 						.valueOf(returnCode);
