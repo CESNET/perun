@@ -337,4 +337,8 @@ public class GetFacilityAssignedServicesForGUI implements JsonCallback, JsonCall
 
 	}
 
+	public MultiSelectionModel<RichService> getSelectionModel() {
+		return this.selectionModel;
+	}
+
 }
