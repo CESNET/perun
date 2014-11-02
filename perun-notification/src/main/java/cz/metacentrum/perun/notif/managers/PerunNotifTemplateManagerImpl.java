@@ -18,9 +18,12 @@ import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException
 import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import cz.metacentrum.perun.notif.senders.PerunNotifSender;
 import freemarker.cache.MruCacheStorage;
+import freemarker.core.Environment;
+import freemarker.core.InvalidReferenceException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
@@ -363,6 +366,20 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	private String compileTemplate(String templateName, Locale locale, Map<String, Object> container) throws IOException, TemplateException {
+
+		class NotificationTemplateExceptionHandler implements TemplateExceptionHandler {
+
+			@Override
+			public void handleTemplateException(TemplateException te, Environment env, java.io.Writer out) throws TemplateException {
+				if (te instanceof InvalidReferenceException) {
+					// skip undefined values
+				} else {
+					throw te;
+				}
+			}
+		}
+
+		this.configuration.setTemplateExceptionHandler(new NotificationTemplateExceptionHandler());
 
 		StringWriter stringWriter = new StringWriter(4096);
 
