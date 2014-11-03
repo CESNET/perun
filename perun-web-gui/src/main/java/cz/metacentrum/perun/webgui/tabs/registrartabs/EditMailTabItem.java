@@ -253,43 +253,55 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<br/><strong>{firstName}</strong> - user's first name taken from application form or Perun" +
 				"<br/><strong>{lastName}</strong> - user's last name taken from application form or Perun" +
 				"<br/><strong>{displayName}</strong> - user's display name taken from application form or Perun" +
-				"<br/><strong>{login-<i>namespace</i>}</strong> - user's login in selected namespace, taken from application form or Perun. You MUST specify namespace, e.g. <i>{login-einfra}</i> will print user's login in einfra namespace." +
+				"<br/><strong>{login-<i>namespace</i>}</strong> - user's login in selected namespace, taken from registration form or Perun. You MUST specify the namespace, e.g. <i>{login-einfra}</i> will print user's login in einfra namespace." +
 				"<br/><strong>{membershipExpiration}</strong> - membership expiration date decided after membership creation or extension." +
 
 				"<br/></br><strong><u>Validation links for users:</u></strong><br/>" +
 
 				"<br/><span class=\"inputFormInlineComment\">Works only for \"Mail validation / user \" mail type! Used to verify email address provided by users =&gt; verify application.</span><br/>" +
 
-				"<br/><strong>{validationLink}</strong> - link with federation authz" +
-				"<br/><strong>{validationLinkKrb}</strong> - link with kerberos authz" +
-				"<br/><strong>{validationLinkCert}</strong> - link with IGTF certificate authz" +
-				"<br/><strong>{validationLinkNon}</strong> - link without any authz" +
+				"<br/></br><strong>{validationLink}</strong> - link for email address verification. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
+
+				"<br/></br><strong>{validationLink-krb}</strong> - link for Kerberos authentication" +
+				"<br/><strong>{validationLink-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
+				"<br/><strong>{validationLink-cert}</strong> - link for personal certificate authentication" +
+				"<br/><strong>{validationLink-non}</strong> - link without any authorization" +
 				"<br/><strong>{validationLinkCustom}</strong> - custom link which you must set on vo/group settings page" +
 
 				"<br/></br><strong><u>Application GUI links for users:</u></strong><br/>" +
 
-				"<br/><span class=\"inputFormInlineComment\">Used to navigate users to the list of theirs applications.</span><br/>" +
+				"<br/><span class=\"inputFormInlineComment\">Used to navigate users to the list of theirs applications.</span>" +
 
-				"<br/><strong>{appGuiUrl}</strong> - link with federation authz" +
-				"<br/><strong>{appGuiUrlKrb}</strong> - link with kerberos authz" +
-				"<br/><strong>{appGuiUrlCert}</strong> - link with IGTF certificate authz" +
-				"<br/><strong>{appGuiUrlNon}</strong> - link without any authz" +
+				"<br/></br><strong>{appGuiUrl}</strong> - link to overview of submitted registrations for users. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
+
+				"<br/></br><strong>{appGuiUrl-krb}</strong> - link for Kerberos authentication" +
+				"<br/><strong>{appGuiUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
+				"<br/><strong>{appGuiUrl-cert}</strong> - link for personal certificate authentication" +
+				"<br/><strong>{appGuiUrl-non}</strong> - link without any authorization" +
 
 				"<br/></br><strong><u>Application GUI links for administrators:</u></strong><br/>" +
 
-				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the application detail, where they can check and approve or reject application.</span><br/>" +
+				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the registration detail, where they can check and approve or reject the application.</span>" +
 
-				"<br/><strong>{appDetailUrlFed}</strong> - link with federation authz" +
-				"<br/><strong>{appDetailUrlKrb}</strong> - link with kerberos authz" +
-				"<br/><strong>{appDetailUrlCert}</strong> - link with IGTF certificate authz" +
+				"<br/></br><strong>{appDetailUrl}</strong> - link to registration detail in administrative GUI. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
+
+				"<br/></br><strong>{appDetailUrl-krb}</strong> - link for Kerberos authentication" +
+				"<br/><strong>{appDetailUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
+				"<br/><strong>{appDetailUrl-cert}</strong> - link for personal certificate authentication" +
 
 				"<br/></br><strong><u>Perun GUI links for administrators:</u></strong><br/>" +
 
-				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the administrative GUI of Perun. Can be used for users to locate user detail too.</span><br/>" +
+				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the administrative GUI of Perun. Can be used for users to locate user detail too.</span>" +
 
-				"<br/><strong>{perunGuiUrlFed}</strong> - link with federation authz" +
-				"<br/><strong>{perunGuiUrlKerb}</strong> - link with kerberos authz" +
-				"<br/><strong>{perunGuiUrlCert}</strong> - link with IGTF certificate authz" +
+				"<br/></br><strong>{perunGuiUrl}</strong> - link to administrative GUI. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
+
+				"<br/></br><strong>{perunGuiUrl-krb}</strong> - link for Kerberos authentication" +
+				"<br/><strong>{perunGuiUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
+				"<br/><strong>{perunGuiUrl-cert}</strong> - link for personal certificate authentication" +
 
 				"<br/></br><strong><u>User invitations:</u></strong><br/>" +
 
@@ -300,10 +312,12 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<br/><strong>{displayName}</strong> - invited user's name" +
 				"<br/><strong>{mailFooter}</strong> - common mail footer defined by VO" +
 
-				"<br/></br><strong>{invitationLinkNon}</strong> - link with federation authz" +
-				"<br/><strong>{invitationLinkKrb}</strong> - link with kerberos authz" +
-				"<br/><strong>{invitationLinkFed}</strong> - link with federation authz" +
-				"<br/><strong>{invitationLinkCert}</strong> - link with IGTF certificate authz"
+				"<br/></br><strong>{invitationLink}</strong> - link to registration form. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
+				"</br></br><strong>{invitationLink-krb}</strong> - link for Kerberos authentication" +
+				"<br/><strong>{invitationLink-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
+				"<br/><strong>{invitationLink-cert}</strong> - link for personal certificate authentication"+
+				"<br/><strong>{invitationLink-non}</strong> - link without any authorization"
 
 		);
 
