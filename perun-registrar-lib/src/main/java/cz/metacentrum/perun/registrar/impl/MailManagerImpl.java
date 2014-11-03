@@ -64,6 +64,8 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_GROUP_APPLICATION_URL = "urn:perun:group:attribute-def:def:applicationURL";
 	private static final String URN_VO_VALIDATION_URL = "urn:perun:vo:attribute-def:def:validationURL";
 	private static final String URN_GROUP_VALIDATION_URL = "urn:perun:group:attribute-def:def:validationURL";
+	private static final String URN_VO_REGISTRATION_URL = "urn:perun:vo:attribute-def:def:registrarURL";
+	private static final String URN_GROUP_REGISTRATION_URL = "urn:perun:group:attribute-def:def:registrarURL";
 
 	@Autowired PerunBl perun;
 	@Autowired RegistrarManager registrarManager;
@@ -479,7 +481,6 @@ public class MailManagerImpl implements MailManager {
 
 				// set subject and text
 				message.setSubject(mailSubject);
-				message.setText(mailText);
 
 				// send to all emails, which needs to be validated
 				for (ApplicationFormItemData d : data) {
@@ -496,6 +497,46 @@ public class MailManagerImpl implements MailManager {
 							String i = Integer.toString(d.getId(), Character.MAX_RADIX);
 							String m = getMessageAuthenticationCode(i);
 
+							// replace new validation link
+							if (mailText.contains("{validationLink-")) {
+
+								Pattern LoginPattern = Pattern.compile("\\{validationLink-[^\\}]+\\}");
+								Matcher matcher = LoginPattern.matcher(mailText);
+								while (matcher.find()) {
+
+									// whole "{validationLink-something}"
+									String toSubstitute = matcher.group(0);
+
+									// new login value to replace in text
+									String newValue = "";
+
+									Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+									Matcher m2 = namespacePattern.matcher(toSubstitute);
+									while (m2.find()) {
+										// only namespace "fed", "cert",...
+										String namespace = m2.group(1);
+
+										newValue = getPerunUrl(app.getVo(), app.getGroup());
+
+										if (newValue != null && !newValue.isEmpty()) {
+											if (!newValue.endsWith("/")) newValue += "/";
+											newValue += namespace + "/registrar/";
+											newValue += "?vo="+app.getVo().getShortName();
+											newValue += ((app.getGroup() != null) ? "&group="+app.getGroup().getName() : "");
+											try {
+												newValue += "&i=" + URLEncoder.encode(i, "UTF-8") + "&m=" + URLEncoder.encode(m, "UTF-8");
+											} catch (UnsupportedEncodingException ex) {
+												newValue += "&i=" + i + "&m=" + m;
+											}
+										}
+									}
+									// substitute {validationLink-authz} with actual value or empty string
+									mailText = mailText.replace(toSubstitute, newValue);
+
+								}
+
+							}
+
 							// get base url for validation
 							String url = getPropertyFromConfiguration("registrarGuiFed");
 							String urlNon = getPropertyFromConfiguration("registrarGuiNon");
@@ -504,8 +545,17 @@ public class MailManagerImpl implements MailManager {
 							String urlGoogle = getPropertyFromConfiguration("registrarGuiGoogle");
 							String urlCustom = "";
 
-							if (message.getText().contains("{validationLinkCustom}")) {
+							if (mailText.contains("{validationLinkCustom}")) {
 								urlCustom = getCustomValidationLink(app);
+							}
+
+							// new backup if validation URL is missing
+							if (url == null || url.isEmpty()) {
+								url = getPerunUrl(app.getVo(), app.getGroup());
+								if (url != null && !url.isEmpty()) {
+									if (!url.endsWith("/")) url += "/";
+									url += "registrar/";
+								}
 							}
 
 							if (url != null && !url.isEmpty()) url = url + "?vo=" + app.getVo().getShortName();
@@ -597,18 +647,21 @@ public class MailManagerImpl implements MailManager {
 							}
 
 							// replace validation link
-							message.setText(message.getText().replace("{validationLink}", url2.toString()));
-							message.setText(message.getText().replace("{validationLinkNon}", urlNon2.toString()));
-							message.setText(message.getText().replace("{validationLinkCert}", urlCert2.toString()));
-							message.setText(message.getText().replace("{validationLinkKrb}", urlKrb2.toString()));
-							message.setText(message.getText().replace("{validationLinkGoogle}", urlGoogle2.toString()));
+							mailText = mailText.replace("{validationLink}", url2.toString());
+							mailText = mailText.replace("{validationLinkNon}", urlNon2.toString());
+							mailText = mailText.replace("{validationLinkCert}", urlCert2.toString());
+							mailText = mailText.replace("{validationLinkKrb}", urlKrb2.toString());
+							mailText = mailText.replace("{validationLinkGoogle}", urlGoogle2.toString());
 
 							// if not valid custom link, use non as backup
 							if (!urlCustom2.toString().isEmpty()) {
-								message.setText(message.getText().replace("{validationLinkCustom}", urlNon2.toString()));
+								mailText = mailText.replace("{validationLinkCustom}", urlNon2.toString());
 							} else {
-								message.setText(message.getText().replace("{validationLinkCustom}", urlCustom2.toString()));
+								mailText = mailText.replace("{validationLinkCustom}", urlCustom2.toString());
 							}
+
+							// set replaced text
+							message.setText(mailText);
 
 							try {
 								mailSender.send(message);
@@ -1412,6 +1465,9 @@ public class MailManagerImpl implements MailManager {
 		// from here we know, that user is not member of VO and group or is member of VO (by "isMember" variable)
 
 		// replace invitation link
+		if (mailText.contains("{invitationLink}")) {
+			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, getPerunUrl(vo, group)));
+		}
 		if (mailText.contains("{invitationLinkFed}")) {
 			mailText = mailText.replace("{invitationLinkFed}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiFed")));
 		}
@@ -1431,9 +1487,16 @@ public class MailManagerImpl implements MailManager {
 		// replace perun application GUI link with list of applications
 		if (mailText.contains("{appGuiUrl}")) {
 			String text = getPropertyFromConfiguration("registrarGuiFed");
-			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
-			if (group != null) {
-				text = text + "&group="+group.getName();
+			if (text != null && !text.isEmpty()) {
+				text = text + "?vo=" + vo.getShortName() + "&page=apps";
+			} else {
+				// new backup
+				text = getPerunUrl(vo, group);
+				if (text != null && !text.isEmpty()) {
+					if (!text.endsWith("/")) text += "/";
+					text += "registrar/";
+					text = text + "?vo=" + vo.getShortName() + "&page=apps";
+				}
 			}
 			mailText = mailText.replace("{appGuiUrl}", text);
 		}
@@ -1493,6 +1556,126 @@ public class MailManagerImpl implements MailManager {
 		if (mailText.contains("{perunGuiUrlGoogle}")) {
 			String text = getPropertyFromConfiguration("perunGuiGoogle");
 			mailText = mailText.replace("{perunGuiUrlGoogle}", text);
+		}
+
+		// replace perun GUI links
+		if (mailText.contains("{perunGuiUrl}")) {
+			String text = getPerunUrl(vo, group);
+			if (text != null && !text.isEmpty()) {
+				if (!text.endsWith("/")) text += "/";
+				text += "gui/";
+			}
+			mailText = mailText.replace("{perunGuiUrl}", text);
+		}
+
+		// replace registrar GUI link
+		if (mailText.contains("{appGuiUrl-")) {
+
+			Pattern LoginPattern = Pattern.compile("\\{appGuiUrl-[^\\}]+\\}");
+			Matcher m = LoginPattern.matcher(mailText);
+			while (m.find()) {
+
+				// whole "{appGuiUrl-something}"
+				String toSubstitute = m.group(0);
+
+				// new login value to replace in text
+				String newValue = "";
+
+				Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				while (m2.find()) {
+					// only namespace "fed", "cert",...
+					String namespace = m2.group(1);
+
+					newValue = getPerunUrl(vo, group);
+
+					if (newValue != null && !newValue.isEmpty()) {
+						if (!newValue.endsWith("/")) newValue += "/";
+						newValue += namespace + "/registrar/";
+						newValue += "?vo="+vo.getShortName();
+						newValue += ((group != null) ? "&group="+group.getName() : "");
+						newValue += "&page=apps";
+					}
+
+				}
+
+				// substitute {appGuiUrl-authz} with actual value or empty string
+				mailText = mailText.replace(toSubstitute, newValue);
+
+			}
+
+		}
+
+		// replace perun GUI app link
+		if (mailText.contains("{perunGuiUrl-")) {
+
+			Pattern LoginPattern = Pattern.compile("\\{perunGuiUrl-[^\\}]+\\}");
+			Matcher m = LoginPattern.matcher(mailText);
+			while (m.find()) {
+
+				// whole "{perunGuiUrl-something}"
+				String toSubstitute = m.group(0);
+
+				// new login value to replace in text
+				String newValue = "";
+
+				Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				while (m2.find()) {
+
+					// only namespace "fed", "cert",...
+					String namespace = m2.group(1);
+
+					newValue = getPerunUrl(vo, group);
+					if (newValue != null && !newValue.isEmpty()) {
+						if (!newValue.endsWith("/")) newValue += "/";
+						newValue += namespace + "/gui/";
+					}
+
+				}
+
+				// substitute {appGuiUrl-authz} with actual value or empty string
+				mailText = mailText.replace(toSubstitute, newValue);
+
+			}
+
+		}
+
+		// replace invitation link
+		if (mailText.contains("{invitationLink-")) {
+
+			Pattern LoginPattern = Pattern.compile("\\{invitationLink-[^\\}]+\\}");
+			Matcher m = LoginPattern.matcher(mailText);
+			while (m.find()) {
+
+				// whole "{invitationLink-something}"
+				String toSubstitute = m.group(0);
+
+				// new login value to replace in text
+				String newValue = "";
+
+				Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				while (m2.find()) {
+
+					// only namespace "fed", "cert",...
+					String namespace = m2.group(1);
+					String url = getPerunUrl(vo, group);
+
+					if (url != null && !url.isEmpty()) {
+						if (!url.endsWith("/")) url += "/";
+						url += namespace + "/";
+						// !! if VO/Group have custom invitation link, then url will be replaced by it. !!
+						newValue = buildInviteURL(vo, group, isMember, url);
+					}
+
+				}
+
+				// substitute {invitationLink-authz} with actual value or empty string
+				mailText = mailText.replace(toSubstitute, newValue);
+
+			}
+
 		}
 
 		// mail footer
@@ -1653,7 +1836,17 @@ public class MailManagerImpl implements MailManager {
 		// replace perun application GUI link with list of applications
 		if (mailText.contains("{appGuiUrl}")) {
 			String text = getPropertyFromConfiguration("registrarGuiFed");
-			if (text != null && !text.isEmpty()) text = text + "?vo=" + app.getVo().getShortName() + "&page=apps";
+			if (text != null && !text.isEmpty()) {
+				text = text + "?vo=" + app.getVo().getShortName() + "&page=apps";
+			} else {
+				// new backup
+				text = getPerunUrl(app.getVo(), app.getGroup());
+				if (text != null && !text.isEmpty()) {
+					if (!text.endsWith("/")) text += "/";
+					text += "registrar/";
+					text = text + "?vo=" + app.getVo().getShortName() + "&page=apps";
+				}
+			}
 			if (app.getGroup() != null) {
 				text = text + "&group="+app.getGroup().getName();
 			}
@@ -1720,6 +1913,27 @@ public class MailManagerImpl implements MailManager {
 			String text = getPropertyFromConfiguration("perunGuiGoogle");
 			if (text!=null && !text.isEmpty()) text = text+"#vo/appdetail?id="+app.getId();
 			mailText = mailText.replace("{appDetailUrlGoogle}", text);
+		}
+
+		// replace appDetail for VO admins
+		if (mailText.contains("{appDetailUrl}")) {
+			String text = getPerunUrl(app.getVo(), app.getGroup());
+			if (text != null && !text.isEmpty()) {
+				if (!text.endsWith("/")) text += "/";
+				text += "gui/";
+				text = text + "#vo/appdetail?id="+app.getId();
+			}
+			mailText = mailText.replace("{appDetailUrl}", text);
+		}
+
+		// replace perun GUI links
+		if (mailText.contains("{perunGuiUrl}")) {
+			String text = getPerunUrl(app.getVo(), app.getGroup());
+			if (text != null && !text.isEmpty()) {
+				if (!text.endsWith("/")) text += "/";
+				text += "gui/";
+			}
+			mailText = mailText.replace("{perunGuiUrl}", text);
 		}
 
 		// replace perun gui link
@@ -1877,6 +2091,116 @@ public class MailManagerImpl implements MailManager {
 
 		}
 
+		// replace registrar GUI link
+		if (mailText.contains("{appGuiUrl-")) {
+
+			Pattern LoginPattern = Pattern.compile("\\{appGuiUrl-[^\\}]+\\}");
+			Matcher m = LoginPattern.matcher(mailText);
+			while (m.find()) {
+
+				// whole "{appGuiUrl-something}"
+				String toSubstitute = m.group(0);
+
+				// new login value to replace in text
+				String newValue = "";
+
+				Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				while (m2.find()) {
+					// only namespace "fed", "cert",...
+					String namespace = m2.group(1);
+
+					newValue = getPerunUrl(app.getVo(), app.getGroup());
+
+					if (newValue != null && !newValue.isEmpty()) {
+						if (!newValue.endsWith("/")) newValue += "/";
+						newValue += namespace + "/registrar/";
+						newValue += "?vo="+app.getVo().getShortName();
+						newValue += ((app.getGroup() != null) ? "&group="+app.getGroup().getName() : "");
+						newValue += "&page=apps";
+					}
+
+				}
+
+				// substitute {appGuiUrl-authz} with actual value or empty string
+				mailText = mailText.replace(toSubstitute, newValue);
+
+			}
+
+		}
+
+		// replace perun GUI app link
+		if (mailText.contains("{appDetailUrl-")) {
+
+			Pattern LoginPattern = Pattern.compile("\\{appDetailUrl-[^\\}]+\\}");
+			Matcher m = LoginPattern.matcher(mailText);
+			while (m.find()) {
+
+				// whole "{appDetailUrl-something}"
+				String toSubstitute = m.group(0);
+
+				// new login value to replace in text
+				String newValue = "";
+
+				Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				while (m2.find()) {
+
+					// only namespace "fed", "cert",...
+					String namespace = m2.group(1);
+
+					newValue = getPerunUrl(app.getVo(), app.getGroup());
+					if (newValue != null && !newValue.isEmpty()) {
+						if (!newValue.endsWith("/")) newValue += "/";
+						newValue += namespace + "/gui/";
+						newValue += ((namespace.equals("fed")) ? "?vo/appdetail?id="+app.getId() : "#vo/appdetail?id="+app.getId());
+					}
+
+				}
+
+				// substitute {appGuiUrl-authz} with actual value or empty string
+				mailText = mailText.replace(toSubstitute, newValue);
+
+			}
+
+		}
+
+		// replace perun GUI app link
+		if (mailText.contains("{perunGuiUrl-")) {
+
+			Pattern LoginPattern = Pattern.compile("\\{perunGuiUrl-[^\\}]+\\}");
+			Matcher m = LoginPattern.matcher(mailText);
+			while (m.find()) {
+
+				// whole "{perunGuiUrl-something}"
+				String toSubstitute = m.group(0);
+
+				// new login value to replace in text
+				String newValue = "";
+
+				Pattern namespacePattern = Pattern.compile("\\-(.*?)\\}");
+				Matcher m2 = namespacePattern.matcher(toSubstitute);
+				while (m2.find()) {
+
+					// only namespace "fed", "cert",...
+					String namespace = m2.group(1);
+
+					newValue = getPerunUrl(app.getVo(), app.getGroup());
+					if (newValue != null && !newValue.isEmpty()) {
+						if (!newValue.endsWith("/")) newValue += "/";
+						newValue += namespace + "/gui/";
+					}
+
+				}
+
+				// substitute {appGuiUrl-authz} with actual value or empty string
+				mailText = mailText.replace(toSubstitute, newValue);
+
+			}
+
+		}
+
+
 		// membership expiration
 		if (mailText.contains("{membershipExpiration}")) {
 			String expiration = "";
@@ -1997,6 +2321,63 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Exception when getting validation link for {} : {}",app.getGroup(), ex);
 			} else {
 				log.error("[MAIL MANAGER] Exception when getting validation link for {} : {}", app.getVo(), ex);
+			}
+
+		} finally {
+
+			return result;
+
+		}
+
+	}
+
+	/**
+	 * Return base URL of Perun instance taken from VO/Group attribute. If not set,
+	 * value of config property "perunUrl" is used. If can't determine, then empty
+	 * string is returned.
+	 *
+	 * e.g. https://perun.cesnet.cz
+	 *
+	 * @param vo vo to get link for
+	 * @param group to get link for
+	 * @return Base url or empty string.
+	 */
+	private String getPerunUrl(Vo vo, Group group) {
+
+		String result = getPropertyFromConfiguration("perunUrl");
+		try {
+
+			if (group != null) {
+
+				Attribute a = attrManager.getAttribute(registrarSession, group, URN_GROUP_REGISTRATION_URL);
+				if (a != null && a.getValue() != null && !((String)a.getValue()).isEmpty()) {
+
+					result = (String)a.getValue();
+
+				} else {
+					// take it from the VO if not on group settings
+					Attribute a2 = attrManager.getAttribute(registrarSession, vo, URN_VO_REGISTRATION_URL);
+					if (a2 != null && a2.getValue() != null && !((String)a2.getValue()).isEmpty()) {
+						result = (String)a2.getValue();
+					}
+				}
+
+			} else {
+
+				// take it from the VO
+				Attribute a2 = attrManager.getAttribute(registrarSession, vo, URN_VO_REGISTRATION_URL);
+				if (a2 != null && a2.getValue() != null && !((String)a2.getValue()).isEmpty()) {
+					result = (String)a2.getValue();
+				}
+
+			}
+
+		} catch (Exception ex) {
+
+			if (group != null) {
+				log.error("[MAIL MANAGER] Exception when getting perun instance link for {} : {}", group, ex);
+			} else {
+				log.error("[MAIL MANAGER] Exception when getting perun instance link for {} : {}", vo, ex);
 			}
 
 		} finally {

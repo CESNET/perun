@@ -114,6 +114,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_GROUP_VALIDATION_URL = AttributesManager.NS_GROUP_ATTR_DEF;
 	private static final String URN_GROUP_VALIDATION_URL = NAMESPACE_GROUP_VALIDATION_URL + ":" +  FRIENDLY_NAME_GROUP_VALIDATION_URL;
 
+	private static final String DISPLAY_NAME_VO_REGISTRAR_URL = "Registrar URL";
+	private static final String FRIENDLY_NAME_VO_REGISTRAR_URL = "registrarURL";
+	private static final String NAMESPACE_VO_REGISTRAR_URL = AttributesManager.NS_VO_ATTR_DEF;
+	private static final String URN_VO_REGISTRAR_URL = NAMESPACE_VO_REGISTRAR_URL  + ":" + FRIENDLY_NAME_VO_REGISTRAR_URL;
+
+	private static final String DISPLAY_NAME_GROUP_REGISTRAR_URL = "Registrar URL";
+	private static final String FRIENDLY_NAME_GROUP_REGISTRAR_URL = "registrarURL";
+	private static final String NAMESPACE_GROUP_REGISTRAR_URL = AttributesManager.NS_GROUP_ATTR_DEF;
+	private static final String URN_GROUP_REGISTRAR_URL = NAMESPACE_GROUP_REGISTRAR_URL + ":" +  FRIENDLY_NAME_GROUP_REGISTRAR_URL;
+
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
 	@Autowired PerunBl perun;
@@ -302,6 +312,30 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrManager.createAttribute(registrarSession, attrDef);
 		}
 
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_VO_REGISTRAR_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_VO_REGISTRAR_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_REGISTRAR_URL);
+			attrDef.setNamespace(NAMESPACE_VO_REGISTRAR_URL);
+			attrDef.setDescription("Custom URL used in registration notifications (hostname without any parameters like: https://hostname.domain/). If not set, default hostname of Perun instance is used.");
+			attrDef.setType(String.class.getName());
+			attrManager.createAttribute(registrarSession, attrDef);
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_REGISTRAR_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_GROUP_REGISTRAR_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_REGISTRAR_URL);
+			attrDef.setNamespace(NAMESPACE_GROUP_REGISTRAR_URL);
+			attrDef.setDescription("Custom URL used in registration notifications (hostname without any parameters like: https://hostname.domain/). This value override same VO setting. If not set, default hostname of Perun instance is used.");
+			attrDef.setType(String.class.getName());
+			attrManager.createAttribute(registrarSession, attrDef);
+		}
 
 	}
 
