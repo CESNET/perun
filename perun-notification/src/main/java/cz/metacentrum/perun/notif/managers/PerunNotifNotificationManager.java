@@ -3,6 +3,9 @@ package cz.metacentrum.perun.notif.managers;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.notif.entities.*;
+import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
 import freemarker.template.TemplateException;
 
@@ -104,8 +107,9 @@ public interface PerunNotifNotificationManager {
 	 * @param receiver
 	 * @return perunNotifReceiver with new id set
 	 * @throws InternalErrorException
+	 * @throws NotifReceiverAlreadyExistsException
 	 */
-	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException;
 
 	/**
 	 * Updates receiver in db
@@ -150,8 +154,9 @@ public interface PerunNotifNotificationManager {
 	 * @param regex
 	 * @return perunNotifRegex with new id set
 	 * @throws InternalErrorException
+	 * @throws NotifRegexAlreadyExistsException
 	 */
-	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException;
+	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException, NotifRegexAlreadyExistsException;
 
 	/**
 	 * Updates PerunNotifRegex in db, also updates relation between regex
@@ -225,8 +230,9 @@ public interface PerunNotifNotificationManager {
 	 * @param message
 	 * @return perunNotifTemplateMessage with new id set
 	 * @throws InternalErrorException
+	 * @throws NotifTemplateMessageAlreadyExistsException
 	 */
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException;
 
 	/**
 	 * Update perunNotifTemplateMessage in db.

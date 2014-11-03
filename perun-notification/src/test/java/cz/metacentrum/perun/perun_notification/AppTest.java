@@ -5,6 +5,9 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.notif.entities.*;
 import cz.metacentrum.perun.notif.enums.PerunNotifNotifyTrigger;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
+import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
 import cz.metacentrum.perun.notif.listener.NotificationListener;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
@@ -99,7 +102,7 @@ public class AppTest extends AbstractTest {
 	}
 
 	@Test
-	public void testPerunNotifNotificationManager() throws InternalErrorException, PerunNotifRegexUsedException {
+	public void testPerunNotifNotificationManager() throws InternalErrorException, PerunNotifRegexUsedException, NotifReceiverAlreadyExistsException, NotifRegexAlreadyExistsException, NotifTemplateMessageAlreadyExistsException {
 
 		ApplicationContext springCtx = new ClassPathXmlApplicationContext("perun-beans.xml",
 			"perun-datasources.xml",

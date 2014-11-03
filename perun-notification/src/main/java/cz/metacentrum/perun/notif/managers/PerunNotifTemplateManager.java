@@ -5,6 +5,8 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.*;
+import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import freemarker.template.TemplateException;
 
 import java.io.IOException;
@@ -95,8 +97,10 @@ public interface PerunNotifTemplateManager {
 	 *
 	 * @param receiver
 	 * @return perunNotifReceiver with new id set
+	 * @throws InternalErrorException
+	 * @throws NotifReceiverAlreadyExistsException
 	 */
-	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException;
 
 	/**
 	 * Updates perunNotifReceiver
@@ -153,8 +157,10 @@ public interface PerunNotifTemplateManager {
 	 *
 	 * @return perunNotifTemplateMessage with new id set
 	 * @param message
+	 * @throws InternalErrorException
+	 * @throws NotifTemplateMessageAlreadyExistsException
 	 */
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException;
 
 	/**
 	 * Update perunNotifTemplateMessage in db

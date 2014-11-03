@@ -3,6 +3,9 @@ package cz.metacentrum.perun.notif.managers;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.notif.entities.*;
+import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
 import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +72,7 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
 
 		return perunNotifTemplateManager.createPerunNotifReceiver(receiver);
 	}
@@ -97,7 +100,7 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
+	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException, NotifRegexAlreadyExistsException {
 		return perunNotifRegexManager.createPerunNotifRegex(regex);
 	}
 
@@ -147,7 +150,7 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException {
 		return perunNotifTemplateManager.createPerunNotifTemplateMessage(message);
 	}
 
