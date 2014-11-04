@@ -62,8 +62,6 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_GROUP_LANGUAGE_EMAIL = "urn:perun:group:attribute-def:def:notificationsDefLang";
 	private static final String URN_VO_APPLICATION_URL = "urn:perun:vo:attribute-def:def:applicationURL";
 	private static final String URN_GROUP_APPLICATION_URL = "urn:perun:group:attribute-def:def:applicationURL";
-	private static final String URN_VO_VALIDATION_URL = "urn:perun:vo:attribute-def:def:validationURL";
-	private static final String URN_GROUP_VALIDATION_URL = "urn:perun:group:attribute-def:def:validationURL";
 	private static final String URN_VO_REGISTRATION_URL = "urn:perun:vo:attribute-def:def:registrarURL";
 	private static final String URN_GROUP_REGISTRATION_URL = "urn:perun:group:attribute-def:def:registrarURL";
 
@@ -500,8 +498,8 @@ public class MailManagerImpl implements MailManager {
 							// replace new validation link
 							if (mailText.contains("{validationLink-")) {
 
-								Pattern LoginPattern = Pattern.compile("\\{validationLink-[^\\}]+\\}");
-								Matcher matcher = LoginPattern.matcher(mailText);
+								Pattern pattern = Pattern.compile("\\{validationLink-[^\\}]+\\}");
+								Matcher matcher = pattern.matcher(mailText);
 								while (matcher.find()) {
 
 									// whole "{validationLink-something}"
@@ -543,11 +541,6 @@ public class MailManagerImpl implements MailManager {
 							String urlKrb = getPropertyFromConfiguration("registrarGuiKrb");
 							String urlCert = getPropertyFromConfiguration("registrarGuiCert");
 							String urlGoogle = getPropertyFromConfiguration("registrarGuiGoogle");
-							String urlCustom = "";
-
-							if (mailText.contains("{validationLinkCustom}")) {
-								urlCustom = getCustomValidationLink(app);
-							}
 
 							// new backup if validation URL is missing
 							if (url == null || url.isEmpty()) {
@@ -563,7 +556,6 @@ public class MailManagerImpl implements MailManager {
 							if (urlKrb != null && !urlKrb.isEmpty()) urlKrb = urlKrb + "?vo=" + app.getVo().getShortName();
 							if (urlCert != null && !urlCert.isEmpty()) urlCert = urlCert + "?vo=" + app.getVo().getShortName();
 							if (urlGoogle != null && !urlGoogle.isEmpty()) urlGoogle = urlGoogle + "?vo=" + app.getVo().getShortName();
-							if (urlCustom != null && !urlCustom.isEmpty()) urlCustom = urlCustom + "?vo=" + app.getVo().getShortName();
 
 							if (app.getGroup() != null) {
 								// append group name for
@@ -572,7 +564,6 @@ public class MailManagerImpl implements MailManager {
 								if (urlKrb != null && !urlKrb.isEmpty()) urlKrb += "&group="+app.getGroup().getName();
 								if (urlCert != null && !urlCert.isEmpty()) urlCert += "&group="+app.getGroup().getName();
 								if (urlGoogle != null && !urlGoogle.isEmpty()) urlGoogle += "&group="+app.getGroup().getName();
-								if (urlCustom != null && !urlCustom.isEmpty()) urlCustom += "&group="+app.getGroup().getName();
 							}
 
 							// construct whole url
@@ -581,7 +572,6 @@ public class MailManagerImpl implements MailManager {
 							StringBuilder urlKrb2 = new StringBuilder(urlKrb);
 							StringBuilder urlCert2 = new StringBuilder(urlCert);
 							StringBuilder urlGoogle2 = new StringBuilder(urlGoogle);
-							StringBuilder urlCustom2 = new StringBuilder(urlCustom);
 
 							if (url.contains("?")) {
 								if (!url.endsWith("?")) {
@@ -618,13 +608,6 @@ public class MailManagerImpl implements MailManager {
 							} else {
 								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("?");
 							}
-							if (urlCustom.contains("?")) {
-								if (!urlCustom.endsWith("?")) {
-									urlCustom2.append("&");
-								}
-							} else {
-								if (!urlCustom2.toString().isEmpty()) urlCustom2.append("?");
-							}
 
 							try {
 
@@ -633,7 +616,6 @@ public class MailManagerImpl implements MailManager {
 								if (!urlKrb2.toString().isEmpty()) urlKrb2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
 								if (!urlCert2.toString().isEmpty()) urlCert2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
 								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								if (!urlCustom2.toString().isEmpty()) urlCustom2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
 
 							} catch (UnsupportedEncodingException ex) {
 
@@ -642,7 +624,6 @@ public class MailManagerImpl implements MailManager {
 								if (!urlKrb2.toString().isEmpty()) urlKrb2.append("i=").append(i).append("&m=").append(m);
 								if (!urlCert2.toString().isEmpty()) urlCert2.append("i=").append(i).append("&m=").append(m);
 								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("i=").append(i).append("&m=").append(m);
-								if (!urlCustom2.toString().isEmpty()) urlCustom2.append("i=").append(i).append("&m=").append(m);
 
 							}
 
@@ -652,13 +633,6 @@ public class MailManagerImpl implements MailManager {
 							mailText = mailText.replace("{validationLinkCert}", urlCert2.toString());
 							mailText = mailText.replace("{validationLinkKrb}", urlKrb2.toString());
 							mailText = mailText.replace("{validationLinkGoogle}", urlGoogle2.toString());
-
-							// if not valid custom link, use non as backup
-							if (!urlCustom2.toString().isEmpty()) {
-								mailText = mailText.replace("{validationLinkCustom}", urlNon2.toString());
-							} else {
-								mailText = mailText.replace("{validationLinkCustom}", urlCustom2.toString());
-							}
 
 							// set replaced text
 							message.setText(mailText);
@@ -1571,8 +1545,8 @@ public class MailManagerImpl implements MailManager {
 		// replace registrar GUI link
 		if (mailText.contains("{appGuiUrl-")) {
 
-			Pattern LoginPattern = Pattern.compile("\\{appGuiUrl-[^\\}]+\\}");
-			Matcher m = LoginPattern.matcher(mailText);
+			Pattern pattern = Pattern.compile("\\{appGuiUrl-[^\\}]+\\}");
+			Matcher m = pattern.matcher(mailText);
 			while (m.find()) {
 
 				// whole "{appGuiUrl-something}"
@@ -1609,8 +1583,8 @@ public class MailManagerImpl implements MailManager {
 		// replace perun GUI app link
 		if (mailText.contains("{perunGuiUrl-")) {
 
-			Pattern LoginPattern = Pattern.compile("\\{perunGuiUrl-[^\\}]+\\}");
-			Matcher m = LoginPattern.matcher(mailText);
+			Pattern pattern = Pattern.compile("\\{perunGuiUrl-[^\\}]+\\}");
+			Matcher m = pattern.matcher(mailText);
 			while (m.find()) {
 
 				// whole "{perunGuiUrl-something}"
@@ -1644,8 +1618,8 @@ public class MailManagerImpl implements MailManager {
 		// replace invitation link
 		if (mailText.contains("{invitationLink-")) {
 
-			Pattern LoginPattern = Pattern.compile("\\{invitationLink-[^\\}]+\\}");
-			Matcher m = LoginPattern.matcher(mailText);
+			Pattern pattern = Pattern.compile("\\{invitationLink-[^\\}]+\\}");
+			Matcher m = pattern.matcher(mailText);
 			while (m.find()) {
 
 				// whole "{invitationLink-something}"
@@ -2030,8 +2004,8 @@ public class MailManagerImpl implements MailManager {
 		// replace logins
 		if (mailText.contains("{login-")) {
 
-			Pattern LoginPattern = Pattern.compile("\\{login-[^\\}]+\\}");
-			Matcher m = LoginPattern.matcher(mailText);
+			Pattern pattern = Pattern.compile("\\{login-[^\\}]+\\}");
+			Matcher m = pattern.matcher(mailText);
 			while (m.find()) {
 
 				// whole "{login-something}"
@@ -2094,8 +2068,8 @@ public class MailManagerImpl implements MailManager {
 		// replace registrar GUI link
 		if (mailText.contains("{appGuiUrl-")) {
 
-			Pattern LoginPattern = Pattern.compile("\\{appGuiUrl-[^\\}]+\\}");
-			Matcher m = LoginPattern.matcher(mailText);
+			Pattern pattern = Pattern.compile("\\{appGuiUrl-[^\\}]+\\}");
+			Matcher m = pattern.matcher(mailText);
 			while (m.find()) {
 
 				// whole "{appGuiUrl-something}"
@@ -2132,8 +2106,8 @@ public class MailManagerImpl implements MailManager {
 		// replace perun GUI app link
 		if (mailText.contains("{appDetailUrl-")) {
 
-			Pattern LoginPattern = Pattern.compile("\\{appDetailUrl-[^\\}]+\\}");
-			Matcher m = LoginPattern.matcher(mailText);
+			Pattern pattern = Pattern.compile("\\{appDetailUrl-[^\\}]+\\}");
+			Matcher m = pattern.matcher(mailText);
 			while (m.find()) {
 
 				// whole "{appDetailUrl-something}"
@@ -2168,8 +2142,8 @@ public class MailManagerImpl implements MailManager {
 		// replace perun GUI app link
 		if (mailText.contains("{perunGuiUrl-")) {
 
-			Pattern LoginPattern = Pattern.compile("\\{perunGuiUrl-[^\\}]+\\}");
-			Matcher m = LoginPattern.matcher(mailText);
+			Pattern pattern = Pattern.compile("\\{perunGuiUrl-[^\\}]+\\}");
+			Matcher m = pattern.matcher(mailText);
 			while (m.find()) {
 
 				// whole "{perunGuiUrl-something}"
@@ -2282,52 +2256,6 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		return "";
-
-	}
-
-	private String getCustomValidationLink(Application app) {
-
-		String result = "";
-		try {
-
-			if (app.getGroup() != null) {
-
-				Attribute a = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_VALIDATION_URL);
-				if (a != null && a.getValue() != null && !((String)a.getValue()).isEmpty()) {
-
-					result = (String)a.getValue();
-
-				} else {
-					// take it from the VO if not on group settings
-					Attribute a2 = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_VALIDATION_URL);
-					if (a2 != null && a2.getValue() != null && !((String)a2.getValue()).isEmpty()) {
-						result = (String)a2.getValue();
-					}
-				}
-
-			} else {
-
-				// take it from the VO
-				Attribute a2 = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_VALIDATION_URL);
-				if (a2 != null && a2.getValue() != null && !((String)a2.getValue()).isEmpty()) {
-					result = (String)a2.getValue();
-				}
-
-			}
-
-		} catch (Exception ex) {
-
-			if (app.getGroup() != null) {
-				log.error("[MAIL MANAGER] Exception when getting validation link for {} : {}",app.getGroup(), ex);
-			} else {
-				log.error("[MAIL MANAGER] Exception when getting validation link for {} : {}", app.getVo(), ex);
-			}
-
-		} finally {
-
-			return result;
-
-		}
 
 	}
 

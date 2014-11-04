@@ -266,8 +266,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<br/></br><strong>{validationLink-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{validationLink-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{validationLink-cert}</strong> - link for personal certificate authentication" +
-				"<br/><strong>{validationLink-non}</strong> - link without any authorization" +
-				"<br/><strong>{validationLinkCustom}</strong> - custom link which you must set on vo/group settings page" +
+				"<br/><strong>{validationLink-non}</strong> - link without any authentication" +
 
 				"<br/></br><strong><u>Application GUI links for users:</u></strong><br/>" +
 
@@ -279,7 +278,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<br/></br><strong>{appGuiUrl-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{appGuiUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{appGuiUrl-cert}</strong> - link for personal certificate authentication" +
-				"<br/><strong>{appGuiUrl-non}</strong> - link without any authorization" +
+				"<br/><strong>{appGuiUrl-non}</strong> - link without any authentication" +
 
 				"<br/></br><strong><u>Application GUI links for administrators:</u></strong><br/>" +
 
@@ -317,7 +316,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"</br></br><strong>{invitationLink-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{invitationLink-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{invitationLink-cert}</strong> - link for personal certificate authentication"+
-				"<br/><strong>{invitationLink-non}</strong> - link without any authorization"
+				"<br/><strong>{invitationLink-non}</strong> - link without any authentication"
 
 		);
 
