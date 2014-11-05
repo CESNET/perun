@@ -152,6 +152,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		}
 
 		return vp;
+
 	}
 
 	/**
@@ -215,8 +216,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 	 *
 	 * @return
 	 */
-	private Widget availableTagsTab()
-	{
+	private Widget availableTagsTab() {
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("500px", "350px");
@@ -237,9 +237,9 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		ft.setHTML(0, 0, "Following tags can be used in mail's subject and text and are replaced by actual data on sending. Just copy/paste tags from here to input form. When no data for tag is found, it's replaced by whitespace.");
 		ftf.addStyleName(0, 0, "inputFormInlineComment");
 
-		HTML text = new HTML("<strong><u>Application related:</u></strong><br/>" +
+		HTML text = new HTML("<strong><u>Application related:</u></strong>" +
 
-				"</br><strong>{appId}</strong> - application ID" +
+				"<p><strong>{appId}</strong> - application ID" +
 				"<br/><strong>{actor}</strong> - user's login used when submitting application" +
 				"<br/><strong>{extSource}</strong> - user's identity provider when submitting application" +
 				"<br/><strong>{voName}</strong> - name of VO of application form" +
@@ -248,72 +248,73 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 				"<br/><strong>{errors}</strong> - errors description, what happened while processing new application. Useful for VO administrators." +
 				"<br/><strong>{customMessage}</strong> - optional message passed by administrators when rejecting an application" +
 
-				"<br/></br><strong><u>User related:</u></strong><br/>" +
+				"<p><strong><u>User related:</u></strong>" +
 
-				"<br/><strong>{firstName}</strong> - user's first name taken from application form or Perun" +
+				"<p><strong>{firstName}</strong> - user's first name taken from application form or Perun" +
 				"<br/><strong>{lastName}</strong> - user's last name taken from application form or Perun" +
 				"<br/><strong>{displayName}</strong> - user's display name taken from application form or Perun" +
 				"<br/><strong>{login-<i>namespace</i>}</strong> - user's login in selected namespace, taken from registration form or Perun. You MUST specify the namespace, e.g. <i>{login-einfra}</i> will print user's login in einfra namespace." +
 				"<br/><strong>{membershipExpiration}</strong> - membership expiration date decided after membership creation or extension." +
 
-				"<br/></br><strong><u>Validation links for users:</u></strong><br/>" +
+				"<p><strong><u>Validation links for users:</u></strong>" +
 
-				"<br/><span class=\"inputFormInlineComment\">Works only for \"Mail validation / user \" mail type! Used to verify email address provided by users =&gt; verify application.</span><br/>" +
+				"<p><span class=\"inputFormInlineComment\">Works only for \"Mail validation / user \" mail type! Used to verify email address provided by users =&gt; verify application.</span>" +
 
-				"<br/></br><strong>{validationLink}</strong> - link for email address verification. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"<p><strong>{validationLink}</strong> - link for email address verification. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
 				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
 
-				"<br/></br><strong>{validationLink-krb}</strong> - link for Kerberos authentication" +
+				"<p><strong>{validationLink-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{validationLink-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{validationLink-cert}</strong> - link for personal certificate authentication" +
 				"<br/><strong>{validationLink-non}</strong> - link without any authentication" +
 
-				"<br/></br><strong><u>Application GUI links for users:</u></strong><br/>" +
+				"<p><strong><u>Application GUI links for users:</u></strong>" +
 
-				"<br/><span class=\"inputFormInlineComment\">Used to navigate users to the list of theirs applications.</span>" +
+				"<p><span class=\"inputFormInlineComment\">Used to navigate users to the list of theirs applications.</span>" +
 
-				"<br/></br><strong>{appGuiUrl}</strong> - link to overview of submitted registrations for users. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"<p><strong>{appGuiUrl}</strong> - link to overview of submitted registrations for users. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
 				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
 
-				"<br/></br><strong>{appGuiUrl-krb}</strong> - link for Kerberos authentication" +
+				"<p><strong>{appGuiUrl-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{appGuiUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{appGuiUrl-cert}</strong> - link for personal certificate authentication" +
 				"<br/><strong>{appGuiUrl-non}</strong> - link without any authentication" +
 
-				"<br/></br><strong><u>Application GUI links for administrators:</u></strong><br/>" +
+				"<p><strong><u>Application GUI links for administrators:</u></strong>" +
 
-				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the registration detail, where they can check and approve or reject the application.</span>" +
+				"<p><span class=\"inputFormInlineComment\">Used to navigate administrators to the registration detail, where they can check and approve or reject the application.</span>" +
 
-				"<br/></br><strong>{appDetailUrl}</strong> - link to registration detail in administrative GUI. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"<p><strong>{appDetailUrl}</strong> - link to registration detail in administrative GUI. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
 				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
 
-				"<br/></br><strong>{appDetailUrl-krb}</strong> - link for Kerberos authentication" +
+				"<p><strong>{appDetailUrl-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{appDetailUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{appDetailUrl-cert}</strong> - link for personal certificate authentication" +
 
-				"<br/></br><strong><u>Perun GUI links for administrators:</u></strong><br/>" +
+				"<p><strong><u>Perun GUI links for administrators:</u></strong>" +
 
-				"<br/><span class=\"inputFormInlineComment\">Used to navigate administrators to the administrative GUI of Perun. Can be used for users to locate user detail too.</span>" +
+				"<p><span class=\"inputFormInlineComment\">Used to navigate administrators to the administrative GUI of Perun. Can be used for users to locate user detail too.</span>" +
 
-				"<br/></br><strong>{perunGuiUrl}</strong> - link to administrative GUI. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"<p><strong>{perunGuiUrl}</strong> - link to administrative GUI. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
 				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
 
-				"<br/></br><strong>{perunGuiUrl-krb}</strong> - link for Kerberos authentication" +
+				"<p><strong>{perunGuiUrl-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{perunGuiUrl-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{perunGuiUrl-cert}</strong> - link for personal certificate authentication" +
 
-				"<br/></br><strong><u>User invitations:</u></strong><br/>" +
+				"<p><strong><u>User invitations:</u></strong>" +
 
-				"<br/><span class=\"inputFormInlineComment\">Following tags can be used on user invitation template</span><br/>" +
+				"<p><span class=\"inputFormInlineComment\">Following tags can be used on user invitation template</span>" +
 
-				"<br/><strong>{voName}</strong> - name of VO to invite user into" +
+				"<p><strong>{voName}</strong> - name of VO to invite user into" +
 				"<br/><strong>{groupName}</strong> - name of Group to invite user into" +
 				"<br/><strong>{displayName}</strong> - invited user's name" +
 				"<br/><strong>{mailFooter}</strong> - common mail footer defined by VO" +
 
-				"<br/></br><strong>{invitationLink}</strong> - link to registration form. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
+				"<p><strong>{invitationLink}</strong> - link to registration form. Please make sure you set \"Registrar URL\" setting of your VO/group. " +
 				"If you don't specify authorization in \"Registrar URL\", you can use following options: " +
-				"</br></br><strong>{invitationLink-krb}</strong> - link for Kerberos authentication" +
+
+				"<p><strong>{invitationLink-krb}</strong> - link for Kerberos authentication" +
 				"<br/><strong>{invitationLink-fed}</strong> - link for Shibboleth IdP (federation) authentication" +
 				"<br/><strong>{invitationLink-cert}</strong> - link for personal certificate authentication"+
 				"<br/><strong>{invitationLink-non}</strong> - link without any authentication"
@@ -442,9 +443,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		return false;
 	}
 
-
-	public void open()
-	{
+	public void open() {
 
 	}
 
@@ -465,13 +464,11 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return RegistrarTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?appMail=" + appMailId;
 	}
 
-	static public EditMailTabItem load(Map<String, String> parameters)
-	{
+	static public EditMailTabItem load(Map<String, String> parameters) {
 		int appMailId = Integer.parseInt(parameters.get("appMail"));
 		return new EditMailTabItem(appMailId);
 	}
