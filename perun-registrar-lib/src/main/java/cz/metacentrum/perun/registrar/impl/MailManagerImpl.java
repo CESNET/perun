@@ -60,8 +60,6 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_GROUP_FROM_EMAIL = "urn:perun:group:attribute-def:def:fromEmail";
 	private static final String URN_VO_LANGUAGE_EMAIL = "urn:perun:vo:attribute-def:def:notificationsDefLang";
 	private static final String URN_GROUP_LANGUAGE_EMAIL = "urn:perun:group:attribute-def:def:notificationsDefLang";
-	private static final String URN_VO_APPLICATION_URL = "urn:perun:vo:attribute-def:def:applicationURL";
-	private static final String URN_GROUP_APPLICATION_URL = "urn:perun:group:attribute-def:def:applicationURL";
 	private static final String URN_VO_REGISTRATION_URL = "urn:perun:vo:attribute-def:def:registrarURL";
 	private static final String URN_GROUP_REGISTRATION_URL = "urn:perun:group:attribute-def:def:registrarURL";
 
@@ -1487,7 +1485,10 @@ public class MailManagerImpl implements MailManager {
 
 		// replace invitation link
 		if (mailText.contains("{invitationLink}")) {
-			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, getPerunUrl(vo, group)));
+			String url = getPerunUrl(vo, group);
+			if (!url.endsWith("/")) url += "/";
+			url += "registrar/";
+			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, url));
 		}
 		if (mailText.contains("{invitationLinkFed}")) {
 			mailText = mailText.replace("{invitationLinkFed}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiFed")));
@@ -1528,8 +1529,7 @@ public class MailManagerImpl implements MailManager {
 
 					if (url != null && !url.isEmpty()) {
 						if (!url.endsWith("/")) url += "/";
-						url += namespace + "/";
-						// !! if VO/Group have custom invitation link, then url will be replaced by it. !!
+						url += namespace + "/registrar/";
 						newValue = buildInviteURL(vo, group, isMember, url);
 					}
 
@@ -1576,36 +1576,6 @@ public class MailManagerImpl implements MailManager {
 	 * @return full URL to application form
 	 */
 	private String buildInviteURL(Vo vo, Group group, boolean isMember, String text) {
-
-		try {
-
-			if (group == null) {
-
-				// use custom VO link if group not set
-				for (Attribute a : attrManager.getAttributes(registrarSession, vo)) {
-					if (a.getName().equals(URN_VO_APPLICATION_URL)) {
-						if (a.getValue() != null) {
-							return BeansUtils.attributeValueToString(a);
-						}
-					}
-				}
-
-			} else {
-
-				// use only group specific URL
-				for (Attribute a : attrManager.getAttributes(registrarSession, group)) {
-					if (a.getName().equals(URN_GROUP_APPLICATION_URL)) {
-						if (a.getValue() != null) {
-							return BeansUtils.attributeValueToString(a);
-						}
-					}
-				}
-
-			}
-
-		} catch (Exception ex) {
-			log.error("[MAIL MANAGER] Unable to get Invitation URL from {} and {} because of "+ex, vo, group);
-		}
 
 		if (text == null || text.isEmpty()) return "";
 
