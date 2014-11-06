@@ -1485,7 +1485,10 @@ public class MailManagerImpl implements MailManager {
 
 		// replace invitation link
 		if (mailText.contains("{invitationLink}")) {
-			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, getPerunUrl(vo, group)));
+			String url = getPerunUrl(vo, group);
+			if (!url.endsWith("/")) url += "/";
+			url += "registrar/";
+			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, url));
 		}
 		if (mailText.contains("{invitationLinkFed}")) {
 			mailText = mailText.replace("{invitationLinkFed}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiFed")));
@@ -1526,7 +1529,7 @@ public class MailManagerImpl implements MailManager {
 
 					if (url != null && !url.isEmpty()) {
 						if (!url.endsWith("/")) url += "/";
-						url += namespace + "/";
+						url += namespace + "/registrar/";
 						newValue = buildInviteURL(vo, group, isMember, url);
 					}
 
