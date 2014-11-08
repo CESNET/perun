@@ -7,6 +7,7 @@ import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException
 import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
+import cz.metacentrum.perun.notif.exceptions.TemplateMessageSyntaxErrorException;
 import freemarker.template.TemplateException;
 
 import java.io.IOException;
@@ -231,8 +232,9 @@ public interface PerunNotifNotificationManager {
 	 * @return perunNotifTemplateMessage with new id set
 	 * @throws InternalErrorException
 	 * @throws NotifTemplateMessageAlreadyExistsException
+	 * @throws TemplateMessageSyntaxErrorException
 	 */
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException;
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException;
 
 	/**
 	 * Update perunNotifTemplateMessage in db.
@@ -240,8 +242,9 @@ public interface PerunNotifNotificationManager {
 	 * @param message
 	 * @return
 	 * @throws InternalErrorException
+	 * @throws TemplateMessageSyntaxErrorException
 	 */
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException;
 
 	/**
 	 * Removes PerunNotifTemplateMessage from db.

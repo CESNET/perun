@@ -7,6 +7,7 @@ import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException
 import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
+import cz.metacentrum.perun.notif.exceptions.TemplateMessageSyntaxErrorException;
 import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -150,12 +151,12 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException {
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException {
 		return perunNotifTemplateManager.createPerunNotifTemplateMessage(message);
 	}
 
 	@Override
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException {
 		return perunNotifTemplateManager.updatePerunNotifTemplateMessage(message);
 	}
 

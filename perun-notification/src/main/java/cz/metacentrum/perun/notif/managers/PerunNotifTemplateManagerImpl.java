@@ -16,10 +16,12 @@ import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
 import cz.metacentrum.perun.notif.exceptions.NotExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.TemplateMessageSyntaxErrorException;
 import cz.metacentrum.perun.notif.senders.PerunNotifSender;
 import freemarker.cache.MruCacheStorage;
 import freemarker.core.Environment;
 import freemarker.core.InvalidReferenceException;
+import freemarker.core.ParseException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -118,7 +120,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	/**
-	 * Inserts subject and content of PerunNotifMessage into FreeMaker loader.
+	 * Inserts subject and content of PerunNotifMessage into FreeMarker loader.
 	 *
 	 * @param templateLoader
 	 * @param templateMessage
@@ -137,7 +139,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	/**
-	 * The FreeMaker template name is created with id of the notifTemplate and locale.
+	 * The FreeMarker template name is created with id of the notifTemplate and locale.
 	 *
 	 * @param templateMessage
 	 * @return
@@ -390,6 +392,32 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		return stringWriter.toString();
 	}
 
+	private void validateTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException {
+		String templateName = Integer.toString(message.getTemplateId());
+		Locale locale = message.getLocale();
+
+		Template freeMarkerTemplate = null;
+		try {
+			freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
+		} catch (ParseException ex) {
+			throw new TemplateMessageSyntaxErrorException(message, ex);
+		} catch (IOException ex) {
+			// template not found
+			throw new InternalErrorException("FreeMarker Template internal error.", ex);
+		}
+
+		StringWriter stringWriter = new StringWriter(4096);
+		Map<String, Object> container = new HashMap<String, Object>();
+		try {
+			freeMarkerTemplate.process(container, stringWriter);
+		} catch (TemplateException ex) {
+			// semantic error - ok, because the data are not bind yet
+			return;
+		} catch (IOException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	private String normalizeName(String className) {
 
 		String name = className.substring(className.lastIndexOf(".") + 1);
@@ -627,7 +655,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException {
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException {
 
 		// if there is already template message with the same template id and locale -> throw exception
 		PerunNotifTemplate template = allTemplatesById.get(message.getTemplateId());
@@ -637,18 +665,24 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			}
 		}
 
+		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
+		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
+		validateTemplateMessage(message);
+
 		PerunNotifTemplateMessage perunNotifTemplateMessage = perunNotifTemplateDao.createPerunNotifTemplateMessage(message);
 
 		template.addPerunNotifTemplateMessage(message);
-
-		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
-		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
 
 		return perunNotifTemplateMessage;
 	}
 
 	@Override
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException {
+
+		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
+		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
+		configuration.clearTemplateCache();
+		validateTemplateMessage(message);
 
 		PerunNotifTemplateMessage oldMessage = perunNotifTemplateDao.getPerunNotifTemplateMessageById(message.getId());
 		PerunNotifTemplateMessage newMessage = perunNotifTemplateDao.updatePerunNotifTemplateMessage(message);
@@ -683,11 +717,6 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				}
 			}
 		}
-
-		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
-		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, newMessage);
-
-		configuration.clearTemplateCache();
 
 		return newMessage;
 	}
