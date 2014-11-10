@@ -22,7 +22,21 @@ public class BeansUtils {
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
 	public static final char LIST_DELIMITER = ',';
 	public static final char KEY_VALUE_DELIMITER = ':';
-	public final static DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+	public final static DateFormat DATE_FORMATTER = getDateFormatter();
+
+	/**
+	 * Method create formatter with default settings for perun timestamps and set lenient on false
+	 * Timestamp format:  "yyyy-MM-dd HH:mm:ss.S" - "ex. 2014-01-01 10:10:10.0"
+	 *
+	 * Lenient on false means that formatter will be more strict to creating timestamp from string
+	 *
+	 * @return date formatter
+	 */
+	private static DateFormat getDateFormatter() {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+		df.setLenient(false);
+		return df;
+	}
 
 	/**
 	 * This method take text and for every chars in "<>\" erase escaping
