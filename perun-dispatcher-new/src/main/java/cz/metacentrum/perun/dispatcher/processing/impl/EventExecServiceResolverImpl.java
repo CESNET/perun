@@ -189,8 +189,7 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 			List<Resource> resourcesResolvedFromEvent = new ArrayList<Resource>();
 			List<Service> servicesResolvedFromEvent = new ArrayList<Service>();
 
-			// =============== Resolve facilities from
-			// event======================
+			// =============== Resolve facilities from event======================
 
 			PerunSession perunSession = perun
 					.getPerunSession(new PerunPrincipal(
@@ -307,6 +306,17 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 							.getFacility(perunSession, r);
 					servicesResolvedFromResource = perun.getResourcesManager()
 							.getAssignedServices(perunSession, r);
+					/* TESTING ONLY: drop any facilities not meant for test* */
+                    if(facilityResolvedFromEvent.getName().equals("alcor.ics.muni.cz") ||
+                       facilityResolvedFromEvent.getName().equals("aldor.ics.muni.cz") ||
+                       facilityResolvedFromEvent.getName().equals("ascor.ics.muni.cz") ||
+                       facilityResolvedFromEvent.getName().equals("torque.ics.muni.cz") ||
+                       facilityResolvedFromEvent.getName().equals("nympha-cloud.zcu.cz")) {
+                    } else {
+                            log.debug("Dropping facility {} that is not meant for testing", 
+                            		  facilityResolvedFromEvent.getName());
+                            continue;
+                    }
 					// process only services resolved from event if any
 					if (!servicesResolvedFromEvent.isEmpty())
 						servicesResolvedFromResource
