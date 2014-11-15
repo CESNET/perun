@@ -367,7 +367,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		return result;
 	}
 
-	private String compileTemplate(String templateName, Locale locale, Map<String, Object> container) throws IOException, TemplateException {
+	private String compileTemplate(final String templateName, Locale locale, Map<String, Object> container) throws IOException, TemplateException {
 
 		class NotificationTemplateExceptionHandler implements TemplateExceptionHandler {
 
@@ -375,6 +375,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			public void handleTemplateException(TemplateException te, Environment env, java.io.Writer out) throws TemplateException {
 				if (te instanceof InvalidReferenceException) {
 					// skip undefined values
+					logger.info("Undefined value found in the TemplateMessage " + templateName + ".", te);
 				} else {
 					throw te;
 				}
