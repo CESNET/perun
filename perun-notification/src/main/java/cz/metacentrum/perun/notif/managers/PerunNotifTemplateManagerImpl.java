@@ -515,13 +515,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 	@Override
 	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
-
-		// check if there is no other Notif receiver with the same target and locale
-		for (PerunNotifReceiver item: getAllPerunNotifReceivers()) {
-			if ((item.getTarget().equals(receiver.getTarget())) && (item.getLocale().equals(receiver.getLocale()))) {
-				throw new NotifReceiverAlreadyExistsException(receiver);
-			}
-		}
+		validateReceiver(receiver);
 
 		PerunNotifReceiver perunNotifReceiver = perunNotifTemplateDao.createPerunNotifReceiver(receiver);
 
@@ -533,7 +527,9 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
+		validateReceiver(receiver);
+
 		PerunNotifReceiver oldReceiver = perunNotifTemplateDao.getPerunNotifReceiverById(receiver.getId());
 		PerunNotifReceiver newReceiver = perunNotifTemplateDao.updatePerunNotifReceiver(receiver);
 
@@ -830,5 +826,20 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 	public void setNotifSenders(List<PerunNotifSender> notifSenders) {
 		this.notifSenders = notifSenders;
+	}
+
+	private void validateReceiver(PerunNotifReceiver receiver) throws NotifReceiverAlreadyExistsException {
+		// check if there is no other Notif receiver with the same target, templateID and locale
+		for (PerunNotifReceiver item: getAllPerunNotifReceivers()) {
+			if (item.getId().equals(receiver.getId())) {
+				continue;
+			}
+
+			if ((item.getTarget().equals(receiver.getTarget())) &&
+				(item.getLocale().equals(receiver.getLocale())) &&
+				(item.getTemplateId().equals(receiver.getTemplateId()))) {
+				throw new NotifReceiverAlreadyExistsException(receiver);
+			}
+		}
 	}
 }

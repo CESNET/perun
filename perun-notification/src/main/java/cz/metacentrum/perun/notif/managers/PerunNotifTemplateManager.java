@@ -109,8 +109,9 @@ public interface PerunNotifTemplateManager {
 	 * @param receiver
 	 * @return
 	 * @throws InternalErrorException
+	 * @throws NotifReceiverAlreadyExistsException
 	 */
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException;
 
 	/**
 	 * Saves perunNotifTemplate to db. Receivers in template will be saved

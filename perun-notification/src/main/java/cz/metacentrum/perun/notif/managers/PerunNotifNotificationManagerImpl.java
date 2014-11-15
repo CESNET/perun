@@ -79,7 +79,7 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
 		return perunNotifTemplateManager.updatePerunNotifReceiver(receiver);
 	}
 

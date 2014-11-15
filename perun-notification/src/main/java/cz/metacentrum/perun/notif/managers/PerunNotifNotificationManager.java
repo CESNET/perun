@@ -118,8 +118,9 @@ public interface PerunNotifNotificationManager {
 	 * @param receiver
 	 * @return
 	 * @throws InternalErrorException
+	 * @throws NotifReceiverAlreadyExistsException
 	 */
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException;
 
 	/**
 	 * Removes PerunNotifReceiver from db
