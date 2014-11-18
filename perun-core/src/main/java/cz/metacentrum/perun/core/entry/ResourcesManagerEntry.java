@@ -392,6 +392,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getAssignedResources");
@@ -514,6 +515,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, member)
+				&& !AuthzResolver.isAuthorized(sess, Role.ENGINE)
 				&& !AuthzResolver.isAuthorized(sess, Role.SELF, member) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, member)) {
 			throw new PrivilegeException(sess, "getAllowedResources");
 				}
