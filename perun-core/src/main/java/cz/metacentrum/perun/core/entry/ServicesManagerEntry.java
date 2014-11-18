@@ -162,7 +162,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) && !AuthzResolver.isAuthorized(sess, Role.ENGINE) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER)) {
 
 			throw new PrivilegeException(sess, "getAssignedResources");
 		}
