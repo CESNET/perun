@@ -68,31 +68,21 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>install</phase>
-                <goals>
-                  <goal>copy-dependencies</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-            <!-- Copy dependencies plug-in -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <configuration>
-                    <outputDirectory>
-                        target/lib
-                    </outputDirectory>
-                </configuration>
-            </plugin>
+	        <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-dependency-plugin</artifactId>
+		        <executions>
+			        <execution>
+				        <phase>install</phase>
+				        <goals>
+					        <goal>copy-dependencies</goal>
+				        </goals>
+			        </execution>
+		        </executions>
+		        <configuration>
+			        <outputDirectory>${project.build.directory}/lib</outputDirectory>
+		        </configuration>
+	        </plugin>
 
             <!-- Executing plug-in:  mvn exec:java -->
             <plugin>
