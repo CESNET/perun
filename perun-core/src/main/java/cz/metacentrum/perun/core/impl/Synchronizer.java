@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public class Synchronizer {
 						}
 
 						//check for members' expiration in the future on in the past
-						int daysToExpire = (int) (currentMembershipExpirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+						int daysToExpire = (int) TimeUnit.DAYS.convert(currentMembershipExpirationDate.getTime() - now.getTime(), TimeUnit.MILLISECONDS);
 						switch(daysToExpire) {
 							case 30: case 14: case 7:
 									getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", member, daysToExpire, vo);
