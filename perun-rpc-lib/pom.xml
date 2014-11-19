@@ -1,166 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>perun</artifactId>
-        <groupId>cz.metacentrum</groupId>
-        <version>3.0.1-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<artifactId>perun</artifactId>
+		<groupId>cz.metacentrum</groupId>
+		<version>3.0.1-SNAPSHOT</version>
+	</parent>
 
-    <groupId>cz.metacentrum.perun</groupId>
-    <artifactId>perun-rpc-lib</artifactId>
-    <version>3.0.1-SNAPSHOT-${perun.build.type}</version>
-    <packaging>jar</packaging>
+	<groupId>cz.metacentrum.perun</groupId>
+	<artifactId>perun-rpc-lib</artifactId>
+	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
+	<packaging>jar</packaging>
 
-    <name>perun-rpc-lib</name>
-    <description>Library for accessing Perun RPC programatically</description>
+	<name>perun-rpc-lib</name>
+	<description>Library for accessing Perun RPC programatically</description>
 
-    <properties>
-        <!-- common settings used by all profiles -->
-    </properties>
+	<properties>
+		<!-- common settings used by all profiles -->
+	</properties>
 
-    <!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
-    <build>
+	<!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
+	<build>
 
-        <plugins>
+		<plugins>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
 
-        </plugins>
+		</plugins>
 
-        <resources>
-            <resource>
-                <!-- get common resources -->
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <!-- put build specific resources with others -->
-                <directory>src/main/resources/devel</directory>
-                <targetPath>./</targetPath>
-            </resource>
-        </resources>
+		<resources>
+			<resource>
+				<!-- get common resources -->
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<!-- put build specific resources with others -->
+				<directory>src/main/resources/devel</directory>
+				<targetPath>./</targetPath>
+			</resource>
+		</resources>
 
-    </build>
+	</build>
 
-    <dependencies>
+	<dependencies>
 
-        <!-- PERUN -->
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-beans</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<!-- PERUN -->
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-beans</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-controller</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-controller</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-tasks-lib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-tasks-lib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <!-- DB -->
+		<!-- DB -->
 
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-dbcp</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-dbcp</artifactId>
+		</dependency>
 
-        <!-- SPRING -->
+		<!-- SPRING -->
 
-        <!-- TEST -->
+		<!-- TEST -->
 
-        <!-- LOGGING -->
+		<!-- LOGGING -->
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
 
-        <!-- OTHER -->
+		<!-- OTHER -->
 
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+		</dependency>
 
-    </dependencies>
+	</dependencies>
 
 
-    <profiles>
+	<profiles>
 
-        <profile>
+		<profile>
 
-            <id>production</id>
+			<id>production</id>
 
-            <properties>
-                <perun.build.type>production</perun.build.type>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
+			<properties>
+				<perun.build.type>production</perun.build.type>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
 
-            <build>
+			<build>
 
-                <resources>
-                    <resource>
-                        <!-- get common resources -->
-                        <directory>src/main/resources</directory>
-                    </resource>
-                    <resource>
-                        <!-- put build specific resources with others -->
-                        <directory>src/main/resources/production</directory>
-                        <targetPath>./</targetPath>
-                    </resource>
-                </resources>
+				<resources>
+					<resource>
+						<!-- get common resources -->
+						<directory>src/main/resources</directory>
+					</resource>
+					<resource>
+						<!-- put build specific resources with others -->
+						<directory>src/main/resources/production</directory>
+						<targetPath>./</targetPath>
+					</resource>
+				</resources>
 
-            </build>
+			</build>
 
-        </profile>
+		</profile>
 
-    </profiles>
+	</profiles>
 
 </project>

@@ -1,188 +1,188 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>perun</artifactId>
-        <groupId>cz.metacentrum</groupId>
-        <version>3.0.1-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<artifactId>perun</artifactId>
+		<groupId>cz.metacentrum</groupId>
+		<version>3.0.1-SNAPSHOT</version>
+	</parent>
 
-    <groupId>cz.metacentrum.perun</groupId>
-    <artifactId>perun-registrar-lib</artifactId>
-    <version>3.0.1-SNAPSHOT-${perun.build.type}</version>
-    <packaging>jar</packaging>
+	<groupId>cz.metacentrum.perun</groupId>
+	<artifactId>perun-registrar-lib</artifactId>
+	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
+	<packaging>jar</packaging>
 
-    <name>perun-registrar-lib</name>
-    <description>Provide application based VO/Group membership management in Perun</description>
+	<name>perun-registrar-lib</name>
+	<description>Provide application based VO/Group membership management in Perun</description>
 
-    <properties>
-        <!-- common module settings used by all profiles -->
-    </properties>
+	<properties>
+		<!-- common module settings used by all profiles -->
+	</properties>
 
-    <!-- common module build setting used by all profile -->
-    <build>
+	<!-- common module build setting used by all profile -->
+	<build>
 
-        <plugins>
+		<plugins>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
 
-        </plugins>
+		</plugins>
 
-        <resources>
-            <resource>
-                <!-- get common resources -->
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <excludes>
-                    <!-- do not pack sql files -->
-                    <exclude>**/*.sql</exclude>
-                </excludes>
-            </resource>
-        </resources>
+		<resources>
+			<resource>
+				<!-- get common resources -->
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<!-- do not pack sql files -->
+					<exclude>**/*.sql</exclude>
+				</excludes>
+			</resource>
+		</resources>
 
-    </build>
+	</build>
 
 
 
-    <dependencies>
+	<dependencies>
 
-        <!-- PERUN -->
+		<!-- PERUN -->
 
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <!-- DBs -->
-        <!-- PostgreSQL driver -->
-        <dependency>
-            <groupId>postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-        <!-- Oracle jdbc driver -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc7</artifactId>
-        </dependency>
-        <!-- Oracle inernationalization -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>orai18n</artifactId>
-        </dependency>
-        <!-- SQL Lite -->
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-        </dependency>
-        <!-- Mysql -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency> 
+		<!-- DBs -->
+		<!-- PostgreSQL driver -->
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		<!-- Oracle jdbc driver -->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc7</artifactId>
+		</dependency>
+		<!-- Oracle inernationalization -->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>orai18n</artifactId>
+		</dependency>
+		<!-- SQL Lite -->
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+		</dependency>
+		<!-- Mysql -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-dbcp</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-dbcp</artifactId>
+		</dependency>
 
-        <!-- SPRING -->
+		<!-- SPRING -->
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
 
-        <!-- JavaMail
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.1</version>
-            <scope>provided</scope>
-        </dependency>
-        -->
+		<!-- JavaMail
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.1</version>
+			<scope>provided</scope>
+		</dependency>
+		-->
 
-        <!-- TESTS -->
+		<!-- TESTS -->
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
 
-        <!-- LOGGING -->
+		<!-- LOGGING -->
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
 
-        <!-- OTHERS -->
+		<!-- OTHERS -->
 
-    </dependencies>
+	</dependencies>
 
-    <profiles>
+	<profiles>
 
-        <profile>
+		<profile>
 
-            <id>production</id>
-            <properties>
-                <perun.build.type>production</perun.build.type>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
+			<id>production</id>
+			<properties>
+				<perun.build.type>production</perun.build.type>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
 
-            <build>
+			<build>
 
-                <resources>
-                    <resource>
-                        <!-- get common resources -->
-                        <directory>src/main/resources</directory>
-                        <filtering>true</filtering>
-                        <excludes>
-                            <!-- do not pack sql files -->
-                            <exclude>**/*.sql</exclude>
-                        </excludes>
-                    </resource>
-                </resources>
+				<resources>
+					<resource>
+						<!-- get common resources -->
+						<directory>src/main/resources</directory>
+						<filtering>true</filtering>
+						<excludes>
+							<!-- do not pack sql files -->
+							<exclude>**/*.sql</exclude>
+						</excludes>
+					</resource>
+				</resources>
 
-            </build>
+			</build>
 
-        </profile>
+		</profile>
 
-    </profiles>
+	</profiles>
 
 </project>
