@@ -77,10 +77,11 @@ public class Synchronizer {
 			for (Vo vo: perunBl.getVosManagerBl().getVos(this.sess)) {
 				// Get all members
 				for (Member member: perunBl.getMembersManagerBl().getMembers(sess, vo)) {
+					Date currentMembershipExpirationDate;
 					// Read membershipExpiration and check it
 					Attribute membersExpiration = perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration");
 					if (membersExpiration.getValue() != null) {
-						Date currentMembershipExpirationDate = BeansUtils.DATE_FORMATTER.parse((String) membersExpiration.getValue());
+						currentMembershipExpirationDate = BeansUtils.DATE_FORMATTER.parse((String) membersExpiration.getValue());
 						if (currentMembershipExpirationDate.before(now)) {
 							// Expired membership, set status to expired only if the user hasn't been in suspended state
 							if (!member.getStatus().equals(Status.EXPIRED) && !member.getStatus().equals(Status.SUSPENDED)) {
@@ -103,6 +104,17 @@ public class Synchronizer {
 							} catch (WrongReferenceAttributeValueException e) {
 								log.error("Error during validating member {}, exception {}", member, e);
 							}
+						}
+
+						//check for members' expiration in the future on in the past
+						int daysToExpire = (int) (currentMembershipExpirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+						switch(daysToExpire) {
+							case 30: case 14: case 7:
+									getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", member, daysToExpire, vo);
+									break;
+							case -7:
+									getPerun().getAuditer().log(sess, "{} has expired {} days ago in {}.", member, daysToExpire*(-1), vo);
+									break;
 						}
 					}
 				}
