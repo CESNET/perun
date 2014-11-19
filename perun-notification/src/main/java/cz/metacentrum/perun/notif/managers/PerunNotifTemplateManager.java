@@ -7,6 +7,7 @@ import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.*;
 import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.TemplateMessageSyntaxErrorException;
 import freemarker.template.TemplateException;
 
 import java.io.IOException;
@@ -108,8 +109,9 @@ public interface PerunNotifTemplateManager {
 	 * @param receiver
 	 * @return
 	 * @throws InternalErrorException
+	 * @throws NotifReceiverAlreadyExistsException
 	 */
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException;
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException;
 
 	/**
 	 * Saves perunNotifTemplate to db. Receivers in template will be saved
@@ -159,16 +161,19 @@ public interface PerunNotifTemplateManager {
 	 * @param message
 	 * @throws InternalErrorException
 	 * @throws NotifTemplateMessageAlreadyExistsException
+	 * @throws TemplateMessageSyntaxErrorException
 	 */
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException;
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException;
 
 	/**
 	 * Update perunNotifTemplateMessage in db
 	 *
 	 * @param message
 	 * @return
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 * @throws TemplateMessageSyntaxErrorException
 	 */
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException;
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException;
 
 	/**
 	 * Remove perunNotifTemplateMessage from db

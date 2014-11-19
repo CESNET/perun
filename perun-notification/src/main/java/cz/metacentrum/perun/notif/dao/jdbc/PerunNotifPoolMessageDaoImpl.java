@@ -15,10 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.joda.time.Days;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 @Repository("perunNotifPoolMessageDao")
 @Transactional(propagation = Propagation.REQUIRED)
@@ -58,6 +61,9 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 	@Override
 	public Map<Integer, List<PoolMessage>> getAllPoolMessagesForProcessing() {
 
+		Days days = Days.days(10);
+		removeOldPoolMessages(days.toStandardDuration().getMillis());
+
 		logger.debug("Getting all poolMessages from db.");
 		Map<Integer, List<PoolMessage>> result = this.getJdbcTemplate().query("SELECT * FROM pn_pool_message ORDER BY key_attributes ASC, template_id ASC, created ASC ", new PerunNotifPoolMessage.PERUN_NOTIF_POOL_MESSAGE_EXTRACTOR());
 		logger.debug("Pool messages retrieved from db: {}", result);
@@ -75,6 +81,10 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 	@Override
 	public void removeAllPoolMessages(Set<Integer> proccessedIds) {
 
+		if (proccessedIds == null || proccessedIds.isEmpty()) {
+			return;
+		}
+
 		logger.debug("Removing poolMessages from db with ids: {}", proccessedIds);
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("delete from pn_pool_message where id in (");
@@ -88,5 +98,19 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 		buffer.append(")");
 		this.getJdbcTemplate().update(buffer.toString());
 		logger.debug("PoolMessages with id: {}, removed.", proccessedIds);
+	}
+
+	private void removeOldPoolMessages(long olderThan) {
+		Set<Integer> proccessedIds = new HashSet<Integer>();
+		long actualTimeInMillis = new DateTime().getMillis();
+		SqlRowSet srs = this.getJdbcTemplate().queryForRowSet("SELECT id,created FROM pn_pool_message");
+		while (srs.next()) {
+			Timestamp timeStamp = srs.getTimestamp("created");
+			if (timeStamp.getTime() + olderThan < actualTimeInMillis) {
+				proccessedIds.add(srs.getInt("id"));
+			}
+		}
+
+		removeAllPoolMessages(proccessedIds);
 	}
 }

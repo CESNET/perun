@@ -16,10 +16,12 @@ import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
 import cz.metacentrum.perun.notif.exceptions.NotExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
+import cz.metacentrum.perun.notif.exceptions.TemplateMessageSyntaxErrorException;
 import cz.metacentrum.perun.notif.senders.PerunNotifSender;
 import freemarker.cache.MruCacheStorage;
 import freemarker.core.Environment;
 import freemarker.core.InvalidReferenceException;
+import freemarker.core.ParseException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -118,7 +120,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	/**
-	 * Inserts subject and content of PerunNotifMessage into FreeMaker loader.
+	 * Inserts subject and content of PerunNotifMessage into FreeMarker loader.
 	 *
 	 * @param templateLoader
 	 * @param templateMessage
@@ -137,7 +139,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	/**
-	 * The FreeMaker template name is created with id of the notifTemplate and locale.
+	 * The FreeMarker template name is created with id of the notifTemplate and locale.
 	 *
 	 * @param templateMessage
 	 * @return
@@ -365,7 +367,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		return result;
 	}
 
-	private String compileTemplate(String templateName, Locale locale, Map<String, Object> container) throws IOException, TemplateException {
+	private String compileTemplate(final String templateName, Locale locale, Map<String, Object> container) throws IOException, TemplateException {
 
 		class NotificationTemplateExceptionHandler implements TemplateExceptionHandler {
 
@@ -373,6 +375,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			public void handleTemplateException(TemplateException te, Environment env, java.io.Writer out) throws TemplateException {
 				if (te instanceof InvalidReferenceException) {
 					// skip undefined values
+					logger.info("Undefined value found in the TemplateMessage " + templateName + ".", te);
 				} else {
 					throw te;
 				}
@@ -388,6 +391,32 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		freeMarkerTemplate.process(container, stringWriter);
 
 		return stringWriter.toString();
+	}
+
+	private void validateTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException {
+		String templateName = Integer.toString(message.getTemplateId());
+		Locale locale = message.getLocale();
+
+		Template freeMarkerTemplate = null;
+		try {
+			freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
+		} catch (ParseException ex) {
+			throw new TemplateMessageSyntaxErrorException(message, ex);
+		} catch (IOException ex) {
+			// template not found
+			throw new InternalErrorException("FreeMarker Template internal error.", ex);
+		}
+
+		StringWriter stringWriter = new StringWriter(4096);
+		Map<String, Object> container = new HashMap<String, Object>();
+		try {
+			freeMarkerTemplate.process(container, stringWriter);
+		} catch (TemplateException ex) {
+			// semantic error - ok, because the data are not bind yet
+			return;
+		} catch (IOException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	private String normalizeName(String className) {
@@ -487,13 +516,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 	@Override
 	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
-
-		// check if there is no other Notif receiver with the same target and locale
-		for (PerunNotifReceiver item: getAllPerunNotifReceivers()) {
-			if ((item.getTarget().equals(receiver.getTarget())) && (item.getLocale().equals(receiver.getLocale()))) {
-				throw new NotifReceiverAlreadyExistsException(receiver);
-			}
-		}
+		validateReceiver(receiver);
 
 		PerunNotifReceiver perunNotifReceiver = perunNotifTemplateDao.createPerunNotifReceiver(receiver);
 
@@ -505,7 +528,9 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
+		validateReceiver(receiver);
+
 		PerunNotifReceiver oldReceiver = perunNotifTemplateDao.getPerunNotifReceiverById(receiver.getId());
 		PerunNotifReceiver newReceiver = perunNotifTemplateDao.updatePerunNotifReceiver(receiver);
 
@@ -627,7 +652,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	}
 
 	@Override
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException {
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException {
 
 		// if there is already template message with the same template id and locale -> throw exception
 		PerunNotifTemplate template = allTemplatesById.get(message.getTemplateId());
@@ -637,18 +662,24 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			}
 		}
 
+		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
+		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
+		validateTemplateMessage(message);
+
 		PerunNotifTemplateMessage perunNotifTemplateMessage = perunNotifTemplateDao.createPerunNotifTemplateMessage(message);
 
 		template.addPerunNotifTemplateMessage(message);
-
-		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
-		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
 
 		return perunNotifTemplateMessage;
 	}
 
 	@Override
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException {
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException {
+
+		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
+		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
+		configuration.clearTemplateCache();
+		validateTemplateMessage(message);
 
 		PerunNotifTemplateMessage oldMessage = perunNotifTemplateDao.getPerunNotifTemplateMessageById(message.getId());
 		PerunNotifTemplateMessage newMessage = perunNotifTemplateDao.updatePerunNotifTemplateMessage(message);
@@ -683,11 +714,6 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				}
 			}
 		}
-
-		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
-		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, newMessage);
-
-		configuration.clearTemplateCache();
 
 		return newMessage;
 	}
@@ -801,5 +827,20 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 	public void setNotifSenders(List<PerunNotifSender> notifSenders) {
 		this.notifSenders = notifSenders;
+	}
+
+	private void validateReceiver(PerunNotifReceiver receiver) throws NotifReceiverAlreadyExistsException {
+		// check if there is no other Notif receiver with the same target, templateID and locale
+		for (PerunNotifReceiver item: getAllPerunNotifReceivers()) {
+			if (item.getId().equals(receiver.getId())) {
+				continue;
+			}
+
+			if ((item.getTarget().equals(receiver.getTarget())) &&
+				(item.getLocale().equals(receiver.getLocale())) &&
+				(item.getTemplateId().equals(receiver.getTemplateId()))) {
+				throw new NotifReceiverAlreadyExistsException(receiver);
+			}
+		}
 	}
 }
