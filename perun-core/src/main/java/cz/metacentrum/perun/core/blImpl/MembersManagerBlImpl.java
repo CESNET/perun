@@ -1264,7 +1264,20 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return filteredRichMembers;
 	}
 
-	/* Check if the user can apply for VO membership
+	/**
+	 * More info on https://wiki.metacentrum.cz/wiki/VO_managers%27s_manual
+	 *
+	 * Check if the user can apply for VO membership.
+	 *
+	 * @param sess session
+	 * @param vo VO to apply for
+	 * @param user User applying for membership
+	 * @param loa level of assurance provided by user's external identity
+	 * @param throwExceptions TRUE = throw exceptions / FALSE = return false when user can't be member of VO
+	 * @return True if user can become member of VO / false or exception otherwise.
+	 *
+	 * @throws ExtendMembershipException When user can't be member of VO and throwExceptions is set to true
+	 * @throws InternalErrorException
 	*/
 	protected boolean canBeMemberInternal(PerunSession sess, Vo vo, User user, String loa, boolean throwExceptions) throws InternalErrorException, ExtendMembershipException {
 		// Check if the VO has set membershipExpirationRules attribute
@@ -1314,10 +1327,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	/**
-	 * More info on http://meta.cesnet.cz/wiki/Manu%C3%A1l_pro_spr%C3%A1vce_VO#Definice_pravidel_pro_prodlu.C5.BEov.C3.A1n.C3.AD_.C3.BA.C4.8Dt.C5.AF
+	 * More info on https://wiki.metacentrum.cz/wiki/VO_managers%27s_manual
 	 *
-	 * if setAttributeValue is true, then store the membership expiration date into the attribute, otherwise
-	 * return object pair containg true/false if the member can be extended and date specifing exact date of the expiration
+	 * If setAttributeValue is true, then store the membership expiration date into the attribute, otherwise
+	 * return object pair containing true/false if the member can be extended and date specifying exact date of the expiration
+	 *
+	 * @param sess session
+	 * @param member member to check / set membership expiration
+	 * @param setAttributeValue TRUE = set new membership expiration date / FALSE = do NOT set new expiration date (just calculate it)
+	 * @param throwExceptions TRUE = throw exception / FALSE = return false when member can't extend membership
+	 * @return Pair with result in left side (can / can't extend membership) and Date in right side telling new membership expiration date
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtendMembershipException When member can't extend membership and throwException is set to true.
 	 */
 	protected Pair<Boolean, Date> manageMembershipExpiration(PerunSession sess, Member member, boolean setAttributeValue, boolean throwExceptions) throws InternalErrorException, ExtendMembershipException {
 		// Check if the VO has set membershipExpirationRules attribute
@@ -1389,7 +1411,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				if (doNotEtxendLoa.equals(memberLoa)) {
 					// Member has LOA which is not allowed for extension
 					if (throwExceptions) {
-						throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA,
+						throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION,
 								"Member " + member + " doesn't have required LOA for VO id " + member.getVoId() + ".");
 					} else {
 						return new Pair<Boolean, Date>(false, null);
