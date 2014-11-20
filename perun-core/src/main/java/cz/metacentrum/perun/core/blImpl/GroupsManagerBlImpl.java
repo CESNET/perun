@@ -1416,21 +1416,35 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			boolean exceptionThrown = false;
 			//text of exception if was thrown
 			String exceptionMessage = null;
+			//text with all skipped members and reasons of this skipping
+			String skippedMembersMessage = null;
 			
 			try {
 				log.debug("Synchronization thread for group {} has started.", group);
 				// Set the start time, so we can check the timeout of the thread
 				startTime = System.currentTimeMillis();
-			
+
+				//synchronize Group and get informatou about skipped Members
 				List<String> skippedMembers = ((PerunBl) sess.getPerun()).getGroupsManagerBl().synchronizeGroup(sess, group);
-				//prepare exception if needed
+
+				//prepare variables for checking max length of message and create human readable text
+				boolean exceedMaxChars = false;
+				int maxChars = 3000;
 				if(!skippedMembers.isEmpty()) {
 					exceptionThrown = true;
-					exceptionMessage = "These members from extSource were skipped: { ";
+					skippedMembersMessage = "These members from extSource were skipped: { ";
+					//Exception message can't be longer than 3000 chars
 					for(String skippedMember: skippedMembers) {
-						exceptionMessage+= skippedMember + ", ";
+						if(skippedMember == null) continue;
+						if(!exceedMaxChars && (skippedMembersMessage.length() + skippedMember.length()) > maxChars) {
+							exceptionMessage = skippedMembersMessage + " ... message is too long, other info is in perun log file. If needed, please ask perun administrators.";
+							exceedMaxChars = true;
+						}
+						skippedMembersMessage+= skippedMember + ", ";
 					}
-					exceptionMessage+= " }";
+					skippedMembersMessage+= " }";
+					if(!exceedMaxChars) exceptionMessage = skippedMembersMessage;
+					log.error("Info about exception from synchronization: " + skippedMembersMessage);
 				}
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
@@ -1469,6 +1483,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					((PerunBl) sess.getPerun()).getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, exceptionMessage);
 				} catch (Exception ex) {
 					log.error("When synchronization group " + group + ", exception was thrown.", ex);
+					log.error("Info about exception from synchronization: " + skippedMembersMessage);
 				}
 				log.debug("GroupSynchronizerThread finnished for group: {}", group);
 			}
