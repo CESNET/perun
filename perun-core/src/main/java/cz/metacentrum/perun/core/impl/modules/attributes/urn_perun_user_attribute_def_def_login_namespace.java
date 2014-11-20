@@ -37,19 +37,12 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	 */
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
-		String[] unpermittedLogins = {"arraysvcs", "at", "backup", "bin", "daemon", "Debian-exim", "flexlm", "ftp", "games",
-		        "gdm", "glite", "gnats", "haldaemon", "identd", "irc", "libuuid", "list", "lp", "mail", "man",
-		        "messagebus", "news", "nobody", "ntp", "openslp", "pcp", "polkituser", "postfix", "proxy",
-		        "pulse", "puppet", "root", "saned", "smmsp", "smmta", "sshd", "statd", "suse-ncc", "sync",
-		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "oneadmin", "tomcat6", "tomcat7", "tomcat8"};
-
 		String userLogin = (String) attribute.getValue();
 		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be nugll");
 		if(!userLogin.matches("^[a-zA-Z0-9][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, user, "Wrong format. ^[A-z0-9][-A-z0-9_.@/]*$ expected.");
 
-		for(String login: unpermittedLogins) {
-			if(userLogin.equals(login)) throw new WrongAttributeValueException(attribute, user, "Unpermitted login.");
-		}
+		//Check if user login is permitted or unpermitted
+		sess.getPerunBl().getModulesUtilsBl().checkUnpermittedUserLogins(attribute);
 
 		// Get all users who have set attribute urn:perun:member:attribute-def:def:login-namespace:[login-namespace], with the value.
 		List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);

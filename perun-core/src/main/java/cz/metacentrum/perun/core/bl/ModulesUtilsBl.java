@@ -215,12 +215,23 @@ public interface ModulesUtilsBl {
 	 * Check if value of groupName attribute is not reserved String.
 	 * If not, its ok.
 	 * If yes, throw WrongAttributeValueException.
-	 * If attribute is null, then its ok.
+	 * If attribute is null, then it's ok.
 	 *
 	 * @param groupName attribute unixGroupName-namespace
 	 * @throws WrongAttributeValueException
 	 */
-	void checkReservedNames(Attribute groupName) throws WrongAttributeValueException;
+	void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws WrongAttributeValueException;
+
+	/**
+	 * Check if value of login attribute is unpermitted.
+	 * If not, its ok.
+	 * If yes, throw WrongAttributeValueException.
+	 * If attribute is null, then it's ok.
+	 * 
+	 * @param login attribute login-namespace
+	 * @throws WrongAttributeValueException 
+	 */
+	void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException;
 
 	/**
 	 * Get value of attribute A_F_Def_unixGroupName-Namespace

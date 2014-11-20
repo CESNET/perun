@@ -44,6 +44,9 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 			throw new WrongAttributeValueException(attribute,"GroupName attributte content invalid characters. Allowed are only letters, numbers and characters _ and -.");
 		}
 
+		//Check reserved unix group names
+		sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);
+
 		try {
 			//prepare attributes group and resource unixGroupName
 			Attribute groupUnixGroupName = attribute;
