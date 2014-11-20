@@ -397,25 +397,13 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		String templateName = Integer.toString(message.getTemplateId());
 		Locale locale = message.getLocale();
 
-		Template freeMarkerTemplate = null;
 		try {
-			freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
+			Template freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
 		} catch (ParseException ex) {
 			throw new TemplateMessageSyntaxErrorException(message, ex);
 		} catch (IOException ex) {
 			// template not found
 			throw new InternalErrorException("FreeMarker Template internal error.", ex);
-		}
-
-		StringWriter stringWriter = new StringWriter(4096);
-		Map<String, Object> container = new HashMap<String, Object>();
-		try {
-			freeMarkerTemplate.process(container, stringWriter);
-		} catch (TemplateException ex) {
-			// semantic error - ok, because the data are not bind yet
-			return;
-		} catch (IOException ex) {
-			throw new InternalErrorException(ex);
 		}
 	}
 
