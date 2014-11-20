@@ -49,10 +49,17 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public static final String A_F_unixGroupName_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace";
 	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
-	public final static List<String> reservedNamesForUnixGroups = Arrays.asList("root", "daemon", "tty", "bin", "sys", "sudo", "nogroup");
+	public final static List<String> reservedNamesForUnixGroups = Arrays.asList("root", "daemon", "tty", "bin", "sys", "sudo", "nogroup",
+	          "hadoop", "hdfs", "mapred", "yarn", "hsqldb", "derby", "jetty", "hbase", "zookeeper", "users");
+	public final static List<String> unpermittedNamesForUserLogins = Arrays.asList("arraysvcs", "at", "backup", "bin", "daemon", "Debian-exim", "flexlm", "ftp", "games",
+		        "gdm", "glite", "gnats", "haldaemon", "identd", "irc", "libuuid", "list", "lp", "mail", "man",
+		        "messagebus", "news", "nobody", "ntp", "openslp", "pcp", "polkituser", "postfix", "proxy",
+		        "pulse", "puppet", "root", "saned", "smmsp", "smmta", "sshd", "statd", "suse-ncc", "sync",
+		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "oneadmin", "tomcat6", "tomcat7", "tomcat8",
+		        "nn", "dn", "rm", "nm", "sn", "jn", "jhs", "http", "yarn", "hdfs", "mapred", "hadoop", "hsqldb", "derby",
+		        "jetty", "hbase", "zookeeper", "hive", "hue");
 
 	public ModulesUtilsBlImpl() {
-
 	}
 
 	public boolean isNamespaceEqualsToFacilityUnixGroupNameNamespace(PerunSessionImpl sess, Facility facility, String namespace) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException{
@@ -473,9 +480,14 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return groupNameNamespaces;
 	}
 
-	public void checkReservedNames(Attribute groupName) throws WrongAttributeValueException {
-		if(groupName == null) return;
-		if(reservedNamesForUnixGroups.contains(groupName.getValue())) throw new WrongAttributeValueException(groupName, "This groupName is reserved.");
+	public void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws WrongAttributeValueException {
+		if(groupNameAttribute == null) return;
+		if(reservedNamesForUnixGroups.contains(groupNameAttribute.getValue())) throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
+	}
+
+	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException {
+		if(loginAttribute == null) return;
+		if(unpermittedNamesForUserLogins.contains(loginAttribute.getValue())) throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
 	}
 
 	public Attribute getUnixGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException {
