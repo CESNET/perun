@@ -202,7 +202,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, AlreadyMemberException {
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
 		candidate.setFirstName("(Service)");
 		Member member = createMember(sess, vo, true, candidate);
 		member.getUserId();
@@ -217,7 +217,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, AlreadyMemberException {
+	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
 		Member member = createMember(sess, vo, false, candidate);
 
 		//Validate synchronously
@@ -230,7 +230,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, AlreadyMemberException {
+	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
 		Member member = createServiceMember(sess, vo, candidate, serviceUserOwners);
 
 		//Validate synchronously
@@ -243,11 +243,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
 		return createMember(sess, vo, false, candidate);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
 		log.debug("Creating member for VO {} from candidate {}", vo, candidate);
 
 		// Get the user
@@ -346,13 +346,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		try {
 			getPerunBl().getAttributesManagerBl().setAttributes(sess, member, membersAttributes);
 			getPerunBl().getAttributesManagerBl().mergeAttributesValues(sess, user, usersAttributes);
-
-		} catch (WrongAttributeValueException e) {
-			throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
-		} catch (WrongReferenceAttributeValueException e) {
-			throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
 		}
 
 		// Set the initial membershipExpiration
@@ -371,7 +366,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * This method with support of LoA finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
 	 * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate) throws InternalErrorException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
 		// Create ExtSource object
 		ExtSource extSource = new ExtSource();
 		extSource.setName(extSourceName);
@@ -393,7 +388,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * This method finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
 	 * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
 		// Create ExtSource object
 		ExtSource extSource = new ExtSource();
 		extSource.setName(extSourceName);

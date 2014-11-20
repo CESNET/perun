@@ -87,7 +87,7 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().deleteAllMembers(sess, vo);
 	}
 
-	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException {
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -105,7 +105,7 @@ public class MembersManagerEntry implements MembersManager {
 		return getMembersManagerBl().createServiceMember(sess, vo, candidate, serviceUserOwners);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, AlreadyMemberException, VoNotExistsException, PrivilegeException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -119,7 +119,7 @@ public class MembersManagerEntry implements MembersManager {
 		return getMembersManagerBl().createMember(sess, vo, candidate);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, AlreadyMemberException, VoNotExistsException, PrivilegeException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		//TODO Authorization
@@ -131,7 +131,7 @@ public class MembersManagerEntry implements MembersManager {
 		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, login, candidate);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, AlreadyMemberException, VoNotExistsException, PrivilegeException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		//TODO Authorization
@@ -143,7 +143,7 @@ public class MembersManagerEntry implements MembersManager {
 		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, VoNotExistsException, UserNotExistsException, PrivilegeException{
+	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException{
 		Utils.checkPerunSession(sess);
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
