@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -793,8 +794,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * This method is run in separate transaction.
 	 */
-	public void synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException {
+	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException {
 
+		List<String> skippedMembers = new ArrayList<>();
 		ExtSource source = null;
 		ExtSource membersSource = null;
 		try {
@@ -878,6 +880,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// Skip subjects, which doesn't have login
 				if (login == null || login == "") {
 					log.debug("Subject {} doesn't contain attribute login, skipping.", subject);
+					skippedMembers.add("Member:[" + subject + " because of Skipped due to missing login]");
 					continue;
 				}
 				try {
@@ -886,9 +889,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					throw new InternalErrorException("ExtSource " + membersSource + " doesn't exists.");
 				} catch (CandidateNotExistsException e) {
 					log.warn("getGroupSubjects subjects returned login {}, but it cannot be obtained using getCandidate()", login);
+					skippedMembers.add("Member:[" + subject + " because of Skipped due to obtaining by getCandidate using login '" + login + "' from extSource '" + membersSource + "]");
 					continue;
 				} catch (ExtSourceUnsupportedOperationException e) {
 					log.warn("ExtSource {} doesn't support getCandidate operation.", membersSource);
+					skippedMembers.add("Member:[" + subject + " because of Skipped due to NOT supported method getCandidate by extSource '" + membersSource + "]");
+					continue;
+				} catch (ParserException e) {
+					log.warn("Can't parse value {} from candidate with login {}", e.getParsedValue(), login);
+					skippedMembers.add("Member:[" + subject + " because of Skipped due to problem with parsing '" + e.getParsedValue() + "]");
 					continue;
 				}
 			}
@@ -1125,6 +1134,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						log.info("Group synchronization {}: New member id {} created during synchronization.", group, member.getId());
 					} catch (AlreadyMemberException e1) {
 						throw new ConsistencyErrorException("Trying to add existing member");
+					} catch (AttributeValueException e1) {
+						log.warn("Can't create member from candidate {} due to attribute value exception {}.", candidate, e1);
+						skippedMembers.add("Member:[" + candidate + " because of Skipped due to problem with creating member from candidate. Exception: " + e1.getName() + " => " + e1.getMessage() + "]");
+						continue;
 					}
 				}
 
@@ -1262,7 +1275,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			}
 		}
-
+		
+		return skippedMembers;
 	}
 
 	/**
@@ -1407,8 +1421,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				log.debug("Synchronization thread for group {} has started.", group);
 				// Set the start time, so we can check the timeout of the thread
 				startTime = System.currentTimeMillis();
-
-				((PerunBl) sess.getPerun()).getGroupsManagerBl().synchronizeGroup(sess, group);
+			
+				List<String> skippedMembers = ((PerunBl) sess.getPerun()).getGroupsManagerBl().synchronizeGroup(sess, group);
+				//prepare exception if needed
+				if(!skippedMembers.isEmpty()) {
+					exceptionThrown = true;
+					exceptionMessage = "These members from extSource were skipped: { ";
+					for(String skippedMember: skippedMembers) {
+						exceptionMessage+= skippedMember + ", ";
+					}
+					exceptionMessage = " }";
+				}
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
 			} catch (WrongAttributeValueException e) {

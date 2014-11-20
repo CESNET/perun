@@ -25,15 +25,20 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerBlImpl.class);
+	// \\p{L} means any unicode char
+	private static final Pattern namePattern = Pattern.compile("^[\\p{L} ,.0-9_'-]+$");
 
 	private final ExtSourcesManagerImplApi extSourcesManagerImpl;
 	private PerunBl perunBl;
@@ -179,11 +184,21 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		}
 
 		if (subject == null) {
-			throw new InternalErrorException("Candidate with login [" + login + "] not exists");
+			throw new CandidateNotExistsException("Candidate with login [" + login + "] not exists");
 		}
 
+		//If first name of candidate is not in format of name, set null instead
 		candidate.setFirstName(subject.get("firstName"));
+		if(candidate.getFirstName() != null) {
+			Matcher name = namePattern.matcher(candidate.getFirstName());
+			if(!name.matches()) candidate.setFirstName(null);
+		}
+		//If last name of candidate is not in format of name, set null instead
 		candidate.setLastName(subject.get("lastName"));
+		if(candidate.getLastName()!= null) {
+			Matcher name = namePattern.matcher(candidate.getLastName());
+			if(!name.matches()) candidate.setLastName(null);
+		}
 		candidate.setMiddleName(subject.get("middleName"));
 		candidate.setTitleAfter(subject.get("titleAfter"));
 		candidate.setTitleBefore(subject.get("titleBefore"));
@@ -211,7 +226,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 					try {
 						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
 					} catch (NumberFormatException e) {
-						throw new InternalErrorException("Candidate with login [" + login + "] has wrong LoA '" + userExtSourceRaw[3] + "'.");
+						throw new ParserException("Candidate with login [" + login + "] has wrong LoA '" + userExtSourceRaw[3] + "'.", e, "LoA");
 					}
 				}
 

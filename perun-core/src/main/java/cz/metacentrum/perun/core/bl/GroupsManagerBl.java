@@ -712,16 +712,19 @@ public interface GroupsManagerBl {
 
 	/**
 	 * Synchronizes the group with the external group without checking if the synchronization is already in progress.
+	 * If some members from extSource of this group were skipped, return info about them.
+	 * if not, return empty string instead, which means all members was successfully load from extSource.
 	 *
 	 * @param sess
 	 * @param group
+	 * @return List of strings with skipped users with reasons why were skipped
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeAssignmentException
 	 * @throws MemberAlreadyRemovedException if there is at least one member who need to be deleted, but DB returns 0 affected rows
 	 */
-	void synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberAlreadyRemovedException;
+	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberAlreadyRemovedException;
 
 	/**
 	 * Synchronize the group with external group. It checks if the synchronization of the same group is already in progress.
