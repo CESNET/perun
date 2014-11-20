@@ -25,7 +25,7 @@ create table vos (
 create table users (
 	id integer not null,
 	first_name varchar2(64),
-	last_name varchar2(64) not null,
+	last_name varchar2(64),
 	middle_name varchar2(64),
 	title_before varchar2(20),
 	title_after varchar2(20),
