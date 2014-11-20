@@ -18,7 +18,7 @@ create table "vos" (
 create table "users" (
 	id integer not null,
 	first_name varchar(64),   -- christening name
-	last_name varchar(64) not null, -- family name
+	last_name varchar(64),    -- family name
 	middle_name varchar(64),   -- second name
 	title_before varchar(20),  -- academic degree used before name
 	title_after varchar(20),   -- academic degree used after name
