@@ -1430,7 +1430,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					for(String skippedMember: skippedMembers) {
 						exceptionMessage+= skippedMember + ", ";
 					}
-					exceptionMessage = " }";
+					exceptionMessage+= " }";
 				}
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
