@@ -1801,17 +1801,47 @@ public class UiElements {
 	 */
 	static public void runResizeCommands(boolean allTabs) {
 
+		final Iterator<Command> resizeIterator = resizeCommands.iterator();
+		Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
+			@Override
+			public boolean execute() {
+				if (resizeIterator.hasNext()) {
+					resizeIterator.next().execute();
+					return true;
+				}
+				return false;
+			}
+		});
+
+		/*
+
 		// SHARED COMMANDS
 		for (Command command : resizeCommands) {
 			Scheduler.get().scheduleDeferred(command);
 		}
 
+		*/
+
 		// RUN ALL
 		if (allTabs) {
 			for (Map.Entry<TabItem, Set<Command>> entry : resizeCommandsForTabs.entrySet()) {
+
+				final Iterator<Command> iterator = entry.getValue().iterator();
+				Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
+					@Override
+					public boolean execute() {
+						if (iterator.hasNext()) {
+							iterator.next().execute();
+							return true;
+						}
+						return false;
+					}
+				});
+				/*
 				for (Command command : entry.getValue()) {
 					Scheduler.get().scheduleDeferred(command);
 				}
+				*/
 			}
 			// if all, exits
 			return;
@@ -1831,13 +1861,27 @@ public class UiElements {
 	static public void runResizeCommands(TabItem tab) {
 		Set<Command> commandQueue = resizeCommandsForTabs.get(tab);
 		if (commandQueue != null) {
+
+			final Iterator<Command> resizeIterator = commandQueue.iterator();
+			Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
+				@Override
+				public boolean execute() {
+					if (resizeIterator.hasNext()) {
+						resizeIterator.next().execute();
+						return true;
+					}
+					return false;
+				}
+			});
+
+			/*
 			// run resize queue for each tab
 			for (Command command : resizeCommandsForTabs.get(tab)) {
 				Scheduler.get().scheduleDeferred(command);
 			}
+			*/
 		}
 	}
-
 
 	/**
 	 * Runs resize commands for the active tab

@@ -199,7 +199,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 857;
 		int result = 1;
 		result = prime * result + groupId + 546;
 		return result;

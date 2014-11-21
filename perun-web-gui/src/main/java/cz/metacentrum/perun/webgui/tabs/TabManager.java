@@ -159,8 +159,8 @@ public class TabManager {
 
 		// update overlay position
 		UiElements.addResizeCommand(new Command() {
+			@Override
 			public void execute() {
-
 				// empty
 				if (overlayTab.getWidget() == null) {
 					return;
@@ -477,16 +477,13 @@ public class TabManager {
 		UiElements.runResizeCommands(true);
 
 		// run resize commands, after 400ms, when panel fully opened
-		/*
-		// FIXME - by testing it was not necessary
 		Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-
-		public boolean execute() {
-		//UiElements.runResizeCommands(true);
-		return false;
-		}
+			@Override
+			public boolean execute() {
+				UiElements.runResizeCommandsForCurrentTab();
+				return false;
+			}
 		}, 400);
-		*/
 
 		return true;
 

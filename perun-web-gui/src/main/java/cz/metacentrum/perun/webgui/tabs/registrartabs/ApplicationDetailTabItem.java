@@ -401,7 +401,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 51;
+		final int prime = 1487;
 		int result = 1;
 		result = prime * result + appId;
 		return result;

@@ -217,7 +217,7 @@ public class ShellChangeTabItem implements TabItem{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1277;
 		int result = 404;
 		result = prime * result;
 		return result;

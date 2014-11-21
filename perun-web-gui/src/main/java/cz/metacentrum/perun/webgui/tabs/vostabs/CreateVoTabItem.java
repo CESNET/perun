@@ -174,15 +174,12 @@ public class CreateVoTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1303;
 		int result = 1;
 		result = prime * result + 6786786;
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

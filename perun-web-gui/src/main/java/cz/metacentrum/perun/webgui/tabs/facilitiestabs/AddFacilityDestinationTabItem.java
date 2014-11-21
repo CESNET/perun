@@ -344,7 +344,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 641;
 		int result = 1;
 		result = prime * result + facilityId;
 		return result;

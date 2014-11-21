@@ -453,15 +453,12 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 599;
 		int result = 10;
 		result = prime * result * 22;
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

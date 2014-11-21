@@ -206,7 +206,7 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 311;
+		final int prime = 1427;
 		int result = 1;
 		result = prime * result + 341;
 		return result;

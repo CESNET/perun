@@ -461,7 +461,7 @@ public class MemberSettingsTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 883;
 		int result = 1;
 		result = prime * result + memberId + 1;
 		return result;

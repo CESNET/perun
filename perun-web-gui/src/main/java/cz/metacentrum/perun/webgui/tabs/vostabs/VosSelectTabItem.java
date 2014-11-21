@@ -131,7 +131,7 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 13;
+		final int prime = 1621;
 		int result = 1;
 		result = prime * result + 341;
 		return result;

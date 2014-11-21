@@ -187,7 +187,7 @@ public class MembershipExpirationTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 887;
 		int result = 1;
 		result = prime * result + memberId;
 		return result;

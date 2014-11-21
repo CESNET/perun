@@ -187,7 +187,7 @@ public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 43;
+		final int prime = 1601;
 		int result = 1;
 		result = prime * result + voId;
 		return result;

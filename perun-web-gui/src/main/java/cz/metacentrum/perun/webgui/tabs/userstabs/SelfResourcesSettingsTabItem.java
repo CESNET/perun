@@ -637,7 +637,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1249;
 		int result = 432;
 		result = prime * result;
 		return result;

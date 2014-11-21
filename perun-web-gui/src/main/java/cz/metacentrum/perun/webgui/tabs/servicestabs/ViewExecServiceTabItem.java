@@ -279,7 +279,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1117;
 		int result = 1;
 		result = prime * result + execServiceId;
 		return result;
