@@ -179,7 +179,7 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1087;
 		int result = 1;
 		result = prime * result + serviceId;
 		return result;

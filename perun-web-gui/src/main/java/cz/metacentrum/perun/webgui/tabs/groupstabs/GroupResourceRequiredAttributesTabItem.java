@@ -395,7 +395,7 @@ public class GroupResourceRequiredAttributesTabItem implements TabItem, TabItemW
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 829;
 		int result = 1;
 		result = prime * result * groupId + resourceId;
 		return result;

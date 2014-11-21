@@ -281,7 +281,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 11;
+		final int prime = 1559;
 		int result = 432;
 		result = prime * result * userId;
 		return result;

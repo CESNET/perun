@@ -169,7 +169,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1201;
 		int result = 432;
 		result = prime * result;
 		return result;

@@ -84,7 +84,7 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 619;
 		int result = 10;
 		result = prime * result * 22;
 		return result;

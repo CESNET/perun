@@ -334,7 +334,7 @@ public class FacilityPropagationTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 39;
+		final int prime = 1367;
 		int result = 1;
 		result = prime * result + facilityId;
 		return result;

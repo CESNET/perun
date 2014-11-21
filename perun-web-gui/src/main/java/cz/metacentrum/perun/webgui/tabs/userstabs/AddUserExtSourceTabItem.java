@@ -231,15 +231,12 @@ public class AddUserExtSourceTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1181;
 		int result = 1;
 		result = prime * result + userId;
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

@@ -240,13 +240,9 @@ public class FacilityHostsSettingsTabItem implements TabItem, TabItemWithUrl {
 		return  SmallIcons.INSTANCE.serverIcon();
 	}
 
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 739;
 		int result = 1;
 		result = prime * result + facilityId;
 		return result;

@@ -185,7 +185,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 71;
+		final int prime = 1423;
 		int result = 1;
 		result = prime * result + groupId;
 		return result;

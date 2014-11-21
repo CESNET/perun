@@ -192,7 +192,7 @@ public class AttributeDefinitionsTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 563;
 		int result = 1;
 		result = prime * result * 13;
 		return result;

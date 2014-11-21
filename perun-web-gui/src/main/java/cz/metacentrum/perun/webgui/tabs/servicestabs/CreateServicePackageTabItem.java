@@ -152,7 +152,7 @@ public class CreateServicePackageTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1061;
 		int result = 31;
 		result = prime * result;
 		return result;
