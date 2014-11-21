@@ -91,7 +91,7 @@ public class Synchronizer {
 									log.info("Switching {} to EXPIRE state, due to expiration {}.", member, (String) membersExpiration.getValue());
 									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
 								} catch (MemberNotValidYetException e) {
-									log.warn("Trying to switch invalid member {} into the expire state.", member);
+									log.error("Consistency error while trying to expire member {}, exception {}", member, e);
 								}
 							}
 						} else if (member.getStatus().equals(Status.EXPIRED) || member.getStatus().equals(Status.DISABLED)) {
@@ -122,13 +122,13 @@ public class Synchronizer {
 
 			}
 		} catch (InternalErrorException e) {
-			log.error("Synchronizer: checkMembersState", e);
+			log.error("Synchronizer: checkMembersState, exception {}", e);
 		} catch (AttributeNotExistsException e) {
-			log.warn("Synchronizer: checkMembersState, member doesn't have membershipExpiration attribute set.");
+			log.warn("Synchronizer: checkMembersState, attribute definition for membershipExpiration doesn't exist, exception {}", e);
 		} catch (WrongAttributeAssignmentException e) {
-			log.error("Synchronizer: checkMembersState", e);
+			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace, exception {}", e);
 		} catch (ParseException e) {
-			log.error("Synchronizer: checkMembersState", e);
+			log.error("Synchronizer: checkMembersState, member expiration String cannot be parsed, exception {}", e);
 		}
 	}
 
