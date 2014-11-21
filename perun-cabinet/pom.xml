@@ -1,219 +1,219 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>perun</artifactId>
-        <groupId>cz.metacentrum</groupId>
-        <version>3.0.1-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<artifactId>perun</artifactId>
+		<groupId>cz.metacentrum</groupId>
+		<version>3.0.1-SNAPSHOT</version>
+	</parent>
 
-    <groupId>cz.metacentrum.perun</groupId>
-    <artifactId>perun-cabinet</artifactId>
-    <version>3.0.1-SNAPSHOT-${perun.build.type}</version>
-    <packaging>jar</packaging>
+	<groupId>cz.metacentrum.perun</groupId>
+	<artifactId>perun-cabinet</artifactId>
+	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
+	<packaging>jar</packaging>
 
-    <name>perun-cabinet</name>
-    <description>Cabinet is a project which aims on retrieving publications from remote sources and allow to report them by perun's users.</description>
-    <scm>
-        <url>https://projekty.ics.muni.cz/perunv3/svn/trunk/perun/perun-cabinet</url>
-    </scm>
+	<name>perun-cabinet</name>
+	<description>Cabinet is a project which aims on retrieving publications from remote sources and allow to report them by perun's users.</description>
+	<scm>
+		<url>https://projekty.ics.muni.cz/perunv3/svn/trunk/perun/perun-cabinet</url>
+	</scm>
 
-    <!-- Properties - version -->
-    <properties>
-        <logback.version>0.9.30</logback.version>
-        <gmaven.version>1.4</gmaven.version>
-    </properties>
+	<!-- Properties - version -->
+	<properties>
+		<logback.version>0.9.30</logback.version>
+		<gmaven.version>1.4</gmaven.version>
+	</properties>
 
-    <build>
+	<build>
 
-        <plugins>
+		<plugins>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>**/*Test.*</include>
-                    </includes>
-                </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*Test.*</include>
+					</includes>
+				</configuration>
+			</plugin>
 
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <version>${gmaven.version}</version>
-                <configuration>
-                    <providerSelection>1.7</providerSelection>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.gmaven.runtime</groupId>
-                        <artifactId>gmaven-runtime-1.7</artifactId>
-                        <version>${gmaven.version}</version>
-                    </dependency>
-                </dependencies>
-                <extensions>true</extensions>
-                <executions>
-                    <!-- Eclipse does not like it, but it is ok -->
-                    <execution>
-                        <goals>
-                            <!--<goal>generateStubs</goal>-->
-                            <goal>compile</goal>
-                            <!--<goal>generateTestStubs</goal>-->
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <fileset>
-                                    <directory>.</directory>
-                                    <includes>
-                                        <include>**/*.groovy</include>
-                                    </includes>
-                                </fileset>
-                            </sources>
-                        </configuration>
+			<plugin>
+				<groupId>org.codehaus.gmaven</groupId>
+				<artifactId>gmaven-plugin</artifactId>
+				<version>${gmaven.version}</version>
+				<configuration>
+					<providerSelection>1.7</providerSelection>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.gmaven.runtime</groupId>
+						<artifactId>gmaven-runtime-1.7</artifactId>
+						<version>${gmaven.version}</version>
+					</dependency>
+				</dependencies>
+				<extensions>true</extensions>
+				<executions>
+					<!-- Eclipse does not like it, but it is ok -->
+					<execution>
+						<goals>
+							<!--<goal>generateStubs</goal>-->
+							<goal>compile</goal>
+							<!--<goal>generateTestStubs</goal>-->
+							<goal>testCompile</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<fileset>
+									<directory>.</directory>
+									<includes>
+										<include>**/*.groovy</include>
+									</includes>
+								</fileset>
+							</sources>
+						</configuration>
 
-                    </execution>
-                </executions>
-            </plugin>
+					</execution>
+				</executions>
+			</plugin>
 
-        </plugins>
+		</plugins>
 
-        <resources>
-            <resource>
-                <!-- exclude DB config files from final jar -->
-                <directory>src/main/resources/</directory>
-                <filtering>true</filtering>
-                <excludes>
-                    <exclude>**/*.sql</exclude>
-                </excludes>
-            </resource>
-        </resources>
+		<resources>
+			<resource>
+				<!-- exclude DB config files from final jar -->
+				<directory>src/main/resources/</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>**/*.sql</exclude>
+				</excludes>
+			</resource>
+		</resources>
 
-    </build>
+	</build>
 
 
-    <dependencies>
+	<dependencies>
 
-        <!-- PERUN -->
-        <dependency>
-            <groupId>cz.metacentrum.perun</groupId>
-            <artifactId>perun-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<!-- PERUN -->
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <!-- DB -->
+		<!-- DB -->
 
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
-            <version>3.1.0</version>
-        </dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.1.0</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis-spring</artifactId>
-            <version>1.1.0</version>
-        </dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>1.1.0</version>
+		</dependency>
 
-        <!-- SPRING -->
+		<!-- SPRING -->
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <!-- gmaven needs outside test scope -->
-            <scope>compile</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<!-- gmaven needs outside test scope -->
+			<scope>compile</scope>
+		</dependency>
 
-        <!-- TESTS -->
+		<!-- TESTS -->
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <!-- gmaven needs outside test scope -->
-            <scope>compile</scope>
-        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<!-- gmaven needs outside test scope -->
+			<scope>compile</scope>
+		</dependency>
 
-        <!-- LOGGING -->
+		<!-- LOGGING -->
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
 
-        <!-- OTHERS -->
+		<!-- OTHERS -->
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.1.2</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.1.2</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.1.1</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.1.1</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>4.1.1</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>4.1.1</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>1.7.11</version>
-        </dependency>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>1.7.11</version>
+		</dependency>
 
-    </dependencies>
+	</dependencies>
 
-    <profiles>
+	<profiles>
 
-        <profile>
+		<profile>
 
-            <id>production</id>
+			<id>production</id>
 
-            <properties>
-                <perun.build.type>production</perun.build.type>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
+			<properties>
+				<perun.build.type>production</perun.build.type>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
 
-        </profile>
+		</profile>
 
-    </profiles>
+	</profiles>
 
 </project>

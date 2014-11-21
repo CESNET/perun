@@ -271,7 +271,7 @@
 								<artifactId>jetty-ajp</artifactId>
 								<version>8.1.15.v20140411</version>
 							</dependency>
-                        </dependencies>
+						</dependencies>
 
 					</plugin>
 
