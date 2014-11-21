@@ -14,7 +14,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     	<property name="locations">
         	<list>
             	<value>${perun.jdbc}</value>
-				<value>file:${perun.conf.custom}/jdbc.properties</value>
+				<value>file:${perun.conf.custom}jdbc.properties</value>
         	</list>
     	</property>
     	<property name="properties">

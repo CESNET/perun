@@ -12,8 +12,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <!-- -Dperun.conf.custom=/etc/perun/filename -->
     <context:property-placeholder
             ignore-resource-not-found="true" ignore-unresolvable="true"
-            location="${perun.jdbc}, file:${perun.conf.custom}/jdbc.properties,
-            ${perun.ldapc}, file:${perun.conf.custom}/perun-ldapc.properties"/>
+            location="${perun.jdbc}, file:${perun.conf.custom}jdbc.properties,
+            ${perun.ldapc}, file:${perun.conf.custom}perun-ldapc.properties"/>
 
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
@@ -26,8 +26,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <bean id="ldapcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
             <list>
-                <value>file:${perun.conf}/perun-ldapc.properties</value>
-                <value>file:${perun.conf.custom}/perun-ldapc.properties</value>
+                <value>file:${perun.conf}perun-ldapc.properties</value>
+                <value>file:${perun.conf.custom}perun-ldapc.properties</value>
             </list>
         </property>
         <property name="ignoreResourceNotFound">
