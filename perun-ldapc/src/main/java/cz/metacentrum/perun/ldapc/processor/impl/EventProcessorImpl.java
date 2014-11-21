@@ -564,11 +564,15 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			} else if(updated.find()) {
 				Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
 				List<Pair<String,String>> replaceList = new ArrayList<Pair<String, String>>();
-				replaceList.add(new Pair("sn",this.user.getLastName()));
-				replaceList.add(new Pair("cn", this.user.getFirstName() + " " + this.user.getLastName()));
+				String firstName = this.user.getFirstName();
+				String lastName = this.user.getLastName();
+				if(firstName == null) firstName = "";
+				if(lastName == null || lastName.isEmpty()) lastName = "N/A";
+				replaceList.add(new Pair("sn",lastName));
+				replaceList.add(new Pair("cn", firstName + " " + lastName));
 				// IF firstName is null, remove it first, then continue with process of updating user
-				if(this.user.getFirstName() == null || this.user.getFirstName().isEmpty()) updateUserAttribute("givenName", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
-				else replaceList.add(new Pair("givenName", this.user.getFirstName()));
+				if(firstName.isEmpty()) updateUserAttribute("givenName", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+				else replaceList.add(new Pair("givenName", firstName));
 				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
 				updateUserAttributes(attributes, this.user);
 				// 11.4) REMOVE ALL USER ATTRIBUTES
