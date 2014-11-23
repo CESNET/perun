@@ -521,6 +521,11 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
 		validateReceiver(receiver);
 
+		if (!(allTemplatesById.containsKey(receiver.getTemplateId()))) {
+			throw new NotExistsException("CreatePerunNotifReceiver: template id: " + receiver.getTemplateId()
+				+ " does not exist.");
+		}
+
 		PerunNotifReceiver perunNotifReceiver = perunNotifTemplateDao.createPerunNotifReceiver(receiver);
 
 		//Propagating new receiver to template
@@ -533,6 +538,11 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	@Override
 	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
 		validateReceiver(receiver);
+
+		if (!(allTemplatesById.containsKey(receiver.getTemplateId()))) {
+			throw new NotExistsException("CreatePerunNotifReceiver: template id: " + receiver.getTemplateId()
+				+ " does not exist.");
+		}
 
 		PerunNotifReceiver oldReceiver = perunNotifTemplateDao.getPerunNotifReceiverById(receiver.getId());
 		PerunNotifReceiver newReceiver = perunNotifTemplateDao.updatePerunNotifReceiver(receiver);

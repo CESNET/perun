@@ -32,6 +32,13 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
 # unless (defined($notifyTrigger)) {die "ERROR: PerunNotifTemplate: notifyTrigger is required\n"}
 #if (($notifyTrigger !~ /^ALL_REGEX_IDS$/) and ($notifyTrigger !~ /^STREAM$/)) { die "ERROR: allowed notifyTrigger values are only ALL_REGEX_IDS or STREAM \n";}
 
+if (!@properties) { die "ERROR: primary properties are required field\n";}
+foreach (@properties) {
+    if ($_ !~ /=/) {
+        die "ERROR: every primary property has to meet pattern attribute=value";
+    }
+}
+
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
 
