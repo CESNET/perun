@@ -26,6 +26,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
@@ -68,6 +69,8 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifTemplateManager.class);
 
 	private Configuration configuration;
+
+	private Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
 	@PostConstruct
 	public void init() throws Exception {
@@ -386,7 +389,19 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 		StringWriter stringWriter = new StringWriter(4096);
 
-		Template freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
+		Template freeMarkerTemplate = null;
+		try {
+			freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
+		} catch (FileNotFoundException ex) {
+			if (!(locale.equals(DEFAULT_LOCALE))) {
+				// if we do not know the language, try to send it at least in default locale
+				freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + DEFAULT_LOCALE.getLanguage(), DEFAULT_LOCALE);
+				logger.info("There is no message with template " + templateName + " in locale " + locale.getLanguage() +
+					", therefore the message will be sent in " + DEFAULT_LOCALE.getLanguage() + " locale.");
+			} else {
+				throw ex;
+			}
+		}
 
 		freeMarkerTemplate.process(container, stringWriter);
 
@@ -397,25 +412,13 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		String templateName = Integer.toString(message.getTemplateId());
 		Locale locale = message.getLocale();
 
-		Template freeMarkerTemplate = null;
 		try {
-			freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
+			Template freeMarkerTemplate = this.configuration.getTemplate(templateName + "_" + locale.getLanguage(), locale);
 		} catch (ParseException ex) {
 			throw new TemplateMessageSyntaxErrorException(message, ex);
 		} catch (IOException ex) {
 			// template not found
 			throw new InternalErrorException("FreeMarker Template internal error.", ex);
-		}
-
-		StringWriter stringWriter = new StringWriter(4096);
-		Map<String, Object> container = new HashMap<String, Object>();
-		try {
-			freeMarkerTemplate.process(container, stringWriter);
-		} catch (TemplateException ex) {
-			// semantic error - ok, because the data are not bind yet
-			return;
-		} catch (IOException ex) {
-			throw new InternalErrorException(ex);
 		}
 	}
 
@@ -518,6 +521,11 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
 		validateReceiver(receiver);
 
+		if (!(allTemplatesById.containsKey(receiver.getTemplateId()))) {
+			throw new NotExistsException("CreatePerunNotifReceiver: template id: " + receiver.getTemplateId()
+				+ " does not exist.");
+		}
+
 		PerunNotifReceiver perunNotifReceiver = perunNotifTemplateDao.createPerunNotifReceiver(receiver);
 
 		//Propagating new receiver to template
@@ -530,6 +538,11 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	@Override
 	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
 		validateReceiver(receiver);
+
+		if (!(allTemplatesById.containsKey(receiver.getTemplateId()))) {
+			throw new NotExistsException("CreatePerunNotifReceiver: template id: " + receiver.getTemplateId()
+				+ " does not exist.");
+		}
 
 		PerunNotifReceiver oldReceiver = perunNotifTemplateDao.getPerunNotifReceiverById(receiver.getId());
 		PerunNotifReceiver newReceiver = perunNotifTemplateDao.updatePerunNotifReceiver(receiver);

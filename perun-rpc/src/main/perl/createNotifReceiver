@@ -27,9 +27,11 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,
  "target|r=s" => \$target,"typeOfReceiver|t=s" => \$type, "templateId|i=i" => \$templateId, "locale|l=s" => \$locale) || die help(); 
 
 unless (defined($type)) {die "ERROR: typeOfReceiver is required\n"}
+unless (defined($target)) {die "ERROR: target is required\n"}
+unless (defined($templateId)) {die "ERROR: templateId is required\n"}
+unless (defined($locale)) {die "ERROR: locale is required\n"}
 unless ($target !~ /^\s*$/) { die "ERROR: target cannot be empty string\n";}
 if (($type !~ /^EMAIL_USER$/) and ($type !~ /^EMAIL_GROUP$/) and ($type !~ /^JABBER$/)) { die "ERROR: allowed typeOfReceiver values are only 'EMAIL_USER', 'EMAIL_GROUP' and 'JABBER'\n";}
-unless (defined($templateId)) {die "ERROR: templateId is required\n"}
 
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;

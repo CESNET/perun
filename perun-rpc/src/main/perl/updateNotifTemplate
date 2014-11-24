@@ -61,6 +61,13 @@ if (defined($sender)) {
 }
 
 if (@properties) {
+
+    foreach (@properties) {
+        if ($_ !~ /=/) {
+            die "ERROR: every primary property has to meet pattern attribute=value";
+        }
+    }
+
     my (%hashedProperties, @list);
 
     foreach (@properties) {
