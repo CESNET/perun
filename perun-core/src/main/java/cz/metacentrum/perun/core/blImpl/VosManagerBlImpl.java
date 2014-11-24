@@ -55,8 +55,10 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.VosManagerImplApi;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * VosManager buisness logic
@@ -229,11 +231,18 @@ public class VosManagerBlImpl implements VosManagerBl {
 		try {
 			// Iterate through all registered extSources
 			for (ExtSource source : getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo)) {
+				// Info if this is only simple ext source, change behavior if not
+				boolean simpleExtSource = true;
 
 				// Get potential subjects from the extSource
 				List<Map<String, String>> subjects;
 				try {
-					subjects = ((ExtSourceApi) source).findSubjects(searchString, maxNumOfResults);
+					if(source instanceof ExtSourceApi) {
+						subjects = ((ExtSourceApi) source).findSubjects(searchString, maxNumOfResults);
+						simpleExtSource = false;
+					} else {
+						subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString, maxNumOfResults);
+					}
 				} catch (ExtSourceUnsupportedOperationException e1) {
 					log.warn("ExtSource {} doesn't support findSubjects", source.getName());
 					continue;
@@ -242,7 +251,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 					continue;
 				} finally {
 					try {
-						((ExtSourceApi) source).close();
+						((ExtSourceSimpleApi) source).close();
 					} catch (ExtSourceUnsupportedOperationException e) {
 						// ExtSource doesn't support that functionality, so silentely skip it.
 					} catch (InternalErrorException e) {
@@ -250,6 +259,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 					}
 				}
 
+				Set<String> uniqueLogins = new HashSet<>();
 				for (Map<String, String> s : subjects) {
 					// Check if the user has unique identifier whithin extSource
 					if ((s.get("login") == null) || (s.get("login") != null && ((String) s.get("login")).isEmpty())) {
@@ -257,12 +267,24 @@ public class VosManagerBlImpl implements VosManagerBl {
 						// Skip to another user
 						continue;
 					}
+
 					String extLogin = (String) s.get("login");
+
+					// check uniqness of every login in extSource
+					if(uniqueLogins.contains(extLogin)) {
+						throw new InternalErrorException("There are more than 1 logins '" + extLogin + "' getting from extSource '" + source + "'");
+					} else {
+						uniqueLogins.add(extLogin);
+					}
 
 					// Get Canddate
 					Candidate candidate;
 					try {
-						candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin);
+						if(simpleExtSource) {
+							candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin);
+						} else {
+							candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
+						}
 					} catch (ExtSourceNotExistsException e) {
 						throw new ConsistencyErrorException("Getting candidate from non-existing extSource " + source, e);
 					} catch (CandidateNotExistsException e) {

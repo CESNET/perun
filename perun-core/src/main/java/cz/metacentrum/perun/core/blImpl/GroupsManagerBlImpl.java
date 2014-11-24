@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import java.util.Comparator;
 import java.util.Date;
@@ -862,7 +862,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// Get the subjects from the external group
 			List<Map<String, String>> subjects;
 			try {
-				subjects = ((ExtSourceApi) source).getGroupSubjects(attributes);
+				subjects = ((ExtSourceSimpleApi) source).getGroupSubjects(attributes);
 				log.debug("Group synchronization {}: external group contains {} members.", group, subjects.size());
 			} catch (ExtSourceUnsupportedOperationException e2) {
 				throw new InternalErrorException("ExtSrouce " + source.getName() + " doesn't support getGroupSubjects", e2);
@@ -1258,7 +1258,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} finally {
 			if(membersSource != null) {
 				try {
-					((ExtSourceApi) membersSource).close();
+					((ExtSourceSimpleApi) membersSource).close();
 				} catch (ExtSourceUnsupportedOperationException e) {
 					// ExtSource doesn't support that functionality, so silently skip it.
 				} catch (InternalErrorException e) {
@@ -1267,7 +1267,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 			if(source != null) {
 				try {
-					((ExtSourceApi) source).close();
+					((ExtSourceSimpleApi) source).close();
 				} catch (ExtSourceUnsupportedOperationException e) {
 					// ExtSource doesn't support that functionality, so silently skip it.
 				} catch (InternalErrorException e) {

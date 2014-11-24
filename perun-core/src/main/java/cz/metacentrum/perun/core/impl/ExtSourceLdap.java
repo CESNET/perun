@@ -28,12 +28,12 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
+public class ExtSourceLdap extends ExtSource implements ExtSourceSimpleApi {
 	private Map<String, String> mapping;
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceLdap.class);
@@ -47,11 +47,11 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return dirContext;
 	}
 
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
-		return findSubjects(searchString, 0);
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
+		return findSubjectsLogins(searchString, 0);
 	}
 
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
 		// Prepare searchQuery
 		// attributes.get("query") contains query template, e.g. (uid=?), ? will be replaced by the searchString
 		String query = (String) getAttributes().get("query");
