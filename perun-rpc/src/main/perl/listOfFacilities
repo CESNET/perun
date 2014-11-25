@@ -37,10 +37,10 @@ unless(@facilities) { printMessage "No Facilities found", $batch; exit 0;}
 
 #output
 my $table = Text::ASCIITable->new();
-$table->setCols('ID','Name', 'Type');
+$table->setCols('ID','Name');
 
 foreach my $facility (sort $sortingFunction @facilities) {
-	$table->addRow($facility->getId, $facility->getName, $facility->getType);
+	$table->addRow($facility->getId, $facility->getName);
 }
 
 print tableToPrint($table, $batch);
