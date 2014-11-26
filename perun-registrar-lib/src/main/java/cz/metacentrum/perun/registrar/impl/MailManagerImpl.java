@@ -533,104 +533,45 @@ public class MailManagerImpl implements MailManager {
 
 							}
 
-							// get base url for validation
-							String url = getPropertyFromConfiguration("registrarGuiFed");
-							String urlNon = getPropertyFromConfiguration("registrarGuiNon");
-							String urlKrb = getPropertyFromConfiguration("registrarGuiKrb");
-							String urlCert = getPropertyFromConfiguration("registrarGuiCert");
-							String urlGoogle = getPropertyFromConfiguration("registrarGuiGoogle");
+							if (mailText.contains("{validationLink}")) {
 
-							// new backup if validation URL is missing
-							if (url == null || url.isEmpty()) {
-								url = getPerunUrl(app.getVo(), app.getGroup());
+								// new backup if validation URL is missing
+								String url = getPerunUrl(app.getVo(), app.getGroup());
 								if (url != null && !url.isEmpty()) {
 									if (!url.endsWith("/")) url += "/";
 									url += "registrar/";
 								}
-							}
 
-							if (url != null && !url.isEmpty()) url = url + "?vo=" + app.getVo().getShortName();
-							if (urlNon != null && !urlNon.isEmpty()) urlNon = urlNon + "?vo=" + app.getVo().getShortName();
-							if (urlKrb != null && !urlKrb.isEmpty()) urlKrb = urlKrb + "?vo=" + app.getVo().getShortName();
-							if (urlCert != null && !urlCert.isEmpty()) urlCert = urlCert + "?vo=" + app.getVo().getShortName();
-							if (urlGoogle != null && !urlGoogle.isEmpty()) urlGoogle = urlGoogle + "?vo=" + app.getVo().getShortName();
+								if (url != null && !url.isEmpty()) url = url + "?vo=" + app.getVo().getShortName();
 
-							if (app.getGroup() != null) {
-								// append group name for
-								if (url != null && !url.isEmpty()) url += "&group="+app.getGroup().getName();
-								if (urlNon != null && !urlNon.isEmpty()) urlNon += "&group="+app.getGroup().getName();
-								if (urlKrb != null && !urlKrb.isEmpty()) urlKrb += "&group="+app.getGroup().getName();
-								if (urlCert != null && !urlCert.isEmpty()) urlCert += "&group="+app.getGroup().getName();
-								if (urlGoogle != null && !urlGoogle.isEmpty()) urlGoogle += "&group="+app.getGroup().getName();
-							}
 
-							// construct whole url
-							StringBuilder url2 = new StringBuilder(url);
-							StringBuilder urlNon2 = new StringBuilder(urlNon);
-							StringBuilder urlKrb2 = new StringBuilder(urlKrb);
-							StringBuilder urlCert2 = new StringBuilder(urlCert);
-							StringBuilder urlGoogle2 = new StringBuilder(urlGoogle);
-
-							if (url.contains("?")) {
-								if (!url.endsWith("?")) {
-									url2.append("&");
+								if (app.getGroup() != null) {
+									// append group name for
+									if (url != null && !url.isEmpty()) url += "&group=" + app.getGroup().getName();
 								}
-							} else {
-								if (!url2.toString().isEmpty()) url2.append("?");
-							}
-							if (urlNon.contains("?")) {
-								if (!urlNon.endsWith("?")) {
-									urlNon2.append("&");
+
+								// construct whole url
+								StringBuilder url2 = new StringBuilder(url);
+
+								if (url.contains("?")) {
+									if (!url.endsWith("?")) {
+										url2.append("&");
+									}
+								} else {
+									if (!url2.toString().isEmpty()) url2.append("?");
 								}
-							} else {
-								if (!urlNon2.toString().isEmpty()) urlNon2.append("?");
-							}
-							if (urlKrb.contains("?")) {
-								if (!urlKrb.endsWith("?")) {
-									urlKrb2.append("&");
+
+								try {
+									if (!url2.toString().isEmpty())
+										url2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
+								} catch (UnsupportedEncodingException ex) {
+									if (!url2.toString().isEmpty()) url2.append("i=").append(i).append("&m=").append(m);
 								}
-							} else {
-								if (!urlKrb2.toString().isEmpty()) urlKrb2.append("?");
-							}
-							if (urlCert.contains("?")) {
-								if (!urlCert.endsWith("?")) {
-									urlCert2.append("&");
-								}
-							} else {
-								if (!urlCert2.toString().isEmpty()) urlCert2.append("?");
-							}
-							if (urlGoogle.contains("?")) {
-								if (!urlGoogle.endsWith("?")) {
-									urlGoogle2.append("&");
-								}
-							} else {
-								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("?");
-							}
 
-							try {
-
-								if (!url2.toString().isEmpty()) url2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								if (!urlNon2.toString().isEmpty()) urlNon2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								if (!urlKrb2.toString().isEmpty()) urlKrb2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								if (!urlCert2.toString().isEmpty()) urlCert2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("i=").append(URLEncoder.encode(i, "UTF-8")).append("&m=").append(URLEncoder.encode(m, "UTF-8"));
-
-							} catch (UnsupportedEncodingException ex) {
-
-								if (!url2.toString().isEmpty()) url2.append("i=").append(i).append("&m=").append(m);
-								if (!urlNon2.toString().isEmpty()) urlNon2.append("i=").append(i).append("&m=").append(m);
-								if (!urlKrb2.toString().isEmpty()) urlKrb2.append("i=").append(i).append("&m=").append(m);
-								if (!urlCert2.toString().isEmpty()) urlCert2.append("i=").append(i).append("&m=").append(m);
-								if (!urlGoogle2.toString().isEmpty()) urlGoogle2.append("i=").append(i).append("&m=").append(m);
+								// replace validation link
+								mailText = mailText.replace("{validationLink}", url2.toString());
 
 							}
-
-							// replace validation link
-							mailText = mailText.replace("{validationLink}", url2.toString());
-							mailText = mailText.replace("{validationLinkNon}", urlNon2.toString());
-							mailText = mailText.replace("{validationLinkCert}", urlCert2.toString());
-							mailText = mailText.replace("{validationLinkKrb}", urlKrb2.toString());
-							mailText = mailText.replace("{validationLinkGoogle}", urlGoogle2.toString());
 
 							// set replaced text
 							message.setText(mailText);
@@ -1398,24 +1339,8 @@ public class MailManagerImpl implements MailManager {
 	 * {groupName} - group short name
 	 * {displayName} - users display name returned from federation
 	 *
-	 * {invitationLinkFed} - link to VO's/group's application form
-	 * {invitationLinkKrb} - link to VO's/group's application form
-	 * {invitationLinkCert} - link to VO's/group's application form
-	 * {invitationLinkNon} - link to VO's/group's application form
-	 * {invitationLinkGoogle} - link to VO's/group's application form
 	 * {invitationLink-[authz]} - link to VO's/group's application form
-	 *
-	 * {appGuiUrl} - url to application GUI for user to see applications state
-	 * {appGuiUrlKrb} - url to application GUI for user to see applications state
-	 * {appGuiUrlCert} - url to application GUI for user to see applications state
-	 * {appGuiUrlNon} - url to application GUI for user to see applications state
-	 * {appGuiUrlGoogle} - url to application GUI for user to see applications state
 	 * {appGuiUrl-[authz]} - url to application GUI for user to see applications state
-	 *
-	 * {perunGuiUrlFed} - url to perun GUI (user detail)
-	 * {perunGuiUrlKerb} - url to perun GUI (user detail)
-	 * {perunGuiUrlCert} - url to perun GUI (user detail)
-	 * {perunGuiUrlGoogle} - url to perun GUI (user detail)
 	 * {perunGuiUrl-[authz]} - url to perun GUI (user detail)
 	 *
 	 * {mailFooter} - common VO's footer
@@ -1489,21 +1414,6 @@ public class MailManagerImpl implements MailManager {
 			if (!url.endsWith("/")) url += "/";
 			url += "registrar/";
 			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, url));
-		}
-		if (mailText.contains("{invitationLinkFed}")) {
-			mailText = mailText.replace("{invitationLinkFed}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiFed")));
-		}
-		if (mailText.contains("{invitationLinkKrb}")) {
-			mailText = mailText.replace("{invitationLinkKrb}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiKrb")));
-		}
-		if (mailText.contains("{invitationLinkCert}")) {
-			mailText = mailText.replace("{invitationLinkCert}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiCert")));
-		}
-		if (mailText.contains("{invitationLinkNon}")) {
-			mailText = mailText.replace("{invitationLinkNon}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiNon")));
-		}
-		if (mailText.contains("{invitationLinkGoogle}")) {
-			mailText = mailText.replace("{invitationLinkGoogle}", buildInviteURL(vo, group, isMember, getPropertyFromConfiguration("registrarGuiGoogle")));
 		}
 
 		// replace invitation link
@@ -1612,29 +1522,15 @@ public class MailManagerImpl implements MailManager {
 	 * {extSource} - external system used for authentication when submitting application
 	 * {appGuiUrl} - url to application GUI for user to see applications state
 	 *
-	 * {appGuiUrlKrb} - url to application GUI for user to see applications state
-	 * {appGuiUrlCert} - url to application GUI for user to see applications state
-	 * {appGuiUrlNon} - url to application GUI for user to see applications state
-	 * {appGuiUrlGoogle} - url to application GUI for user to see applications state
 	 * {appGuiUrl-[authz]} - url to application GUI for user to see applications state
-	 *
-	 * {perunGuiUrlFed} - url to perun GUI (user detail)
-	 * {perunGuiUrlKerb} - url to perun GUI (user detail)
-	 * {perunGuiUrlCert} - url to perun GUI (user detail)
-	 * {perunGuiUrlGoogle} - url to perun GUI (user detail)
 	 * {perunGuiUrl-[authz]} - url to perun GUI (user detail)
-	 *
-	 * {appDetailUrlFed} - link for VO admin to approve / reject application
-	 * {appDetailUrlKerb} - link for VO admin to approve / reject application
-	 * {appDetailUrlCert} - link for VO admin to approve / reject application
-	 * {appDetailUrlGoogle} - link for VO admin to approve / reject application
 	 * {appDetailUrl-[authz]} - link for VO admin to approve / reject application
 	 *
 	 * {logins} - list of all logins from application
 	 * {membershipExpiration} - membership expiration date
 	 *
 	 * {customMessage} - message passed by admin to mail (e.g. reason of application reject)
-	 * {errors} - include errors which occured when processing registrar actions
+	 * {errors} - include errors which ocured when processing registrar actions
 	 * (e.g. login reservation errors passed to mail for VO admin)
 	 *
 	 * (if possible links are for: Kerberos, Federation and Certificate authz)
@@ -1924,27 +1820,6 @@ public class MailManagerImpl implements MailManager {
 			mailText = mailText.replace("{perunGuiUrl}", text);
 		}
 
-		// replace perun gui link
-		if (mailText.contains("{perunGuiUrlFed}")) {
-			String text = getPropertyFromConfiguration("perunGuiFederation");
-			mailText = mailText.replace("{perunGuiUrlFed}", text);
-		}
-		// replace perun gui link
-		if (mailText.contains("{perunGuiUrlKerb}")) {
-			String text = getPropertyFromConfiguration("perunGuiKerberos");
-			mailText = mailText.replace("{perunGuiUrlKerb}", text);
-		}
-		// replace perun gui link
-		if (mailText.contains("{perunGuiUrlCert}")) {
-			String text = getPropertyFromConfiguration("perunGuiCert");
-			mailText = mailText.replace("{perunGuiUrlCert}", text);
-		}
-		// replace perun gui link
-		if (mailText.contains("{perunGuiUrlGoogle}")) {
-			String text = getPropertyFromConfiguration("perunGuiGoogle");
-			mailText = mailText.replace("{perunGuiUrlGoogle}", text);
-		}
-
 		// replace perun GUI app link
 		if (mailText.contains("{perunGuiUrl-")) {
 
@@ -1988,59 +1863,19 @@ public class MailManagerImpl implements MailManager {
 
 		// replace perun application GUI link with list of applications
 		if (mailText.contains("{appGuiUrl}")) {
-			String text = getPropertyFromConfiguration("registrarGuiFed");
+			// new backup
+			String text = getPerunUrl(vo, group);
 			if (text != null && !text.isEmpty()) {
-				text = text + "?vo=" + vo.getShortName() + "&page=apps";
-			} else {
-				// new backup
-				text = getPerunUrl(vo, group);
-				if (text != null && !text.isEmpty()) {
-					if (!text.endsWith("/")) text += "/";
-					text += "registrar/";
-					text = text + "?vo=" + vo.getShortName() + "&page=apps";
-				}
+				if (!text.endsWith("/")) text += "/";
+				text += "registrar/";
+				text += "?vo=" + vo.getShortName() + "&page=apps";
 			}
 			if (group != null) {
-				text = text + "&group="+group.getName();
+				text += "&group="+group.getName();
 			}
 			mailText = mailText.replace("{appGuiUrl}", text);
 		}
 
-		if (mailText.contains("{appGuiUrlKrb}")) {
-			String text = getPropertyFromConfiguration("registrarGuiKrb");
-			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
-			if (group != null) {
-				text = text + "&group="+group.getName();
-			}
-			mailText = mailText.replace("{appGuiUrlKrb}", text);
-		}
-
-		if (mailText.contains("{appGuiUrlCert}")) {
-			String text = getPropertyFromConfiguration("registrarGuiCert");
-			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
-			if (group != null) {
-				text = text + "&group="+group.getName();
-			}
-			mailText = mailText.replace("{appGuiUrlCert}", text);
-		}
-
-		if (mailText.contains("{appGuiUrlNon}")) {
-			String text = getPropertyFromConfiguration("registrarGuiNon");
-			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
-			if (group != null) {
-				text = text + "&group="+group.getName();
-			}
-			mailText = mailText.replace("{appGuiUrlNon}", text);
-		}
-
-		if (mailText.contains("{appGuiUrlGoogle}")) {
-			String text = getPropertyFromConfiguration("registrarGuiGoogle");
-			if (text != null && !text.isEmpty()) text = text + "?vo=" + vo.getShortName() + "&page=apps";
-			if (group != null) {
-				text = text + "&group="+group.getName();
-			}
-			mailText = mailText.replace("{appGuiUrlGoogle}", text);
-		}
 
 		// replace registrar GUI link
 		if (mailText.contains("{appGuiUrl-")) {
@@ -2086,39 +1921,18 @@ public class MailManagerImpl implements MailManager {
 
 	private String replaceAppDetailUrl(String mailText, int appId, Vo vo, Group group) {
 
-		// replace appDetail for vo admin
-		if (mailText.contains("{appDetailUrlFed}")) {
-			String text = getPropertyFromConfiguration("perunGuiFederation");
-			// MUST USE "?" malformed URL while redirecting - GUI now can handle this
-			if (text!=null && !text.isEmpty()) text = text+"?vo/appdetail?id="+appId;
-			mailText = mailText.replace("{appDetailUrlFed}", text);
-		}
-		// replace appDetail for vo admin
-		if (mailText.contains("{appDetailUrlKerb}")) {
-			String text = getPropertyFromConfiguration("perunGuiKerberos");
-			if (text!=null && !text.isEmpty()) text = text+"#vo/appdetail?id="+appId;
-			mailText = mailText.replace("{appDetailUrlKerb}", text);
-		}
-		// replace appDetail for vo admin
-		if (mailText.contains("{appDetailUrlCert}")) {
-			String text = getPropertyFromConfiguration("perunGuiCert");
-			if (text!=null && !text.isEmpty()) text = text+"#vo/appdetail?id="+appId;
-			mailText = mailText.replace("{appDetailUrlCert}", text);
-		}
-		// replace appDetail for vo admin
-		if (mailText.contains("{appDetailUrlGoogle}")) {
-			String text = getPropertyFromConfiguration("perunGuiGoogle");
-			if (text!=null && !text.isEmpty()) text = text+"#vo/appdetail?id="+appId;
-			mailText = mailText.replace("{appDetailUrlGoogle}", text);
-		}
-
 		// replace appDetail for VO admins
 		if (mailText.contains("{appDetailUrl}")) {
 			String text = getPerunUrl(vo, group);
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
 				text += "gui/";
-				text = text + "#vo/appdetail?id="+appId;
+				if (text.endsWith("/fed/gui/")) {
+					// federation can't handle #
+					text += "?vo/appdetail?id="+appId;
+				} else {
+					text += "#vo/appdetail?id="+appId;
+				}
 			}
 			mailText = mailText.replace("{appDetailUrl}", text);
 		}
