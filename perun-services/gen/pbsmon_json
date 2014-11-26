@@ -9,7 +9,7 @@ use Tie::IxHash;
 
 our $SERVICE_NAME = "pbsmon_json";
 our $PROTOCOL_VERSION = "3.0.0";
-my $SCRIPT_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.1";
 
 perunServicesInit::init;
 my $DIRECTORY = perunServicesInit::getDirectory;
@@ -34,7 +34,7 @@ our $A_HOST_CORE_NUMBER;          *A_HOST_CORE_NUMBER =           \'urn:perun:ho
 our $A_HOST_FRONTEND;             *A_HOST_FRONTEND =              \'urn:perun:host:attribute-def:def:frontend';
 our $A_HOST_RESERVED;             *A_HOST_RESERVED =              \'urn:perun:host:attribute-def:def:reserved';
 our $A_FACILITY_IS_CLUSTER;       *A_FACILITY_IS_CLUSTER =        \'urn:perun:facility:attribute-def:def:isCluster';
-
+our $A_R_VO_NAME;                 *A_R_VO_NAME =                  \'urn:perun:resource:attribute-def:virt:voShortName';
 
 #Global data structure
 our $struc = {};
@@ -72,17 +72,31 @@ my @facilitesAndAttrbutes;
 foreach my $facility (@facilities) {
 	if($facility->getName eq $pbsmonServer) { next; } # don't watng generate data for pbsmonServer itself
 	my $data = $servicesAgent->getHierarchicalData(service => $service->getId, facility => $facility->getId);
+	
+	#genereate all vo_shortNames
+	my %facilityVosShortNames = ();
+	my @resourcesData = $data->getChildElements;
+	foreach my $rData (@resourcesData) {
+		my %resourcesAttributes = attributesToHash $rData->getAttributes;
+		if(defined $resourcesAttributes{$A_R_VO_NAME}) {
+			my $voShortName = $resourcesAttributes{$A_R_VO_NAME};
+			$facilityVosShortNames{$voShortName} = {};
+		}
+	}
+
 	my %facilityAttributes = attributesToHash $data->getAttributes;
 	push @facilitesAndAttrbutes, {
 		"attributes" => \%facilityAttributes,
-	"facility" => $facility,
-};
+		"facility" => $facility,
+		"shortNames" => \%facilityVosShortNames,
+	};
 }
 
 
 for my $item (sort { $b->{"attributes"}->{$A_FACILITY_LISTING_PRIORITY} <=> $a->{"attributes"}->{$A_FACILITY_LISTING_PRIORITY} } @facilitesAndAttrbutes) {
 	my $facility = $item->{"facility"};
 	my $facilityAttributes = $item->{"attributes"};
+	my @voShortNames = keys $item->{"shortNames"};
 	my @owners = $facilitiesAgent->getOwners(facility => $facility->getId);
 
 	my %facilityStruc;
@@ -100,6 +114,7 @@ for my $item (sort { $b->{"attributes"}->{$A_FACILITY_LISTING_PRIORITY} <=> $a->
 		network => $facilityAttributes->{$A_FACILITY_NETWORK},
 		comment => $facilityAttributes->{$A_FACILITY_COMMENT},
 		owner => $facilityAttributes->{$A_FACILITY_OWNER},
+		vos => \@voShortNames,
 	);
 
 	my $mergedOwner = '';  # if facility have multiple owner merge their names into one, separeter by commas
