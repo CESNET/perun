@@ -57,6 +57,13 @@
 
 		</plugins>
 
+		<resources>
+			<resource>
+				<!-- get common resources -->
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+
 	</build>
 
 	<dependencies>
@@ -152,6 +159,15 @@
 				<perun.build.type>production</perun.build.type>
 				<maven.test.skip>true</maven.test.skip>
 			</properties>
+
+			<build>
+				<resources>
+					<resource>
+						<!-- get common resources -->
+						<directory>src/main/resources</directory>
+					</resource>
+				</resources>
+			</build>
 
 		</profile>
 

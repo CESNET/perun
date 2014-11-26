@@ -238,7 +238,7 @@ public class VOOTMainAndFilterIntegrationTest{
 		System.out.println(response);
 	}
 
-	private void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException {
+	private void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException {
 		vo1 = perun.getVosManagerBl().createVo(session, new Vo(1, "vo1", "vo1"));
 		vo2 = perun.getVosManagerBl().createVo(session, new Vo(2, "vo2", "vo2"));
 

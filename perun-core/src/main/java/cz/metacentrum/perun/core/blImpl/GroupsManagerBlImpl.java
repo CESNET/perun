@@ -1136,7 +1136,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						throw new ConsistencyErrorException("Trying to add existing member");
 					} catch (AttributeValueException e1) {
 						log.warn("Can't create member from candidate {} due to attribute value exception {}.", candidate, e1);
-						skippedMembers.add("Member:[" + candidate + " because of Skipped due to problem with creating member from candidate. Exception: " + e1.getName() + " => " + e1.getMessage() + "]");
+						skippedMembers.add("Member:[" + candidate + " skipped due to problem with creating member from candidate. Exception: " + e1.getName() + " => " + e1.getMessage() + "]");
+						continue;
+					} catch (ExtendMembershipException ex) {
+						log.warn("Can't create member from candidate {} due to membership expiration exception {}.", candidate, ex);
+						skippedMembers.add("Member:[" + candidate + " skipped due to problem with creating member from candidate. Exception: " + ex.getName() + " => " + ex.getMessage() + "]");
 						continue;
 					}
 				}

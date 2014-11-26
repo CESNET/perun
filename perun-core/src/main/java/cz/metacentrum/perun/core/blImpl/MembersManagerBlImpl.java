@@ -31,7 +31,6 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -55,7 +54,6 @@ import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -179,7 +177,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, ExtendMembershipException {
 		try {
 			Member member = getMemberByUser(sess, vo, user);
 			throw new AlreadyMemberException(member);
@@ -189,11 +187,23 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} created.", member);
 
 		// Set the initial membershipExpiration
+
+		// Get user LOA
+		String memberLoa = null;
 		try {
-			this.extendMembership(sess, member);
-		} catch (ExtendMembershipException e) {
-			log.error("Error during setting initial membership expiration: {}", e);
+			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
+			memberLoa = (String) loa.getValue();
+		} catch (AttributeNotExistsException e) {
+			// user has no loa defined - if required by VO, it will be stopped in checking method later
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
 		}
+
+		// check if user can be member
+		this.canBeMemberInternal(sess, vo, user, memberLoa, true);
+
+		// set initial membership expiration
+		this.extendMembership(sess, member);
 
 		insertToMemberGroup(sess, member, vo);
 
@@ -202,7 +212,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		candidate.setFirstName("(Service)");
 		Member member = createMember(sess, vo, true, candidate);
 		member.getUserId();
@@ -217,7 +227,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
+	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+
 		Member member = createMember(sess, vo, false, candidate);
 
 		//Validate synchronously
@@ -230,7 +241,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
+	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+
 		Member member = createServiceMember(sess, vo, candidate, serviceUserOwners);
 
 		//Validate synchronously
@@ -243,11 +255,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return createMember(sess, vo, false, candidate);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+
 		log.debug("Creating member for VO {} from candidate {}", vo, candidate);
 
 		// Get the user
@@ -351,11 +364,23 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		// Set the initial membershipExpiration
+
+		// Get user LOA
+		String memberLoa = null;
 		try {
-			this.extendMembership(sess, member);
-		} catch (ExtendMembershipException e) {
-			log.error("Error during setting initial membership expiration: {}", e);
+			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
+			memberLoa = (String) loa.getValue();
+		} catch (AttributeNotExistsException e) {
+			// user has no loa defined - if required by VO, it will be stopped in checking method later
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
 		}
+
+		// check if user can be member
+		this.canBeMemberInternal(sess, vo, user, memberLoa, true);
+
+		// set initial membership expiration
+		this.extendMembership(sess, member);
 
 		insertToMemberGroup(sess, member, vo);
 
@@ -366,7 +391,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * This method with support of LoA finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
 	 * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+
 		// Create ExtSource object
 		ExtSource extSource = new ExtSource();
 		extSource.setName(extSourceName);
@@ -388,7 +414,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * This method finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
 	 * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+
 		// Create ExtSource object
 		ExtSource extSource = new ExtSource();
 		extSource.setName(extSourceName);
@@ -1264,7 +1291,20 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return filteredRichMembers;
 	}
 
-	/* Check if the user can apply for VO membership
+	/**
+	 * More info on https://wiki.metacentrum.cz/wiki/VO_managers%27s_manual
+	 *
+	 * Check if the user can apply for VO membership.
+	 *
+	 * @param sess session
+	 * @param vo VO to apply for
+	 * @param user User applying for membership
+	 * @param loa level of assurance provided by user's external identity
+	 * @param throwExceptions TRUE = throw exceptions / FALSE = return false when user can't be member of VO
+	 * @return True if user can become member of VO / false or exception otherwise.
+	 *
+	 * @throws ExtendMembershipException When user can't be member of VO and throwExceptions is set to true
+	 * @throws InternalErrorException
 	*/
 	protected boolean canBeMemberInternal(PerunSession sess, Vo vo, User user, String loa, boolean throwExceptions) throws InternalErrorException, ExtendMembershipException {
 		// Check if the VO has set membershipExpirationRules attribute
@@ -1314,10 +1354,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	/**
-	 * More info on http://meta.cesnet.cz/wiki/Manu%C3%A1l_pro_spr%C3%A1vce_VO#Definice_pravidel_pro_prodlu.C5.BEov.C3.A1n.C3.AD_.C3.BA.C4.8Dt.C5.AF
+	 * More info on https://wiki.metacentrum.cz/wiki/VO_managers%27s_manual
 	 *
-	 * if setAttributeValue is true, then store the membership expiration date into the attribute, otherwise
-	 * return object pair containg true/false if the member can be extended and date specifing exact date of the expiration
+	 * If setAttributeValue is true, then store the membership expiration date into the attribute, otherwise
+	 * return object pair containing true/false if the member can be extended and date specifying exact date of the expiration
+	 *
+	 * @param sess session
+	 * @param member member to check / set membership expiration
+	 * @param setAttributeValue TRUE = set new membership expiration date / FALSE = do NOT set new expiration date (just calculate it)
+	 * @param throwExceptions TRUE = throw exception / FALSE = return false when member can't extend membership
+	 * @return Pair with result in left side (can / can't extend membership) and Date in right side telling new membership expiration date
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtendMembershipException When member can't extend membership and throwException is set to true.
 	 */
 	protected Pair<Boolean, Date> manageMembershipExpiration(PerunSession sess, Member member, boolean setAttributeValue, boolean throwExceptions) throws InternalErrorException, ExtendMembershipException {
 		// Check if the VO has set membershipExpirationRules attribute
@@ -1389,7 +1438,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				if (doNotEtxendLoa.equals(memberLoa)) {
 					// Member has LOA which is not allowed for extension
 					if (throwExceptions) {
-						throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA,
+						throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION,
 								"Member " + member + " doesn't have required LOA for VO id " + member.getVoId() + ".");
 					} else {
 						return new Pair<Boolean, Date>(false, null);

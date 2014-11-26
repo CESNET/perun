@@ -11,23 +11,23 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 ">
 
-    <import resource="classpath:perun-datasources.xml"/>
+	<import resource="classpath:perun-datasources.xml"/>
 
-        <import resource="classpath:perun-transaction-manager.xml"/>
+	<import resource="classpath:perun-transaction-manager.xml"/>
 
-    <!-- Enable @Transactional support -->
+	<!-- Enable @Transactional support -->
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 
 	<!-- Use Perun's TM for tests -->
-        <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 
-    <!-- Enable @AspectJ support -->
-    <aop:aspectj-autoproxy/>
+	<!-- Enable @AspectJ support -->
+	<aop:aspectj-autoproxy/>
 
-        <!-- Scans for @Repository, @Service and @Component -->
-    <context:component-scan base-package="cz.metacentrum.perun.voot"/>
+	<!-- Scans for @Repository, @Service and @Component -->
+	<context:component-scan base-package="cz.metacentrum.perun.voot"/>
 
 
 </beans>

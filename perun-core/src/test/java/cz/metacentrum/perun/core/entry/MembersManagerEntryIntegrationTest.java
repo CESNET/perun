@@ -22,7 +22,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.impl.Utils;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -560,7 +559,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		try {
 			membersManagerEntry.extendMembership(sess, createdMember);
 		} catch (ExtendMembershipException e) {
-			assertTrue(e.getReason().equals(ExtendMembershipException.Reason.INSUFFICIENTLOA));
+			assertTrue(e.getReason().equals(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION));
 		}
 
 		Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
