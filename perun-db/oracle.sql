@@ -1,4 +1,4 @@
--- database version 3.1.13
+-- database version 3.1.14
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -886,7 +886,7 @@ create table reserved_logins (
 );
 
 create table pn_audit_message (
-	message varchar2(4000),
+	message clob,
 	id integer NOT NULL,
 	created_by_uid integer,
 	modified_by_uid integer

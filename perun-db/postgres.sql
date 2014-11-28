@@ -1,4 +1,4 @@
--- database version 3.1.13
+-- database version 3.1.14
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -948,7 +948,7 @@ create table "reserved_logins" (
 
 -- PN_AUDIT_MESSAGE - Contains all messages retrieved from the auditer log, since the notification module is auditer consumer. These messages are waiting to be processed by the notification module
 create table pn_audit_message (
-	message varchar(4000),
+	message text,
 	id integer NOT NULL,
 	created_by_uid integer,
 	modified_by_uid integer
