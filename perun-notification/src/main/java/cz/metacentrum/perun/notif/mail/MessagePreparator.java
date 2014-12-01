@@ -302,6 +302,10 @@ public class MessagePreparator implements MimeMessagePreparator {
 		return subject;
 	}
 
+	public String getContent() {
+		return content;
+	}
+
 	public List<String> getFileNames() {
 		return fileNames;
 	}

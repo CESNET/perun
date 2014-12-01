@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -111,6 +112,8 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		}
 
 		List<MimeMessage> mimeMessages = new ArrayList<MimeMessage>();
+		// for logging purposes
+		List<String> messagesContents = new ArrayList<String>();
 
 		for (PerunNotifPlainMessage emailMessage : messageList) {
 			logger.debug("SENDING PLAIN MESSAGE ; to: " + emailMessage.getTo() + " ; cc: " + emailMessage.getCc() + " ; bcc: "
@@ -120,13 +123,15 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 			try {
 				emailMessage.prepare(mimeMessage);
 				mimeMessages.add(mimeMessage);
+
+				messagesContents.add(emailMessage.getContent());
 			} catch (Exception ex) {
 				failedEmailLogger.error(emailMessage.toString());
 			}
 		}
 
 		try {
-			doSend(mimeMessages.toArray(new MimeMessage[mimeMessages.size()]));
+			doSend(mimeMessages.toArray(new MimeMessage[mimeMessages.size()]), messagesContents);
 		} catch (EmailSendException ex) {
 			Map<Object, Exception> failedMessages = ex.getFailedMessages();
 			if (failedMessages != null && !failedMessages.isEmpty()) {
@@ -157,7 +162,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 	 * failure
 	 * @throws EmailSendException in case of failure when sending a message
 	 */
-	protected void doSend(MimeMessage[] mimeMessages) throws EmailException {
+	protected void doSend(MimeMessage[] mimeMessages, List<String> contents) throws EmailException {
 		Map<Object, Exception> failedMessages = new LinkedHashMap<Object, Exception>();
 
 		Transport transport;
@@ -177,13 +182,22 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		try {
 			for (int i = 0; i < mimeMessages.length; i++) {
 				MimeMessage mimeMessage = mimeMessages[i];
+				String content = contents.get(i);
 				try {
 					if (mimeMessage.getSentDate() == null) {
 						mimeMessage.setSentDate(new Date());
 					}
 					mimeMessage.saveChanges();
 					transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
-					sendMessagesLogger.info("Send email in {}: {}", new Date(), mimeMessage.toString());
+
+
+					sendMessagesLogger.info("Email sent in {} with receivers: "
+						+  Arrays.toString(mimeMessage.getRecipients(Message.RecipientType.TO))
+						+ " senders: " + Arrays.toString(mimeMessage.getFrom())
+						+ " subject: " + mimeMessage.getSubject()
+						+ " content: "
+						+ content,
+						new Date());
 				} catch (MessagingException ex) {
 					try {
 						logger.error("Error during send of email for: {}", mimeMessage.getRecipients(Message.RecipientType.TO), ex);

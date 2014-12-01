@@ -781,10 +781,18 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				if (templates.isEmpty()) {
 					allTemplatesByRegexId.remove(regexId);
 				}
+				break;
+			}
+		}
+		//throw new InternalErrorException("The regex id " + regexId + " doesn't relate to template id " + templateId + " in the cache, removing failed.");
+
+		for (Iterator<PerunNotifRegex> iter = allTemplatesById.get(templateId).getMatchingRegexs().iterator(); iter.hasNext();) {
+			PerunNotifRegex regex = iter.next();
+			if (regex.getId() == regexId) {
+				iter.remove();
 				return;
 			}
 		}
-		throw new InternalErrorException("The regex id " + regexId + " doesn't relate to template id " + templateId + " in the cache, removing failed.");
 	}
 
 	@Override
