@@ -40,12 +40,9 @@ public class EngineDaoJdbc extends JdbcDaoSupport implements EngineDao {
 	public void registerEngine() throws EngineNotConfiguredException {
 		if (this.getJdbcTemplate().queryForInt(
 				"select count(*) from engines where id = ?", engineId) != 1) {
-			// throw new
-			// EngineNotConfiguredException("This Perun-engine instance marked with ID["
-			// + engineId
-			// + "] is not configured in the Perun Database.");
-			log.warn("This engine instance ID[" + this.engineId
-					+ "] is not properly configured in database");
+			throw new EngineNotConfiguredException("This Perun-engine instance marked with ID["
+					+ engineId
+					+ "] is not configured in the Perun Database.");
 		} else {
 
 			this.getJdbcTemplate()
@@ -69,28 +66,28 @@ public class EngineDaoJdbc extends JdbcDaoSupport implements EngineDao {
 
 	@Override
 	public void loadDispatcherAddress() throws DispatcherNotConfiguredException {
-		/*
-		 * String ipAddress = this.getJdbcTemplate().queryForObject(
-		 * "select ip_address from dispatcher_settings", String.class); if
-		 * (ipAddress == null) { //throw new DispatcherNotConfiguredException(
-		 * "It looks like the Dispatcher's IP address is null. That's not gonna work bro :-)"
-		 * ); }
-		 * 
-		 * int port = this.getJdbcTemplate().queryForObject(
-		 * "select port from dispatcher_settings", Integer.class); if (port >
-		 * 65535 || port < 1) { //throw new DispatcherNotConfiguredException(
-		 * "It looks like the Dispatcher's port is a really weird number (" +
-		 * port + "), that's not gonna work bro :-)"); }
-		 */
-		String ipAddress = "";
-		int port = 0;
+		String ipAddress = this.getJdbcTemplate().queryForObject(
+				"select ip_address from dispatcher_settings", String.class); 
+		if (ipAddress == null) { 
+			throw new DispatcherNotConfiguredException(
+					"It looks like the Dispatcher's IP address is null. That's not gonna work bro :-)"
+					); 
+		}
+		 
+		int port = this.getJdbcTemplate().queryForObject(
+				"select port from dispatcher_settings", Integer.class); 
+		if (port > 65535 || port < 1) { 
+			throw new DispatcherNotConfiguredException(
+					"It looks like the Dispatcher's port is a really weird number (" +
+							port + "), that's not gonna work bro :-)"); 
+		}
 		if (log.isDebugEnabled()) {
-			log.debug("We are not gonna set following properties: dispatcher.ip.address:"
+			log.debug("We are gonna set following properties: dispatcher.ip.address:"
 					+ ipAddress + ", dispatcher.port:" + port);
 		}
 
-		// propertiesBean.put("dispatcher.ip.address", ipAddress);
-		// propertiesBean.put("dispatcher.port", "" + port);
+		propertiesBean.put("dispatcher.ip.address", ipAddress);
+		propertiesBean.put("dispatcher.port", "" + port);
 	}
 
 	public void setPropertiesBean(Properties propertiesBean) {
