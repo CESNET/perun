@@ -296,7 +296,7 @@
 			<dependency>
 				<groupId>com.oracle</groupId>
 				<artifactId>ojdbc7</artifactId>
-				<version>12.1.0.1.0</version>
+				<version>12.1.0.2.0</version>
 			</dependency>
 			<!-- Oracle inernationalization -->
 			<dependency>
