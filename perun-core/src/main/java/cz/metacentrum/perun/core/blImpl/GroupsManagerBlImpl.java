@@ -1416,9 +1416,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		public void run() {
-			//if some exception was thrown during synchronization
-			boolean exceptionThrown = false;
-			//text of exception if was thrown
+			//text of exception if was thrown, null in exceptionMessage means "no exception, it's ok"
 			String exceptionMessage = null;
 			//text with all skipped members and reasons of this skipping
 			String skippedMembersMessage = null;
@@ -1435,7 +1433,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				boolean exceedMaxChars = false;
 				int maxChars = 3000;
 				if(!skippedMembers.isEmpty()) {
-					exceptionThrown = true;
 					skippedMembersMessage = "These members from extSource were skipped: { ";
 					//Exception message can't be longer than 3000 chars
 					for(String skippedMember: skippedMembers) {
@@ -1453,35 +1450,27 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
 			} catch (WrongAttributeValueException e) {
-				exceptionThrown = true;
 				exceptionMessage = "Cannot synchronize group " + group +" due to exception:";
 				log.error(exceptionMessage, e);
 				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} catch (WrongReferenceAttributeValueException e) {
-				exceptionThrown = true;
 				exceptionMessage = "Cannot synchronize group " + group +" due to exception:";
 				log.error(exceptionMessage, e);
 				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} catch (InternalErrorException e) {
-				exceptionThrown = true;
 				exceptionMessage = "Internal Error Exception while synchronizing the group " + group + ":";
 				log.error(exceptionMessage, e);
 				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} catch (WrongAttributeAssignmentException e) {
-				exceptionThrown = true;
 				exceptionMessage = "Wrong Attribute Assignment Exception while synchronizing the group " + group + ":";
 				log.error(exceptionMessage, e);
 				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} catch (MemberAlreadyRemovedException e) {
-				exceptionThrown = true;
 				exceptionMessage = "Member Already Removed Exception while synchronizing the group " + group + " due to exception: ";
 				log.error(exceptionMessage, e);
 				exceptionMessage+= e.getName() + " => " + e.getMessage();
 			} finally {
 				Date currentTimestamp = new Date();
-				if(!exceptionThrown) {
-					exceptionMessage = "OK";
-				}
 				//Save information about group synchronization, this method run in new transaction
 				try {
 					((PerunBl) sess.getPerun()).getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, exceptionMessage);
@@ -1739,8 +1728,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			log.error("When synchronize group " + group + " timestamp was null. Was create a new one and use it.");
 		}
 
-		//if exceptionMessage is null or empty, use "Empty message"
-		if (exceptionMessage == null || exceptionMessage.isEmpty()) {
+		//if exceptionMessage is empty, use "Empty message" instead
+		if (exceptionMessage != null && exceptionMessage.isEmpty()) {
 			exceptionMessage = "Empty message.";
 		}
 
@@ -1752,9 +1741,26 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		Attribute lastSynchronizationTimestamp = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSynchronizationTimestamp"));
 		Attribute lastSynchronizationState = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSynchronizationState"));
 		lastSynchronizationTimestamp.setValue(currectTimestampString);
+		//if exception is null, set null to value => remove attribute instead of setting in method setAttributes
 		lastSynchronizationState.setValue(exceptionMessage);
-		//setAttributes for group
+
+		//attributes to set
 		List<Attribute> attrsToSet = new ArrayList<>();
+
+		//null in exceptionMessage means no exception, success
+		//Set lastSuccessSynchronzationTimestamp if this one is success
+		if(exceptionMessage == null) {
+			String attrName = AttributesManager.NS_GROUP_ATTR_DEF + ":lastSuccessSynchronizationTimestamp";
+			try {
+				Attribute lastSuccessSynchronizationTimestamp = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, attrName));
+				lastSuccessSynchronizationTimestamp.setValue(currectTimestampString);
+				attrsToSet.add(lastSuccessSynchronizationTimestamp);
+			} catch (AttributeNotExistsException ex) {
+				log.error("Can't save lastSuccessSynchronizationTimestamp, because there is missing attribute with name {}",attrName);
+			}
+		}
+
+		//set lastSynchronizationState and lastSynchronizationTimestamp
 		attrsToSet.add(lastSynchronizationState);
 		attrsToSet.add(lastSynchronizationTimestamp);
 		((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttributes(sess, group, attrsToSet);
