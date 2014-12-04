@@ -47,9 +47,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <property name="locations">
         	<list>
 	           	<value>${perun.jdbc}</value>
-				<value>file:${perun.conf.custom}/jdbc.properties</value>
-	            <value>file:${perun.conf}/perun-dispatcher.properties</value>
-                <value>file:${perun.conf.custom}/perun-dispatcher.properties</value>
+				<value>file:${perun.conf.custom}jdbc.properties</value>
+	            <value>file:${perun.conf}perun-dispatcher.properties</value>
+                <value>file:${perun.conf.custom}perun-dispatcher.properties</value>
             </list>
         </property>
         <property name="ignoreResourceNotFound">

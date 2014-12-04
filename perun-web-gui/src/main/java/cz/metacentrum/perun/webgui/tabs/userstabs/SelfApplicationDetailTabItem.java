@@ -130,7 +130,7 @@ public class SelfApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1223;
 		int result = 43;
 		result = prime * result * applicationId;
 		return result;

@@ -163,15 +163,12 @@ public class VosTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 311;
+		final int prime = 1471;
 		int result = 1;
 		result = prime * result + 341;
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

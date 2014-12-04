@@ -193,7 +193,7 @@ public class AssignServiceTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 59;
+		final int prime = 1499;
 		int result = 1;
 		result = prime * result + resourceId;
 		return result;

@@ -183,7 +183,7 @@ public class InviteUserTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1213;
 		int result = 404;
 		result = prime * result;
 		return result;

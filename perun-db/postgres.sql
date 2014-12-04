@@ -1,4 +1,4 @@
--- database version 3.1.11
+-- database version 3.1.14
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -18,7 +18,7 @@ create table "vos" (
 create table "users" (
 	id integer not null,
 	first_name varchar(64),   -- christening name
-	last_name varchar(64) not null, -- family name
+	last_name varchar(64),    -- family name
 	middle_name varchar(64),   -- second name
 	title_before varchar(20),  -- academic degree used before name
 	title_after varchar(20),   -- academic degree used after name
@@ -948,7 +948,7 @@ create table "reserved_logins" (
 
 -- PN_AUDIT_MESSAGE - Contains all messages retrieved from the auditer log, since the notification module is auditer consumer. These messages are waiting to be processed by the notification module
 create table pn_audit_message (
-	message varchar(4000),
+	message text,
 	id integer NOT NULL,
 	created_by_uid integer,
 	modified_by_uid integer

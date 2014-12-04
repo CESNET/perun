@@ -60,21 +60,21 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
-		//TODO: Apostrophe can't be use now, need to find solution in the future (KNOWN BUG)
-		if(searchString.contains("'")) throw new InternalErrorException("Character ' (apos) is not supported one. Please don't use it for searching.");		
-		
+		//prepare string for xpath (use concat for chars ' and  ")
+		searchString = convertToXpathSearchString(searchString);
+
 		//Get Query attribute from extSources.xml config file
 		query = (String) getAttributes().get("xpath");
 		if (query == null || query.isEmpty()) {
 			throw new InternalErrorException("query attributes is required");
 		}
-		
+
 		//Replace '?' by searchString
 		if(searchString == null) {
 			throw new InternalErrorException("search string can't be null");
 		}
 		query = query.replaceAll("\\?", searchString);
-		
+
 		//Get file or uri of xml
 		prepareEnviroment();
 
@@ -82,9 +82,9 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	}
 
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
-		//TODO: Apostrophe can't be use now, need to find solution in the future
-		if(login.contains("'")) throw new InternalErrorException("Character ' (apos) is not supported one. Please don't use it for searching.");	
-		
+		//prepare string for xpath (use concat for chars ' and  ")
+		login = convertToXpathSearchString(login);
+
 		//Get Query attribute from extSources.xml config file
 		query = (String) getAttributes().get("loginXpath");
 		if (query == null || query.isEmpty()) {
@@ -96,7 +96,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 			throw new InternalErrorException("login string can't be null or empty");
 		}
 		query = query.replaceAll("\\?", login);
-		
+
 		//Get file or uri of xml
 		prepareEnviroment();
 
@@ -339,7 +339,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private InputStream createTwoWaySSLConnection(String uri) throws IOException, InternalErrorException {
 		if(uri == null || uri.isEmpty()) throw new InternalErrorException("Uri must be filled, can't be null or empty.");
 		
-		//KeyStore data
+		/*//KeyStore data
 		String keyStore =  getAttributes().get("keyStore");
 		String keyStorePass = getAttributes().get("keyStorePass");
 		String keyStoreType = getAttributes().get("keyStoreType");
@@ -363,7 +363,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		System.setProperty("javax.net.ssl.trustStore", trustStore);
 		System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
 		// register a https protocol handler  - this may be required for previous JDK versions
-		System.setProperty("java.protocol.handler.pkgs","com.sun.net.ssl.internal.www.protocol");
+		System.setProperty("java.protocol.handler.pkgs","com.sun.net.ssl.internal.www.protocol");*/
 
 		//prepare sslFactory
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
@@ -382,8 +382,74 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 
 		return con.getInputStream();
 	}
-	
-	
+
+
+	/**
+	 * Take plaintext query and create xpath query with concat function if needed.
+	 * IMPORTANT: especialy if there are these characters: ' (single quote) and " (double quotes)
+	 *
+	 * @param query string for xpath query in plain text format
+	 *
+	 * @return string for xpath, if there is needed, concat is used, if not, string without concet in quotes is returned, empty string if nothing in query
+	 */
+	private String convertToXpathSearchString(String query) {
+		//if query is empty or null, return empty string
+		if(query == null || query.isEmpty()) {
+			return new String();
+		}
+		//prepare array with parts of query for concating
+		List<String> parts = new ArrayList<String>();
+
+		//prepare variables for behavior in for cyclus through all characters in query
+		String part = "";
+		//if part contains double quote, doubleQuote = true, if single quote then doubleQuote = false
+		boolean doubleQuotes = false;
+
+		//create parts where single quotes are in double quotes and vice versa
+		for(char ch: query.toCharArray()) {
+			if(ch == '\'') {
+				if(!doubleQuotes) {
+					part+= ch;
+				} else {
+					parts.add("'" + part + "',");
+					part = "" + ch;
+					doubleQuotes = false;
+				}
+			} else if (ch == '"') {
+				if(doubleQuotes) {
+					part+= ch;
+				} else {
+					parts.add("\"" + part + "\",");
+					part = "" + ch;
+					doubleQuotes = true;
+				}
+			} else {
+				part+= ch;
+			}
+		}
+
+		//add the last part to the array
+		if(doubleQuotes) {
+			parts.add("'" + part + "'");
+		} else {
+			parts.add("\"" + part + "\"");
+		}
+
+		//prepare string with concat if needed
+		String result = "concat(";
+		if(parts.size() > 1 ) {
+			for(String str: parts) {
+				result+=str;
+			}
+			result+= ")";
+		} else {
+			//return only string if not need concat
+			return parts.get(0);
+		}
+
+		//return xpath query
+		return result;
+	}
 	
 	public void close() throws InternalErrorException {
 		if(con != null) con.disconnect();

@@ -143,15 +143,12 @@ public class TestRtReportingTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1163;
 		int result = 4304;
 		result = prime * result;
 		return result;
 	}
 
-	/**
-	 * @param obj
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

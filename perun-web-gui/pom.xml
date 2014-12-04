@@ -1,283 +1,289 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>perun</artifactId>
-        <groupId>cz.metacentrum</groupId>
-        <version>3.0.1-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<artifactId>perun</artifactId>
+		<groupId>cz.metacentrum</groupId>
+		<version>3.0.1-SNAPSHOT</version>
+	</parent>
 
-    <groupId>cz.metacentrum.perun</groupId>
-    <artifactId>perun-web-gui</artifactId>
-    <version>3.0.1-SNAPSHOT-${perun.build.type}</version>
-    <packaging>war</packaging>
+	<groupId>cz.metacentrum.perun</groupId>
+	<artifactId>perun-web-gui</artifactId>
+	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
+	<packaging>war</packaging>
 
-    <name>perun-web-gui</name>
-    <description>JS web application based on GWT framework which provides GUI for Perun.</description>
+	<name>perun-web-gui</name>
+	<description>JS web application based on GWT framework which provides GUI for Perun.</description>
 
-    <scm>
-        <connection>scm:git:https://github.com/zlamalp/perun.git</connection>
-        <url>scm:git:https://github.com/zlamalp/perun.git</url>
-        <tag>HEAD</tag>
-    </scm>
+	<scm>
+		<connection>scm:git:https://github.com/zlamalp/perun.git</connection>
+		<url>scm:git:https://github.com/zlamalp/perun.git</url>
+		<tag>HEAD</tag>
+	</scm>
 
-    <properties>
-        <!-- Convenience property to set the GWT version -->
-        <gwtVersion>2.6.1</gwtVersion>
-        <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
-        <gui.url.modifier></gui.url.modifier>
-    </properties>
+	<properties>
+		<!-- Convenience property to set the GWT version -->
+		<gwtVersion>2.6.1</gwtVersion>
+		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
+		<gui.url.modifier></gui.url.modifier>
+	</properties>
 
-    <!-- common build settings used by all profiles -->
-    <build>
-        <plugins>
+	<!-- common build settings used by all profiles -->
+	<build>
+		<plugins>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
 
-            <!-- SVN version plugin provides ${buildNumber} property to GUI files -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.2</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <shortRevisionLength>5</shortRevisionLength>
-                    <revisionOnScmFailure>0000</revisionOnScmFailure>
-                    <doCheck>false</doCheck>
-                    <doUpdate>false</doUpdate>
-                </configuration>
-            </plugin>
+			<!-- SVN version plugin provides ${buildNumber} property to GUI files -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<shortRevisionLength>5</shortRevisionLength>
+					<revisionOnScmFailure>0000</revisionOnScmFailure>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+				</configuration>
+			</plugin>
 
-            <!-- Copy static web files before executing gwt:run -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exploded</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <webappDirectory>${webappDirectory}</webappDirectory>
-                    <warName>perun-web-gui-${perun.build.type}</warName>
-                </configuration>
-            </plugin>
+			<!-- Copy static web files before executing gwt:run -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>exploded</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<webappDirectory>${webappDirectory}</webappDirectory>
+					<warName>perun-web-gui-${perun.build.type}</warName>
+				</configuration>
+			</plugin>
 
-            <!-- GWT Maven Plugin -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>gwt-maven-plugin</artifactId>
-                <version>2.6.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>generateAsync</goal>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <!-- Plugin configuration. There are many available options, see
-                  gwt-maven-plugin documentation at codehaus.org -->
-                <configuration>
-	                <modules>
-		                <module>cz.metacentrum.perun.webgui.application-form</module>
-		                <module>cz.metacentrum.perun.webgui.password-reset</module>
-		                <module>cz.metacentrum.perun.webgui.perun-web</module>
-	                </modules>
-                    <runTarget>PerunWeb.html</runTarget>
-                    <hostedWebapp>${webappDirectory}</hostedWebapp>
-                    <!-- skip code optimization for devel not necessary -->
-                    <draftCompile>true</draftCompile>
-                </configuration>
-            </plugin>
+			<!-- GWT Maven Plugin -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<version>2.6.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>generateAsync</goal>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+				<!-- Plugin configuration. There are many available options, see
+				  gwt-maven-plugin documentation at codehaus.org -->
+				<configuration>
+					<modules>
+						<module>cz.metacentrum.perun.webgui.application-form</module>
+						<module>cz.metacentrum.perun.webgui.password-reset</module>
+						<module>cz.metacentrum.perun.webgui.perun-web</module>
+					</modules>
+					<runTarget>PerunWeb.html</runTarget>
+					<hostedWebapp>${webappDirectory}</hostedWebapp>
+					<!-- skip code optimization for devel not necessary -->
+					<draftCompile>true</draftCompile>
+				</configuration>
+			</plugin>
 
-        </plugins>
+		</plugins>
 
-        <resources>
-            <resource>
-                <directory>src/main/resources/devel/</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.gwt.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources/common/</directory>
-            </resource>
-        </resources>
+		<resources>
+			<resource>
+				<directory>src/main/resources/devel/</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.gwt.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources/common/</directory>
+			</resource>
+		</resources>
 
-    </build>
+	</build>
 
-    <dependencies>
+	<dependencies>
 
-        <!-- PERUN -->
+		<!-- PERUN -->
 
-        <!-- DB -->
+		<!-- DB -->
 
-        <!-- SPRING -->
+		<!-- SPRING -->
 
-        <!-- TESTS -->
+		<!-- TESTS -->
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>1.0.0.GA</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.0.0.GA</version>
+			<scope>provided</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>1.0.0.GA</version>
-            <classifier>sources</classifier>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.0.0.GA</version>
+			<classifier>sources</classifier>
+			<scope>provided</scope>
+		</dependency>
 
-        <!-- LOGGING -->
+		<!-- LOGGING -->
 
-        <!-- OTHERS -->
+		<!-- OTHERS -->
 
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-servlet</artifactId>
-            <version>${gwtVersion}</version>
-            <scope>runtime</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<version>${gwtVersion}</version>
+			<scope>runtime</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
-            <version>${gwtVersion}</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<version>${gwtVersion}</version>
+			<scope>provided</scope>
+		</dependency>
 
-        <!-- Drag and Drop library
-        <dependency>
-            <groupId>com.googlecode.gwtquery.bundles</groupId>
-            <artifactId>gquery-dnd-bundle</artifactId>
-            <version>1.0.6</version>
-            <scope>provided</scope>
-        </dependency>
-        -->
+		<!-- Drag and Drop library
+		<dependency>
+			<groupId>com.googlecode.gwtquery.bundles</groupId>
+			<artifactId>gquery-dnd-bundle</artifactId>
+			<version>1.0.6</version>
+			<scope>provided</scope>
+		</dependency>
+		-->
 
-    </dependencies>
+	</dependencies>
 
-    <profiles>
+	<profiles>
 
-        <profile>
+		<profile>
 
-            <id>production</id>
+			<id>production</id>
 
-            <properties>
-                <perun.build.type>production</perun.build.type>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
+			<activation>
+				<property>
+					<name>production</name>
+				</property>
+			</activation>
 
-            <build>
+			<properties>
+				<perun.build.type>production</perun.build.type>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
 
-                <plugins>
+			<build>
 
-                    <!-- GWT Maven Plugin -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>gwt-maven-plugin</artifactId>
-                        <version>2.6.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>compile</goal>
-                                    <goal>generateAsync</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <!-- Plugin configuration. There are many available options, see
-                          gwt-maven-plugin documentation at codehaus.org -->
-                        <configuration>
-	                        <modules>
-		                        <module>cz.metacentrum.perun.webgui.application-form-prod</module>
-		                        <module>cz.metacentrum.perun.webgui.password-reset-prod</module>
-		                        <module>cz.metacentrum.perun.webgui.perun-web-prod</module>
-	                        </modules>
-                            <runTarget>PerunWeb.html</runTarget>
-                            <hostedWebapp>${webappDirectory}</hostedWebapp>
-                        </configuration>
-                    </plugin>
+				<plugins>
 
-                </plugins>
+					<!-- GWT Maven Plugin -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<version>2.6.1</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>compile</goal>
+									<goal>generateAsync</goal>
+								</goals>
+							</execution>
+						</executions>
+						<!-- Plugin configuration. There are many available options, see
+						  gwt-maven-plugin documentation at codehaus.org -->
+						<configuration>
+							<modules>
+								<module>cz.metacentrum.perun.webgui.application-form-prod</module>
+								<module>cz.metacentrum.perun.webgui.password-reset-prod</module>
+								<module>cz.metacentrum.perun.webgui.perun-web-prod</module>
+							</modules>
+							<runTarget>PerunWeb.html</runTarget>
+							<hostedWebapp>${webappDirectory}</hostedWebapp>
+						</configuration>
+					</plugin>
 
-                <resources>
-                    <resource>
-                        <directory>src/main/resources/production/</directory>
-                        <filtering>true</filtering>
-                        <includes>
-                            <include>**/*.properties</include>
-                            <include>**/*.gwt.xml</include>
-                        </includes>
-                    </resource>
-                    <resource>
-                        <directory>src/main/resources/common/</directory>
-                    </resource>
-                </resources>
+				</plugins>
 
-            </build>
-        </profile>
+				<resources>
+					<resource>
+						<directory>src/main/resources/production/</directory>
+						<filtering>true</filtering>
+						<includes>
+							<include>**/*.properties</include>
+							<include>**/*.gwt.xml</include>
+						</includes>
+					</resource>
+					<resource>
+						<directory>src/main/resources/common/</directory>
+					</resource>
+				</resources>
 
-    </profiles>
+			</build>
+		</profile>
 
-    <!-- uncomment for drag and drop
-    <repositories>
-        <repository>
-            <id>plugins</id>
-            <url>http://gwtquery-plugins.googlecode.com/svn/mavenrepo</url>
-        </repository>
-    </repositories>
-    -->
+	</profiles>
+
+	<!-- uncomment for drag and drop
+	<repositories>
+		<repository>
+			<id>plugins</id>
+			<url>http://gwtquery-plugins.googlecode.com/svn/mavenrepo</url>
+		</repository>
+	</repositories>
+	-->
 
 </project>

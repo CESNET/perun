@@ -363,7 +363,7 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 59;
+		final int prime = 1429;
 		int result = 1;
 		result = prime * result + groupId;
 		return result;

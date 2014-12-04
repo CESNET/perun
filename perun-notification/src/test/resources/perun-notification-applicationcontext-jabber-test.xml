@@ -17,7 +17,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <import resource="classpath:perun-beans.xml"/>
 
     <!-- IMPORTANT: Fill DB properties from TEST configuration files and override property placeholder from perun-core -->
-    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location='file:${perun.conf}/perun-notification-test.properties, file:${perun.conf}/perun-notification-test.properties' order="0"/>
+    <context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location='file:${perun.conf}perun-notification-test.properties, file:${perun.conf}perun-notification-test.properties' order="0"/>
 
     <bean id="dataSource2" class="org.apache.commons.dbcp.BasicDataSource">
         <property name="driverClassName" value="org.h2.Driver"/>
@@ -30,8 +30,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
             <list>
-                <value>file:${perun.conf}/perun-notification-test.properties</value>
-                <value>file:${perun.conf.custom}/perun-notification-test.properties</value>
+                <value>file:${perun.conf}perun-notification-test.properties</value>
+                <value>file:${perun.conf.custom}perun-notification-test.properties</value>
             </list>
         </property>
         <property name="ignoreResourceNotFound">

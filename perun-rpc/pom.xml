@@ -226,6 +226,12 @@
 
 			<id>production</id>
 
+			<activation>
+				<property>
+					<name>production</name>
+				</property>
+			</activation>
+
 			<properties>
 				<perun.build.type>production</perun.build.type>
 				<maven.test.skip>true</maven.test.skip>
@@ -271,7 +277,7 @@
 								<artifactId>jetty-ajp</artifactId>
 								<version>8.1.15.v20140411</version>
 							</dependency>
-                        </dependencies>
+						</dependencies>
 
 					</plugin>
 

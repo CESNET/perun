@@ -169,7 +169,7 @@ public class SendPasswordResetRequestTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 907;
 		int result = 1;
 		result = prime * result + memberId;
 		return result;

@@ -265,7 +265,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 719;
 		int result = 1;
 		result = prime * result + facilityId;
 		return result;

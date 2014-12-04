@@ -428,7 +428,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 631;
 		int result = 1;
 		result = prime * result * userId;
 		return result;

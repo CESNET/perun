@@ -280,7 +280,7 @@ public class CreateFacilityResourceManageServicesTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1019;
 		int result = 1;
 		result = prime * result + facilityId;
 		result = prime * result + resourceId;

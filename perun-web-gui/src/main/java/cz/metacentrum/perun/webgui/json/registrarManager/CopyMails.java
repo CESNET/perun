@@ -27,17 +27,18 @@ public class CopyMails {
 
 	private int fromId;
 	private int toId;
-	private PerunEntity entity;
+	private PerunEntity entityFrom;
+	private PerunEntity entityTo;
 
 	/**
 	 * Creates a new request
 	 *
-	 * @param entity
 	 * @param fromId
 	 * @param toId
 	 */
-	public CopyMails(PerunEntity entity, int fromId, int toId) {
-		this.entity = entity;
+	public CopyMails(PerunEntity entityFrom, int fromId, PerunEntity entityTo, int toId) {
+		this.entityFrom = entityFrom;
+		this.entityTo = entityTo;
 		this.fromId = fromId;
 		this.toId = toId;
 	}
@@ -45,14 +46,14 @@ public class CopyMails {
 	/**
 	 * Creates a new request with custom events
 	 *
-	 * @param entity
 	 * @param fromId
 	 * @param toId
 	 * @param events Custom events
 	 */
-	public CopyMails(PerunEntity entity, int fromId, int toId, JsonCallbackEvents events) {
-		this.entity = entity;
+	public CopyMails(PerunEntity entityFrom, int fromId, PerunEntity entityTo, int toId, JsonCallbackEvents events) {
+		this.entityFrom = entityFrom;
 		this.fromId = fromId;
+		this.entityTo = entityTo;
 		this.toId = toId;
 		this.events = events;
 	}
@@ -99,24 +100,33 @@ public class CopyMails {
 	 * Prepares a JSON object.
 	 * @return JSONObject - the whole query
 	 */
-	private JSONObject prepareJSONObject()
-	{
+	private JSONObject prepareJSONObject() {
+
 		// query
 		JSONObject query = new JSONObject();
 
-		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entity)) {
+		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entityFrom)) {
 
 			query.put("fromVo", new JSONNumber(fromId));
-			query.put("toVo", new JSONNumber(toId));
 
-		} else if (PerunEntity.GROUP.equals(entity)) {
+		} else if (PerunEntity.GROUP.equals(entityFrom)) {
 
 			query.put("fromGroup", new JSONNumber(fromId));
+
+		}
+
+		if (PerunEntity.VIRTUAL_ORGANIZATION.equals(entityTo)) {
+
+			query.put("toVo", new JSONNumber(toId));
+
+		} else if (PerunEntity.GROUP.equals(entityTo)) {
+
 			query.put("toGroup", new JSONNumber(toId));
 
 		}
 
 		return query;
+
 	}
 
 }

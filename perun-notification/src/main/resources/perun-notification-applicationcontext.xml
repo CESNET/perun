@@ -14,8 +14,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
             <list>
-                <value>file:${perun.conf}/perun-notification.properties</value>
-                <value>file:${perun.conf.custom}/perun-notification.properties</value>
+                <value>file:${perun.conf}perun-notification.properties</value>
+                <value>file:${perun.conf.custom}perun-notification.properties</value>
             </list>
         </property>
         <property name="ignoreResourceNotFound">

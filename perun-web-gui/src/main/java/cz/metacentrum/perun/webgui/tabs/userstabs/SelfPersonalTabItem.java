@@ -508,7 +508,7 @@ public class SelfPersonalTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 11;
+		final int prime = 1567;
 		int result = 432;
 		result = prime * result * userId;
 		return result;

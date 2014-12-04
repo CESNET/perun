@@ -301,7 +301,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 51;
+		final int prime = 1409;
 		int result = 1;
 		result = prime * result + groupId;
 		return result;

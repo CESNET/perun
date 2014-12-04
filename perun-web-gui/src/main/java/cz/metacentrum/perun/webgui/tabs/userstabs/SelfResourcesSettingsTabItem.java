@@ -64,7 +64,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 	private int voId = 0;
 
 	/**
-	 * Creates a tab instance
+	 * Creates a tab instance for logged user
 	 */
 	public SelfResourcesSettingsTabItem(){
 		this.user = session.getActiveUser();
@@ -72,7 +72,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 	}
 
 	/**
-	 * Creates a tab instance
+	 * Creates a tab instance for specific user
 	 * @param user
 	 */
 	public SelfResourcesSettingsTabItem(User user) {
@@ -81,7 +81,8 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 	}
 
 	/**
-	 * Creates a tab instance
+	 * Creates a tab instance for specific user
+	 * @param userId
 	 */
 	public SelfResourcesSettingsTabItem(int userId){
 		this.userId = userId;
@@ -95,7 +96,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 	}
 
 	/**
-	 * Creates a tab instance
+	 * Creates a tab instance for specific user and VO
 	 * @param user
 	 * @param vo
 	 */
@@ -106,12 +107,35 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 	}
 
 	/**
-	 * Creates a tab instance
+	 * Creates a tab instance for logged user with specific VO
+	 * @param vo
+	 */
+	public SelfResourcesSettingsTabItem(VirtualOrganization vo) {
+		this();
+		this.vo = vo;
+		this.voId = vo.getId();
+	}
+
+	/**
+	 * Creates a tab instance for specific user with specific VO
+	 *
+	 * Have fallback if userId == 0.
+	 *
 	 * @param userId
 	 * @param voId
 	 */
 	public SelfResourcesSettingsTabItem(int userId, int voId){
-		this(userId);
+		if (userId == 0) {
+			this.user = session.getActiveUser();
+			this.userId = user.getId();
+		} else {
+			this.userId = userId;
+			new GetEntityById(PerunEntity.USER, userId, new JsonCallbackEvents() {
+					public void onFinished(JavaScriptObject jso){
+						user = jso.cast();
+					}
+				}).retrieveData();
+		}
 		this.voId = voId;
 		if (voId != 0) {
 			new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, new JsonCallbackEvents() {
@@ -613,7 +637,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1249;
 		int result = 432;
 		result = prime * result;
 		return result;
@@ -667,10 +691,11 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 	static public SelfResourcesSettingsTabItem load(Map<String, String> parameters) {
 		if (parameters.containsKey("id")) {
 			int uid = Integer.parseInt(parameters.get("id"));
-			if (uid != 0) {
-				int voId = Integer.parseInt(parameters.get("vo"));
-				return new SelfResourcesSettingsTabItem(uid, voId);
-			}
+			int voId = Integer.parseInt(parameters.get("vo"));
+			return new SelfResourcesSettingsTabItem(uid, voId);
+		} else if (parameters.containsKey("vo")){
+			int voId = Integer.parseInt(parameters.get("vo"));
+			return new SelfResourcesSettingsTabItem(0, voId);
 		}
 		return new SelfResourcesSettingsTabItem();
 	}

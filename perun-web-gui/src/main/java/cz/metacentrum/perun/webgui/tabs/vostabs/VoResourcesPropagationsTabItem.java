@@ -329,7 +329,7 @@ public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1327;
 		int result = 1;
 		result = prime * result + voId;
 		return result;

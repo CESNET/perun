@@ -289,7 +289,7 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 1259;
 		int result = 432;
 		result = prime * result;
 		return result;

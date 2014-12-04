@@ -107,8 +107,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
             <list>
-                <value>file:${perun.conf}/perun-engine.properties</value>
-                <value>file:${perun.conf.custom}/perun-engine.properties</value>
+                <value>file:${perun.conf}perun-engine.properties</value>
+                <value>file:${perun.conf.custom}perun-engine.properties</value>
             </list>
         </property>
         <property name="ignoreResourceNotFound">

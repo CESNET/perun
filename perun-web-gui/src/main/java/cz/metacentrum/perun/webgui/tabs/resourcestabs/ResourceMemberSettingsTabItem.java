@@ -389,7 +389,7 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 3;
+		final int prime = 1531;
 		int result = 1;
 		result = prime * result + resourceId;
 		return result;

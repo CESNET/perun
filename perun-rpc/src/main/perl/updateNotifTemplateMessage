@@ -38,6 +38,10 @@ if (defined($templateId)) {
     $object->setTemplateId($templateId);
 }
 
+if (defined($locale)) {
+    $object->setLocale($locale);
+}
+
 if (defined($message)) {
     $object->setMessage($message);
 }

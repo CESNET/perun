@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -792,8 +794,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 * This method is run in separate transaction.
 	 */
-	public void synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException {
+	public List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException {
 
+		List<String> skippedMembers = new ArrayList<>();
 		ExtSource source = null;
 		ExtSource membersSource = null;
 		try {
@@ -877,6 +880,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// Skip subjects, which doesn't have login
 				if (login == null || login == "") {
 					log.debug("Subject {} doesn't contain attribute login, skipping.", subject);
+					skippedMembers.add("Member:[" + subject + " because of Skipped due to missing login]");
 					continue;
 				}
 				try {
@@ -885,9 +889,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					throw new InternalErrorException("ExtSource " + membersSource + " doesn't exists.");
 				} catch (CandidateNotExistsException e) {
 					log.warn("getGroupSubjects subjects returned login {}, but it cannot be obtained using getCandidate()", login);
+					skippedMembers.add("Member:[" + subject + " because of Skipped due to obtaining by getCandidate using login '" + login + "' from extSource '" + membersSource + "]");
 					continue;
 				} catch (ExtSourceUnsupportedOperationException e) {
 					log.warn("ExtSource {} doesn't support getCandidate operation.", membersSource);
+					skippedMembers.add("Member:[" + subject + " because of Skipped due to NOT supported method getCandidate by extSource '" + membersSource + "]");
+					continue;
+				} catch (ParserException e) {
+					log.warn("Can't parse value {} from candidate with login {}", e.getParsedValue(), login);
+					skippedMembers.add("Member:[" + subject + " because of Skipped due to problem with parsing '" + e.getParsedValue() + "]");
 					continue;
 				}
 			}
@@ -905,7 +915,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// perun group members, remove entry from the list, if the member is in the external source
 			List<RichMember> membersToRemove = new ArrayList<RichMember>(currentMembers);
 
-			// List of canidates which will be finally added to the perun group. Firstly fill the list and then remove those who are already in the Group
+			// List of candidates which will be finally added to the perun group. Firstly fill the list and then remove those who are already in the Group
 			List<Candidate> candidatesToAdd = new ArrayList<Candidate>(candidates);
 
 			// Iterate through members from the external group and find the differences with the perun group
@@ -1008,7 +1018,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 												// Try to set user's attributes
 												getPerunBl().getAttributesManagerBl().setAttribute(sess, richMember.getUser(), newAttribute);
 											} catch (AttributeValueException e) {
-												// There is a problem with attribute value, so set INVALID status of the memeber
+												// There is a problem with attribute value, so set INVALID status of the member
 												getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
 												try {
 													// The member is invalid, so try to set the value again, and check if the change has influence also on other members
@@ -1038,7 +1048,53 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							}
 						}
 
-						// If the member has INVALID status, try to validete the member
+						// If the member has expired or disabled status, try to expire/validate him (depending on expiration date)
+						try {
+							if (richMember.getStatus().equals(Status.DISABLED) || richMember.getStatus().equals(Status.EXPIRED)) {
+								Date now = new Date();
+
+								Attribute memberExpiration = null;
+
+								for(Attribute att: richMember.getMemberAttributes()) {
+									if((AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration").equals(att.getName())){
+										memberExpiration = att;
+										break;
+									}
+								}
+
+								if (memberExpiration != null && memberExpiration.getValue() != null) {
+									Date currentMembershipExpirationDate = BeansUtils.DATE_FORMATTER.parse((String) memberExpiration.getValue());
+
+									if (currentMembershipExpirationDate.before(now)) {
+										//disabled members which are after expiration date will be expired
+										if (richMember.getStatus().equals(Status.DISABLED)) {
+											try {
+												perunBl.getMembersManagerBl().expireMember(sess, member);
+												log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), (String) memberExpiration.getValue());
+												log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
+											} catch (MemberNotValidYetException e) {
+												log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
+											}
+										}
+									} else {
+										//disabled and expired members which are before expiration date will be validated
+										try {
+											perunBl.getMembersManagerBl().validateMember(sess, member);
+											log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), (String) memberExpiration.getValue());
+											log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
+										} catch (WrongAttributeValueException e) {
+											log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
+										} catch (WrongReferenceAttributeValueException e) {
+											log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
+										}
+									}
+								}
+							}
+						} catch (ParseException e) {
+							log.error("Group synchronization: member expiration String cannot be parsed, exception {}", e);
+						}
+
+						// If the member has INVALID status, try to validate the member
 						try {
 							if (richMember.getStatus().equals(Status.INVALID)) {
 								getPerunBl().getMembersManagerBl().validateMember(sess, member);
@@ -1078,6 +1134,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						log.info("Group synchronization {}: New member id {} created during synchronization.", group, member.getId());
 					} catch (AlreadyMemberException e1) {
 						throw new ConsistencyErrorException("Trying to add existing member");
+					} catch (AttributeValueException e1) {
+						log.warn("Can't create member from candidate {} due to attribute value exception {}.", candidate, e1);
+						skippedMembers.add("Member:[" + candidate + " skipped due to problem with creating member from candidate. Exception: " + e1.getName() + " => " + e1.getMessage() + "]");
+						continue;
+					} catch (ExtendMembershipException ex) {
+						log.warn("Can't create member from candidate {} due to membership expiration exception {}.", candidate, ex);
+						skippedMembers.add("Member:[" + candidate + " skipped due to problem with creating member from candidate. Exception: " + ex.getName() + " => " + ex.getMessage() + "]");
+						continue;
 					}
 				}
 
@@ -1150,7 +1214,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							try {
 								memberAuthoritativeGroups = getAllAuthoritativeGroupsOfMember(sess, member);
 							} catch (AttributeNotExistsException ex) {
-								//This means that no authoriative group can exists without this attribute
+								//This means that no authoritative group can exists without this attribute
 								log.error("Attribute {} doesn't exists.", A_G_D_AUTHORITATIVE_GROUP);
 							}
 
@@ -1193,14 +1257,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			log.info("Group synchronization {}: ended.", group);
-			// FIXME temporarly disabled
+			// FIXME temporarily disabled
 			//getPerunBl().getAuditer().log(sess, "{} successfully synchronized.", group);
 		} finally {
 			if(membersSource != null) {
 				try {
 					((ExtSourceApi) membersSource).close();
 				} catch (ExtSourceUnsupportedOperationException e) {
-					// ExtSource doesn't support that functionality, so silentely skip it.
+					// ExtSource doesn't support that functionality, so silently skip it.
 				} catch (InternalErrorException e) {
 					log.error("Can't close membersSource connection. Cause: {}", e);
 				}
@@ -1209,13 +1273,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				try {
 					((ExtSourceApi) source).close();
 				} catch (ExtSourceUnsupportedOperationException e) {
-					// ExtSource doesn't support that functionality, so silentely skip it.
+					// ExtSource doesn't support that functionality, so silently skip it.
 				} catch (InternalErrorException e) {
 					log.error("Can't close extSource connection. Cause: {}", e);
 				}
 			}
 		}
-
+		
+		return skippedMembers;
 	}
 
 	/**
@@ -1355,13 +1420,36 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			boolean exceptionThrown = false;
 			//text of exception if was thrown
 			String exceptionMessage = null;
+			//text with all skipped members and reasons of this skipping
+			String skippedMembersMessage = null;
 			
 			try {
 				log.debug("Synchronization thread for group {} has started.", group);
 				// Set the start time, so we can check the timeout of the thread
 				startTime = System.currentTimeMillis();
 
-				((PerunBl) sess.getPerun()).getGroupsManagerBl().synchronizeGroup(sess, group);
+				//synchronize Group and get informatou about skipped Members
+				List<String> skippedMembers = ((PerunBl) sess.getPerun()).getGroupsManagerBl().synchronizeGroup(sess, group);
+
+				//prepare variables for checking max length of message and create human readable text
+				boolean exceedMaxChars = false;
+				int maxChars = 3000;
+				if(!skippedMembers.isEmpty()) {
+					exceptionThrown = true;
+					skippedMembersMessage = "These members from extSource were skipped: { ";
+					//Exception message can't be longer than 3000 chars
+					for(String skippedMember: skippedMembers) {
+						if(skippedMember == null) continue;
+						if(!exceedMaxChars && (skippedMembersMessage.length() + skippedMember.length()) > maxChars) {
+							exceptionMessage = skippedMembersMessage + " ... message is too long, other info is in perun log file. If needed, please ask perun administrators.";
+							exceedMaxChars = true;
+						}
+						skippedMembersMessage+= skippedMember + ", ";
+					}
+					skippedMembersMessage+= " }";
+					if(!exceedMaxChars) exceptionMessage = skippedMembersMessage;
+					log.error("Info about exception from synchronization: " + skippedMembersMessage);
+				}
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
 			} catch (WrongAttributeValueException e) {
@@ -1399,6 +1487,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					((PerunBl) sess.getPerun()).getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, exceptionMessage);
 				} catch (Exception ex) {
 					log.error("When synchronization group " + group + ", exception was thrown.", ex);
+					log.error("Info about exception from synchronization: " + skippedMembersMessage);
 				}
 				log.debug("GroupSynchronizerThread finnished for group: {}", group);
 			}

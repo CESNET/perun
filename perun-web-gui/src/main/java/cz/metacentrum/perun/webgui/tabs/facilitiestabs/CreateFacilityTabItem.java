@@ -143,7 +143,12 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 		back.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				if (selectedPage >2) selectedPage--;
+				// skipped services selection
+				if (selectedPage == 8 && selectedServices.isEmpty()) {
+					selectedPage = 5;
+				} else if (selectedPage >2) {
+					selectedPage--;
+				}
 				draw();
 			}
 		});
@@ -819,7 +824,38 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 				@Override
 				public void onClick(ClickEvent event) {
 					if (services.getTableSelectedList() == null || services.getTableSelectedList().isEmpty()) {
-						UiElements.generateAlert("No service selected", "In order to continue please select some services, which will be configured by Perun.");
+
+						FlexTable layout = new FlexTable();
+
+						layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
+						layout.setHTML(0, 1, "<p>" + "You didn't select any service. Do you wish to skip services configuration ?");
+
+						layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+						layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+						layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+						final Confirm c = new Confirm("No service selected", layout, true);
+						c.setOkButtonText("Yes");
+						c.setCancelButtonText("No");
+						c.setOkClickHandler(new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								selectedServices.clear();
+								// draw
+								selectedPage = 8;
+								draw();
+							}
+						});
+						c.setCancelClickHandler(new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								c.hide();
+							}
+						});
+						c.setNonScrollable(true);
+						c.show();
+
+
 					} else {
 						// set selected services
 						selectedServices.clear();
@@ -1432,7 +1468,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 673;
 		int result = 1;
 		result = prime * result + 12341;
 		return result;

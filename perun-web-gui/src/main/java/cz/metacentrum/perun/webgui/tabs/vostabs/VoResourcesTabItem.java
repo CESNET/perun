@@ -177,7 +177,7 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 71;
+		final int prime = 1613;
 		int result = 1;
 		result = prime * result + voId;
 		return result;

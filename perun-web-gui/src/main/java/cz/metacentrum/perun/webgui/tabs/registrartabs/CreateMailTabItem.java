@@ -484,7 +484,7 @@ public class CreateMailTabItem implements TabItem {
 
 	@Override
 	public int hashCode() {
-		final int prime = 61;
+		final int prime = 1481;
 		int result = 3;
 		result = prime * result + voId + groupId;
 		return result;

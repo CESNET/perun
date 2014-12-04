@@ -190,7 +190,7 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 
 	@Override
 	public int hashCode() {
-		final int prime = 53;
+		final int prime = 1511;
 		int result = 1;
 		result = prime * result + resourceId;
 		return result;

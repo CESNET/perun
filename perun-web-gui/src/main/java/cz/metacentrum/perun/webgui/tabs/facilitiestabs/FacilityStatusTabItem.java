@@ -149,7 +149,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public int hashCode() {
-		final int prime = 41;
+		final int prime = 1373;
 		int result = 1;
 		result = prime * result + facilityId;
 		return result;

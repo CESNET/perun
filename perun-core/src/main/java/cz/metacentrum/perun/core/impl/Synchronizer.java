@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -77,10 +78,11 @@ public class Synchronizer {
 			for (Vo vo: perunBl.getVosManagerBl().getVos(this.sess)) {
 				// Get all members
 				for (Member member: perunBl.getMembersManagerBl().getMembers(sess, vo)) {
+					Date currentMembershipExpirationDate;
 					// Read membershipExpiration and check it
 					Attribute membersExpiration = perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration");
 					if (membersExpiration.getValue() != null) {
-						Date currentMembershipExpirationDate = BeansUtils.DATE_FORMATTER.parse((String) membersExpiration.getValue());
+						currentMembershipExpirationDate = BeansUtils.DATE_FORMATTER.parse((String) membersExpiration.getValue());
 						if (currentMembershipExpirationDate.before(now)) {
 							// Expired membership, set status to expired only if the user hasn't been in suspended state
 							if (!member.getStatus().equals(Status.EXPIRED) && !member.getStatus().equals(Status.SUSPENDED)) {
@@ -89,7 +91,7 @@ public class Synchronizer {
 									log.info("Switching {} to EXPIRE state, due to expiration {}.", member, (String) membersExpiration.getValue());
 									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
 								} catch (MemberNotValidYetException e) {
-									log.warn("Trying to switch invalid member {} into the expire state.", member);
+									log.error("Consistency error while trying to expire member {}, exception {}", member, e);
 								}
 							}
 						} else if (member.getStatus().equals(Status.EXPIRED) || member.getStatus().equals(Status.DISABLED)) {
@@ -104,18 +106,29 @@ public class Synchronizer {
 								log.error("Error during validating member {}, exception {}", member, e);
 							}
 						}
+
+						//check for members' expiration in the future on in the past
+						int daysToExpire = (int) TimeUnit.DAYS.convert(currentMembershipExpirationDate.getTime() - now.getTime(), TimeUnit.MILLISECONDS);
+						switch(daysToExpire) {
+							case 30: case 14: case 7:
+									getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", member, daysToExpire, vo);
+									break;
+							case -7:
+									getPerun().getAuditer().log(sess, "{} has expired {} days ago in {}.", member, daysToExpire*(-1), vo);
+									break;
+						}
 					}
 				}
 
 			}
 		} catch (InternalErrorException e) {
-			log.error("Synchronizer: checkMembersState", e);
+			log.error("Synchronizer: checkMembersState, exception {}", e);
 		} catch (AttributeNotExistsException e) {
-			log.warn("Synchronizer: checkMembersState, member doesn't have membershipExpiration attribute set.");
+			log.warn("Synchronizer: checkMembersState, attribute definition for membershipExpiration doesn't exist, exception {}", e);
 		} catch (WrongAttributeAssignmentException e) {
-			log.error("Synchronizer: checkMembersState", e);
+			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace, exception {}", e);
 		} catch (ParseException e) {
-			log.error("Synchronizer: checkMembersState", e);
+			log.error("Synchronizer: checkMembersState, member expiration String cannot be parsed, exception {}", e);
 		}
 	}
 

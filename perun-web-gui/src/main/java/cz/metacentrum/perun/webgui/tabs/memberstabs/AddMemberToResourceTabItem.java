@@ -705,7 +705,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
 
 	@Override
 	public int hashCode() {
-		final int prime = 11;
+		final int prime = 1433;
 		int result = 1;
 		result = prime * result + voId;
 		return result;
