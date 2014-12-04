@@ -39,7 +39,7 @@ function process {
 		if [ ! -d "$SSH_DIR" ]; then
 			mkdir "$SSH_DIR" || log_msg E_CREATE_SSH_DIR
 			USER_PRIMARY_GROUP_ID=`id -g $USER` || log_msg E_PRIMARY_GROUP_ID_NOT_FOUND
-			PERM_ON_SSH_DIR=755
+			PERM_ON_SSH_DIR=700
 			chown "$USER":"$USER_PRIMARY_GROUP_ID" "$SSH_DIR" || log_msg E_CHANGE_OWNER_ON_SSH_DIR
 			chmod "$PERM_ON_SSH_DIR" "$SSH_DIR" || log_msg E_CHANGE_PERMISSIONS_ON_SSH_DIR
 		fi
@@ -50,7 +50,7 @@ function process {
 		else
 			touch "$SSH_AUTHORIZED_KEYS" || log_msg E_IO
 			USER_PRIMARY_GROUP_ID=`id -g $USER` || log_msg E_PRIMARY_GROUP_ID_NOT_FOUND
-			PERM_ON_SSH_FILE=644
+			PERM_ON_SSH_FILE=600
 			chown "$USER":"$USER_PRIMARY_GROUP_ID" "$SSH_AUTHORIZED_KEYS" || log_msg E_CHANGE_OWNER_ON_SSH_DIR
 			chmod "$PERM_ON_SSH_FILE" "$SSH_AUTHORIZED_KEYS" || log_msg E_CHANGE_PERMISSIONS_ON_SSH_FILE
 		fi
