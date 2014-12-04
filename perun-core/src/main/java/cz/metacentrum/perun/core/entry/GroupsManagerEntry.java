@@ -788,7 +788,9 @@ public class GroupsManagerEntry implements GroupsManager {
 					 getGroupsManagerBl().checkGroupExists(sess, group);
 
 					 // Authorization
-					 if (!AuthzResolver.isAuthorized(sess, Role.SYNCHRONIZER))  {
+					 if (!AuthzResolver.isAuthorized(sess, Role.SYNCHRONIZER)
+							&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
+							&& !AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo))  {
 						 throw new PrivilegeException(sess, "synchronizeGroup");
 					 }
 
