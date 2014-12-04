@@ -96,7 +96,7 @@ foreach my $facility (@facilities) {
 for my $item (sort { $b->{"attributes"}->{$A_FACILITY_LISTING_PRIORITY} <=> $a->{"attributes"}->{$A_FACILITY_LISTING_PRIORITY} } @facilitesAndAttrbutes) {
 	my $facility = $item->{"facility"};
 	my $facilityAttributes = $item->{"attributes"};
-	my @voShortNames = keys $item->{"shortNames"};
+	my @voShortNames = keys %{$item->{"shortNames"}};
 	my @owners = $facilitiesAgent->getOwners(facility => $facility->getId);
 
 	my %facilityStruc;
