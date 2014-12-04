@@ -216,7 +216,8 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 				if (object.getSynchronizationInterval() == null) {
 					syncInterval = "N/A";
 				} else {
-					syncInterval = object.getSynchronizationInterval() + " hour(s)";
+					int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
+					syncInterval = time + " hour(s)";
 				}
 				if (object.getLastSynchronizationState().equals("OK")) {
 					syncState = "OK";
