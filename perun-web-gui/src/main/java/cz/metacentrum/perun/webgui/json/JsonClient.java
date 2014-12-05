@@ -32,11 +32,6 @@ public class JsonClient {
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
 	/**
-	 * Callback name - can be anything, just for internal purpose
-	 */
-	private String callbackName = "callbackGet";
-
-	/**
 	 * Hidden callback do not show error pop-up
 	 */
 	private boolean hidden = false;
@@ -102,14 +97,15 @@ public class JsonClient {
 			};
 		}
 
-		// url to call
-		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + callbackName + "&" + params);
-
-		PerunRequest perunRequest = new JSONObject().getJavaScriptObject().cast();
+		final PerunRequest perunRequest = new JSONObject().getJavaScriptObject().cast();
 		perunRequest.setStartTime();
+
+		// url to call
+		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + perunRequest.getStartTime() + "&" + params);
+
 		perunRequest.setManager(url.split("\\/")[0]);
 		perunRequest.setMethod(url.split("\\/")[1]);
-		perunRequest.setParamString("?callback=" + callbackName + "&" + params);
+		perunRequest.setParamString("?callback=" + perunRequest.getStartTime() + "&" + params);
 
 		// request building
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, requestUrl);
@@ -144,7 +140,7 @@ public class JsonClient {
 					if (resp.getStatusCode() == 200) {
 
 						// jso
-						JavaScriptObject jso = parseResponse(resp.getText());
+						JavaScriptObject jso = parseResponse(perunRequest.getStartTime()+"", resp.getText());
 
 						// if null - finished
 						if (jso == null) {
@@ -271,14 +267,14 @@ public class JsonClient {
 
 					runningRequests.remove(requestUrl);
 					// triggers onError
-					onRequestError(parseResponse(resp.getText()));
+					onRequestError(parseResponse(perunRequest.getStartTime()+"", resp.getText()));
 				}
 
 				@Override
 				public void onError(Request req, Throwable exc) {
 					// request not sent
 					runningRequests.remove(requestUrl);
-					onRequestError(parseResponse(exc.toString()));
+					onRequestError(parseResponse(perunRequest.getStartTime()+"", exc.toString()));
 				}
 
 			});
@@ -287,7 +283,7 @@ public class JsonClient {
 
 		} catch (RequestException exc) {
 			// usually couldn't connect to server
-			onRequestError(parseResponse(exc.toString()));
+			onRequestError(parseResponse(perunRequest.getStartTime()+"", exc.toString()));
 		}
 
 	}
@@ -298,7 +294,7 @@ public class JsonClient {
 	 * @param resp JSON string
 	 * @return
 	 */
-	protected JavaScriptObject parseResponse(String resp) {
+	protected JavaScriptObject parseResponse(String callbackName, String resp) {
 		// trims the whitespace
 		resp = resp.trim();
 

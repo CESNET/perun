@@ -6,23 +6,22 @@ package cz.metacentrum.perun.core.api;
  * @author michalp
  */
 public class PerunRequest {
+
 	private long startTime;
 	private long endTime = -1;
 	private String sessionId;
 	private PerunPrincipal perunPrincipal;
+	private String callbackName;
 	private String manager;
 	private String method;
 	private String params;
-	private Object resutl;
+	private Object result;
 
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public PerunRequest(String sessionId, PerunPrincipal perunPrincipal, String manager, String method, String params) {
+	public PerunRequest(String sessionId, PerunPrincipal perunPrincipal, String callbackName, String manager, String method, String params) {
 		this.startTime = System.currentTimeMillis();
 		this.sessionId = sessionId;
 		this.perunPrincipal = perunPrincipal;
+		this.callbackName = callbackName;
 		this.manager = manager;
 		this.method = method;
 		this.params = params;
@@ -32,8 +31,20 @@ public class PerunRequest {
 		return sessionId;
 	}
 
+	public long getStartTime() {
+		return startTime;
+	}
+
 	public PerunPrincipal getPerunPrincipal() {
 		return perunPrincipal;
+	}
+
+	public String getCallbackName() {
+		return callbackName;
+	}
+
+	public void setCallbackName(String callbackName) {
+		this.callbackName = callbackName;
 	}
 
 	public String getManager() {
@@ -52,16 +63,16 @@ public class PerunRequest {
 		return endTime;
 	}
 
-	public Object getResutl() {
-		return resutl;
+	public Object getResult() {
+		return result;
 	}
 
 	public void setEndTime(long endTime) {
 		this.endTime = endTime;
 	}
 
-	public void setResutl(Object resutl) {
-		this.resutl = resutl;
+	public void setResult(Object result) {
+		this.result = result;
 	}
 
 	@Override
@@ -71,7 +82,7 @@ public class PerunRequest {
 		result = prime * result + ((manager == null) ? 0 : manager.hashCode());
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result
-			+ ((perunPrincipal == null) ? 0 : perunPrincipal.hashCode());
+				+ ((perunPrincipal == null) ? 0 : perunPrincipal.hashCode());
 		result = prime * result + ((sessionId == null) ? 0 : sessionId.hashCode());
 		result = prime * result + (int) (startTime ^ (startTime >>> 32));
 		return result;
@@ -110,4 +121,5 @@ public class PerunRequest {
 			return false;
 		return true;
 	}
+
 }

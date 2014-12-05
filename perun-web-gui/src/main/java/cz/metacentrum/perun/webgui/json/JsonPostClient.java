@@ -1,16 +1,24 @@
 package cz.metacentrum.perun.webgui.json;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.Window;
+import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunRequest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -146,9 +154,11 @@ public class JsonPostClient {
 	 */
 	private void send() {
 
-		// url to call
-		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + callbackName);
+		final PerunRequest perunRequest = new JSONObject().getJavaScriptObject().cast();
+		perunRequest.setStartTime();
 
+		// url to call
+		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + perunRequest.getStartTime());
 
 		String data = "";
 		if (sendNative) {
@@ -157,11 +167,9 @@ public class JsonPostClient {
 			data = jsonObject.toString();
 		}
 
-		PerunRequest perunRequest = new JSONObject().getJavaScriptObject().cast();
-		perunRequest.setStartTime();
 		perunRequest.setManager(url.split("\\/")[0]);
 		perunRequest.setMethod(url.split("\\/")[1]);
-		perunRequest.setParamString("?callback=" + callbackName + "&" + data);
+		perunRequest.setParamString("?callback=" + perunRequest.getStartTime() + "&" + data);
 
 		// request building
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, requestUrl);
@@ -176,7 +184,7 @@ public class JsonPostClient {
 					// if response = OK
 					if (resp.getStatusCode() == 200) {
 						// jso
-						JavaScriptObject jso = parseResponse(resp.getText());
+						JavaScriptObject jso = parseResponse(perunRequest.getStartTime()+"", resp.getText());
 
 						// if null - finished
 						if (jso == null) {
@@ -221,9 +229,37 @@ public class JsonPostClient {
 
 						if (runningRequests.get(requestUrl) != null) {
 
-							if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
+							if ((runningRequests.get(requestUrl).getDuration() / (1000)) >= 3) {
 								// 5 minute timeout
+								Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+									boolean again = true;
 
+									@Override
+									public boolean execute() {
+										GetPendingRequests req = new GetPendingRequests(perunRequest.getStartTime(), new JsonCallbackEvents() {
+											@Override
+											public void onFinished(JavaScriptObject jso) {
+												final PerunRequest req = jso.cast();
+												if ((req.getCallbackName().equals(perunRequest.getStartTime() + "")) && req.getEndTime() > 0) {
+													GWT.log("RESULT: " + ((req.getResult() != null) ? req.getResult().toSource() : "null"));
+													if (again) {
+														onRequestFinished(req.getResult());
+														runningRequests.remove(requestUrl);
+														again = false;
+													}
+												}
+											}
+										});
+										req.retrieveData();
+										return again;
+									}
+								}, ((PerunWebConstants) GWT.create(PerunWebConstants.class)).pendingRequestsRefreshInterval());
+
+								// TODO - tohle musí být jen upozornění.
+								// neodstraňovat request
+								//
+
+								/*
 								PerunError error = new JSONObject().getJavaScriptObject().cast();
 								error.setErrorId("408");
 								error.setName("RequestTimeout");
@@ -233,6 +269,7 @@ public class JsonPostClient {
 								error.setPostData("");
 								runningRequests.remove(requestUrl);
 								onRequestError(error);
+								*/
 								return;
 
 							} else {
@@ -296,14 +333,14 @@ public class JsonPostClient {
 
 					// triggers onError
 					runningRequests.remove(requestUrl);
-					onRequestError(parseResponse(resp.getText()));
+					onRequestError(parseResponse(perunRequest.getStartTime()+"", resp.getText()));
 				}
 
 				@Override
 				public void onError(Request req, Throwable exc) {
 					// request not sent
 					runningRequests.remove(requestUrl);
-					onRequestError(parseResponse(exc.toString()));
+					onRequestError(parseResponse(perunRequest.getStartTime()+"", exc.toString()));
 				}
 			});
 
@@ -311,7 +348,7 @@ public class JsonPostClient {
 
 		} catch (RequestException exc) {
 			// usually couldn't connect to server
-			onRequestError(parseResponse(exc.toString()));
+			onRequestError(parseResponse(perunRequest.getStartTime()+"", exc.toString()));
 		}
 	}
 
@@ -321,7 +358,7 @@ public class JsonPostClient {
 	 * @param resp JSON string
 	 * @return
 	 */
-	protected JavaScriptObject parseResponse(String resp) {
+	protected JavaScriptObject parseResponse(String callbackName, String resp) {
 		// trims the whitespace
 		resp = resp.trim();
 

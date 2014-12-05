@@ -27,125 +27,35 @@ public class GetPendingRequests implements JsonCallback{
 	// JSON URL
 	public static final String JSON_URL = "getPendingRequests";
 
-	// default interval for JSON calls
-	public final static int DEFAULT_INTERVAL = ((PerunWebConstants) GWT.create(PerunWebConstants.class)).pendingRequestsRefreshInterval();
+	private JsonCallbackEvents events = new JsonCallbackEvents();
+	private double callbackName;
 
-	// session
-	private PerunWebSession session = PerunWebSession.getInstance();
-
-	// panel with requests
-	private VerticalPanel panelWithRequests = new VerticalPanel();
-
-	// widget
-	private FlexTable widget = new FlexTable();
-
-	// requests running?
-	private boolean requestsRefreshing;
-
-
-	public GetPendingRequests(){
-
-		// set refreshing
-		this.setRequestsRefreshing(false); // true to start pending requests
-
-
-		final ToggleButton startStopButton = new ToggleButton("Pause requests feed", "Resume requests feed");
-		startStopButton.setDown(!isRequestsRefreshing());
-		startStopButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				setRequestsRefreshing(!startStopButton.isDown());
-			}
-		});
-
-
-		widget.setWidget(0, 0, new HTML("<strong>Pending requests</strong>"));
-		widget.setWidget(1, 0, panelWithRequests);
-		widget.setWidget(2, 0, startStopButton);
+	public GetPendingRequests(double callbackName, JsonCallbackEvents events){
+		this.callbackName = callbackName;
+		this.events = events;
 	}
 
-	public void setRequestsRefreshing(boolean requestsRefreshing) {
-
-		if(requestsRefreshing && !this.requestsRefreshing){
-			Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
-				public boolean execute() {
-					retrieveData();
-					return isRequestsRefreshing();
-				}
-			}, DEFAULT_INTERVAL);
-		}
-
-		this.requestsRefreshing = requestsRefreshing;
-
+	public GetPendingRequests(double callbackName){
+		this.callbackName = callbackName;
 	}
 
-	protected boolean isRequestsRefreshing(){
-		return requestsRefreshing;
-	}
-
-
-	public void retrieveData()
-	{
+	public void retrieveData() {
 		JsonClient client = new JsonClient();
-		client.retrieveData(JSON_URL, this);
+		client.retrieveData(JSON_URL, "callbackName="+callbackName, this);
 	}
-
-
-	private void updateTable(JsArray<PerunRequest> requests){
-		panelWithRequests.clear();
-
-		if(requests.length() == 0){
-			Widget label = new Label("No requests");
-			panelWithRequests.add(label);
-		}
-
-		for(int i = 0; i< requests.length(); i++){
-			PerunRequest req = requests.get(i);
-
-			FlexTable ft = new FlexTable();
-
-			// MAIN INFO
-			HTML a = new HTML("<strong>" + req.getManager() + "</strong>");
-			HTML b = new HTML("<strong>" + req.getMethod() + "</strong>");
-
-			long startTime = ((long) req.getStartTime());
-			long currentTime = new Date().getTime();
-			long elapsedTime = currentTime - startTime;
-			int elapsedSeconds = (int) (elapsedTime / 1000);
-
-			HTML c = new HTML(elapsedSeconds + "s");
-
-			ft.setWidget(0, 0, a);
-			ft.setWidget(1, 0, b);
-			ft.setWidget(2, 0, c);
-
-
-			// PARAMETERS
-			ft.setTitle(req.getParamsString());
-
-			panelWithRequests.add(ft);
-
-		}
-	}
-
-	public Widget getWidget()
-	{
-		return widget;
-	}
-
 
 	public void onFinished(JavaScriptObject jso) {
-		JsArray<PerunRequest> reqs = JsonUtils.jsoAsArray(jso);
-		updateTable(reqs);
-		session.getUiElements().setLogText("Active requests retrieved - count: " + reqs.length());
+		events.onFinished(jso);
 	}
-
 
 	public void onError(PerunError error) {
+		events.onError(error);
 	}
-
 
 	public void onLoadingStart() {
+		events.onLoadingStart();
 	}
+
 }
 
 

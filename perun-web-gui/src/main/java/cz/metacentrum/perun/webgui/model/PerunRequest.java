@@ -28,6 +28,10 @@ public class PerunRequest extends JavaScriptObject {
 		return this.params;
 	}-*/;
 
+	public final native String getCallbackName() /*-{
+		return this.callbackName;
+	}-*/;
+
 	public final native PerunPrincipal getPerunPrincipal() /*-{
 		return this.perunPrincipal;
 	}-*/;
@@ -48,7 +52,15 @@ public class PerunRequest extends JavaScriptObject {
 		return new Date().getTime() - this.startTime;
 	}-*/;
 
-	public final native String setParamString(String params) /*-{
+	public final native double getEndTime() /*-{
+		return this.endTime;
+	}-*/;
+
+	public final native JavaScriptObject getResult() /*-{
+		return this.result;
+	}-*/;
+
+	public final native void setParamString(String params) /*-{
 		this.params = params;
 	}-*/;
 
