@@ -116,10 +116,8 @@ public class PerunWebSession {
 			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlKrb();
 		}else if (rpcType.equals("fed")){
 			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlFed();
-		}else if (rpcType.equals("cert")){
+		}else if (rpcType.equals("cert")) {
 			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlCert();
-		}else if (rpcType.equals("forceAuthn-fed")){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlForceAuthFed();
 		}else if (rpcType.equals("einfra")){
 			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlKrbEinfra();
 		}else{
