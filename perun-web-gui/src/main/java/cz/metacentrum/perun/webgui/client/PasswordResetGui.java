@@ -165,7 +165,7 @@ public class PasswordResetGui implements EntryPoint {
 								error.setName("Missing public key");
 								error.setErrorInfo("Public key for Re-Captcha service is missing. Please add public key to GUIs configuration file.");
 								error.setRequestURL("");
-								UiElements.generateError(error, "Missing public key", "Public key for Re-Captcha service is missing.<br />Accessing application form without authorization is not possible.");
+								UiElements.generateError(error, "Missing public key", "Public key for Re-Captcha service is missing.<br />Accessing password reset without authorization is not possible.");
 								loadingBox.hide();
 								return;
 							}
