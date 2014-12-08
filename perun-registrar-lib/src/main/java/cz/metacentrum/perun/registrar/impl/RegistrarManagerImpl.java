@@ -2249,21 +2249,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// first check for display name
 			for (ApplicationFormItemData item : data) {
 				if (URN_USER_DISPLAY_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
-					try {
-						if (item.getValue() != null && !item.getValue().isEmpty()) {
-							Map<String, String> commonName = Utils.parseCommonName(item.getValue());
-							if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
-								user.setTitleBefore(commonName.get("titleBefore"));
-								found = true;
-							}
-							if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
-								user.setTitleAfter(commonName.get("titleAfter"));
-								found = true;
-							}
+					if (item.getValue() != null && !item.getValue().isEmpty()) {
+						Map<String, String> commonName = Utils.parseCommonName(item.getValue());
+						if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
+							user.setTitleBefore(commonName.get("titleBefore"));
+							found = true;
 						}
-					} catch (InternalErrorException ex) {
-						// we don't care so much, try also other possibilities
-						log.error("[REGISTRAR] Unable to parse common name in order to update titles: {}", ex);
+						if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
+							user.setTitleAfter(commonName.get("titleAfter"));
+							found = true;
+						}
 					}
 					break;
 				}
