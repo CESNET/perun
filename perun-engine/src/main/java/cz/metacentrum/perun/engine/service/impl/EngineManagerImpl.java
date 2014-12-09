@@ -128,7 +128,9 @@ public class EngineManagerImpl implements EngineManager {
 				Facility facility = Rpc.FacilitiesManager.getFacilityById(getRpcCaller(), Integer.parseInt(data[2]));
 				if(facility.getName().equals("alcor.ics.muni.cz") ||
 						facility.getName().equals("aldor.ics.muni.cz") ||
-						facility.getName().equals("ascor.ics.muni.cz")) {
+						facility.getName().equals("ascor.ics.muni.cz") ||
+						facility.getName().equals("torque.ics.muni.cz") ||
+						facility.getName().equals("nympha-cloud.zcu.cz")) {
 					log.info("IGNORE facility " + facility.getName());
 					continue;
 				}	

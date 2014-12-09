@@ -113,7 +113,9 @@ public class EventProcessorImpl implements EventProcessor {
 				if (resultTest != null && resultTest.getLeft() != null && resultTest.getRight() != null) {
 					if(resultTest.getRight().getName().equals("alcor.ics.muni.cz") ||
 							resultTest.getRight().getName().equals("aldor.ics.muni.cz") ||
-							resultTest.getRight().getName().equals("ascor.ics.muni.cz")) {
+							resultTest.getRight().getName().equals("ascor.ics.muni.cz") ||
+							resultTest.getRight().getName().equals("torque.ics.muni.cz") ||
+							resultTest.getRight().getName().equals("nympha-cloud.zcu.cz")) {
 						log.info("IGNORE:  Facility[" + resultTest.getRight() + "]");
 						continue;
 					}
