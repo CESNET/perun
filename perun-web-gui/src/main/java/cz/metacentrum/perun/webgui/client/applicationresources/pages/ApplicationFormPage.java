@@ -513,6 +513,9 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		if (jso == null) {
 
+			//FIXME disable consolidator for elixir-project
+			if(this.vo.getShortName().equals("elixir-project")) return;
+
 			// before app submission
 			jspc.sendData("registrarManager/checkForSimilarUsers", query);
 
