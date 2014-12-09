@@ -1,3 +1,11 @@
+perun-slave (3.0.0-0.0.83) stable; urgency=low
+
+   * When data are rejected by the slave script on destination node
+     because of wrong facility name or dns alias, tell what value was used
+     in error message.
+
+ -- Pavel Zlamal <zlamal@cesnet.cz> Tue, 09 Dec 2014 14:10:00 +0200
+
 perun-slave (3.0.0-0.0.82) stable; urgency=low
 
    * ssh-keys service create .ssh dir and authorized_keys file with customary
@@ -10,7 +18,7 @@ perun-slave (3.0.0-0.0.81) stable; urgency=low
    * add possibility to edit umask on newly created directories by script
      fs_scratch_local
    * now there is attribute scratchLocalDirPermissions for this purpose
-   * prescript umask has biger priority
+   * prescript umask has bigger priority
 
  -- Michal Stava <stavamichal@gmail.com> Tue, 23 Sep 2014 14:30:00 +0200
 
@@ -38,7 +46,7 @@ perun-slave (3.0.0-0.0.78) stable; urgency=low
 perun-slave (3.0.0-0.0.77) stable; urgency=low
 
    * fs_home can get flag if quotas are enabled from perun attribute. This
-     flag still can be overriden by settings in pre skript.
+     flag still can be overridden by settings in pre script.
 
  -- Michal Stava <stavamichal@gmail.com>  Mon, 15 Sep 2014 13:30:00 +0200
 
@@ -68,7 +76,7 @@ perun-slave (3.0.0-0.0.73) stable; urgency=critical
 
    * Fix security issue with propagation to DNS alias
      Facility manager can create destination to any free hostname (or IP
-     adress). The "free" means that name is not used on other facilty as a
+     address). The "free" means that name is not used on other facility as a
      destination or host's name. Exception from this is when the manager is
      also facility manager on such facility.
      Therefore any facility manger could create destination to any machine
@@ -102,7 +110,7 @@ perun-slave (3.0.0-0.0.71) stable; urgency=low
 
 perun-slave (3.0.0-0.0.70) stable; urgency=low
 
-   * fs_scratch* services creates scratch dir with umask read from pre sript
+   * fs_scratch* services creates scratch dir with umask read from pre script
      or from obtained data from Perun (in that order). Unless the umask is
      specified in at least one of them, default is used - 0700 for fs_scratch,
      0755 for fs_scratch_{local,global}.
@@ -111,11 +119,11 @@ perun-slave (3.0.0-0.0.70) stable; urgency=low
 
 perun-slave (3.0.0-0.0.69) stable; urgency=low
 
-   * completly rewriten slave script "mailaliases". Currently it removes
+   * completely rewritten slave script "mailaliases". Currently it removes
      last perun changes and find the destination file. After that merge 
      perun changes to this destination file and also save them for further
-     usage. Can work with /etc/aliases.d/ folder but only if there are no
-     duplicits. If something is not correct, recover files and exit with 
+     usage. Can work with /etc/aliases.d/ folder but only if there is no
+     duplicity. If something is not correct, recover files and exit with
      error.
    * bugfix: fix diff_update function in script "perun", use public variables
      and fix behavior of update
@@ -124,7 +132,7 @@ perun-slave (3.0.0-0.0.69) stable; urgency=low
 
 perun-slave (3.0.0-0.0.68) stable; urgency=medium
 
-   * completely rewriten function diff_update in script "perun". Currently it
+   * completely rewritten function diff_update in script "perun". Currently it
      keeps in state file only lines which where added to original file by Perun
      itself
    * bugfix: diff_mv and mv_chmod used to set wrong access rights if
@@ -262,7 +270,7 @@ perun-slave (3.0.0-0.0.48) stable; urgency=low
 perun-slave (3.0.0-0.0.47) stable; urgency=low
 
    * afs - receive new parameter TARGET_AFS_CELL; use "pts examine" instead of
-     "pts listentries" to chcek if user exists; fixed test if user's directory
+     "pts listentries" to check if user exists; fixed test if user's directory
      exists and set user's and root's rights
 
  -- Slavek Licehammer <glory@ics.muni.cz>  Thu, 10 Jan 2013 15:40:00 +0100
@@ -309,7 +317,7 @@ perun-slave (3.0.0-0.0.41) stable; urgency=low
 
 perun-slave (3.0.0-0.0.40) stable; urgency=low
 
-   * fixed completly broken fs_scratch. It didn't create scratch, required non
+   * fixed completely broken fs_scratch. It didn't create scratch, required non
      existing env variable and error messages contained wrong variables.
    * fs_scratch - set quota are not enabled by default
 
@@ -329,7 +337,7 @@ perun-slave (3.0.0-0.0.38) stable; urgency=low
 
 perun-slave (3.0.0-0.0.37) stable; urgency=low
 
-   * filename of the example configurations end with ".example" to not colide with other perun-slave packages
+   * filename of the example configurations end with ".example" to not collide with other perun-slave packages
 
  -- Michal Prochazka <michalp@ics.muni.cz>  Mon, 05 Oct 2012 14:29:00 +0100
 
@@ -347,7 +355,7 @@ perun-slave (3.0.0-0.0.35) stable; urgency=low
 
 perun-slave (3.0.0-0.0.34) stable; urgency=low
 
-   * supress unwanted stdout and stder messafe from "which sestatus" command
+   * suppress unwanted stdout and stder message from "which sestatus" command
    * fs_home - check UID on already created dirs
 
  -- Slavek Licehammer <glory@ics.muni.cz>  Tue, 11 Sep 2012 13:45:00 +0100
@@ -514,7 +522,7 @@ perun-slave (3.0.0-0.0.12) stable; urgency=low
 perun-slave (3.0.0-0.0.11) stable; urgency=low
    
   * finished eduroam_radius service
-  * eduroam-radius renamed to eduroam_radius in order to be compilant with other services
+  * eduroam-radius renamed to eduroam_radius in order to be compliant with other services
 
  -- Michal Prochazka <michalp@ics.muni.cz>  Wed, 18 Apr 2012 08:44:00 +0100
 
@@ -553,7 +561,7 @@ perun-slave (3.0.0-0.0.6) stable; urgency=low
 perun-slave (3.0.0-0.0.5) stable; urgency=low
   
   * do not preserve directory and file ownership
-  * fixed listin of pre and post scripts
+  * fixed listing of pre and post scripts
 
  -- Michal Prochazka <michalp@ics.muni.cz>  Wed, 29 Feb 2012 14:18:00 +0100
 
@@ -562,7 +570,7 @@ perun-slave (3.0.0-0.0.4) stable; urgency=low
   * quota support for fs_home and fs_scratch
   * change in the logic of the slave scripts, each script is checking its own protocol version
   * removed dual call of while in fs_home and fs_scratch
-  * each script can have pre_* and post_* script in own ${SERVICE}.d directory which will be called respectivelly
+  * each script can have pre_* and post_* script in own ${SERVICE}.d directory which will be called respectively
   * commented code for setting the quotas
   * passwd_nfs4, group_nfs4 - destination file is created if it doesn't exist
   * fixed wrong file name in process-group_nfs4
