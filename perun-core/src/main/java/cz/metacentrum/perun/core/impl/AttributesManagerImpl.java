@@ -3,7 +3,8 @@ package cz.metacentrum.perun.core.impl;
 import java.util.HashMap;
 import java.util.ServiceLoader;
 
-import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.*;
+
 import java.io.IOException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -23,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.core.api.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,25 +46,6 @@ import org.springframework.jdbc.support.lob.OracleLobHandler;
 
 import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributeRights;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Auditable;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichAttribute;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 
 import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
@@ -3095,18 +3076,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		public HashMap<Member, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+
 			HashMap<Member, List<Attribute>> map = new HashMap<>();
 			HashMap<Integer, Member> memberObjectMap = new HashMap<>();
 		 	List<Attribute> memAttrs;
 
+			for(Member member : members) {
+				memberObjectMap.put(member.getId(), member);
+			}
+
 			while (rs.next()) {
+
 				// fetch from map by ID
-				Integer id = rs.getInt("member_id");
-
-				if(memberObjectMap.get(id) == null) {
-					memberObjectMap.put(id, findMember(id));
-				}
-
+				Integer id = rs.getInt("id");
 				Member mem = memberObjectMap.get(id);
 
 				memAttrs = map.get(mem);
@@ -3118,7 +3100,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 				AttributeRowMapper attributeRowMapper = new AttributeRowMapper(sess, attributesManager, mem);
 				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
-
 				if (attribute != null) {
 					// add only if exists
 					map.get(mem).add(attribute);
@@ -3127,23 +3108,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return map;
 		}
 
-		/**
-		 * Find member by given id in list of member parameter.
-		 *
-		 * @param id member id
-		 * @return member object
-		 */
-		private Member findMember(Integer id) {
-			for(Member mem: this.members) {
-				if (mem.getId() == id) {
-					return mem;
-				}
-			}
-			return null;
-		}
 	}
 
-	private static class UserAttributeExtractor implements ResultSetExtractor<HashMap<Integer, List<Attribute>>> {
+	private static class UserAttributeExtractor implements ResultSetExtractor<HashMap<User, List<Attribute>>> {
 		private final PerunSession sess;
 		private final AttributesManagerImpl attributesManager;
 		private final List<User> users;
@@ -3161,66 +3128,48 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			this.users = users;
 		}
 
-		public HashMap<Integer, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
-			HashMap<Integer, List<Attribute>> map = new HashMap<>();
-			HashMap<Integer, User> memberObjectMap = new HashMap<>();
+		public HashMap<User, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+			HashMap<User, List<Attribute>> map = new HashMap<>();
+			HashMap<Integer, User> userObjectMap = new HashMap<>();
 			List<Attribute> userAttrs;
+
+			for(User user : users) {
+				userObjectMap.put(user.getId(), user);
+			}
 
 			while (rs.next()) {
 				// fetch from map by ID
-				Integer id = rs.getInt("user_id");
+				Integer id = rs.getInt("id");
+				User user = userObjectMap.get(id);
 
-				if(memberObjectMap.get(id) == null) {
-					memberObjectMap.put(id, findUser(id));
-				}
-
-				userAttrs = map.get(id);
+				userAttrs = map.get(user);
 				if(userAttrs == null){
 					// if not preset, put in map
 					userAttrs = new ArrayList<>();
-					map.put(id, userAttrs);
+					map.put(user, userAttrs);
 				}
 				//
-				AttributeRowMapper attributeRowMapper = new AttributeRowMapper(sess, attributesManager, findUser(id));
+				AttributeRowMapper attributeRowMapper = new AttributeRowMapper(sess, attributesManager, user);
 				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
 
 				if (attribute != null) {
 					// add only if exists
-					map.get(id).add(attribute);
+					map.get(user).add(attribute);
 				}
 			}
 			return map;
 		}
 
-		/**
-		 * Find user by given id in list of users parameter.
-		 *
-		 * @param id user id
-		 * @return user object
-		 */
-		private User findUser(Integer id) {
-			for(User user: this.users) {
-				if (user.getId() == id) {
-					return user;
-				}
-			}
-			return null;
-		}
 	}
 
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
 		try {
-			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", member_id FROM attr_names " +
-							"JOIN service_required_attrs ON id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"LEFT JOIN member_resource_attr_values AS mem ON id=mem.attr_id AND mem.resource_id=? " +
-							"AND member_id IN (" +
-								"SELECT DISTINCT members.id FROM groups_resources JOIN groups ON groups_resources.group_id=groups.id " +
-								"JOIN groups_members ON groups.id=groups_members.group_id JOIN members ON groups_members.member_id=members.id " +
-								"WHERE groups_resources.resource_id=? AND members.status!=? AND members.status!=? " +
-								") " +
-							"WHERE namespace IN (?,?,?) ",
+			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
+							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+							"JOIN members ON members.id IN (" + beanIdsToString(members) + ")" +
+							"LEFT JOIN member_resource_attr_values AS mem ON attr_names.id=mem.attr_id AND mem.resource_id=? " +
+							"AND mem.member_id=members.id WHERE namespace IN (?,?,?) ",
 					new MemberAttributeExtractor(sess, this, members), service.getId(), resource.getId(),
-					resource.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()),
 					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -3229,16 +3178,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException {
 		try {
-			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", member_id FROM attr_names " +
-							"JOIN service_required_attrs ON id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"LEFT JOIN member_attr_values AS mem ON id=mem.attr_id " +
-							"AND member_id IN (" +
-								"SELECT DISTINCT members.id FROM groups_resources JOIN groups ON groups_resources.group_id=groups.id " +
-								"JOIN groups_members ON groups.id=groups_members.group_id JOIN members ON groups_members.member_id=members.id " +
-								"WHERE groups_resources.resource_id=? AND members.status!=? AND members.status!=? " +
-							") WHERE namespace IN (?,?,?,?)",
+			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
+							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+							"JOIN members ON members.id IN (" + beanIdsToString(members) + ")" +
+							"LEFT JOIN member_attr_values AS mem ON attr_names.id=mem.attr_id " +
+							"AND mem.member_id=members.id WHERE namespace IN (?,?,?,?)",
 					new MemberAttributeExtractor(sess, this, members), service.getId(),
-					resource.getId(), String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()),
 					AttributesManager.NS_MEMBER_ATTR_CORE, AttributesManager.NS_MEMBER_ATTR_DEF, AttributesManager.NS_MEMBER_ATTR_OPT, AttributesManager.NS_MEMBER_ATTR_VIRT);
 		} catch(EmptyResultDataAccessException ex) {
 			return new HashMap<Member, List<Attribute>>();
@@ -3247,41 +3192,32 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private String userIDsToString(List<User> users) {
-		StringBuilder stringBuilder = new StringBuilder();
-		for(User u : users) {
-			stringBuilder.append(",");
-			stringBuilder.append(u.getId());
-		}
-
-		stringBuilder.deleteCharAt(0);
-		return stringBuilder.toString();
-	}
-
-	public HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
 		try {
-			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr_fac") + ", user_id FROM attr_names " +
-							"JOIN service_required_attrs ON id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"LEFT JOIN user_facility_attr_values AS usr_fa ON id=usr_fac.attr_id AND facility_id=? AND user_id IN (" + userIDsToString(users) + ") " +
+			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr_fac") + ", users.id FROM attr_names " +
+							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+							"JOIN users ON users.id IN (" + beanIdsToString(users) + ")" +
+							"LEFT JOIN user_facility_attr_values AS usr_fac ON attr_names.id=usr_fac.attr_id AND facility_id=? AND user_id=users.id " +
 							"WHERE namespace IN (?,?,?)",
 					new UserAttributeExtractor(sess, this, users), service.getId(), facility.getId(), AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT, AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
 		} catch(EmptyResultDataAccessException ex) {
-			return new HashMap<Integer, List<Attribute>>();
+			return new HashMap<User, List<Attribute>>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
-	public HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
 		//user and user core attributes
 		try {
-			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr") + ", user_id FROM attr_names " +
-							"JOIN service_required_attrs on id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"LEFT JOIN user_attr_values AS usr ON id=usr.attr_id AND user_id IN (" + userIDsToString(users) + ") " +
+			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr") + ", users.id FROM attr_names " +
+							"JOIN service_required_attrs on attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
+							"JOIN users ON users.id IN (" + beanIdsToString(users) + ")" +
+							"LEFT JOIN user_attr_values AS usr ON attr_names.id=usr.attr_id AND user_id=users.id " +
 							"WHERE namespace IN (?,?,?,?)",
 					new UserAttributeExtractor(sess, this, users), service.getId(), AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT, AttributesManager.NS_USER_ATTR_VIRT);
 		} catch(EmptyResultDataAccessException ex) {
-			return new HashMap<Integer, List<Attribute>>();
+			return new HashMap<User, List<Attribute>>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -4753,7 +4689,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 			jdbc.update("insert into attr_names (id, attr_name, type, dsc, namespace, friendly_name, display_name, default_attr_id) values (?,?,?,?,?,?,?,NULL)",
 					attributeId, attribute.getName(), attribute.getType(), attribute.getDescription(), attribute.getNamespace(), attribute.getFriendlyName(), attribute.getDisplayName());
-			log.info("Attribute created during inicialization of attributesManager: {}", attribute);
+			log.info("Attribute created during initialization of attributesManager: {}", attribute);
 		} catch (DataIntegrityViolationException e) {
 			throw new ConsistencyErrorException("Attribute already exists: " + attribute, e);
 		} catch (RuntimeException e) {
@@ -4884,4 +4820,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+
+	/**
+	 * Convert list of beans to string of bean IDs
+	 *
+	 * @param beans List of beans to construct string with ids
+	 * @return string representation of list of ids
+	 */
+	private String beanIdsToString(List<? extends PerunBean> beans) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for(PerunBean bean : beans) {
+			stringBuilder.append(",");
+			stringBuilder.append(bean.getId());
+		}
+		stringBuilder.deleteCharAt(0);
+		return stringBuilder.toString();
+	}
+
+
 }

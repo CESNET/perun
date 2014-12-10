@@ -1867,16 +1867,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		// get list of users, save user id as a key and list of member objects as a value
 		List<User> users = new ArrayList<>();
-		HashMap<Integer, List<Member>> userMemberIdMap = new HashMap<>();
+		HashMap<User, List<Member>> userMemberIdMap = new HashMap<>();
 
 		// Maps user ids to member objects and fills list of users
 		for (Member m : members) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, m);
 			users.add(user);
-			if (userMemberIdMap.containsKey(user.getId())) {
-				userMemberIdMap.get(user.getId()).add(m);
+			if (userMemberIdMap.containsKey(user)) {
+				userMemberIdMap.get(user).add(m);
 			} else {
-				userMemberIdMap.put(user.getId(), Arrays.asList(m));
+				userMemberIdMap.put(user, Arrays.asList(m));
 			}
 		}
 
@@ -1888,8 +1888,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// get 4 maps from Impl getRequiredAttributes
 		HashMap<Member, List<Attribute>> resourceMemberAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
 		HashMap<Member, List<Attribute>> memberAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members);
-		HashMap<Integer, List<Attribute>> userFacilityAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users);
-		HashMap<Integer, List<Attribute>> userAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, users);
+		HashMap<User, List<Attribute>> userFacilityAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users);
+		HashMap<User, List<Attribute>> userAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, users);
 
 		for (Member mem : memberAttributes.keySet()) {
 			if (!resourceMemberAttributes.containsKey(mem)) {
@@ -1899,26 +1899,26 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 		}
 
-		for (Integer id : userFacilityAttributes.keySet()) {
+		for (User user : userFacilityAttributes.keySet()) {
 			// List of members for given user id
-			List<Member> mems = userMemberIdMap.get(id);
+			List<Member> mems = userMemberIdMap.get(user);
 			for (Member mem : mems) {
 				if (!resourceMemberAttributes.containsKey(mem)) {
-					resourceMemberAttributes.put(mem, userFacilityAttributes.get(id));
+					resourceMemberAttributes.put(mem, userFacilityAttributes.get(user));
 				} else {
-					resourceMemberAttributes.get(mem).addAll(userFacilityAttributes.get(id));
+					resourceMemberAttributes.get(mem).addAll(userFacilityAttributes.get(user));
 				}
 			}
 		}
 
-		for (Integer id : userAttributes.keySet()) {
+		for (User user : userAttributes.keySet()) {
 			// List of members for given user id
-			List<Member> mems = userMemberIdMap.get(id);
+			List<Member> mems = userMemberIdMap.get(user);
 			for (Member mem : mems) {
 				if (!resourceMemberAttributes.containsKey(mem)) {
-					resourceMemberAttributes.put(mem, userAttributes.get(id));
+					resourceMemberAttributes.put(mem, userAttributes.get(user));
 				} else {
-					resourceMemberAttributes.get(mem).addAll(userAttributes.get(id));
+					resourceMemberAttributes.get(mem).addAll(userAttributes.get(user));
 				}
 			}
 		}
@@ -1938,12 +1938,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users);
 	}
 
 	@Override
-	public HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, users);
 	}
 

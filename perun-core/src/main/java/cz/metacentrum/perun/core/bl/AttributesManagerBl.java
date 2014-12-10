@@ -1702,11 +1702,11 @@ public interface AttributesManagerBl {
 	 * @param service attribute required by this service
 	 * @param facility you get attributes for this facility and user
 	 * @param users you get attributes for this user and facility
-	 * @return map of userID and his list of attributes
+	 * @return map of User and his list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException;
+	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException;
 
 	/**
 	 * Get user attributes which are required by the service for each user in list of users.
@@ -1714,15 +1714,14 @@ public interface AttributesManagerBl {
 	 * @param sess perun session
 	 * @param service attribute required by this service
 	 * @param users you get attributes for this user and facility
-	 * @return map of userID and his list of attributes
+	 * @return map of User and his list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException;
+	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException;
 
 	/**
-	 * Get memner, user, member-resource, user-facility attributes which are required by the service.
-	 *
+	 * Get member, user, member-resource, user-facility attributes which are required by the service.
 	 *
 	 * @param sess
 	 * @param service

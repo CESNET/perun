@@ -1956,7 +1956,6 @@ public interface AttributesManager {
 	 *
 	 * @param sess perun session
 	 * @param service attribute required by this service
-	 * @param facility you get attributes for this facility
 	 * @param resource you get attributes for this resource
 	 * @param members you get attributes for this list of members
 	 * @param workWithUserAttributes if true method can process also user, user-facility and member attributes
@@ -1965,7 +1964,7 @@ public interface AttributesManager {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if methods checkMemberIsFromTheSameVoLikeResource finds that user is not from same vo like resource
 	 */
-	HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException;
+	HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, ServiceNotExistsException, ResourceNotExistsException, MemberNotExistsException, FacilityNotExistsException;
 
 	/**
 	 * Get member-resource attributes which are required by service for each member in list of members.
@@ -2007,14 +2006,14 @@ public interface AttributesManager {
 	 * @param service attribute required by this service
 	 * @param facility you get attributes for this facility and user
 	 * @param users you get attributes for this user and facility
-	 * @return map of userID and his list of attributes
+	 * @return map of User and his list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws ServiceNotExistsException if the service doesn't exists in underlying data source
 	 * @throws FacilityNotExistsException if the facility wasn't created from this resource
 	 * @throws UserNotExistsException if the host doesn't exists in the underlying data source
 	 */
-	HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, UserNotExistsException;
+	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, UserNotExistsException;
 
 	/**
 	 * Get user attributes which are required by the service for each user in list of users.
@@ -2022,13 +2021,13 @@ public interface AttributesManager {
 	 * @param sess perun session
 	 * @param service attribute required by this service
 	 * @param users you get attributes for this user and facility
-	 * @return map of userID and his list of attributes
+	 * @return map of User and his list of attributes
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws ServiceNotExistsException if the service doesn't exists in underlying data source
 	 * @throws UserNotExistsException
 	 */
-	HashMap<Integer, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException, ServiceNotExistsException, UserNotExistsException;
+	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException, ServiceNotExistsException, UserNotExistsException;
 
 	/**
 	 * Get member attributes which are required by the service.
