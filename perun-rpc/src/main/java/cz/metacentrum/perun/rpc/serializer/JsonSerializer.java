@@ -34,16 +34,16 @@ public final class JsonSerializer implements Serializer {
 	}
 
 	@JsonIgnoreProperties({"commonName", "displayName"})
-		private interface UserMixIn {
-		}
+	private interface UserMixIn {
+	}
 
 	@JsonIgnoreProperties({"userExtSources"})
 	private interface CandidateMixIn {
 	}
 
 	@JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace"})
-		private interface PerunExceptionMixIn {
-		}
+	private interface PerunExceptionMixIn {
+	}
 
 	public static final String CONTENT_TYPE = "application/json; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();

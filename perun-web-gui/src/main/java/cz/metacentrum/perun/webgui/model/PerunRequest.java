@@ -28,8 +28,8 @@ public class PerunRequest extends JavaScriptObject {
 		return this.params;
 	}-*/;
 
-	public final native String getCallbackName() /*-{
-		return this.callbackName;
+	public final native String getCallbackId() /*-{
+		return this.callbackId;
 	}-*/;
 
 	public final native PerunPrincipal getPerunPrincipal() /*-{

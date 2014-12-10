@@ -1,26 +1,13 @@
-
 package cz.metacentrum.perun.webgui.json;
 
-
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.RepeatingCommand;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.*;
-import cz.metacentrum.perun.webgui.client.PerunWebConstants;
-import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.PerunRequest;
-
-import java.util.Date;
 
 /**
  * Class with a client for JSON calls. For each call a new instance must be created.
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
+ * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GetPendingRequests implements JsonCallback{
 
@@ -41,7 +28,8 @@ public class GetPendingRequests implements JsonCallback{
 
 	public void retrieveData() {
 		JsonClient client = new JsonClient();
-		client.retrieveData(JSON_URL, "callbackName="+callbackName, this);
+		client.setHidden(true);
+		client.retrieveData(JSON_URL, "callbackId="+callbackName, this);
 	}
 
 	public void onFinished(JavaScriptObject jso) {

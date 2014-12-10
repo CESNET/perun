@@ -9,26 +9,20 @@ public class PerunRequest {
 
 	private long startTime;
 	private long endTime = -1;
-	private String sessionId;
 	private PerunPrincipal perunPrincipal;
-	private String callbackName;
+	private String callbackId;
 	private String manager;
 	private String method;
 	private String params;
 	private Object result;
 
-	public PerunRequest(String sessionId, PerunPrincipal perunPrincipal, String callbackName, String manager, String method, String params) {
+	public PerunRequest(PerunPrincipal perunPrincipal, String callbackId, String manager, String method, String params) {
 		this.startTime = System.currentTimeMillis();
-		this.sessionId = sessionId;
 		this.perunPrincipal = perunPrincipal;
-		this.callbackName = callbackName;
+		this.callbackId = callbackId;
 		this.manager = manager;
 		this.method = method;
 		this.params = params;
-	}
-
-	public String getSessionId() {
-		return sessionId;
 	}
 
 	public long getStartTime() {
@@ -39,12 +33,12 @@ public class PerunRequest {
 		return perunPrincipal;
 	}
 
-	public String getCallbackName() {
-		return callbackName;
+	public String getCallbackId() {
+		return callbackId;
 	}
 
-	public void setCallbackName(String callbackName) {
-		this.callbackName = callbackName;
+	public void setCallbackId(String callbackId) {
+		this.callbackId = callbackId;
 	}
 
 	public String getManager() {
@@ -79,11 +73,10 @@ public class PerunRequest {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((callbackId == null) ? 0 : callbackId.hashCode());
 		result = prime * result + ((manager == null) ? 0 : manager.hashCode());
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
-		result = prime * result
-				+ ((perunPrincipal == null) ? 0 : perunPrincipal.hashCode());
-		result = prime * result + ((sessionId == null) ? 0 : sessionId.hashCode());
+		result = prime * result + ((perunPrincipal == null) ? 0 : perunPrincipal.hashCode());
 		result = prime * result + (int) (startTime ^ (startTime >>> 32));
 		return result;
 	}
@@ -97,6 +90,11 @@ public class PerunRequest {
 		if (getClass() != obj.getClass())
 			return false;
 		PerunRequest other = (PerunRequest) obj;
+		if (callbackId == null) {
+			if (other.callbackId != null)
+				return false;
+		} else if (!callbackId.equals(other.callbackId))
+			return false;
 		if (manager == null) {
 			if (other.manager != null)
 				return false;
@@ -111,11 +109,6 @@ public class PerunRequest {
 			if (other.perunPrincipal != null)
 				return false;
 		} else if (!perunPrincipal.equals(other.perunPrincipal))
-			return false;
-		if (sessionId == null) {
-			if (other.sessionId != null)
-				return false;
-		} else if (!sessionId.equals(other.sessionId))
 			return false;
 		if (startTime != other.startTime)
 			return false;

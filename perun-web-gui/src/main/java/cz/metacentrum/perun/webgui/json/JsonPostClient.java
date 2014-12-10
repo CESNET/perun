@@ -3,22 +3,20 @@ package cz.metacentrum.perun.webgui.json;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
+import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunRequest;
+import cz.metacentrum.perun.webgui.widgets.Confirm;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,12 +61,30 @@ public class JsonPostClient {
 	 */
 	private boolean hidden = false;
 	private Map<String, PerunRequest> runningRequests = new HashMap<>();
-
+	private static Confirm c = null;
+	private static FlexTable layout = new FlexTable();
+	private static int counter = 0;
 
 	/**
 	 * New JsonPostClient
 	 */
 	public JsonPostClient() {
+
+		if (c == null) {
+
+			layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
+			layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: " + counter);
+
+			layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+			layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+			layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+			c = new Confirm("Pending request", layout, true);
+			c.setNonScrollable(true);
+			c.setAutoHide(false);
+
+		}
+
 	}
 
 
@@ -78,6 +94,7 @@ public class JsonPostClient {
 	 * @param events
 	 */
 	public JsonPostClient(JsonCallbackEvents events) {
+		this();
 		this.events = events;
 	}
 
@@ -229,8 +246,14 @@ public class JsonPostClient {
 
 						if (runningRequests.get(requestUrl) != null) {
 
-							if ((runningRequests.get(requestUrl).getDuration() / (1000)) >= 3) {
-								// 5 minute timeout
+							// 5 minute timeout
+							if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
+
+								counter++;
+								layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: "+counter);
+
+								if (!c.isShowing() && counter > 0) c.show();
+
 								Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
 									boolean again = true;
 
@@ -240,12 +263,45 @@ public class JsonPostClient {
 											@Override
 											public void onFinished(JavaScriptObject jso) {
 												final PerunRequest req = jso.cast();
-												if ((req.getCallbackName().equals(perunRequest.getStartTime() + "")) && req.getEndTime() > 0) {
-													GWT.log("RESULT: " + ((req.getResult() != null) ? req.getResult().toSource() : "null"));
+												if ((req.getCallbackId().equals(perunRequest.getStartTime() + "")) && req.getEndTime() > 0) {
+
 													if (again) {
-														onRequestFinished(req.getResult());
-														runningRequests.remove(requestUrl);
+
 														again = false;
+														counter--;
+														layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: "+counter);
+
+														// hide notification
+														if (c.isShowing() && counter <= 0) c.hide();
+
+														JavaScriptObject result = req.getResult();
+
+														// if null - finished
+														if (result == null) {
+															session.getUiElements().setLogText("Response NULL.");
+															runningRequests.remove(requestUrl);
+															onRequestFinished(null);
+															return;
+														}
+
+														// if error?
+														PerunError error = (PerunError) result;
+														if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
+															// not error, OK
+															session.getUiElements().setLogText("Response not NULL, not ERROR.");
+															runningRequests.remove(requestUrl);
+															onRequestFinished(result);
+															return;
+														}
+
+														// triggers onError
+														session.getUiElements().setLogText("Response ERROR.");
+														error.setRequestURL(requestUrl);
+														error.setPostData(payload);
+														runningRequests.remove(requestUrl);
+														onRequestError(error);
+														return;
+
 													}
 												}
 											}
@@ -255,21 +311,6 @@ public class JsonPostClient {
 									}
 								}, ((PerunWebConstants) GWT.create(PerunWebConstants.class)).pendingRequestsRefreshInterval());
 
-								// TODO - tohle musí být jen upozornění.
-								// neodstraňovat request
-								//
-
-								/*
-								PerunError error = new JSONObject().getJavaScriptObject().cast();
-								error.setErrorId("408");
-								error.setName("RequestTimeout");
-								error.setErrorInfo("Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.");
-								error.setObjectType("PerunError");
-								error.setRequestURL(requestUrl);
-								error.setPostData("");
-								runningRequests.remove(requestUrl);
-								onRequestError(error);
-								*/
 								return;
 
 							} else {
@@ -402,7 +443,7 @@ public class JsonPostClient {
 	}
 
 	/**
-	 * Called when error occured.
+	 * Called when error occurred.
 	 *
 	 * @param jso
 	 */

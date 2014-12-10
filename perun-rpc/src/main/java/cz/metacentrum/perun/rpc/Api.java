@@ -6,14 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,9 +36,8 @@ import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
-import java.util.Date;
+
 import java.sql.Timestamp;
-import java.util.Iterator;
 
 @SuppressWarnings("serial")
 /**
@@ -69,7 +62,7 @@ public class Api extends HttpServlet {
 	@Override
 	public void init() {
 		if (getServletContext().getAttribute(PERUNREQUESTS) == null) {
-			getServletContext().setAttribute(PERUNREQUESTS, new CopyOnWriteArrayList<PerunRequest>());
+			getServletContext().setAttribute(PERUNREQUESTS, new ConcurrentSkipListMap<String, PerunRequest>());
 		}
 	}
 	protected PerunPrincipal setupPerunPrincipal(HttpServletRequest req) throws InternalErrorException, RpcException, UserNotExistsException {
@@ -281,6 +274,8 @@ public class Api extends HttpServlet {
 		ApiCaller caller;
 
 		String callbackName = req.getParameter("callback");
+		// we must provide callback name so it can be stored in a map and name musn't collide with data from proper GUI client
+		if (callbackName == null) callbackName = "local-"+System.currentTimeMillis();
 
 		long timeStart = System.currentTimeMillis();
 		caller = (ApiCaller) req.getSession(true).getAttribute(APICALLER);
@@ -290,18 +285,18 @@ public class Api extends HttpServlet {
 		// Check if it is request for list of pending operations.
 		if (req.getPathInfo().equals("/jsonp/" + PERUNREQUESTSURL)) {
 			// name used to identify pending request
-			String requestName = req.getParameter("callbackName");
+			String callbackId = req.getParameter("callbackId");
 			JsonSerializerJSONP serializer = new JsonSerializerJSONP(out, req, resp);
 			resp.setContentType(serializer.getContentType());
 			try {
 				// Create a copy of the PERUNREQUESTS and then pass it to the serializer
-				List<PerunRequest> perunRequests = (List<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS);
-				List<PerunRequest> copiedList = perunRequests.subList(0, perunRequests.size());
-				for (PerunRequest call : copiedList) {
-					if (call.getCallbackName().equals(requestName)) {
-						serializer.write(call);
-						break;
-					}
+				ConcurrentSkipListMap<String, PerunRequest> perunRequests = (ConcurrentSkipListMap<String, PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS);
+				if (callbackId != null) {
+					// return single entry
+					serializer.write(perunRequests.get(callbackId));
+				} else {
+					// return all pending requests
+					serializer.write(Arrays.asList(perunRequests.values().toArray()));
 				}
 			} catch (RpcException e) {
 				serializer.writePerunException(e);
@@ -366,18 +361,15 @@ public class Api extends HttpServlet {
 				if (req.getSession(false) != null) {
 					req.getSession().removeAttribute(APICALLER);
 
-
 					// deletes the cookies
 					Cookie[] cookies = req.getCookies();
-					if( cookies != null)
-					{
+					if( cookies != null) {
 						final String SHIBBOLETH_COOKIE_FORMAT = "^_shib.+$";
 
 						for (int i = 0; i < cookies.length; i++) {
 							Cookie c = cookies[i];
 							// if shibboleth cookie
-							if(c.getName().matches(SHIBBOLETH_COOKIE_FORMAT))
-							{
+							if(c.getName().matches(SHIBBOLETH_COOKIE_FORMAT)) {
 								// remove it
 								c.setValue("0");
 								c.setMaxAge(0);
@@ -405,7 +397,7 @@ public class Api extends HttpServlet {
 				return;
 
 			} else if("utils".equals(manager) && PERUNSTATUS.equals(method)) {
-				perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(), callbackName, "DatabaseManager", "getCurrentDatabaseVersion", des.readAll());
+				perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName, "DatabaseManager", "getCurrentDatabaseVersion", des.readAll());
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());
 
@@ -426,11 +418,12 @@ public class Api extends HttpServlet {
 			caller.setStateChanging(!isGet);
 
 			// Store identification of the request
-			perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(), callbackName,
+			perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName,
 					manager, method, des.readAll());
+
 			// Add perunRequest into the queue of the requests
 			if(!isGet) {
-				((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
+				((ConcurrentSkipListMap<String, PerunRequest>)getServletContext().getAttribute(PERUNREQUESTS)).put(callbackName, perunRequest);
 			}
 
 			// Process request and sent the response back
@@ -477,19 +470,20 @@ public class Api extends HttpServlet {
 				perunRequest.setEndTime(System.currentTimeMillis());
 				if(result instanceof Exception) perunRequest.setResult(result);
 				perunRequest.setEndTime(System.currentTimeMillis());
-
-				//Check all resolved requests and remove them if they are old than timeToLiveWhenDone
-				Iterator<PerunRequest> iteratorPr = ((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).iterator();
-				while(iteratorPr.hasNext()) {
-					PerunRequest pr = iteratorPr.next();
-					//if still in progress (-1) skip it
-					if(pr.getEndTime()<0) continue;
-					if(System.currentTimeMillis() - pr.getEndTime() > timeToLiveWhenDone) {
-						iteratorPr.remove();
+			}
+			//Check all resolved requests and remove them if they are old than timeToLiveWhenDone
+			ConcurrentSkipListMap<String, PerunRequest> perunRequests = ((ConcurrentSkipListMap<String, PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS));
+			Iterator<String> iterator = perunRequests.keySet().iterator();
+			while (iterator.hasNext()) {
+				String key = iterator.next();
+				PerunRequest value = perunRequests.get(key);
+				if (value != null) {
+					if(value.getEndTime()<0) continue;
+					if(System.currentTimeMillis() - value.getEndTime() > timeToLiveWhenDone) {
+						perunRequests.remove(key);
 					}
 				}
 			}
-
 		}
 
 		out.close();
