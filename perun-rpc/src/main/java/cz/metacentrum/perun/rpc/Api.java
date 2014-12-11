@@ -6,14 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +36,7 @@ import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
-import java.util.Date;
+
 import java.sql.Timestamp;
 
 @SuppressWarnings("serial")
@@ -63,11 +57,12 @@ public class Api extends HttpServlet {
 	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
+	private final static int timeToLiveWhenDone = 120 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
 	@Override
 	public void init() {
 		if (getServletContext().getAttribute(PERUNREQUESTS) == null) {
-			getServletContext().setAttribute(PERUNREQUESTS, new CopyOnWriteArrayList<PerunRequest>());
+			getServletContext().setAttribute(PERUNREQUESTS, new ConcurrentSkipListMap<String, PerunRequest>());
 		}
 	}
 	protected PerunPrincipal setupPerunPrincipal(HttpServletRequest req) throws InternalErrorException, RpcException, UserNotExistsException {
@@ -129,10 +124,10 @@ public class Api extends HttpServlet {
 			// Store X509 certificate in the additionalInformations structure
 			additionalInformations.put("userCertificates",
 					AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_S_DN")) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
-					AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_CERT")));
+							AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_CERT")));
 			additionalInformations.put("userCertDNs",
 					AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_S_DN")) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
-					AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_I_DN")));
+							AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_I_DN")));
 
 			// Store X509
 			additionalInformations.put("SSL_CLIENT_S_DN", (String) req.getAttribute("SSL_CLIENT_S_DN"));
@@ -278,6 +273,9 @@ public class Api extends HttpServlet {
 		PerunRequest perunRequest = null;
 		ApiCaller caller;
 
+		String callbackName = req.getParameter("callback");
+		// we must provide callback name so it can be stored in a map and name musn't collide with data from proper GUI client
+		if (callbackName == null) callbackName = "local-"+System.currentTimeMillis();
 
 		long timeStart = System.currentTimeMillis();
 		caller = (ApiCaller) req.getSession(true).getAttribute(APICALLER);
@@ -286,18 +284,29 @@ public class Api extends HttpServlet {
 
 		// Check if it is request for list of pending operations.
 		if (req.getPathInfo().equals("/jsonp/" + PERUNREQUESTSURL)) {
+			// name used to identify pending request
+			String callbackId = req.getParameter("callbackId");
 			JsonSerializerJSONP serializer = new JsonSerializerJSONP(out, req, resp);
 			resp.setContentType(serializer.getContentType());
 			try {
 				// Create a copy of the PERUNREQUESTS and then pass it to the serializer
-				List<PerunRequest> perunRequests = (List<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS);
-				serializer.write(perunRequests.subList(0, perunRequests.size()));
+				ConcurrentSkipListMap<String, PerunRequest> perunRequests = (ConcurrentSkipListMap<String, PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS);
+				if (callbackId != null) {
+					// return single entry
+					serializer.write(perunRequests.get(callbackId));
+				} else {
+					// return all pending requests
+					serializer.write(Arrays.asList(perunRequests.values().toArray()));
+				}
 			} catch (RpcException e) {
 				serializer.writePerunException(e);
 			}
 			out.close();
 			return;
-		} 
+		}
+
+		//prepare result object
+		Object result = null;
 
 		try {
 			String[] fcm; //[0] format, [1] class, [2] method
@@ -352,18 +361,15 @@ public class Api extends HttpServlet {
 				if (req.getSession(false) != null) {
 					req.getSession().removeAttribute(APICALLER);
 
-
 					// deletes the cookies
 					Cookie[] cookies = req.getCookies();
-					if( cookies != null)
-					{
+					if( cookies != null) {
 						final String SHIBBOLETH_COOKIE_FORMAT = "^_shib.+$";
 
 						for (int i = 0; i < cookies.length; i++) {
 							Cookie c = cookies[i];
 							// if shibboleth cookie
-							if(c.getName().matches(SHIBBOLETH_COOKIE_FORMAT))
-							{
+							if(c.getName().matches(SHIBBOLETH_COOKIE_FORMAT)) {
 								// remove it
 								c.setValue("0");
 								c.setMaxAge(0);
@@ -391,11 +397,10 @@ public class Api extends HttpServlet {
 				return;
 
 			} else if("utils".equals(manager) && PERUNSTATUS.equals(method)) {
-				perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(), "DatabaseManager", "getCurrentDatabaseVersion", des.readAll());
-				((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
+				perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName, "DatabaseManager", "getCurrentDatabaseVersion", des.readAll());
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());
-				
+
 				List<String> perunStatus = new ArrayList<>();
 				perunStatus.add("Version of PerunDB: " + caller.call("databaseManager", "getCurrentDatabaseVersion", des));
 				perunStatus.add("Version of Servlet: " + getServletContext().getServerInfo());
@@ -403,9 +408,8 @@ public class Api extends HttpServlet {
 				perunStatus.add("Version of DB: " + caller.call("databaseManager", "getDatabaseInformation", des));
 				perunStatus.add("Version of Java platform: " + System.getProperty("java.version"));
 				perunStatus.add("Timestamp: " + timestamp);
-
 				ser.write(perunStatus);
-								
+
 				out.close();
 				return;
 			}
@@ -414,17 +418,30 @@ public class Api extends HttpServlet {
 			caller.setStateChanging(!isGet);
 
 			// Store identification of the request
-			perunRequest = new PerunRequest(req.getSession().getId(), caller.getSession().getPerunPrincipal(),
+			perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName,
 					manager, method, des.readAll());
+
 			// Add perunRequest into the queue of the requests
-			((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).add(perunRequest);
+			if(!isGet) {
+				((ConcurrentSkipListMap<String, PerunRequest>)getServletContext().getAttribute(PERUNREQUESTS)).put(callbackName, perunRequest);
+			}
 
 			// Process request and sent the response back
 			if (VOOTMANAGER.equals(manager)) {
 				// Process VOOT protocol
-				ser.write(caller.getVOOTManager().process(caller.getSession(), method, des.readAll()));
+				result = caller.getVOOTManager().process(caller.getSession(), method, des.readAll());
+				perunRequest.setResult(result);
+				ser.write(result);
 			} else {
-				ser.write(caller.call(manager, method, des));
+				//Save only exceptions from caller to result
+				try {
+					result = caller.call(manager, method, des);
+					perunRequest.setResult(result);
+				} catch (Exception ex) {
+					result = ex;
+					throw ex;
+				}
+				ser.write(result);
 			}
 		} catch (PerunException pex) {
 			// If the output is JSONP, it cannot send the HTTP 400 code, because the web browser wouldn't accept this
@@ -448,9 +465,24 @@ public class Api extends HttpServlet {
 			}
 			ser.writePerunException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
 		} finally {
-			if (perunRequest != null) {
-				// Remove PerunRequest from the queue
-				((CopyOnWriteArrayList<PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS)).remove(perunRequest);
+			if(!isGet) {
+				//save result of this perunRequest
+				perunRequest.setEndTime(System.currentTimeMillis());
+				if(result instanceof Exception) perunRequest.setResult(result);
+				perunRequest.setEndTime(System.currentTimeMillis());
+			}
+			//Check all resolved requests and remove them if they are old than timeToLiveWhenDone
+			ConcurrentSkipListMap<String, PerunRequest> perunRequests = ((ConcurrentSkipListMap<String, PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS));
+			Iterator<String> iterator = perunRequests.keySet().iterator();
+			while (iterator.hasNext()) {
+				String key = iterator.next();
+				PerunRequest value = perunRequests.get(key);
+				if (value != null) {
+					if(value.getEndTime()<0) continue;
+					if(System.currentTimeMillis() - value.getEndTime() > timeToLiveWhenDone) {
+						perunRequests.remove(key);
+					}
+				}
 			}
 		}
 
@@ -493,11 +525,10 @@ public class Api extends HttpServlet {
 	public enum Formats {
 
 		NOMATCH,
-			urlinjsonout,
-			json,
-			jsonp,
-			voot;
-
+		urlinjsonout,
+		json,
+		jsonp,
+		voot;
 
 		/**
 		 * Matches a string with the enum's values.
@@ -514,4 +545,5 @@ public class Api extends HttpServlet {
 			}
 		}
 	}
+
 }

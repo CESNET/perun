@@ -36,30 +36,34 @@ import java.io.OutputStream;
 public final class JsonSerializerJSONP implements Serializer {
 
 	@JsonIgnoreProperties({"name", "createdAt", "createdBy", "modifiedAt", "modifiedBy", "createdByUid",
-		"modifiedByUid", "valueCreatedAt", "valueCreatedBy", "valueModifiedAt", "valueModifiedBy"})
-		private interface AttributeMixIn {
-		}
+			"modifiedByUid", "valueCreatedAt", "valueCreatedBy", "valueModifiedAt", "valueModifiedBy"})
+	private interface AttributeMixIn {
+	}
 
 	@JsonIgnoreProperties({"name", "createdAt", "createdBy", "modifiedAt", "modifiedBy", "createdByUid", "modifiedByUid"})
-		private interface AttributeDefinitionMixIn {
-		}
+	private interface AttributeDefinitionMixIn {
+	}
 
 	@JsonIgnoreProperties({"commonName", "displayName", "createdAt", "createdBy", "modifiedAt", "modifiedBy",
-		"createdByUid", "modifiedByUid"})
-		private interface UserMixIn {
-		}
+			"createdByUid", "modifiedByUid"})
+	private interface UserMixIn {
+	}
 
 	@JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace"})
-		private interface ExceptionMixIn {
-		}
+	private interface ExceptionMixIn {
+	}
 
 	@JsonIgnoreProperties({"userExtSources"})
 	private interface CandidateMixIn {
 	}
 
 	@JsonIgnoreProperties({"createdAt", "createdBy", "modifiedAt", "modifiedBy", "createdByUid", "modifiedByUid"})
-		private interface PerunBeanMixIn {
-		}
+	private interface PerunBeanMixIn {
+	}
+
+	@JsonIgnoreProperties({"perunPrincipal"})
+	private interface PerunRequestMixIn {
+	}
 
 	@JsonIgnoreProperties({})
 	private interface AuthorshipMixIn {
@@ -77,6 +81,7 @@ public final class JsonSerializerJSONP implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, ExceptionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(Authorship.class, AuthorshipMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(PerunRequest.class, PerunRequestMixIn.class);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();

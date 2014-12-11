@@ -1,15 +1,21 @@
 package cz.metacentrum.perun.webgui.json;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.ui.*;
+import cz.metacentrum.perun.webgui.client.PerunWebConstants;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
+import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunRequest;
+import cz.metacentrum.perun.webgui.widgets.Confirm;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,12 +61,30 @@ public class JsonPostClient {
 	 */
 	private boolean hidden = false;
 	private Map<String, PerunRequest> runningRequests = new HashMap<>();
-
+	private static Confirm c = null;
+	private static FlexTable layout = new FlexTable();
+	private static int counter = 0;
 
 	/**
 	 * New JsonPostClient
 	 */
 	public JsonPostClient() {
+
+		if (c == null) {
+
+			layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
+			layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: " + counter);
+
+			layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+			layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+			layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+			c = new Confirm("Pending request", layout, true);
+			c.setNonScrollable(true);
+			c.setAutoHide(false);
+
+		}
+
 	}
 
 
@@ -70,6 +94,7 @@ public class JsonPostClient {
 	 * @param events
 	 */
 	public JsonPostClient(JsonCallbackEvents events) {
+		this();
 		this.events = events;
 	}
 
@@ -146,9 +171,11 @@ public class JsonPostClient {
 	 */
 	private void send() {
 
-		// url to call
-		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + callbackName);
+		final PerunRequest perunRequest = new JSONObject().getJavaScriptObject().cast();
+		perunRequest.setStartTime();
 
+		// url to call
+		final String requestUrl = URL.encode(PerunWebSession.getInstance().getRpcUrl() + url + "?callback=" + perunRequest.getStartTime());
 
 		String data = "";
 		if (sendNative) {
@@ -157,11 +184,9 @@ public class JsonPostClient {
 			data = jsonObject.toString();
 		}
 
-		PerunRequest perunRequest = new JSONObject().getJavaScriptObject().cast();
-		perunRequest.setStartTime();
 		perunRequest.setManager(url.split("\\/")[0]);
 		perunRequest.setMethod(url.split("\\/")[1]);
-		perunRequest.setParamString("?callback=" + callbackName + "&" + data);
+		perunRequest.setParamString("?callback=" + perunRequest.getStartTime() + "&" + data);
 
 		// request building
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, requestUrl);
@@ -176,7 +201,7 @@ public class JsonPostClient {
 					// if response = OK
 					if (resp.getStatusCode() == 200) {
 						// jso
-						JavaScriptObject jso = parseResponse(resp.getText());
+						JavaScriptObject jso = parseResponse(perunRequest.getStartTime()+"", resp.getText());
 
 						// if null - finished
 						if (jso == null) {
@@ -221,18 +246,71 @@ public class JsonPostClient {
 
 						if (runningRequests.get(requestUrl) != null) {
 
+							// 5 minute timeout
 							if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
-								// 5 minute timeout
 
-								PerunError error = new JSONObject().getJavaScriptObject().cast();
-								error.setErrorId("408");
-								error.setName("RequestTimeout");
-								error.setErrorInfo("Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.");
-								error.setObjectType("PerunError");
-								error.setRequestURL(requestUrl);
-								error.setPostData("");
-								runningRequests.remove(requestUrl);
-								onRequestError(error);
+								counter++;
+								layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: "+counter);
+
+								if (!c.isShowing() && counter > 0) c.show();
+
+								Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+									boolean again = true;
+
+									@Override
+									public boolean execute() {
+										GetPendingRequests req = new GetPendingRequests(perunRequest.getStartTime(), new JsonCallbackEvents() {
+											@Override
+											public void onFinished(JavaScriptObject jso) {
+												final PerunRequest req = jso.cast();
+												if ((req.getCallbackId().equals(perunRequest.getStartTime() + "")) && req.getEndTime() > 0) {
+
+													if (again) {
+
+														again = false;
+														counter--;
+														layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: "+counter);
+
+														// hide notification
+														if (c.isShowing() && counter <= 0) c.hide();
+
+														JavaScriptObject result = req.getResult();
+
+														// if null - finished
+														if (result == null) {
+															session.getUiElements().setLogText("Response NULL.");
+															runningRequests.remove(requestUrl);
+															onRequestFinished(null);
+															return;
+														}
+
+														// if error?
+														PerunError error = (PerunError) result;
+														if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
+															// not error, OK
+															session.getUiElements().setLogText("Response not NULL, not ERROR.");
+															runningRequests.remove(requestUrl);
+															onRequestFinished(result);
+															return;
+														}
+
+														// triggers onError
+														session.getUiElements().setLogText("Response ERROR.");
+														error.setRequestURL(requestUrl);
+														error.setPostData(payload);
+														runningRequests.remove(requestUrl);
+														onRequestError(error);
+														return;
+
+													}
+												}
+											}
+										});
+										req.retrieveData();
+										return again;
+									}
+								}, ((PerunWebConstants) GWT.create(PerunWebConstants.class)).pendingRequestsRefreshInterval());
+
 								return;
 
 							} else {
@@ -296,14 +374,14 @@ public class JsonPostClient {
 
 					// triggers onError
 					runningRequests.remove(requestUrl);
-					onRequestError(parseResponse(resp.getText()));
+					onRequestError(parseResponse(perunRequest.getStartTime()+"", resp.getText()));
 				}
 
 				@Override
 				public void onError(Request req, Throwable exc) {
 					// request not sent
 					runningRequests.remove(requestUrl);
-					onRequestError(parseResponse(exc.toString()));
+					onRequestError(parseResponse(perunRequest.getStartTime()+"", exc.toString()));
 				}
 			});
 
@@ -311,7 +389,7 @@ public class JsonPostClient {
 
 		} catch (RequestException exc) {
 			// usually couldn't connect to server
-			onRequestError(parseResponse(exc.toString()));
+			onRequestError(parseResponse(perunRequest.getStartTime()+"", exc.toString()));
 		}
 	}
 
@@ -321,7 +399,7 @@ public class JsonPostClient {
 	 * @param resp JSON string
 	 * @return
 	 */
-	protected JavaScriptObject parseResponse(String resp) {
+	protected JavaScriptObject parseResponse(String callbackName, String resp) {
 		// trims the whitespace
 		resp = resp.trim();
 
@@ -365,7 +443,7 @@ public class JsonPostClient {
 	}
 
 	/**
-	 * Called when error occured.
+	 * Called when error occurred.
 	 *
 	 * @param jso
 	 */
