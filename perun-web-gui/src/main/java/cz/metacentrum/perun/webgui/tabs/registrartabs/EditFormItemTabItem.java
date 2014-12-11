@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesDefinition;
@@ -230,7 +231,7 @@ public class EditFormItemTabItem implements TabItem {
 
 			boxRow++;
 
-			Label boxContentLabel = new Label(item.getType().substring(0, 0)+item.getType().toLowerCase().substring(1)+" options:");
+			Label boxContentLabel = new Label(item.getType().substring(0, 1)+item.getType().toLowerCase().substring(1)+" options:");
 			boxItemTable.setWidget(boxRow, 0, boxContentLabel);
 			boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 0, "itemName");
 			boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
@@ -553,7 +554,7 @@ public class EditFormItemTabItem implements TabItem {
 
 		// languages
 		ArrayList<String> languages = new ArrayList<String>();
-		languages.add("cs");
+		languages.add(Utils.getNativeLanguage().get(0));
 		languages.add("en");
 
 		// vertical panel

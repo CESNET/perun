@@ -12,6 +12,7 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.registrarManager.UpdateApplicationMail;
@@ -335,7 +336,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
 		// languages
 		ArrayList<String> languages = new ArrayList<String>();
-		languages.add("cs");
+		languages.add(Utils.getNativeLanguage().get(0));
 		languages.add("en");
 
 		// vertical panel
