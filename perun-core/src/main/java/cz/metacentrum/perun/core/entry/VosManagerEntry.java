@@ -179,9 +179,9 @@ public class VosManagerEntry implements VosManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getVoByShortName");
-				}
+		}
 
 		return vo;
 	}
@@ -194,7 +194,7 @@ public class VosManagerEntry implements VosManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF)) {
 			throw new PrivilegeException(sess, "getVoById");

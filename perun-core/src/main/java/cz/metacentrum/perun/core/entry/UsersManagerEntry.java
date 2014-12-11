@@ -68,7 +68,7 @@ public class UsersManagerEntry implements UsersManager {
 		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "getUserById");
@@ -353,7 +353,7 @@ public class UsersManagerEntry implements UsersManager {
 		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
 			throw new PrivilegeException(sess, "getUserExtSources");

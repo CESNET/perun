@@ -293,7 +293,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
             <props>
             	<prop key="perun.admins">perunTests, perunController, perunEngine, perunRegistrar, perunSynchronizer, perunCabinet</prop>
                 <prop key="perun.grouper.toplevelstem">perunMeta</prop>
-                <prop key="perun.service.principals">perunv3/engine@META</prop>
                 <prop key="perun.engine.principals">perunv3/engine@META</prop>
                 <prop key="perun.synchronizer.principals">perunSynchronizer</prop>
                 <prop key="perun.registrar.principals">perunv3-registrar@META</prop>
