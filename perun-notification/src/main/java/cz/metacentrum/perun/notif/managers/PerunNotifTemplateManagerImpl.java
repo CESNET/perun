@@ -5,7 +5,10 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.notif.StringTemplateLoader;
 import cz.metacentrum.perun.notif.dao.PerunNotifTemplateDao;
@@ -355,8 +358,10 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		List<PerunNotifMessageDto> result = new ArrayList<PerunNotifMessageDto>();
 		for (PerunNotifReceiver receiver : template.getReceivers()) {
 			PerunNotifMessageDto messageDto = new PerunNotifMessageDto();
-			String messageContent = compileTemplate(Integer.toString(template.getId()), receiver.getLocale(), container);
-			String subjectContent = compileTemplate(Integer.toString(template.getId()) + "-subject", receiver.getLocale(), container);
+			String messageContent = compileTemplate(Integer.toString(template.getId()),
+				interpretLocale(receiver.getLocale(), receiver.getTarget(), dto.getKeyAttributes()), container);
+			String subjectContent = compileTemplate(Integer.toString(template.getId()) + "-subject",
+				interpretLocale(receiver.getLocale(), receiver.getTarget(), dto.getKeyAttributes()), container);
 			messageDto.setMessageToSend(messageContent);
 			messageDto.setPoolMessage(dto);
 			messageDto.setUsedPoolIds(usedPoolIds);
@@ -863,5 +868,43 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				throw new NotifReceiverAlreadyExistsException(receiver);
 			}
 		}
+	}
+
+	private Locale interpretLocale(String stringLocale, String target, Map<String, String> keyAttributes) {
+		Locale loc = null;
+		String myReceiverId = keyAttributes.get(target);
+		if (myReceiverId == null || myReceiverId.isEmpty()) {
+			// can be set one static account
+			loc = new Locale(stringLocale);
+		} else {
+			// dynamic user account - check if locale is dynamic too
+			Integer id = null;
+			try {
+				id = Integer.valueOf(myReceiverId);
+			} catch (NumberFormatException ex) {
+				// wrong user id format -> make classic locale
+				logger.error("Cannot resolve user id in receiver target: {}, error: {}", id, ex.getMessage());
+				loc = new Locale(stringLocale);
+				return loc;
+			}
+			switch (stringLocale) {
+				// you can add more locale interpretations in the future
+				case "$user.preferredLanguage":
+					try {
+						loc = new Locale((String) perun.getAttributesManagerBl().getAttribute(session, perun.getUsersManagerBl()
+						.getUserById(session, id), "urn:perun:user:attribute-def:def:preferredLanguage").getValue());
+					} catch (UserNotExistsException ex) {
+						logger.error("Cannot found user with id: {}, ex: {}", id, ex.getMessage());
+					} catch (AttributeNotExistsException ex) {
+						logger.warn("Cannot find language for user with id: {}, ex: {}", id, ex.getMessage());
+					} catch (PerunException ex) {
+						logger.error("Error during user language recognition, ex: {}", ex.getMessage());
+					}
+					break;
+				default:
+					loc = new Locale(stringLocale);
+			}
+		}
+		return loc;
 	}
 }
