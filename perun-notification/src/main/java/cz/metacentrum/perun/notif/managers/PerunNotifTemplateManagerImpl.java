@@ -645,8 +645,16 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		}
 
 		perunNotifTemplateDao.removePerunNotifReceiverById(id);
-
 		PerunNotifTemplate template = allTemplatesById.get(receiverToRemove.getTemplateId());
+
+		for (List<PerunNotifTemplate> listOftemplate: allTemplatesByRegexId.values()) {
+			for (PerunNotifTemplate t : listOftemplate) {
+				if (t.equals(template)) {
+					t.getReceivers().remove(receiverToRemove);
+				}
+			}
+		}
+
 		for (Iterator<PerunNotifReceiver> iter = template.getReceivers().iterator(); iter.hasNext();) {
 			PerunNotifReceiver myReceiver = iter.next();
 			if (myReceiver.getId().equals(receiverToRemove.getId())) {
