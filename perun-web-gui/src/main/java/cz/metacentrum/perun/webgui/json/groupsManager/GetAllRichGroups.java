@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -192,7 +193,7 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 		table.addIdColumn("Group ID", tableFieldUpdater);
 
 		// Add a synchronization clicable icon column.
-		Column<RichGroup, RichGroup> syncColumn = new Column<RichGroup, RichGroup>(
+		final Column<RichGroup, RichGroup> syncColumn = new Column<RichGroup, RichGroup>(
 				new CustomClickableInfoCellWithImageResource("click")) {
 			@Override
 			public RichGroup getValue(RichGroup object) {
@@ -207,7 +208,7 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 				}
 			}
 		};
-		syncColumn.setFieldUpdater( new FieldUpdater<RichGroup, RichGroup>() {
+		syncColumn.setFieldUpdater(new FieldUpdater<RichGroup, RichGroup>() {
 			@Override
 			public void update(int index, final RichGroup object, RichGroup value) {
 				String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
@@ -220,15 +221,21 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 				if (object.getSynchronizationInterval() == null) {
 					syncInterval = "N/A";
 				} else {
-					int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
-					if (time == 0) {
-						time = Integer.parseInt(object.getSynchronizationInterval()) * 5;
-						syncInterval = time + " minute(s)";
+
+					if (JsonUtils.checkParseInt(object.getLastSynchronizationTimestamp())) {
+						int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
+						if (time == 0) {
+							time = Integer.parseInt(object.getSynchronizationInterval()) * 5;
+							syncInterval = time + " minute(s)";
+						} else {
+							syncInterval = time + " hour(s)";
+						}
 					} else {
-						syncInterval = time + " hour(s)";
+						syncInterval = object.getLastSynchronizationTimestamp();
 					}
+
 				}
-				if (object.getLastSynchronizationState().equals("OK")) {
+				if (object.getLastSynchronizationState() != null && object.getLastSynchronizationState().equals("OK")) {
 					syncState = "OK";
 				} else {
 					if (session.isPerunAdmin()) {
@@ -249,7 +256,9 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 				}
 
 				String html = "Group name: <b>"+name+"</b><br>";
+				GWT.log("2:"+syncEnabled);
 				html += "Synchronization: <b>"+syncEnabled+"</b><br>";
+				GWT.log("3:"+syncEnabled);
 				if (object.isSyncEnabled()) {
 					html += "Last sync. state: <b>"+syncState+"</b><br>";
 					html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
@@ -276,6 +285,8 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 				});
 				if (!session.isVoAdmin(object.getVoId()) && !session.isGroupAdmin(object.getId())) okButton.setEnabled(false);
 
+				GWT.log("4:"+syncEnabled);
+
 				final Confirm c = new Confirm("Group synchronization info", layout, okButton, null, true);
 				c.setHideOnButtonClick(false);
 				c.setCancelIcon(SmallIcons.INSTANCE.acceptIcon());
@@ -286,7 +297,12 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 						c.hide();
 					}
 				});
+
+				GWT.log("5:"+syncEnabled);
+
 				c.show();
+
+				GWT.log("6:"+syncEnabled);
 
 			}
 		});
