@@ -50,8 +50,8 @@ public class JsonUtils {
 	 * @deprecated Shouldn't be used when returning the same object - use the method without Getter in parameter instead	 *
 	 */
 	static public <R> Column<R, R> addColumn(Cell<R> cell,
-			String headerText, final GetValue<R, R> getValue,
-			final FieldUpdater<R, String> tableFieldUpdater, boolean custom) {
+	                                         String headerText, final GetValue<R, R> getValue,
+	                                         final FieldUpdater<R, String> tableFieldUpdater, boolean custom) {
 		Column<R, R> column = new Column<R, R>(cell) {
 			@Override
 			public R getValue(R object) {
@@ -72,7 +72,7 @@ public class JsonUtils {
 
 			FieldUpdater<R, R> tableFieldUpdater2 = new FieldUpdater<R, R>() {
 				public void update(int index, R object,
-						R value) {
+				                   R value) {
 					GeneralObject go = (GeneralObject) value;
 					tableFieldUpdater.update(index, object, go.getName());
 				}
@@ -201,7 +201,7 @@ public class JsonUtils {
 		if(fieldUpdater != null){
 			FieldUpdater<R, R> tableFieldUpdater2 = new FieldUpdater<R, R>() {
 				public void update(int index, R object,
-						R value) {
+				                   R value) {
 					GeneralObject go = (GeneralObject) value;
 					fieldUpdater.update(index, object, go.getName());
 				}
@@ -273,54 +273,54 @@ public class JsonUtils {
 	}-*/;
 
 
-		/**
-		 * Takes a string and parses it
-		 * If not in JSON format, it creates a BasicOverlayType
-		 *
-		 * @param data that you trust
-		 * @return JavaScriptObject that you can cast to an Overlay Type
-		 */
-		public static native JavaScriptObject parseJson(String data) /*-{
-			try {
+	/**
+	 * Takes a string and parses it
+	 * If not in JSON format, it creates a BasicOverlayType
+	 *
+	 * @param data that you trust
+	 * @return JavaScriptObject that you can cast to an Overlay Type
+	 */
+	public static native JavaScriptObject parseJson(String data) /*-{
+		try {
 			var response = $wnd.jQuery.parseJSON(data);
 			if(typeof response === 'object') {
-			return response;
+				return response;
 			}
 			// if returned value is not json object
 			return {"value":response};
-			} catch(err) {
+		} catch(err) {
 			// if parsing fails, return raw data wrapped in BasicOverlayObject
 			return {"value":response};
-			}
-		}-*/;
-
-		/**
-		 * Returns JS Array made from returned JSON (javascript) object
-		 *
-		 * @param jso Unknown javascript object
-		 * @return JSArray<T> array of Unknown javascript objects
-		 */
-		public static native <T extends JavaScriptObject> JsArray<T> jsoAsArray(JavaScriptObject jso) /*-{
-			return jso;
-		}-*/;
-
-
-		/**
-		 * Returns passed unknown javascript object as ArrayList<T>
-		 *
-		 * @param jso Unknown javascript object
-		 * @return ArrayList<T> list of unknown objects
-		 */
-		public static <T extends JavaScriptObject> ArrayList<T> jsoAsList(JavaScriptObject jso) {
-
-			JsArray<T> arr = jsoAsArray(jso);
-			ArrayList<T> l = new ArrayList<T>();
-			for (int i = 0; i < arr.length(); i++) {
-				l.add(arr.get(i));
-			}
-			return l;
-
 		}
+	}-*/;
+
+	/**
+	 * Returns JS Array made from returned JSON (javascript) object
+	 *
+	 * @param jso Unknown javascript object
+	 * @return JSArray<T> array of Unknown javascript objects
+	 */
+	public static native <T extends JavaScriptObject> JsArray<T> jsoAsArray(JavaScriptObject jso) /*-{
+		return jso;
+	}-*/;
+
+
+	/**
+	 * Returns passed unknown javascript object as ArrayList<T>
+	 *
+	 * @param jso Unknown javascript object
+	 * @return ArrayList<T> list of unknown objects
+	 */
+	public static <T extends JavaScriptObject> ArrayList<T> jsoAsList(JavaScriptObject jso) {
+
+		JsArray<T> arr = jsoAsArray(jso);
+		ArrayList<T> l = new ArrayList<T>();
+		for (int i = 0; i < arr.length(); i++) {
+			l.add(arr.get(i));
+		}
+		return l;
+
+	}
 
 	/**
 	 * Returns passed single object as ArrayList<T>
@@ -384,76 +384,76 @@ public class JsonUtils {
 	 * @return TRUE if JS object is an array / FALSE otherwise
 	 */
 	static public native boolean isJsArray(JavaScriptObject jso) /*-{
-				return !(jso.constructor.toString().indexOf("Array") == -1);
-			}-*/;
+		return !(jso.constructor.toString().indexOf("Array") == -1);
+	}-*/;
 
-		/**
-		 * Returns the formatted pager, with the edit box.
-		 *
-		 * @param session Perun Web Session
-		 * @param pager SimplePager
-		 * @return
-		 */
-		static public Widget getFormattedPager(final PerunWebSession session, final SimplePager pager) {
-			// when next, remove previous query
+	/**
+	 * Returns the formatted pager, with the edit box.
+	 *
+	 * @param session Perun Web Session
+	 * @param pager SimplePager
+	 * @return
+	 */
+	static public Widget getFormattedPager(final PerunWebSession session, final SimplePager pager) {
+		// when next, remove previous query
 
-			// UI
-			HorizontalPanel pagerPanel = new HorizontalPanel();
-			pagerPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-			pagerPanel.setSpacing(2);
-			pagerPanel.add(pager);
-			pagerPanel.setHeight("50px");
+		// UI
+		HorizontalPanel pagerPanel = new HorizontalPanel();
+		pagerPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		pagerPanel.setSpacing(2);
+		pagerPanel.add(pager);
+		pagerPanel.setHeight("50px");
 
-			// On page label
-			Label onPageLabel = new Label("On page");
+		// On page label
+		Label onPageLabel = new Label("On page");
 
-			// add the input for pages
-			final TextBox onPageTextBox = new TextBox();
-			onPageTextBox.setWidth("30px");
-			onPageTextBox.setText(String.valueOf(pager.getPageSize()));
+		// add the input for pages
+		final TextBox onPageTextBox = new TextBox();
+		onPageTextBox.setWidth("30px");
+		onPageTextBox.setText(String.valueOf(pager.getPageSize()));
 
-			// search box on enter
-			onPageTextBox.addKeyPressHandler(new KeyPressHandler() {
-				private void parseNumber() {
-					try {
-						int pageSize = Integer.parseInt(onPageTextBox.getText());
-						JsonRpcSourceData.setDefaultPageSize(pageSize);
-						pager.setPageSize(pageSize);
-					} catch (Exception e) {
-						session.getUiElements().setLogErrorText("Not a number.");
-					}
+		// search box on enter
+		onPageTextBox.addKeyPressHandler(new KeyPressHandler() {
+			private void parseNumber() {
+				try {
+					int pageSize = Integer.parseInt(onPageTextBox.getText());
+					JsonRpcSourceData.setDefaultPageSize(pageSize);
+					pager.setPageSize(pageSize);
+				} catch (Exception e) {
+					session.getUiElements().setLogErrorText("Not a number.");
 				}
+			}
 
-				public void onKeyPress(KeyPressEvent event) {
-					if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
-						parseNumber();
-					}
-				}
-			});
-
-			Button onPageButton = new Button("Set");
-			onPageButton.addClickHandler(new ClickHandler() {
-				private void parseNumber() {
-					try {
-						int pageSize = Integer.parseInt(onPageTextBox.getText());
-						JsonRpcSourceData.setDefaultPageSize(pageSize);
-						pager.setPageSize(pageSize);
-					} catch (Exception e) {
-						session.getUiElements().setLogErrorText("Not a number.");
-					}
-				}
-
-				public void onClick(ClickEvent event) {
+			public void onKeyPress(KeyPressEvent event) {
+				if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
 					parseNumber();
 				}
-			});
+			}
+		});
 
-			pagerPanel.add(onPageLabel);
-			pagerPanel.add(onPageTextBox);
-			pagerPanel.add(onPageButton);
+		Button onPageButton = new Button("Set");
+		onPageButton.addClickHandler(new ClickHandler() {
+			private void parseNumber() {
+				try {
+					int pageSize = Integer.parseInt(onPageTextBox.getText());
+					JsonRpcSourceData.setDefaultPageSize(pageSize);
+					pager.setPageSize(pageSize);
+				} catch (Exception e) {
+					session.getUiElements().setLogErrorText("Not a number.");
+				}
+			}
 
-			return pagerPanel;
-		}
+			public void onClick(ClickEvent event) {
+				parseNumber();
+			}
+		});
+
+		pagerPanel.add(onPageLabel);
+		pagerPanel.add(onPageTextBox);
+		pagerPanel.add(onPageButton);
+
+		return pagerPanel;
+	}
 
 	/**
 	 * Show / hide advanced info in tables
@@ -502,33 +502,33 @@ public class JsonUtils {
 	 * @return true if input is number (integer), false otherwise
 	 */
 	static final public native boolean checkParseInt(String value)/*-{
-				// true on any number format, false otherwise
+		// true on any number format, false otherwise
 		if (!isNaN(parseFloat(value)) && isFinite(value)) {
-		return true;
+			return true;
 		} else {
-		return false;
+			return false;
 		}
-			}-*/;
+	}-*/;
 
-		/**
-		 * Provides popup notification
-		 *
-		 * @param origin (you can specified origin of value (name of check box)
-		 * @param value value that can't be parsed
-		 */
-		static final public void cantParseIntConfirm(String origin, String value) {
+	/**
+	 * Provides popup notification
+	 *
+	 * @param origin (you can specified origin of value (name of check box)
+	 * @param value value that can't be parsed
+	 */
+	static final public void cantParseIntConfirm(String origin, String value) {
 
-			FlexTable ft = new FlexTable();
-			ft.setHTML(0, 0, "Value \""+value+"\" can't be parsed as number." );
-			if (origin.length() > 0) {
-				ft.setHTML(1, 0, "Input name: "+origin);
-			}
-
-			Confirm conf = new Confirm("Can't parse value", ft, true);
-			conf.setNonScrollable(true);
-			conf.show();
-
+		FlexTable ft = new FlexTable();
+		ft.setHTML(0, 0, "Value \""+value+"\" can't be parsed as number." );
+		if (origin.length() > 0) {
+			ft.setHTML(1, 0, "Input name: "+origin);
 		}
+
+		Confirm conf = new Confirm("Can't parse value", ft, true);
+		conf.setNonScrollable(true);
+		conf.show();
+
+	}
 
 	/**
 	 * Parses a JavaScript map into a Java map.
@@ -570,21 +570,21 @@ public class JsonUtils {
 	}-*/;
 
 
-		/**
-		 * Replacement for String.format in Java
-		 * @param format Source format
-		 */
-		public static String stringFormat(final String format, final Object... args) {
-			final RegExp regex = RegExp.compile("%[a-z]");
-			final SplitResult split = regex.split(format);
-			final StringBuffer msg = new StringBuffer();
-			for (int pos = 0; pos < split.length() - 1; pos += 1) {
-				msg.append(split.get(pos));
-				msg.append(args[pos].toString());
-			}
-			msg.append(split.get(split.length() - 1));
-			return msg.toString();
+	/**
+	 * Replacement for String.format in Java
+	 * @param format Source format
+	 */
+	public static String stringFormat(final String format, final Object... args) {
+		final RegExp regex = RegExp.compile("%[a-z]");
+		final SplitResult split = regex.split(format);
+		final StringBuffer msg = new StringBuffer();
+		for (int pos = 0; pos < split.length() - 1; pos += 1) {
+			msg.append(split.get(pos));
+			msg.append(args[pos].toString());
 		}
+		msg.append(split.get(split.length() - 1));
+		return msg.toString();
+	}
 
 
 	/**
@@ -600,23 +600,23 @@ public class JsonUtils {
 		return reg4.test(email);
 	}-*/;
 
-		/**
-		 * Joins array of strings to string
-		 *
-		 * @param s
-		 * @param delimiter
-		 * @return
-		 */
-		public static String join(Iterable<String> s, String delimiter) {
-			if (s == null) return "";
-			Iterator<String> iter = s.iterator();
-			StringBuilder builder = new StringBuilder(iter.next());
-			while( iter.hasNext() )
-			{
-				builder.append(delimiter).append(iter.next());
-			}
-			return builder.toString();
+	/**
+	 * Joins array of strings to string
+	 *
+	 * @param s
+	 * @param delimiter
+	 * @return
+	 */
+	public static String join(Iterable<String> s, String delimiter) {
+		if (s == null) return "";
+		Iterator<String> iter = s.iterator();
+		StringBuilder builder = new StringBuilder(iter.next());
+		while( iter.hasNext() )
+		{
+			builder.append(delimiter).append(iter.next());
 		}
+		return builder.toString();
+	}
 
 
 	/**
@@ -641,27 +641,27 @@ public class JsonUtils {
 	}-*/;
 
 
-		/**
-		 * Returns list of attribute URNs (strings)
-		 * They are used to get members of group/vo with specific attributes
-		 *
-		 * @return list of URNs
-		 */
-		public static ArrayList<String> getAttributesListForMemberTables() {
+	/**
+	 * Returns list of attribute URNs (strings)
+	 * They are used to get members of group/vo with specific attributes
+	 *
+	 * @return list of URNs
+	 */
+	public static ArrayList<String> getAttributesListForMemberTables() {
 
-			ArrayList<String> attributes = new ArrayList<String>();
-			if (PerunWebSession.getInstance().getConfiguration() != null) {
-				String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("getAttributesListForMemberTables");
-				if (value != null && !value.isEmpty()) {
-					String[] urns = value.split(",");
-					for (int i=0; i<urns.length; i++) {
-						attributes.add(urns[i]);
-					}
+		ArrayList<String> attributes = new ArrayList<String>();
+		if (PerunWebSession.getInstance().getConfiguration() != null) {
+			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("getAttributesListForMemberTables");
+			if (value != null && !value.isEmpty()) {
+				String[] urns = value.split(",");
+				for (int i=0; i<urns.length; i++) {
+					attributes.add(urns[i]);
 				}
 			}
-			return attributes;
-
 		}
+		return attributes;
+
+	}
 
 	/**
 	 * Returns list of attribute URNs (strings)

@@ -30,7 +30,7 @@ public class RichGroup extends Group {
 		for (var id in this.attributes) {
 			if (this.attributes[id].friendlyName === "synchronizationEnabled") {
 				if (this.attributes[id].value === null) return false;
-				return this.attributes[id].value;
+				return (this.attributes[id].value === "true");
 			}
 		}
 		return false;

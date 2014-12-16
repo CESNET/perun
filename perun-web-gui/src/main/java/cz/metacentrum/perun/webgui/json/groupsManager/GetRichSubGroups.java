@@ -157,7 +157,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 				}
 			}
 		};
-		syncColumn.setFieldUpdater( new FieldUpdater<RichGroup, RichGroup>() {
+		syncColumn.setFieldUpdater(new FieldUpdater<RichGroup, RichGroup>() {
 			@Override
 			public void update(int index, final RichGroup object, RichGroup value) {
 				String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
@@ -167,18 +167,24 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 				} else {
 					syncEnabled = "disabled";
 				}
+
 				if (object.getSynchronizationInterval() == null) {
 					syncInterval = "N/A";
 				} else {
-					int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
-					if (time == 0) {
-						time = Integer.parseInt(object.getSynchronizationInterval()) * 5;
-						syncInterval = time + " minute(s)";
+
+					if (JsonUtils.checkParseInt(object.getLastSynchronizationTimestamp())) {
+						int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
+						if (time == 0) {
+							time = Integer.parseInt(object.getSynchronizationInterval()) * 5;
+							syncInterval = time + " minute(s)";
+						} else {
+							syncInterval = time + " hour(s)";
+						}
 					} else {
-						syncInterval = time + " hour(s)";
+						syncInterval = object.getLastSynchronizationTimestamp();
 					}
 				}
-				if (object.getLastSynchronizationState().equals("OK")) {
+				if (object.getLastSynchronizationState() != null && object.getLastSynchronizationState().equals("OK")) {
 					syncState = "OK";
 				} else {
 					if (session.isPerunAdmin()) {

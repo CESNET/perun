@@ -46,7 +46,7 @@ public class CustomClickableInfoCellWithImageResource extends AbstractCell<RichG
 		if (value != null) {
 			ImageResource resource = SmallIcons.INSTANCE.bulletWhiteIcon();
 			if (value.isSyncEnabled()) {
-				if (value.getLastSynchronizationState().equals("OK")) {
+				if (value.getLastSynchronizationState() != null && value.getLastSynchronizationState().equals("OK")) {
 					resource = SmallIcons.INSTANCE.bulletGreenIcon();
 					if (value.getAuthoritativeGroup() != null && value.getAuthoritativeGroup().equals("1")) {
 						sb.append(renderer.render(resource, "Synchronized - OK / Authoritative sync"));
