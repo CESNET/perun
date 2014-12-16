@@ -335,9 +335,9 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		this.titleWidget.setText("Edit notification");
 
 		// languages
-		ArrayList<String> languages = new ArrayList<String>();
-		languages.add(Utils.getNativeLanguage().get(0));
-		languages.add("en");
+		ArrayList<String> languages = appMail.getLocales();
+		if (!languages.contains(Utils.getNativeLanguage().get(0))) languages.add(Utils.getNativeLanguage().get(0));
+		if (!languages.contains("en")) languages.add("en");
 
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();

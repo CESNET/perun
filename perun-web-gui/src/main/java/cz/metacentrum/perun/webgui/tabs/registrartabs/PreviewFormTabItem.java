@@ -95,17 +95,17 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 		});
 		menu.addWidget(switchType);
 
-		final CustomButton switchLocale = new CustomButton(ButtonTranslation.INSTANCE.switchToCzechButton(), ButtonTranslation.INSTANCE.switchBetweenCzechAndEnglish(), SmallIcons.INSTANCE.flagCzechBritainIcon());
+		final CustomButton switchLocale = new CustomButton(ButtonTranslation.INSTANCE.switchToCzechButton(Utils.getNativeLanguage().get(1)), ButtonTranslation.INSTANCE.switchBetweenCzechAndEnglish(), SmallIcons.INSTANCE.locateIcon());
 		menu.addWidget(switchLocale);
 		switchLocale.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				// switch type
 				if (locale.equalsIgnoreCase("en")) {
-					locale = "cs";
+					locale = Utils.getNativeLanguage().get(0);
 					switchLocale.setText(ButtonTranslation.INSTANCE.switchToEnglishButton());
 				} else {
 					locale = "en";
-					switchLocale.setText(ButtonTranslation.INSTANCE.switchToCzechButton());
+					switchLocale.setText(ButtonTranslation.INSTANCE.switchToCzechButton(Utils.getNativeLanguage().get(1)));
 				}
 				// prepare new
 				prepareApplicationForm(sp);

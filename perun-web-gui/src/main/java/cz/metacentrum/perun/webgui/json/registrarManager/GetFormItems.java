@@ -14,6 +14,7 @@ import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonClient;
@@ -235,7 +236,7 @@ public class GetFormItems implements JsonCallback {
 		if (LocaleInfo.getCurrentLocale().getLocaleName().equals("default") || LocaleInfo.getCurrentLocale().getLocaleName().equals("en")) {
 			locale = "en";
 		} else {
-			locale = "cs";
+			locale = Utils.getNativeLanguage().get(0);
 		}
 
 		int i = 1;
@@ -542,12 +543,12 @@ public class GetFormItems implements JsonCallback {
 
 		FlexTable ft = new FlexTable();
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
-		String locale = "en";
+		String locale;
 
 		if (LocaleInfo.getCurrentLocale().getLocaleName().equals("default")) {
 			locale = "en";
 		} else {
-			locale = "cs";
+			locale = Utils.getNativeLanguage().get(0);
 		}
 
 		int i = 0;

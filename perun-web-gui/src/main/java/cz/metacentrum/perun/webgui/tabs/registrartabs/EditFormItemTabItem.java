@@ -553,9 +553,9 @@ public class EditFormItemTabItem implements TabItem {
 		this.titleWidget.setText("Edit form item: " + item.getShortname());
 
 		// languages
-		ArrayList<String> languages = new ArrayList<String>();
-		languages.add(Utils.getNativeLanguage().get(0));
-		languages.add("en");
+		ArrayList<String> languages = item.getLocales();
+		if (!languages.contains(Utils.getNativeLanguage().get(0))) languages.add(Utils.getNativeLanguage().get(0));
+		if (!languages.contains("en")) languages.add("en");
 
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();

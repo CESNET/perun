@@ -2,6 +2,9 @@ package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+
+import java.util.ArrayList;
 
 /**
  * Overlay type for registrar: ApplicationFormItem
@@ -157,6 +160,27 @@ public class ApplicationFormItem extends JavaScriptObject {
 			this.i18n[locale] = {locale: locale, errorMessage : "", help : "", label : "", options : ""};
 		}
 		return this.i18n[locale];
+	}-*/;
+
+	/**
+	 * Get locales
+	 *
+	 * @return array of present locales
+	 */
+	public final ArrayList<String> getLocales() {
+		return JsonUtils.listFromJsArrayString(getLocalesNative());
+	}
+
+	/**
+	 * Get locales
+	 *
+	 * @return array of present locales
+	 */
+	public final native JsArrayString getLocalesNative() /*-{
+		if(typeof this.i18n !== 'undefined' && this.i18n !== null){
+			return Object.getOwnPropertyNames(this.i18n)
+		}
+		return null;
 	}-*/;
 
 	/**

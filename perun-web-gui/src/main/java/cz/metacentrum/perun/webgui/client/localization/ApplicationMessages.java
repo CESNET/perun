@@ -138,13 +138,13 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("Your e-mail address has NOT been verified !<p>Wrong verification code !")
 	String emailValidationFail();
 
-	@DefaultMessage("Change language to Czech")
-	String changeLanguageToCzech();
+	@DefaultMessage("Change language to {0}")
+	String changeLanguageToCzech(String lang);
 
 	@DefaultMessage("Change language to English")
 	String changeLanguageToEnglish();
 
-	@DefaultMessage("<p>Changing language will reload whole application.</p><p><strong>All unsaved changes will be lost.</strong></p><p>Do you want to proceed ?</p><hr/><p>Změna jazyka způsobí znovunačtení celé aplikace.</p><p><strong>Všechny neuložené změny budou ztraceny.</strong></p><p>Přejete si pokračovat ?</p>")
+	@DefaultMessage("<p>Changing language will reload whole application.</p><p><strong>All unsaved changes will be lost.</strong></p><p>Do you want to proceed ?</p>")
 	String changeLanguageText();
 
 	@DefaultMessage("<h2>You have already sent your initial application to this VO / group.</h2><h2>Please wait until your application is either approved or rejected by VO / group administrator.</h2>")

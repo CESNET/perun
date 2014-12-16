@@ -1,9 +1,13 @@
 package cz.metacentrum.perun.webgui.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.localization.ObjectTranslation;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -126,6 +130,29 @@ public class ApplicationMail extends JavaScriptObject {
 		}
 		this.message[locale] = message;
 	}-*/;
+
+
+	/**
+	 * Get locales
+	 *
+	 * @return array of present locales
+	 */
+	public final ArrayList<String> getLocales() {
+		return JsonUtils.listFromJsArrayString(getLocalesNative());
+	}
+
+	/**
+	 * Get locales
+	 *
+	 * @return array of present locales
+	 */
+	public final native JsArrayString getLocalesNative() /*-{
+		if(typeof this.message !== 'undefined' && this.message !== null){
+			return Object.getOwnPropertyNames(this.message)
+		}
+		return null;
+	}-*/;
+
 
 	/**
 	 * Get sending enabled
