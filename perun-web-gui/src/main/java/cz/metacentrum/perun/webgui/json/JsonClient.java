@@ -174,11 +174,11 @@ public class JsonClient {
 						runningRequests.remove(requestUrl);
 						return;
 
-					} else if (resp.getStatusCode() == 401) {
+					} else if (resp.getStatusCode() == 401 || resp.getStatusCode() == 403) {
 
 						PerunError error = new JSONObject().getJavaScriptObject().cast();
 						error.setErrorId("401");
-						error.setName("NotAuthorized");
+						error.setName("Not Authorized");
 						error.setErrorInfo("You are not authorized to server. Your session might have expired. Please refresh the browser window to re-login.");
 						error.setObjectType("PerunError");
 						error.setRequestURL(requestUrl);
