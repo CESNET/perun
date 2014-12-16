@@ -201,7 +201,7 @@ public class JsonPostClient {
 					// if response = OK
 					if (resp.getStatusCode() == 200) {
 						// jso
-						JavaScriptObject jso = parseResponse(perunRequest.getStartTime()+"", resp.getText());
+						JavaScriptObject jso = parseResponse(perunRequest.getStartTime() + "", resp.getText());
 
 						// if null - finished
 						if (jso == null) {
@@ -229,152 +229,125 @@ public class JsonPostClient {
 						onRequestError(error);
 						return;
 
-					} else if (resp.getStatusCode() == 401 || resp.getStatusCode() == 403) {
+					} else {
 
+						// if response not OK
 						PerunError error = new JSONObject().getJavaScriptObject().cast();
-						error.setErrorId("401");
-						error.setName("Not Authorized");
-						error.setErrorInfo("You are not authorized to server. Your session might have expired. Please refresh the browser window to re-login.");
+						error.setErrorId("" + resp.getStatusCode());
+						error.setName(resp.getStatusText());
+						error.setErrorInfo("Server responded with HTTP error: " + resp.getStatusCode() + " - " + resp.getStatusText());
 						error.setObjectType("PerunError");
-						error.setRequestURL(requestUrl);
 						error.setPostData(payload);
-						runningRequests.remove(requestUrl);
-						onRequestError(error);
-						return;
+						error.setRequestURL(requestUrl);
 
-					} else if (resp.getStatusCode() == 500) {
+						if (resp.getStatusCode() == 401 || resp.getStatusCode() == 403) {
 
-						if (runningRequests.get(requestUrl) != null) {
+							error.setName("Not Authorized");
+							error.setErrorInfo("You are not authorized to server. Your session might have expired. Please refresh the browser window to re-login.");
 
-							// 5 minute timeout
-							if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
+						} else if (resp.getStatusCode() == 500) {
 
-								counter++;
-								layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: "+counter);
+							if (runningRequests.get(requestUrl) != null) {
 
-								if (!c.isShowing() && counter > 0) c.show();
+								// 5 minute timeout
+								if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
 
-								Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-									boolean again = true;
+									counter++;
+									layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: "+counter);
 
-									@Override
-									public boolean execute() {
-										GetPendingRequests req = new GetPendingRequests(perunRequest.getStartTime(), new JsonCallbackEvents() {
-											@Override
-											public void onFinished(JavaScriptObject jso) {
-												final PerunRequest req = jso.cast();
-												if ((req.getCallbackId().equals(perunRequest.getStartTime() + "")) && req.getEndTime() > 0) {
+									if (!c.isShowing() && counter > 0) c.show();
 
-													if (again) {
+									Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+										boolean again = true;
 
-														again = false;
-														counter--;
-														layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: "+counter);
+										@Override
+										public boolean execute() {
+											GetPendingRequests req = new GetPendingRequests(perunRequest.getStartTime(), new JsonCallbackEvents() {
+												@Override
+												public void onFinished(JavaScriptObject jso) {
+													final PerunRequest req = jso.cast();
+													if ((req.getCallbackId().equals(perunRequest.getStartTime() + "")) && req.getEndTime() > 0) {
 
-														// hide notification
-														if (c.isShowing() && counter <= 0) c.hide();
+														if (again) {
 
-														JavaScriptObject result = req.getResult();
+															again = false;
+															counter--;
+															layout.setHTML(0, 1, "<p>" + "Processing of your request(s) is taking longer than usual, but it's actively processed by the server.<p>Please do not close opened window/tab nor repeat your action. You will be notified once operation completes.<p>Remaining requests: "+counter);
 
-														// if null - finished
-														if (result == null) {
-															session.getUiElements().setLogText("Response NULL.");
+															// hide notification
+															if (c.isShowing() && counter <= 0) c.hide();
+
+															JavaScriptObject result = req.getResult();
+
+															// if null - finished
+															if (result == null) {
+																session.getUiElements().setLogText("Response NULL.");
+																runningRequests.remove(requestUrl);
+																onRequestFinished(null);
+																return;
+															}
+
+															// if error?
+															PerunError error = (PerunError) result;
+															if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
+																// not error, OK
+																session.getUiElements().setLogText("Response not NULL, not ERROR.");
+																runningRequests.remove(requestUrl);
+																onRequestFinished(result);
+																return;
+															}
+
+															// triggers onError
+															session.getUiElements().setLogText("Response ERROR.");
+															error.setRequestURL(requestUrl);
+															error.setPostData(payload);
 															runningRequests.remove(requestUrl);
-															onRequestFinished(null);
+															onRequestError(error);
 															return;
+
 														}
-
-														// if error?
-														PerunError error = (PerunError) result;
-														if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
-															// not error, OK
-															session.getUiElements().setLogText("Response not NULL, not ERROR.");
-															runningRequests.remove(requestUrl);
-															onRequestFinished(result);
-															return;
-														}
-
-														// triggers onError
-														session.getUiElements().setLogText("Response ERROR.");
-														error.setRequestURL(requestUrl);
-														error.setPostData(payload);
-														runningRequests.remove(requestUrl);
-														onRequestError(error);
-														return;
-
 													}
 												}
-											}
-										});
-										req.retrieveData();
-										return again;
-									}
-								}, ((PerunWebConstants) GWT.create(PerunWebConstants.class)).pendingRequestsRefreshInterval());
+											});
+											req.retrieveData();
+											return again;
+										}
+									}, ((PerunWebConstants) GWT.create(PerunWebConstants.class)).pendingRequestsRefreshInterval());
 
-								return;
+									return;
 
-							} else {
+								} else {
 
-								PerunError error = new JSONObject().getJavaScriptObject().cast();
-								error.setErrorId("500");
-								error.setName("ServerInternalError");
-								error.setErrorInfo("Server encounter internal error while processing your request. Please report this error and retry.");
-								error.setObjectType("PerunError");
-								error.setRequestURL(requestUrl);
-								error.setPostData(payload);
-								runningRequests.remove(requestUrl);
-								onRequestError(error);
-								return;
+									error.setName("ServerInternalError");
+									error.setErrorInfo("Server encounter internal error while processing your request. Please report this error and retry.");
+
+								}
 
 							}
 
+						} else if (resp.getStatusCode() == 503) {
+
+							error.setName("Server Temporarily Unavailable");
+							error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
+
+						} else if (resp.getStatusCode() == 404) {
+
+							error.setName("Not found");
+							error.setErrorInfo("Server is probably being restarted at the moment. Please try again later.");
+
+						} else if (resp.getStatusCode() == 0) {
+
+							error.setName("Aborted");
+							error.setErrorInfo("Can't contact remote server, connection was lost.");
+
 						}
 
-					} else if (resp.getStatusCode() == 503) {
-
-						PerunError error = new JSONObject().getJavaScriptObject().cast();
-						error.setErrorId("503");
-						error.setName("Server Temporarily Unavailable");
-						error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
-						error.setObjectType("PerunError");
-						error.setRequestURL(requestUrl);
-						error.setPostData(payload);
-						runningRequests.remove(requestUrl);
-						onRequestError(error);
-						return;
-
-					} else if (resp.getStatusCode() == 404) {
-
-						PerunError error = new JSONObject().getJavaScriptObject().cast();
-						error.setErrorId("404");
-						error.setName("Not found");
-						error.setErrorInfo("Server is probably being restarted at the moment. Please try again later.");
-						error.setObjectType("PerunError");
-						error.setRequestURL(requestUrl);
-						error.setPostData(payload);
-						runningRequests.remove(requestUrl);
-						onRequestError(error);
-						return;
-
-					} else if (resp.getStatusCode() == 0) {
-
-						// request aborted
-						PerunError error = new JSONObject().getJavaScriptObject().cast();
-						error.setErrorId("0");
-						error.setName("Aborted");
-						error.setErrorInfo("Can't contact remote server, connection was lost.");
-						error.setObjectType("PerunError");
-						error.setRequestURL(requestUrl);
-						error.setPostData("");
 						runningRequests.remove(requestUrl);
 						onRequestError(error);
 						return;
 
 					}
 
-					// triggers onError
-					runningRequests.remove(requestUrl);
-					onRequestError(parseResponse(perunRequest.getStartTime()+"", resp.getText()));
 				}
 
 				@Override
