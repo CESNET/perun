@@ -5,7 +5,6 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -174,100 +173,63 @@ public class JsonClient {
 						runningRequests.remove(requestUrl);
 						return;
 
-					} else if (resp.getStatusCode() == 401 || resp.getStatusCode() == 403) {
+					} else {
 
+						// if response not OK
 						PerunError error = new JSONObject().getJavaScriptObject().cast();
-						error.setErrorId("401");
-						error.setName("Not Authorized");
-						error.setErrorInfo("You are not authorized to server. Your session might have expired. Please refresh the browser window to re-login.");
+						error.setErrorId(""+resp.getStatusCode());
+						error.setName(resp.getStatusText());
+						error.setErrorInfo("Server responded with HTTP error: "+resp.getStatusCode()+" - "+resp.getStatusText());
 						error.setObjectType("PerunError");
-						error.setRequestURL(requestUrl);
 						error.setPostData("");
-						runningRequests.remove(requestUrl);
-						onRequestError(error);
-						return;
+						error.setRequestURL(requestUrl);
 
-					} else if (resp.getStatusCode() == 500) {
+						if (resp.getStatusCode() == 401 || resp.getStatusCode() == 403) {
 
-						if (runningRequests.get(requestUrl) != null) {
+							error.setErrorInfo("You are not authorized to server. Your session might have expired. Please refresh the browser window to re-login.");
 
-							if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
-								// 5 minute timeout
+						} else if (resp.getStatusCode() == 500) {
 
-								PerunError error = new JSONObject().getJavaScriptObject().cast();
-								error.setErrorId("408");
-								error.setName("Request Timeout");
-								error.setErrorInfo("Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.");
-								error.setObjectType("PerunError");
-								error.setRequestURL(requestUrl);
-								error.setPostData("");
-								runningRequests.remove(requestUrl);
-								onRequestError(error);
-								return;
+							if (runningRequests.get(requestUrl) != null) {
 
-							} else {
+								if ((runningRequests.get(requestUrl).getDuration() / (1000 * 60)) >= 5) {
+									// 5 minute timeout
 
-								PerunError error = new JSONObject().getJavaScriptObject().cast();
-								error.setErrorId("500");
-								error.setName("Server Internal Error");
-								error.setErrorInfo("Server encounter internal error while processing your request. Please report this error and retry.");
-								error.setObjectType("PerunError");
-								error.setRequestURL(requestUrl);
-								error.setPostData("");
-								runningRequests.remove(requestUrl);
-								onRequestError(error);
-								return;
+									error.setName("Request Timeout");
+									error.setErrorInfo("Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.");
+
+								} else {
+
+									error.setName("Server Internal Error");
+									error.setErrorInfo("Server encounter internal error while processing your request. Please report this error and retry.");
+
+								}
 
 							}
 
+						} else if (resp.getStatusCode() == 503) {
+
+							error.setName("Server Temporarily Unavailable");
+							error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
+
+						} else if (resp.getStatusCode() == 404) {
+
+							error.setName("Not found");
+							error.setErrorInfo("Server is probably being restarted at the moment. Please try again later.");
+
+						} else if (resp.getStatusCode() == 0) {
+
+							error.setName("Aborted");
+							error.setErrorInfo("Can't contact remote server, connection was lost.");
+
 						}
 
-					} else if (resp.getStatusCode() == 503) {
-
-						PerunError error = new JSONObject().getJavaScriptObject().cast();
-						error.setErrorId("503");
-						error.setName("Server Temporarily Unavailable");
-						error.setErrorInfo("Server is temporarily unavailable. Please try again later.");
-						error.setObjectType("PerunError");
-						error.setRequestURL(requestUrl);
-						error.setPostData("");
-						runningRequests.remove(requestUrl);
-						onRequestError(error);
-						return;
-
-					} else if (resp.getStatusCode() == 404) {
-
-						PerunError error = new JSONObject().getJavaScriptObject().cast();
-						error.setErrorId("404");
-						error.setName("Not found");
-						error.setErrorInfo("Server is probably being restarted at the moment. Please try again later.");
-						error.setObjectType("PerunError");
-						error.setRequestURL(requestUrl);
-						error.setPostData("");
-						runningRequests.remove(requestUrl);
-						onRequestError(error);
-						return;
-
-
-					} else if (resp.getStatusCode() == 0) {
-
-						// request aborted
-						PerunError error = new JSONObject().getJavaScriptObject().cast();
-						error.setErrorId("0");
-						error.setName("Aborted");
-						error.setErrorInfo("Can't contact remote server, connection was lost.");
-						error.setObjectType("PerunError");
-						error.setRequestURL(requestUrl);
-						error.setPostData("");
 						runningRequests.remove(requestUrl);
 						onRequestError(error);
 						return;
 
 					}
 
-					runningRequests.remove(requestUrl);
-					// triggers onError
-					onRequestError(parseResponse(perunRequest.getStartTime()+"", resp.getText()));
 				}
 
 				@Override
