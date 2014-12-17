@@ -57,7 +57,7 @@ public class Api extends HttpServlet {
 	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
-	private final static int timeToLiveWhenDone = 120 * 1000; // in milisec, if requests is done more than this time, remove it from list
+	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
 	@Override
 	public void init() {
@@ -251,21 +251,21 @@ public class Api extends HttpServlet {
 
 			wrt.close();
 		} else {
-			serve(req, resp, true);
+			serve(req, resp, true, false);
 		}
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		serve(req, resp, false);
+		serve(req, resp, false, true);
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		serve(req, resp, false);
+		serve(req, resp, false, false);
 	}
 
-	private void serve(HttpServletRequest req, HttpServletResponse resp, boolean isGet) throws IOException {
+	private void serve(HttpServletRequest req, HttpServletResponse resp, boolean isGet, boolean isPut) throws IOException {
 		Serializer ser = null;
 		String manager = "N/A";
 		String method = "N/A";
@@ -422,7 +422,7 @@ public class Api extends HttpServlet {
 					manager, method, des.readAll());
 
 			// Add perunRequest into the queue of the requests
-			if(!isGet) {
+			if(!isGet && !isPut) {
 				((ConcurrentSkipListMap<String, PerunRequest>)getServletContext().getAttribute(PERUNREQUESTS)).put(callbackName, perunRequest);
 			}
 
@@ -465,7 +465,7 @@ public class Api extends HttpServlet {
 			}
 			ser.writePerunException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
 		} finally {
-			if(!isGet) {
+			if(!isGet && !isPut) {
 				//save result of this perunRequest
 				perunRequest.setEndTime(System.currentTimeMillis());
 				if(result instanceof Exception) perunRequest.setResult(result);
