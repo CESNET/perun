@@ -172,7 +172,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 					syncInterval = "N/A";
 				} else {
 
-					if (JsonUtils.checkParseInt(object.getLastSynchronizationTimestamp())) {
+					if (JsonUtils.checkParseInt(object.getSynchronizationInterval())) {
 						int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
 						if (time == 0) {
 							time = Integer.parseInt(object.getSynchronizationInterval()) * 5;
@@ -181,7 +181,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 							syncInterval = time + " hour(s)";
 						}
 					} else {
-						syncInterval = object.getLastSynchronizationTimestamp();
+						syncInterval = object.getSynchronizationInterval();
 					}
 				}
 				if (object.getLastSynchronizationState() != null && object.getLastSynchronizationState().equals("OK")) {
