@@ -86,18 +86,25 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 		}
 
 		logger.debug("Removing poolMessages from db with ids: {}", proccessedIds);
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("delete from pn_pool_message where id in (");
-		for (Iterator<Integer> iter = proccessedIds.iterator(); iter.hasNext();) {
-			Integer id = iter.next();
-			buffer.append(id);
-			if (iter.hasNext()) {
-				buffer.append(",");
+
+
+		while(!proccessedIds.isEmpty()) {
+			int countToDelete = 0;
+
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("delete from pn_pool_message where id in (");
+			for (Iterator<Integer> iter = proccessedIds.iterator(); iter.hasNext() && countToDelete < 500; countToDelete++) {
+				Integer id = iter.next();
+				iter.remove();
+				buffer.append(id);
+				if (iter.hasNext() && countToDelete < 500 - 1) {
+					buffer.append(",");
+				}
 			}
+			buffer.append(")");
+			this.getJdbcTemplate().update(buffer.toString());
+			logger.debug("PoolMessages with id: {}, removed.", proccessedIds);
 		}
-		buffer.append(")");
-		this.getJdbcTemplate().update(buffer.toString());
-		logger.debug("PoolMessages with id: {}, removed.", proccessedIds);
 	}
 
 	private void removeOldPoolMessages(long olderThan) {
