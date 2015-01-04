@@ -228,8 +228,6 @@ public class Utils {
 					baseUrl+="/krb";
 				} else if (rpc.equalsIgnoreCase("fed")) {
 					baseUrl+="/fed";
-				} else if (rpc.equalsIgnoreCase("forceAuthn-fed")) {
-					baseUrl+="/fed-force";
 				} else if (rpc.equalsIgnoreCase("cert")) {
 					baseUrl+="/cert";
 				} else if (rpc.equalsIgnoreCase("einfra")) {
