@@ -812,7 +812,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 			if (parms.contains("member")) {
 				Date d = ac.getMembersManager().getNewExtendMembership(ac.getSession(),ac.getMemberById(parms.readInt("member")));
 				if (d != null) {
-					return BeansUtils.DATE_FORMATTER.format(d);
+					return BeansUtils.getDateFormatter().format(d);
 				}
 				return null;
 			} else if (parms.contains("user") && parms.contains("vo")) {
@@ -820,7 +820,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 						ac.getVoById(parms.readInt("vo")), ac.getUserById(parms.readInt("user")));
 				Date d = ac.getMembersManager().getNewExtendMembership(ac.getSession(), m);
 				if (d != null) {
-					return BeansUtils.DATE_FORMATTER.format(d);
+					return BeansUtils.getDateFormatter().format(d);
 				}
 				return null;
 			} else if (parms.contains("vo") && parms.contains("loa")) {
@@ -828,7 +828,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 						ac.getVoById(parms.readInt("vo")),
 						parms.readString("loa"));
 				if (d != null) {
-					return BeansUtils.DATE_FORMATTER.format(d);
+					return BeansUtils.getDateFormatter().format(d);
 				}
 				return null;
 			} else {

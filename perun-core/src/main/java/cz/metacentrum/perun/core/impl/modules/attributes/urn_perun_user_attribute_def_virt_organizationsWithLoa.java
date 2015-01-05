@@ -65,7 +65,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 				Date lastUsedDate = null;
 				boolean parsed = true;
 				try {
-					testingDate = BeansUtils.DATE_FORMATTER.parse(uES.getCreatedAt());
+					testingDate = BeansUtils.getDateFormatter().parse(uES.getCreatedAt());
 				} catch (Exception ex) {
 					//Not Parsed correctly
 					parsed = false;
@@ -74,7 +74,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 					if(userExtSourceForCreating == null || userExtSourceForCreating.getCreatedAt() == null) userExtSourceForCreating = uES;
 					else {
 						try {
-							lastUsedDate = BeansUtils.DATE_FORMATTER.parse(userExtSourceForCreating.getCreatedAt());
+							lastUsedDate = BeansUtils.getDateFormatter().parse(userExtSourceForCreating.getCreatedAt());
 							if(testingDate != null && testingDate.compareTo(lastUsedDate) < 0) {
 								userExtSourceForCreating = uES;
 							}
@@ -91,7 +91,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 				Date lastUsedDate = null;
 				boolean parsed = true;
 				try {
-					testingDate = BeansUtils.DATE_FORMATTER.parse(uES.getModifiedAt());
+					testingDate = BeansUtils.getDateFormatter().parse(uES.getModifiedAt());
 				} catch (Exception ex) {
 					//Not Parsed correctly
 					parsed = false;
@@ -100,7 +100,7 @@ public class urn_perun_user_attribute_def_virt_organizationsWithLoa extends User
 					if(userExtSourceForModifiing == null || userExtSourceForModifiing.getModifiedAt() == null) userExtSourceForModifiing = uES;
 					else {
 						try {
-							lastUsedDate = BeansUtils.DATE_FORMATTER.parse(userExtSourceForModifiing.getModifiedAt());
+							lastUsedDate = BeansUtils.getDateFormatter().parse(userExtSourceForModifiing.getModifiedAt());
 							if(testingDate != null && testingDate.compareTo(lastUsedDate) < 0) {
 								userExtSourceForModifiing = uES;
 							}
