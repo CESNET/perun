@@ -1,3 +1,10 @@
+perun-slave (3.0.0-0.0.82) stable; urgency=low
+
+   * ssh-keys service create .ssh dir and authorized_keys file with customary
+     priviledges (700 on .ssh and 600 on authorized_keys)
+
+ -- Michal Prochazka <michalp@ics.muni.cz> Tue, 04 Dec 2014 10:17:43 +0100
+
 perun-slave (3.0.0-0.0.81) stable; urgency=low
 
    * add possibility to edit umask on newly created directories by script
