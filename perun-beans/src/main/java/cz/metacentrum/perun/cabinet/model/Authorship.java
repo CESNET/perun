@@ -230,7 +230,7 @@ public class Authorship extends PerunBean implements Serializable {
 		StringBuilder str = new StringBuilder();
 
 		String dateString;
-		if(getCreatedDate() != null) dateString = BeansUtils.DATE_FORMATTER.format(getCreatedDate());
+		if(getCreatedDate() != null) dateString = BeansUtils.getDateFormatter().format(getCreatedDate());
 		else dateString = "\\0";
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(

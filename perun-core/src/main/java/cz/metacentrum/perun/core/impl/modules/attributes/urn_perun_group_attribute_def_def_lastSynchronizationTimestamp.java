@@ -36,7 +36,7 @@ public class urn_perun_group_attribute_def_def_lastSynchronizationTimestamp exte
 		//test of timestamp format
 		String attrValue = (String) attribute.getValue();
 		try {
-			Date date = BeansUtils.DATE_FORMATTER.parse(attrValue);
+			Date date = BeansUtils.getDateFormatter().parse(attrValue);
 		} catch (ParseException ex) {
 			throw new WrongAttributeValueException(attribute, group, "Format of timestamp is not correct and can't be parsed correctly. Ex. 'dd-MM-yyyy HH:mm:ss'", ex);
 		}

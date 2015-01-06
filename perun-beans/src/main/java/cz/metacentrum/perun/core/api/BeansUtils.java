@@ -22,7 +22,6 @@ public class BeansUtils {
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
 	public static final char LIST_DELIMITER = ',';
 	public static final char KEY_VALUE_DELIMITER = ':';
-	public final static DateFormat DATE_FORMATTER = getDateFormatter();
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -30,9 +29,11 @@ public class BeansUtils {
 	 *
 	 * Lenient on false means that formatter will be more strict to creating timestamp from string
 	 *
+	 * IMPORTANT: SimpleDateFormat is not thread safe !!!
+	 *
 	 * @return date formatter
 	 */
-	private static DateFormat getDateFormatter() {
+	public static DateFormat getDateFormatter() {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 		df.setLenient(false);
 		return df;

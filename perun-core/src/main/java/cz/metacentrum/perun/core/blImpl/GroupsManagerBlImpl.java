@@ -1063,7 +1063,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 								}
 
 								if (memberExpiration != null && memberExpiration.getValue() != null) {
-									Date currentMembershipExpirationDate = BeansUtils.DATE_FORMATTER.parse((String) memberExpiration.getValue());
+									Date currentMembershipExpirationDate = BeansUtils.getDateFormatter().parse((String) memberExpiration.getValue());
 
 									if (currentMembershipExpirationDate.before(now)) {
 										//disabled members which are after expiration date will be expired
@@ -1745,7 +1745,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		//Set correct format of currentTimestamp
-		String currectTimestampString = BeansUtils.DATE_FORMATTER.format(currentTimestamp);
+		String currectTimestampString = BeansUtils.getDateFormatter().format(currentTimestamp);
 
 		//Get both attribute defintion lastSynchroTimestamp and lastSynchroState
 		//Get definitions and values, set values

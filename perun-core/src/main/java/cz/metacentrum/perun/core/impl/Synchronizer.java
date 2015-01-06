@@ -82,7 +82,7 @@ public class Synchronizer {
 					// Read membershipExpiration and check it
 					Attribute membersExpiration = perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration");
 					if (membersExpiration.getValue() != null) {
-						currentMembershipExpirationDate = BeansUtils.DATE_FORMATTER.parse((String) membersExpiration.getValue());
+						currentMembershipExpirationDate = BeansUtils.getDateFormatter().parse((String) membersExpiration.getValue());
 						if (currentMembershipExpirationDate.before(now)) {
 							// Expired membership, set status to expired only if the user hasn't been in suspended state
 							if (!member.getStatus().equals(Status.EXPIRED) && !member.getStatus().equals(Status.SUSPENDED)) {

@@ -453,7 +453,7 @@ public class AuditParser {
 		else {
 			Date date;
 			try {
-				date = BeansUtils.DATE_FORMATTER.parse(BeansUtils.eraseEscaping(beanAttr.get("createdDate")));
+				date = BeansUtils.getDateFormatter().parse(BeansUtils.eraseEscaping(beanAttr.get("createdDate")));
 			} catch (ParseException ex) {
 				throw new InternalErrorException("Error when date was parsing from String to Date.", ex);
 			}
