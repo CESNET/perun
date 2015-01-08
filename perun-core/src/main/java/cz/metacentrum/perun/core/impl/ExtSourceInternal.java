@@ -13,22 +13,22 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 
 /**
  * Dummy ExtSource - Internal
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceInternal extends ExtSource implements ExtSourceApi {
+public class ExtSourceInternal extends ExtSource implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceInternal.class);
 
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
-		return findSubjects(searchString, 0);
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		return findSubjectsLogins(searchString, 0);
 	}
 
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException,ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException,ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 

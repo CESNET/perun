@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import java.io.IOException;
 import javax.xml.xpath.XPathConstants;
 import java.util.HashMap;
@@ -54,12 +55,19 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	//Pattern for looking replacement in regex string
 	private Pattern pattern = Pattern.compile("([^\\\\]|^)(\\\\\\\\)*\\/([^\\\\]|$)");
 
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		return findSubjectsLogins(searchString, 0);
+	}
 
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResulsts) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException("For XML is using this method not optimized, use findSubjects instead.");
+	}
+
+	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		return findSubjects(searchString, 0);
 	}
 
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		//prepare string for xpath (use concat for chars ' and  ")
 		searchString = convertToXpathSearchString(searchString);
 
