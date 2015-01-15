@@ -92,7 +92,9 @@ public class TaskSchedulerImpl implements TaskScheduler {
 
 		log.debug("Facility to be processed: " + facility.getId()
 				+ ", ExecService to be processed: " + execService.getId());
-
+		
+		log.debug("Task is assigned to queue " + dispatcherQueue.getClientID());
+		
 		List<ExecService> dependantServices = null;
 		List<Pair<ExecService, DependencyScope>> dependencies = null;
 
