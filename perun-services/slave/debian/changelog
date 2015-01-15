@@ -1,3 +1,16 @@
+perun-slave (3.0.0-0.0.86) stable; urgency=low
+
+   * Slave scripts sshkeys_root and k5login_root at first check if there 
+     already exist appropriate destination file. 
+     If it doesn't exist, the file permissions are at first set only for
+     the file in perun working directiory, then the permissions are checked 
+     and if setting is valid then diff_mv handles destination file creating,
+     otherwise function returns 1.
+     If it exists, then diff_mv handles changes propagation from file in the
+     working directory to destination file.
+     
+ -- Sona Mastrakova <sona.mastrakova@gmail.com>  Fri, 06 Feb 2015 01:00 +0200
+
 perun-slave (3.0.0-0.0.85) stable; urgency=low
 
   * sskeys_root do not add one concrete perun key to authorized keys. Instead
