@@ -1141,7 +1141,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// only VERIFIED applications can be approved
 		if (!AppState.VERIFIED.equals(app.getState())) {
-			throw new RegistrarException("Only applications in state VERIFIED can be approved. Please verify application manually before approval.");
+			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Application is already approved. Try to refresh the view to see changes.");
+			if (AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Rejected application cant' be approved. Try to refresh the view to see changes.");
+			throw new RegistrarException("Only VERIFIED applications can be approved. Please verify application manually before approval or wait for applicant own action.");
 		}
 
 		// mark as APPROVED
