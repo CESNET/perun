@@ -61,10 +61,9 @@ public class Api extends HttpServlet {
 
 	@Override
 	public void init() {
-		if (getServletContext().getAttribute(PERUNREQUESTS) == null) {
-			getServletContext().setAttribute(PERUNREQUESTS, new ConcurrentSkipListMap<String, PerunRequest>());
-		}
+		// we do not init anything
 	}
+
 	protected PerunPrincipal setupPerunPrincipal(HttpServletRequest req) throws InternalErrorException, RpcException, UserNotExistsException {
 		return this.setupPerunPrincipal(req, null);
 	}
@@ -272,15 +271,17 @@ public class Api extends HttpServlet {
 		boolean isJsonp = false;
 		PerunRequest perunRequest = null;
 		ApiCaller caller;
-
 		String callbackName = req.getParameter("callback");
-		// we must provide callback name so it can be stored in a map and name musn't collide with data from proper GUI client
-		if (callbackName == null) callbackName = "local-"+System.currentTimeMillis();
 
 		long timeStart = System.currentTimeMillis();
 		caller = (ApiCaller) req.getSession(true).getAttribute(APICALLER);
 
 		OutputStream out = resp.getOutputStream();
+
+		// init pending request in HTTP session
+		if (req.getSession().getAttribute(PERUNREQUESTS) == null) {
+			req.getSession().setAttribute(PERUNREQUESTS, new ConcurrentSkipListMap<String, PerunRequest>());
+		}
 
 		// Check if it is request for list of pending operations.
 		if (req.getPathInfo().equals("/jsonp/" + PERUNREQUESTSURL)) {
@@ -290,7 +291,7 @@ public class Api extends HttpServlet {
 			resp.setContentType(serializer.getContentType());
 			try {
 				// Create a copy of the PERUNREQUESTS and then pass it to the serializer
-				ConcurrentSkipListMap<String, PerunRequest> perunRequests = (ConcurrentSkipListMap<String, PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS);
+				ConcurrentSkipListMap<String, PerunRequest> perunRequests = (ConcurrentSkipListMap<String, PerunRequest>) req.getSession().getAttribute(PERUNREQUESTS);
 				if (callbackId != null) {
 					// return single entry
 					serializer.write(perunRequests.get(callbackId));
@@ -397,7 +398,6 @@ public class Api extends HttpServlet {
 				return;
 
 			} else if("utils".equals(manager) && PERUNSTATUS.equals(method)) {
-				perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName, "DatabaseManager", "getCurrentDatabaseVersion", des.readAll());
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());
 
@@ -417,26 +417,30 @@ public class Api extends HttpServlet {
 			// In case of GET requests (read ones) set changing state to false
 			caller.setStateChanging(!isGet);
 
-			// Store identification of the request
-			perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName,
-					manager, method, des.readAll());
+			// Store identification of the request only if supported by app (it passed unique callbackName)
+			if (callbackName != null) {
 
-			// Add perunRequest into the queue of the requests
-			if(!isGet && !isPut) {
-				((ConcurrentSkipListMap<String, PerunRequest>)getServletContext().getAttribute(PERUNREQUESTS)).put(callbackName, perunRequest);
+				perunRequest = new PerunRequest(caller.getSession().getPerunPrincipal(), callbackName,
+						manager, method, des.readAll());
+
+				// Add perunRequest into the queue of the requests for POST only
+				if(!isGet && !isPut) {
+					((ConcurrentSkipListMap<String, PerunRequest>) req.getSession().getAttribute(PERUNREQUESTS)).put(callbackName, perunRequest);
+				}
+
 			}
 
 			// Process request and sent the response back
 			if (VOOTMANAGER.equals(manager)) {
 				// Process VOOT protocol
 				result = caller.getVOOTManager().process(caller.getSession(), method, des.readAll());
-				perunRequest.setResult(result);
+				if (perunRequest != null) perunRequest.setResult(result);
 				ser.write(result);
 			} else {
 				//Save only exceptions from caller to result
 				try {
 					result = caller.call(manager, method, des);
-					perunRequest.setResult(result);
+					if (perunRequest != null) perunRequest.setResult(result);
 				} catch (Exception ex) {
 					result = ex;
 					throw ex;
@@ -465,14 +469,14 @@ public class Api extends HttpServlet {
 			}
 			ser.writePerunException(new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, ex));
 		} finally {
-			if(!isGet && !isPut) {
+			if(!isGet && !isPut && perunRequest != null) {
 				//save result of this perunRequest
 				perunRequest.setEndTime(System.currentTimeMillis());
 				if(result instanceof Exception) perunRequest.setResult(result);
 				perunRequest.setEndTime(System.currentTimeMillis());
 			}
 			//Check all resolved requests and remove them if they are old than timeToLiveWhenDone
-			ConcurrentSkipListMap<String, PerunRequest> perunRequests = ((ConcurrentSkipListMap<String, PerunRequest>) getServletContext().getAttribute(PERUNREQUESTS));
+			ConcurrentSkipListMap<String, PerunRequest> perunRequests = ((ConcurrentSkipListMap<String, PerunRequest>) req.getSession().getAttribute(PERUNREQUESTS));
 			Iterator<String> iterator = perunRequests.keySet().iterator();
 			while (iterator.hasNext()) {
 				String key = iterator.next();
