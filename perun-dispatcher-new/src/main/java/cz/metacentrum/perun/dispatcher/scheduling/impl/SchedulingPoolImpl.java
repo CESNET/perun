@@ -167,8 +167,16 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		task.setStatus(status);
 		// move task to the appropriate place
 		if (!old.equals(status)) {
-			pool.get(old).remove(task);
-			pool.get(status).add(task);
+			if(pool.get(old) != null) {
+				pool.get(old).remove(task);
+			} else {
+				log.warn("task unknown by status");
+			}
+			if(pool.get(status) != null) {
+				pool.get(status).add(task);
+			} else {
+				log.error("no task pool for status " + status.toString());
+			}
 		}
 		taskManager.updateTask(task);
 	}
@@ -255,7 +263,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 					new Pair<ExecService, Facility>(task.getExecService(), task
 							.getFacility()), task);
 			// TODO: what about possible duplicates?
-			log.debug("Added task " + task.toString());
+			log.debug("Added task " + task.toString() + " belonging to queue " + pair.getRight());
 		}
 		log.info("Pool contains: ");
 		for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
