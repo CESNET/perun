@@ -1141,7 +1141,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// only VERIFIED applications can be approved
 		if (!AppState.VERIFIED.equals(app.getState())) {
-			throw new RegistrarException("Only applications in state VERIFIED can be approved. Please verify application manually before approval.");
+			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Application is already approved. Try to refresh the view to see changes.");
+			if (AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Rejected application cant' be approved. Try to refresh the view to see changes.");
+			throw new RegistrarException("Only VERIFIED applications can be approved. Please verify application manually before approval or wait for applicant own action.");
 		}
 
 		// mark as APPROVED
@@ -1657,7 +1659,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						List<Group> g = perun.getGroupsManager().getMemberGroups(registrarSession, m);
 						if (g.contains(group)) {
 							// user is member of group - can't post more initial applications
-							throw new AlreadyRegisteredException("You are already member of group: "+group.getName());
+							throw new AlreadyRegisteredException("You are already member of group "+group.getName()+".");
 						} else {
 							// user isn't member of group
 							regs.clear();
@@ -1669,7 +1671,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 									AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
 							if (!regs.isEmpty()) {
 								// user have unprocessed application for group
-								throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists", actor, extSourceName, regs.get(0));
+								throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
 							}
 							// pass if have approved or rejected app
 						}
@@ -1690,7 +1692,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 								AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
 						if (!regs.isEmpty()) {
 							// user have unprocessed application for group - can't post more
-							throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists", actor, extSourceName, regs.get(0));
+							throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
 						}
 						//throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
 					} else {
@@ -1704,7 +1706,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 								AppType.INITIAL.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
 						if (!regs.isEmpty()) {
 							// user have unprocessed application for VO - can't post more
-							throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists", actor, extSourceName, regs.get(0));
+							throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
 						}
 						// pass not member and have only approved or rejected apps
 					}
@@ -1720,7 +1722,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 							AppType.INITIAL.toString(), vo.getId(), group.getId(), actor, extSourceName, AppState.REJECTED.toString()));
 
 					if (!regs.isEmpty()) {
-						throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists", actor, extSourceName, regs.get(0));
+						throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
 					}
 				} else {
 					// vo application
@@ -1746,8 +1748,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (user == null) {
 				throw new RegistrarException("Trying to get extension application for non-existing user. Try to log-in with different identity known to Perun.");
 			}
+
 			if (form.getGroup() != null) {
-				throw new RegistrarException("Membership in group can't be extended by application. It last as long as VO membership.");
+				throw new RegistrarException("You are already member of group "+form.getGroup().getShortName()+".");
+			}
+
+			// check for submitted registrations (only for VO)
+			List<Integer> regs = new ArrayList<Integer>();
+			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+					new SingleColumnRowMapper<Integer>(Integer.class),
+					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.NEW.toString()));
+			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+					new SingleColumnRowMapper<Integer>(Integer.class),
+					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
+			if (!regs.isEmpty()) {
+				// user have unprocessed application for group
+				throw new DuplicateRegistrationAttemptException("Extension application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
 			}
 
 			Member member = membersManager.getMemberByUser(sess, vo, user);
@@ -1810,19 +1826,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		List<ApplicationFormItemWithPrefilledValue> itemsWithMissingData = new ArrayList<ApplicationFormItemWithPrefilledValue>();
 
 		// get user attributes from federation
-		Iterator<ApplicationFormItemWithPrefilledValue> it = ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
+		Iterator<ApplicationFormItemWithPrefilledValue> it = (itemsWithValues).iterator();
 		while (it.hasNext()) {
 			ApplicationFormItemWithPrefilledValue itemW = it.next();
 			String fa = itemW.getFormItem().getFederationAttribute();
 			if (fa != null && !fa.isEmpty()) {
 
-				// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
-				if (itemW.getFormItem().isRequired() &&
-						(Type.FROM_FEDERATION_HIDDEN.equals(itemW.getFormItem().getType()) || Type.FROM_FEDERATION_SHOW.equals(itemW.getFormItem().getType())) &&
-						!federValues.containsKey(fa)) {
-					itemsWithMissingData.add(itemW);
-				}
-
+				// FILL VALUE FROM FEDERATION
 				String s = federValues.get(fa);
 				if (s != null && !s.isEmpty()) {
 					// In case of email, value from the federation can contain more than one entries, entries are separated by semi-colon
@@ -1839,64 +1849,70 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					itemW.setPrefilledValue(s);
 					itemW.setAssuranceLevel(federValues.get(shibLoAVar));
 				}
+
+				// TRY TO CONSTRUCT THE VALUE FROM PARTIAL FED-INFO
+
+				ApplicationFormItem item = itemW.getFormItem();
+				String dstAtt = item.getPerunDestinationAttribute();
+				if (URN_USER_TITLE_BEFORE.equals(dstAtt)) {
+					String titleBefore = parsedName.get("titleBefore");
+					if (titleBefore != null && !titleBefore.trim().isEmpty())
+						itemW.setPrefilledValue(titleBefore);
+				} else if (URN_USER_TITLE_AFTER.equals(dstAtt)) {
+					String titleAfter = parsedName.get("titleAfter");
+					if (titleAfter != null && !titleAfter.trim().isEmpty())
+						itemW.setPrefilledValue(titleAfter);
+				} else if (URN_USER_FIRST_NAME.equals(dstAtt)) {
+					String firstName = parsedName.get("firstName");
+					if (firstName != null && !firstName.trim().isEmpty())
+						itemW.setPrefilledValue(firstName);
+				} else if (URN_USER_LAST_NAME.equals(dstAtt)) {
+					String lastName = parsedName.get("lastName");
+					if (lastName != null && !lastName.trim().isEmpty())
+						itemW.setPrefilledValue(lastName);
+				} else if (URN_USER_DISPLAY_NAME.equals(dstAtt)) {
+
+					// overwrite only if not filled by Perun
+					if (itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) {
+
+						String displayName = "";
+
+						if (parsedName.get("titleBefore") != null && !parsedName.get("titleBefore").isEmpty())
+							displayName += parsedName.get("titleBefore");
+
+						if (parsedName.get("firstName") != null && !parsedName.get("firstName").isEmpty()) {
+							if (!displayName.isEmpty()) displayName += " ";
+							displayName += parsedName.get("firstName");
+						}
+						if (parsedName.get("lastName") != null && !parsedName.get("lastName").isEmpty()) {
+							if (!displayName.isEmpty()) displayName += " ";
+							displayName += parsedName.get("lastName");
+						}
+						if (parsedName.get("titleAfter") != null && !parsedName.get("titleAfter").isEmpty()) {
+							if (!displayName.isEmpty()) displayName += " ";
+							displayName += parsedName.get("titleAfter");
+						}
+
+						itemW.setPrefilledValue(displayName);
+
+					}
+
+				}
+
+				// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
+				if ((itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) && itemW.getFormItem().isRequired() &&
+						(Type.FROM_FEDERATION_HIDDEN.equals(itemW.getFormItem().getType()) || Type.FROM_FEDERATION_SHOW.equals(itemW.getFormItem().getType()))) {
+					itemsWithMissingData.add(itemW);
+				}
+
 			}
 		}
 
-		if (!itemsWithMissingData.isEmpty() && extSourceType.equals("cz.metacentrum.perun.core.impl.ExtSourceIdp")) {
+		if (!itemsWithMissingData.isEmpty() && extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 			// throw exception only if user is logged-in by Federation IDP
 			String IDP = federValues.get("Shib-Identity-Provider");
 			log.error("[REGISTRAR] IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
 			throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
-		}
-
-		// set names from federation attributes if not empty
-		for (ApplicationFormItemWithPrefilledValue itemW : itemsWithValues) {
-			ApplicationFormItem item = itemW.getFormItem();
-			String dstAtt = item.getPerunDestinationAttribute();
-			if (URN_USER_TITLE_BEFORE.equals(dstAtt)) {
-				String titleBefore = parsedName.get("titleBefore");
-				if (titleBefore != null && !titleBefore.trim().isEmpty())
-					itemW.setPrefilledValue(titleBefore);
-			} else if (URN_USER_TITLE_AFTER.equals(dstAtt)) {
-				String titleAfter = parsedName.get("titleAfter");
-				if (titleAfter != null && !titleAfter.trim().isEmpty())
-					itemW.setPrefilledValue(titleAfter);
-			} else if (URN_USER_FIRST_NAME.equals(dstAtt)) {
-				String firstName = parsedName.get("firstName");
-				if (firstName != null && !firstName.trim().isEmpty())
-					itemW.setPrefilledValue(firstName);
-			} else if (URN_USER_LAST_NAME.equals(dstAtt)) {
-				String lastName = parsedName.get("lastName");
-				if (lastName != null && !lastName.trim().isEmpty())
-					itemW.setPrefilledValue(lastName);
-			} else if (URN_USER_DISPLAY_NAME.equals(dstAtt)) {
-
-				// overwrite only if not filled by Perun
-				if (itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) {
-
-					String displayName = "";
-
-					if (parsedName.get("titleBefore") != null && !parsedName.get("titleBefore").isEmpty())
-						displayName += parsedName.get("titleBefore");
-
-					if (parsedName.get("firstName") != null && !parsedName.get("firstName").isEmpty()) {
-						if (!displayName.isEmpty()) displayName += " ";
-						displayName += parsedName.get("firstName");
-					}
-					if (parsedName.get("lastName") != null && !parsedName.get("lastName").isEmpty()) {
-						if (!displayName.isEmpty()) displayName += " ";
-						displayName += parsedName.get("lastName");
-					}
-					if (parsedName.get("titleAfter") != null && !parsedName.get("titleAfter").isEmpty()) {
-						if (!displayName.isEmpty()) displayName += " ";
-						displayName += parsedName.get("titleAfter");
-					}
-
-					itemW.setPrefilledValue(displayName);
-
-				}
-
-			}
 		}
 
 		// return prefilled form
