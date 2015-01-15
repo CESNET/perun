@@ -1418,7 +1418,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				} else if (process.exitValue() == 6) {
 					throw new LoginNotExistsRuntimeException("User doesn't exists in underlying system for namespace " + loginNamespace + ", user: " + user + ".");
 				} else if (process.exitValue() == 7) {
-					throw new LoginNotExistsRuntimeException("Problem with creating user entry in underlying system " + loginNamespace + ", user: " + user + ".");
+					throw new InternalErrorException("Problem with creating user entry in underlying system " + loginNamespace + ", user: " + user + ".");
 				} else {
 					// Some other error occured
 					BufferedReader inReader = new BufferedReader(new InputStreamReader(es));
