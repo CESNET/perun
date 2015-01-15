@@ -976,7 +976,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			jdbc.update("delete from application where id=?", app.getId());
 
 		} else {
-			throw new RegistrarException("Only applications in NEW or REJECTED state can be deleted.");
+			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Verified application can't be deleted. Approve or reject application first. Try to refresh the view to see changes.");
+			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 		}
 
 	}
