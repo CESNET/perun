@@ -61,11 +61,26 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	@Autowired
 	private SchedulingPool schedulingPool;
 
+	final int MAX_RUNNING_GEN = 10;
+	
 	@Override
 	public void beginExecuting() {
+		int currentlyRunningGenTasks = 0;
+
+		// TODO count gen tasks when they run and finish
+		for(Task task : schedulingPool.getProcessingTasks()) {
+			if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+				currentlyRunningGenTasks++;
+			}
+		}
+		
 		// run all tasks in scheduled state
 		Date now = new Date(System.currentTimeMillis());
 		for (Task task : schedulingPool.getPlannedTasks()) {
+			if(currentlyRunningGenTasks >= MAX_RUNNING_GEN) {
+				log.warn("Reached the maximum number of concurrently running gen tasks, waiting...");
+				continue;
+			}
 			log.debug("TASK " + task.toString() + " is to be run at "
 					+ task.getSchedule() + ", now is " + now);
 			if (task.getSchedule().before(now)) {
@@ -153,15 +168,13 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 			}
 			if (proceed) {
 				try {
-					if (task.getExecService().getExecServiceType()
-							.equals(ExecServiceType.SEND)) {
-						taskStatusManager.getTaskStatus(task)
-								.setDestinationStatus(destination,
-										TaskDestinationStatus.PROCESSING);
+					if (task.getExecService().getExecServiceType().equals(ExecServiceType.SEND)) {
+						taskStatusManager.getTaskStatus(task).setDestinationStatus(
+								destination,
+								TaskDestinationStatus.PROCESSING);
 					}
 				} catch (InternalErrorException e) {
-					log.error(
-							"Error setting status for destination {} of task {}",
+					log.error("Error setting status for destination {} of task {}",
 							destination, task.toString());
 				}
 				startWorker(task, destination);
