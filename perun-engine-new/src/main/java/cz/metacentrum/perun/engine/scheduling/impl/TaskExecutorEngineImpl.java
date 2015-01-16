@@ -62,6 +62,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	private SchedulingPool schedulingPool;
 
 	final int MAX_RUNNING_GEN = 10;
+	final int MAX_RUNNING = 50;
 	
 	@Override
 	public void beginExecuting() {
@@ -77,6 +78,10 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		// run all tasks in scheduled state
 		Date now = new Date(System.currentTimeMillis());
 		for (Task task : schedulingPool.getPlannedTasks()) {
+			if(schedulingPool.getProcessingTasks().size() > MAX_RUNNING) {
+				log.warn("Reached the maximum number of concurrently running tasks.");
+				break;
+			}
 			if(currentlyRunningGenTasks >= MAX_RUNNING_GEN) {
 				log.warn("Reached the maximum number of concurrently running gen tasks, waiting...");
 				continue;
@@ -86,6 +91,9 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 			if (task.getSchedule().before(now)) {
 				log.debug("TASK " + task.toString() + " is going to run");
 				runTask(task);
+				if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+					currentlyRunningGenTasks++;
+				}
 			}
 		}
 		/*
