@@ -74,6 +74,10 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 				currentlyRunningGenTasks++;
 			}
 		}
+		log.debug("There are " + currentlyRunningGenTasks + " running gen tasks.");
+		if(currentlyRunningGenTasks >= MAX_RUNNING_GEN) {
+			log.warn("Reached the maximum number of concurrently running gen tasks.");
+		}
 		
 		// run all tasks in scheduled state
 		Date now = new Date(System.currentTimeMillis());
@@ -83,7 +87,6 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 				break;
 			}
 			if(currentlyRunningGenTasks >= MAX_RUNNING_GEN) {
-				log.warn("Reached the maximum number of concurrently running gen tasks, waiting...");
 				continue;
 			}
 			log.debug("TASK " + task.toString() + " is to be run at "
