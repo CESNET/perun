@@ -420,11 +420,12 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			List<Member> members = getAllowedMembers(sess, resource);
 			for(Member member : members) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-				List<Attribute> attributes = attributesManagerBl.getRequiredAttributes(sess, service, facility, resource, user, member);
-				attributes = attributesManagerBl.fillAttributes(sess, facility, resource, user, member, attributes);
-				attributesManagerBl.setAttributes(sess, facility, resource, user, member, attributes);
+				// use complex method for getting and setting member-resource, member, user-facility and user-facility required attributes for the service
+				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, service, facility, resource, user, member);
 			}
 		} catch(WrongAttributeAssignmentException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch(AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
