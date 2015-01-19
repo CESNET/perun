@@ -283,6 +283,9 @@ public class Api extends HttpServlet {
 			req.getSession().setAttribute(PERUNREQUESTS, new ConcurrentSkipListMap<String, PerunRequest>());
 		}
 
+		// store pending requests locally, because accessing it from session object after response is written would cause IllegalStateException
+		ConcurrentSkipListMap<String, PerunRequest> pendingRequests = ((ConcurrentSkipListMap<String, PerunRequest>)req.getSession().getAttribute(PERUNREQUESTS));
+
 		// Check if it is request for list of pending operations.
 		if (req.getPathInfo().equals("/jsonp/" + PERUNREQUESTSURL)) {
 			// name used to identify pending request
@@ -291,13 +294,12 @@ public class Api extends HttpServlet {
 			resp.setContentType(serializer.getContentType());
 			try {
 				// Create a copy of the PERUNREQUESTS and then pass it to the serializer
-				ConcurrentSkipListMap<String, PerunRequest> perunRequests = (ConcurrentSkipListMap<String, PerunRequest>) req.getSession().getAttribute(PERUNREQUESTS);
 				if (callbackId != null) {
 					// return single entry
-					serializer.write(perunRequests.get(callbackId));
+					serializer.write(pendingRequests.get(callbackId));
 				} else {
 					// return all pending requests
-					serializer.write(Arrays.asList(perunRequests.values().toArray()));
+					serializer.write(Arrays.asList(pendingRequests.values().toArray()));
 				}
 			} catch (RpcException e) {
 				serializer.writePerunException(e);
@@ -425,7 +427,7 @@ public class Api extends HttpServlet {
 
 				// Add perunRequest into the queue of the requests for POST only
 				if(!isGet && !isPut) {
-					((ConcurrentSkipListMap<String, PerunRequest>) req.getSession().getAttribute(PERUNREQUESTS)).put(callbackName, perunRequest);
+					pendingRequests.put(callbackName, perunRequest);
 				}
 
 			}
@@ -476,15 +478,14 @@ public class Api extends HttpServlet {
 				perunRequest.setEndTime(System.currentTimeMillis());
 			}
 			//Check all resolved requests and remove them if they are old than timeToLiveWhenDone
-			ConcurrentSkipListMap<String, PerunRequest> perunRequests = ((ConcurrentSkipListMap<String, PerunRequest>) req.getSession().getAttribute(PERUNREQUESTS));
-			Iterator<String> iterator = perunRequests.keySet().iterator();
+			Iterator<String> iterator = pendingRequests.keySet().iterator();
 			while (iterator.hasNext()) {
 				String key = iterator.next();
-				PerunRequest value = perunRequests.get(key);
+				PerunRequest value = pendingRequests.get(key);
 				if (value != null) {
 					if(value.getEndTime()<0) continue;
 					if(System.currentTimeMillis() - value.getEndTime() > timeToLiveWhenDone) {
-						perunRequests.remove(key);
+						pendingRequests.remove(key);
 					}
 				}
 			}
