@@ -1204,6 +1204,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
 	}
 
+	public void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException {
+		//get all attributes (for member, resource, facility, user and service) with values
+		List<Attribute> attributes = this.getRequiredAttributes(sess, service, facility, resource, user, member);
+
+		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
+	}
+
 	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, facility, attribute);
