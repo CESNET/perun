@@ -16,7 +16,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
 import java.util.List;
 
 /**
- * Pairs of IdP indentificator and user's EPPN.
+ * Pairs of IdP identificator and user's EPPN.
  *
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
  */
@@ -24,7 +24,6 @@ public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends User
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
-		Attribute attribute = new Attribute(attributeDefinition);
 		Map<String, String> idpLogins = new LinkedHashMap<String,String>();
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
@@ -42,7 +41,7 @@ public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends User
 			}
 		}
 
-		attribute = new Attribute(attributeDefinition);
+		Attribute attribute = new Attribute(attributeDefinition);
 		attribute.setValue(idpLogins);
 		return attribute;
 	}
@@ -53,7 +52,7 @@ public class urn_perun_user_attribute_def_virt_shibbolethExtSources extends User
 		attr.setFriendlyName("shibbolethExtSources");
 		attr.setDisplayName("Shibboleth external sources");
 		attr.setType(LinkedHashMap.class.getName());
-		attr.setDescription("Pairs of IdP indentificator and user's EPPN.");
+		attr.setDescription("Pairs of IdP identificator and user's EPPN.");
 		return attr;
 	}
 }
