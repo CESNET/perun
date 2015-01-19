@@ -257,24 +257,19 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		try {
 			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes + " from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id where id=?", EXT_SOURCES_EXTRACTOR, id);
 
-			if (extSources != null && extSources.size()>1) {
+			if (extSources.size() > 1) {
 				throw new ConsistencyErrorException("There are more than one extSources under ID="+id);
-			} else if (extSources != null && extSources.isEmpty()) {
+			} else if (extSources.isEmpty()) {
 				throw new ExtSourceNotExistsException("ExtSource with ID="+id+" not exists");
 			}
 
-			if (extSources != null && extSources.size() == 1) {
-				if (extSources.get(0) != null) {
-					// return correct data
-					return extSources.get(0);
-				} else {
-					throw new InternalErrorException("extSource with ID="+id+" is null.");
-				}
+			if (extSources.get(0) != null) {
+				// return correct data
+				return extSources.get(0);
+			} else {
+				throw new InternalErrorException("extSource with ID="+id+" is null.");
 			}
-			// not correct data
-			throw new InternalErrorException("Response from SQL RowExtractor is null.");
-		} catch (EmptyResultDataAccessException e) {
-			throw new ExtSourceNotExistsException("ExtSourceId " + id, e);
+
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -286,24 +281,19 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 					" from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
 					"where name=?", EXT_SOURCES_EXTRACTOR, name);
 
-			if (extSources != null && extSources.size()>1) {
+			if (extSources.size() > 1) {
 				throw new ConsistencyErrorException("There are more than one extSources with name="+name);
-			} else if (extSources != null && extSources.isEmpty()) {
+			} else if (extSources.isEmpty()) {
 				throw new ExtSourceNotExistsException("ExtSource with name="+name+" not exists");
 			}
 
-			if (extSources != null && extSources.size() == 1) {
-				if (extSources.get(0) != null) {
-					// return correct data
-					return extSources.get(0);
-				} else {
-					throw new InternalErrorException("extSource with name="+name+" is null.");
-				}
+			if (extSources.get(0) != null) {
+				// return correct data
+				return extSources.get(0);
+			} else {
+				throw new InternalErrorException("extSource with name="+name+" is null.");
 			}
-			// not correct data
-			throw new InternalErrorException("Response from SQL RowExtractor is null.");
-		} catch (EmptyResultDataAccessException e) {
-			throw new ExtSourceNotExistsException("ExtSourceName " + name, e);
+
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -311,18 +301,11 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
+			return jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
 					" from vo_ext_sources v inner join ext_sources on v.ext_sources_id=ext_sources.id " +
 					"   left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
 					" where v.vo_id=?", EXT_SOURCES_EXTRACTOR, vo.getId());
 
-			if (extSources != null) {
-				return extSources;
-			}
-			throw new InternalErrorException("Response from SQL RowExtractor is null.");
-		} catch (EmptyResultDataAccessException e) {
-			// empty list
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -330,16 +313,9 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
 		try {
-			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
+			return jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
 					" from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id ", EXT_SOURCES_EXTRACTOR);
 
-			if (extSources != null) {
-				return extSources;
-			}
-			throw new InternalErrorException("Response from SQL RowExtractor is null.");
-		} catch (EmptyResultDataAccessException e) {
-			// empty list
-			return new ArrayList<>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
