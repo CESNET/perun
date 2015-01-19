@@ -14,6 +14,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
@@ -160,89 +161,103 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 		syncColumn.setFieldUpdater(new FieldUpdater<RichGroup, RichGroup>() {
 			@Override
 			public void update(int index, final RichGroup object, RichGroup value) {
-				String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
-				name = object.getName();
-				if (object.isSyncEnabled()) {
-					syncEnabled = "enabled";
-				} else {
-					syncEnabled = "disabled";
-				}
 
-				if (object.getSynchronizationInterval() == null) {
-					syncInterval = "N/A";
-				} else {
+				GetEntityById get = new GetEntityById(PerunEntity.RICH_GROUP, object.getId(), new JsonCallbackEvents() {
 
-					if (JsonUtils.checkParseInt(object.getSynchronizationInterval())) {
-						int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
-						if (time == 0) {
-							time = Integer.parseInt(object.getSynchronizationInterval()) * 5;
-							syncInterval = time + " minute(s)";
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+
+						final RichGroup object = jso.cast();
+
+						String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
+						name = object.getName();
+						if (object.isSyncEnabled()) {
+							syncEnabled = "enabled";
 						} else {
-							syncInterval = time + " hour(s)";
+							syncEnabled = "disabled";
 						}
-					} else {
-						syncInterval = object.getSynchronizationInterval();
-					}
-				}
-				if (object.getLastSynchronizationState() != null && object.getLastSynchronizationState().equals("OK")) {
-					syncState = "OK";
-				} else {
-					if (session.isPerunAdmin()) {
-						syncState = object.getLastSynchronizationState();
-					} else {
-						syncState = "Internal Error";
-					}
-				}
-				if (object.getLastSynchronizationTimestamp() == null) {
-					syncTimestamp = "N/A";
-				} else {
-					syncTimestamp = object.getLastSynchronizationTimestamp().split("\\.")[0];
-				}
-				if (object.getAuthoritativeGroup() != null && object.getAuthoritativeGroup().equals("1")) {
-					authGroup = "Yes";
-				} else {
-					authGroup = "No";
-				}
+						if (object.getSynchronizationInterval() == null) {
+							syncInterval = "N/A";
+						} else {
 
-				String html = "Group name: <b>"+name+"</b><br>";
-				html += "Synchronization: <b>"+syncEnabled+"</b><br>";
-				if (object.isSyncEnabled()) {
-					html += "Last sync. state: <b>"+syncState+"</b><br>";
-					html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
-					html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
-					html += "Authoritative group: <b>"+authGroup+"</b><br>";
-				}
+							if (JsonUtils.checkParseInt(object.getSynchronizationInterval())) {
+								int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
+								if (time == 0) {
+									time = Integer.parseInt(object.getSynchronizationInterval()) * 5;
+									syncInterval = time + " minute(s)";
+								} else {
+									syncInterval = time + " hour(s)";
+								}
+							} else {
+								syncInterval = object.getSynchronizationInterval();
+							}
 
-				FlexTable layout = new FlexTable();
+						}
+						if (object.getLastSynchronizationState() != null && object.getLastSynchronizationState().equals("OK")) {
+							syncState = "OK";
+						} else {
+							if (session.isPerunAdmin()) {
+								syncState = object.getLastSynchronizationState();
+							} else {
+								syncState = "Internal Error";
+							}
+						}
+						if (object.getLastSynchronizationTimestamp() == null) {
+							syncTimestamp = "N/A";
+						} else {
+							syncTimestamp = object.getLastSynchronizationTimestamp().split("\\.")[0];
+						}
+						if (object.getAuthoritativeGroup() != null && object.getAuthoritativeGroup().equals("1")) {
+							authGroup = "Yes";
+						} else {
+							authGroup = "No";
+						}
 
-				layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
-				layout.setHTML(0, 1, "<p>" + html);
+						String html = "Group name: <b>"+name+"</b><br>";
+						html += "Synchronization: <b>"+syncEnabled+"</b><br>";
 
-				layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
-				layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
-				layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+						if (object.isSyncEnabled()) {
+							html += "Last sync. state: <b>"+syncState+"</b><br>";
+							html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
+							html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
+							html += "Authoritative group: <b>"+authGroup+"</b><br>";
+						}
 
-				final CustomButton okButton = new CustomButton("Force synchronization", SmallIcons.INSTANCE.arrowRefreshIcon());
-				okButton.addClickHandler(new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						ForceGroupSynchronization call = new ForceGroupSynchronization(JsonCallbackEvents.disableButtonEvents(okButton));
-						call.synchronizeGroup(object.getId());
+						FlexTable layout = new FlexTable();
+
+						layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
+						layout.setHTML(0, 1, "<p>" + html);
+
+						layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+						layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+						layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+						final CustomButton okButton = new CustomButton("Force synchronization", SmallIcons.INSTANCE.arrowRefreshIcon());
+						okButton.addClickHandler(new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								ForceGroupSynchronization call = new ForceGroupSynchronization(JsonCallbackEvents.disableButtonEvents(okButton));
+								call.synchronizeGroup(object.getId());
+							}
+						});
+						if (!session.isVoAdmin(object.getVoId()) && !session.isGroupAdmin(object.getId())) okButton.setEnabled(false);
+
+						final Confirm c = new Confirm("Group synchronization info", layout, okButton, null, true);
+						c.setHideOnButtonClick(false);
+						c.setCancelIcon(SmallIcons.INSTANCE.acceptIcon());
+						c.setCancelButtonText("OK");
+						c.setCancelClickHandler(new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								c.hide();
+							}
+						});
+
+						c.show();
+
 					}
 				});
-				if (!session.isVoAdmin(object.getVoId()) && !session.isGroupAdmin(object.getId())) okButton.setEnabled(false);
-
-				final Confirm c = new Confirm("Group synchronization info", layout, okButton, null, true);
-				c.setHideOnButtonClick(false);
-				c.setCancelIcon(SmallIcons.INSTANCE.acceptIcon());
-				c.setCancelButtonText("OK");
-				c.setCancelClickHandler(new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						c.hide();
-					}
-				});
-				c.show();
+				get.retrieveData();
 
 			};
 		});
