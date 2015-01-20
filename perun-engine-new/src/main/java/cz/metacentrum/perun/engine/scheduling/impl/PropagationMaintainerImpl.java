@@ -86,13 +86,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	public void checkResults() {
 
 		try {
-			perunSession = perun
-					.getPerunSession(new PerunPrincipal(
-							propertiesBean.getProperty("perun.principal.name"),
-							propertiesBean
-									.getProperty("perun.principal.extSourceName"),
-							propertiesBean
-									.getProperty("perun.principal.extSourceType")));
+			perunSession = perun.getPerunSession(new PerunPrincipal(
+					propertiesBean.getProperty("perun.principal.name"),
+					propertiesBean.getProperty("perun.principal.extSourceName"),
+					propertiesBean.getProperty("perun.principal.extSourceType")));
 		} catch (InternalErrorException e1) {
 			// TODO Auto-generated catch block
 			log.error(
@@ -103,8 +100,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		// checkProcessingTasks();
 
-		log.info("Going to check propagation status for "
-				+ schedulingPool.getSize() + " tasks");
+		log.info("Going to check propagation status for " + schedulingPool.getSize() + " tasks");
 
 		endStuckTasks();
 
@@ -557,10 +553,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		// list all tasks in processing and planned and check if any have beeen
 		// running for too long.
 		List<Task> suspiciousTasks = schedulingPool.getProcessingTasks();
+
+		log.debug("There are {} PROCESSING tasks", suspiciousTasks.size());
+		
 		suspiciousTasks.addAll(schedulingPool.getPlannedTasks());
 
-		log.debug("There are {} tasks that are PLANNED or PROCESSING",
-				suspiciousTasks.size());
+		log.debug("There are {} tasks that are PLANNED or PROCESSING", suspiciousTasks.size());
 
 		for (Task task : suspiciousTasks) {
 			log.debug("checking task " + task.toString()
