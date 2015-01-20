@@ -9,6 +9,7 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
@@ -90,7 +91,8 @@ public class InviteUserTabItem implements TabItem {
 
 		final ListBox languages = new ListBox();
 		languages.setWidth("200px");
-		languages.addItem("Czech", "cs");
+		//languages.addItem("Czech", "cs");
+		languages.addItem(Utils.getNativeLanguage().get(2), Utils.getNativeLanguage().get(0));
 		languages.addItem("English", "en");
 		languages.setSelectedIndex(1);
 

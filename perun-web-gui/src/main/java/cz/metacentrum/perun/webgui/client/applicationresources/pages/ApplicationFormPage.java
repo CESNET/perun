@@ -5,6 +5,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.webgui.client.ApplicationFormGui;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.applicationresources.SendsApplicationForm;
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
+import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
@@ -75,8 +77,7 @@ public class ApplicationFormPage extends ApplicationPage {
 	/**
 	 * Switch languages button
 	 */
-	private PushButton languageButtonCzech;
-	private PushButton languageButtonEnglish;
+	private PushButton languageButton;
 
 	private boolean submittedOrError = false;
 
@@ -101,46 +102,35 @@ public class ApplicationFormPage extends ApplicationPage {
 	/**
 	 * Prepares the buttons for local languages
 	 */
-
 	private void prepareToggleLanguageButton() {
 
-		languageButtonCzech = new PushButton(new Image(SmallIcons.INSTANCE.flagCzechRepublicIcon()));
-		languageButtonCzech.setTitle(ApplicationMessages.INSTANCE.changeLanguageToCzech());
-		languageButtonCzech.setStyleName("gwt-Button");
-		languageButtonCzech.setPixelSize(17, 17);
+		languageButton = new PushButton(new Image(SmallIcons.INSTANCE.locateIcon()));
 
-		languageButtonEnglish = new PushButton(new Image(SmallIcons.INSTANCE.flagGreatBritainIcon()));
-		languageButtonEnglish.setTitle(ApplicationMessages.INSTANCE.changeLanguageToEnglish());
-		languageButtonEnglish.setStyleName("gwt-Button");
-		languageButtonEnglish.setPixelSize(17, 17);
+		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0))) {
+			languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToCzech(Utils.getNativeLanguage().get(2)));
+		} else {
+			languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToEnglish());
+		}
+		languageButton.setStyleName("gwt-Button");
+		languageButton.setPixelSize(17, 17);
 
-		languageButtonCzech.addClickHandler(new ClickHandler() {
+		languageButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				Confirm conf = new Confirm(languageButtonCzech.getTitle(), new HTML(ApplicationMessages.INSTANCE.changeLanguageText()), new ClickHandler(){
+				Confirm conf = new Confirm(languageButton.getTitle(), new HTML(ApplicationMessages.INSTANCE.changeLanguageText()), new ClickHandler() {
 					public void onClick(ClickEvent event) {
-						// on OK
-						UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "cs");
-						Window.Location.replace(builder.buildString());
 
-					}}, new ClickHandler(){
-					public void onClick(ClickEvent event) {
-						// on CANCEL
+						String localeName = LocaleInfo.getCurrentLocale().getLocaleName();
+						if (!localeName.equals(Utils.getNativeLanguage().get(0))) {
+							UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", Utils.getNativeLanguage().get(0));
+							Window.Location.replace(builder.buildString());
+						} else {
+							UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "en");
+							Window.Location.replace(builder.buildString());
+						}
+						// on OK
+
 					}
-				}, true);
-				conf.setNonScrollable(true);
-				conf.show();
-			}
-		});
-
-		languageButtonEnglish.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				Confirm conf = new Confirm(languageButtonEnglish.getTitle(), new HTML(ApplicationMessages.INSTANCE.changeLanguageText()), new ClickHandler(){
-					public void onClick(ClickEvent event) {
-						// on OK
-						UrlBuilder builder = Location.createUrlBuilder().setParameter("locale", "en");
-						Window.Location.replace(builder.buildString());
-
-					}}, new ClickHandler(){
+				}, new ClickHandler() {
 					public void onClick(ClickEvent event) {
 						// on CANCEL
 					}
@@ -203,8 +193,7 @@ public class ApplicationFormPage extends ApplicationPage {
 		prepareToggleLanguageButton();
 
 		FlexTable lang = new FlexTable();
-		lang.setWidget(0, 1, languageButtonCzech);
-		lang.setWidget(0, 2, languageButtonEnglish);
+		lang.setWidget(0, 1, languageButton);
 		header.setWidget(0, 1, lang);
 		header.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
 

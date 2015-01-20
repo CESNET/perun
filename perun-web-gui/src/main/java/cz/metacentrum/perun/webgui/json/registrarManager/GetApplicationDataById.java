@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.applicationresources.RegistrarFormItemGenerator;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonClient;
@@ -148,11 +149,11 @@ public class GetApplicationDataById implements JsonCallback{
 		ft.setWidth("100%");
 		ft.setCellPadding(10);
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
-		String locale = "en";
+		String locale;
 		if (LocaleInfo.getCurrentLocale().getLocaleName().equals("default") || LocaleInfo.getCurrentLocale().getLocaleName().equals("en")) {
 			locale = "en";
 		} else {
-			locale = "cs";
+			locale = Utils.getNativeLanguage().get(0);
 		}
 
 		int i = 0;

@@ -333,6 +333,29 @@ public class Utils {
 	}
 
 	/**
+	 * Returns list of Strings representing native language in order "code","native name","english name"
+	 *
+	 * e,g. "cs","Česky","Czech" for Czech language.
+	 *
+	 * @return list of strings representing native language
+	 */
+	public static ArrayList<String> getNativeLanguage() {
+
+		ArrayList<String> list = new ArrayList<String>();
+		if (PerunWebSession.getInstance().getConfiguration() != null) {
+			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("nativeLanguage");
+			if (value != null && !value.isEmpty()) {
+				String[] parts = value.split(",");
+				for (int i=0; i<parts.length; i++) {
+					list.add(parts[i]);
+				}
+			}
+		}
+		return list;
+
+	}
+
+	/**
 	 * Returns address to perun support
 	 *
 	 * @return support email as string

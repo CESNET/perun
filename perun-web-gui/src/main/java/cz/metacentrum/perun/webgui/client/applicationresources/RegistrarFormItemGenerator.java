@@ -155,7 +155,7 @@ public class RegistrarFormItemGenerator {
 		this.strValue = strValue.trim();
 		this.prefilledValue = strValue.trim();  // store original value
 		this.item = item;
-		if (locale.equalsIgnoreCase("en") || locale.equalsIgnoreCase("cs")) {
+		if (locale.equalsIgnoreCase("en") || locale.equalsIgnoreCase(Utils.getNativeLanguage().get(0))) {
 			// set locale if correct
 			this.locale = locale;
 		}

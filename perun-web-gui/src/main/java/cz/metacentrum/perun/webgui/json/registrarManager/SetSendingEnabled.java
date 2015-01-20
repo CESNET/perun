@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.json.registrarManager;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.ApplicationMail;
@@ -108,7 +109,7 @@ public class SetSendingEnabled {
 			JSONObject mailTexts = new JSONObject();
 
 			// update texts
-			String locales[] = {"cs", "en"};
+			String locales[] = {Utils.getNativeLanguage().get(0), "en"};
 			for(String locale : locales){
 
 				MailText mt = appMail.getMessage(locale);

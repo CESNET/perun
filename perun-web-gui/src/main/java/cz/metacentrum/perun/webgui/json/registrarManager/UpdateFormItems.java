@@ -7,6 +7,7 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
@@ -134,7 +135,7 @@ public class UpdateFormItems {
 			// recreate i18n
 			JSONObject i18n = new JSONObject();
 			i18n.put("en", new JSONObject(formItems.get(i).getItemTexts("en")));
-			i18n.put("cs", new JSONObject(formItems.get(i).getItemTexts("cs")));
+			i18n.put(Utils.getNativeLanguage().get(0), new JSONObject(formItems.get(i).getItemTexts(Utils.getNativeLanguage().get(0))));
 			newItem.put("i18n", i18n);
 
 			data.set(i, newItem);
