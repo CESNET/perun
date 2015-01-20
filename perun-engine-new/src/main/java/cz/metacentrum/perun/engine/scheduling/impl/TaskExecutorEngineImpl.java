@@ -160,6 +160,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		task.setStartTime(new Date(System.currentTimeMillis()));
 		List<Task> dependencies = dependencyResolver.getDependencies(task);
 		// TODO: handle GEN tasks with no destinations
+		boolean started = false;
 		for (Destination destination : taskStatusManager.getTaskStatus(task)
 				.getWaitingDestinations()) {
 			// check if all the dependency destinations are done
@@ -189,7 +190,12 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 							destination, task.toString());
 				}
 				startWorker(task, destination);
+				started = true;
 			}
+		}
+		if(!started) {
+			task.setEndTime(new Date(System.currentTimeMillis()));
+			schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 		}
 	}
 
