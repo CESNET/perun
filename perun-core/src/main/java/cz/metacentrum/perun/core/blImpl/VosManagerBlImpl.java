@@ -1,18 +1,14 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -21,16 +17,13 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -38,22 +31,16 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
-import cz.metacentrum.perun.core.api.exceptions.NotMemberOfParentGroupException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
-import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.VosManagerImplApi;
@@ -359,31 +346,68 @@ public class VosManagerBlImpl implements VosManagerBl {
 		log.debug("Group [{}] deleted like administrator from VO [{}]", group, vo);
 	}
 
+	@Override
+	public List<User> getAdmins(PerunSession perunSession, Vo vo, Role role, boolean onlyDirectAdmins) throws InternalErrorException {
+		if(onlyDirectAdmins) {
+			return getVosManagerImpl().getDirectAdmins(perunSession, vo, role);
+		} else {
+			return getVosManagerImpl().getAdmins(perunSession, vo, role);
+		}
+	}
+
+	@Override
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, Role role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException {
+		List<User> users = this.getAdmins(perunSession, vo, role, onlyDirectAdmins);
+		List<RichUser> richUsers;
+
+		if(allUserAttributes) {
+			richUsers = perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
+		} else {
+			try {
+				richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("One of Attribute not exist.", ex);
+			}
+		}
+		return richUsers;
+	}
+
+	@Override
+	public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, Role role) throws InternalErrorException {
+		return getVosManagerImpl().getAdminGroups(perunSession, vo, role);
+	}
+
+	@Deprecated
 	public List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
 		return getVosManagerImpl().getAdmins(sess, vo);
 	}
 
+	@Deprecated
 	@Override
 	public List<User> getDirectAdmins(PerunSession sess, Vo vo) throws InternalErrorException {
 		return getVosManagerImpl().getDirectAdmins(sess, vo);
 	}
 
+	@Deprecated
 	@Override
 	public List<RichUser> getDirectRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException, UserNotExistsException {
 		return perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(sess, getVosManagerImpl().getDirectAdmins(sess, vo));
 	}
 
+	@Deprecated
 	@Override
 	public List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		return getVosManagerImpl().getAdminGroups(sess, vo);
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, vo);
 		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
 		return richUsers;
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, vo);
 		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
@@ -391,6 +415,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		return richUsersWithAttributes;
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
@@ -399,6 +424,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 		}
 	}
 
+	@Deprecated
 	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getDirectRichAdmins(perunSession, vo), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));

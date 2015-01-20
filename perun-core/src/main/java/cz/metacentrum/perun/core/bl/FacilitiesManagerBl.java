@@ -3,12 +3,10 @@ package cz.metacentrum.perun.core.bl;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -580,6 +578,45 @@ public interface FacilitiesManagerBl {
 	void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException;
 
 	/**
+	 * Get list of all user administrators for supported role and given facility.
+	 *
+	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 *
+	 * Supported roles: FacilityAdmin
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of all user administrators of the given facility for supported role
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+
+	/**
+	 * Get list of all richUser administrators for the facility and supported role with specific attributes.
+	 *
+	 * Supported roles: FacilityAdmin
+	 *
+	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @param specificAttributes list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of RichUser administrators for the facility and supported role with attributes
+	 *
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> getRichAdmins(PerunSession perunSession, Facility facility, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
+
+	/**
 	 * Gets list of all user administrators of the Facility.
 	 * If some group is administrator of the given group, all members are included in the list.
 	 *
@@ -588,6 +625,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of Users who are admins in the facility
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
@@ -599,6 +637,7 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<User> getDirectAdmins(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
@@ -620,6 +659,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -631,6 +671,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getDirectRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -642,6 +683,7 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdminsWithAttributes(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -654,6 +696,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of RichUsers with specific attributes.
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException;
 
 	/**
@@ -666,6 +709,7 @@ public interface FacilitiesManagerBl {
 	 * @return list of RichUsers with specific attributes.
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException;
 
 	/**

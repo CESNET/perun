@@ -521,10 +521,37 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", authorizedGroup, group);
 	}
 
+	public List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws InternalErrorException {
+		if(onlyDirectAdmins) {
+			return getGroupsManagerImpl().getDirectAdmins(perunSession, group);
+		} else {
+			return getGroupsManagerImpl().getAdmins(perunSession, group);
+		}
+	}
+
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException {
+		List<User> users = this.getAdmins(perunSession, group, onlyDirectAdmins);
+		List<RichUser> richUsers;
+
+		if(allUserAttributes) {
+			richUsers = perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
+		} else {
+			try {
+				richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("One of Attribute not exist.", ex);
+			}
+		}
+
+		return richUsers;
+	}
+
+	@Deprecated
 	public List<User> getAdmins(PerunSession sess, Group group) throws InternalErrorException {
 		return getGroupsManagerImpl().getAdmins(sess, group);
 	}
 
+	@Deprecated
 	@Override
 	public List<User> getDirectAdmins(PerunSession sess, Group group) throws InternalErrorException {
 		return getGroupsManagerImpl().getDirectAdmins(sess, group);
@@ -535,24 +562,28 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return getGroupsManagerImpl().getGroupAdmins(sess, group);
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, group);
 		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
 		return richUsers;
 	}
 
+	@Deprecated
 	public List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getDirectAdmins(perunSession, group);
 		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users);
 		return richUsers;
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException {
 		List<User> users = this.getAdmins(perunSession, group);
 		List<RichUser> richUsers = perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
 		return richUsers;
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getRichAdmins(perunSession, group), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
@@ -561,6 +592,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
+	@Deprecated
 	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException {
 		try {
 			return getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, this.getDirectRichAdmins(perunSession, group), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));

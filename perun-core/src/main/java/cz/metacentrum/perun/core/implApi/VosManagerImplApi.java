@@ -6,6 +6,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -95,6 +96,44 @@ public interface VosManagerImplApi {
 	Vo getVoById(PerunSession perunSession, int id) throws VoNotExistsException, InternalErrorException;
 
 	/**
+	 * Get list of user administrators of specific vo for specific role.
+	 * If some group is administrator of the VO, all members are included in the list.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param role
+	 *
+	 * @return List of users who are administrators of the vo with specific role. Empty list if there is no such administrator
+	 *
+	 * @throws InternalErrorException
+	 */
+	public List<User> getAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+
+	/**
+	 * Get list of direct user administrators of specific vo for specific role.
+	 * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param role
+	 *
+	 * @return List of direct users who are administrators of the vo with specific role. Empty list if there is no such administrator
+	 *
+	 * @throws InternalErrorException
+	 */
+	public List<User> getDirectAdmins(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+
+	/**
+	 * Get list of group administrators of the given VO for specific role.
+	 *
+	 * @param sess
+	 * @param vo
+	 * @return List of groups, who are administrators of the Vo with specific role. Returns empty list if there is no such authorized group.
+	 * @throws InternalErrorException
+	 */
+	public List<Group> getAdminGroups(PerunSession sess, Vo vo, Role role) throws InternalErrorException;
+
+	/**
 	 * Get list of Vo administrators.
 	 * If some group is administrator of the VO, all members are included in the list.
 	 *
@@ -103,6 +142,7 @@ public interface VosManagerImplApi {
 	 * @return List of users, who are administrators of the Vo. Returns empty list if there is no VO admin.
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
@@ -114,6 +154,7 @@ public interface VosManagerImplApi {
 	 *
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<User> getDirectAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
@@ -124,6 +165,7 @@ public interface VosManagerImplApi {
 	 * @return List of groups, who are administrators of the Vo. Returns empty list if there is no VO group admin.
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**

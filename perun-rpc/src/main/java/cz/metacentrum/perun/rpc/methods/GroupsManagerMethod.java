@@ -382,7 +382,22 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get list of all user administrators for supported role and specific group.
+	 *
+	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 *
+	 * Supported roles: GroupAdmin
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of all user administrators of the given group for supported role
+	 */
+	/*#
 	 * Returns administrators of a group.
+	 *
+	 * !!! DEPRECATED version !!!
 	 *
 	 * @param group int Group ID
 	 * @return List<User> Group admins
@@ -391,17 +406,26 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getAdmins(ac.getSession(),
+			if(parms.contains("onlyDirectAdmins")) {
+				return ac.getGroupsManager().getAdmins(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					parms.readInt("onlyDirectAdmins") == 1);
+			} else {
+				return ac.getGroupsManager().getAdmins(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
+			}
 		}
 	},
 
 	/*#
 	 * Returns direct administrators of a group.
 	 *
+	 * !!! DEPRECATED version !!!
+	 *
 	 * @param group int Group ID
 	 * @return List<User> Group admins
 	 */
+	@Deprecated
 	getDirectAdmins {
 
 		@Override
@@ -427,7 +451,26 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get list of all richUser administrators for the group and supported role with specific attributes.
+	 *
+	 * Supported roles: GroupAdmin
+	 *
+	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @param specificAttributes list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of RichUser administrators for the group and supported role with attributes
+	 */
+	/*#
 	* Get all Group admins as RichUsers
+	*
+	* !!! DEPRECATED version !!!
 	*
 	* @param group int Group ID
 	* @return List<RichUser> admins
@@ -436,17 +479,28 @@ public enum GroupsManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getRichAdmins(ac.getSession(),
+			if(parms.contains("onlyDirectAdmins")) {
+				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readList("specificAttribtues", String.class),
+								parms.readInt("allUserAttributes") == 1,
+								parms.readInt("onlyDirectAdmins") == 1);
+			} else {
+				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
+			}
 		}
 	},
 
 	/*#
 	* Get all Group admins as RichUsers with all their non-null user attributes
 	*
+	* !!! DEPRECATED version !!!
+	*
 	* @param group int Group ID
 	* @return List<RichUser> admins with attributes
 	*/
+	@Deprecated
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -459,10 +513,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Group admins as RichUsers with specific attributes (from user namespace)
 	*
+	* !!! DEPRECATED version !!!
+	*
 	* @param group int Group ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> admins with attributes
 	*/
+	@Deprecated
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -478,10 +535,13 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	* Get all Group admins, which are assigned directly,
 	*  as RichUsers with specific attributes (from user namespace)
 	*
+	* !!! DEPRECATED version !!!
+	*
 	* @param group int Group ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> direct admins with attributes
 	*/
+	@Deprecated
 	getDirectRichAdminsWithSpecificAttributes {
 
 		@Override

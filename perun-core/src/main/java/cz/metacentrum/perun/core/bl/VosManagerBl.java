@@ -1,22 +1,18 @@
 package cz.metacentrum.perun.core.bl;
 
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -180,6 +176,61 @@ public interface VosManagerBl {
 	void removeAdmin(PerunSession perunSession, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
 
 	/**
+	 * Get list of all user administrators for supported role and specific vo.
+	 *
+	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 *
+	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 *
+	 * @param perunSession
+	 * @param vo
+	 * @param role supported role
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of all user administrators of the given vo for supported role
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<User> getAdmins(PerunSession perunSession, Vo vo, Role role, boolean onlyDirectAdmins) throws InternalErrorException;
+
+	/**
+	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
+	 *
+	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 *
+	 * If "onlyDirectAdmins" is "true", return only direct users of the vo for supported role with specific attributes.
+	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param perunSession
+	 * @param vo
+	 *
+	 * @param specificAttributes list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of RichUser administrators for the vo and supported role with attributes
+	 *
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, Role role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
+
+	/**
+	 * Get list of group administrators of the given VO.
+	 *
+	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 *
+	 * @param perunSession
+	 * @param vo
+	 * @param role
+	 *
+	 * @return List of groups, who are administrators of the Vo with supported role. Returns empty list if there is no VO group admin.
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAdminGroups(PerunSession perunSession, Vo vo, Role role) throws InternalErrorException;
+
+	/**
 	 * Get list of Vo administrators.
 	 * If some group is administrator of the VO, all members are included in the list.
 	 *
@@ -188,6 +239,7 @@ public interface VosManagerBl {
 	 * @return List of users, who are administrators of the Vo. Returns empty list if there is no VO admin.
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
@@ -199,6 +251,7 @@ public interface VosManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<User> getDirectAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
@@ -209,6 +262,7 @@ public interface VosManagerBl {
 	 * @return List of groups, who are administrators of the Vo. Returns empty list if there is no VO group admin.
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<Group> getAdminGroups(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 
@@ -221,6 +275,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -232,6 +287,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -243,6 +299,7 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Vo vo) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -256,6 +313,7 @@ public interface VosManagerBl {
 	 * @throws UserNotExistsException
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -269,6 +327,7 @@ public interface VosManagerBl {
 	 * @throws UserNotExistsException
 	 * @throws InternalErrorException
 	 */
+	@Deprecated
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Vo vo, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
 
 	/**
