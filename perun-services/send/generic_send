@@ -6,6 +6,7 @@ if [ -z "$SERVICE_NAME" ]; then
 fi
 
 TIMEOUT="5400" #90s * 60 sec = 1.5h
+TIMEOUT_KILL="60" # 60 sec to kill after timeout
 
 FACILITY_NAME=$1
 DESTINATION=$2
@@ -68,9 +69,9 @@ fi
 
 if [ -d "$SERVICE_FILES_FOR_DESTINATION" ]
 then
-	tar -c -C "$SERVICE_FILES_FOR_DESTINATION" . -C "$SERVICE_FILES_DIR"  --exclude="_destination" .  -C "$TMP_HOSTNAME_DIR" .  | waitmax $TIMEOUT $TRANSPORT_COMMAND $HOST $SLAVE_COMMAND
+	tar -c -C "$SERVICE_FILES_FOR_DESTINATION" . -C "$SERVICE_FILES_DIR"  --exclude="_destination" .  -C "$TMP_HOSTNAME_DIR" .  | timeout -k $TIMEOUT_KILL $TIMEOUT $TRANSPORT_COMMAND $HOST $SLAVE_COMMAND
 else
-	tar -c -C "$SERVICE_FILES_DIR"  --exclude="_destination" .  -C "$TMP_HOSTNAME_DIR" .  | waitmax $TIMEOUT $TRANSPORT_COMMAND $HOST $SLAVE_COMMAND
+	tar -c -C "$SERVICE_FILES_DIR"  --exclude="_destination" .  -C "$TMP_HOSTNAME_DIR" .  | timeout -k $TIMEOUT_KILL $TIMEOUT $TRANSPORT_COMMAND $HOST $SLAVE_COMMAND
 fi
 ERR_CODE=$?
 
