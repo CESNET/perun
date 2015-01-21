@@ -86,15 +86,15 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     </bean>
 
     <bean id="taskExecutorGenWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-          <property name="corePoolSize" value="5" />
-          <property name="maxPoolSize" value="5" />
+          <property name="corePoolSize" value="20" />
+          <property name="maxPoolSize" value="20" />
           <property name="queueCapacity" value="2000" />
     </bean>
 
     <bean id="taskExecutorSendWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
           <property name="corePoolSize" value="10" />
           <property name="maxPoolSize" value="1000" />
-          <property name="queueCapacity" value="20" />
+          <property name="queueCapacity" value="200" />
     </bean>
 
     <!-- Properties Bean -->
