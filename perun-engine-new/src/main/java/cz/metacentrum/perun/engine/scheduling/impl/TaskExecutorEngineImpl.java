@@ -82,6 +82,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		// run all tasks in scheduled state
 		Date now = new Date(System.currentTimeMillis());
 		for (Task task : schedulingPool.getPlannedTasks()) {
+			/*
 			if(schedulingPool.getProcessingTasks().size() > MAX_RUNNING) {
 				log.warn("Reached the maximum number of concurrently running tasks.");
 				break;
@@ -89,6 +90,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 			if(currentlyRunningGenTasks >= MAX_RUNNING_GEN) {
 				continue;
 			}
+			*/
 			log.debug("TASK " + task.toString() + " is to be run at "
 					+ task.getSchedule() + ", now is " + now);
 			if (task.getSchedule().before(now)) {
@@ -295,8 +297,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	 */
 
 	protected ExecutorEngineWorker createExecutorEngineWorker() {
-		ExecutorEngineWorker worker = (ExecutorEngineWorker) this.beanFactory
-				.getBean("executorEngineWorker");
+		ExecutorEngineWorker worker = (ExecutorEngineWorker) this.beanFactory.getBean("executorEngineWorker");
 		return worker;
 	}
 
