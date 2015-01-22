@@ -1,4 +1,4 @@
--- database version 3.1.15 (don't forget to update insert statement at the end of file)
+-- database version 3.1.17 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1420,7 +1420,7 @@ alter table host_attr_values add constraint hostav_host_fk foreign key (host_id)
 alter table host_attr_values add constraint hostav_attr_fk foreign key (attr_id) references attr_names(id);
 
 alter table entityless_attr_values add constraint entlatval_pk primary key(subject,attr_id);
-alter table host_attr_values add constraint entlatval_attr_fk foreign key (attr_id) references attr_names(id);
+alter table entityless_attr_values add constraint entlatval_attr_fk foreign key (attr_id) references attr_names(id);
 
 alter table cabinet_categories add constraint cab_cat_pk primary key (id);
 
@@ -1652,4 +1652,4 @@ grant all on mailchange to perun;
 grant all on pwdreset to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.15');
+insert into configurations values ('DATABASE VERSION','3.1.17');
