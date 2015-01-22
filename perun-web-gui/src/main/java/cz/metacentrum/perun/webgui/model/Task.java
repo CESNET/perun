@@ -27,7 +27,7 @@ public class Task extends JavaScriptObject {
 		if (getStartTimeNative() != 0) {
 			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getStartTimeNative()));
 		} else {
-			return "Never";
+			return "Not yet";
 		}
 	}
 
@@ -40,7 +40,7 @@ public class Task extends JavaScriptObject {
 		if (getEndTimeNative() != 0) {
 			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getEndTimeNative()));
 		} else {
-			return "Never";
+			return "Not yet";
 		}
 	}
 
@@ -61,7 +61,7 @@ public class Task extends JavaScriptObject {
 		if (getScheduleNative() != 0) {
 			return DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)getScheduleNative()));
 		} else {
-			return "Never";
+			return "Not yet";
 		}
 	}
 
