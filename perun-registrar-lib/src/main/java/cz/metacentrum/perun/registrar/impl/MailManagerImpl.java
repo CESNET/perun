@@ -1927,12 +1927,14 @@ public class MailManagerImpl implements MailManager {
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
 				text += "gui/";
-				if (text.endsWith("/fed/gui/")) {
-					// federation can't handle #
-					text += "?vo/appdetail?id="+appId;
-				} else {
-					text += "#vo/appdetail?id="+appId;
+				String separator = "#";
+				for (String s : getFedAuthz()) {
+					if (text.endsWith(s+"/gui/")) {
+						separator = "?";
+						break;
+					}
 				}
+				text += separator + "vo/appdetail?id="+appId;
 			}
 			mailText = mailText.replace("{appDetailUrl}", text);
 		}
@@ -1961,7 +1963,7 @@ public class MailManagerImpl implements MailManager {
 					if (newValue != null && !newValue.isEmpty()) {
 						if (!newValue.endsWith("/")) newValue += "/";
 						newValue += namespace + "/gui/";
-						newValue += ((namespace.equals("fed")) ? "?vo/appdetail?id="+appId : "#vo/appdetail?id="+appId);
+						newValue += getFedAuthz().contains(namespace) ? "?vo/appdetail?id="+appId : "#vo/appdetail?id="+appId;
 					}
 
 				}
@@ -1975,6 +1977,25 @@ public class MailManagerImpl implements MailManager {
 
 		return mailText;
 
+	}
+
+	/**
+	 * Get parts of URL, which are considered federative and must have "?" in URLs and not "#".
+	 *
+	 * @return Array of federative URLs
+	 */
+	private ArrayList<String> getFedAuthz() {
+
+		ArrayList<String> fedAuthz = new ArrayList<String>();
+		fedAuthz.add("fed");
+		String fedString = getPropertyFromConfiguration("fedAuthz");
+		if (fedString != null && !fedString.isEmpty()) {
+			String[] array = fedString.split(",");
+			for (String s : array) {
+				fedAuthz.add(s.trim());
+			}
+		}
+		return fedAuthz;
 	}
 
 }
