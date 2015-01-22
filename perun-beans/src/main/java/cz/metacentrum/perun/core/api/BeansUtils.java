@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
 public class BeansUtils {
 
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
+	private final static Pattern richBeanNamePattern = Pattern.compile("^Rich([A-Z].*$)");
 	public static final char LIST_DELIMITER = ',';
 	public static final char KEY_VALUE_DELIMITER = ':';
 
@@ -371,6 +373,29 @@ public class BeansUtils {
 		} else {
 			throw new InternalErrorException("Unknown attribute type. ("+ attributeClass.toString() + ")");
 		}
+	}
 
+	/**
+	 * Take perunBean name and if it is RichObject, convert it to simple name.
+	 *
+	 * RichObject mean: starts with "Rich" and continue with Upper Letter [A-Z]
+	 *
+	 * Ex.: RichGroup -> Group, RichUser -> User
+	 * Ex.: RichardObject -> RichardObject
+	 * Ex.: Null -> Null
+	 *
+	 * @param beanName bean Name of PerunBean (simple name of object)
+	 *
+	 * @return converted beanName (without Rich part)
+	 */
+	public static String convertRichBeanNameToBeanName(String beanName) {
+		if(beanName == null || beanName.isEmpty()) return beanName;
+
+		Matcher richBeanNameMatcher = richBeanNamePattern.matcher(beanName);
+		if (richBeanNameMatcher.find()) {
+			return richBeanNameMatcher.group(1);
+		}
+
+		return beanName;
 	}
 }
