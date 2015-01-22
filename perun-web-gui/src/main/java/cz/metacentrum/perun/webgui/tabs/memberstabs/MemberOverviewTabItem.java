@@ -16,6 +16,7 @@ import cz.metacentrum.perun.webgui.model.Member;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.MembershipExpirationWidget;
 import cz.metacentrum.perun.webgui.widgets.PerunStatusWidget;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -303,10 +304,10 @@ public class MemberOverviewTabItem implements TabItem {
 		@Override
 		public void onLoadingStart() {
 			for (int i=0; i<personalLayout.getRowCount(); i++) {
-				personalLayout.setWidget(i, 1, new Image("/img/ajax-loader-small.gif"));
+				personalLayout.setWidget(i, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
 			}
-			memberLayout.setWidget(2, 1, new Image("/img/ajax-loader-small.gif"));
-			memberLayout.setWidget(4, 1, new Image("/img/ajax-loader-small.gif"));
+			memberLayout.setWidget(2, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
+			memberLayout.setWidget(4, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
 		}
 		});
 
