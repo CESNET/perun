@@ -178,7 +178,7 @@ public class ApplicationFormItem extends JavaScriptObject {
 	 */
 	public final native JsArrayString getLocalesNative() /*-{
 		if(typeof this.i18n !== 'undefined' && this.i18n !== null){
-			return Object.getOwnPropertyNames(this.i18n)
+			return Object.keys(this.i18n)
 		}
 		return null;
 	}-*/;
