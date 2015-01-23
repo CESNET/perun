@@ -338,6 +338,7 @@ public class EditFormItemTabItem implements TabItem {
 		federationAttributes.addItem("Sure name", "sn");
 		federationAttributes.addItem("EPPN", "eppn");
 		federationAttributes.addItem("IdP Category", "md_entityCategory");
+		federationAttributes.addItem("IdP Affiliation", "affiliation");
 
 		// application types
 		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents() {
