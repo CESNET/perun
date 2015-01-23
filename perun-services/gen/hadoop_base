@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+
+local $::SERVICE_NAME = "hadoop_base";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_USER_LOGIN;                    *A_USER_LOGIN =                \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_FACILITY_LOGIN_NAMESPACE;      *A_FACILITY_LOGIN_NAMESPACE  = \'urn:perun:facility:attribute-def:def:loginNamespace';
+
+my $fileName = "$DIRECTORY/$::SERVICE_NAME";
+open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+
+my $sortingFunction = getAttributeSorting $A_USER_LOGIN, 1;
+
+my @logins;
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+	my @membersData = $rData->getChildElements;
+	for my $memberAttributes (dataToAttributesHashes @membersData) {
+		push(@logins, $memberAttributes->{$A_USER_LOGIN});
+	}
+}
+
+my @uniqueLogins = uniqList @logins;
+print FILE join "\n", sort @uniqueLogins;
+print FILE "\n";
+
+close(FILE) or die "Cannot close $fileName: $! \n";
+perunServicesInit::finalize;
