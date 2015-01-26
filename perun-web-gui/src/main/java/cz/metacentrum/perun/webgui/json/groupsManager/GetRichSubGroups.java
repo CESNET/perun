@@ -169,7 +169,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 
 						final RichGroup object = jso.cast();
 
-						String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
+						String name, syncEnabled, syncInterval, syncTimestamp, syncSuccessTimestamp, syncState, authGroup;
 						name = object.getName();
 						if (object.isSyncEnabled()) {
 							syncEnabled = "enabled";
@@ -193,8 +193,12 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 							}
 
 						}
-						if (object.getLastSynchronizationState() != null && object.getLastSynchronizationState().equals("OK")) {
-							syncState = "OK";
+						if (object.getLastSynchronizationState() == null) {
+							if (object.getLastSuccessSynchronizationTimestamp() != null) {
+								syncState = "OK";
+							} else {
+								syncState = "Not synced yet";
+							}
 						} else {
 							if (session.isPerunAdmin()) {
 								syncState = object.getLastSynchronizationState();
@@ -206,6 +210,11 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 							syncTimestamp = "N/A";
 						} else {
 							syncTimestamp = object.getLastSynchronizationTimestamp().split("\\.")[0];
+						}
+						if (object.getLastSuccessSynchronizationTimestamp() == null) {
+							syncSuccessTimestamp = "N/A";
+						} else {
+							syncSuccessTimestamp = object.getLastSuccessSynchronizationTimestamp().split("\\.")[0];
 						}
 						if (object.getAuthoritativeGroup() != null && object.getAuthoritativeGroup().equals("1")) {
 							authGroup = "Yes";
@@ -219,6 +228,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 						if (object.isSyncEnabled()) {
 							html += "Last sync. state: <b>"+syncState+"</b><br>";
 							html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
+							html += "Last successful sync. timestamp: <b>"+syncSuccessTimestamp+"</b><br>";
 							html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
 							html += "Authoritative group: <b>"+authGroup+"</b><br>";
 						}
@@ -226,7 +236,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 						FlexTable layout = new FlexTable();
 
 						layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
-						layout.setHTML(0, 1, "<p>" + html);
+						layout.setHTML(0, 1, "<p style=\"line-height: 1.2;\">" + html);
 
 						layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
 						layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
@@ -241,6 +251,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 							}
 						});
 						if (!session.isVoAdmin(object.getVoId()) && !session.isGroupAdmin(object.getId())) okButton.setEnabled(false);
+						okButton.setVisible(object.isSyncEnabled());
 
 						final Confirm c = new Confirm("Group synchronization info", layout, okButton, null, true);
 						c.setHideOnButtonClick(false);
