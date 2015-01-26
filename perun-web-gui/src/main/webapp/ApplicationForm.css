@@ -1,4 +1,4 @@
-body, table td, select, button, .gwt-TextBox, .gwt-PasswordTextBox{
+body, table td, button, .gwt-TextBox, .gwt-PasswordTextBox{
 	font-size:100% !important;
 }
 
@@ -102,6 +102,8 @@ body {
 /* GUI Listboxes with objects */
 select {
     max-width: 250px;
+	font-family: Arial Unicode MS,Arial,sans-serif;
+	font-size: small !important;
 }
 
 /* SUGGEST BOX popup - fix visibility on inner tabs */
@@ -114,7 +116,7 @@ select {
 }
 
 /* Style all input-text as gwt-Textbox */
-input[type=text], input[type=password] {
+input[type=text], input[type=password], input[type=text]:disabled, input[type=password]:disabled {
     -moz-border-bottom-colors: none;
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
@@ -125,7 +127,7 @@ input[type=text], input[type=password] {
     border-style: solid;
     border-width: 1px;
     font-family: Arial Unicode MS,Arial,sans-serif;
-    font-size: small;
+    font-size: small !important;
     padding: 5px 4px;
 }
 

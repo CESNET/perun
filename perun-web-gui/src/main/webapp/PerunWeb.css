@@ -455,7 +455,7 @@ select {
 }
 
 /* Style all input-text as gwt-Textbox */
-input[type=text], input[type=password] {
+input[type=text], input[type=password], input[type=text]:disabled, input[type=password]:disabled {
     -moz-border-bottom-colors: none;
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
@@ -466,12 +466,12 @@ input[type=text], input[type=password] {
     border-style: solid;
     border-width: 1px;
     font-family: Arial Unicode MS,Arial,sans-serif;
-    font-size: small;
+	font-size: small !important;
     padding: 5px 4px;
 }
 
 /* input-text in CellTables is 100% width by default */
-.GPBYFDEPC input[type=text], .GPBYFDEPD  input[type=text] {
+.GPBYFDEPC input[type=text], .GPBYFDEPD  input[type=text], .GPBYFDEPC input[type=text]:disabled, .GPBYFDEPD  input[type=text]:disabled {
     display: block;
     width: 100%;
 }
