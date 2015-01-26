@@ -12,6 +12,7 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.membersManager.GetNewExtendMembership;
@@ -60,7 +61,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 	private int appId;
 	private TabItem tab;
 	private Application app = null;
-
+	private int row = 0;
 
 	/**
 	 * Creates a tab instance
@@ -112,14 +113,26 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		} else {
 			text += app.getCreatedBy();
 		}
-		text += " <strong>from:</strong> "+app.getExtSourceName()+" <strong>with Level of Assurance:</strong> "+app.getExtSourceLoa();
-		ft.setHTML(0, 0, text);
+		text += " <strong>from:</strong> " + app.getExtSourceName()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
+		text += " <strong>at: </strong> " + app.getCreatedAt().split("\\.")[0];
+		ft.setHTML(row, 0, text);
 		ft.setCellSpacing(5);
 
+		row++;
+
 		if (app.getGroup() != null) {
-			ft.setHTML(1, 0, "<strong>Application for group: </strong>"+app.getGroup().getName() + "<strong> in VO: </strong>"+app.getVo().getName());
+			ft.setHTML(row, 0, "<strong>Application for group: </strong>"+app.getGroup().getName() + "<strong> in VO: </strong>"+app.getVo().getName());
 		} else {
-			ft.setHTML(1, 0, "<strong>Application for VO: </strong>"+app.getVo().getName());
+			ft.setHTML(row, 0, "<strong>Application for VO: </strong>"+app.getVo().getName());
+		}
+
+		if (app.getState().equalsIgnoreCase("APPROVED")) {
+			row++;
+			ft.setHTML(row, 0, "<strong>Approved by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>at: </strong> " + app.getModifiedAt().split("\\.")[0]);
+		}
+		if (app.getState().equalsIgnoreCase("REJECTED")) {
+			row++;
+			ft.setHTML(row, 0, "<strong>Rejected by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>at: </strong> " + app.getModifiedAt().split("\\.")[0]);
 		}
 
 		// for extension in VO if not approved or rejected
@@ -131,7 +144,8 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 				public void onFinished(JavaScriptObject jso) {
 					if (jso != null) {
 						BasicOverlayType basic = jso.cast();
-						ft.setHTML(2, 0, "<strong>New membership expiration:</strong> "+basic.getString());
+						row++;
+						ft.setHTML(row, 0, "<strong>New membership expiration:</strong> "+basic.getString());
 					}
 				}
 			});
@@ -149,7 +163,8 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 				public void onFinished(JavaScriptObject jso) {
 					if (jso != null) {
 						BasicOverlayType basic = jso.cast();
-						ft.setHTML(2, 0, "<strong>New membership expiration:</strong> "+basic.getString());
+						row++;
+						ft.setHTML(row, 0, "<strong>New membership expiration:</strong> "+basic.getString());
 					}
 				}
 			});
