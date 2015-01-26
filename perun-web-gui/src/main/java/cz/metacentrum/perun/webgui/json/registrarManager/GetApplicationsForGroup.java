@@ -15,6 +15,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Application;
@@ -198,21 +199,22 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 				new ClickableTextCell() {
 					@Override
 					public void render(
-						com.google.gwt.cell.client.Cell.Context context,
-						SafeHtml value, SafeHtmlBuilder sb) {
+							com.google.gwt.cell.client.Cell.Context context,
+							SafeHtml value, SafeHtmlBuilder sb) {
 						if (value != null) {
 							sb.appendHtmlConstant("<div class=\"customClickableTextCell\">");
 							sb.append(value);
 							sb.appendHtmlConstant("</div>");
 						}
-						}
+					}
 				},
 				new JsonUtils.GetValue<Application, String>() {
 					public String getValue(Application object) {
+
 						if (object.getUser() != null) {
 							return object.getUser().getFullNameWithTitles();
 						}
-						return object.getCreatedBy() + " / " + object.getExtSourceName();
+						return Utils.convertCertCN(object.getCreatedBy()) + " / " + Utils.translateIdp(Utils.convertCertCN(object.getExtSourceName()));
 					}
 				}, tableFieldUpdater);
 
@@ -222,14 +224,14 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 				String compare1 = "";
 				String compare2 = "";
 				if (arg0.getUser() != null) {
-					compare1 = arg0.getUser().getFullNameWithTitles();
+					compare1 = arg0.getUser().getFullName();
 				} else {
-					compare1 = arg0.getCreatedBy() + " / " + arg0.getExtSourceName();
+					compare1 = Utils.convertCertCN(arg0.getCreatedBy()) + " / " + Utils.translateIdp(Utils.convertCertCN(arg0.getExtSourceName()));
 				}
 				if (arg1.getUser() != null) {
-					compare2 = arg1.getUser().getFullNameWithTitles();
+					compare2 = arg1.getUser().getFullName();
 				} else {
-					compare2 = arg1.getCreatedBy() + " / " + arg1.getExtSourceName();
+					compare2 = Utils.convertCertCN(arg1.getCreatedBy()) + " / " + Utils.translateIdp(Utils.convertCertCN(arg1.getExtSourceName()));
 				}
 				return compare1.compareToIgnoreCase(compare2);
 			}
@@ -240,14 +242,14 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 				new ClickableTextCell() {
 					@Override
 					public void render(
-						com.google.gwt.cell.client.Cell.Context context,
-						SafeHtml value, SafeHtmlBuilder sb) {
+							com.google.gwt.cell.client.Cell.Context context,
+							SafeHtml value, SafeHtmlBuilder sb) {
 						if (value != null) {
 							sb.appendHtmlConstant("<div class=\"customClickableTextCell\">");
 							sb.append(value);
 							sb.appendHtmlConstant("</div>");
 						}
-						}
+					}
 				},
 				new JsonUtils.GetValue<Application, String>() {
 					public String getValue(Application object) {
@@ -267,7 +269,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 		Column<Application, String> modifiedColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Application, String>() {
 					public String getValue(Application object) {
-						return object.getModifiedBy();
+						return Utils.convertCertCN(object.getModifiedBy());
 					}
 				}, tableFieldUpdater);
 
@@ -275,7 +277,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 		modifiedColumn.setSortable(true);
 		columnSortHandler.setComparator(modifiedColumn, new Comparator<Application>(){
 			public int compare(Application arg0, Application arg1) {
-				return arg0.getModifiedBy().compareTo(arg1.getModifiedBy());
+				return Utils.convertCertCN(arg0.getModifiedBy()).compareTo(Utils.convertCertCN(arg1.getModifiedBy()));
 			}
 		});
 
@@ -330,7 +332,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 		if (object.getUser() != null) {
 			oracle.add(object.getUser().getFullName());
 		} else {
-			oracle.add(object.getCreatedBy());
+			oracle.add(Utils.convertCertCN(object.getCreatedBy()));
 		}
 		dataProvider.flush();
 		dataProvider.refresh();
@@ -410,7 +412,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 		if (object.getUser() != null) {
 			oracle.add(object.getUser().getFullName());
 		} else {
-			oracle.add(object.getCreatedBy());
+			oracle.add(Utils.convertCertCN(object.getCreatedBy()));
 		}
 		dataProvider.flush();
 		dataProvider.refresh();
@@ -431,7 +433,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 			if (a.getUser() != null) {
 				oracle.add(a.getUser().getFullName());
 			} else {
-				oracle.add(a.getCreatedBy());
+				oracle.add(Utils.convertCertCN(a.getCreatedBy()));
 			}
 		}
 		dataProvider.flush();
