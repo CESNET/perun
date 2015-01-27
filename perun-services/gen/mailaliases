@@ -14,22 +14,43 @@ my $DIRECTORY = perunServicesInit::getDirectory;
 my $data = perunServicesInit::getHierarchicalData;
 
 #Constants
-our $A_USER_LOGIN;      *A_USER_LOGIN =        \'urn:perun:user_facility:attribute-def:virt:login';
-our $A_USER_MAIL;       *A_USER_MAIL =         \'urn:perun:user:attribute-def:def:preferredMail';
-
-my $fileName = "$DIRECTORY/$::SERVICE_NAME";
-open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+our $A_USER_LOGIN;			*A_USER_LOGIN =		\'urn:perun:user_facility:attribute-def:virt:login';
+our $A_USER_MAIL;			*A_USER_MAIL =		\'urn:perun:user:attribute-def:def:preferredMail';
+our $A_RESOURCE_MAIL_ROOT;		*A_RESOURCE_MAIL_ROOT =	\'urn:perun:resource:attribute-def:def:rootMailAliases';
+our $A_USER_MAIL_ROOT;			*A_USER_MAIL_ROOT =	\'urn:perun:user:attribute-def:def:rootMailAliasesMail';
 
 my $sortingFunction = getAttributeSorting $A_USER_LOGIN, 1;
 
 my %mailByLogin;
+my %mailByLoginRoot;
 my @resourcesData = $data->getChildElements;
+
 foreach my $rData (@resourcesData) {
 	my @membersData = $rData->getChildElements;
-	for my $memberAttributes (dataToAttributesHashes @membersData) {
-		$mailByLogin{$memberAttributes->{$A_USER_LOGIN}} = $memberAttributes->{$A_USER_MAIL};
+	my %resourceAttributes = attributesToHash $rData->getAttributes;
+
+	foreach my $memberAttributes (dataToAttributesHashes @membersData) {
+		if (defined $resourceAttributes{$A_RESOURCE_MAIL_ROOT}) {
+			if(defined $memberAttributes->{$A_USER_MAIL_ROOT}) {
+				$mailByLoginRoot{$memberAttributes->{$A_USER_LOGIN}} = $memberAttributes->{$A_USER_MAIL_ROOT};
+			}
+			else {
+				$mailByLoginRoot{$memberAttributes->{$A_USER_LOGIN}} = $memberAttributes->{$A_USER_MAIL};
+			}
+		}
+		else {
+			if(defined $memberAttributes->{$A_USER_MAIL_ROOT}) {
+				$mailByLogin{$memberAttributes->{$A_USER_LOGIN}} = $memberAttributes->{$A_USER_MAIL_ROOT};
+			}
+			else {
+				$mailByLogin{$memberAttributes->{$A_USER_LOGIN}} = $memberAttributes->{$A_USER_MAIL};
+			}
+		}
 	}
 }
+
+my $fileName = "$DIRECTORY/$::SERVICE_NAME";
+open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
 
 foreach my $login (sort keys %mailByLogin) {
 	print FILE $login . ": ";
@@ -37,5 +58,21 @@ foreach my $login (sort keys %mailByLogin) {
 	print FILE "\n";
 }
 
-close (FILE);
+close (FILE) or die "Cannot close $fileName: $! \n";
+
+# stores all emails of the users from the resource with R:D:rootMailAliases defined
+my @emails;
+
+foreach my $loginRoot (sort keys %mailByLoginRoot) {
+	push(@emails, $mailByLoginRoot{$loginRoot});
+}
+
+if (@emails) {
+	my $fileNameRoot = "$DIRECTORY/mailaliases-root";
+
+	open FILEROOT,">$fileNameRoot" or die "Cannot open $fileNameRoot: $! \n";
+	print FILEROOT "root: ", join(', ', sort @emails), "\n";
+	close (FILEROOT) or die "Cannot close $fileNameRoot: $! \n";
+}
+
 perunServicesInit::finalize;
