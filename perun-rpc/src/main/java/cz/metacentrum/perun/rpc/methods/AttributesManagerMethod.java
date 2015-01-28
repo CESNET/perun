@@ -514,6 +514,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
+	 * @param group int Group ID
+	 * @param attributeName String Attribute name
+	 * @return Attribute Found Attribute
+	 */
+	/*#
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 *
 	 * @param resource int Resource ID
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
@@ -583,12 +590,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					return ac.getAttributesManager().getAttributeById(ac.getSession(),
 							ac.getUserById(parms.readInt("user")),
 							parms.readInt("attributeId"));
-					/*  Not implemented yet
-							} else if (parms.contains("group")) {
-							return ac.getAttributesManager().getAttributeById(ac.getSession(),
+				} else if (parms.contains("group")) {
+					return ac.getAttributesManager().getAttributeById(ac.getSession(),
 							ac.getGroupById(parms.readInt("group")),
 							parms.readInt("attributeId"));
-							*/
 				} else if (parms.contains("host")) {
 					return ac.getAttributesManager().getAttributeById(ac.getSession(),
 							ac.getHostById(parms.readInt("host")),
