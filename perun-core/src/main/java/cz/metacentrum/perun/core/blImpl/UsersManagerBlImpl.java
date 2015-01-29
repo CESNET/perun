@@ -28,7 +28,7 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
 /**
- * UsersManager buisness logic
+ * UsersManager business logic
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -54,7 +54,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	/**
 	 * Constructor.
 	 *
-	 * @param perunPool connection pool
+	 * @param usersManagerImpl connection pool
 	 */
 	public UsersManagerBlImpl(UsersManagerImplApi usersManagerImpl) {
 		this.usersManagerImpl = usersManagerImpl;
@@ -263,7 +263,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		try {
 			es = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
 		} catch (ExtSourceNotExistsException e1) {
-			throw new ConsistencyErrorException("Default extSource PERUN must exists! It is created in ExtSourcesManagerImpl.init fucntion.",e1);
+			throw new ConsistencyErrorException("Default extSource PERUN must exists! It is created in ExtSourcesManagerImpl.init function.",e1);
 		}
 		UserExtSource ues = new UserExtSource(es, 0, String.valueOf(user.getId()));
 		try {

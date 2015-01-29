@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -897,7 +897,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				subjects = ((ExtSourceSimpleApi) source).getGroupSubjects(attributes);
 				log.debug("Group synchronization {}: external group contains {} members.", group, subjects.size());
 			} catch (ExtSourceUnsupportedOperationException e2) {
-				throw new InternalErrorException("ExtSrouce " + source.getName() + " doesn't support getGroupSubjects", e2);
+				throw new InternalErrorException("ExtSource " + source.getName() + " doesn't support getGroupSubjects", e2);
 			}
 
 			// Get total number of users to synchronize
@@ -910,13 +910,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			for (Map<String, String> subject: subjects) {
 				String login = subject.get("login");
 				// Skip subjects, which doesn't have login
-				if (login == null || login == "") {
+				if (login == null || login.isEmpty()) {
 					log.debug("Subject {} doesn't contain attribute login, skipping.", subject);
 					skippedMembers.add("MemberEntry:[" + subject + "] was skipped because login is missing");
 					continue;
 				}
 				try {
-					candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
+					if (membersSource instanceof ExtSourceApi) {
+						// get candidates from subjects we already have locally
+						candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
+					} else if (membersSource instanceof ExtSourceSimpleApi) {
+						// get candidates from external source by login
+						candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
+					}
 				} catch (ExtSourceNotExistsException e) {
 					throw new InternalErrorException("ExtSource " + membersSource + " doesn't exists.");
 				} catch (CandidateNotExistsException e) {

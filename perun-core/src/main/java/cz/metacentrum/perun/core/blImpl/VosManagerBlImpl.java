@@ -48,7 +48,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * VosManager buisness logic
+ * VosManager business logic
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -225,22 +225,24 @@ public class VosManagerBlImpl implements VosManagerBl {
 				List<Map<String, String>> subjects;
 				try {
 					if(source instanceof ExtSourceApi) {
+						// find subjects with all their properties
 						subjects = ((ExtSourceApi) source).findSubjects(searchString, maxNumOfResults);
 						simpleExtSource = false;
 					} else {
+						// find subjects only with logins - they then must be retrieved by login
 						subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString, maxNumOfResults);
 					}
 				} catch (ExtSourceUnsupportedOperationException e1) {
 					log.warn("ExtSource {} doesn't support findSubjects", source.getName());
 					continue;
 				} catch (InternalErrorException e) {
-					log.error("Error occured on ExtSource {},  Exception {}.", source.getName(), e);
+					log.error("Error occurred on ExtSource {},  Exception {}.", source.getName(), e);
 					continue;
 				} finally {
 					try {
 						((ExtSourceSimpleApi) source).close();
 					} catch (ExtSourceUnsupportedOperationException e) {
-						// ExtSource doesn't support that functionality, so silentely skip it.
+						// ExtSource doesn't support that functionality, so silently skip it.
 					} catch (InternalErrorException e) {
 						log.error("Can't close extSource connection. Cause: {}", e);
 					}
@@ -248,7 +250,7 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 				Set<String> uniqueLogins = new HashSet<>();
 				for (Map<String, String> s : subjects) {
-					// Check if the user has unique identifier whithin extSource
+					// Check if the user has unique identifier within extSource
 					if ((s.get("login") == null) || (s.get("login") != null && ((String) s.get("login")).isEmpty())) {
 						log.error("User '{}' cannot be added, because he/she doesn't have a unique identifier (login)", s);
 						// Skip to another user
@@ -257,19 +259,21 @@ public class VosManagerBlImpl implements VosManagerBl {
 
 					String extLogin = (String) s.get("login");
 
-					// check uniqness of every login in extSource
+					// check uniqueness of every login in extSource
 					if(uniqueLogins.contains(extLogin)) {
-						throw new InternalErrorException("There are more than 1 logins '" + extLogin + "' getting from extSource '" + source + "'");
+						throw new InternalErrorException("There are more than 1 login '" + extLogin + "' getting from extSource '" + source + "'");
 					} else {
 						uniqueLogins.add(extLogin);
 					}
 
-					// Get Canddate
+					// Get Candidate
 					Candidate candidate;
 					try {
 						if(simpleExtSource) {
+							// retrieve data about subjects from ext source based on ext. login
 							candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin);
 						} else {
+							// retrieve data about subjects from subjects we already have locally
 							candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
 						}
 					} catch (ExtSourceNotExistsException e) {
