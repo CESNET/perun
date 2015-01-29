@@ -912,7 +912,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// Skip subjects, which doesn't have login
 				if (login == null || login == "") {
 					log.debug("Subject {} doesn't contain attribute login, skipping.", subject);
-					skippedMembers.add("Member:[" + subject + " because of Skipped due to missing login]");
+					skippedMembers.add("MemberEntry:[" + subject + "] was skipped because login is missing");
 					continue;
 				}
 				try {
@@ -921,15 +921,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					throw new InternalErrorException("ExtSource " + membersSource + " doesn't exists.");
 				} catch (CandidateNotExistsException e) {
 					log.warn("getGroupSubjects subjects returned login {}, but it cannot be obtained using getCandidate()", login);
-					skippedMembers.add("Member:[" + subject + " because of Skipped due to obtaining by getCandidate using login '" + login + "' from extSource '" + membersSource + "]");
+					skippedMembers.add("MemberEntry:[" + subject + "] was skipped because candidate can't be found by login:'" + login + "' in extSource " + membersSource);
 					continue;
 				} catch (ExtSourceUnsupportedOperationException e) {
 					log.warn("ExtSource {} doesn't support getCandidate operation.", membersSource);
-					skippedMembers.add("Member:[" + subject + " because of Skipped due to NOT supported method getCandidate by extSource '" + membersSource + "]");
+					skippedMembers.add("MemberEntry:[" + subject + "] was skipped because extSource " + membersSource + " not support method getCandidate");
 					continue;
 				} catch (ParserException e) {
 					log.warn("Can't parse value {} from candidate with login {}", e.getParsedValue(), login);
-					skippedMembers.add("Member:[" + subject + " because of Skipped due to problem with parsing '" + e.getParsedValue() + "]");
+					skippedMembers.add("MemberEntry:[" + subject + "] was skipped because of problem with parsing value '" + e.getParsedValue() + "'");
 					continue;
 				}
 			}
@@ -1168,11 +1168,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						throw new ConsistencyErrorException("Trying to add existing member");
 					} catch (AttributeValueException e1) {
 						log.warn("Can't create member from candidate {} due to attribute value exception {}.", candidate, e1);
-						skippedMembers.add("Member:[" + candidate + " skipped due to problem with creating member from candidate. Exception: " + e1.getName() + " => " + e1.getMessage() + "]");
+						skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when createing member from candidate: Exception: " + e1.getName() + " => '" + e1.getMessage() + "'");
 						continue;
 					} catch (ExtendMembershipException ex) {
 						log.warn("Can't create member from candidate {} due to membership expiration exception {}.", candidate, ex);
-						skippedMembers.add("Member:[" + candidate + " skipped due to problem with creating member from candidate. Exception: " + ex.getName() + " => " + ex.getMessage() + "]");
+						skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because membership expiration: Exception: " + ex.getName() + " => " + ex.getMessage() + "]");
 						continue;
 					}
 				}
@@ -1452,6 +1452,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			String exceptionMessage = null;
 			//text with all skipped members and reasons of this skipping
 			String skippedMembersMessage = null;
+			//if exception which produce fail of whole synchronization was thrown
+			boolean failedDueToException = false;
 			
 			try {
 				log.debug("Synchronization thread for group {} has started.", group);
@@ -1481,31 +1483,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
-			} catch (WrongAttributeValueException e) {
-				exceptionMessage = "Cannot synchronize group " + group +" due to exception:";
-				log.error(exceptionMessage, e);
-				exceptionMessage+= e.getName() + " => " + e.getMessage();
-			} catch (WrongReferenceAttributeValueException e) {
-				exceptionMessage = "Cannot synchronize group " + group +" due to exception:";
-				log.error(exceptionMessage, e);
-				exceptionMessage+= e.getName() + " => " + e.getMessage();
-			} catch (InternalErrorException e) {
-				exceptionMessage = "Internal Error Exception while synchronizing the group " + group + ":";
-				log.error(exceptionMessage, e);
-				exceptionMessage+= e.getName() + " => " + e.getMessage();
-			} catch (WrongAttributeAssignmentException e) {
-				exceptionMessage = "Wrong Attribute Assignment Exception while synchronizing the group " + group + ":";
-				log.error(exceptionMessage, e);
-				exceptionMessage+= e.getName() + " => " + e.getMessage();
-			} catch (MemberAlreadyRemovedException e) {
-				exceptionMessage = "Member Already Removed Exception while synchronizing the group " + group + " due to exception: ";
-				log.error(exceptionMessage, e);
-				exceptionMessage+= e.getName() + " => " + e.getMessage();
+			} catch (WrongAttributeValueException | WrongReferenceAttributeValueException | InternalErrorException | WrongAttributeAssignmentException | MemberAlreadyRemovedException e) {
+				failedDueToException = true;
+				exceptionMessage = "Cannot synchronize group ";
+				log.error(exceptionMessage + group, e);
+				exceptionMessage+= "due to exception: " + e.getName() + " => " + e.getMessage();
+			} catch (Exception e) {
+				//If some other exception has been thrown, log it and throw again
+				failedDueToException = true;
+				exceptionMessage = "Cannot synchronize group ";
+				log.error(exceptionMessage + group, e);
+				exceptionMessage+= "due to unexpected exception: " + e.getClass().getName() + " => " + e.getMessage();
+				throw e;
 			} finally {
 				Date currentTimestamp = new Date();
 				//Save information about group synchronization, this method run in new transaction
 				try {
-					((PerunBl) sess.getPerun()).getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, exceptionMessage);
+					((PerunBl) sess.getPerun()).getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, failedDueToException, exceptionMessage);
 				} catch (Exception ex) {
 					log.error("When synchronization group " + group + ", exception was thrown.", ex);
 					log.error("Info about exception from synchronization: " + skippedMembersMessage);
@@ -1743,7 +1737,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return convertGroupToRichGroupWithAttributesByName(sess, this.getGroupById(sess, groupId), attrNames);
 	}
 
-	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		//If session is null, throw an exception
 		if (sess == null) {
 			throw new InternalErrorException("Session is null when trying to save information about synchronization. Group: " + group + ", timestamp: " + currentTimestamp + ",message: " + exceptionMessage);
@@ -1789,6 +1783,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				attrsToSet.add(lastSuccessSynchronizationTimestamp);
 			} catch (AttributeNotExistsException ex) {
 				log.error("Can't save lastSuccessSynchronizationTimestamp, because there is missing attribute with name {}",attrName);
+			}
+		} else {
+			//Log to auditer_log that synchronization failed or finished with some errors
+			if(failedDueToException) {
+				getPerunBl().getAuditer().log(sess, "{} synchronization failed because of {}.", group, exceptionMessage);
+			} else {
+				getPerunBl().getAuditer().log(sess, "{} synchronization finished with errors: {}.", group, exceptionMessage);
 			}
 		}
 

@@ -1000,15 +1000,20 @@ public interface GroupsManagerBl {
 
 	/**
 	 * This method will set currentTimestamp and exceptionMessage to group attributes for the group.
+	 * Also log information about failed synchronization to auditer_log.
 	 * 
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
 	 * 
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
+	 *
+	 * FailedDueToException is true means group synchronization failed at all.
+	 * FailedDueToException is false means group synchronization is ok or finished with some errors (some members were not synchronized)
 	 * 
 	 * @param sess perun session
 	 * @param group the group for synchronization
 	 * @param currentTimestamp timestamp of last synchronization
+	 * @param failedDueToException if exception means fail of whole synchronization of this group or only problem with some data
 	 * @param exceptionMessage message of an exception, ok if everything is ok
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
@@ -1016,5 +1021,5 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException 
 	 */
-	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 }
