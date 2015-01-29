@@ -127,6 +127,7 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 
 				//If there is any gidNamespace which is need to be set, do it there
 				if(!gidNamespaces.isEmpty()) {
+					List<Attribute> gidsToSet = new ArrayList<>();
 					for(String s: gidNamespaces) {
 						Attribute groupUnixGIDNamespace = session.getPerunBl().getAttributesManagerBl().getAttribute(session, group, A_G_unixGID_namespace + ":" + s);
 						//If attribute is not set, then set it (first fill, then set)
@@ -135,18 +136,16 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 
 							if(groupUnixGIDNamespace.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, groupUnixGIDNamespace);
 
-							//Set after fill
-							try {
-								session.getPerunBl().getAttributesManagerBl().setAttribute(session, group, groupUnixGIDNamespace);
-							} catch (WrongAttributeValueException e) {
-								throw new WrongReferenceAttributeValueException(attribute, groupUnixGIDNamespace, e);
-							}
-						} else {
-							try {
-								session.getPerunBl().getAttributesManagerBl().checkAttributeValue(session, group, groupUnixGIDNamespace);
-							} catch (WrongAttributeValueException e) {
-								throw new WrongReferenceAttributeValueException(attribute, groupUnixGIDNamespace, e);
-							}
+							//Set after fill (without check because all namespaces must be set before check (there can be relation between namespaces)
+							gidsToSet.add(groupUnixGIDNamespace);
+						}
+					}
+					//set and check if there is some gid to set
+					if(!gidsToSet.isEmpty()) {
+						try {
+							session.getPerunBl().getAttributesManagerBl().setAttributes(session, group, gidsToSet);
+						} catch (WrongAttributeValueException e) {
+							throw new WrongReferenceAttributeValueException(attribute, e.getAttribute(), group, null, e.getAttributeHolder(), e.getAttributeHolderSecondary(), "Problem when setting all needed GIDs in hook.", e);
 						}
 					}
 				}
