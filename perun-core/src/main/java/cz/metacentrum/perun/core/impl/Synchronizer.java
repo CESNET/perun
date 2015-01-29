@@ -110,7 +110,7 @@ public class Synchronizer {
 						//check for members' expiration in the future on in the past
 						int daysToExpire = (int) TimeUnit.DAYS.convert(currentMembershipExpirationDate.getTime() - now.getTime(), TimeUnit.MILLISECONDS);
 						switch(daysToExpire) {
-							case 30: case 14: case 7:
+							case 30: case 14: case 7: case 1:
 									getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", member, daysToExpire, vo);
 									break;
 							case -7:
