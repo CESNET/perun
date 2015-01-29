@@ -1,3 +1,11 @@
+perun-slave (3.0.0-0.0.84) stable; urgency=low
+
+   * New service mailaliases_generic. This service is able to set any alias
+     for assigned users. Also use generic alias mail insted of preferred mail
+     if needed. All data is save into the file /etc/aliases.d/perun_generic.
+
+ -- Michal Stava <stavamichal@gmail.com> Wed, 28 Jan 2015 9:00:00 +0200
+
 perun-slave (3.0.0-0.0.83) stable; urgency=low
 
    * When data are rejected by the slave script on destination node
