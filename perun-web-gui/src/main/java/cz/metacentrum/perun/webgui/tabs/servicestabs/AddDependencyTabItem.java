@@ -110,7 +110,13 @@ public class AddDependencyTabItem implements TabItem {
 					execs = new TableSorter<ExecService>().sortByService(execs);
 					for (int i=0; i<execs.size(); i++){
 						listBox.addItem(execs.get(i));
+						if (execService.getService().getName().equals(execs.get(i).getService().getName()) &&
+								!execService.getType().equals(execs.get(i).getType())) {
+							// preselect different type of exec service from same service
+							listBox.setSelected(execs.get(i), true);
+						}
 					}
+
 					addButton.setEnabled(true);
 				} else {
 					listBox.addItem("No exec service available");
