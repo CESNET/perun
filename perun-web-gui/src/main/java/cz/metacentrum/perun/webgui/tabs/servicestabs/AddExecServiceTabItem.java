@@ -11,7 +11,6 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.InsertExecService;
@@ -132,6 +131,16 @@ public class AddExecServiceTabItem implements TabItem {
 		type.addItem("GENERATE", "GENERATE");
 		type.addItem("SEND", "SEND");
 
+		final VerticalPanel fp = new VerticalPanel();
+		final RadioButton radio1 = new RadioButton("rd-type", "GENERATE + SEND");
+		final RadioButton radio2 = new RadioButton("rd-type", "GENERATE");
+		final RadioButton radio3 = new RadioButton("rd-type", "SEND");
+
+		radio1.setValue(true);
+		fp.add(radio1);
+		fp.add(radio2);
+		fp.add(radio3);
+
 		final CheckBox enabled = new CheckBox();
 		enabled.setText("Enabled / Disabled");
 		enabled.setValue(true);
@@ -181,7 +190,7 @@ public class AddExecServiceTabItem implements TabItem {
 		layout.setHTML(5, 0, "Owner:");
 
 		layout.setWidget(0, 1, serviceLabel);
-		layout.setWidget(1, 1, type);
+		layout.setWidget(1, 1, fp);
 		layout.setWidget(2, 1, enabled);
 		layout.setWidget(3, 1, delay);
 		layout.setWidget(4, 1, scriptPath);
@@ -195,7 +204,14 @@ public class AddExecServiceTabItem implements TabItem {
 				if (delayValidator.validateTextBox() && scriptValidator.validateTextBox()) {
 					int delayNum = Integer.parseInt(delay.getTextBox().getText().trim());
 					InsertExecService request = new InsertExecService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-					request.addExecService(service, owner.getSelectedObject(), type.getValue(type.getSelectedIndex()), enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+					if (radio1.getValue()) {
+						request.addExecService(service, owner.getSelectedObject(), "GENERATE", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+						request.addExecService(service, owner.getSelectedObject(), "SEND", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+					} else if (radio2.getValue()) {
+						request.addExecService(service, owner.getSelectedObject(), "GENERATE", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+					} else if (radio3.getValue()) {
+						request.addExecService(service, owner.getSelectedObject(), "SEND", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+					}
 				}
 			}
 		});
