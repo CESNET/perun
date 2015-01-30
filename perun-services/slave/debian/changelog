@@ -1,3 +1,10 @@
+perun-slave (3.0.0-0.0.85) stable; urgency=low
+
+  * sskeys_root do not add one concrete perun key to authorized keys. Instead
+    it keeps all keys containing perun command in authorized keys.
+
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Fri, 30 Jan 2015 11:55:47 +0100
+
 perun-slave (3.0.0-0.0.84) stable; urgency=low
 
    * New service mailaliases_generic. This service is able to set any alias
