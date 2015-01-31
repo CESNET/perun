@@ -50,7 +50,7 @@ public class PerunNotifReceiver {
 	 *
 	 * Column locale
 	 */
-	private Locale locale;
+	private String locale;
 
 	public PerunNotifTypeOfReceiver getTypeOfReceiver() {
 		return typeOfReceiver;
@@ -84,14 +84,13 @@ public class PerunNotifReceiver {
 		this.id = id;
 	}
 
-	public Locale getLocale() {
+	public String getLocale() {
 		return locale;
 	}
 
-	public void setLocale(Locale locale) {
+	public void setLocale(String locale) {
 		this.locale = locale;
 	}
-
 
 	public static final RowMapper<PerunNotifReceiver> PERUN_NOTIF_RECEIVER = new RowMapper<PerunNotifReceiver>() {
 
@@ -101,7 +100,7 @@ public class PerunNotifReceiver {
 			receiver.setTarget(rs.getString("target"));
 			receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.resolve(rs.getString("type_of_receiver")));
 			receiver.setTemplateId(rs.getInt("template_id"));
-			receiver.setLocale((rs.getString("locale") == null) ? null : new Locale(rs.getString("locale")));
+			receiver.setLocale(rs.getString("locale"));
 			receiver.setId(rs.getInt("id"));
 
 			return receiver;
@@ -116,7 +115,7 @@ public class PerunNotifReceiver {
 
 	@Override
 	public String toString() {
-		return "id: " + getId() + " target: " + getTarget() + " type_of_receiver: " + getTypeOfReceiver() + " template id: " + getTemplateId() + " locale: " + getLocale().getLanguage();
+		return "id: " + getId() + " target: " + getTarget() + " type_of_receiver: " + getTypeOfReceiver() + " template id: " + getTemplateId() + " locale: " + getLocale();
 	}
 
 	@Override
