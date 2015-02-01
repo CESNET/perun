@@ -179,4 +179,16 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 
 		this.getJdbcTemplate().update("delete from pn_template where id = ?", id);
 	}
+
+	@Override
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
+		if (perunNotifRegexDao.isRegexRelation(templateId, regexId)) {
+			//Relation exists
+			return;
+		} else {
+			perunNotifRegexDao.saveTemplateRegexRelation(templateId, regexId);
+			PerunNotifTemplate template = getPerunNotifTemplateById(templateId);
+			template.addPerunNotifRegex(perunNotifRegexDao.getPerunNotifRegexById(regexId));
+		}
+	}
 }

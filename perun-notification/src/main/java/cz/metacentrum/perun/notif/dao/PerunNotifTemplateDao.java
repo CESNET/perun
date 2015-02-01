@@ -134,4 +134,12 @@ public interface PerunNotifTemplateDao {
 	 * @param id
 	 */
 	public void removePerunNotifTemplateById(int id);
+
+	/**
+	 * Stores relation between template and regex to db
+	 *
+	 * @param templateId
+	 * @param regexId
+	 */
+	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException;
 }
