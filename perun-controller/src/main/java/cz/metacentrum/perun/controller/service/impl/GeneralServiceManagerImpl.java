@@ -38,7 +38,10 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 
 	private final static Logger log = LoggerFactory.getLogger(GeneralServiceManagerImpl.class);
 	// Beginning of the auditer message which triggers service propagation
-	public final static String FORCE_PROPAGATION = "forceit: ";
+	public final static String FORCE_PROPAGATION = "force propagation: ";
+	public final static String FREE_ALL_DEN = "free all denials: ";
+	public final static String FREE_DEN_OF_EXECSERVICE = "free denial: ";
+	public final static String BAN_SERVICE = "ban :"; 
 
 	@Autowired
 	private ExecServiceDao execServiceDao;
@@ -93,13 +96,15 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public void banExecServiceOnFacility(ExecService execService, Facility facility) throws InternalErrorException {
+	public void banExecServiceOnFacility(PerunSession sess, ExecService execService, Facility facility) throws InternalErrorException {
 		execServiceDenialDao.banExecServiceOnFacility(execService.getId(), facility.getId());
+		sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, execService, facility);
 	}
 
 	@Override
-	public void banExecServiceOnDestination(ExecService execService, int destinationId) throws InternalErrorException {
+	public void banExecServiceOnDestination(PerunSession sess, ExecService execService, int destinationId) throws InternalErrorException {
 		execServiceDenialDao.banExecServiceOnDestination(execService.getId(), destinationId);
+		sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, execService, destinationId);
 	}
 
 	@Override
@@ -121,25 +126,28 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	public boolean isExecServiceDeniedOnDestination(ExecService execService, int destinationId) {
 		return execServiceDenialDao.isExecServiceDeniedOnDestination(execService.getId(), destinationId);
 	}
-
 	@Override
-	public void freeAllDenialsOnFacility(Facility facility) {
+	public void freeAllDenialsOnFacility(PerunSession sess, Facility facility) throws InternalErrorException{
 		execServiceDenialDao.freeAllDenialsOnFacility(facility.getId());
+		sess.getPerun().getAuditer().log(sess, "{} on {}" ,FREE_ALL_DEN, facility);
 	}
 
 	@Override
-	public void freeAllDenialsOnDestination(int destinationId) {
+	public void freeAllDenialsOnDestination(PerunSession sess, int destinationId) throws InternalErrorException {
 		execServiceDenialDao.freeAllDenialsOnDestination(destinationId);
+		sess.getPerun().getAuditer().log(sess, "{} on {}", FREE_ALL_DEN, destinationId);
 	}
 
 	@Override
-	public void freeDenialOfExecServiceOnFacility(ExecService execService, Facility facility) {
+	public void freeDenialOfExecServiceOnFacility(PerunSession sess, ExecService execService, Facility facility) throws InternalErrorException{
 		execServiceDenialDao.freeDenialOfExecServiceOnFacility(execService.getId(), facility.getId());
+		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, execService, facility);
 	}
 
 	@Override
-	public void freeDenialOfExecServiceOnDestination(ExecService execService, int destinationId) {
+	public void freeDenialOfExecServiceOnDestination(PerunSession sess, ExecService execService, int destinationId) throws InternalErrorException {
 		execServiceDenialDao.freeDenialOfExecServiceOnDestination(execService.getId(), destinationId);
+		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, execService, destinationId);
 	}
 
 	@Override
@@ -172,6 +180,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		return execServiceDependencyDao.listExecServicesThisExecServiceDependsOn(dependantExecService.getId(), execServiceType);
 	}
 
+	@Override
 	public boolean forceServicePropagation(PerunSession sess, Facility facility, Service service) throws ServiceNotExistsException, FacilityNotExistsException, InternalErrorException, PrivilegeException {
 		List<ExecService> listOfExecServices = listExecServices(sess, service.getId());
 		for(ExecService es: listOfExecServices) {
@@ -181,10 +190,11 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 			if(execServiceDenialDao.isExecServiceDeniedOnFacility(es.getId(), facility.getId())) return false;
 		}
 		//Call log method out of transaction
-		sess.getPerun().getAuditer().logWithoutTransaction(sess, FORCE_PROPAGATION + "On {} and {}", facility, service);
+		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} and {}", facility, service);
 		return true;
 	}
 
+	@Override
 	public boolean forceServicePropagation(PerunSession sess, Service service) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
 		List<ExecService> listOfExecServices = listExecServices(sess, service.getId());
 		for(ExecService es: listOfExecServices) {
@@ -192,7 +202,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 			if(!es.isEnabled()) return false;
 		}
 		//Call log method out of transaction
-		sess.getPerun().getAuditer().logWithoutTransaction(sess, FORCE_PROPAGATION + "On {} ", service);
+		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} ", service);
 		return true;
 	}
 
