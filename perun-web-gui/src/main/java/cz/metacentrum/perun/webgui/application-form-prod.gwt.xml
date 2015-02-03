@@ -9,7 +9,7 @@
 	<extend-property name="user.agent" values="ie8" /> <!-- IE 8 -->
 	<extend-property name="user.agent" values="ie9" /> <!-- IE 9 -->
     <extend-property name="user.agent" values="ie10" /> <!-- IE 10 -->
-	<extend-property name="user.agent" values="opera" /> <!-- OPERA -->
+	<extend-property name="user.agent" values="ie11" /> <!-- IE 11 -->
 	<!-- Other possibilities are 'gecko' - for FF2 -->
 	<!-- Or don't specify values to compile for all browsers -->
 
