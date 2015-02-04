@@ -426,6 +426,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 				+ task.getFacility().serializeToString() + "]|["
 				+ destinations_s.toString() + "]|[" + dependencies + "]");
 		task.setStartTime(new Date(System.currentTimeMillis()));
+		task.setEndTime(null);
 		schedulingPool.setTaskStatus(task, TaskStatus.PROCESSING);
 	}
 

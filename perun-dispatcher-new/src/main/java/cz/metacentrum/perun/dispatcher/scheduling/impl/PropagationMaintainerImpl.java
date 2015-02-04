@@ -287,8 +287,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			TaskStatus status = task.getStatus();
 
 			if (status == null) {
-				log.error(
-						"ERROR: Task presumably in PLANNED or PROCESSING state, but does not have a valid status. Switching to ERROR. {}",
+				log.error("ERROR: Task presumably in PLANNED or PROCESSING state, but does not have a valid status. Switching to ERROR. {}",
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
@@ -296,8 +295,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			}
 
 			if (started == null && scheduled == null) {
-				log.error(
-						"ERROR: Task presumably in PLANNED or PROCESSING state, but does not have a valid scheduled or started time. Switching to ERROR. {}",
+				log.error("ERROR: Task presumably in PLANNED or PROCESSING state, but does not have a valid scheduled or started time. Switching to ERROR. {}",
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
@@ -309,8 +307,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 			// If too much time has passed something is broken
 			if (howManyMinutesAgo >= 60) {
-				log.error(
-						"ERROR: Task is stuck in PLANNED or PROCESSING state. Switching it to ERROR. {}",
+				log.error("ERROR: Task is stuck in PLANNED or PROCESSING state. Switching it to ERROR. {}",
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
@@ -457,9 +454,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		if (completedTask == null) {
 			// eh? how would that be possible?
-			log.error(
-					"TASK id {} reported as complete, but we do not know it... (yet?)",
-					taskId);
+			log.error("TASK id {} reported as complete, but we do not know it... (yet?)", taskId);
 			return;
 		}
 
@@ -468,14 +463,17 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			status = TaskStatus.ERROR;
 		} else if (status_s.equals("DONE")) {
 			status = TaskStatus.DONE;
+		} else {
+			log.error("Engine reported unexpected status {} for task id {}, setting to ERROR",
+					status_s, taskId);
+			status = TaskStatus.ERROR;
 		}
 
 		completedTask.setEndTime(new Date(System.currentTimeMillis()));
 
 		// if we are going to run this task again, make sure to generate up to
 		// date data
-		if (completedTask.getExecService().getExecServiceType()
-				.equals(ExecServiceType.SEND)) {
+		if (completedTask.getExecService().getExecServiceType().equals(ExecServiceType.SEND)) {
 			this.setAllGenerateDependenciesToNone(completedTask);
 		}
 
@@ -487,8 +485,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			if (string.isEmpty()) {
 				// weird - task is in error and no destinations reported as
 				// failed...
-				log.warn(
-						"TASK {} ended in ERROR state with no remaining destinations.",
+				log.warn("TASK {} ended in ERROR state with no remaining destinations.",
 						completedTask.toString());
 			} else {
 				// task failed, some destinations remain
