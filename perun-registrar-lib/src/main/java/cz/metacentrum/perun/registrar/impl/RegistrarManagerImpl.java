@@ -466,12 +466,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public ApplicationForm getFormForVo(final Vo vo) throws PerunException {
 
-		if (vo == null) {
-			throw new InternalErrorException("VO can't be null");
-		}
+		if (vo == null) throw new InternalErrorException("VO can't be null");
 
-		List<ApplicationForm> forms = new ArrayList<ApplicationForm>();
-		forms = jdbc.query(FORM_SELECT+" where vo_id=? and group_id is null", new RowMapper<ApplicationForm>(){
+		return jdbc.queryForObject(FORM_SELECT+" where vo_id=? and group_id is null", new RowMapper<ApplicationForm>(){
 			@Override
 			public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
 				ApplicationForm form = new ApplicationForm();
@@ -483,25 +480,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				return form;
 			}
 		}, vo.getId());
-		if (forms.size() > 1) {
-			throw new InternalErrorException("VO: "+vo.getName()+" should have exactly: 1 application form, but has: "+forms.size());
-		}
-		if (forms.size() == 0) {
-			throw new FormNotExistsException("Form for VO: "+vo.getName()+" doesn't exists.");
-		}
-		return forms.get(0);
 
 	}
 
 	@Override
 	public ApplicationForm getFormForGroup(final Group group) throws PerunException {
 
-		if (group == null) {
-			throw new InternalErrorException("Group can't be null");
-		}
+		if (group == null) throw new InternalErrorException("Group can't be null");
 
-		List<ApplicationForm> forms = new ArrayList<ApplicationForm>();
-		forms = jdbc.query(FORM_SELECT+" where vo_id=? and group_id=?", new RowMapper<ApplicationForm>(){
+		return jdbc.queryForObject(FORM_SELECT + " where vo_id=? and group_id=?", new RowMapper<ApplicationForm>() {
 			@Override
 			public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
 				ApplicationForm form = new ApplicationForm();
@@ -518,13 +505,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				return form;
 			}
 		}, group.getVoId(), group.getId());
-		if (forms.size() > 1) {
-			throw new InternalErrorException("GROUP: "+group.getName()+" should have exactly: 1 application form, but has: "+forms.size());
-		}
-		if (forms.size() == 0) {
-			throw new FormNotExistsException("Form for GROUP: "+group.getName()+" doesn't exists.");
-		}
-		return forms.get(0);
 
 	}
 
@@ -983,7 +963,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public Application verifyApplication(PerunSession sess, int appId) throws PerunException, PrivilegeException, InternalErrorException {
+	public Application verifyApplication(PerunSession sess, int appId) throws PerunException {
 
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
@@ -1406,17 +1386,57 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// authz ex post
 		if (app.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
-					&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)) {
-				throw new PrivilegeException(sess, "getApplicationById");
+
+			if (app.getUser() != null) {
+
+				// is admin of application or self
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())) {
+					throw new PrivilegeException(sess, "getApplicationById");
+				}
+
+			} else {
+
+				// is admin of application or self based on current actor/extSource
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
+						     app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
+					throw new PrivilegeException(sess, "getApplicationById");
+				}
+
 			}
+
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
-					&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)) {
-				throw new PrivilegeException(sess, "getApplicationById");
+
+			if (app.getUser() != null) {
+
+				// is admin of application or self
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
+						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())) {
+					throw new PrivilegeException(sess, "getApplicationById");
+				}
+
+			} else {
+
+				// is admin of application or self based on current actor/extSource
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
+						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
+						app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
+					throw new PrivilegeException(sess, "getApplicationById");
+				}
+
 			}
+
 		}
 
 		return app;
@@ -1560,27 +1580,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		List<ApplicationFormItem> items;
 		if (appType == null) {
-			items = jdbc.query("select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items where form_id=? order by ordnum asc",
-					ITEM_MAPPER, form.getId());
+			items = jdbc.query(FORM_ITEM_SELECT+" where form_id=? order by ordnum asc", ITEM_MAPPER, form.getId());
 		} else {
-			items = jdbc.query("select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items i,application_form_item_apptypes t "
-							+ " where form_id=? and i.id=t.item_id and t.apptype=? order by ordnum asc",
+			items = jdbc.query(FORM_ITEM_SELECT+" i,application_form_item_apptypes t where form_id=? and i.id=t.item_id and t.apptype=? order by ordnum asc",
 					ITEM_MAPPER, form.getId(), appType.toString());
 		}
 		for (ApplicationFormItem item : items) {
-			List<ItemTexts> texts = jdbc
-					.query("select locale,label,options,help,error_message from application_form_item_texts where item_id=?",
-							ITEM_TEXTS_MAPPER, item.getId());
+			List<ItemTexts> texts = jdbc.query(FORM_ITEM_TEXTS_SELECT + " where item_id=?", ITEM_TEXTS_MAPPER, item.getId());
 			for (ItemTexts itemTexts : texts) {
 				item.getI18n().put(itemTexts.getLocale(), itemTexts);
 			}
-			List<AppType> appTypes = jdbc.query("select apptype from application_form_item_apptypes where item_id=?",
-					new RowMapper<AppType>() {
-						@Override
-						public AppType mapRow(ResultSet rs, int i) throws SQLException {
-							return AppType.valueOf(rs.getString(1));
-						}
-					}, item.getId());
+			List<AppType> appTypes = jdbc.query(APP_TYPE_SELECT+" where item_id=?", APP_TYPE_MAPPER, item.getId());
 			item.setApplicationTypes(appTypes);
 		}
 
@@ -1590,39 +1600,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public ApplicationFormItem getFormItemById(int id) {
 		ApplicationFormItem item;
-		item = jdbc.queryForObject("select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items where id=?",
-				new RowMapper<ApplicationFormItem>() {
-					public ApplicationFormItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-						ApplicationFormItem app = new ApplicationFormItem(rs
-								.getInt("id"), rs.getString("shortname"), rs
-								.getBoolean("required"),
-								Type.valueOf(rs.getString("type")), rs
-								.getString("fed_attr"), rs.getString("dst_attr"), rs
-								.getString("regex"));
-						app.setOrdnum(rs.getInt("ordnum"));
-						return app;
-					}
-				}, id);
+		item = jdbc.queryForObject(FORM_ITEM_SELECT+" where id=?", ITEM_MAPPER, id);
 		if (item != null) {
-			List<ItemTexts> texts = jdbc.query("select locale,label,options,help,error_message from application_form_item_texts where item_id=?",
-					new RowMapper<ApplicationFormItem.ItemTexts>() {
-						@Override
-						public ItemTexts mapRow(ResultSet rs, int i) throws SQLException {
-							return new ItemTexts(new Locale(rs.getString("locale")), rs
-									.getString("label"), rs.getString("options"), rs
-									.getString("help"), rs.getString("error_message"));
-						}
-					}, item.getId());
+			List<ItemTexts> texts = jdbc.query(FORM_ITEM_TEXTS_SELECT+" where item_id=?", ITEM_TEXTS_MAPPER, item.getId());
 			for (ItemTexts itemTexts : texts) {
 				item.getI18n().put(itemTexts.getLocale(), itemTexts);
 			}
-			List<AppType> appTypes = jdbc.query("select apptype from application_form_item_apptypes where item_id=?",
-					new RowMapper<AppType>() {
-						@Override
-						public AppType mapRow(ResultSet rs, int i) throws SQLException {
-							return AppType.valueOf(rs.getString(1));
-						}
-					}, item.getId());
+			List<AppType> appTypes = jdbc.query(APP_TYPE_SELECT+" where item_id=?", APP_TYPE_MAPPER, item.getId());
 			item.setApplicationTypes(appTypes);
 		}
 
@@ -1942,8 +1926,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) {
-		// TODO authorization based on session (vo admin / user)
+	public List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PerunException {
+
+		// this ensure authorization of user on application
+		try {
+			getApplicationById(sess, appId);
+		} catch (PrivilegeException ex) {
+			throw new PrivilegeException(sess, "getApplicationDataById");
+		}
+
 		return jdbc.query("select id,item_id,shortname,value,assurance_level from application_data where app_id=?",
 				new RowMapper<ApplicationFormItemData>() {
 					@Override
@@ -2424,7 +2415,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (destAttr != null && !destAttr.isEmpty()) {
 				// get login attribute (for user only)
 				Attribute a = null;
-				if (destAttr.contains("urn:perun:user:attribute-def:def:login-namespace:")) {
+				if (destAttr.contains(AttributesManager.NS_USER_ATTR_DEF+":login-namespace:")) {
 					a = attrManager.getAttribute(registrarSession, user, destAttr);
 				} else {
 					continue;
@@ -2537,6 +2528,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
 
+	// FIXME - we are retrieving GROUP name using only "short_name" so it's not same as getGroupById()
 	protected static final String APP_SELECT = "select a.id as id,a.vo_id as vo_id, a.group_id as group_id,a.apptype as apptype,a.fed_info as fed_info,a.state as state," +
 			"a.user_id as user_id,a.extsourcename as extsourcename, a.extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as app_modified_by, " +
 			"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.modified_by as vo_modified_by, " +
@@ -2544,7 +2536,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
 			"u.title_before as user_title_before, u.title_after as user_title_after from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
 
+	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
+
 	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,module_name from application_form";
+
+	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items";
+
+	private static final String FORM_ITEM_TEXTS_SELECT = "select locale,label,options,help,error_message from application_form_item_texts";
 
 	protected static RowMapper<Application> APP_MAPPER = new RowMapper<Application>() {
 
@@ -2588,6 +2586,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			return app;
 
+		}
+	};
+
+	private static RowMapper<AppType> APP_TYPE_MAPPER= new RowMapper<AppType>() {
+		@Override
+		public AppType mapRow(ResultSet rs, int i) throws SQLException {
+			return AppType.valueOf(rs.getString(1));
 		}
 	};
 
