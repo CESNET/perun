@@ -1612,7 +1612,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 									// if today is before that time, user can extend his period
 									if (currentMemberExpirationCalendar.after(Calendar.getInstance())) {
 										if (throwExceptions) {
-											throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD,
+											throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
 													"Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
 										} else {
 											return new Pair<Boolean, Date>(false, null);
