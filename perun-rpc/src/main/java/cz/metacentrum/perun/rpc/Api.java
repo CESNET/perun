@@ -113,8 +113,26 @@ public class Api extends HttpServlet {
 			}
 		}
 
+		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
+		else if (req.getAttribute("EXTSOURCE") != null) {
+			extSourceName = (String) req.getAttribute("EXTSOURCE");
+			extSourceType = (String) req.getAttribute("EXTSOURCETYPE");
+			extSourceLoaString = (String) req.getAttribute("EXTSOURCELOA");
+
+			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
+				extLogin = req.getRemoteUser();
+			} else if (req.getAttribute("ENV_REMOTE_USER") != null && !((String) req.getAttribute("ENV_REMOTE_USER")).isEmpty()) {
+				extLogin = (String) req.getAttribute("ENV_REMOTE_USER");
+			} else if (extSourceName.equals(cz.metacentrum.perun.core.api.ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
+				/** LOCAL EXTSOURCE **/
+				// If ExtSource is LOCAL then generate REMOTE_USER name on the fly
+				extLogin = Long.toString(System.currentTimeMillis());
+			}
+		}
+
 		// X509 cert was used
-		else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
+		// Cert must be last since Apache asks for certificate everytime and fills cert properties even when Kerberos is in place.
+		else if (extLogin == null && req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
 			extSourceName = (String) req.getAttribute("SSL_CLIENT_I_DN");
 			extSourceType = ExtSourcesManager.EXTSOURCE_X509;
 			extSourceLoaString = (String) req.getAttribute("EXTSOURCELOA");
@@ -165,22 +183,6 @@ public class Api extends HttpServlet {
 						additionalInformations.put("o", org[1]);
 					}
 				}
-			}
-		}
-		// EXT_SOURCE was defined in Apache configuration
-		else if (req.getAttribute("EXTSOURCE") != null) {
-			extSourceName = (String) req.getAttribute("EXTSOURCE");
-			extSourceType = (String) req.getAttribute("EXTSOURCETYPE");
-			extSourceLoaString = (String) req.getAttribute("EXTSOURCELOA");
-
-			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
-				extLogin = req.getRemoteUser();
-			} else if (req.getAttribute("ENV_REMOTE_USER") != null && !((String) req.getAttribute("ENV_REMOTE_USER")).isEmpty()) {
-				extLogin = (String) req.getAttribute("ENV_REMOTE_USER");
-			} else if (extSourceName.equals(cz.metacentrum.perun.core.api.ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
-				/** LOCAL EXTSOURCE **/
-				// If ExtSource is LOCAL then generate REMOTE_USER name on the fly
-				extLogin = Long.toString(System.currentTimeMillis());
 			}
 		}
 
