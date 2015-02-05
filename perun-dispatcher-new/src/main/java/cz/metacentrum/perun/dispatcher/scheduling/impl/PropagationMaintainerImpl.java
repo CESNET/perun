@@ -479,6 +479,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		if (status.equals(TaskStatus.DONE)) {
 			// task completed successfully
+			// set destination list to null to refetch them later
+			completedTask.setDestinations(null);
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.DONE);
 			log.debug("TASK {} reported as DONE", completedTask.toString());
 		} else {
