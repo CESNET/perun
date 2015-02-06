@@ -47,6 +47,4 @@
 	<source path='tabs' />
 	<source path='widgets' />
 
-    <add-linker name="xsiframe"/>
-
 </module>
