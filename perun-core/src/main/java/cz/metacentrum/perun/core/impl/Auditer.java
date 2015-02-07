@@ -358,7 +358,7 @@ public class Auditer {
 
 	public List<AuditMessage> getMessages(int count) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + ",row_number() over (ORDER BY id DESC) as rownumber from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
+			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
 					AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<AuditMessage>();

@@ -23,7 +23,6 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -41,15 +40,15 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	private final int someNumber = 55;
 	private final String voShortName = "TestShortN-" + someNumber;
 	private final String voName = "Test Vo Name " + someNumber;
-	private final static String LDAPMETA = "LDAPMETA";
+	private final static String extSourceName = "VosManagerEntryIntegrationTest";
 	private final static String VOS_MANAGER_ENTRY = "VosManagerEntry.";
 
 	@Before
 	public void setUp() throws Exception {
 		vosManagerEntry = perun.getVosManager();
 		myVo = new Vo(0, voName, voShortName);
-		ExtSourcesManager extSourcesManagerEntry = perun.getExtSourcesManager();
-		es = extSourcesManagerEntry.getExtSourceByName(sess, LDAPMETA);
+		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		es = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
 
 	}
 

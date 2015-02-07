@@ -57,38 +57,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public final static int ADMINSGROUP = 2;
 	public final static int SUBGROUP = 3;
 
-/* M.V.: Original version, could not make it to work with hsqldb:
-	protected final static String groupMappingSelectQuery = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_shortName, groups.dsc as groups_dsc, " +
-		"groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, " +
-		"groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid, "+
-		"("+Compatibility.getWithClause()+" temp (id,name,parent_group_id) as ( " +
-		"select id, name"+Compatibility.castToVarchar()+", parent_group_id " +
-		"from Groups " +
-		"where parent_group_id is null " +
-		"union all " +
-		"(select Groups.id, concat(temp.name"+Compatibility.castToVarchar()+",concat(':',Groups.name"+Compatibility.castToVarchar()+"))"+Compatibility.castToVarchar()+" , Groups.parent_group_id " +
-		"from Groups " +
-		"inner join temp " +
-		"    on temp.id = Groups.parent_group_id " +
-		") " +
-		") " +
-		"select name"+Compatibility.castToVarchar()+" from temp where temp.id = groups.id ) as groups_name ";
-*/
-	
-	protected final static String groupQNameSelectQuery = Compatibility.getWithClause() + " temp (id,name,parent_group_id) as ( " + "select id, name" + Compatibility.castToVarchar() + ", parent_group_id " + "from Groups "
-			+ "where parent_group_id is null " + "union all " + "select Groups.id, concat(temp.name" + Compatibility.castToVarchar() + ",concat(':',Groups.name" + Compatibility.castToVarchar() + "))" + Compatibility.castToVarchar()
-			+ " , Groups.parent_group_id " + "from Groups " + "inner join temp " + "    on temp.id = Groups.parent_group_id " + " " + ") ";
-
-	protected final static String groupQNameJoinQuery = "  join (" + groupQNameSelectQuery + " select * from temp ) qn_groups on groups.id = qn_groups.id ";
-	
-	protected final static String groupMappingSelectQuery_compat = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_shortName, groups.dsc as groups_dsc, "
+	protected final static String groupMappingSelectQuery = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_name, groups.dsc as groups_dsc, "
 			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
-			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid, qn_groups.name as groups_name ";
-
-	protected final static String groupMappingSelectQuery = "groups.id as groups_id, groups.parent_group_id as groups_parent_group_id, groups.name as groups_shortName, groups.dsc as groups_dsc, "
-			+ "groups.vo_id as groups_vo_id, groups.created_at as groups_created_at, groups.created_by as groups_created_by, groups.modified_by as groups_modified_by, groups.modified_at as groups_modified_at, "
-			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid, " + "(" + groupQNameSelectQuery + "select name" + Compatibility.castToVarchar() + " from temp where temp.id = groups.id"
-			+ ") as groups_name ";
+			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private JdbcTemplate jdbc;
@@ -103,8 +74,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			if(rs.getInt("groups_parent_group_id") != 0) g.setParentGroupId(rs.getInt("groups_parent_group_id"));
 			else g.setParentGroupId(null);
 			g.setName(rs.getString("groups_name"));
-
-			g.setShortName(rs.getString("groups_shortName"));
+			g.setShortName(g.getName().substring(g.getName().lastIndexOf(":") + 1));
 			g.setDescription(rs.getString("groups_dsc"));
 			g.setVoId(rs.getInt("groups_vo_id"));
 			g.setCreatedAt(rs.getString("groups_created_at"));
@@ -142,15 +112,14 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 		// Check if the group already exists
 		if(group.getParentGroupId() == null) {
-			if (1 == jdbc.queryForInt("select count('x') from groups where lower(name)=lower(?) and vo_id=? and parent_group_id IS NULL", group.getShortName(), vo.getId())) {
+			if (1 == jdbc.queryForInt("select count('x') from groups where lower(name)=lower(?) and vo_id=? and parent_group_id IS NULL", group.getName(), vo.getId())) {
 				throw new GroupExistsException("Group [" + group.getName() + "] already exists under VO [" + vo.getShortName() + "] and has parent Group with id is [NULL]");
-			} 
+			}
 		} else {
-			if (1 == jdbc.queryForInt("select count('x') from groups where lower(name)=lower(?) and vo_id=? and parent_group_id=?", group.getShortName(), vo.getId(), group.getParentGroupId())) {
+			if (1 == jdbc.queryForInt("select count('x') from groups where lower(name)=lower(?) and vo_id=? and parent_group_id=?", group.getName(), vo.getId(), group.getParentGroupId())) {
 				throw new GroupExistsException("Group [" + group.getName() + "] already exists under VO [" + vo.getShortName() + "] and has parent Group with id [" + group.getParentGroupId() + "]");
 			}
 		}
-
 
 		// Check the group name, it can contain only a-Z0-9_- and space
 		if (!group.getShortName().matches("^[- a-zA-Z.0-9_]+$")) {
@@ -163,7 +132,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 			jdbc.update("insert into groups (id, parent_group_id, name, dsc, vo_id, created_by,created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
 					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, group.getParentGroupId(),
-					group.getShortName(), group.getDescription(), vo.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+					group.getName(), group.getDescription(), vo.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			group.setId(newId);
 
 			group.setVoId(vo.getId());
@@ -222,7 +191,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
-	public Group updateGroup(PerunSession sess, Group group)      throws InternalErrorException {
+	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
 		Utils.notNull(group.getName(), "group.getName()");
 
 		// Get the group stored in the DB
@@ -233,14 +202,14 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException("Group existence was checked at the higher level",e);
 		}
 
-		if (!dbGroup.getShortName().equals(group.getShortName())) {
+		if (!dbGroup.getName().equals(group.getName())) {
 			try {
-				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", group.getShortName(),
+				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", group.getName(),
 						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), group.getId());
 			} catch (RuntimeException e) {
 				throw new InternalErrorException(e);
 			}
-			dbGroup.setShortName(group.getShortName());
+			dbGroup.setName(group.getName());
 		}
 
 		if (group.getDescription() != null && !group.getDescription().equals(dbGroup.getDescription())) {
@@ -257,8 +226,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public Group getGroupById(PerunSession sess, int id) throws GroupNotExistsException, InternalErrorException {
 		try {
-			Group group = jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups where groups.id=? ", GROUP_MAPPER, id);
-			return group;
+			return jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups where groups.id=? ", GROUP_MAPPER, id);
 		} catch (EmptyResultDataAccessException err) {
 			throw new GroupNotExistsException("Group id=" + id);
 		} catch (RuntimeException err) {
@@ -323,8 +291,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public List<Group> getGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			return jdbc.query("select  " + groupMappingSelectQuery + " from groups " +
-					"where vo_id=? order by "+Compatibility.orderByBinary("groups.name"+Compatibility.castToVarchar()),
+			return jdbc.query("select  " + groupMappingSelectQuery + " from groups where vo_id=? order by " +
+							Compatibility.orderByBinary("groups.name" + Compatibility.castToVarchar()),
 					GROUP_MAPPER, vo.getId());
 
 		} catch(RuntimeException ex) {
@@ -334,10 +302,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + groupMappingSelectQuery_compat + " from groups join " +
-					"groups_resources on groups.id=groups_resources.group_id "+
-					groupQNameJoinQuery +
-					"where groups_resources.resource_id=?",
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups join " +
+					" groups_resources on groups.id=groups_resources.group_id " +
+					" where groups_resources.resource_id=?",
 					GROUP_MAPPER, resource.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Group>();
@@ -348,8 +315,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public List<Group> getSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException {
 		try {
-			return jdbc.query("select  " + groupMappingSelectQuery + " from groups " +
-					"where groups.parent_group_id=? order by "+Compatibility.orderByBinary("groups.name"+Compatibility.castToVarchar()),
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups where groups.parent_group_id=? " +
+							"order by " + Compatibility.orderByBinary("groups.name" + Compatibility.castToVarchar()),
 					GROUP_MAPPER, parentGroup.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Group>();
@@ -377,8 +344,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public Group getParentGroup(PerunSession sess, Group group) throws InternalErrorException, ParentGroupNotExistsException {
 		try  {
-			return jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups " +
-					"where groups.id=?", GROUP_MAPPER, group.getParentGroupId());
+			return jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups where groups.id=?",
+					GROUP_MAPPER, group.getParentGroupId());
 		} catch (EmptyResultDataAccessException e) {
 			throw new ParentGroupNotExistsException(e);
 		} catch (RuntimeException e) {
@@ -388,7 +355,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public Group getGroupByName(PerunSession sess, Vo vo, String name) throws GroupNotExistsException, InternalErrorException {
 		try {
-			return jdbc.queryForObject("select " + groupMappingSelectQuery_compat + " from groups " + groupQNameJoinQuery + " where qn_groups.name=? and groups.vo_id=?",
+			return jdbc.queryForObject("select " + groupMappingSelectQuery + " from groups where groups.name=? and groups.vo_id=?",
 					GROUP_MAPPER, name, vo.getId());
 		} catch (EmptyResultDataAccessException err) {
 			throw new GroupNotExistsException("Group name=" + name + ", vo id=" + vo.getId());
@@ -421,7 +388,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		parameters.addValue("ids", groupsIds);
 
 		try {
-			return this.namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + "  from groups where groups.id in ( :ids )",
+			return this.namedParameterJdbcTemplate.query("select " + groupMappingSelectQuery + " from groups where groups.id in ( :ids )",
 					parameters, GROUP_MAPPER);
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Group>();
@@ -444,7 +411,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + groupMappingSelectQuery + " from groups_members join groups on groups_members.group_id = groups.id " +
-					"where groups_members.member_id=?",
+					" where groups_members.member_id=?",
 					GROUP_MAPPER, member.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Group>();
@@ -620,8 +587,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<Group> getGroupsToSynchronize(PerunSession sess) throws InternalErrorException {
 		try {
 			// Get all groups which have defined
-			return jdbc.query("select " + groupMappingSelectQuery + " from groups, attr_names, group_attr_values" +
-					" where attr_names.attr_name=? and attr_names.id=group_attr_values.attr_id and group_attr_values.attr_value='true' and " +
+			return jdbc.query("select " + groupMappingSelectQuery + " from groups, attr_names, group_attr_values " +
+					"where attr_names.attr_name=? and attr_names.id=group_attr_values.attr_id and group_attr_values.attr_value='true' and " +
 					"group_attr_values.group_id=groups.id", GROUP_MAPPER, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Group>();
