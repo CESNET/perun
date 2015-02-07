@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.GroupsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -382,7 +383,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<Group> getAdminGroups(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
-					"  where authz.facility_id=? and authz.role_id=(select id from roles where name=?)", GroupsManagerImpl.GROUP_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
+					" where authz.facility_id=? and authz.role_id=(select id from roles where name=?)",
+					GroupsManagerImpl.GROUP_MAPPER, facility.getId(), Role.FACILITYADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Group>();
 		} catch (RuntimeException e) {

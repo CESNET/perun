@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -55,7 +56,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	String userLastName = "";
 	String extLogin = "";              // his login in external source
 	String extLogin2 = "";
-	String extSourceName = "LDAPMETA";        // real ext source with his login
+	String extSourceName = "UserManagerEntryIntegrationTest";
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	final UserExtSource userExtSource = new UserExtSource();   // create new User Ext Source
 	private UsersManager usersManager;
@@ -70,9 +71,9 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));              // his login in external source
 		extLogin2 = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		vo = setUpVo();
 		setUpUser();
 		setUpUserExtSource();
-		vo = setUpVo();
 		setUpServiceUser1ForUser(vo);
 		setUpServiceUser2ForUser(vo);
 
@@ -835,9 +836,9 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// create test VO in database
 		assertNotNull("unable to create testing Vo",returnedVo);
 		assertEquals("both VOs should be the same",newVo,returnedVo);
-
-		ExtSource es = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
-		// get real external source from DB
+		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
+		// get and create real external source from DB
 		perun.getExtSourcesManager().addExtSource(sess, returnedVo, es);
 		// add real ext source to our VO
 

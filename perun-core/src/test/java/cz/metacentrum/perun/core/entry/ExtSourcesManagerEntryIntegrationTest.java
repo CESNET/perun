@@ -31,14 +31,15 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
  */
 
 public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
-
-	private static final String EXT_SOURCE_NAME = "LDAPMETA";
+	private static final String EXT_SOURCE_NAME = "SearcherEntryIntegrationTest";
 	private static final String CLASS_NAME = "ExtSourcesManagerEntry.";
 	private ExtSourcesManager extSourcesManagerEntry;
 
 	@Before
 	public void setUp() throws Exception {
 		//System.out.println(CLASS_NAME + "setUp()");
+		ExtSource newExtSource = new ExtSource(EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		perun.getExtSourcesManager().createExtSource(sess, newExtSource);
 		this.extSourcesManagerEntry = perun.getExtSourcesManager();
 	}
 

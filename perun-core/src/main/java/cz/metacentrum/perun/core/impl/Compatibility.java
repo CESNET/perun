@@ -28,6 +28,11 @@ public class Compatibility {
 		return dbType.equals("postgresql");
 	}
 
+	public static boolean isHSQLDB() throws InternalErrorException {
+		String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+		return dbType.equals("hsqldb");
+	}
+
 	public static String getSysdate() throws InternalErrorException {
 		String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
 		if (dbType.equals("oracle")) {
@@ -39,25 +44,6 @@ public class Compatibility {
 		} else {
 			throw new InternalErrorException("unknown DB type");
 		}
-	}
-
-	public static String getWithClause() {
-
-		try {
-			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
-			if (dbType.equals("oracle")) {
-				return "with";
-			} else if (dbType.equals("postgresql")) {
-				return "with recursive";
-			} else if (dbType.equals("hsqldb")) {
-				return "with recursive";
-			} else {
-				return "with";
-			}
-		} catch (InternalErrorException ex) {
-			return "with";
-		}
-
 	}
 
 	public static String castToVarchar() {
@@ -111,6 +97,19 @@ public class Compatibility {
 
 	}
 
+	public static String getRowNumberOver() {
+		try {
+			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			if (dbType.equals("hsqldb")) {
+				return ",row_number() over () as rownumber";
+			} else {
+				return ",row_number() over (ORDER BY id DESC) as rownumber";
+			}
+		} catch (InternalErrorException e) {
+			return ",row_number() over (ORDER BY id DESC) as rownumber";
+		}
+	}
+
 	public static String orderByBinary(String columnName) {
 
 		try {
@@ -136,6 +135,8 @@ public class Compatibility {
 				return "convert("+columnName+", 'US7ASCII', 'UTF8')"; // DESTINATION / SOURCE
 			} else if (dbType.equals("postgresql")) {
 				return "unaccent("+columnName+")";   // SOURCE  / DESTINATION
+			} else if (dbType.equals("hsqldb")){
+				return "translate("+columnName+", 'ÁÇÉÍÓÚÀÈÌÒÙÚÂÊÎÔÛÃÕËÜŮŘřáçéíóúàèìòùâêîôûãõëüů', 'ACEIOUUAEIOUAEIOUAOEUURraceiouaeiouaeiouaoeuu')";
 			} else {
 				return "unaccent("+columnName+")";
 			}

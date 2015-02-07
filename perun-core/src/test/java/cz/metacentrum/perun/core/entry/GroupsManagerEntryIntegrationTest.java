@@ -103,7 +103,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		String name1 = "";
 		String name2 = "";
 
-		for (int i=0; i<120; i++) {
+		for (int i=0; i<1999; i++) {
 			name1 += "a";
 			name2 += "b";
 		}
@@ -210,10 +210,12 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
 		newVo = perun.getVosManagerBl().createVo(sess, newVo);
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
-	
+
 		Group subgroup = new Group("Test", "test");
 		subgroup = this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
-		
+//		org.hsqldb.util.DatabaseManager.main(new String[] {
+//				"--url", "jdbc:hsqldb:mem:dataSource", "--noexit"
+//		});
 		this.groupsManager.deleteGroups(sess, groups, false);
 	}
 	
@@ -1451,13 +1453,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group groupE = new Group("E", "E");
 		Group groupF = new Group("F", "F");
 		Group groupG = new Group("G", "G");
-		
+
 		groupA = this.groupsManagerBl.createGroup(sess, vo, groupA);
 		groupD = this.groupsManagerBl.createGroup(sess, vo, groupD);
-		
+
 		groupB = this.groupsManagerBl.createGroup(sess, groupA, groupB);
 		groupG = this.groupsManagerBl.createGroup(sess, groupB, groupG);
-		
+
 		groupC = this.groupsManagerBl.createGroup(sess, groupD, groupC);
 		groupE = this.groupsManagerBl.createGroup(sess, groupC, groupE);
 		
