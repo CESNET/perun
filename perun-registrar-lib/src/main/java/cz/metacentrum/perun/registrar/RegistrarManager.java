@@ -153,6 +153,7 @@ public interface RegistrarManager {
 	 * @param sess PerunSession
 	 * @param applicationForm the form
 	 * @return all form items regardless of type
+	 * @throws PerunException
 	 */
 	List<ApplicationFormItem> getFormItems(PerunSession sess, ApplicationForm applicationForm) throws PerunException;
 
@@ -162,6 +163,7 @@ public interface RegistrarManager {
 	 * @param form the form
 	 * @param appType the type or null for all items
 	 * @return items of specified type
+	 * @throws PerunException
 	 */
 	List<ApplicationFormItem> getFormItems(PerunSession sess, ApplicationForm form, AppType appType) throws PerunException;
 
@@ -188,6 +190,7 @@ public interface RegistrarManager {
 	 * @param application application
 	 * @param data data
 	 * @return stored app data
+	 * @throws PerunException
 	 */
 	List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException;
 
@@ -198,6 +201,7 @@ public interface RegistrarManager {
 	 * @param application application
 	 * @param data data
 	 * @return stored app data
+	 * @throws PerunException
 	 */
 	Application createApplicationInternal(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException;
 
@@ -206,6 +210,7 @@ public interface RegistrarManager {
 	 *
 	 * @param session PerunSession
 	 * @param application application
+	 * @throws PerunException
 	 */
 	void deleteApplication(PerunSession session, Application application) throws PerunException;
 
@@ -243,6 +248,7 @@ public interface RegistrarManager {
 	 * <p>The method triggers approval for VOs with auto-approved applications.
 	 * @param urlParameters all of them
 	 * @return true for validated, false for non-valid
+	 * @throws PerunException
 	 */
 	boolean validateEmailFromLink(Map<String, String> urlParameters) throws PerunException;
 
@@ -254,16 +260,16 @@ public interface RegistrarManager {
 	 *
 	 * @param sess Session to verify user
 	 * @param appId app to verify
-	 * @throws PrivilegeException if not authorized
-	 * @throws InternalErrorException other reasons
+	 * @throws PerunException
 	 */
-	Application verifyApplication(PerunSession sess, int appId) throws PerunException, PrivilegeException, InternalErrorException;
+	Application verifyApplication(PerunSession sess, int appId) throws PerunException;
 
 	/**
 	 * Manually approves an application. Expected to be called as a result of direct VO administrator action in the web UI.
 	 *
 	 * @param session who approves the application
 	 * @param appId application id
+	 * @throws PerunException
 	 */
 	Application approveApplication(PerunSession session, int appId) throws PerunException;
 
@@ -272,6 +278,7 @@ public interface RegistrarManager {
 	 *
 	 * @param session who approves the application
 	 * @param appId application id
+	 * @throws PerunException
 	 */
 	Application approveApplicationInternal(PerunSession session, int appId) throws PerunException;
 
@@ -281,6 +288,7 @@ public interface RegistrarManager {
 	 * @param session who rejects the application
 	 * @param appId application id
 	 * @param reason optional reason of rejection displayed to user
+	 * @throws PerunException
 	 */
 	Application rejectApplication(PerunSession session, int appId, String reason) throws PerunException;
 
@@ -290,8 +298,9 @@ public interface RegistrarManager {
 	 * @param sess PerunSession
 	 * @param appId application to get user's data for
 	 * @return data submitted by user in given application
+	 * @throws PerunException
 	 */
-	List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId);
+	List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PerunException;
 
 	/**
 	 * Returns applications submitted by user
@@ -316,6 +325,7 @@ public interface RegistrarManager {
 	 * @param group group to filter by or NULL if want apps for whole VO including all groups
 	 * @param member member
 	 * @return applications submitted by member
+	 * @throws PerunException
 	 */
 	List<Application> getApplicationsForMember(PerunSession sess, Group group, Member member) throws PerunException;
 
@@ -333,6 +343,7 @@ public interface RegistrarManager {
 	 * @param sess session to authorize VO admin
 	 * @param id ID of application to return
 	 * @return application
+	 * @throws PerunException
 	 */
 	Application getApplicationById(PerunSession sess, int id) throws PerunException;
 
