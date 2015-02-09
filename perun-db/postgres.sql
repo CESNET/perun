@@ -972,7 +972,7 @@ create table pn_pool_message (
 	key_attributes varchar(4000) NOT NULL, --contains all attributes extracted from audit message that are important for grouping messages
 
 	created timestamp default now() NOT NULL, --the time of the pool message creation, important when PN_TEMPLATE.NOTIFY_TRIGGER is set to 'stream'
-	notif_message varchar(1000) NOT NULL, --contains original audit message, important when gaining attributes in template message
+	notif_message text NOT NULL, --contains original audit message, important when gaining attributes in template message
 	created_by_uid integer,
 	modified_by_uid integer
 );
