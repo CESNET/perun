@@ -907,7 +907,7 @@ create table pn_pool_message (
 	template_id integer NOT NULL,
 	key_attributes nvarchar2(4000) NOT NULL,
 	created date default sysdate NOT NULL,
-	notif_message nvarchar2(1000) NOT NULL,
+	notif_message clob NOT NULL,
 	created_by_uid integer,
 	modified_by_uid integer
 );
