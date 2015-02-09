@@ -30,7 +30,7 @@ $(document).ready(function() {
                 userAttributesFriendly.preferredLanguage = preferredLanguage.value;
                 fillUserAttributes(userAttributesFriendly);
                 loadImage.hide();
-                (flowMessager.newMessage("Preffered language " + userAttributesFriendly.preferredLanguage, "was saved successfully", "success")).draw();
+                (flowMessager.newMessage("Preferred language " + userAttributesFriendly.preferredLanguage, "was saved successfully", "success")).draw();
             });
         });
     });
