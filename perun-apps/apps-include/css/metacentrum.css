@@ -1,0 +1,528 @@
+/* Here comes the compiled LESS from main.less */
+
+/* cesnet linker */
+#cesnet_linker_placeholder,
+#cesnet_linker_wrapper {
+    line-height: 48px;
+}
+#cesnet_linker {
+    margin: 0 auto;
+    max-width: 1200px;
+}
+html,
+body {
+    height: 100%;
+    font-size: 15px;
+}
+#wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    padding-top: 52px;
+    margin: 0 auto -205px;
+}
+#push,
+#footer {
+    height: 305px;
+}
+.page-header {
+    margin-top: 0px;
+}
+@media (min-width: 992px) {
+    .page-header {
+        margin-top: 0px;
+    }
+}
+@media (min-width: 1200px) {
+    .page-header {
+        margin-top: 6px;
+    }
+}
+@media (max-width: 991px) {
+    #push,
+    #footer {
+        height: auto;
+    }
+    #wrap {
+        margin-bottom: 0;
+    }
+}
+/* visual ================================================================== */
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    color: #555555;
+}
+#wrap {
+    border-top: 12px solid #ff5e00;
+    background: #ffffff url("../img/page-gradient.png") top left repeat-x;
+}
+a:link,
+a:visited {
+    color: #ff5e00;
+}
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+    font-weight: bold;
+    padding: 0;
+    line-height: 1.2;
+    clear: left;
+    color: #09989a;
+}
+h1,
+.h1 {
+    font-size: 2em;
+    margin: 0 0 0.888em;
+}
+h2,
+.h2 {
+    font-size: 1.5em;
+    margin: 0 0 1em;
+}
+h3,
+.h3 {
+    font-size: 1.125em;
+    margin: 0 0 1em;
+}
+h4,
+.h4 {
+    font-size: 1em;
+    margin: 0 0 1.0em;
+}
+h5,
+.h5 {
+    font-size: .875em;
+    margin: 0 0 1.1428em;
+}
+h6,
+.h6 {
+    font-size: .75em;
+    margin: 0 0 1.333em;
+}
+@media (max-width: 991px) {
+    .logo-wrapper {
+        max-width: 260px;
+        margin: 0 auto;
+        text-align: center;
+    }
+}
+caption,
+figcaption,
+summary,
+legend {
+    padding: 0;
+    margin: 0 0 .35em;
+    line-height: 1.2;
+}
+p,
+ul,
+ol,
+dl,
+pre,
+table,
+hr,
+blockquote,
+figure,
+details,
+fieldset,
+address {
+    margin: 0 0 1.4em 0;
+    /* bottom margin = line-height */
+    padding: 0;
+}
+ul,
+ol {
+    padding: 0 0 0 1.5em;
+}
+li,
+dd {
+    padding: 0;
+    margin: 0 0 0 1.5em;
+}
+dt {
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+li ul,
+li ol,
+li dl,
+dl ul,
+dl ol,
+dl dl {
+    margin-bottom: 0;
+    padding: 0;
+}
+li li {
+    font-size: 100%;
+}
+ul {
+    list-style: square outside;
+}
+ol {
+    list-style: decimal outside;
+}
+ol ol {
+    list-style-type: lower-alpha;
+}
+ol ol ol {
+    list-style-type: upper-roman;
+}
+ol ol ol ol {
+    list-style-type: upper-alpha;
+}
+ol ol ol ol ol {
+    list-style-type: lower-roman;
+}
+acronym,
+abbr {
+    cursor: help;
+    border-bottom: 1px dotted;
+    font-style: normal;
+}
+em acronym,
+em abbr {
+    font-style: italic;
+}
+mark {
+    color: inherit;
+}
+pre,
+code,
+samp,
+kbd {
+    font-family: Consolas, "Andale Mono WT", "Andale Mono", "Bitstream Vera Sans Mono", "Nimbus Mono L", Monaco, "Courier New", monospace;
+    /* same font stack should be used for ".dokuwiki table.diff td" in _diff.css */
+    font-size: 1em;
+    direction: ltr;
+    text-align: left;
+    color: #ff5e00;
+    background-color: #f3f3f3;
+    border-radius: 2px;
+    border: none;
+}
+pre {
+    overflow: auto;
+    word-wrap: normal;
+    border-radius: 2px;
+    padding: .7em 1em;
+}
+blockquote {
+    padding: 0 .5em;
+    border-width: 0 0 0 .25em;
+}
+q:before,
+q:after {
+    content: '';
+}
+sub,
+sup {
+    font-size: .8em;
+    line-height: 1;
+}
+sub {
+    vertical-align: sub;
+}
+sup {
+    vertical-align: super;
+}
+small {
+    font-size: .8em;
+}
+#content a:link,
+#content a:visited {
+    text-decoration: underline;
+}
+#content a:link:hover,
+#content a:visited:hover,
+#content a:link:focus,
+#content a:visited:focus,
+#content a:link:active,
+#content a:visited:active {
+    text-decoration: none;
+}
+#content h1,
+#content .h1,
+#content h2,
+#content .h2,
+#content h3,
+#content .h3,
+#content h4,
+#content .h4,
+#content h5,
+#content .h5,
+#content h6,
+#content .h6 {
+    font-family: "Oswald", "Trebuchet MS", Arial, sans-serif;
+    font-weight: normal;
+    letter-spacing: .03em;
+}
+#content .page-header {
+    border: none;
+}
+#content ul:not(.toc) li {
+    list-style-type: none;
+    background: url("../img/bullet_ff5e00.png") no-repeat 0px 0.4em;
+    padding-left: 20px;
+    margin: 0px;
+}
+#menu {
+    margin-bottom: 30px;
+    -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.4);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.4);
+    /* first level */
+    /* second level */
+    /* third level */
+    /* fourth level */
+}
+#menu li {
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+#menu li a:before {
+    width: 11px;
+    height: 12px;
+    position: absolute;
+    left: 15px;
+    content: "\25B6";
+    font-size: 10px;
+}
+#menu li a:link,
+#menu li a:visited {
+    position: relative;
+    z-index: 20;
+    line-height: 45px;
+    padding: 0;
+    padding-left: 35px;
+    border-radius: 0;
+    font-size: 1.15em;
+    text-decoration: none;
+    border-bottom: 1px solid #d8d9dd;
+    font-weight: lighter;
+    -webkit-box-shadow: inset 0 1px 1px -1px rgba(255, 255, 255, 0.6), 0 1px 1px 0px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: inset 0 1px 1px -1px rgba(255, 255, 255, 0.6), 0 1px 1px 0px rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 1px 1px -1px rgba(255, 255, 255, 0.6), 0 1px 1px 0px rgba(0, 0, 0, 0.4);
+    background: #ff5e00;
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #e05300), color-stop(1, #ff853d));
+    background: -ms-linear-gradient(bottom, #e05300, #ff853d);
+    background: -moz-linear-gradient(center bottom, #e05300 0%, #ff853d 100%);
+    background: -o-linear-gradient(#ff853d, #e05300);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff853d', endColorstr='#e05300', GradientType=0);
+    text-transform: uppercase;
+    color: white;
+}
+#menu li.active > a:before {
+    content: "\25BC";
+    top: -1px;
+}
+#menu li.active > a:link,
+#menu li.active > a:visited {
+    border-bottom-color: #98999a;
+}
+#menu li a:hover,
+#menu li a:active {
+    text-decoration: none;
+}
+#menu li:last-child a {
+    border-bottom: none;
+}
+#menu li li a:before {
+    display: none;
+}
+#menu li li a:link,
+#menu li li a:visited {
+    z-index: 10;
+    font-size: 1.10em;
+    font-weight: bold;
+    border-bottom: 1px solid #d8d9dd;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    background-color: #e6e7eb;
+    background-image: none;
+    text-transform: none;
+    color: #555555;
+}
+#menu li li a:hover,
+#menu li li a:active,
+#menu li li.highlight > a:link,
+#menu li li.highlight > a:visited {
+    background-color: #f7d9c0 !important;
+}
+#menu li li.active > a:link,
+#menu li li.active > a:visited {
+    border-bottom-color: #d8d9dd;
+}
+#menu li li a:hover:before,
+#menu li li.highlight > a:before {
+    display: none;
+}
+#menu li li li a:link,
+#menu li li li a:visited {
+    font-size: 13px;
+    background-color: white;
+    color: #555555;
+}
+#menu li li li li a:link,
+#menu li li li li a:visited {
+    padding-left: 50px;
+    font-weight: normal;
+}
+#sidebar {
+    font-size: .875em;
+}
+@media (max-width: 767px) {
+    #sidebar {
+        margin-bottom: 60px;
+    }
+}
+#sidebar .btn-collapse {
+    text-align: left;
+    padding: 20px 15px;
+    border-radius: 0;
+    border: none;
+    background-color: #e6e7eb;
+    font-weight: bold;
+    font-size: 1.25em;
+    letter-spacing: .05em;
+}
+#sidebar .btn-collapse span {
+    color: #888888;
+    font-size: 0.75em;
+    line-height: 1.5em;
+}
+#sidebar #logo {
+    margin-bottom: 30px;
+}
+#sidebar h3 {
+    margin-top: 1.5em;
+}
+#sidebar form.search legend {
+    border: none;
+    font-size: 1.2em;
+}
+#sidebar form.search fieldset {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ff5e00;
+}
+#sidebar form.search .input-wrapper {
+    position: relative;
+}
+#sidebar form.search .form-control {
+    width: 100% !important;
+    height: 40px;
+    border: none;
+    color: #777777;
+    background-color: #f3f3f3;
+    padding-left: 20px;
+    padding-right: 50px;
+    border-radius: 0;
+    border: 1px solid #f3f3f3;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+#sidebar form.search .form-control:active,
+#sidebar form.search .form-control:focus {
+    border-color: #eeeeee;
+}
+#sidebar form.search .btn {
+    position: absolute;
+    z-index: 20;
+    right: 0;
+    top: 0;
+    height: 40px;
+    width: 40px;
+    padding: 0;
+    border: none;
+    background: url("../img/search.png") no-repeat center center;
+    font-size: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+#sidebar form.search .btn:active,
+#sidebar form.search .btn:focus {
+    background-color: #dddddd;
+    border: none;
+    outline: none;
+}
+#sidebar p.tools {
+    margin-bottom: 1em;
+}
+#sidebar .tools li {
+    margin: 0 0 5px 10px;
+}
+#footer {
+    clear: both;
+    font-size: .8em;
+    color: #e1e5e9;
+    background-color: #4b4d4a;
+    border-top: 10px solid #dcdcda;
+    padding-top: 40px;
+    overflow: hidden;
+}
+#footer a:link,
+#footer a:visited {
+    color: #e1e5e9;
+}
+#footer a:link,
+#footer a:visited {
+    text-decoration: underline;
+}
+#footer a:link:hover,
+#footer a:visited:hover,
+#footer a:link:focus,
+#footer a:visited:focus,
+#footer a:link:active,
+#footer a:visited:active {
+    text-decoration: none;
+}
+#footer .col {
+    margin-bottom: 40px;
+    line-height: 2.1em;
+}
+#footer .col h2 {
+    color: #e1e5e9;
+    padding-bottom: 0.8em;
+    margin-bottom: 1em;
+    font-size: 1.05em;
+    text-transform: uppercase;
+    border-bottom: 1px solid white;
+}
+#footer .col ul {
+    padding-left: 0;
+}
+#footer .col ul li {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 25px;
+    background: url("../img/bullet_77797c.png") no-repeat 0px 0.5em;
+}
+#footer .col ul li a:link,
+#footer .col ul li a:visited {
+    text-decoration: none;
+}
+#footer .col ul li a:link:hover,
+#footer .col ul li a:visited:hover,
+#footer .col ul li a:link:focus,
+#footer .col ul li a:visited:focus,
+#footer .col ul li a:link:active,
+#footer .col ul li a:visited:active {
+    text-decoration: underline;
+}
+#footer .copyright {
+    text-align: right;
+    margin-top: -20px;
+}

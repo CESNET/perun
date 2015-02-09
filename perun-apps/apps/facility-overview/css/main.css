@@ -1,0 +1,10 @@
+.col-boolean .true {
+    color: green;
+}
+.col-boolean .false {
+    color: #DD0022;
+}
+
+.progress-bar {
+    background-color: #ff5e00;
+}

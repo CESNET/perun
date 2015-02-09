@@ -1,0 +1,196 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 27.8.2014, 21:32:51
+    Author     : Ondrej
+*/
+body {
+  background-color: #f5f5f5;
+}
+.fill {
+  min-height: 500px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+.btn-primary {
+  border-color: #003c72;
+  background-color: #00529b;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #003c72;
+  border-color: #00325e;
+}
+#header {
+  box-shadow: 0px 0px 16px #ccc;
+  background-color: #fff;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding: 0px 20px;
+}
+#header .logo {
+  margin: 10px 0px;
+}
+#header .logo img {
+  height: 32px;
+  margin-right: 8px;
+}
+#header .logo img:last-child {
+  margin-right: 0px;
+}
+#header .title img {
+  height: 30px;
+  margin-top: -6px;
+}
+#header .user {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+#menu .nav-pills > .active > a,
+#menu .nav-pills > .active > a:hover,
+#menu .nav-pills > .active > a:focus {
+  background-color: #00529b;
+}
+#menu .nav-pills > .active > a i,
+#menu .nav-pills > .active > a:hover i,
+#menu .nav-pills > .active > a:focus i {
+  color: #fff;
+}
+#menu .nav-pills > li > a:hover,
+#menu .nav-pills > li > a:focus {
+  background-color: #e6e6e6;
+}
+#menu .nav-stacked > li.divider {
+  margin: 6px 0px;
+  border-bottom: 1px solid #ddd;
+}
+#menu i {
+  color: #333;
+}
+#content h1 :not(.modal),
+#content h2 :not(.modal),
+#content h3 :not(.modal),
+#content h4 :not(.modal),
+#content h5 :not(.modal),
+#content h6 :not(.modal) {
+  margin-top: 20px;
+}
+#content .page-header {
+  border-bottom-color: #ddd;
+}
+#content dl dd,
+#content dl dt {
+  margin-bottom: 4px;
+}
+#content table tbody {
+  background-color: #fff;
+}
+#content table td .space {
+  margin-left: 24px;
+}
+#content table td .space:last-child:after {
+  content: "\25CB";
+  color: #bbb;
+  margin-right: 4px;
+}
+#content .tab-pane > .btn-toolbar {
+  margin-bottom: 8px;
+}
+#content .tab-pane > .btn-toolbar .btn-group {
+  margin-bottom: 5px;
+}
+.modal .alert {
+  margin-bottom: 0px;
+}
+.modal[id^=addMembers] select#members,
+.modal[id^=addManagers] select#members,
+.modal[id^=removeMembers] select#members,
+.modal[id^=removeManagers] select#members {
+  height: 200px;
+}
+.modal .modal-header button.close {
+  margin: -16px -16px 0px 0px;
+  padding: 8px;
+  font-size: 32px;
+  line-height: 24px;
+}
+#innerTabs .nav li {
+  margin-bottom: 6px;
+}
+#innerTabs .nav li a {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+}
+#innerTabs .nav li.active a {
+  background: #eee;
+  color: #666;
+}
+#innerTabs .nav li + li {
+  margin-left: 9px;
+}
+#innerTabs .nav li + li:before {
+  margin: 5px 0 0 -10px;
+  font-size: 20px;
+  content: "<";
+  color: #ccc;
+  float: left;
+}
+@media (max-width: 768px) {
+  #innerTabs .nav li {
+    float: none;
+  }
+}
+#footer {
+  clear: both;
+  color: #e1e5e9;
+  background-color: #4b4d4a;
+  padding-top: 40px;
+  margin-top: 40px;
+  overflow: hidden;
+}
+#footer a img {
+  display: inline-block;
+  margin-right: 20px;
+}
+#footer a:last-child img {
+  margin-right: 0px;
+}
+#footer a:link,
+#footer a:visited {
+  color: #e1e5e9;
+}
+#footer .col {
+  margin-bottom: 40px;
+  line-height: 2.1em;
+}
+#footer .col h4 {
+  font-family: Helvetica, Arial, sans-serif;
+  color: #e1e5e9;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #999;
+}
+#footer .col ul {
+  padding-left: 0;
+}
+#footer .col ul li {
+  list-style-type: none;
+  margin-left: 0;
+  padding-left: 25px;
+  background: #4b4d4a url("../img/bullet.png") no-repeat 0px 0.5em;
+}
+#footer .copyright {
+  text-align: right;
+  margin-top: -20px;
+}
