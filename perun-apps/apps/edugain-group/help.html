@@ -1,0 +1,209 @@
+<!DOCTYPE html>                                                                                                                                                                                
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+        <link href="/apps-include/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/apps-include/icomoon/icomoon.css" rel="stylesheet">
+        <link href="/apps-include/css/multilevel-dropdown.css" rel="stylesheet">
+        <link href="/apps-include/css/layout.css" rel="stylesheet">
+        <link href="../non/css/main.css" rel="stylesheet">
+
+        <link rel="shortcut icon" href="/apps-include/img/favicons/favicon.ico">
+        <link rel="icon" sizes="16x16 32x32 64x64" href="/apps-include/img/favicons/favicon.ico">
+        <link rel="icon" type="image/png" sizes="64x64" href="/apps-include/img/favicons/favicon-64.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/apps-include/img/favicons/favicon-32.png">
+        <link rel="apple-touch-icon" href="/apps-include/img/favicons/favicon-57.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/apps-include/img/favicons/favicon-144.png">
+        <meta name="msapplication-TileImage" content="/apps-include/img/favicons/favicon-white-144.png">
+        <meta name="msapplication-TileColor" content="#00569c">
+        
+        <title>eduGAIN Groups Manager Demo</title>
+    </head>
+    <body>
+
+        
+        <!-- <div id="cesnet_linker_placeholder"></div> -->        
+        <div class="container-fluid">
+            <div id="header">
+                <div class="row">
+                    <div class="col-sm-3 col-lg-2">
+                        <div class="logo">
+                          <a href="http://perun.cesnet.cz"><img src="/apps/edugain-group/non/img/perun-color-logo.png" alt="perun logo"></a>
+                        </div>
+                    </div>
+                    <div class="col-sm-8 col-lg-8">
+                        <div class="title">
+                            <h3><img src="/apps/edugain-group/non/img/edugain-color-logo.png" alt="eduGAIN logo"> Groups Manager Demo</h3>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-lg-2">
+                        <!--
+                        <div class="dropdown user">
+                            <a class="btn btn-link pull-right" data-toggle="dropdown" data-target="#" href="#">
+                                <span class="user-firstName"></span> <span class="user-lastName"></span> <span class="caret"></span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <h4>Users Roles</h4>
+                                <ul class="list-unstyled" class="user-roles">
+                                </ul>
+                                <button id="logout" class="btn btn-default btn-block"><i class="glyphicon glyphicon-off"></i> logout</button>
+                            </div>
+                            <button id="login" class="btn btn-primary pull-right" style="display: none;">login</button>
+                        </div>
+                        -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="container-fluid"> <!-- main container -->
+            <div class="row fill">
+
+                <div class="col-sm-3 col-lg-2"> <!-- left menu -->
+                    <div class="tabbable" id="menu">
+                        <ul class="nav nav-pills nav-stacked">  
+                            <li>
+                                <a href="/apps/edugain-group/edugain/">
+                                    <i class="glyphicon icon-users"></i> <span>Groups Manager Demo</span>
+                                </a>
+                            </li>  
+                            <li class="divider"></li>  
+                            <li class="active">
+                                <a href="#help" data-toggle="tab" id="helpLink">
+                                    <i class="glyphicon icon-support"></i> Help
+                                </a>
+                            </li>  
+                        </ul>  
+                    </div>
+                </div> <!-- left menu -->
+
+
+                <div class="col-sm-9 col-lg-9">
+                    <div id="staticMessager">
+                        <!-- contend loaded by JavaScript -->
+                    </div>
+                    <div class="tab-content" id="content">  <!-- content -->
+
+                        <div class="tab-pane active" id="help"> <!-- help tab -->
+                            <div class="page-header">
+                                <h2>Welcome to eduGAIN Groups Manager Demo</h2>
+                                <p>
+                                This service is intended to test how attribute authorities managed by VO management tools like <a href="http://perun.cesnet.cz">Perun</a> system can work within the <a href="http://edugain.org">eduGAIN</a>. Everyone can register and create groups which can be used by the service providers to do the authorization decision. Only registered users can be added into the groups, registration is required in order to accept service conditions. As this service is not a production service, there is no guarantee that it will be available 24/7. If you encounter any problem or have any comments, just let us know on <a href="mailto:perun@cesnet.cz">perun@cesnet.cz</a>.
+                                </p>
+                                <h3>Service rules</h3>
+                                <ul>
+                                  <li>This is <b>NOT</b> a production service, there is no guarantee that it will be available for 24/7.
+                                  <li>Every information provided to the service will be stored on server located at CESNET (Czech Republic) and is available through the eduGAIN Groups Manager Demo web interface.
+                                  <li>Attribute authority is configured to release attributes to <b>ANY</b> eduGAIN SPs.
+                                  <li>Attribute authority releases only name of the group where the user is member.
+                                  <li>Every user sees only those groups which were created by him.
+                                </ul>
+
+                                <h3>How to start?</h3>
+                                <ol>
+                                  <li>Go to the <a href="/edugain/registrar/?vo=edugain_group">registration page</a>.
+                                  <li>You will receive confirmation with the link to the <a href="/apps/edugain-group/edugain/">eduGAIN Groups Manager Demo</a>.
+                                  <li>Invite users
+                                  <li>If the user go throught the registration, then you can add him into the group.
+                                  <li>Configure SP to get attributes from eduGAIN Groups Manager Demo attribute authority, technical documentation follows.
+                                </ol>
+
+
+                                <h3>Technical documentation</h3>
+                                Below is the list of changes which needs to be done in order to let SP ask the eduGAIN group service attribute authority.
+                                <h4>Prerequisites</h4>
+                                <ul>
+                                  <li>User's IdP must release eduPersonPrincipalName, displayName or givenName/sn and mail to SP <i>https://meta.cesnet.cz/sp/shibboleth</i> (CESNET's Perun instance). The SP is tagged by REFEDS R&amp;S entity category, which by default contains those attributes as a minimal set.
+                                  <ul>
+                                    <li>Attribute eduPersonPrincipalName: <i>urn:oid:1.3.6.1.4.1.5923.1.1.1.6</i>
+                                    <li>Attribute displayName: <i>urn:oid:2.16.840.1.113730.3.1.241</i>
+                                    <li>Attribute mail: <i>urn:oid:0.9.2342.19200300.100.1.3</i>
+                                  </ul>
+                                  <li>SP must consume metadata containing entities from eduGAIN and must be itself available in eduGAIN metadata.
+                                </ul>
+                                Just add this piece of code to the <i>shibboleth2.xml</i> after existing AttributeResolver element. The code will ensure that SP will request additional user attributes (name of groups) from eduGAIN Groups Manager. Users are searched by <i>eduPersonPrincipalName (eppn)</i>.
+                                 <pre>
+&lt;AttributeResolver type=&quot;SimpleAggregation&quot; attributeId=&quot;eppn&quot;
+        format=&quot;urn:oid:1.3.6.1.4.1.5923.1.1.1.6&quot;&gt;
+         &lt;Entity&gt;https://edugain-group.cesnet.cz/idp/shibboleth&lt;/Entity&gt;
+&lt;/AttributeResolver&gt;</pre>
+
+                                <h4>Attribute definition</h4>
+                                <ul>
+                                        <li>Attribute name: <i>https://edugain-group.cesnet.cz/attribute-def/uniqueGroupName</i>
+                                </ul>
+                                Add attribute map to <i>attribute-map.xml</i>:
+                                <pre>
+&lt;!-- Perun group name attribute --&gt;
+&lt;Attribute name=&quot;https://edugain-group.cesnet.cz/attribute-def/uniqueGroupName&quot; id=&quot;uniqueGroupName&quot; /&gt;</pre>
+                                <p>Attribute contains name of the group as a value prefixed by <i>edugain_group:</i> string. For example group named <i>test</i> will result in the attribute value <i>edugain_group:test</i>.
+                                </p>
+
+                                      
+                            </div>
+                        </div> <!-- help tab -->
+
+
+                    </div> <!-- content -->
+                </div> 
+
+
+            </div>
+        </div> <!-- main container -->
+
+
+        <div id="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col col-sm-offset-0 col-sm-4 col-lg-offset-2 col-lg-3 logo">
+                        <a href="http://www.cesnet.cz/">
+                            <img src="/apps/edugain-group/non/img/logo-cesnet.png" class="img-responsive" alt="cesnet">
+                        </a>
+                        <a href="https://www.cerit-sc.cz">
+                            <img src="/apps/edugain-group/non/img/logo-cerit.png" class="img-responsive" alt="cerit">
+                        </a>
+                    </div>
+                    <div class="col col-sm-4 col-lg-3">
+                        <h4>OTHER CESNET PROJECTS</h4>
+                        <ul>
+                            <li><a href="http://perun.cesnet.cz">Perun</a></li>
+                            <li><a href="http://www.ultragrid.cz/en">UltraGrid</a></li>
+                            <li><a href="http://www.4kgateway.com/">4k Gateway</a></li>
+                            <li><a href="http://shongo.cesnet.cz/">Shongo</a></li>
+                            <li><a href="https://www.liberouter.org/">Librerouter</a></li>
+                        </ul>
+                    </div>
+                    <div class="col col-sm-4 col-lg-3">
+                        <h4>CONTACT</h4>
+                        <a href="mailto:perun@cesnet.cz">perun@cesnet.cz</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-sm-11 copyright">
+                        © 1991–2014 CESNET, z. s. p. o, CERIT-SC
+                    </div>
+                </div>
+            </div>
+        </div> 
+
+        <div id="flowMessager">
+            <!-- contend loaded by JavaScript -->
+        </div>
+
+
+        <noscript>
+        <div class="modal">
+            <div class="modal-body">
+                <h3>Javascript is disabled</h3>
+                <p>This site will not work correctly because your browser is blocking JavaScript. Please enable JavaScript and reload page.</p>
+            </div>
+        </div>
+        </noscript>
+
+        <script src="/apps-include/js/vendor/jquery-1.11.1.min.js"></script>
+        <script src="/apps-include/bootstrap/js/bootstrap.min.js"></script>
+    </body>
+</html>
