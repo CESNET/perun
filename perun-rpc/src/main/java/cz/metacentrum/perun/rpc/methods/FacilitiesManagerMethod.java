@@ -563,17 +563,16 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get list of all user administrators for supported role and given facility.
+	 * Get list of all facility administrators for supported role and given facility.
 	 *
-	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 * If onlyDirectAdmins is == 1, return only direct admins of the group for supported role.
 	 *
 	 * Supported roles: FacilityAdmin
 	 *
-	 * @param perunSession
-	 * @param facility
-	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param facility int Facility ID
+	 * @param onlyDirectAdmins int if == 1, get only direct facility administrators (if != 1, get both direct and indirect)
 	 *
-	 * @return list of all user administrators of the given facility for supported role
+	 * @return List<User> list of all facility administrators of the given facility for supported role
 	 */
 	/*#
 	 * Get all Facility admins.
@@ -639,22 +638,21 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *
 	 * Supported roles: FacilityAdmin
 	 *
-	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
-	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 * If "onlyDirectAdmins" is == 1, return only direct admins of the facility for supported role with specific attributes.
+	 * If "allUserAttributes" is == 1, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
 	 *
-	 * @param perunSession
-	 * @param group
-	 * @param specificAttributes list of specified attributes which are needed in object richUser
-	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
-	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param facility int Facility ID
+	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes int if == 1, get all possible user attributes and ignore list of specificAttributes (if != 1, get only specific attributes)
+	 * @param onlyDirectAdmins int if == 1, get only direct facility administrators (if != 1, get both direct and indirect)
 	 *
-	 * @return list of RichUser administrators for the facility and supported role with attributes
+	 * @return List<RichUser> list of RichUser administrators for the facility and supported role with attributes
 	 */
 	/*#
     * Get all Facility admins as RichUsers
     *
-		* !!! DEPRECATED version !!!
-		*
+	* !!! DEPRECATED version !!!
+	*
     * @param facility int Facility ID
     * @return List<RichUser> admins
     */
@@ -667,8 +665,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")),
 					parms.readList("specificAttributes", String.class),
-					parms.readInt("allUserAttributes") ==1,
-					parms.readInt("onlyDirectAdmins") ==1);
+					parms.readInt("allUserAttributes") == 1,
+					parms.readInt("onlyDirectAdmins") == 1);
 			} else {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
