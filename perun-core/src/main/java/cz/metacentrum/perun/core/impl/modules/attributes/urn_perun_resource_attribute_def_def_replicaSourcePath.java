@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
@@ -22,22 +23,23 @@ public class urn_perun_resource_attribute_def_def_replicaSourcePath extends Reso
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 
-		Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
-		List<Attribute> attributes = perunSession.getPerunBl().getAttributesManagerBl().getAttributes(perunSession, facility);
-
-		Boolean found = false;
-
-		for (Attribute attr: attributes) {
-			if (attr.getFriendlyName().equals("homeMountPoints")) {
-				if(attr.getValue().equals(attribute.getValue())){
-					found = true;
-					break;
-				}
-			}
+		if(attribute.getValue() == null) {
+			throw new WrongAttributeValueException(attribute, resource, "This attribute can't be empty");
 		}
 
-		if(!found){
-			throw new WrongAttributeValueException(attribute, "ReplicaSourcePath has to be the same as one of the F:D:homeMountPoints");
+		Facility facility = perunSession.getPerunBl().getResourcesManagerBl().getFacility(perunSession, resource);
+
+		Attribute facilityAttr = null;
+		try {
+			facilityAttr = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":homeMountPoints");
+		} catch (AttributeNotExistsException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		if(facilityAttr.getValue() != null) {
+			if (!((List<String>) facilityAttr.getValue()).containsAll((List<String>) attribute.getValue())) {
+				throw new WrongReferenceAttributeValueException(attribute, facilityAttr, resource, facility, "ReplicaSourcePath has to be the same as one of the F:D:homeMountPoints");
+			}
 		}
 	}
 

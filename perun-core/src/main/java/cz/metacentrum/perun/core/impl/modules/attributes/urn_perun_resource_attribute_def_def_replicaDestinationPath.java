@@ -21,13 +21,13 @@ public class urn_perun_resource_attribute_def_def_replicaDestinationPath extends
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 
 		if(attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute);
+			throw new WrongAttributeValueException(attribute, resource, "This attribute can't be empty");
 		}
 
 		Pattern pattern = Pattern.compile("^/[-a-zA-Z.0-9_/]*$");
 		Matcher match = pattern.matcher((String) attribute.getValue());
 		if (!match.matches()) {
-			throw new WrongAttributeValueException(attribute, "Bad replicaDestinationPath attribute format " + attribute.getValue());
+			throw new WrongAttributeValueException(attribute, resource, "Bad replicaDestinationPath attribute format " + attribute.getValue());
 		}
 	}
 

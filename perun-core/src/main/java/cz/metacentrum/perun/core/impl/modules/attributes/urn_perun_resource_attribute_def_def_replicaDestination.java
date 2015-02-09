@@ -18,11 +18,11 @@ public class urn_perun_resource_attribute_def_def_replicaDestination extends Res
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws WrongAttributeValueException {
 
 		if(attribute.getValue() == null) {
-			throw new WrongAttributeValueException(attribute);
+			throw new WrongAttributeValueException(attribute, resource, "This attribute can't be empty");
 		}
 
 		if (!perunSession.getPerunBl().getModulesUtilsBl().isFQDNValid(perunSession, (String) attribute.getValue())) {
-			throw new WrongAttributeValueException(attribute, "Bad replicaDestination attribute format " + attribute.getValue() + ". It should be" +
+			throw new WrongAttributeValueException(attribute, resource, "Bad replicaDestination attribute format " + attribute.getValue() + ". It should be" +
 					"fully qualified domain name.");
 		}
 	}
