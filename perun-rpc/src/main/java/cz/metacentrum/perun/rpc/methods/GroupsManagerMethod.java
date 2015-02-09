@@ -382,17 +382,16 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get list of all user administrators for supported role and specific group.
+	 * Get list of all group administrators for supported role and specific group.
 	 *
-	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 * If onlyDirectAdmins is == 1, return only direct admins of the group for supported role.
 	 *
 	 * Supported roles: GroupAdmin
 	 *
-	 * @param perunSession
-	 * @param group
-	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param group int Group ID
+	 * @param onlyDirectAdmins int if == 1, get only direct user administrators (if == 0, get both direct and indirect)
 	 *
-	 * @return list of all user administrators of the given group for supported role
+	 * @return List<User> list of all group administrators of the given group for supported role
 	 */
 	/*#
 	 * Returns administrators of a group.
@@ -436,7 +435,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns group administrators of a group.
+	 * Returns administrator groups of a group.
 	 *
 	 * @param group int Group ID
 	 * @return List<Group> admins
@@ -455,17 +454,15 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * Supported roles: GroupAdmin
 	 *
-	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
-	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 * If "onlyDirectAdmins" is == 1, return only direct admins of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is == 1, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
 	 *
-	 * @param perunSession
-	 * @param group
+	 * @param group int Group ID
+	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes int if == 1, get all possible user attributes and ignore list of specificAttributes (if != 1, get only specific attributes)
+	 * @param onlyDirectAdmins int if == 1, get only direct group administrators (if != 1, get both direct and indirect)
 	 *
-	 * @param specificAttributes list of specified attributes which are needed in object richUser
-	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
-	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
-	 *
-	 * @return list of RichUser administrators for the group and supported role with attributes
+	 * @return List<RichUser> list of RichUser administrators for the group and supported role with attributes
 	 */
 	/*#
 	* Get all Group admins as RichUsers
@@ -482,7 +479,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
-								parms.readList("specificAttribtues", String.class),
+								parms.readList("specificAttributes", String.class),
 								parms.readInt("allUserAttributes") == 1,
 								parms.readInt("onlyDirectAdmins") == 1);
 			} else {
