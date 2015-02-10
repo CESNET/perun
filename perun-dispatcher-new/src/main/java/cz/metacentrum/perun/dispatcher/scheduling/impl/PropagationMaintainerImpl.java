@@ -353,8 +353,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				continue;
 			}
 
-			Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60
-					* 24 * 2);
+			Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 2);
 			if (task.getEndTime().before(twoDaysAgo)) {
 				// reschedule the task
 				log.info("TASK ["
