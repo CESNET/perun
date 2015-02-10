@@ -416,7 +416,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (parms.contains("state[]")) {
+			if (parms.contains("state")) {
 				return ac.getRegistrarManager().getApplicationsForVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readList("state", String.class));
 			} else {
 				return ac.getRegistrarManager().getApplicationsForVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), null);
@@ -443,7 +443,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 		@Override
 		public List<Application> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if (parms.contains("state[]")) {
+			if (parms.contains("state")) {
 				return ac.getRegistrarManager().getApplicationsForGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), parms.readList("state", String.class));
 			} else {
 				return ac.getRegistrarManager().getApplicationsForGroup(ac.getSession(), ac.getGroupById(parms.readInt("group")), null);

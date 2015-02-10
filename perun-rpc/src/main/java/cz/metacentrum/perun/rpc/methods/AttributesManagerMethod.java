@@ -35,7 +35,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns chosen VO attributes. Returns only non-empty attributes.
 	 *
 	 * @param vo int VO ID
-	 * @param attrNames List<String> Attribute names
+	 * @param attrNames[] List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
@@ -106,6 +106,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
+	 * Returns chosen Group attributes. Returns only non-empty attributes.
+	 *
+	 * @param group int Group ID
+	 * @param attrNames[] List<String> Attribute names
+	 * @return List<Attribute> Attributes
+	 */
+	/*#
 	 * Returns Host attributes. Returns only non-empty attributes.
 	 *
 	 * @param host int Host ID
@@ -125,7 +132,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getFacilityById(parms.readInt("facility")));
 				}
 			} else if (parms.contains("vo")) {
-				if (parms.contains("attrNames[]")) {
+				if (parms.contains("attrNames")) {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 							ac.getVoById(parms.readInt("vo")),
 							parms.readList("attrNames", String.class));
@@ -155,7 +162,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				}
 			} else if (parms.contains("member")) {
 				if (parms.contains("workWithUserAttributes")){
-					if (parms.contains("attrNames[]")) {
+					if (parms.contains("attrNames")) {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")),
 								parms.readList("attrNames", String.class),
@@ -164,7 +171,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")), parms.readInt("workWithUserAttributes") == 1);
 					}
-				} else if (parms.contains("attrNames[]")) {
+				} else if (parms.contains("attrNames")) {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")),
 							parms.readList("attrNames", String.class));
@@ -173,7 +180,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getMemberById(parms.readInt("member")));
 				}
 			} else if (parms.contains("user")) {
-				if (parms.contains("attrNames[]")) {
+				if (parms.contains("attrNames")) {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 							ac.getUserById(parms.readInt("user")),
 							parms.readList("attrNames", String.class));
@@ -182,7 +189,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getUserById(parms.readInt("user")));
 				}
 			} else if (parms.contains("group")) {
-				if (parms.contains("attrNames[]")) {
+				if (parms.contains("attrNames")) {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 							ac.getGroupById(parms.readInt("group")),
 							parms.readList("attrNames", String.class));
@@ -1185,7 +1192,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "host, resource or facility");
 				}
-			} else if (parms.contains("services[]")) {
+			} else if (parms.contains("services")) {
 				// get list of services
 				List<Service> services = new ArrayList<Service>();
 				List<Integer> servIds = parms.readList("services", Integer.class);

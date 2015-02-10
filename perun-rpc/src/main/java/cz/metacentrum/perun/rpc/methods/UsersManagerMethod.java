@@ -277,7 +277,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("attrsNames[]")) {
+			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
 						parms.readInt("includedServiceUsers") == 1,
 						parms.readList("attrsNames", String.class));
@@ -299,7 +299,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("attrsNames[]")) {
+			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().findRichUsersWithAttributes(ac.getSession(),
 						parms.readString("searchString"),
 						parms.readList("attrsNames", String.class));
@@ -321,7 +321,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("attrsNames[]")) {
+			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().getRichUsersWithoutVoWithAttributes(ac.getSession(),
 						parms.readList("attrsNames", String.class));
 			} else {
@@ -342,7 +342,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("attrsNames[]")) {
+			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().findRichUsersWithoutSpecificVoWithAttributes(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						parms.readString("searchString"),
@@ -631,7 +631,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("attributeName")) {
-				if (parms.contains("attributeValue") || parms.contains("attributeValue[]")) {
+				if (parms.contains("attributeValue")) {
 					String attributeName = parms.readString("attributeName");
 					Attribute attr = new Attribute(ac.getAttributesManager().getAttributeDefinition(ac.getSession(), attributeName));
 
