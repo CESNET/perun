@@ -1453,6 +1453,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	public void setAttributeInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		setAttribute(sess, member, attribute);
+	}
+
 	public boolean setAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR);
 
@@ -1507,6 +1511,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			checkAttributeValue(sess, user, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute(user, null, attribute));
 		}
+	}
+
+	public void setAttributeInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		setAttribute(sess, user, attribute);
 	}
 
 	public boolean setAttributeWithoutCheck(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -3568,6 +3576,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					 }
 
 					 return attribute;
+	}
+
+	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		return mergeAttributeValue(sess, user, attribute);
 	}
 
 	private boolean findAndSetValueInList(List<Attribute> attributes, AttributeDefinition attributeDefinition, Object value) {
