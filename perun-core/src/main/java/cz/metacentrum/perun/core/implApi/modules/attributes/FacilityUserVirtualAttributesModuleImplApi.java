@@ -48,9 +48,9 @@ public interface FacilityUserVirtualAttributesModuleImplApi extends FacilityUser
 	 * @param facility facility which is needed for computing the value
 	 * @param user user which is needed for computing the value
 	 * @param attribute attribute to operate on
-	 * @return
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception is raised in particular
 	 *         implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException;
+	boolean removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException;
 }

@@ -31,8 +31,8 @@ public abstract class FacilityUserVirtualAttributesModuleAbstract extends Facili
 		return false;
 	}
 
-	public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
-
+	public boolean removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
+		return false;
 	}
 
 	@Override

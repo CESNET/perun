@@ -117,12 +117,11 @@ public class urn_perun_resource_attribute_def_virt_unixGroupName extends Resourc
 	}
 
 	@Override
-	public void removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Attribute unixGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
-
 		try {
 			AttributeDefinition groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace:" + unixGroupNameNamespaceAttribute.getValue());
-			sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupNameAttribute);
+			return sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupNameAttribute);
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {

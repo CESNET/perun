@@ -2399,10 +2399,11 @@ public interface AttributesManagerBl {
 	 * @param resource remove attribute from this resource
 	 * @param attribute attribute to remove
 	 *
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute or if it is core attribute
 	 */
-	void removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
@@ -2603,10 +2604,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param key
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't entityless attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the facility without check of value.
@@ -2614,10 +2616,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param facility
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't facility attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the host without check of value.
@@ -2625,10 +2628,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param host
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't host attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the vo without check of value.
@@ -2636,10 +2640,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param vo
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't vo attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the group without check of value.
@@ -2647,10 +2652,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param group
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't group attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the resource without check of value.
@@ -2658,10 +2664,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param resource
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't resource attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the member-resource without check of value.
@@ -2670,10 +2677,11 @@ public interface AttributesManagerBl {
 	 * @param resource
 	 * @param member
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't member-resource attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the member without check of value.
@@ -2681,10 +2689,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param member
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't member attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the user-facility without check of value.
@@ -2693,10 +2702,11 @@ public interface AttributesManagerBl {
 	 * @param facility
 	 * @param user
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't user-facility attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the user without check of value.
@@ -2704,10 +2714,11 @@ public interface AttributesManagerBl {
 	 * @param sess
 	 * @param user
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't user attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Unset all attributes for the group-resource without check of value.
@@ -2716,10 +2727,11 @@ public interface AttributesManagerBl {
 	 * @param resource
 	 * @param group
 	 * @param attribute
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
 	 * @throws WrongAttributeAssignmentException if attribute isn't group-resource attribute or if it is core attribute
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	void removeAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	void checkAttributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeNotExistsException;
 

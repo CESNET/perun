@@ -31,8 +31,8 @@ public abstract class ResourceGroupVirtualAttributesModuleAbstract extends Resou
 		return false;
 	}
 
-	public void removeAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-
+	public boolean removeAttributeValue(PerunSessionImpl perunSession, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		return false;
 	}
 
 	@Override

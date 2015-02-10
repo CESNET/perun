@@ -2425,19 +2425,22 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		getAttributesManagerImpl().checkAttributeValue(sess, resource, attribute);
 	}
-	public void removeAttributeWithoutCheck(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
-		getAttributesManagerImpl().removeAttribute(sess, key, attribute);
-		try {
-			getAttributesManagerImpl().changedAttributeHook(sess, key, new Attribute(attribute));
-		} catch (WrongAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, key, attribute);
+		if (changed) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, key, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, key);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, key);
+		return changed;
 	}
 
 	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
@@ -2450,101 +2453,105 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, key, attribute);
-		this.checkAttributeValue(sess, key, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(key, null, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, key, attribute)) {
+			this.checkAttributeValue(sess, key, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(key, null, new Attribute(attribute)));
+		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
-		getAttributesManagerImpl().removeAttribute(sess, facility, attribute);
-		try {
-			getAttributesManagerImpl().changedAttributeHook(sess, facility, new Attribute(attribute));
-		} catch (WrongAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, facility, attribute);
+		if (changed) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, facility, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, facility);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, facility);
+		return changed;
 	}
 
 	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, facility, attribute);
-		this.checkAttributeValue(sess, facility, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(facility, null, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, facility, attribute)) {
+			this.checkAttributeValue(sess, facility, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(facility, null, new Attribute(attribute)));
+		}
 	}
 
 	public void removeAttributes(PerunSession sess, Member member, boolean workWithUserAttributes, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if(!workWithUserAttributes){
 			getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
-			List<Attribute> attributesList = attributesFromDefinitions(attributes);
-			for(AttributeDefinition attributeDefinition : attributes) {
+			List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
+			for(AttributeDefinition attribute : attributes) {
 				//skip core attributes
-				if(!getAttributesManagerImpl().isCoreAttribute(sess, attributeDefinition)) {
-					removeAttributeWithoutCheck(sess, member, attributeDefinition);
+				if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+					if (removeAttributeWithoutCheck(sess, member, attribute)) attributesToCheck.add(attribute);
 				}
 			}
-			this.checkAttributesValue(sess, member, attributesList);
-			this.checkAttributesDependencies(sess, member, null, attributesList);
+			this.checkAttributesValue(sess, member, attributesFromDefinitions(attributesToCheck));
+			this.checkAttributesDependencies(sess, member, null, attributesFromDefinitions(attributesToCheck));
 		}else{
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			List<Attribute> attributesList = attributesFromDefinitions(attributes);
-			for(AttributeDefinition attributeDef : attributes) {
+			List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
+			for(AttributeDefinition attribute : attributes) {
 				//skip core attributes
-				if(!getAttributesManagerImpl().isCoreAttribute(sess, attributeDef)) {
-
-					if(getAttributesManagerImpl().isFromNamespace(sess, attributeDef, AttributesManager.NS_MEMBER_ATTR)) {
-						removeAttributeWithoutCheck(sess, member, attributeDef);
-					} else if(getAttributesManagerImpl().isFromNamespace(sess, attributeDef, AttributesManager.NS_USER_ATTR)) {
-						removeAttributeWithoutCheck(sess, user, attributeDef);
+				if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+					if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
+						if (removeAttributeWithoutCheck(sess, member, attribute)) attributesToCheck.add(attribute);
+					} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
+						if (removeAttributeWithoutCheck(sess, user, attribute)) attributesToCheck.add(attribute);
 					} else {
-						throw new WrongAttributeAssignmentException(attributeDef);
+						throw new WrongAttributeAssignmentException(attribute);
 					}
 				}
 			}
-			this.checkAttributesValue(sess, member, attributesList, true);
-			this.checkAttributesDependencies(sess, member, attributesList, workWithUserAttributes);
+			this.checkAttributesValue(sess, member, attributesFromDefinitions(attributesToCheck), true);
+			this.checkAttributesDependencies(sess, member, attributesFromDefinitions(attributesToCheck), workWithUserAttributes);
 		}
 	}
 
 	public void removeAttributes(PerunSession sess, Facility facility, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributesDefinition, NS_FACILITY_ATTR);
-		List<Attribute> attributes = attributesFromDefinitions(attributesDefinition);
-		for(AttributeDefinition attributeDefinition : attributesDefinition) {
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
+		for(AttributeDefinition attribute : attributesDefinition) {
 			//skip core attributes
-			if(!getAttributesManagerImpl().isCoreAttribute(sess, attributeDefinition)) {
-				removeAttributeWithoutCheck(sess, facility, attributeDefinition);
+			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+				if (removeAttributeWithoutCheck(sess, facility, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		this.checkAttributesValue(sess, facility, attributes);
-		this.checkAttributesDependencies(sess, facility, null, attributes);
+		this.checkAttributesValue(sess, facility, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, facility, null, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException{
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
-		List<Attribute> attributesList = attributesFromDefinitions(attributes);
-		for(AttributeDefinition attributeDef : attributes) {
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
+		for(AttributeDefinition attribute : attributes) {
 			//skip core attributes
-			if(!getAttributesManagerImpl().isCoreAttribute(sess, attributeDef)) {
+			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 
-				if(getAttributesManagerImpl().isFromNamespace(sess, attributeDef, AttributesManager.NS_MEMBER_ATTR)) {
-					removeAttributeWithoutCheck(sess, member, attributeDef);
-				} else if(getAttributesManagerImpl().isFromNamespace(sess, attributeDef, AttributesManager.NS_USER_ATTR)) {
-					removeAttributeWithoutCheck(sess, user, attributeDef);
-				} else if(getAttributesManagerImpl().isFromNamespace(sess, attributeDef, AttributesManager.NS_MEMBER_RESOURCE_ATTR)){
-					removeAttributeWithoutCheck(sess, resource, member, attributeDef);
-				} else if(getAttributesManagerImpl().isFromNamespace(sess, attributeDef, AttributesManager.NS_USER_FACILITY_ATTR)){
-					removeAttributeWithoutCheck(sess, facility, user, attributeDef);
+				if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
+					if (removeAttributeWithoutCheck(sess, member, attribute)) attributesToCheck.add(attribute);
+				} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
+					if (removeAttributeWithoutCheck(sess, user, attribute)) attributesToCheck.add(attribute);
+				} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)){
+					if (removeAttributeWithoutCheck(sess, resource, member, attribute)) attributesToCheck.add(attribute);
+				} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_FACILITY_ATTR)){
+					if (removeAttributeWithoutCheck(sess, facility, user, attribute)) attributesToCheck.add(attribute);
 				} else {
-					throw new WrongAttributeAssignmentException(attributeDef);
+					throw new WrongAttributeAssignmentException(attribute);
 				}
 			}
 		}
-		this.checkAttributesValue(sess, facility, resource, user, member, attributesList);
-		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesList);
+		this.checkAttributesValue(sess, facility, resource, user, member, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, resource, member, user, facility, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAllAttributes(PerunSession sess, Facility facility) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -2611,45 +2618,49 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
-		removeAttributeWithoutCheck(sess, host, attribute);
-		checkAttributeValue(sess, host, new Attribute(attribute));
-		try {
-			this.checkAttributeDependencies(sess, new RichAttribute(host, null, new Attribute(attribute)));
-		} catch (WrongReferenceAttributeValueException ex) {
-			throw new WrongAttributeValueException(ex);
+		if (removeAttributeWithoutCheck(sess, host, attribute)) {
+			checkAttributeValue(sess, host, new Attribute(attribute));
+			try {
+				this.checkAttributeDependencies(sess, new RichAttribute(host, null, new Attribute(attribute)));
+			} catch (WrongReferenceAttributeValueException ex) {
+				throw new WrongAttributeValueException(ex);
+			}
 		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_HOST_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
-		getAttributesManagerImpl().removeAttribute(sess, host, attribute);
-		//TODO HOOK FOR HOSTS!
-		/*try {
-			getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
-			} catch (WrongAttributeValueException ex) {
-		//TODO better exception here
-		throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-		//TODO better exception here
-		throw new InternalErrorException(ex);
-		}*/
-		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, host);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, host, attribute);
+		if (changed) {
+			//TODO HOOK FOR HOSTS!
+			/*try {
+				getAttributesManagerImpl().changedAttributeHook(sess, host, new Attribute(attribute));
+				} catch (WrongAttributeValueException ex) {
+			//TODO better exception here
+			throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+			//TODO better exception here
+			throw new InternalErrorException(ex);
+			}*/
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, host);
+		}
+		return changed;
 	}
 
 	public void removeAttributes(PerunSession sess, Host host, List<? extends AttributeDefinition> attributesDefinition) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributesDefinition, AttributesManager.NS_HOST_ATTR);
-		List<Attribute> attributes = attributesFromDefinitions(attributesDefinition);
-		for(AttributeDefinition attributeDefinition : attributesDefinition) {
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
+		for(AttributeDefinition attribute : attributesDefinition) {
 			//skip core attributes
-			if(!getAttributesManagerImpl().isCoreAttribute(sess, attributeDefinition)) {
-				removeAttributeWithoutCheck(sess, host, attributeDefinition);
+			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+				if (removeAttributeWithoutCheck(sess, host, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		this.checkAttributesValue(sess, host, attributes);
+		this.checkAttributesValue(sess, host, attributesFromDefinitions(attributesToCheck));
 		try {
-			this.checkAttributesDependencies(sess, host, null, attributes);
+			this.checkAttributesDependencies(sess, host, null, attributesFromDefinitions(attributesToCheck));
 		} catch (WrongReferenceAttributeValueException ex) {
 			throw new WrongAttributeValueException(ex);
 		}
@@ -2686,39 +2697,43 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, vo, attribute);
-		checkAttributeValue(sess, vo, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(vo, null, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, vo, attribute)) {
+			checkAttributeValue(sess, vo, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(vo, null, new Attribute(attribute)));
+		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
-		getAttributesManagerImpl().removeAttribute(sess, vo, attribute);
-		try {
-			getAttributesManagerImpl().changedAttributeHook(sess, vo, new Attribute(attribute));
-		} catch (WrongAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, vo, attribute);
+		if (changed) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, vo, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, vo);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, vo);
+		return changed;
 	}
 
 	public void removeAttributes(PerunSession sess, Vo vo, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_VO_ATTR);
-
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
 			//skip core attributes
 			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-				removeAttributeWithoutCheck(sess, vo, attribute);
+				if (removeAttributeWithoutCheck(sess, vo, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		checkAttributesValue(sess, vo, attributesFromDefinitions(attributes));
-		this.checkAttributesDependencies(sess, vo, null, attributesFromDefinitions(attributes));
+		checkAttributesValue(sess, vo, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, vo, null, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAllAttributes(PerunSession sess, Vo vo) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -2748,39 +2763,43 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, group, attribute);
-		checkAttributeValue(sess, group, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(group, null, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, group, attribute)) {
+			checkAttributeValue(sess, group, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(group, null, new Attribute(attribute)));
+		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_GROUP_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
-		getAttributesManagerImpl().removeAttribute(sess, group, attribute);
-		try {
-			getAttributesManagerImpl().changedAttributeHook(sess, group, new Attribute(attribute));
-		} catch (WrongAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, group, attribute);
+		if (changed) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, group, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, group);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, group);
+		return changed;
 	}
 
 	public void removeAttributes(PerunSession sess, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_GROUP_ATTR);
-
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
 			//skip core attributes
 			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-				removeAttributeWithoutCheck(sess, group, attribute);
+				if (removeAttributeWithoutCheck(sess, group, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		checkAttributesValue(sess, group, attributesFromDefinitions(attributes));
-		this.checkAttributesDependencies(sess, group, null, attributesFromDefinitions(attributes));
+		checkAttributesValue(sess, group, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, group, null, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAllAttributes(PerunSession sess, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -2808,20 +2827,28 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, resource, attribute);
-		checkAttributeValue(sess, resource, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(resource, null, new Attribute(attribute)));
+	public boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		boolean changed = removeAttributeWithoutCheck(sess, resource, attribute);
+		if (changed) {
+			checkAttributeValue(sess, resource, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(resource, null, new Attribute(attribute)));
+		}
+		return changed;
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_RESOURCE_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
-		try {
-			if(this.isVirtAttribute(sess, attribute)) getAttributesManagerImpl().removeVirtualAttribute(sess, resource, attribute);
-			else getAttributesManagerImpl().removeAttribute(sess, resource, attribute);
 
-			getAttributesManagerImpl().changedAttributeHook(sess, resource, new Attribute(attribute));
+		boolean changed = true;
+
+		try {
+			if (this.isVirtAttribute(sess, attribute)) {
+				changed = getAttributesManagerImpl().removeVirtualAttribute(sess, resource, attribute);
+			} else {
+				changed = getAttributesManagerImpl().removeAttribute(sess, resource, attribute);
+			}
+			if (changed) getAttributesManagerImpl().changedAttributeHook(sess, resource, new Attribute(attribute));
 		} catch (WrongAttributeValueException ex) {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
@@ -2829,20 +2856,21 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, resource);
+		if (changed) getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, resource);
+		return changed;
 	}
 
 	public void removeAttributes(PerunSession sess, Resource resource, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_RESOURCE_ATTR);
-
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
 			//skip core attributes
 			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-				removeAttributeWithoutCheck(sess, resource, attribute);
+				if (removeAttributeWithoutCheck(sess, resource, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		checkAttributesValue(sess, resource, attributesFromDefinitions(attributes));
-		this.checkAttributesDependencies(sess, resource, null, attributesFromDefinitions(attributes));
+		checkAttributesValue(sess, resource, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, resource, null, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAllAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -2878,65 +2906,70 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, resource, member, attribute);
-		checkAttributeValue(sess, resource, member, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(resource, member, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, resource, member, attribute)) {
+			checkAttributeValue(sess, resource, member, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(resource, member, new Attribute(attribute)));
+		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_RESOURCE_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
-		getAttributesManagerImpl().removeAttribute(sess, resource, member, attribute);
-
-		try {
-			getAttributesManagerImpl().changedAttributeHook(sess, resource, member, new Attribute(attribute));
-		} catch (WrongAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, resource, member, attribute);
+		if (changed) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, resource, member, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, resource, member);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, resource, member);
+
+		return changed;
 	}
 
 	public void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_RESOURCE_ATTR);
-
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
 			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-				removeAttributeWithoutCheck(sess, resource, member, attribute);
+				if (removeAttributeWithoutCheck(sess, resource, member, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		checkAttributesValue(sess, resource, member, attributesFromDefinitions(attributes));
-		this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributes));
+		checkAttributesValue(sess, resource, member, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAttributes(PerunSession sess, Resource resource, Member member, List<? extends AttributeDefinition> attributes, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		if (!(workWithUserAttributes)) {
 			removeAttributes(sess, resource, member, attributes);
 		} else {
+			List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 			for (AttributeDefinition attribute : attributes) {
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 					Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 					User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 					if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
-						removeAttributeWithoutCheck(sess, resource, member, attribute);
+						if (removeAttributeWithoutCheck(sess, resource, member, attribute)) attributesToCheck.add(attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_FACILITY_ATTR)) {
-						removeAttributeWithoutCheck(sess, facility, user, attribute);
+						if (removeAttributeWithoutCheck(sess, facility, user, attribute)) attributesToCheck.add(attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
-						removeAttributeWithoutCheck(sess, user, attribute);
+						if (removeAttributeWithoutCheck(sess, user, attribute)) attributesToCheck.add(attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
-						removeAttributeWithoutCheck(sess, member, attribute);
+						if (removeAttributeWithoutCheck(sess, member, attribute)) attributesToCheck.add(attribute);
 					} else {
 						throw new WrongAttributeAssignmentException(attribute);
 					}
 				}
 			}
-			checkAttributesValue(sess, resource, member, attributesFromDefinitions(attributes), workWithUserAttributes);
-			this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributes), workWithUserAttributes);
+			checkAttributesValue(sess, resource, member, attributesFromDefinitions(attributesToCheck), workWithUserAttributes);
+			this.checkAttributesDependencies(sess, resource, member, attributesFromDefinitions(attributesToCheck), workWithUserAttributes);
 		}
 	}
 
@@ -2968,39 +3001,46 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, member, attribute);
-		checkAttributeValue(sess, member, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(member, null, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, member, attribute)) {
+			checkAttributeValue(sess, member, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(member, null, new Attribute(attribute)));
+		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_MEMBER_ATTR);
 
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
-		getAttributesManagerImpl().removeAttribute(sess, member, attribute);
-		try {
-			getAttributesManagerImpl().changedAttributeHook(sess, member, new Attribute(attribute));
-		} catch (WrongAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, member, attribute);
+
+		if (changed) {
+			try {
+				if (changed) getAttributesManagerImpl().changedAttributeHook(sess, member, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, member);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, member);
+
+		return changed;
+
 	}
 
 	public void removeAttributes(PerunSession sess, Member member, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_MEMBER_ATTR);
-
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
 			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-				removeAttributeWithoutCheck(sess, member, attribute);
+				if (removeAttributeWithoutCheck(sess, member, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		checkAttributesValue(sess, member, attributesFromDefinitions(attributes));
-		this.checkAttributesDependencies(sess, member, null, attributesFromDefinitions(attributes));
+		checkAttributesValue(sess, member, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, member, null, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAllAttributes(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -3030,46 +3070,53 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, facility, user, attribute);
-		checkAttributeValue(sess, facility, user, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(facility, user, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, facility, user, attribute)) {
+			checkAttributeValue(sess, facility, user, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(facility, user, new Attribute(attribute)));
+		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_FACILITY_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
+		boolean changed = false;
+
 		if(getAttributesManagerImpl().isVirtAttribute(sess, attribute)) {
-			getAttributesManagerImpl().removeVirtualAttribute(sess, facility, user, attribute);
+			changed = getAttributesManagerImpl().removeVirtualAttribute(sess, facility, user, attribute);
 		} else {
-			getAttributesManagerImpl().removeAttribute(sess, facility, user, attribute);
+			changed = getAttributesManagerImpl().removeAttribute(sess, facility, user, attribute);
 		}
-		try {
-			getAttributesManagerImpl().changedAttributeHook(sess, facility, user, new Attribute(attribute));
-		} catch (WrongAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
+
+		if (changed) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, facility, user, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, facility, user);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, facility, user);
+		return changed;
 	}
 
 	public void removeAttributes(PerunSession sess, Facility facility, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_FACILITY_ATTR);
-
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
 			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 				if(getAttributesManagerImpl().isVirtAttribute(sess, attribute)) {
-					getAttributesManagerImpl().removeVirtualAttribute(sess, facility, user, attribute);
+					if (getAttributesManagerImpl().removeVirtualAttribute(sess, facility, user, attribute)) attributesToCheck.add(attribute);
 				} else {
-					removeAttributeWithoutCheck(sess, facility, user, attribute);
+					if (removeAttributeWithoutCheck(sess, facility, user, attribute)) attributesToCheck.add(attribute);
 				}
 			}
 		}
-		checkAttributesValue(sess, facility, user, attributesFromDefinitions(attributes));
-		this.checkAttributesDependencies(sess, facility, user, attributesFromDefinitions(attributes));
+		checkAttributesValue(sess, facility, user, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, facility, user, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAllAttributes(PerunSession sess, Facility facility, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -3137,39 +3184,43 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, user, attribute);
-		checkAttributeValue(sess, user, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(user, null, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, user, attribute)) {
+			checkAttributeValue(sess, user, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(user, null, new Attribute(attribute)));
+		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_USER_ATTR);
 
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
 
-		getAttributesManagerImpl().removeAttribute(sess, user, attribute);
-		try {
-			getAttributesManagerImpl().changedAttributeHook(sess, user, new Attribute(attribute));
-		} catch (WrongAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
-			//TODO better exception here
-			throw new InternalErrorException(ex);
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, user, attribute);
+		if (changed) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, user, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, user);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, user);
+		return changed;
 	}
 
 	public void removeAttributes(PerunSession sess, User user, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attributes, NS_USER_ATTR);
-
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
 			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-				removeAttributeWithoutCheck(sess, user, attribute);
+				if (removeAttributeWithoutCheck(sess, user, attribute)) attributesToCheck.add(attribute);
 			}
 		}
-		checkAttributesValue(sess, user, attributesFromDefinitions(attributes));
-		this.checkAttributesDependencies(sess, user, null, attributesFromDefinitions(attributes));
+		checkAttributesValue(sess, user, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, user, null, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAllAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -3199,19 +3250,24 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		removeAttributeWithoutCheck(sess, resource, group, attribute);
-		checkAttributeValue(sess, resource, group, new Attribute(attribute));
-		this.checkAttributeDependencies(sess, new RichAttribute(resource, group, new Attribute(attribute)));
+		if (removeAttributeWithoutCheck(sess, resource, group, attribute)) {
+			checkAttributeValue(sess, resource, group, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(resource, group, new Attribute(attribute)));
+		}
 	}
 
-	public void removeAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	public boolean removeAttributeWithoutCheck(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR);
+		boolean changed = false;
 		try {
-			if(this.isVirtAttribute(sess, attribute)) getAttributesManagerImpl().removeVirtualAttribute(sess, resource, group, attribute);
-			else getAttributesManagerImpl().removeAttribute(sess, resource, group, attribute);
+			if (this.isVirtAttribute(sess, attribute)) {
+				changed = getAttributesManagerImpl().removeVirtualAttribute(sess, resource, group, attribute);
+			} else {
+				changed = getAttributesManagerImpl().removeAttribute(sess, resource, group, attribute);
+			}
 
-			getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
+			if (changed) getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
 		} catch (WrongAttributeValueException ex) {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
@@ -3219,17 +3275,18 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			//TODO better exception here
 			throw new InternalErrorException(ex);
 		}
-		getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, group, resource);
+		if (changed) getPerunBl().getAuditer().log(sess, "{} removed for {} and {}", attribute, group, resource);
+		return changed;
 	}
 
 	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_GROUP_RESOURCE_ATTR);
-
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 		for(AttributeDefinition attribute : attributes) {
-			removeAttributeWithoutCheck(sess, resource, group, attribute);
+			if (removeAttributeWithoutCheck(sess, resource, group, attribute)) attributesToCheck.add(attribute);
 		}
-		checkAttributesValue(sess, resource, group, attributesFromDefinitions(attributes));
-		this.checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributes));
+		checkAttributesValue(sess, resource, group, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributesToCheck));
 	}
 
 	public void removeAttributes(PerunSession sess, Resource resource, Group group, List<? extends AttributeDefinition> attributes, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -3237,22 +3294,23 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			removeAttributes(sess, resource, group, attributes);
 		} else {
 
+			List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
 			for (AttributeDefinition attribute : attributes) {
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 
 					if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
-						removeAttributeWithoutCheck(sess, resource, group, attribute);
+						if (removeAttributeWithoutCheck(sess, resource, group, attribute)) attributesToCheck.add(attribute);
 					} else if (getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR)) {
-						removeAttributeWithoutCheck(sess, group, attribute);
+						if (removeAttributeWithoutCheck(sess, group, attribute)) attributesToCheck.add(attribute);
 					} else {
 						throw new WrongAttributeAssignmentException(attribute);
 					}
 				}
 
 			}
-			checkAttributesValue(sess, resource, group, attributesFromDefinitions(attributes), workWithGroupAttributes);
-			this.checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributes), workWithGroupAttributes);
+			checkAttributesValue(sess, resource, group, attributesFromDefinitions(attributesToCheck), workWithGroupAttributes);
+			this.checkAttributesDependencies(sess, resource, group, attributesFromDefinitions(attributesToCheck), workWithGroupAttributes);
 		}
 	}
 

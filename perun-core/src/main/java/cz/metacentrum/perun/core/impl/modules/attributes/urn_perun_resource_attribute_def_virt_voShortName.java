@@ -34,7 +34,7 @@ public class urn_perun_resource_attribute_def_virt_voShortName extends ResourceV
 		throw new InternalErrorException("Can't set value of this virtual attribute this way. " + attribute);
 	}
 
-	public void removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
 		throw new InternalErrorException("Can't remove value of this virtual attribute this way. " + attribute);
 	}
 
