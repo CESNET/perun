@@ -322,9 +322,11 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				log.trace("search base [{}]", base);
 				// TODO jmena atributu spise prijimiat pres vstupni parametr metody
 				Attributes ldapAttributes = getContext().getAttributes(base);
-				Map<String, String> attributes = this.getSubjectAttributes(ldapAttributes);
-				if (!attributes.isEmpty()) {
-					subjects.add(attributes);
+				if (ldapAttributes.size() > 0) {
+					Map<String, String> attributes = this.getSubjectAttributes(ldapAttributes);
+					if (!attributes.isEmpty()) {
+						subjects.add(attributes);
+					}
 				}
 			} else {
 				log.trace("search string [{}]", query);
