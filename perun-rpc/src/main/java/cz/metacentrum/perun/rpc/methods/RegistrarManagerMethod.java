@@ -146,14 +146,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Note, that some data related to processing application are not available (e.g. list of exceptions
 	 * during approval), since this method doesn't perform any action with Application itself.
 	 *
-	 * Perun admin can send any notification except USER_INVITE type.
-	 * @see #sendInvitation() for this.
+	 * Perun admin can send any notification except USER_INVITE type, see #sendInvitation() for this.
 	 *
 	 * @param mailType MailType type of mail notification
 	 * @param appId int ID of application to send notification for
 	 * @param reason String you can specify reason for case: mailType == APP_REJECTED_USER
 	 *
-	 * @throw RegistrarException if notification can't be sent
+	 * @throws RegistrarException if notification can't be sent
 	 */
 	sendMessage{
 

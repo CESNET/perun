@@ -994,7 +994,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * by calling validatePreferredEmailChange() method with
 	 * proper set of parameters (sent in validation mail).
 	 *
-	 * @param user Integer User ID
+	 * @param user int User ID
 	 * @param email String new email address to set
 	 */
 	requestPreferredEmailChange {
@@ -1044,8 +1044,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * or requests are outside time window for validation,
 	 * returns empty list.
 	 *
-	 * @param sess PerunSession
-	 * @param user ID of user to check
+	 * @param user int ID of user to check
 	 *
 	 * @return List<String> user's email addresses pending validation
 	 */

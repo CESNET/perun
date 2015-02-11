@@ -35,7 +35,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns chosen VO attributes. Returns only non-empty attributes.
 	 *
 	 * @param vo int VO ID
-	 * @param attrNames[] List<String> Attribute names
+	 * @param attrNames List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
@@ -83,7 +83,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns chosen Member attributes. Returns only non-empty attributes.
 	 *
 	 * @param member int Member ID
-	 * @param attrNames[] List<String> Attribute names
+	 * @param attrNames List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
@@ -96,7 +96,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns chosen User attributes. Returns only non-empty attributes.
 	 *
 	 * @param user int User ID
-	 * @param attrNames[] List<String> Attribute names
+	 * @param attrNames List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
@@ -109,7 +109,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns chosen Group attributes. Returns only non-empty attributes.
 	 *
 	 * @param group int Group ID
-	 * @param attrNames[] List<String> Attribute names
+	 * @param attrNames List<String> Attribute names
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
