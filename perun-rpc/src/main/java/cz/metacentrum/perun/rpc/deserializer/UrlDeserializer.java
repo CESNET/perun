@@ -30,9 +30,16 @@ public class UrlDeserializer extends Deserializer {
 		this.req = req;
 	}
 
+	/**
+	 * Returns {@code true} if value with the specified name is supplied. Check ignores array suffix "[]".
+	 * It means, that {@code true} is returned for both "name" and "name[]" parameters.
+	 *
+	 * @param name name of the value to check
+	 * @return {@code true} if value with the specified name is supplied, {@code false} otherwise
+	 */
 	@Override
 	public boolean contains(String name) {
-		return (req.getParameter(name) != null);
+		return (req.getParameter(name) != null || req.getParameter(name+"[]") != null);
 	}
 
 	@Override
@@ -55,11 +62,16 @@ public class UrlDeserializer extends Deserializer {
 
 	@Override
 	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
-		if (!contains(name + "[]")) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+
+		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
 		List<T> list = new ArrayList<T>();
 
 		String[] stringParams = req.getParameterValues(name + "[]");
+		if (stringParams == null) {
+			// submitter probably forgot to add list decoration to param name ("[]").
+			stringParams = req.getParameterValues(name);
+		}
 
 		for (String param: stringParams) {
 			if (valueType.isAssignableFrom(String.class)) {

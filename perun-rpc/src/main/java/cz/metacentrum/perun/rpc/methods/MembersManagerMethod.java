@@ -268,8 +268,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			if(parms.contains("vo")) {
-				if (parms.contains("allowedStatuses[]")) {
-					if (parms.contains("attrsNames[]")) {
+				if (parms.contains("allowedStatuses")) {
+					if (parms.contains("attrsNames")) {
 						// with selected attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getVoById(parms.readInt("vo")),
@@ -282,7 +282,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 								parms.readList("allowedStatuses", String.class));
 					}
 				} else {
-					if (parms.contains("attrsNames[]")) {
+					if (parms.contains("attrsNames")) {
 						// with selected attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getVoById(parms.readInt("vo")),
@@ -294,8 +294,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 					}
 				}
 			} else {
-				if (parms.contains("allowedStatuses[]")) {
-					if (parms.contains("attrsNames[]")) {
+				if (parms.contains("allowedStatuses")) {
+					if (parms.contains("attrsNames")) {
 						// with selected attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
@@ -311,7 +311,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 								parms.readInt("lookingInParentGroup") == 1);
 					}
 				} else {
-					if (parms.contains("attrsNames[]")) {
+					if (parms.contains("attrsNames")) {
 						// with selected attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
@@ -657,7 +657,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("vo")) {
-				if(parms.contains("allowedStatuses[]")) {
+				if(parms.contains("allowedStatuses")) {
 					return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
 							ac.getVoById(parms.readInt("vo")),
 							parms.readList("attrsNames", String.class),
@@ -670,7 +670,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 							parms.readString("searchString"));
 				}
 			} else {
-				if(parms.contains("allowedStatuses[]")) {
+				if(parms.contains("allowedStatuses")) {
 					return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
 							ac.getGroupById(parms.readInt("group")),
 							parms.readList("attrsNames", String.class),

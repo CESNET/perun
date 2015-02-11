@@ -109,7 +109,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 								parms.readPerunBean("complementaryObject"),
 								role);
 					return null;
-				} else if(parms.contains("complementaryObjects[]")) {
+				} else if(parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								ac.getUserById(parms.readInt("user")),
 								role,
@@ -125,7 +125,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 								parms.readPerunBean("complementaryObject"),
 								role);
 					return null;
-				} else if(parms.contains("complementaryObjects[]")) {
+				} else if(parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								ac.getGroupById(parms.readInt("authorizedGroup")),
 								role,
@@ -170,7 +170,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 								parms.readPerunBean("complementaryObject"),
 								role);
 					return null;
-				} else if (parms.contains("complementaryObjects[]")) {
+				} else if (parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 								ac.getUserById(parms.readInt("user")),
 								role,
@@ -186,7 +186,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 								parms.readPerunBean("complementaryObject"),
 								role);
 					return null;
-				} else if (parms.contains("complementaryObjects[]")) {
+				} else if (parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 								ac.getGroupById(parms.readInt("authorizedGroup")),
 								role,
