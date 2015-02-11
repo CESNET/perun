@@ -21,6 +21,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -1326,7 +1328,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * Adds the group synchronization process in the groupSynchronizerThreads.
 	 *
-	 * @param sess
 	 * @param group
 	 */
 	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException {
@@ -1412,7 +1413,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					// If the time is greater than timeout set in the configuration file (in minutes)
 					if (timeDiff/1000/60 > timeout) {
 						// Timeout reach, stop the thread
-						log.warn("Timeout {} minutes of the synchronizatin thread for the group {} reached.", timeout, group);
+						log.warn("Timeout {} minutes of the synchronization thread for the group {} reached.", timeout, group);
 						groupSynchronizerThreads.get(group).interrupt();
 						groupSynchronizerThreads.remove(group);
 						numberOfTerminatedSynchronizations++;
@@ -1422,7 +1423,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				} else {
 					// Start and run the new thread
 					try {
-						// Do not overload externalSource, run each synchronizatin in 0-30s steps
+						// Do not overload externalSource, run each synchronization in 0-30s steps
 						Thread.sleep(rand.nextInt(30000));
 					} catch (InterruptedException e) {
 						// Do nothing
@@ -1444,13 +1445,24 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	private static class GroupSynchronizerThread extends Thread {
+
+		// all synchronization runs under synchronizer identity.
+		final PerunPrincipal pp = new PerunPrincipal("perunSynchronizer", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		private PerunBl perunBl;
 		private PerunSession sess;
 		private Group group;
 		private long startTime;
 
 		public GroupSynchronizerThread(PerunSession sess, Group group) {
-			this.sess = sess;
+			// take only reference to perun
+			this.perunBl = (PerunBl) sess.getPerun();
 			this.group = group;
+			try {
+				// create own session
+				this.sess = perunBl.getPerunSession(pp);
+			} catch (InternalErrorException ex) {
+				log.error("Unable to create internal session for Synchronizer with credentials {} because of exception {}", pp, ex);
+			}
 		}
 
 		public void run() {
@@ -1466,8 +1478,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// Set the start time, so we can check the timeout of the thread
 				startTime = System.currentTimeMillis();
 
-				//synchronize Group and get informatou about skipped Members
-				List<String> skippedMembers = ((PerunBl) sess.getPerun()).getGroupsManagerBl().synchronizeGroup(sess, group);
+				//synchronize Group and get information about skipped Members
+				List<String> skippedMembers = perunBl.getGroupsManagerBl().synchronizeGroup(sess, group);
 
 				//prepare variables for checking max length of message and create human readable text
 				boolean exceedMaxChars = false;
@@ -1505,12 +1517,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				Date currentTimestamp = new Date();
 				//Save information about group synchronization, this method run in new transaction
 				try {
-					((PerunBl) sess.getPerun()).getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, failedDueToException, exceptionMessage);
+					perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, failedDueToException, exceptionMessage);
 				} catch (Exception ex) {
 					log.error("When synchronization group " + group + ", exception was thrown.", ex);
 					log.error("Info about exception from synchronization: " + skippedMembersMessage);
 				}
-				log.debug("GroupSynchronizerThread finnished for group: {}", group);
+				log.debug("GroupSynchronizerThread finished for group: {}", group);
 			}
 		}
 
