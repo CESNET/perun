@@ -21,7 +21,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -95,7 +94,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 	
 	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException {
-		//Use sorting by group names reverse order (frist name A:B:c then A:B etc.)
+		//Use sorting by group names reverse order (first name A:B:c then A:B etc.)
 		Collections.sort(groups, Collections.reverseOrder(
 				new Comparator<Group>() {
 					@Override
@@ -1265,13 +1264,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 									//First try to disable member, if is invalid, delete him from Vo
 									try {
 										getPerunBl().getMembersManagerBl().disableMember(sess, member);
-										log.info("Group synchronization {}: Member id {} disabled because synchronizator wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+										log.info("Group synchronization {}: Member id {} disabled because synchronizer wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
 										getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
 										log.info("Group synchronization {}: Member id {} removed.", group, member.getId());
 									} catch(MemberNotValidYetException ex) {
 										//Member is still invalid in perun. We can delete him.
 										getPerunBl().getMembersManagerBl().deleteMember(sess, member);
-										log.info("Group synchronization {}: Member id {} would have been disabled but he has been deleted instead because he was invalid and synchronizator wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+										log.info("Group synchronization {}: Member id {} would have been disabled but he has been deleted instead because he was invalid and synchronizer wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
 									}
 								} else {
 									//If there is still some other authoritative group for this member, only remove him from group
@@ -1627,7 +1626,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new InternalErrorException("There is unrecognized object in primaryHolder of aidingAttr.");
 			}
 		} else {
-			throw new InternalErrorException("Aiding attribtue must have primaryHolder which is not null.");
+			throw new InternalErrorException("Aiding attribute must have primaryHolder which is not null.");
 		}
 
 		//Important For Groups not work with Subgroups! Invalid members are executed too.
@@ -1778,13 +1777,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		//Set correct format of currentTimestamp
-		String currectTimestampString = BeansUtils.getDateFormatter().format(currentTimestamp);
+		String correctTimestampString = BeansUtils.getDateFormatter().format(currentTimestamp);
 
-		//Get both attribute defintion lastSynchroTimestamp and lastSynchroState
+		//Get both attribute definition lastSynchroTimestamp and lastSynchroState
 		//Get definitions and values, set values
 		Attribute lastSynchronizationTimestamp = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSynchronizationTimestamp"));
 		Attribute lastSynchronizationState = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSynchronizationState"));
-		lastSynchronizationTimestamp.setValue(currectTimestampString);
+		lastSynchronizationTimestamp.setValue(correctTimestampString);
 		//if exception is null, set null to value => remove attribute instead of setting in method setAttributes
 		lastSynchronizationState.setValue(exceptionMessage);
 
@@ -1792,12 +1791,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Attribute> attrsToSet = new ArrayList<>();
 
 		//null in exceptionMessage means no exception, success
-		//Set lastSuccessSynchronzationTimestamp if this one is success
+		//Set lastSuccessSynchronizationTimestamp if this one is success
 		if(exceptionMessage == null) {
 			String attrName = AttributesManager.NS_GROUP_ATTR_DEF + ":lastSuccessSynchronizationTimestamp";
 			try {
 				Attribute lastSuccessSynchronizationTimestamp = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, attrName));
-				lastSuccessSynchronizationTimestamp.setValue(currectTimestampString);
+				lastSuccessSynchronizationTimestamp.setValue(correctTimestampString);
 				attrsToSet.add(lastSuccessSynchronizationTimestamp);
 			} catch (AttributeNotExistsException ex) {
 				log.error("Can't save lastSuccessSynchronizationTimestamp, because there is missing attribute with name {}",attrName);
