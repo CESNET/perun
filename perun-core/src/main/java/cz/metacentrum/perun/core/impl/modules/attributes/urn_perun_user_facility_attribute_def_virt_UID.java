@@ -135,12 +135,6 @@ public class urn_perun_user_facility_attribute_def_virt_UID extends FacilityUser
 		}
 	}
 
-	/**
-	 * Not impelmented
-	 */
-	public void removeAttributeValue(PerunSessionImpl perunSession, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
-	}
-
 	@Override
 	public List<String> getStrongDependencies() {
 		List<String> StrongDependencies = new ArrayList<String>();
