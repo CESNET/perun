@@ -507,12 +507,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					log.error("Could not resolve destination from destination list");
 				}
 				if(completedTask.getDestinations() != null && 
-<<<<<<< HEAD
 				   !completedTask.getDestinations().isEmpty()) {
-=======
-				   !completedTask.getDestinations().empty()) {
->>>>>>> clean destination list on audit events for existing tasks, do not stick to failed destinations
-				        completedTask.setDestinations(destinationList);
+					completedTask.setDestinations(destinationList);
 				}
 			}
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.ERROR);
