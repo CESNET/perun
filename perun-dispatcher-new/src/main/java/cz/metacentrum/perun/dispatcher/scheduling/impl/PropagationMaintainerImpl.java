@@ -503,7 +503,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					log.error("Could not resolve destination from destination list");
 				}
 				if(completedTask.getDestinations() != null && 
-				   !completedTask.getDestinations().empty()) {
+				   !completedTask.getDestinations().isEmpty()) {
 				        completedTask.setDestinations(destinationList);
 				}
 			}
