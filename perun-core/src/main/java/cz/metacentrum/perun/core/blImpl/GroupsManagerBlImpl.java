@@ -990,7 +990,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 										// value differs, so store the new one
 										memberAttribute.setValue(subjectAttributeValue);
 										try {
-											getPerunBl().getAttributesManagerBl().setAttribute(sess, member, memberAttribute);
+											getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, member, memberAttribute);
 										} catch (AttributeValueException e) {
 											// There is a problem with attribute value, so set INVALID status for the member
 											getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
@@ -1015,7 +1015,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 											userAttribute.setValue(subjectAttributeValue);
 											try {
-												getPerunBl().getAttributesManagerBl().mergeAttributeValue(sess, richMember.getUser(), userAttribute);
+												getPerunBl().getAttributesManagerBl().mergeAttributeValueInNestedTransaction(sess, richMember.getUser(), userAttribute);
 											} catch (AttributeValueException e) {
 												// There is a problem with attribute value, so set INVALID status for the member
 												getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
@@ -1035,7 +1035,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 										// look if the attribute definition exists
 										attributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 									} catch (AttributeNotExistsException e) {
-										log.error("Atttribute {} doesn't exists.", attributeName);
+										log.error("Attribute {} doesn't exists.", attributeName);
 										throw new ConsistencyErrorException(e);
 									}
 
@@ -1046,7 +1046,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 										if (attributeDefinition.getEntity().equals(AttributesManager.ENTITY_MEMBER)) {
 											try {
 												// Try to set member's attributes
-												getPerunBl().getAttributesManagerBl().setAttribute(sess, member, newAttribute);
+												getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, member, newAttribute);
 											} catch (AttributeValueException e) {
 												// There is a problem with attribute value, so set INVALID status for the member
 												getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
@@ -1054,13 +1054,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 										} else if (attributeDefinition.getEntity().equals(AttributesManager.ENTITY_USER)) {
 											try {
 												// Try to set user's attributes
-												getPerunBl().getAttributesManagerBl().setAttribute(sess, richMember.getUser(), newAttribute);
+												getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember.getUser(), newAttribute);
 											} catch (AttributeValueException e) {
 												// There is a problem with attribute value, so set INVALID status of the member
 												getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
 												try {
 													// The member is invalid, so try to set the value again, and check if the change has influence also on other members
-													getPerunBl().getAttributesManagerBl().setAttribute(sess, richMember.getUser(), newAttribute);
+													getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember.getUser(), newAttribute);
 												} catch (AttributeValueException e1) {
 													// The change of the attribute value influences also members in other VOs, so we have to invalidate the whole user
 													//FIXME invalidate all members

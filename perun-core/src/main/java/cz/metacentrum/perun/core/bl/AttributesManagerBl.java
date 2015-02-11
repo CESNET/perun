@@ -1199,6 +1199,23 @@ public interface AttributesManagerBl {
 	void setAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Store the particular attribute associated with the member. Core attributes can't be set this way.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess perun session
+	 * @param member member to set on
+	 * @param attribute attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not member-resource attribute or if it is core attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttributeInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+
+	/**
 	 * Store the attribute associated with the facility and user combination.  Core attributes can't be set this way.
 	 *
 	 * @param sess perun session
@@ -1214,7 +1231,7 @@ public interface AttributesManagerBl {
 	void setAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
-	 * Store the attribute associated with the user.  Core attributes can't be set this way.
+	 * Store the attribute associated with the user. Core attributes can't be set this way.
 	 *
 	 * @param sess perun session
 	 * @param user user to set on
@@ -1226,6 +1243,23 @@ public interface AttributesManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	void setAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Store the attribute associated with the user. Core attributes can't be set this way.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess perun session
+	 * @param user user to set on
+	 * @param attribute attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not user-facility attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttributeInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
 
 	/**
 	 * Just store the attribute associated with the user, doesn't preform any value check.  Core attributes can't be set this way.
@@ -2972,6 +3006,25 @@ public interface AttributesManagerBl {
 	 */
 	public Attribute mergeAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
 				 WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
+
+	/**
+	 * Merges attribute value if the attribute type is list or map. In other cases it only stores new value.
+	 * If the type is list, new values are added to the current stored list.
+	 * It the type is map, new values are added and existing are overwritten with new values, but only if there is some change.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess
+	 * @param user
+	 * @param attribute
+	 * @return attribute with updated value
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	public Attribute mergeAttributeValueInNestedTransaction(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
+			WrongReferenceAttributeValueException, WrongAttributeAssignmentException;
 
 	/**
 	 * Merges attributes values if the attribute type is list or map. In other cases it only stores new value.
