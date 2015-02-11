@@ -511,6 +511,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility ID
 	 * @param user int User ID
+	 */
 	/*#
 	 *  Adds a group administrator to the Facility.
 	 *
@@ -539,6 +540,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *
 	 * @param facility int Facility ID
 	 * @param user int User ID
+	 */
 	/*#
 	 *  Removes a group administrator of the Facility.
 	 *

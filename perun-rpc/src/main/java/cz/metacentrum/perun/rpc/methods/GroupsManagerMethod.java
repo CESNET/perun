@@ -713,7 +713,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns groups with specific attribute for a member.
 	 * 
 	 * @param member int Member ID
-	 * @param 
+	 * @param attribute Attribute attribute object with value
 	 * return List<Group> Groups of the member
 	 */
 	getMemberGroupsByAttribute {

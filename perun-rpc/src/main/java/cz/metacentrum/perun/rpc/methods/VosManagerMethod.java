@@ -147,6 +147,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO ID
 	 * @param user int User ID
+	 */
 	/*#
 	 *  Adds a group admin to a VO.
 	 *
@@ -176,11 +177,12 @@ public enum VosManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO ID
 	 * @param user int User ID
+	 */
 	/*#
 	 *  Removes a group admin from VO.
 	 *
 	 *  @param vo int VO ID
-	 *  @param group int Group ID
+	 *  @param authorizedGroup int Group ID
 	 */
 	removeAdmin {
 		@Override
