@@ -337,8 +337,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		for (Task task : schedulingPool.getDoneTasks()) {
 			// skip GEN tasks
-			if (task.getExecService().getExecServiceType()
-					.equals(ExecService.ExecServiceType.GENERATE)) {
+			if (task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE)) {
 				log.debug(
 						"Found finished GEN TASK {} that was not running for a while, leaving it as is.",
 						task.toString());
@@ -346,7 +345,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			}
 
 			Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 2);
-			if (task.getEndTime().before(twoDaysAgo)) {
+			if (task.isSourceUpdated()) {
+				// reschedule the task
+				log.info("TASK ["
+						+ task
+						+ "] data changed. Going to schedule for propagation now.");
+				taskScheduler.scheduleTask(task);
+			} else 	if (task.getEndTime().before(twoDaysAgo)) {
 				// reschedule the task
 				log.info("TASK ["
 						+ task
