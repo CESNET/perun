@@ -45,7 +45,7 @@ public enum VosManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			if (parms.contains("force")) {
-				ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), true);
+				ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readInt("force") == 1);
 			} else {
 				ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")));
 			}
