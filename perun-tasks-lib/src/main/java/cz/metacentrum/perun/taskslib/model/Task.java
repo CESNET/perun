@@ -30,6 +30,7 @@ public class Task implements Serializable {
 	private Facility facility;
 	private List<Destination> destinations;
 	private TaskStatus status;
+	private boolean sourceUpdated;	
 
 	@Override
 	public int hashCode() {
@@ -161,5 +162,13 @@ public class Task implements Serializable {
 	public String toString() {
 		return "Task [id=" + id + ", delay=" + delay + ", recurrence=" + recurrence + ", startTime=" + startTime + ", schedule=" + schedule + ", endTime=" + endTime + ", execService="
 			+ execService + ", facility=" + facility + ", destinations=" + destinations + ", status=" + status + "]";
+	}
+
+	public boolean isSourceUpdated() {
+		return sourceUpdated;
+	}
+
+	public void setSourceUpdated(boolean sourceUpdated) {
+		this.sourceUpdated = sourceUpdated;
 	}
 }
