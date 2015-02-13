@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of logins who have to have directory in the /home
-PROTOCOL_VERSION='3.6.0'
+PROTOCOL_VERSION='3.6.1'
 
 function process {
 	FROM_PERUN="${WORK_DIR}/fs_home"
@@ -11,12 +11,14 @@ function process {
 	I_DIR_CREATED=(0 'Home directory ${HOME_DIR} ($U_UID.$U_GID) created.')
 
 	E_CANNOT_CREATE_DIR=(50 'Cannot create directory ${HOME_DIR}.')
-	E_CANNOT_SET_OWNERSHIP=(51 'Cannot set ownership ${U_UID}.${U_GID} for directory ${HOME_DIR}.')
-	E_CANNOT_SET_PERMISSIONS=(52 'Cannot set permissions ${UMASK} for directory ${HOME_DIR}.')
+	E_CANNOT_SET_OWNERSHIP=(51 'Cannot set ownership ${U_UID}.${U_GID} for directory ${TEMP_FILE}.')
+	E_CANNOT_SET_PERMISSIONS=(52 'Cannot set permissions ${UMASK} for directory ${TEMP_FILE}.')
 	E_CANNOT_GET_QUOTAFS=(53 'Cannot get filesystem se set quota on')
 	E_CANNOT_SET_QUOTA=(54 'Cannot set quota on ${QUOTA_FS} for user ${U_UID}')
-	E_CANNOT_COPY_SKEL=(55 'Cannot copy skel directory ${SKEL_DIR} to ${HOME_DIR}')
+	E_CANNOT_COPY_SKEL=(55 'Cannot copy skel directory ${SKEL_DIR} to ${TEMP_FILE}')
 	E_BAD_HOME_OWNER=(56 'Home directory ${HOME_DIR} for user ${U_UID} has bad owner')
+	E_CANNOT_CREATE_TEMP=(57 'Cannot create temp file ${TEMP_FILE}.')
+	E_CANNOT_MOVE_TEMP=(58 'Cannot move ${TEMP_FILE} to ${HOME_DIR}.')
 
 	create_lock
 
@@ -67,29 +69,26 @@ function process {
 		done
 	fi
 
-
-
-
 	# lines contains homeMountPoint\tlogin\tUID\tGID\t...
 	while IFS=`echo -e "\t"` read U_HOME_MNT_POINT U_LOGNAME U_UID U_GID SOFT_QUOTA_DATA HARD_QUOTA_DATA SOFT_QUOTA_FILES HARD_QUOTA_FILES USER_STATUS USER_GROUPS REST_OF_LINE; do
 		HOME_DIR="${U_HOME_MNT_POINT}/${U_LOGNAME}"
+		catch_error E_CANNOT_CREATE_TEMP TEMP_FILE="$(mktemp -d ${U_HOME_MNT_POINT}/tmp-perun-fs_home-${U_LOGNAME}.XXXX)"
 
 		run_mid_hooks
 
 		if [ ! -d "${HOME_DIR}" ]; then
 
 			if [ -n "$SKEL_DIR" ]; then
-				catch_error E_CANNOT_COPY_SKEL cp -r "$SKEL_DIR" "$HOME_DIR"
-			else
-				catch_error E_CANNOT_CREATE_DIR  mkdir "${HOME_DIR}"
+				catch_error E_CANNOT_COPY_SKEL cp -r "$SKEL_DIR" "${TEMP_FILE}"
 			fi
 
-			catch_error E_CANNOT_SET_OWNERSHIP chown -R "${U_UID}"."${U_GID}" "${HOME_DIR}"
-			catch_error E_CANNOT_SET_PERMISSIONS chmod -R "$UMASK" "${HOME_DIR}"
+			catch_error E_CANNOT_SET_OWNERSHIP chown -R "${U_UID}"."${U_GID}" "${TEMP_FILE}"
+			catch_error E_CANNOT_SET_PERMISSIONS chmod -R "$UMASK" "${TEMP_FILE}"
+			catch_error E_CANNOT_MOVE_TEMP mv "${TEMP_FILE}" "${HOME_DIR}"
 
 			log_msg I_DIR_CREATED
 		else
-			catch_error E_BAD_HOME_OWNER [ `stat -L -c "%u" ${HOME_DIR}` -eq ${U_UID} ]
+			catch_error E_BAD_HOME_OWNER [ `stat -L -c "%u" ${HOME_DIR}` - ${U_UID} ]
 		fi
 
 		QUOTA_FS=`df -P  "$HOME_DIR" | tail -n 1 | sed -e 's/^.*\s//'`
