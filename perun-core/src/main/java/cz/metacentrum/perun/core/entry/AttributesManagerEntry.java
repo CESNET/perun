@@ -2778,7 +2778,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().checkAttributeExists(perunSession, attributeDefinition);
 
 		//Choose if principal has access to update attribute
-		if(!AuthzResolver.isPerunAdmin(perunSession)) throw new PrivilegeException("Only PerunAdmin can update AttributeDefinition");
+		if(!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) throw new PrivilegeException("Only PerunAdmin can update AttributeDefinition");
 
 		return getAttributesManagerBl().updateAttributeDefinition(perunSession, attributeDefinition);
 	}
