@@ -4,7 +4,8 @@
 function PerunTable() {
     this.columns = [];  // required attr: type("button", "number", "icon", ...), title
     this.values = [];
-    this.clicableRows = {isClicable: false, id: "", prefix: "row-"};
+    this.clicableRows = {isClicable: false, id: "", prefix: "row-", toggle: false};
+    this.hasHeader = true;
     /**
      * Returns a new instance of the table
      */
@@ -16,6 +17,9 @@ function PerunTable() {
     }
     this.setClicableRows = function (clicableRows) {
         this.clicableRows = clicableRows;
+    }
+    this.setHasHeader = function (hasHeader) {
+        this.hasHeader = hasHeader;
     }
 
     /**
@@ -45,12 +49,17 @@ function PerunTable() {
         }
 
         // draw headers
-        html += "<thead><tr>";
+        if (this.hasHeader) {
+            html += "<thead><tr>";
+        } else {
+            html += "<thead style='display: none;'><tr>";
+        }
         for (var i in this.columns) {
             var value = this.columns[i].title;
             html += "<th class='col-" + this.columns[i].type + "'>" + value + "</th>";
         }
-        html += "</thead></tr>";
+        html += "</tr></thead>";
+
         html += "<tbody>";
 
 
@@ -98,6 +107,10 @@ function PerunTable() {
                             }
                         }
                         break;
+                    case "table":
+                        console.log(this.values);
+                        html += this.values[row][column.name].draw();
+                        break;
                     default :
                         if (this.values.length == 0) {
                             break;
@@ -108,6 +121,22 @@ function PerunTable() {
                 html += "</td>";
             }
             html += "</tr>";
+            if (this.clicableRows.toggle) {
+                if (this.clicableRows.isClicable) {
+                    html += "<tr class='toggle' style='display:none;' id='toggle-" + this.clicableRows.prefix + this.values[row][this.clicableRows.id] + "'>";
+                } else {
+                    html += "<tr>";
+                }
+                html += "<td colspan='" + this.columns.length + "'>";
+                html += '<div class="progress" id="">';
+                html += '  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" ';
+                html += '    aria-valuemax="100" style="width: 0%;">';
+                html += '    0%';
+                html += '  </div>';
+                html += '</div>';
+                html += "</td>";
+                html += "</tr>";
+            }
         }
         html += "</tbody></table>";
         return html;
