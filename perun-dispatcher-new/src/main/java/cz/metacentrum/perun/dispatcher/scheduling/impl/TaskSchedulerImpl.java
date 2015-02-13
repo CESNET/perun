@@ -318,15 +318,16 @@ public class TaskSchedulerImpl implements TaskScheduler {
 					// ########################################
 					// The current ExecService,Facility pair should be sleeping
 					// in SchedulingPool at the moment...
+					log.info("   Task {} state set to NONE, will be scheduled again at the next cycle.",
+								task.getId());
+					schedulingPool.setTaskStatus(task, TaskStatus.NONE);
 				}
 			} else if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
 				log.debug("   Well, it is not. ExecService of type GENERATE does not have any dependencies by design, so we schedule it immediately.");
 				log.info("   SCHEDULING execService [" + execService.getId()
 						+ "] facility [" + facility.getId() + "] as PLANNED.");
 				task.setSchedule(time);
-				log.debug("schedule before setTaskStatus");
 				schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
-				log.debug("schedule after setTaskStatus");
 				sendToEngine(task);
 				// manipulateTasks(execService, facility, task);
 			} else {
