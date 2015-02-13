@@ -468,18 +468,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (vo == null) throw new InternalErrorException("VO can't be null");
 
-		return jdbc.queryForObject(FORM_SELECT+" where vo_id=? and group_id is null", new RowMapper<ApplicationForm>(){
-			@Override
-			public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
-				ApplicationForm form = new ApplicationForm();
-				form.setId(rs.getInt("id"));
-				form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
-				form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
-				form.setModuleClassName(rs.getString("module_name"));
-				form.setVo(vo);
-				return form;
-			}
-		}, vo.getId());
+		try {
+			return jdbc.queryForObject(FORM_SELECT + " where vo_id=? and group_id is null", new RowMapper<ApplicationForm>() {
+				@Override
+				public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
+					ApplicationForm form = new ApplicationForm();
+					form.setId(rs.getInt("id"));
+					form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
+					form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
+					form.setModuleClassName(rs.getString("module_name"));
+					form.setVo(vo);
+					return form;
+				}
+			}, vo.getId());
+		} catch (EmptyResultDataAccessException ex) {
+			throw new FormNotExistsException("Form for VO: "+vo.getName()+" doesn't exists.");
+		}
 
 	}
 
@@ -488,23 +492,27 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (group == null) throw new InternalErrorException("Group can't be null");
 
-		return jdbc.queryForObject(FORM_SELECT + " where vo_id=? and group_id=?", new RowMapper<ApplicationForm>() {
-			@Override
-			public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
-				ApplicationForm form = new ApplicationForm();
-				form.setId(rs.getInt("id"));
-				form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
-				form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
-				form.setModuleClassName(rs.getString("module_name"));
-				form.setGroup(group);
-				try {
-					form.setVo(vosManager.getVoById(registrarSession, group.getVoId()));
-				} catch (Exception ex) {
-					// we don't care, shouldn't happen for internal identity.
+		try {
+			return jdbc.queryForObject(FORM_SELECT + " where vo_id=? and group_id=?", new RowMapper<ApplicationForm>() {
+				@Override
+				public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
+					ApplicationForm form = new ApplicationForm();
+					form.setId(rs.getInt("id"));
+					form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
+					form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
+					form.setModuleClassName(rs.getString("module_name"));
+					form.setGroup(group);
+					try {
+						form.setVo(vosManager.getVoById(registrarSession, group.getVoId()));
+					} catch (Exception ex) {
+						// we don't care, shouldn't happen for internal identity.
+					}
+					return form;
 				}
-				return form;
-			}
-		}, group.getVoId(), group.getId());
+			}, group.getVoId(), group.getId());
+		} catch (EmptyResultDataAccessException ex) {
+			throw new FormNotExistsException("Form for Group: "+group.getName()+" doesn't exists.");
+		}
 
 	}
 
