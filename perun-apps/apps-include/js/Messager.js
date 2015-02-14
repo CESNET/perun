@@ -5,6 +5,7 @@
  */
 flowMessager = new Messager($("#flowMessager"), 9000);
 staticMessager = new Messager($("#staticMessager"), undefined);
+
 function Messager(place, timeout) {
     this.place = place;
     this.timeout = timeout;

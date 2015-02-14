@@ -9,14 +9,18 @@ var hostsFriendly = [];
 var facilitiesFriendly = [];
 
 function entryPoint(user) {
-    loadFacilities();
+    console.log(roles);
+    if (roles.FACILITYADMIN || roles.PERUNADMIN) {
+        loadFacilities();
+    } else {
+        (staticMessager.newMessage("Privilege required", "Aplication is intended for facility admins.", "warning")).draw();
+    }
 }
 
 function loadFacilities(resources) {
     callPerun("facilitiesManager", "getRichFacilities", {}, function (facilities) {
-        console.log(facilities.length);
-        facilitiesCount = 10;
-        loadFacilitiesAttrs(facilities.slice(345,355));
+        facilitiesCount = facilities.length;
+        loadFacilitiesAttrs(facilities);
         addProgressBar(1);
     });
 }
