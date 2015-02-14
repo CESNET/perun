@@ -85,8 +85,10 @@ function fillFacilities(facilities) {
 
     $("#facilities-table").find("table tbody > tr[id^=facility-]").each(function (i) {
         $(this).click(function() {
+
             var toggle = $("#facilities-table").find("table tbody tr[id=toggle-"+$(this).attr("id")+"] .toggle-wrap");
-            if (toggle.is(":hidden")) {
+            if (!toggle.hasClass("opened")) {
+                toggle.addClass("opened");
                 loadHosts($(this).attr("id").split("-")[1]);
             }
             toggle.slideToggle(150);
