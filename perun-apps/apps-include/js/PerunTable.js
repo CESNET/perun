@@ -108,7 +108,6 @@ function PerunTable() {
                         }
                         break;
                     case "table":
-                        console.log(this.values);
                         html += this.values[row][column.name].draw();
                         break;
                     default :
@@ -123,17 +122,17 @@ function PerunTable() {
             html += "</tr>";
             if (this.clicableRows.toggle) {
                 if (this.clicableRows.isClicable) {
-                    html += "<tr class='toggle' style='display:none;' id='toggle-" + this.clicableRows.prefix + this.values[row][this.clicableRows.id] + "'>";
+                    html += "<tr class='toggle' id='toggle-" + this.clicableRows.prefix + this.values[row][this.clicableRows.id] + "'>";
                 } else {
                     html += "<tr>";
                 }
                 html += "<td colspan='" + this.columns.length + "'>";
-                html += '<div class="progress" id="">';
+                html += '<div class="toggle-wrap"  style="display:none;"><div class="progress" id="">';
                 html += '  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" ';
                 html += '    aria-valuemax="100" style="width: 0%;">';
                 html += '    0%';
                 html += '  </div>';
-                html += '</div>';
+                html += '</div></div>';
                 html += "</td>";
                 html += "</tr>";
             }

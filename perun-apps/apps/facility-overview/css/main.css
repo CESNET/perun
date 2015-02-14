@@ -12,13 +12,16 @@
     background-color: #ff5e00;
 }
 
-.table tr.toggle {
-    border-left-width: 0px;
+.table tr.toggle:last-child > td {
+    border-bottom-color: white;
 }
 .table tr.toggle > td {
-    padding-top: 0px;
+    padding: 0px 4px;
     border-right-color: white;
     border-left-color: white;
+}
+.table tr.toggle > td .toggle-wrap {
+    margin-bottom: 8px;
 }
 .table tr.toggle:hover > td {
     background-color: white;
