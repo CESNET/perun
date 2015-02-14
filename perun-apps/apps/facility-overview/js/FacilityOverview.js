@@ -84,19 +84,18 @@ function fillFacilities(facilities) {
     $("#facilities-table").html(facilitiesTable.draw());
 
     $("#facilities-table").find("table tbody > tr[id^=facility-]").each(function (i) {
-        var toggle = $("#facilities-table").find("table tbody tr[id=toggle-"+$(this).attr("id")+"]");
         $(this).click(function() {
-            toggle.toggle(200);
-            if (!toggle.is(":hidden")) {
+            var toggle = $("#facilities-table").find("table tbody tr[id=toggle-"+$(this).attr("id")+"] .toggle-wrap");
+            if (toggle.is(":hidden")) {
                 loadHosts($(this).attr("id").split("-")[1]);
             }
+            toggle.slideToggle(150);
         });
     });
 }
 
 
 function loadHosts(facility) {
-    setProgressBar(1,$("#toggle-facility-" + facility + " .progress-bar"));
     callPerun("facilitiesManager", "getHosts", {facility: facility}, function(hosts) {
         setProgressBar(20,$("#toggle-facility-" + facility + " .progress-bar"));
         loadHostsAttrs(hosts, facility);
@@ -142,7 +141,7 @@ function loadHostsAttrs(hosts, facility) {
 
 function fillHosts(hosts, facility) {
     if (hosts.length == 0) {
-        $("tr#toggle-facility-" + facility + " td").html("no hosts");
+        $("tr#toggle-facility-" + facility + " td .toggle-wrap").html("no hosts");
         return;
     }
     hosts.sort(function (a, b) {
@@ -154,7 +153,7 @@ function fillHosts(hosts, facility) {
     hostsTable.addColumn({type: "boolean", title: "Managed", name: "managed"});
     hostsTable.setValues(hosts);
     hostsTable.setHasHeader(false);
-    $("tr#toggle-facility-" + facility + " td").html(hostsTable.draw());
+    $("tr#toggle-facility-" + facility + " td .toggle-wrap").html(hostsTable.draw());
 }
 
 
