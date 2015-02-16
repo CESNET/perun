@@ -7,6 +7,9 @@
 .col-boolean .false {
     color: #DD0022;
 }
+td.col-icon {
+    color: #ddd;
+}
 
 .progress-bar {
     background-color: #ff5e00;

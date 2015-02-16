@@ -2,12 +2,6 @@
  * Created by ondrej on 13.1.15.
  */
 
-var voShortName = "provozmeta";
-var facilitiesCount = 0;
-var facilitiesCurrent = 0;
-var hostsFriendly = [];
-var facilitiesFriendly = [];
-
 function entryPoint(user) {
     console.log(roles);
     if (roles.FACILITYADMIN || roles.PERUNADMIN) {
@@ -17,44 +11,20 @@ function entryPoint(user) {
     }
 }
 
-function loadFacilities(resources) {
+function loadFacilities() {
+    var loadImage = new LoadImage($('#facilities-table'), "64px");
     callPerun("facilitiesManager", "getRichFacilities", {}, function (facilities) {
-        facilitiesCount = facilities.length;
-        loadFacilitiesAttrs(facilities);
-        addProgressBar(1);
+        var facilitiesFriendly = [];
+        for (var i in facilities) {
+            var owners = getTechnicalOwners(facilities[i].facilityOwners);
+            facilitiesFriendly.push({id:facilities[i].id, name:facilities[i].name, owners:owners ,
+                monitored:"glyphicon glyphicon-chevron-down", managed:"glyphicon glyphicon-chevron-down" });
+        }
+        loadImage.hide();
+        fillFacilities(facilitiesFriendly);
     });
 }
 
-function loadFacilitiesAttrs(facilities) {
-    for (var i in facilities) {
-        //console.log(facilities[i]);
-        var monitoredFnc = callPerun("attributesManager", "getAttribute",
-            {facility: facilities[i].id, attributeName: "urn:perun:facility:attribute-def:opt:metaIsMonitored"});
-        var managedFnc = callPerun("attributesManager", "getAttribute",
-            {facility: facilities[i].id, attributeName: "urn:perun:facility:attribute-def:opt:metaIsManaged"});
-        $.when(monitoredFnc, managedFnc).done(success(facilities[i]));
-    }
-    function success(facility) {
-        return function (monitored, managed) {
-            facilitiesCurrent++;
-            addProgressBar(100 / facilitiesCount);
-            var owners = getTechnicalOwners(facility.facilityOwners);
-            var mon = false;
-            var man = false;
-            if (monitored[0].value == 1) {
-                mon = true;
-            }
-            if (managed[0].value == 1) {
-                man = true;
-            }
-            facilitiesFriendly.push({id:facility.id, name:facility.name, owners:owners ,monitored:mon, managed:man });
-            if (facilitiesCurrent == facilitiesCount) {
-                //console.log(facilitiesFriendly);
-                fillFacilities(facilitiesFriendly);
-            }
-        }
-    }
-}
 
 function fillFacilities(facilities) {
 
@@ -77,8 +47,8 @@ function fillFacilities(facilities) {
     facilitiesTable.setClicableRows({isClicable: true, id: "id", prefix: "facility-", toggle: true});
     facilitiesTable.addColumn({type: "text", title: "Facility name", name: "name"});
     facilitiesTable.addColumn({type: "list", title: "Owners", name: "owners"});
-    facilitiesTable.addColumn({type: "boolean", title: "Monitored", name: "monitored"});
-    facilitiesTable.addColumn({type: "boolean", title: "Managed", name: "managed"});
+    facilitiesTable.addColumn({type: "icon", title: "Monitored", name: "monitored"});
+    facilitiesTable.addColumn({type: "icon", title: "Managed", name: "managed"});
     facilitiesTable.setValues(facilities);
 
     $("#facilities-table").html(facilitiesTable.draw());
@@ -167,16 +137,6 @@ function getTechnicalOwners(owners) {
         }
     }
     return technics;
-}
-
-var progress = 0;
-var progressBar = $('#facilities-table').find('.progress-bar');
-function addProgressBar(value) {
-    progress += value;
-    var showProgress = Math.floor(progress);
-    if (progressBar.attr('aria-valuenow') != showProgress) {
-        progressBar.css('width', showProgress + '%').attr('aria-valuenow', showProgress).text(showProgress + '%');
-    }
 }
 
 
