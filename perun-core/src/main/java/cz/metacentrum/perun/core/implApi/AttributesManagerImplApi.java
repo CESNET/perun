@@ -4,6 +4,8 @@
 package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.ActionType;
+
+import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -1055,6 +1057,57 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException;
+
+	/**
+	 * Get member-resource attributes which are required by service for each member in list of members.
+	 *
+	 * @param sess perun session
+	 * @param service attribute required by this service
+	 * @param resource you get attributes for this resource and the members
+	 * @param members you get attributes for this list of members and the resource
+	 * @return map of member and his list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException;
+
+	/**
+	 * Get member attributes which are required by service for each member in list of members.
+	 *
+	 * @param sess perun session
+	 * @param service attribute required by this service
+	 * @param resource resource only to get allowed members
+	 * @param members you get attributes for this list of members
+	 * @return map of member and his list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException;
+
+	/**
+	 * Get user-facility attributes which are required by the service for each user in list of users.
+	 *
+	 * @param sess perun session
+	 * @param service attribute required by this service
+	 * @param facility you get attributes for this facility and user
+	 * @param users you get attributes for this user and facility
+	 * @return map of User and his list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException;
+
+	/**
+	 * Get user attributes which are required by the service for each user in list of users.
+	 *
+	 * @param sess perun session
+	 * @param service attribute required by this service
+	 * @param users you get attributes for this user and facility
+	 * @return map of User and his list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException;
 
 	/**
 	 * Get member attributes which are required by the service.

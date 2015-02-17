@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import cz.metacentrum.perun.core.api.ResourcesManager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -64,7 +65,6 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.LinkedList;
 import java.util.Set;
@@ -97,6 +97,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	// these are in DB only when setUp"Type"() and must be used in correct (this) order
 	private AttributesManager attributesManager;
+	private ResourcesManager resourcesManager;
 	private Vo vo;
 	private Member member;
 	private Facility facility;
@@ -143,6 +144,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void setUp() throws Exception {
 
 		attributesManager = perun.getAttributesManager();
+		resourcesManager = perun.getResourcesManager();
 		this.setUpWorld();
 
 	}
@@ -5215,6 +5217,28 @@ public void getRequiredMemberResourceAttributesFromOneService() throws Exception
 
 }
 
+@Test
+public void getRequiredMembersResourceAttributesFromOneService() throws Exception {
+	System.out.println("attributesManager.getRequiredMembersResourceAttributesFromOneService");
+
+	vo = setUpVo();
+	member = setUpMember();
+	List<Member> members = new ArrayList<>();
+	members.add(member);
+	facility = setUpFacility();
+	resource = setUpResource();
+	service = setUpService();
+	attributes = setUpRequiredAttributes();
+	group = setUpGroup(vo, member);
+	resourcesManager.assignGroupToResource(sess, group, resource);
+	perun.getResourcesManager().assignService(sess, resource, service);
+
+	HashMap<Member, List<Attribute>> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, members);
+	assertNotNull("unable to get required resource-member attributes for one service",reqAttr);
+	assertTrue("should have only 1 req attribute", reqAttr.size() == 1);
+
+}
+
 @Test (expected=ServiceNotExistsException.class)
 	public void getRequiredMemberResourceAttributesFromOneServiceWhenServiceNotExists() throws Exception {
 		System.out.println("attributesManager.getRequiredMemberResourceAttributesFromOneServiceWhenServiceNotExists");
@@ -5316,6 +5340,28 @@ public void getRequiredMemberResourceAttributesFromOneServiceWorkWithUser() thro
 
 		attributesManager.getRequiredAttributes(sess, service, resource, new Member(), true);
 		// shouldn't find member
+
+	}
+
+	@Test
+	public void getRequiredMembersAttributesFromOneService() throws Exception {
+		System.out.println("attributesManager.getRequiredMemberAttributesFromOneService");
+
+		vo = setUpVo();
+		member = setUpMember();
+		List<Member> members = new ArrayList<>();
+		members.add(member);
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		group = setUpGroup(vo, member);
+		resourcesManager.assignGroupToResource(sess, group, resource);
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		HashMap<Member, List<Attribute>> reqAttr = attributesManager.getRequiredAttributes(sess, resource, service, members);
+		assertNotNull("unable to get required member attributes for one service",reqAttr);
+		assertTrue("should have only 1 req attribute",reqAttr.size() == 1);
 
 	}
 
@@ -7456,7 +7502,6 @@ private Member setUpMember() throws Exception {
 	usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
 	// save user for deletion after test
 	return member;
-
 }
 
 private Facility setUpFacility() throws Exception {
@@ -7515,6 +7560,15 @@ private Group setUpGroup() throws Exception {
 
 	Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("AttrTestGroup","AttrTestGroupDescription"));
 	assertNotNull("unable to create a group",group);
+	return group;
+
+}
+
+private Group setUpGroup(Vo vo, Member member) throws Exception {
+
+	Group group = new Group("ResourcesManagerTestGroup","");
+	group = perun.getGroupsManager().createGroup(sess, vo, group);
+	perun.getGroupsManager().addMember(sess, group, member);
 	return group;
 
 }

@@ -14,6 +14,8 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -1861,6 +1863,96 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, user));
 		attributes.addAll(getAttributesManagerImpl().getRequiredAttributes(sess, service, user));
 		return attributes;
+	}
+
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+		// check if members are from the same VO as resource
+		for (Member m : members) {
+			this.checkMemberIsFromTheSameVoLikeResource(sess, m, resource);
+		}
+
+		if(!workWithUserAttributes) return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
+
+		// get list of users, save user id as a key and list of member objects as a value
+		List<User> users = new ArrayList<>();
+		HashMap<User, List<Member>> userMemberIdMap = new HashMap<>();
+
+		// Maps user ids to member objects and fills list of users
+		for (Member m : members) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, m);
+			users.add(user);
+			if (userMemberIdMap.containsKey(user)) {
+				userMemberIdMap.get(user).add(m);
+			} else {
+				userMemberIdMap.put(user, Arrays.asList(m));
+			}
+		}
+
+		// get facility if null
+		if (facility == null) {
+			facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		}
+
+		// get 4 maps from Impl getRequiredAttributes
+		HashMap<Member, List<Attribute>> resourceMemberAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
+		HashMap<Member, List<Attribute>> memberAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members);
+		HashMap<User, List<Attribute>> userFacilityAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users);
+		HashMap<User, List<Attribute>> userAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, users);
+
+		for (Member mem : memberAttributes.keySet()) {
+			if (!resourceMemberAttributes.containsKey(mem)) {
+				resourceMemberAttributes.put(mem, memberAttributes.get(mem));
+			} else {
+				resourceMemberAttributes.get(mem).addAll(memberAttributes.get(mem));
+			}
+		}
+
+		for (User user : userFacilityAttributes.keySet()) {
+			// List of members for given user id
+			List<Member> mems = userMemberIdMap.get(user);
+			for (Member mem : mems) {
+				if (!resourceMemberAttributes.containsKey(mem)) {
+					resourceMemberAttributes.put(mem, userFacilityAttributes.get(user));
+				} else {
+					resourceMemberAttributes.get(mem).addAll(userFacilityAttributes.get(user));
+				}
+			}
+		}
+
+		for (User user : userAttributes.keySet()) {
+			// List of members for given user id
+			List<Member> mems = userMemberIdMap.get(user);
+			for (Member mem : mems) {
+				if (!resourceMemberAttributes.containsKey(mem)) {
+					resourceMemberAttributes.put(mem, userAttributes.get(user));
+				} else {
+					resourceMemberAttributes.get(mem).addAll(userAttributes.get(user));
+				}
+			}
+		}
+
+		return resourceMemberAttributes;
+
+	}
+
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
+	}
+
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members);
+	}
+
+	@Override
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users);
+	}
+
+	@Override
+	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredAttributes(sess, service, users);
 	}
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
