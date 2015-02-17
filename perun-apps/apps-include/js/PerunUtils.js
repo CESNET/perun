@@ -151,9 +151,11 @@ $(document).ready(function () {
     //tooltip activate
     $('[data-toggle="tooltip"]').tooltip();
 
-    //replace url authentization depends on actual
-    $('.resolve-authz').each(function(i) {
+    //replace url parts url depends on actual
+    $('.resolve-url').each(function(i) {
         $(this).attr("href",$(this).attr("href").replace("/authz/", "/" + getAuthz() + "/"));
+        var topFolder = window.location.pathname.split("/")[1];
+        $(this).attr("href",$(this).attr("href").replace("/apps/", "/" + topFolder + "/"));
     })
 });
 
