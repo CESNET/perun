@@ -1856,7 +1856,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			this.checkMemberIsFromTheSameVoLikeResource(sess, m, resource);
 		}
 
-		if(!workWithUserAttributes) return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
+		if(!workWithUserAttributes) {
+			HashMap<Member, List<Attribute>> resourceMemberAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
+			HashMap<Member, List<Attribute>> memberAttributes = getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members);
+
+			for (Member mem : memberAttributes.keySet()) {
+				if (!resourceMemberAttributes.containsKey(mem)) {
+					resourceMemberAttributes.put(mem, memberAttributes.get(mem));
+				} else {
+					resourceMemberAttributes.get(mem).addAll(memberAttributes.get(mem));
+				}
+			}
+			return resourceMemberAttributes;
+		}
 
 		// get list of users, save user id as a key and list of member objects as a value
 		List<User> users = new ArrayList<>();
