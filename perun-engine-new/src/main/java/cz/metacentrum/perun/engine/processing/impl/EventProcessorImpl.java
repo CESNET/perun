@@ -104,7 +104,14 @@ public class EventProcessorImpl implements EventProcessor {
 				// log.debug("ADD to POOL: ExecService[" +
 				// results.getLeft().getId() + "] : Facility[" +
 				// results.getRight() + "]");
-				schedulingPool.addToPool(task);
+				Task currentTask = schedulingPool.getTaskById(task.getId());
+				if(currentTask == null) {
+					task.setSourceUpdated(false);
+					schedulingPool.addToPool(task);
+				} else {
+					currentTask.setSourceUpdated(true);
+					currentTask.setDestinations(task.getDestinations());
+				}
 			}
 			log.debug("POOL SIZE:" + schedulingPool.getSize());
 
