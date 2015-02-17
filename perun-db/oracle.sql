@@ -1,4 +1,4 @@
--- database version 3.1.18 (don't forget to update insert statement at the end of file)
+-- database version 3.1.19 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -165,7 +165,7 @@ create table facility_owners (
 
 create table groups (
 	id integer not null,
-	name nvarchar2(128) not null,
+	name nvarchar2(4000) not null,
 	dsc nvarchar2(1024),
 	vo_id integer not null,
 	created_at date default sysdate not null,
@@ -1603,4 +1603,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.18');
+insert into configurations values ('DATABASE VERSION','3.1.19');
