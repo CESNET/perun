@@ -11,13 +11,16 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<property name="beanNames">
 			<list>
 				<value>AttributesManager</value>
+				<value>AuditMessagesManager</value>
+				<value>DatabaseManager</value>
 				<value>ExtSourcesManager</value>
 				<value>FacilitiesManager</value>
 				<value>GroupsManager</value>
-				<value>HostsManager</value>
 				<value>MembersManager</value>
 				<value>OwnersManager</value>
 				<value>ResourcesManager</value>
+				<value>RTMessagesManager</value>
+				<value>Searcher</value>
 				<value>ServicesManager</value>
 				<value>UsersManager</value>
 				<value>VosManager</value>
@@ -35,6 +38,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<property name="beanNames">
 			<list>
 				<value>*ManagerBl</value>
+				<value>SearcherBl</value>
 			</list>
 		</property>
 		<property name="interceptorNames">
@@ -49,6 +53,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		<property name="beanNames">
 			<list>
 				<value>*ManagerImpl</value>
+				<value>SearcherImpl</value>
 				<value>Auditer</value>
 				<value>Synchronizer</value>
 				<value>Utils</value>
