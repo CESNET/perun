@@ -106,10 +106,11 @@ public class EventProcessorImpl implements EventProcessor {
 				// results.getRight() + "]");
 				Task currentTask = schedulingPool.getTaskById(task.getId());
 				if(currentTask == null) {
-					task.setSourceUpdated(false);
+					// task.setSourceUpdated(false);
 					schedulingPool.addToPool(task);
 				} else {
-					currentTask.setSourceUpdated(true);
+					// currentTask.setSourceUpdated(true);
+					log.debug("Resetting current task destination list to {}", task.getDestinations());
 					currentTask.setDestinations(task.getDestinations());
 				}
 			}
