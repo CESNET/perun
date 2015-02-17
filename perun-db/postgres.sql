@@ -1,4 +1,4 @@
--- database version 3.1.18 (don't forget to update insert statement at the end of file)
+-- database version 3.1.19 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -171,7 +171,7 @@ create table "facility_owners" (
 -- GROUPS - groups of users
 create table "groups" (
 	id integer not null,
-	name varchar(128) not null, --group name
+	name text not null,         --group name
 	dsc varchar(1024),          --purpose and description
 	vo_id integer not null,     --identifier of VO (vos.id)
 	created_at timestamp default now() not null,
@@ -1652,4 +1652,4 @@ grant all on mailchange to perun;
 grant all on pwdreset to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.18');
+insert into configurations values ('DATABASE VERSION','3.1.19');
