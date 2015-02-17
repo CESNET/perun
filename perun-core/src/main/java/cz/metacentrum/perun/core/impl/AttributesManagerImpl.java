@@ -3148,6 +3148,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			this.facility = facility;
 		}
 
+		public UserAttributeExtractor(PerunSession sess, AttributesManagerImpl attributesManager, List<User> users) {
+			this(sess, attributesManager, users, null);
+		}
+
 		public HashMap<User, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
 			HashMap<User, List<Attribute>> map = new HashMap<>();
 			HashMap<Integer, User> userObjectMap = new HashMap<>();
@@ -3234,7 +3238,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"JOIN users ON users.id IN (" + beanIdsToString(users) + ")" +
 							"LEFT JOIN user_attr_values AS usr ON attr_names.id=usr.attr_id AND user_id=users.id " +
 							"WHERE namespace IN (?,?,?,?)",
-					new UserAttributeExtractor(sess, this, users, null), service.getId(), AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT, AttributesManager.NS_USER_ATTR_VIRT);
+					new UserAttributeExtractor(sess, this, users), service.getId(), AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT, AttributesManager.NS_USER_ATTR_VIRT);
 		} catch(EmptyResultDataAccessException ex) {
 			return new HashMap<User, List<Attribute>>();
 		} catch(RuntimeException ex) {
