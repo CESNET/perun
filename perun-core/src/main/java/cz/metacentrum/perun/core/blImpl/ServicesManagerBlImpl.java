@@ -129,8 +129,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		for (Member mem : attributes.keySet()) {
+			ServiceAttributes serviceAttributes = new ServiceAttributes();
 			serviceAttributes.addAttributes(attributes.get(mem));
 			resourceServiceAttributes.addChildElement(serviceAttributes);
 		}
@@ -152,8 +152,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			throw new InternalErrorException(ex);
 		}
 
-		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		for (Member mem : attributes.keySet()) {
+			ServiceAttributes serviceAttributes = new ServiceAttributes();
 			serviceAttributes.addAttributes(attributes.get(mem));
 			resourceServiceAttributes.addChildElement(serviceAttributes);
 		}
