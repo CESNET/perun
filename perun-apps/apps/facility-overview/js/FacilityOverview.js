@@ -54,13 +54,10 @@ function fillFacilities(facilities) {
     $("#facilities-table").html(facilitiesTable.draw());
 
     $("#facilities-table").find("table tbody > tr[id^=facility-]").each(function (i) {
+        loadHosts($(this).attr("id").split("-")[1]);
+        var toggle = $("#facilities-table").find("table tbody tr[id=toggle-"+$(this).attr("id")+"] .toggle-wrap");
+        toggle.show();
         $(this).click(function() {
-
-            var toggle = $("#facilities-table").find("table tbody tr[id=toggle-"+$(this).attr("id")+"] .toggle-wrap");
-            if (!toggle.hasClass("opened")) {
-                toggle.addClass("opened");
-                loadHosts($(this).attr("id").split("-")[1]);
-            }
             toggle.slideToggle(150);
         });
     });
