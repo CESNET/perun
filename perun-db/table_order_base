@@ -3,7 +3,6 @@ action_types
 membership_types
 attr_names
 attributes_authz
-auditer_consumers
 owners
 services
 service_required_attrs
