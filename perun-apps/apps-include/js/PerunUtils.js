@@ -156,6 +156,7 @@ $(document).ready(function () {
         $(this).attr("href",$(this).attr("href").replace("/authz/", "/" + getAuthz() + "/"));
         var topFolder = window.location.pathname.split("/")[1];
         $(this).attr("href",$(this).attr("href").replace("/apps/", "/" + topFolder + "/"));
+        $(this).attr("href",$(this).attr("href").replace("/current/", window.location));
     })
 });
 
