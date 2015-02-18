@@ -556,6 +556,17 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return false;
 	}
 
+	@Override
+	public boolean isFQDNValid(PerunSessionImpl sess, String fqdn) {
+		if (fqdn == null) return false;
+
+		Pattern fqdnPattern = Pattern.compile("^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63}\\.?$");
+		Matcher fqdnMatcher = fqdnPattern.matcher(fqdn);
+		if (fqdnMatcher.find()) return true;
+
+		return false;
+	}
+
 	public void checkFormatOfShell(String shell, Attribute attribute) throws WrongAttributeValueException {
 		//previous regex ^/[-a-zA-Z0-9_/]*$"
 		Pattern pattern = Pattern.compile("^(/[-_a-zA-Z0-9]+)+$");
