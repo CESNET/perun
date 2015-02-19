@@ -68,7 +68,6 @@ pn_audit_message
 pn_object
 pn_regex
 pn_template
-pn_receiver
 pn_pool_message
 pn_template_message
 pn_template_regex
