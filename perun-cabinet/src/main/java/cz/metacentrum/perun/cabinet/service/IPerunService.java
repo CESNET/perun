@@ -54,19 +54,18 @@ public interface IPerunService {
 	List<User> findAllUsers(PerunSession sess) throws CabinetException ;
 
 	/**
-	 * Updates priority coeficient for User
+	 * Updates priority coefficient for User
 	 *
 	 * @param sess session
 	 * @param userId ID of user
 	 * @param rank new value
 	 * @throws CabinetException
 	 */
-	void updatePriorityCoeficient(PerunSession sess, Integer userId, Double rank) throws CabinetException;
+	void updatePriorityCoefficient(PerunSession sess, Integer userId, Double rank) throws CabinetException;
 
 	/**
 	 * Calculate and set new value for user's publications thanks
 	 *
-	 * @param sess session
 	 * @param userId to set thanks to
 	 * @throws CabinetException
 	 */

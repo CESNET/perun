@@ -191,7 +191,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_FROM_EMAIL);
 			attrDef.setDescription("Email address used as \"from\" in mail notifications.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_TO_EMAIL);
@@ -203,7 +207,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_TO_EMAIL);
 			attrDef.setDescription("Email addresses (of VO administrators) used as \"to\" in mail notifications.");
 			attrDef.setType("java.util.ArrayList");
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_TO_EMAIL);
@@ -215,7 +223,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_TO_EMAIL);
 			attrDef.setDescription("Email addresses (of Group administrators) used as \"to\" in mail notifications.");
 			attrDef.setType("java.util.ArrayList");
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_FROM_EMAIL);
@@ -227,7 +240,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_FROM_EMAIL);
 			attrDef.setDescription("Email address used as \"from\" in mail notifications.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_LANGUAGE_EMAIL);
@@ -239,7 +257,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_LANGUAGE_EMAIL);
 			attrDef.setDescription("Default language used for application notifications to VO administrators.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_LANGUAGE_EMAIL);
@@ -251,7 +273,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_LANGUAGE_EMAIL);
 			attrDef.setDescription("Default language used for application notifications to Group administrators.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_APPLICATION_URL);
@@ -263,7 +290,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_APPLICATION_URL);
 			attrDef.setDescription("Custom link to VO's application form used in e-mail invitations.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_APPLICATION_URL);
@@ -275,7 +306,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_APPLICATION_URL);
 			attrDef.setDescription("Custom link to group's application form used in e-mail invitations.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_REGISTRAR_URL);
@@ -287,7 +323,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_REGISTRAR_URL);
 			attrDef.setDescription("Custom URL used in registration notifications (hostname without any parameters like: https://hostname.domain/). If not set, default hostname of Perun instance is used.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_REGISTRAR_URL);
@@ -299,7 +339,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_REGISTRAR_URL);
 			attrDef.setDescription("Custom URL used in registration notifications (hostname without any parameters like: https://hostname.domain/). This value override same VO setting. If not set, default hostname of Perun instance is used.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 
 	}
