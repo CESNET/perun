@@ -103,11 +103,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}));
 
 		for(Group group: groups) {
-			System.out.println(group.getName());
-			System.out.println(this.groupsManagerImpl.getSubGroupsCount(perunSession, group));
-		}
-
-		for(Group group: groups) {
 			this.deleteGroup(perunSession, group, forceDelete);
 		}
 	}
@@ -139,9 +134,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 */
 	protected void deleteAnyGroup(PerunSession sess, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
 		Vo vo = this.getVo(sess, group);
-
-		System.out.println(group);
-		System.out.println(getGroupsManagerImpl().getSubGroupsCount(sess, group));
 
 		if (getGroupsManagerImpl().getSubGroupsCount(sess, group) > 0) {
 			if (!forceDelete) throw new RelationExistsException("Group group="+group+" contains subgroups");
