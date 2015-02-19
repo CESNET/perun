@@ -12,7 +12,7 @@ sub processResourceData;
 
 our $SERVICE_NAME = "group_nfs4";
 our $PROTOCOL_VERSION = "3.0.0";
-my $SCRIPT_VERSION = "3.0.2";
+my $SCRIPT_VERSION = "3.0.3";
 
 perunServicesInit::init;
 my $DIRECTORY = perunServicesInit::getDirectory;
@@ -62,7 +62,7 @@ close MAX_GID;
 
 local $" = ',';
 foreach my $groupName (sort keys %$groupStruc) {
-	my @groupMembers = keys %{$groupStruc->{$groupName}->{$STRUC_USERS}};
+	my @groupMembers = sort keys %{$groupStruc->{$groupName}->{$STRUC_USERS}};
 	print FILE $groupName, ":x:", $groupStruc->{$groupName}->{$STRUC_GID}, ":", "@groupMembers" ,"\n";
 }
 close (FILE);
@@ -73,7 +73,7 @@ perunServicesInit::finalize;
 ##############################################################################
 
 # input: resource serviceAttributes
-# stores resource memers logins into $groupStruc structure
+# stores resource members logins into $groupStruc structure
 sub processResourceData {
 	my $resourceData = shift;
 
@@ -94,7 +94,7 @@ sub processResourceData {
 }
 
 # input: groups serviceAttributes
-# stores groups memers logins into $groupStruc structure
+# stores groups members logins into $groupStruc structure
 sub processGroupData {
 	my $groupData = shift;
 	my $subGroupsElement = ($groupData->getChildElements)[0];
@@ -137,7 +137,7 @@ sub processGroupData {
 }
 
 # input: (members serviceAttributes, groupName)
-# stores memers logins into $groupStruc structure
+# stores members logins into $groupStruc structure
 sub processMembersData {
 	my ($membersElement, $groupName) = @_;
 	for my $memberData ($membersElement->getChildElements) {
