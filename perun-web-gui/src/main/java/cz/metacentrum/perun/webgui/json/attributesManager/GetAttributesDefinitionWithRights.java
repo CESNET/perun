@@ -102,14 +102,13 @@ public class GetAttributesDefinitionWithRights implements JsonCallback, JsonCall
 		ListHandler<Attribute> columnSortHandler = new ListHandler<Attribute>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
 
-		// table selection
-		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager());
-
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
 		// checkbox column column
 		if (checkable) {
+			// table selection
+			table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager(0));
 			table.addCheckBoxColumn();
 		}
 
