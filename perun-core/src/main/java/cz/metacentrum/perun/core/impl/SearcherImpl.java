@@ -79,6 +79,12 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, String.class.getName().toString());
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
+				} else if (key.getType().equals(Boolean.class.getName())) {
+					key.setValue(value);
+					whereClauses.add("lower("+Compatibility.convertToAscii("val" + counter + ".attr_value")+")=lower("+Compatibility.convertToAscii(":v"+counter)+") ");
+					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+					parameters.addValue("n" + counter, Boolean.class.getName().toString());
+					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
 				} else if (key.getType().equals(ArrayList.class.getName())) {
 					List<String> list = new ArrayList<String>();
 					list.add(value);
@@ -86,7 +92,7 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("val" + counter + ".attr_value LIKE :v" + counter + " ");
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, ArrayList.class.getName().toString());
-					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length()-1) + '%');
+					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length() - 1) + '%');
 				} else if (key.getType().equals(LinkedHashMap.class.getName())) {
 					String[] splitMapItem = value.split("=");
 					if(splitMapItem.length == 0) throw new InternalErrorException("Value can't be split by char '='.");
@@ -107,7 +113,7 @@ public class SearcherImpl implements SearcherImplApi {
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key) + '%');
 					parameters.addValue("vv" + counter,  "%," +  BeansUtils.attributeValueToString(key) + '%');
 				} else {
-					throw new InternalErrorException(key + " is not type of integer, string, array or hashmap.");
+					throw new InternalErrorException(key + " is not type of integer, string, boolean, array or hashmap.");
 				}
 			}
 		}
