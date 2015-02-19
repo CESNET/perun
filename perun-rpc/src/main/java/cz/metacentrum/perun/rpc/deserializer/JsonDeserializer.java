@@ -163,6 +163,23 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
+	public Boolean readBoolean(String name) throws RpcException {
+		JsonNode node = root.get(name);
+
+		if (node == null) {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+		}
+		if (node.isNull()) {
+			return null;
+		}
+		if (!node.isValueNode()) {
+			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as Boolean");
+		}
+
+		return node.getValueAsBoolean();
+	}
+
+	@Override
 	public int readInt(String name) throws RpcException {
 		JsonNode node = root.get(name);
 
