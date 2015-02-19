@@ -202,7 +202,7 @@ public class PublicationServiceImpl implements IPublicationService {
 			// update coeficient for all it's authors
 			List<Author> authors = authorService.findAuthorsByPublicationId(oldPub.getId());
 			for (Author a : authors) {
-				perunService.updatePriorityCoeficient(sess, a.getId(), authorshipService.calculateNewRank(a.getAuthorships()));
+				perunService.updatePriorityCoefficient(sess, a.getId(), authorshipService.calculateNewRank(a.getAuthorships()));
 			}
 		}
 

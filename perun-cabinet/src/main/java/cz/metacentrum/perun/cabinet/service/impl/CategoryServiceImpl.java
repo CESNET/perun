@@ -98,7 +98,7 @@ public class CategoryServiceImpl implements ICategoryService {
 				authors.addAll(authorService.findAuthorsByPublicationId(p.getId()));
 			}
 			for (Author a : authors) {
-				perunService.updatePriorityCoeficient(sess, a.getId(), authorshipService.calculateNewRank(a.getAuthorships()));
+				perunService.updatePriorityCoefficient(sess, a.getId(), authorshipService.calculateNewRank(a.getAuthorships()));
 			}
 			log.debug("Category: [{}] updated to Category: [{}]", cat, category);
 		}

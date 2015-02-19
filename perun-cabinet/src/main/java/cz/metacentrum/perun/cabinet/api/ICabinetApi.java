@@ -30,12 +30,12 @@ public interface ICabinetApi extends Serializable {
 	 * Search is done in external publication systems (MU, ZCU)
 	 * All parameters are required.
 	 *
-	 * @param user from Perun
+	 * @param sess
+	 * @param userId from Perun
 	 * @param yearSince
 	 * @param yearTill (must be equal or greater then yearSince)
 	 * @param pubSysNamespace (MU or ZCU)
-	 * @throws PrivilegeException
-	 * @throws InternalErrorException
+	 * @throws cz.metacentrum.perun.cabinet.service.CabinetException
 	 *
 	 * @return list of publications or empty list if nothing is found
 	 * @throws CabinetException
@@ -173,7 +173,7 @@ public interface ICabinetApi extends Serializable {
 	 *            be ignored), however it is not safe(exception can raise)
 	 * @return list of selected authorships or empty list if nothing is found.
 	 */
-	List<Authorship> findAuthorshipsByFilter(Authorship a, SortParam sortParam);
+	List<Authorship> findAuthorshipsByFilter(Authorship authorship, SortParam sortParam);
 
 	/**
 	 * Finds all rich publications in db of given user ID. Returned publications don't
@@ -379,8 +379,8 @@ public interface ICabinetApi extends Serializable {
 	/**
 	 * Updates category according it's id.
 	 *
-	 * @param session
-	 * @param modelObject
+	 * @param sess
+	 * @param category
 	 * @return number of updated rows in db
 	 * @throws CabinetException
 	 */
