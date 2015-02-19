@@ -240,6 +240,9 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 		if (attr.getType().equals("java.lang.Integer")) {
 			return generateValueFromNumber(attr, getUniqueCellId(attr));
 		}
+		if (attr.getType().equals("java.lang.Boolean")) {
+			return generateValueFromBoolean(attr, getUniqueCellId(attr));
+		}
 		if (attr.getType().equals("java.util.ArrayList")) {
 			return generateValueFromList(attr, getUniqueCellId(attr));
 		}
@@ -270,14 +273,27 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 	 * @return true if success
 	 */
 	private final native boolean generateValueFromString(Attribute attr, String uniqueId) /*-{
-        var str = $wnd.jQuery("#" + uniqueId + " .textbox-value").val().trim();
-        if (str.length != 0) {
-            attr.value = str;
-        } else {
-            attr.value = null;
-        }
-        return true;
-    }-*/;
+		var str = $wnd.jQuery("#" + uniqueId + " .textbox-value").val().trim();
+		if (str.length != 0) {
+			attr.value = str;
+		} else {
+			attr.value = null;
+		}
+		return true;
+	}-*/;
+
+	/**
+	 * Gets the value from CheckBox and saves it to the object
+	 *
+	 * @param attr
+	 * @param uniqueId
+	 * @return true if success
+	 */
+	private final native boolean generateValueFromBoolean(Attribute attr, String uniqueId) /*-{
+		attr.value = $wnd.jQuery("#" + uniqueId + " .checkbox-value").prop('checked')
+		console.log(attr.value);
+		return true;
+	}-*/;
 
 	/**
 	 * Gets the value from Number TextBox and saves it to the object
@@ -287,24 +303,24 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 	 * @return true if success
 	 */
 	private final native boolean generateValueFromNumber(Attribute attr, String uniqueId) /*-{
-        // gets the value
-        var newValue = $wnd.jQuery("#" + uniqueId + " .numberbox-value").val().trim();
-        // true on any number format, false otherwise
-        if (!isNaN(parseFloat(newValue)) && isFinite(newValue)) {
-            $wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
-            attr.value = parseInt(newValue);
-            return true;
-        }
-        // true on empty value
-        if (newValue.length == 0) {
-            $wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
-            attr.value = null;
-            return true;
-        }
-        // wrong
-        $wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "red");
-        return false;
-    }-*/;
+		// gets the value
+		var newValue = $wnd.jQuery("#" + uniqueId + " .numberbox-value").val().trim();
+		// true on any number format, false otherwise
+		if (!isNaN(parseFloat(newValue)) && isFinite(newValue)) {
+			$wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
+			attr.value = parseInt(newValue);
+			return true;
+		}
+		// true on empty value
+		if (newValue.length == 0) {
+			$wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "");
+			attr.value = null;
+			return true;
+		}
+		// wrong
+		$wnd.jQuery("#" + uniqueId + " .numberbox-value").css("border-color", "red");
+		return false;
+	}-*/;
 
 	/**
 	 * Gets the value from the list of TextBoxes and saves it to the object
@@ -314,21 +330,21 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 	 * @return true if success
 	 */
 	private final native boolean generateValueFromList(Attribute attr, String uniqueId) /*-{
-        attr.value = [];
-        var i = 0;
-        $wnd.jQuery("#" + uniqueId + " .list-item-value").each(function () {
-            var val = $wnd.jQuery(this).val();
-            if (val != null && typeof val != undefined && val != "" && val.length != 0) {
-                attr.value[i] = val.trim();
-                i++;
-            }
-        });
-        // empty value
-        if (i == 0) {
-            attr.value = null;
-        }
-        return true;
-    }-*/;
+		attr.value = [];
+		var i = 0;
+		$wnd.jQuery("#" + uniqueId + " .list-item-value").each(function () {
+			var val = $wnd.jQuery(this).val();
+			if (val != null && typeof val != undefined && val != "" && val.length != 0) {
+				attr.value[i] = val.trim();
+				i++;
+			}
+		});
+		// empty value
+		if (i == 0) {
+			attr.value = null;
+		}
+		return true;
+	}-*/;
 
 
 	/**
@@ -339,26 +355,26 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 	 * @return true if success
 	 */
 	private final native boolean generateValueFromMap(Attribute attr, String uniqueId) /*-{
-        attr.value = {};
-        var i = 0;
-        $wnd.jQuery("#" + uniqueId + " .map-entry").each(function () {
-            var key = $wnd.jQuery(this).find(".map-entry-key").val().trim();
-            var tempval = $wnd.jQuery(this).find(".map-entry-value").val().trim();
-            // necessary for CERTIFICATE VALUES
-            var val = tempval.replace(/\\n/g, '\n');
-            if (key != "") {
-                if (key != "Enter new key first!") {
-                    attr.value[key] = val;
-                }
-            }
-            i++;
-        });
-        // if empty
-        if (i == 0) {
-            attr.value = null;
-        }
-        return true;
-    }-*/;
+		attr.value = {};
+		var i = 0;
+		$wnd.jQuery("#" + uniqueId + " .map-entry").each(function () {
+			var key = $wnd.jQuery(this).find(".map-entry-key").val().trim();
+			var tempval = $wnd.jQuery(this).find(".map-entry-value").val().trim();
+			// necessary for CERTIFICATE VALUES
+			var val = tempval.replace(/\\n/g, '\n');
+			if (key != "") {
+				if (key != "Enter new key first!") {
+					attr.value[key] = val;
+				}
+			}
+			i++;
+		});
+		// if empty
+		if (i == 0) {
+			attr.value = null;
+		}
+		return true;
+	}-*/;
 
 
 	/**
@@ -375,9 +391,10 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 
 		if (attr.getType().equals("java.util.LinkedHashMap")) {
 			return generateMap(attr.getValueAsMap(), attr.isWritable());
-
 		} else if (attr.getType().equals("java.lang.Integer")) {
 			return generateNumberBox(attr.getValue(), attr.isWritable());
+		} else if (attr.getType().equals("java.lang.Boolean")) {
+			return generateCheckBox(attr.getValue(), attr.isWritable());
 		} else if (attr.getType().equals("java.util.ArrayList")) {
 			return generateList(attr.getValueAsJsArray(), attr.isWritable());
 		}
@@ -421,6 +438,28 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 			return "<input type=\"text\" style=\"width:100px\" class=\"numberbox-value gwt-TextBox\" value=\"" + value + "\" />";
 		} else {
 			return "<input title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly type=\"text\" style=\"width:100px\" class=\"numberbox-value gwt-TextBox gwt-TextBox-readonly\" value=\"" + value + "\" />";
+		}
+
+	}
+
+	/**
+	 * CheckBox for number
+	 *
+	 * @param value
+	 * @return
+	 */
+	private static String generateCheckBox(String value, boolean writable) {
+		// check for emptiness
+		if (value == null || value.equalsIgnoreCase("null") || value.equalsIgnoreCase("false")) {
+			value = "";
+		} else {
+			value = "checked=\"checked\"";
+		}
+
+		if (writable) {
+			return "<input type=\"checkbox\" class=\"checkbox-value gwt-CheckBox\" " + value + " />";
+		} else {
+			return "<input title=\"" + WidgetTranslation.INSTANCE.notWritable() + "\" readonly type=\"checkbox\" class=\"checkbox-value gwt-CheckBox gwt-CheckBox-readonly\" " + value + " />";
 		}
 
 	}
