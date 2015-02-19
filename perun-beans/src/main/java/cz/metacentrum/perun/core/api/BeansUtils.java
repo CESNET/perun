@@ -170,6 +170,8 @@ public class BeansUtils {
 			return (String) attribute.getValue();
 		} else if(attribute.getType().equals(Integer.class.getName())) {
 			return Integer.toString((Integer) attribute.getValue());
+		} else if(attribute.getType().equals(Boolean.class.getName())) {
+			return Boolean.toString((Boolean) attribute.getValue());
 		} else if(attribute.getType().equals(ArrayList.class.getName())) {
 			StringBuilder sb = new StringBuilder();
 			for(String item : (List<String>) attribute.getValue()) {
@@ -288,6 +290,8 @@ public class BeansUtils {
 			return stringValue;
 		} else if(attributeClass.equals(Integer.class)) {
 			return Integer.parseInt(stringValue);
+		} else if(attributeClass.equals(Boolean.class)) {
+			return Boolean.parseBoolean(stringValue);
 		} else if(attributeClass.equals(ArrayList.class)) {
 			String[] array = stringValue.split(Character.toString(LIST_DELIMITER), -1);
 			List<String> attributeValue =  new ArrayList<String>();

@@ -589,16 +589,22 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefitintion, String attributeValue) throws InternalErrorException {
+	public List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attributeValue) throws InternalErrorException {
 		String value = "";;
 		String operator = "=";
-		if (attributeDefitintion.getType().equals(String.class.getName())) {
+		if (attributeDefinition.getType().equals(String.class.getName())) {
 			value = attributeValue.trim();
 			operator = "=";
-		} else if (attributeDefitintion.getType().equals(ArrayList.class.getName())) {
+		} else if (attributeDefinition.getType().equals(Integer.class.getName())) {
+			value = attributeValue.trim();
+			operator = "=";
+		}  else if (attributeDefinition.getType().equals(Boolean.class.getName())) {
+			value = attributeValue.trim();
+			operator = "=";
+		} else if (attributeDefinition.getType().equals(ArrayList.class.getName())) {
 			value = "%" + attributeValue.trim() + "%";
 			operator = "like";
-		} else if (attributeDefitintion.getType().equals(LinkedHashMap.class.getName())) {
+		} else if (attributeDefinition.getType().equals(LinkedHashMap.class.getName())) {
 			value = "%" + attributeValue.trim() + "%";
 			operator = "like";
 		}
@@ -608,7 +614,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		MapSqlParameterSource namedParams = new MapSqlParameterSource();
 		namedParams.addValue("value", value);
-		namedParams.addValue("attr_id", attributeDefitintion.getId());
+		namedParams.addValue("attr_id", attributeDefinition.getId());
 
 		try {
 			return namedParameterJdbcTemplate.query(query, namedParams, USER_MAPPER);

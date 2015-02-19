@@ -627,6 +627,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param attribute Attribute JSON object
 	 * @return List<User> Found users
 	 */
+	/*#
+	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.
+	 *
+	 * @param attributeName String URN of attribute to search by
+	 * @param attributeValue Object Value to search by (type of value must match attribute value type)
+	 * @return List<User> Found users
+	 */
 	getUsersByAttribute {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -664,7 +671,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all users who have attribute which have value which contains searchString.
 	 *
-	 * @param attribute Attribute JSON object
+	 * @param attributeName String URN of attribute to search by
+	 * @param attributeValue String Value to search by
 	 * @return List<User> Found users
 	 */
 	getUsersByAttributeValue {

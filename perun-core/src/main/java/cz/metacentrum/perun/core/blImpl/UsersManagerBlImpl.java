@@ -539,8 +539,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) throws InternalErrorException {
 		// try to find method in attribute module
-		UserVirtualAttributesModuleImplApi attributeModul = perunBl.getAttributesManagerBl().getUserVirtualAttributeModule(sess, attributeDef);
-		List<User> listOfUsers = attributeModul.searchInAttributesValues((PerunSessionImpl) sess, attributeValue);
+		UserVirtualAttributesModuleImplApi attributeModule = perunBl.getAttributesManagerBl().getUserVirtualAttributeModule(sess, attributeDef);
+		List<User> listOfUsers = attributeModule.searchInAttributesValues((PerunSessionImpl) sess, attributeValue);
 
 		if (listOfUsers != null) {
 			return listOfUsers;
@@ -601,8 +601,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new ConsistencyErrorException("Attribute name:'"  + attributeName + "', value:'" + attributeValue + "' not exists ", e);
 		}
 	}
-
-
 
 	public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException {
 		return this.getUsersManagerImpl().findUsers(sess, searchString);

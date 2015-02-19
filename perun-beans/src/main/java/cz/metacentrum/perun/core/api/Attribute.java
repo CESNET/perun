@@ -19,7 +19,7 @@ public class Attribute extends AttributeDefinition {
 
 	private final static Logger log = LoggerFactory.getLogger(Attribute.class);
 	/**
-	 * Value of the attribute, can be Map, List, String, Integer, ...
+	 * Value of the attribute, can be Map, List, String, Integer, Boolean...
 	 */
 	private Object value;
 
