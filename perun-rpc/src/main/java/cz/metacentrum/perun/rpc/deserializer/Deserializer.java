@@ -35,6 +35,16 @@ public abstract class Deserializer {
 	public abstract String readString(String name) throws RpcException;
 
 	/**
+	 * Reads value with the specified name as {@code Boolean}.
+	 *
+	 * @param name name of the value to read
+	 * @return the value as {@code Boolean}
+	 *
+	 * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
+	 */
+	public abstract Boolean readBoolean(String name) throws RpcException;
+
+	/**
 	 * Reads value with the specified name as {@code int}.
 	 *
 	 * @param name name of the value to read

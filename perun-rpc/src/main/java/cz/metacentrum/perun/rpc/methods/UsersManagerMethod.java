@@ -639,15 +639,15 @@ public enum UsersManagerMethod implements ManagerMethod {
 						attr.setValue(parms.readInt("attributeValue"));
 					} else if(attr.getType().equals(String.class.getName())) {
 						attr.setValue(parms.readString("attributeValue"));
-						return ac.getUsersManager().getUsersByAttribute(ac.getSession(),attr);
+					} else if(attr.getType().equals(Boolean.class.getName())) {
+						attr.setValue(parms.readBoolean("attributeValue"));
 					} else if(attr.getType().equals(ArrayList.class.getName())) {
 						attr.setValue(parms.readList("attributeValue", String.class));
 					} else if(attr.getType().equals(LinkedHashMap.class.getName())) {
 						attr.setValue(parms.read("attributeValue", LinkedHashMap.class));
 					} else {
-						throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, "attributeValue is not the same type like value of attribute with the attributeName.");
+						throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, "attributeValue is not the same type like value of attribute with the attributeName.");
 					}
-
 					return ac.getUsersManager().getUsersByAttribute(ac.getSession(),attr);
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "attributeValue");
