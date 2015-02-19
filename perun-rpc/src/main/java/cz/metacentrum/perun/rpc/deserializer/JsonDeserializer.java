@@ -46,13 +46,13 @@ import javax.servlet.http.HttpServletRequest;
 public class JsonDeserializer extends Deserializer {
 
 	@JsonIgnoreProperties({"name","baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-		private interface AttributeMixIn {}
+	private interface AttributeMixIn {}
 
 	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-		private interface AttributeDefinitionMixIn {}
+	private interface AttributeDefinitionMixIn {}
 
 	@JsonIgnoreProperties({"commonName", "displayName", "beanName"})
-		private interface UserMixIn {}
+	private interface UserMixIn {}
 
 	@JsonIgnoreProperties({"fullMessage"})
 	private interface AuditMessageMixIn {}
@@ -67,11 +67,10 @@ public class JsonDeserializer extends Deserializer {
 	private interface PerunExceptionMixIn {}
 
 	@JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
-		private interface DestinationMixIn {}
+	private interface DestinationMixIn {}
 
 	@JsonIgnoreProperties({"shortName", "beanName"})
-		private interface GroupMixIn {}
-
+	private interface GroupMixIn {}
 
 	private interface MemberMixIn {
 		@JsonIgnore
@@ -319,14 +318,14 @@ public class JsonDeserializer extends Deserializer {
 
 		try {
 			List<PerunBean> list = new ArrayList<PerunBean>(node.size());
-		for (JsonNode e : node) {
-			String beanName = "cz.metacentrum.perun.core.api." + e.get("beanName").getTextValue();
+			for (JsonNode e : node) {
+				String beanName = "cz.metacentrum.perun.core.api." + e.get("beanName").getTextValue();
 
-			if(beanName == null) {
-				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - missing beanName info");
+				if(beanName == null) {
+					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - missing beanName info");
+				}
+				list.add((PerunBean) mapper.readValue(e, Class.forName(beanName)));
 			}
-			list.add((PerunBean) mapper.readValue(e, Class.forName(beanName)));
-		}
 			return list;
 		} catch (ClassNotFoundException ex) {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - class not found");
