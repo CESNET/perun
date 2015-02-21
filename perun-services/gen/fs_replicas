@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+
+#Forward Declaration
+sub processResourceData;
+sub processMemberData;
+
+local $::SERVICE_NAME = "fs_replicas";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getDataWithGroups;
+
+#Constants
+our $A_USER_LOGIN;                 *A_USER_LOGIN =                   \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_USER_LOGIN_NAMESPACE;       *A_USER_LOGIN_NAMESPACE =         \'urn:perun:facility:attribute-def:def:loginNamespace';
+our $A_R_DESTINATION;              *A_R_DESTINATION =                \'urn:perun:resource:attribute-def:def:replicaDestination';
+our $A_R_DESTINATION_PATH;         *A_R_DESTINATION_PATH =           \'urn:perun:resource:attribute-def:def:replicaDestinationPath';
+our $A_R_SOURCE_PATH;              *A_R_SOURCE_PATH =                \'urn:perun:resource:attribute-def:def:replicaSourcePath';
+
+#Global data structure
+our $struc = {};
+
+my $fileName = "$DIRECTORY/$::SERVICE_NAME";
+open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+
+foreach my $resourceData ( $data->getChildElements ) {
+	processResourceData $resourceData;
+}
+
+foreach my $replicaDestinationPath (sort keys %$struc) {
+	foreach my $replicaSourcePath (sort keys %{$struc->{$replicaDestinationPath}}) {
+		foreach my $replicaDestination (sort keys %{$struc->{$replicaDestinationPath}->{$replicaSourcePath}}) {
+			foreach my $login (sort keys %{$struc->{$replicaDestinationPath}->{$replicaSourcePath}->{$replicaDestination}}) {
+				print FILE $replicaSourcePath, $login, "/ ", $replicaDestination, ":", $replicaDestinationPath, "\n";
+			}
+		}
+	}
+}
+
+close(FILE) or die "Cannot close $fileName: $! \n";
+
+##############################################################################
+# Only subs definitions down there
+##############################################################################
+
+# INPUT: replica's destination name, replica's destination path, replica's source path, member's data
+# stores replica's destination name, replica's destination path, replica's source path 
+# and user's login into $struc structure
+sub processMemberData {
+	my $replicaDestination = shift;
+	my $replicaDestinationPath = shift;
+	my $replicaSourcePath = shift;
+	my $memberData = shift;
+
+	my %memberAttributes = attributesToHash $memberData->getAttributes;
+	my $login = $memberAttributes{$A_USER_LOGIN};
+
+	unless(exists $struc->{$replicaDestinationPath}->{$replicaSourcePath}->{$replicaDestination}->{$login}) {
+		$struc->{$replicaDestinationPath}->{$replicaSourcePath}->{$replicaDestination}->{$login} = {};
+	}
+}
+
+# INPUT: resource's data
+# calls processMemberData to assign REPLICA_DESTINATION, REPLICA_DESTINATION_PATH 
+# and REPLICA_SOURCE_PATH to the member of resource in $struc structure
+sub processResourceData {
+	my $resource = shift;
+	my %resourceAttributes = attributesToHash $resource->getAttributes;
+
+	my $replicaDestination = $resourceAttributes{$A_R_DESTINATION};
+	my $replicaDestinationPath = $resourceAttributes{$A_R_DESTINATION_PATH};
+	my $replicaSourcePath = $resourceAttributes{$A_R_SOURCE_PATH};
+
+	unless((substr $replicaDestinationPath, -1) eq "/") {
+		$replicaDestinationPath = $replicaDestinationPath . "/";
+	}
+
+	unless((substr $replicaSourcePath, -1) eq "/") {
+		$replicaSourcePath = $replicaSourcePath . "/";
+	}
+
+	foreach my $memberData(($resource->getChildElements)[1]->getChildElements) {
+		processMemberData $replicaDestination, $replicaDestinationPath, $replicaSourcePath, $memberData;
+	}
+}
+
+#####################################################
+
+perunServicesInit::finalize;
