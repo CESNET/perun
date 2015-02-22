@@ -489,6 +489,49 @@ public enum NotificationManagerMethod implements ManagerMethod {
 			ac.getNotificationManager().removePerunNotifTemplateById(parms.readInt("id"));
 			return null;
 		}
+	},
+
+	/*#
+	 * Stop notifications processing.
+	 *
+	 * @param id int PerunNotifTemplate ID
+	 */
+	stopNotifications {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getNotificationManager().stopNotifications();
+			return null;
+		}
+	},
+
+	/*#
+	 * Start notifications processing.
+	 *
+	 */
+	startNotifications {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getNotificationManager().startNotifications();
+			return null;
+		}
+	},
+
+	/*#
+	 * Method checks if the notifications module is running at the time.
+	 *
+	 * @return true if running
+	 */
+	isNotificationsRunning {
+		@Override
+		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getNotificationManager().isNotificationsRunning();
+		}
 	};
 
         //Special test method

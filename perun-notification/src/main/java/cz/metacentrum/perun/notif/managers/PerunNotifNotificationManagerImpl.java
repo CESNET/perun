@@ -32,6 +32,9 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	@Autowired
 	private PerunNotifObjectManager perunNotifObjectManager;
 
+	@Autowired
+	private SchedulingManagerImpl schedulingManager;
+
 	@Override
 	public PerunNotifObject getPerunNotifObjectById(int id) throws InternalErrorException {
 
@@ -199,5 +202,20 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	@Override
 	public void removePerunNotifRegexObjectRelation(int regexId, int objectId) throws InternalErrorException {
 		perunNotifObjectManager.removePerunNotifRegexObjectRelation(regexId, objectId);
+	}
+
+	@Override
+	public void stopNotifications() {
+		schedulingManager.stopNotifications();
+	}
+
+	@Override
+	public void startNotifications() {
+		schedulingManager.startNotifications();
+	}
+
+	@Override
+	public boolean isNotificationsRunning() {
+		return schedulingManager.isNotificationsRunning();
 	}
 }

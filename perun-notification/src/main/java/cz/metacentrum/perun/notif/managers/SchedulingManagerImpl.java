@@ -64,7 +64,6 @@ public class SchedulingManagerImpl {
 	 * notifications to users.
 	 */
 	public void doNotification() {
-		logger.info("Starting doNotification");
 
 		if (!(runningAllowed.get())) {
 			return;
@@ -75,6 +74,7 @@ public class SchedulingManagerImpl {
 			return;
 		}
 
+		logger.info("Starting doNotification");
 
 		try {
 			logger.debug("1: Processing perun AuditMessages");
@@ -211,5 +211,9 @@ public class SchedulingManagerImpl {
 	public void startNotifications() {
 		runningAllowed.set(true);
 		logger.info("Notifications was started.");
+	}
+
+	public boolean isNotificationsRunning() {
+		return runningAllowed.get();
 	}
 }
