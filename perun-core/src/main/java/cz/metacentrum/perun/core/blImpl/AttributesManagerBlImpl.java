@@ -5378,13 +5378,26 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return allDependencies;
 	}
 
-	public Attribute convertEmptyStringIntoNullInAttrValue(PerunSession sess, Attribute attributeToConverting) {
-		//if attributeToConverting has already null value, return it
-		if(attributeToConverting.getValue() == null) return attributeToConverting;
-		String testAttributeType = attributeToConverting.getType();
-		if (testAttributeType.equals(String.class.getName()) && attributeToConverting.getValue().equals("")) {
-			attributeToConverting.setValue(null);
+	@Override
+	public Attribute convertEmptyStringIntoNullInAttrValue(Attribute attributeToConvert) {
+		//if attributeToConvert has already null value, return it
+		if(attributeToConvert.getValue() == null) return attributeToConvert;
+		String testAttributeType = attributeToConvert.getType();
+		if (testAttributeType.equals(String.class.getName()) && attributeToConvert.getValue().equals("")) {
+			attributeToConvert.setValue(null);
 		}
-		return attributeToConverting;
+		return attributeToConvert;
 	}
+
+	@Override
+	public Attribute convertBooleanFalseIntoNullInAttrValue(Attribute attributeToConvert) {
+		//if attributeToConvert has already null value, return it
+		if(attributeToConvert.getValue() == null) return attributeToConvert;
+		String testAttributeType = attributeToConvert.getType();
+		if (testAttributeType.equals(Boolean.class.getName()) && attributeToConvert.getValue().equals(false)) {
+			attributeToConvert.setValue(null);
+		}
+		return attributeToConvert;
+	}
+
 }

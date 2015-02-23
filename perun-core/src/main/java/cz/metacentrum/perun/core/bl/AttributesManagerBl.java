@@ -3174,8 +3174,17 @@ public interface AttributesManagerBl {
 	/**
 	* Method returns attribute with null value if attribute has empty string;
 	* 
-	* @param attributeToConverting 
-	* @return
+	* @param attributeToConvert
+	* @return Attribute with original value or null value for empty string
 	*/
-	Attribute convertEmptyStringIntoNullInAttrValue(PerunSession sess, Attribute attributeToConverting);
+	Attribute convertEmptyStringIntoNullInAttrValue(Attribute attributeToConvert);
+
+	/**
+	 * Method returns attribute with null value if attribute value is boolean == false
+	 *
+	 * @param attributeToConvert
+	 * @return Attribute with original value or null value for boolean == false
+	 */
+	Attribute convertBooleanFalseIntoNullInAttrValue(Attribute attributeToConvert);
+
 }
