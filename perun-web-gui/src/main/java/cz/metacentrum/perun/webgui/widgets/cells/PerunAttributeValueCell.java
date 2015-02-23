@@ -290,8 +290,14 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 	 * @return true if success
 	 */
 	private final native boolean generateValueFromBoolean(Attribute attr, String uniqueId) /*-{
-		attr.value = $wnd.jQuery("#" + uniqueId + " .checkbox-value").prop('checked')
-		console.log(attr.value);
+		var val = $wnd.jQuery("#" + uniqueId + " .checkbox-value").prop('checked')
+		if (val === true) {
+			// checked == true
+			attr.value = true;
+		} else {
+			// unchecked == null == false
+			attr.value = null;
+		}
 		return true;
 	}-*/;
 
@@ -449,11 +455,12 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 	 * @return
 	 */
 	private static String generateCheckBox(String value, boolean writable) {
-		// check for emptiness
-		if (value == null || value.equalsIgnoreCase("null") || value.equalsIgnoreCase("false")) {
-			value = "";
-		} else {
+		if (value != null && value.equalsIgnoreCase("true")) {
+			// only non-null true is considered checked
 			value = "checked=\"checked\"";
+		} else {
+			// other values are considered false == null
+			value = "";
 		}
 
 		if (writable) {
