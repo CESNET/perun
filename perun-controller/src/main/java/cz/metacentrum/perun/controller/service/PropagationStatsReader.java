@@ -5,6 +5,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
+import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
@@ -125,4 +126,28 @@ public interface PropagationStatsReader {
 	 * @throws InternalErrorException
 	 */
 	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException;
+	
+	/**
+	 * Returns list of ServiceStates for given facility.
+	 * 
+	 * @param facility
+	 * @return list of ServiceStates
+	 * @throws InternalErrorException
+	 * @throws ServiceNotExistsException
+	 * @throws PrivilegeException
+	 */	
+	List<ServiceState> getFacilityServicesState(Facility facility) throws InternalErrorException, ServiceNotExistsException, PrivilegeException;
+	
+	/**
+	 * Returns true if ExecService is denied on facility, false otherwise.
+	 * 
+	 * @param execService
+	 * @param facility
+	 * @return
+	 * @throws ServiceNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException 
+	 */
+	public boolean isExecServiceDeniedOnFacility(ExecService execService, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+	
 }

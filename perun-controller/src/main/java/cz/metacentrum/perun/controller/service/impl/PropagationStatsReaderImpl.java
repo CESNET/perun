@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.FacilityState.FacilityPropagationState;
+import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.controller.service.PropagationStatsReader;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -267,5 +268,61 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 		}
 
 		return resourceStateList;
+	}
+	
+	@Override
+	public List<ServiceState> getFacilityServicesState(Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException{
+	    
+	    List<Task> tasks = taskDao.listAllTasksForFacility(facility.getId());
+	    List<ServiceState> serviceStates = new ArrayList<>();	    
+	    
+	    for(Task task : tasks){
+		ServiceState existingServiceState = null;
+		boolean serviceAlreadyExists = false;
+		
+		//check if there already exists serviceState for this service
+		for(ServiceState serviceState : serviceStates){
+		    if(task.getExecService().getService().equals(serviceState.getService())) {
+			serviceAlreadyExists = true;
+			existingServiceState = serviceState;
+		    }
+		    else serviceAlreadyExists = false;
+		}
+		
+		//if exists, just add next task and execService to existing serviceState
+		if(serviceAlreadyExists && existingServiceState != null){
+		   existingServiceState.addTask(task);
+		   existingServiceState.addExecService(task.getExecService());
+		   existingServiceState.setBlockedOnFacility(isExecServiceDeniedOnFacility(task.getExecService(), facility));
+		   existingServiceState.setBlockedGlobally(task.getExecService().isEnabled());
+		}
+		
+		//if does not exist, create new serviceState
+		else{
+		    ServiceState serviceState = new ServiceState();
+		    serviceState.setId(task.getExecService().getService().getId());
+		    serviceState.setFacility(facility);
+		    serviceState.addTask(task);
+		    serviceState.addExecService(task.getExecService());
+		    serviceState.setService(task.getExecService().getService());
+		    serviceState.setBlockedOnFacility(isExecServiceDeniedOnFacility(task.getExecService(), facility));
+		    serviceState.setBlockedGlobally(task.getExecService().isEnabled());
+		    serviceStates.add(serviceState);
+		}
+	    }
+	    
+	    return serviceStates;
+	}
+	
+	@Override
+	public boolean isExecServiceDeniedOnFacility(ExecService execService, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException{
+	    
+	    List<ExecService> denials = generalServiceManager.listDenialsForFacility(null, facility);
+	    
+	    for(ExecService denial : denials){
+		if(execService.equals(denial)) return true;
+	    }
+	    
+	    return false;	    
 	}
 }
