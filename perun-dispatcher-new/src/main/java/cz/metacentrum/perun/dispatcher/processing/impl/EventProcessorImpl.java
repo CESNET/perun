@@ -185,11 +185,17 @@ public class EventProcessorImpl implements EventProcessor {
 					if (task != null) {
 						// there already is a task in schedulingPool
 						log.debug("  Task is in the pool already.");
+						/*
 						if (!(task.getStatus().equals(Task.TaskStatus.PLANNED) || task
 								.getStatus().equals(Task.TaskStatus.PROCESSING))) {
 							log.debug("  Task is not PLANNED or PROCESSING, removing destinations to refetch them later on.");
 							task.setDestinations(null);
 						}
+						*/
+						log.debug("  Removing destinations from existing task to refetch them later on.");
+						task.setDestinations(null);
+						// signal that task needs to regenerate data
+						task.setSourceUpdated(true);
 					} else {
 						// no such task yet, create one
 						task = new Task();
@@ -198,6 +204,7 @@ public class EventProcessorImpl implements EventProcessor {
 						task.setStatus(TaskStatus.NONE);
 						task.setRecurrence(execService.getDefaultRecurrence());
 						task.setSchedule(new Date(System.currentTimeMillis()));
+						task.setSourceUpdated(false);
 						schedulingPool.addToPool(task, dispatcherQueue);
 						log.debug("  Created new task and added to the pool.");
 					}

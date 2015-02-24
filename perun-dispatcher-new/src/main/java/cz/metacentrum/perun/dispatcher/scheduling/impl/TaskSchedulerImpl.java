@@ -92,7 +92,9 @@ public class TaskSchedulerImpl implements TaskScheduler {
 
 		log.debug("Facility to be processed: " + facility.getId()
 				+ ", ExecService to be processed: " + execService.getId());
-
+		
+		log.debug("Task is assigned to queue " + dispatcherQueue.getClientID());
+		
 		List<ExecService> dependantServices = null;
 		List<Pair<ExecService, DependencyScope>> dependencies = null;
 
@@ -185,8 +187,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 				// :-)
 				// #######################################################################################################
 				proceed = true;
-				dependencies = dependenciesResolver
-						.listDependenciesAndScope(execService);
+				dependencies = dependenciesResolver.listDependenciesAndScope(execService);
 				log.debug("listDependencies #1:" + dependencies);
 				log.debug("   We are about to loop over execService ["
 						+ execService.getId() + "] dependencies.");
@@ -195,8 +196,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 				for (Pair<ExecService, DependencyScope> dependencyPair : dependencies) {
 					ExecService dependency = dependencyPair.getLeft();
 					DependencyScope dependencyScope = dependencyPair.getRight();
-					Task dependencyServiceTask = schedulingPool.getTask(
-							dependency, facility);
+					Task dependencyServiceTask = schedulingPool.getTask(dependency, facility);
 					if (dependencyServiceTask == null) {
 						// Dependency being NULL is equivalent to being in NONE
 						// state.
@@ -212,10 +212,19 @@ public class TaskSchedulerImpl implements TaskScheduler {
 						case DONE:
 							switch (dependency.getExecServiceType()) {
 							case GENERATE:
-								log.debug("   Dependency ID "
-										+ dependency.getId()
-										+ " is in DONE and it is of type GENERATE, we can proceed.");
-								// Nothing, we can proceed...
+								if(task.isSourceUpdated()) {
+									// we need to reschedule the GEN task as the source data has changed
+									log.debug("   Dependency ID "
+											+ dependency.getId()
+											+ " is in DONE and is going to be rescheduled as we need fresh data.");
+									rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
+									proceed = false;
+								} else {
+									log.debug("   Dependency ID "
+											+ dependency.getId()
+											+ " is in DONE and it is of type GENERATE, we can proceed.");
+									// Nothing, we can proceed...
+								}
 								break;
 							case SEND:
 								log.debug("   Dependency ID "
@@ -237,8 +246,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 								// scheduleItAndWait(dependency, facility,
 								// execService, dispatcherQueue);
 								// try to run the generate task again
-								rescheduleTask(dependencyServiceTask,
-										execService, dispatcherQueue);
+								rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
 								proceed = false;
 								break;
 							case SEND:
@@ -247,8 +255,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 										+ " is in ERROR and it is of type SEND, we are gonna end with ERROR.");
 								proceed = false;
 								// We end Task with error immediately.
-								schedulingPool.setTaskStatus(task,
-										TaskStatus.ERROR);
+								schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 								// manipulateTasks(execService, facility, task);
 
 								// And we set all its GENERATE dependencies as
@@ -311,16 +318,16 @@ public class TaskSchedulerImpl implements TaskScheduler {
 					// ########################################
 					// The current ExecService,Facility pair should be sleeping
 					// in SchedulingPool at the moment...
+					log.info("   Task {} state set to NONE, will be scheduled again at the next cycle.",
+								task.getId());
+					schedulingPool.setTaskStatus(task, TaskStatus.NONE);
 				}
-			} else if (execService.getExecServiceType().equals(
-					ExecServiceType.GENERATE)) {
+			} else if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
 				log.debug("   Well, it is not. ExecService of type GENERATE does not have any dependencies by design, so we schedule it immediately.");
 				log.info("   SCHEDULING execService [" + execService.getId()
 						+ "] facility [" + facility.getId() + "] as PLANNED.");
 				task.setSchedule(time);
-				log.debug("schedule before setTaskStatus");
 				schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
-				log.debug("schedule after setTaskStatus");
 				sendToEngine(task);
 				// manipulateTasks(execService, facility, task);
 			} else {
@@ -424,6 +431,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 				+ task.getFacility().serializeToString() + "]|["
 				+ destinations_s.toString() + "]|[" + dependencies + "]");
 		task.setStartTime(new Date(System.currentTimeMillis()));
+		task.setEndTime(null);
 		schedulingPool.setTaskStatus(task, TaskStatus.PROCESSING);
 	}
 

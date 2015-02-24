@@ -167,8 +167,16 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		task.setStatus(status);
 		// move task to the appropriate place
 		if (!old.equals(status)) {
-			pool.get(old).remove(task);
-			pool.get(status).add(task);
+			if(pool.get(old) != null) {
+				pool.get(old).remove(task);
+			} else {
+				log.warn("task unknown by status");
+			}
+			if(pool.get(status) != null) {
+				pool.get(status).add(task);
+			} else {
+				log.error("no task pool for status " + status.toString());
+			}
 		}
 		taskManager.updateTask(task);
 	}
@@ -231,6 +239,18 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if (status == null) {
 				task.setStatus(TaskStatus.NONE);
 			}
+			/* TESTING ONLY: skip all tasks for other facilities than meant for testing */
+			/*
+			if(task.getFacility().getName().equals("alcor.ics.muni.cz") ||
+               task.getFacility().getName().equals("aldor.ics.muni.cz") ||
+               task.getFacility().getName().equals("ascor.ics.muni.cz") ||
+               task.getFacility().getName().equals("torque.ics.muni.cz") ||
+               task.getFacility().getName().equals("nympha-cloud.zcu.cz")) {
+            } else {
+                    log.debug("Skipping task for facility {} not meant for testing.", task.getFacility().getName());
+                    continue;
+            }
+            */
 			if (!pool.get(task.getStatus()).contains(task.getId())) {
 				pool.get(task.getStatus()).add(task);
 			}
@@ -243,7 +263,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 					new Pair<ExecService, Facility>(task.getExecService(), task
 							.getFacility()), task);
 			// TODO: what about possible duplicates?
-			log.debug("Added task " + task.toString());
+			log.debug("Added task " + task.toString() + " belonging to queue " + pair.getRight());
 		}
 		log.info("Pool contains: ");
 		for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
