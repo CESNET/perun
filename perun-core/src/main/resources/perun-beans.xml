@@ -68,7 +68,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	</bean>
 
 	<!-- Perun implementation -->
-	<bean id="perun" class="cz.metacentrum.perun.core.blImpl.PerunBlImpl" scope="singleton" init-method="initialize" >
+	<bean id="perun" class="cz.metacentrum.perun.core.blImpl.PerunBlImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
 		<property name="vosManagerBl" ref="vosManagerBl"/>
 		<property name="usersManagerBl" ref="usersManagerBl"/>
 		<property name="groupsManagerBl" ref="groupsManagerBl"/>
@@ -102,175 +102,173 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="databaseManager" ref="databaseManager"/>
 	</bean>
 
-	<bean id="vosManager" class="cz.metacentrum.perun.core.entry.VosManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="vosManagerBl" ref="vosManagerBl"/>
-	</bean>
-	<bean id="usersManager" class="cz.metacentrum.perun.core.entry.UsersManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="usersManagerBl" ref="usersManagerBl"/>
-	</bean>
-	<bean id="groupsManager" class="cz.metacentrum.perun.core.entry.GroupsManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="groupsManagerBl" ref="groupsManagerBl"/>
-	</bean>
-	<bean id="facilitiesManager" class="cz.metacentrum.perun.core.entry.FacilitiesManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
-	</bean>
-	<bean id="databaseManager" class="cz.metacentrum.perun.core.entry.DatabaseManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="databaseManagerBl" ref="databaseManagerBl"/>
-	</bean>
-	<bean id="membersManager" class="cz.metacentrum.perun.core.entry.MembersManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="membersManagerBl" ref="membersManagerBl"/>
-	</bean>
-	<bean id="resourcesManager" class="cz.metacentrum.perun.core.entry.ResourcesManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="resourcesManagerBl" ref="resourcesManagerBl"/>
-	</bean>
-	<bean id="extSourcesManager" class="cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="extSourcesManagerBl" ref="extSourcesManagerBl"/>
-	</bean>
-	<bean id="attributesManager" class="cz.metacentrum.perun.core.entry.AttributesManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="attributesManagerBl" ref="attributesManagerBl"/>
-	</bean>
-	<bean id="servicesManager" class="cz.metacentrum.perun.core.entry.ServicesManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="servicesManagerBl" ref="servicesManagerBl"/>
-	</bean>
-	<bean id="ownersManager" class="cz.metacentrum.perun.core.entry.OwnersManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="ownersManagerBl" ref="ownersManagerBl"/>
-	</bean>
-	<bean id="auditMessagesManager" class="cz.metacentrum.perun.core.entry.AuditMessagesManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
-	</bean>
-	<bean id="RTMessagesManager" class="cz.metacentrum.perun.core.entry.RTMessagesManagerEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
-	</bean>
-	<bean id="searcher" class="cz.metacentrum.perun.core.entry.SearcherEntry" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="searcherBl" ref="searcherBl"/>
-	</bean>
+    <bean id="vosManager" class="cz.metacentrum.perun.core.entry.VosManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="vosManagerBl" ref="vosManagerBl"/>
+    </bean>
+    <bean id="usersManager" class="cz.metacentrum.perun.core.entry.UsersManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="usersManagerBl" ref="usersManagerBl"/>
+    </bean>
+    <bean id="groupsManager" class="cz.metacentrum.perun.core.entry.GroupsManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="groupsManagerBl" ref="groupsManagerBl"/>
+    </bean>
+    <bean id="facilitiesManager" class="cz.metacentrum.perun.core.entry.FacilitiesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
+    </bean>
+		<bean id="databaseManager" class="cz.metacentrum.perun.core.entry.DatabaseManagerEntry" scope="singleton">
+        <property name="databaseManagerBl" ref="databaseManagerBl"/>
+    </bean>
+    <bean id="membersManager" class="cz.metacentrum.perun.core.entry.MembersManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="membersManagerBl" ref="membersManagerBl"/>
+    </bean>
+    <bean id="resourcesManager" class="cz.metacentrum.perun.core.entry.ResourcesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="resourcesManagerBl" ref="resourcesManagerBl"/>
+    </bean>
+    <bean id="extSourcesManager" class="cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="extSourcesManagerBl" ref="extSourcesManagerBl"/>
+    </bean>
+    <bean id="attributesManager" class="cz.metacentrum.perun.core.entry.AttributesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="attributesManagerBl" ref="attributesManagerBl"/>
+    </bean>
+    <bean id="servicesManager" class="cz.metacentrum.perun.core.entry.ServicesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="servicesManagerBl" ref="servicesManagerBl"/>
+    </bean>
+    <bean id="ownersManager" class="cz.metacentrum.perun.core.entry.OwnersManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="ownersManagerBl" ref="ownersManagerBl"/>
+    </bean>
+    <bean id="auditMessagesManager" class="cz.metacentrum.perun.core.entry.AuditMessagesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
+    </bean>
+    <bean id="RTMessagesManager" class="cz.metacentrum.perun.core.entry.RTMessagesManagerEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
+    </bean>
+    <bean id="searcher" class="cz.metacentrum.perun.core.entry.SearcherEntry" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="searcherBl" ref="searcherBl"/>
+    </bean>
 
-	<bean id="vosManagerBl" class="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="vosManagerImpl" />
-	</bean>
-	<bean id="usersManagerBl" class="cz.metacentrum.perun.core.blImpl.UsersManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="usersManagerImpl" />
-	</bean>
-	<bean id="groupsManagerBl" class="cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="groupsManagerImpl" />
-	</bean>
-	<bean id="facilitiesManagerBl" class="cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="facilitiesManagerImpl" />
-	</bean>
-	<bean id="databaseManagerBl" class="cz.metacentrum.perun.core.blImpl.DatabaseManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="databaseManagerImpl" />
-	</bean>
-	<bean id="membersManagerBl" class="cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="membersManagerImpl" />
-	</bean>
-	<bean id="resourcesManagerBl" class="cz.metacentrum.perun.core.blImpl.ResourcesManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="resourcesManagerImpl" />
-	</bean>
-	<bean id="extSourcesManagerBl" class="cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="extSourcesManagerImpl" />
-	</bean>
-	<bean id="attributesManagerBl" class="cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl" scope="singleton" init-method="initialize">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="attributesManagerImpl" />
-	</bean>
-	<bean id="servicesManagerBl" class="cz.metacentrum.perun.core.blImpl.ServicesManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="servicesManagerImpl" />
-	</bean>
-	<bean id="modulesUtilsBl" class="cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-	</bean>
-	<bean id="ownersManagerBl" class="cz.metacentrum.perun.core.blImpl.OwnersManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="ownersManagerImpl" />
-	</bean>
-	<bean id="auditMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.AuditMessagesManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<property name="auditer" ref="auditer"/>
-	</bean>
-	<bean id="RTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-	</bean>
-	<bean id="authzResolverBl" class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" scope="singleton">
-	</bean>
-	<bean id="searcherBl" class="cz.metacentrum.perun.core.blImpl.SearcherBlImpl" scope="singleton">
-		<property name="perunBl" ref="perun"/>
-		<constructor-arg ref="searcherImpl" />
-	</bean>
+    <bean id="vosManagerBl" class="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="vosManagerImpl" />
+    </bean>
+    <bean id="usersManagerBl" class="cz.metacentrum.perun.core.blImpl.UsersManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="usersManagerImpl" />
+    </bean>
+    <bean id="groupsManagerBl" class="cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="groupsManagerImpl" />
+    </bean>
+    <bean id="facilitiesManagerBl" class="cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="facilitiesManagerImpl" />
+    </bean>
+		<bean id="databaseManagerBl" class="cz.metacentrum.perun.core.blImpl.DatabaseManagerBlImpl" scope="singleton" init-method="initialize">
+        <constructor-arg ref="databaseManagerImpl" />
+    </bean>
+    <bean id="membersManagerBl" class="cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="membersManagerImpl" />
+    </bean>
+    <bean id="resourcesManagerBl" class="cz.metacentrum.perun.core.blImpl.ResourcesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="resourcesManagerImpl" />
+    </bean>
+    <bean id="extSourcesManagerBl" class="cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="extSourcesManagerImpl" />
+    </bean>
+    <bean id="attributesManagerBl" class="cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="attributesManagerImpl" />
+    </bean>
+    <bean id="servicesManagerBl" class="cz.metacentrum.perun.core.blImpl.ServicesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="servicesManagerImpl" />
+    </bean>
+    <bean id="modulesUtilsBl" class="cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+    </bean>
+    <bean id="ownersManagerBl" class="cz.metacentrum.perun.core.blImpl.OwnersManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="ownersManagerImpl" />
+    </bean>
+    <bean id="auditMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.AuditMessagesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <property name="auditer" ref="auditer"/>
+    </bean>
+    <bean id="RTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+    </bean>
+    <bean id="authzResolverBl" class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" scope="singleton" depends-on="databaseManagerBl">
+    </bean>
+    <bean id="searcherBl" class="cz.metacentrum.perun.core.blImpl.SearcherBlImpl" scope="singleton" depends-on="databaseManagerBl">
+        <property name="perunBl" ref="perun"/>
+        <constructor-arg ref="searcherImpl" />
+    </bean>
 
-	<bean id="vosManagerImpl" class="cz.metacentrum.perun.core.impl.VosManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="usersManagerImpl" class="cz.metacentrum.perun.core.impl.UsersManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="groupsManagerImpl" class="cz.metacentrum.perun.core.impl.GroupsManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="facilitiesManagerImpl" class="cz.metacentrum.perun.core.impl.FacilitiesManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="membersManagerImpl" class="cz.metacentrum.perun.core.impl.MembersManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="resourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ResourcesManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="extSourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton" init-method="initialize">
-		<property name="perun" ref="perun"/>
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="servicesManagerImpl" class="cz.metacentrum.perun.core.impl.ServicesManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="ownersManagerImpl" class="cz.metacentrum.perun.core.impl.OwnersManagerImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton" init-method="initialize">
-		<constructor-arg ref="dataSource" />
-	</bean>
-	<bean id="searcherImpl" class="cz.metacentrum.perun.core.impl.SearcherImpl" scope="singleton">
-		<constructor-arg ref="dataSource" />
-	</bean>
+    <bean id="vosManagerImpl" class="cz.metacentrum.perun.core.impl.VosManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="usersManagerImpl" class="cz.metacentrum.perun.core.impl.UsersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="groupsManagerImpl" class="cz.metacentrum.perun.core.impl.GroupsManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="facilitiesManagerImpl" class="cz.metacentrum.perun.core.impl.FacilitiesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+		<bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="membersManagerImpl" class="cz.metacentrum.perun.core.impl.MembersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="resourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ResourcesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="extSourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
+        <property name="perun" ref="perun"/>
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="servicesManagerImpl" class="cz.metacentrum.perun.core.impl.ServicesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="ownersManagerImpl" class="cz.metacentrum.perun.core.impl.OwnersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
+    <bean id="searcherImpl" class="cz.metacentrum.perun.core.impl.SearcherImpl" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="dataSource" />
+    </bean>
 
-	<bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" init-method="initialize" depends-on="utilsProperties">
-		<property name="perunPool" ref="dataSource"/>
-	</bean>
+    <bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" init-method="initialize" depends-on="utilsProperties,databaseManagerBl">
+        <property name="perunPool" ref="dataSource"/>
+    </bean>
 
-	<bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton">
-		<constructor-arg ref="perun" />
-	</bean>
+    <bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton" depends-on="databaseManagerBl">
+        <constructor-arg ref="perun" />
+    </bean>
 
 	<!-- this bean is only for test -->
-	<bean id="auditerConsumer" class="cz.metacentrum.perun.core.impl.AuditerConsumer" scope="prototype">
+	<bean id="auditerConsumer" class="cz.metacentrum.perun.core.impl.AuditerConsumer" scope="prototype" depends-on="databaseManagerBl">
 		<constructor-arg type="java.lang.String" value="consumerForTest" />
 		<constructor-arg ref="dataSource" />
 	</bean>

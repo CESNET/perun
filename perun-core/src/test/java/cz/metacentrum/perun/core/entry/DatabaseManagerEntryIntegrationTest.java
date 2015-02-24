@@ -33,7 +33,7 @@ public class DatabaseManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		System.out.println("DatabaseManager.getCurrentDBVersion");
 		String dbVersion = perun.getDatabaseManager().getCurrentDatabaseVersion(sess);
 		Matcher versionMatcher = versionPatter.matcher(dbVersion);
-		assertTrue("DbVersion must match to something like '1.0.0'", versionMatcher.matches());
+		assertTrue("DBVersion must match to something like '1.0.0'", versionMatcher.matches());
 	}
 	
 	@Test

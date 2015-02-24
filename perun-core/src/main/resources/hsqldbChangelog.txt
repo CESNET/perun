@@ -1,0 +1,9 @@
+-- Changelog file should have the newest version at the top, the oldest at the bottom.
+-- Versions must be separated by empty lines, version number should consist of three numbers with dots between, f.e. 3.0.1 is ok, 3.1 or 3.1.1.1 is not.
+-- Directly under version number should be version commands. They will be executed in the order they are written here.
+-- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
+
+3.1.25
+alter table service_dependencies add constraint srvdep_u unique(exec_service_id,dependency_id);
+alter table service_denials add constraint srvden_u unique(exec_service_id,facility_id,destination_id);
+update configurations set value='3.1.25' where property='DATABASE VERSION';
