@@ -1452,7 +1452,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Does the user have expired membership, if yes, then for canExtendMembership return true
 		if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
 			try {
-				Date currentMemberExpiration = BeansUtils.getDateFormatter().parse((String) membershipExpirationAttribute.getValue());
+				Date currentMemberExpiration = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpirationAttribute.getValue());
 
 				Calendar currentMemberExpirationCalendar = Calendar.getInstance();
 				currentMemberExpirationCalendar.setTime(currentMemberExpiration);
@@ -1602,7 +1602,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 							// If we do not need to set the attribute value, only check if the current member's expiration time is not in grace period
 							if (!setAttributeValue && membershipExpirationAttribute.getValue() != null) {
 								try {
-									Date currentMemberExpiration = BeansUtils.getDateFormatter().parse((String) membershipExpirationAttribute.getValue());
+									Date currentMemberExpiration = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpirationAttribute.getValue());
 									// subtracts grace period from the currentMemberExpiration
 									Calendar currentMemberExpirationCalendar = Calendar.getInstance();
 									currentMemberExpirationCalendar.setTime(currentMemberExpiration);
@@ -1637,7 +1637,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 			// Set new value of the membershipExpiration for the member
 			if (setAttributeValue) {
-				membershipExpirationAttribute.setValue(BeansUtils.getDateFormatter().format(calendar.getTime()));
+				membershipExpirationAttribute.setValue(BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime()));
 				try {
 					getPerunBl().getAttributesManagerBl().setAttribute(sess, member, membershipExpirationAttribute);
 				} catch (WrongAttributeValueException e) {

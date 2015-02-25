@@ -353,7 +353,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
 
-		Date extendedDate = BeansUtils.getDateFormatter().parse((String) membershipAttribute.getValue());
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
 		Calendar extendedCalendar = Calendar.getInstance();
 		extendedCalendar.setTime(extendedDate);
 
@@ -388,7 +388,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
 
-		Date extendedDate = BeansUtils.getDateFormatter().parse((String) membershipAttribute.getValue());
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
 		Calendar extendedCalendar = Calendar.getInstance();
 		extendedCalendar.setTime(extendedDate);
 
@@ -428,7 +428,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
 
-		Date extendedDate = BeansUtils.getDateFormatter().parse((String) membershipAttribute.getValue());
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
 		Calendar extendedCalendar = Calendar.getInstance();
 		extendedCalendar.setTime(extendedDate);
 
@@ -470,7 +470,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
 
-		Date extendedDate = BeansUtils.getDateFormatter().parse((String) membershipAttribute.getValue());
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
 		Calendar extendedCalendar = Calendar.getInstance();
 		extendedCalendar.setTime(extendedDate);
 
@@ -511,7 +511,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Attribute membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
 
-		Date extendedDate = BeansUtils.getDateFormatter().parse((String) membershipAttribute.getValue());
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
 		Calendar extendedCalendar = Calendar.getInstance();
 		extendedCalendar.setTime(extendedDate);
 
@@ -544,7 +544,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		Attribute membershipExpirationAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
 		Calendar nowCalendar = Calendar.getInstance();
-		membershipExpirationAttribute.setValue(BeansUtils.getDateFormatter().format(nowCalendar.getTime()));
+		membershipExpirationAttribute.setValue(BeansUtils.getDateFormatterWithoutTime().format(nowCalendar.getTime()));
 		attributesManagerEntry.setAttribute(sess, createdMember, membershipExpirationAttribute);
 
 		// Set LOA 1 for member
@@ -566,7 +566,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		assertNotNull("membership attribute must be set", membershipAttribute);
 		assertEquals("membership attribute value must contains same value as before extension.",
-				BeansUtils.getDateFormatter().format(nowCalendar.getTime()), membershipAttribute.getValue()); // Attribute cannot contain any value
+				BeansUtils.getDateFormatterWithoutTime().format(nowCalendar.getTime()), membershipAttribute.getValue()); // Attribute cannot contain any value
 	}
 
 	@Test
@@ -605,7 +605,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		membershipAttribute = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
 
-		Date extendedDate = BeansUtils.getDateFormatter().parse((String) membershipAttribute.getValue());
+		Date extendedDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipAttribute.getValue());
 		Calendar extendedCalendar = Calendar.getInstance();
 		extendedCalendar.setTime(extendedDate);
 

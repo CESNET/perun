@@ -1101,7 +1101,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 								}
 
 								if (memberExpiration != null && memberExpiration.getValue() != null) {
-									Date currentMembershipExpirationDate = BeansUtils.getDateFormatter().parse((String) memberExpiration.getValue());
+									Date currentMembershipExpirationDate = BeansUtils.getDateFormatterWithoutTime().parse((String) memberExpiration.getValue());
 
 									if (currentMembershipExpirationDate.before(now)) {
 										//disabled members which are after expiration date will be expired

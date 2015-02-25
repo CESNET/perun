@@ -80,8 +80,8 @@ foreach my $rData (@resourcesData) {
 			my $userLoa = $memberAttributes->{$A_USER_LOA};
 			next if not $userLoa eq "2" ;
 			my $userExpires = $memberAttributes->{$A_USER_EXPIRES};
-			my $in60days = strftime("%Y-%m-%d %H-%M-%S",localtime (time+(60*60*24*60)));
-			my $before30days = strftime("%Y-%m-%d %H-%M-%S",localtime (time-(60*60*24*30)));
+			my $in60days = strftime("%Y-%m-%d",localtime (time+(60*60*24*60)));
+			my $before30days = strftime("%Y-%m-%d",localtime (time-(60*60*24*30)));
 			next if ($userExpires gt $in60days);
 			next if ($userExpires lt $before30days);
 			$mailinglistStruc->{$listNameWithLang}->{$memberAttributes->{$A_USER_MAIL}}->{$A_USER_EXPIRES} = $memberAttributes->{$A_USER_EXPIRES};
