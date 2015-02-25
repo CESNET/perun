@@ -1,4 +1,4 @@
--- database version 3.1.19 (don't forget to update insert statement at the end of file)
+-- database version 3.1.20 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1652,4 +1652,4 @@ grant all on mailchange to perun;
 grant all on pwdreset to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.19');
+insert into configurations values ('DATABASE VERSION','3.1.20');
