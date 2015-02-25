@@ -78,8 +78,10 @@ public class MembershipExpirationTabItem implements TabItem {
 		layout.setHTML(0, 1, member.getStatus());
 
 		final Attribute expire = member.getAttribute("urn:perun:member:attribute-def:def:membershipExpiration");
+		String expirationValue = null;
 		if (expire != null && !"null".equalsIgnoreCase(expire.getValue())) {
 			layout.setHTML(0, 1, expire.getValue());
+			expirationValue = expire.getValue().substring(0, ((expire.getValue().length() > 10) ? 9 : expire.getValue().length()-1));
 		} else {
 			layout.setHTML(0, 1, "<i>never</i>");
 		}
@@ -97,7 +99,7 @@ public class MembershipExpirationTabItem implements TabItem {
 		picker.addValueChangeHandler(new ValueChangeHandler<Date>() {
 			@Override
 			public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
-				layout.setHTML(1, 1, DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss.S").format(picker.getValue()));
+				layout.setHTML(1, 1, DateTimeFormat.getFormat("yyyy-MM-dd").format(picker.getValue()));
 				changeButton.setEnabled(true);
 				changeOrNever = true;
 			}
@@ -105,8 +107,8 @@ public class MembershipExpirationTabItem implements TabItem {
 
 		try {
 			// set values if possible
-			picker.setCurrentMonth(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss.S").parse(expire.getValue()));
-			picker.setValue(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss.S").parse(expire.getValue()));
+			picker.setCurrentMonth(DateTimeFormat.getFormat("yyyy-MM-dd").parse(expirationValue));
+			picker.setValue(DateTimeFormat.getFormat("yyyy-MM-dd").parse(expirationValue));
 		} catch (Exception ex) {
 			// if not parseable, display current date
 			picker.setCurrentMonth(new Date());
@@ -136,7 +138,7 @@ public class MembershipExpirationTabItem implements TabItem {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				if (changeOrNever) {
-					expire.setValueAsString(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss.S").format(picker.getValue()));
+					expire.setValueAsString(DateTimeFormat.getFormat("yyyy-MM-dd").format(picker.getValue()));
 					Map<String, Integer> ids = new HashMap<String, Integer>();
 					ids.put("member", member.getId());
 					SetAttributes request = new SetAttributes(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab));
