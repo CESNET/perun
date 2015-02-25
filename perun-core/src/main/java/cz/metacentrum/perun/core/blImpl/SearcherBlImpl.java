@@ -2,6 +2,8 @@ package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -10,12 +12,15 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
+
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +81,11 @@ public class SearcherBlImpl implements SearcherBl {
 		return this.getUsersForCoreAttributesByMapOfAttributes(sess, mapOfCoreAttributesWithValues);
 	}
 
+	@Override
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws InternalErrorException {
+		return getSearcherImpl().getMembersByExpiration(sess, operator, days);
+	}
+
 	/**
 	 * This method take map of coreAttributes with search values and return all
 	 * users who have the specific match for all of these core attributes.
@@ -128,4 +138,5 @@ public class SearcherBlImpl implements SearcherBl {
 	public void setPerunBl(PerunBl perunBl) {
 		this.perunBl = perunBl;
 	}
+
 }

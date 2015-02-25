@@ -78,4 +78,22 @@ public interface Searcher {
 	 * @throws PrivilegeException
 	 */
 	List<User> getUsersForCoreAttributes(PerunSession sess, Map<String, String> coreAttributesWithSearchingValues) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException, PrivilegeException;
+
+	/**
+	 * Return members with expiration date set, which will expire on today +/- X days.
+	 * You can specify operator for comparison (by default "=") returning exact match.
+	 * So you can get all expired members (including today) using "<=" and zero days shift.
+	 * or using "<" and +1 day shift.
+	 *
+	 * Method ignores current member state, just compares expiration date !
+	 *
+	 * @param sess PerunSession
+	 * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
+	 * @param days X days before/after today
+	 * @return Members with expiration relative to method params.
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws PrivilegeException, InternalErrorException;
+
 }

@@ -123,6 +123,18 @@ public class SearcherEntry implements Searcher {
 		return searcherBl.getUsersForCoreAttributes(sess, coreAttributesWithSearchingValues);
 	}
 
+	@Override
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws PrivilegeException, InternalErrorException {
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getMembersByExpiration");
+		}
+
+		return getPerunBl().getSearcherBl().getMembersByExpiration(sess, operator, days);
+
+	}
+
 	public SearcherBl getSearcherBl() {
 		return this.searcherBl;
 	}
