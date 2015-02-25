@@ -31,7 +31,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 	@Override
 	/**
 	 * Checks if the corresponding attribute um:membershipExpiration is null or
-	 * matches with regular expression yyyy-MM-dd HH:mm:ss.S where HH(0-23)
+	 * matches with regular expression yyyy-MM-dd
 	 */
 	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
@@ -39,20 +39,19 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 
 		if(membershipExpTime == null) return; // NULL is ok
 
-		SimpleDateFormat correctDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 		Date testDate = null;
 
 		try {
-			testDate = correctDateFormat.parse(membershipExpTime);
+			testDate = BeansUtils.getDateFormatterWithoutTime().parse(membershipExpTime);
 
 		} catch (ParseException ex) {
 
 			throw new WrongAttributeValueException(attribute, "Date parsing failed", ex);
 		}
 
-		if (!correctDateFormat.format(testDate).equals(membershipExpTime)) {
+		if (!BeansUtils.getDateFormatterWithoutTime().format(testDate).equals(membershipExpTime)) {
 
-			throw new WrongAttributeValueException(attribute, "Wrong format yyyy-MM-dd hh:mm:ss.S expected.");
+			throw new WrongAttributeValueException(attribute, "Wrong format yyyy-MM-dd expected.");
 		}
 
 	}
@@ -70,7 +69,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 			int currentYear = now.get(Calendar.YEAR);
 
 			if(currentMonth>8) currentYear++;
-			ret.setValue(currentYear + "-12-31 23:59:59.9");*/
+			ret.setValue(currentYear + "-12-31");*/
 		return new Attribute(attribute);
 	}
 
@@ -80,10 +79,9 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 		if(attribute.getValue() != null) value = (String) attribute.getValue();
 		//If there is some value and member is in status expired or disabled
 		if(value != null && (member.getStatus().equals(Status.EXPIRED) || member.getStatus().equals(Status.DISABLED))) {
-			SimpleDateFormat correctDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 			Date expirationDate = null;
 			try {
-				expirationDate = correctDateFormat.parse(value);
+				expirationDate = BeansUtils.getDateFormatterWithoutTime().parse(value);
 			} catch (ParseException ex) {
 				throw new InternalErrorException("Date parsing failed in setHook, even if parsing in checkMethod was correct.", ex);
 			}
@@ -98,7 +96,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 		attr.setFriendlyName("membershipExpTime");
 		attr.setDisplayName("Membership expiration");
 		attr.setType(String.class.getName());
-		attr.setDescription("When the membership expires");
+		attr.setDescription("When the membership expires, format YYYY-MM-DD.");
 		return attr;
 	}
 
