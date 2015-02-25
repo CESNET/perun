@@ -42,6 +42,24 @@ public class BeansUtils {
 	}
 
 	/**
+	 * Method create formatter with default settings for perun timestamps (only date without time)
+	 * and set lenient on false.
+	 *
+	 * Timestamp format:  "yyyy-MM-dd" - "ex. 2014-01-01"
+	 *
+	 * Lenient on false means that formatter will be more strict to creating timestamp from string
+	 *
+	 * IMPORTANT: SimpleDateFormat is not thread safe !!!
+	 *
+	 * @return date formatter
+	 */
+	public static DateFormat getDateFormatterWithoutTime() {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		df.setLenient(false);
+		return df;
+	}
+
+	/**
 	 * This method take text and for every chars in "<>\" erase escaping
 	 * Escaping char is \.
 	 * Expecting: Before using this method, text must be escaped by using method createEscaping.
