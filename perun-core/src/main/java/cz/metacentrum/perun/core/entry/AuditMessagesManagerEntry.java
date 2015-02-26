@@ -5,7 +5,6 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -13,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import java.util.Map;
 
 
 
@@ -101,6 +101,24 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		}
 
 		getAuditMessagesManagerBl().log(sess, message);
+	}
+
+	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getAllAuditerConsumers");
+		}
+
+		return getAuditMessagesManagerBl().getAllAuditerConsumers(sess);
+	}
+
+	public int getLastMessageId(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getLastMessageId");
+		}
+
+		return getAuditMessagesManagerBl().getLastMessageId();
 	}
 
 	/**

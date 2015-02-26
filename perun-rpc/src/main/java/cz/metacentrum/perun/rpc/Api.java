@@ -405,12 +405,20 @@ public class Api extends HttpServlet {
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());
 
+				Map<String, Integer> auditerConsumers;
+				auditerConsumers = (Map<String, Integer>) caller.call("auditMessagesManager", "getAllAuditerConsumers", des);
+
 				List<String> perunStatus = new ArrayList<>();
 				perunStatus.add("Version of PerunDB: " + caller.call("databaseManager", "getCurrentDatabaseVersion", des));
 				perunStatus.add("Version of Servlet: " + getServletContext().getServerInfo());
 				perunStatus.add("Version of DB-driver: " + caller.call("databaseManager", "getDatabaseDriverInformation", des));
 				perunStatus.add("Version of DB: " + caller.call("databaseManager", "getDatabaseInformation", des));
 				perunStatus.add("Version of Java platform: " + System.getProperty("java.version"));
+				for(String consumerName: auditerConsumers.keySet()) {
+					Integer lastProcessedId = auditerConsumers.get(consumerName);
+					perunStatus.add("AuditerConsumer: '" + consumerName + "' with last processed id='" + lastProcessedId + "'");
+				}
+				perunStatus.add("LastMessageId: " + caller.call("auditMessagesManager", "getLastMessageId", des));
 				perunStatus.add("Timestamp: " + timestamp);
 				ser.write(perunStatus);
 
