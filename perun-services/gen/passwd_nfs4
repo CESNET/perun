@@ -8,7 +8,7 @@ use Text::Unidecode;
 
 our $SERVICE_NAME = "passwd_nfs4";
 our $PROTOCOL_VERSION = "3.0.0";
-my $SCRIPT_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.1";
 
 perunServicesInit::init;
 my $DIRECTORY = perunServicesInit::getDirectory;
@@ -20,6 +20,9 @@ our $A_FACILITY_MAX_UID;                *A_FACILITY_MAX_UID =                   
 our $A_MEMBER_KERBEROS_LOGINS;          *A_MEMBER_KERBEROS_LOGINS =                \'urn:perun:user:attribute-def:def:kerberosLogins';
 our $A_MEMBER_UID;                      *A_MEMBER_UID =                            \'urn:perun:user_facility:attribute-def:virt:UID';
 our $A_MEMBER_GID;                      *A_MEMBER_GID =                            \'urn:perun:user_facility:attribute-def:virt:defaultUnixGID';
+our $A_MEMBER_STATUS;                   *A_MEMBER_STATUS =                         \'urn:perun:member:attribute-def:core:status';
+
+our $STATUS_VALID;                      *STATUS_VALID =                            \'VALID';
 
 my $passwd_file_name = "$DIRECTORY/$::SERVICE_NAME";
 my $min_uid_file_name = "$DIRECTORY/min_uid";
@@ -47,8 +50,10 @@ foreach my $rData (@resourcesData) {
 		my %memberAttributes = attributesToHash $mData->getAttributes;
 
 		foreach my $kerberosLogin (@{$memberAttributes{$A_MEMBER_KERBEROS_LOGINS}}) {
-			my $passwdLine = $kerberosLogin . ":x:" . $memberAttributes{$A_MEMBER_UID} . ":" . $memberAttributes{$A_MEMBER_GID};
-			$lines{$passwdLine} = 1;
+			if($memberAttributes{$A_MEMBER_STATUS} eq $STATUS_VALID){
+				my $passwdLine = $kerberosLogin . ":x:" . $memberAttributes{$A_MEMBER_UID} . ":" . $memberAttributes{$A_MEMBER_GID};
+				$lines{$passwdLine} = 1;
+			}
 		}
 	}
 }
