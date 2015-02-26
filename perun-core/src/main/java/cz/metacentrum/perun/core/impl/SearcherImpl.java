@@ -166,10 +166,6 @@ public class SearcherImpl implements SearcherImplApi {
 
 			return jdbcTemplate.query(query.toString(), MembersManagerImpl.MEMBER_MAPPER, def.getId());
 
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Member>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
 		} catch (Exception e) {
 			throw new InternalErrorException(e);
 		}
