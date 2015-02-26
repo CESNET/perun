@@ -8,22 +8,29 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.generalServiceManager.BanExecServiceOnFacility;
+import cz.metacentrum.perun.webgui.json.generalServiceManager.ForceServicePropagation;
+import cz.metacentrum.perun.webgui.json.generalServiceManager.FreeDenialOfExecServiceOnFacility;
+import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetFacilityServicesState;
 import cz.metacentrum.perun.webgui.json.propagationStatsReader.ListAllRichTasksForFacility;
-import cz.metacentrum.perun.webgui.model.Facility;
-import cz.metacentrum.perun.webgui.model.Task;
+import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -76,7 +83,6 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		}).retrieveData();
 	}
 
-
 	public boolean isPrepared(){
 		return !(facility == null);
 	}
@@ -91,8 +97,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		vp.setSize("100%", "100%");
 
 		// get empty table
-		final ListAllRichTasksForFacility callback = new ListAllRichTasksForFacility(facility.getId());
-		callback.setCheckable(false);
+		final GetFacilityServicesState callback = new GetFacilityServicesState(facility.getId());
 
 		final CustomButton refreshButton = TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshPropagationResults(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -103,11 +108,11 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 		callback.setEvents(JsonCallbackEvents.disableButtonEvents(refreshButton));
 
-		final CellTable<Task> table = callback.getTable(new FieldUpdater<Task, String>(){
+		final CellTable<ServiceState> table = callback.getTable(new FieldUpdater<ServiceState, String>(){
 			// on row click
-			public void update(int index, final Task object, String value) {
+			public void update(int index, final ServiceState object, String value) {
 				// show results
-				session.getTabManager().addTab(new TaskResultsTabItem(object));
+				session.getTabManager().addTab(new TaskResultsTabItem(object.getSendTask()));
 			}
 		});
 
@@ -115,8 +120,109 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
 
+		final CustomButton forceButton = new CustomButton(ButtonTranslation.INSTANCE.forcePropagationButton(), ButtonTranslation.INSTANCE.forcePropagation(), SmallIcons.INSTANCE.arrowRightIcon());
+		forceButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				final ArrayList<ServiceState> forceList = callback.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(forceList)) {
+
+					// TODO - translated Widget
+					boolean denied = false;
+					VerticalPanel vp = new VerticalPanel();
+					vp.add(new HTML("<p>Some services can't be forcefully propagated, because they are <strong>denied on facility</strong>. Please change their state to 'Allowed' before starting force propagation.</p>"));
+					for (int i=0; i<forceList.size(); i++ ) {
+						if (forceList.get(i).isBlockedOnFacility() || forceList.get(i).isBlockedGlobally()) {
+							vp.add(new Label(" - "+forceList.get(i).getService().getName()));
+							denied = true;
+						}
+					}
+					if (denied) {
+						// show conf
+						Confirm c = new Confirm("Can't propagated blocked services", vp, true);
+						c.show();
+						return;
+					}
+				}
+
+				// show propagation status page on last call start
+				JsonCallbackEvents events = new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						// unselect all services
+						for (ServiceState service : forceList) {
+							callback.getSelectionModel().setSelected(service, false);
+						}
+					}
+				};
+
+				// starts propagation for all selected services
+				for (int i=0; i<forceList.size(); i++ ) {
+					if (i != forceList.size()-1) {
+						// force propagation
+						ForceServicePropagation request = new ForceServicePropagation(JsonCallbackEvents.disableButtonEvents(forceButton));
+						request.forcePropagation(facility.getId(), forceList.get(i).getService().getId());
+					} else {
+						// force propagation with show status page
+						ForceServicePropagation request = new ForceServicePropagation(JsonCallbackEvents.disableButtonEvents(forceButton, events));
+						request.forcePropagation(facility.getId(), forceList.get(i).getService().getId());
+					}
+				}
+
+			}
+		});
+
+		final CustomButton blockButton = new CustomButton(ButtonTranslation.INSTANCE.blockPropagationButton(), ButtonTranslation.INSTANCE.blockServicesOnFacility(), SmallIcons.INSTANCE.stopIcon());
+		final CustomButton allowButton = new CustomButton(ButtonTranslation.INSTANCE.allowPropagationButton(), ButtonTranslation.INSTANCE.allowServicesOnFacility(), SmallIcons.INSTANCE.acceptIcon());
+
+		blockButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<ServiceState> list = callback.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					for (int i = 0; i < list.size(); i++) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						BanExecServiceOnFacility request = new BanExecServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(allowButton));
+						// last event
+						JsonCallbackEvents events = JsonCallbackEvents.disableButtonEvents(blockButton, JsonCallbackEvents.refreshTableEvents(callback));
+						if (i == list.size()-1) request.setEvents(events);
+						if (list.get(i).getSendTask() != null) request.banExecService(list.get(i).getSendTask().getExecService().getId());
+					}
+				}
+			}
+		});
+
+		allowButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				final ArrayList<ServiceState> list = callback.getTableSelectedList();
+				if (UiElements.cantSaveEmptyListDialogBox(list)) {
+					for (int i = 0; i < list.size(); i++) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						FreeDenialOfExecServiceOnFacility request = new FreeDenialOfExecServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(allowButton));
+						// last event
+						JsonCallbackEvents events = JsonCallbackEvents.disableButtonEvents(allowButton, JsonCallbackEvents.refreshTableEvents(callback));
+						if (i == list.size()-1) request.setEvents(events);
+						if (list.get(i).getSendTask() != null) request.freeDenialOfExecService(list.get(i).getSendTask().getExecService().getId());
+					}
+				}
+			}
+		});
+
 		TabMenu menu = new TabMenu();
 		menu.addWidget(refreshButton);
+		menu.addWidget(forceButton);
+		menu.addWidget(allowButton);
+		menu.addWidget(blockButton);
+
+		forceButton.setEnabled(false);
+		allowButton.setEnabled(false);
+		blockButton.setEnabled(false);
+
+		JsonUtils.addTableManagedButton(callback, table, forceButton);
+		JsonUtils.addTableManagedButton(callback, table, allowButton);
+		JsonUtils.addTableManagedButton(callback, table, blockButton);
 
 		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
 			@Override

@@ -330,104 +330,107 @@ public class TableSorter<T> {
 	 * @return name / fullName of object
 	 */
 	private final native String getName(T value) /*-{
-				// for members etc.
+		// for members etc.
 		if (value.name == null) {
-		if (value.firstName == null && value.lastName == null) {
-		// publications
-		if (value.title != null) {
-		return value.title;
-		}
-		// for resource tag
-		if (value.tagName != null) {
-		return value.tagName;
-		}
+			if (value.firstName == null && value.lastName == null) {
+				// publications
+				if (value.title != null) {
+					return value.title;
+				}
+				// for resource tag
+				if (value.tagName != null) {
+					return value.tagName;
+				}
 				return value.user.lastName + " " + value.user.firstName;
-		} else {
-		// for candidate
-		return value.lastName + " " + value.firstName;
-		}
+			} else {
+				// for candidate
+				return value.lastName + " " + value.firstName;
+			}
 		}
 		// for others
 		return value.name;
-			}-*/;
+	}-*/;
 
-		/**
-		 * Returns friendlyName of object - used for attributes
-		 *
-		 * @param value object
-		 * @return friendlyName of object
-		 */
-		private final native String getFriendlyName(T value) /*-{
-						if (value.friendlyName == null) {
+	/**
+	 * Returns friendlyName of object - used for attributes
+	 *
+	 * @param value object
+	 * @return friendlyName of object
+	 */
+	private final native String getFriendlyName(T value) /*-{
+		if (value.friendlyName == null) {
 			return "";
-			}
-			return value.friendlyName;
-					}-*/;
-
-		/**
-		 * Returns hostname of object - used for Hosts
-		 *
-		 * @param value object
-		 * @return hostname of object
-		 */
-		private final native String getHostname(T value) /*-{
-						if (value.hostname == null) {
-			return "";
-			}
-			return value.hostname;
-					}-*/;
-
-		/**
-		 * Returns Id of object
-		 *
-		 * @param value object
-		 * @return id of object
-		 */
-		private final native int getId(T value) /*-{
-			if (value.id == null) { return 0; }
-			return value.id;
-		}-*/;
-
-		/**
-		 * Returns shortName of object
-		 *
-		 * @param value object
-		 * @return shortName of object
-		 */
-		private final native String getShortName(T value) /*-{
-			if (value.shortName == null || value.shortName == "") { return ""; }
-			return value.shortName;
-		}-*/;
-
-		/**
-		 * Returns description of object
-		 *
-		 * @param value object
-		 * @return description of object
-		 */
-		private final native String getDescription(T value) /*-{
-			if (value.description == null || value.description == "") { return ""; }
-			return value.description;
-		}-*/;
-
-		/**
-		 * Returns service of object (used for Tasks and RichDestinations compare)
-		 *
-		 * @param value object
-		 * @return service of object
-		 */
-		private final String getService(T value) {
-
-			if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichDestination")) {
-				Destination dest = (Destination)value;
-				return dest.getService().getName();
-			} else if (((GeneralObject)value).getObjectType().equalsIgnoreCase("ExecService")) {
-				ExecService exec = (ExecService)value;
-				return exec.getService().getName();
-			} else {
-				Task task = (Task)value;
-				return task.getExecService().getService().getName() + task.getExecService().getType();
-			}
-
 		}
+		return value.friendlyName;
+	}-*/;
+
+	/**
+	 * Returns hostname of object - used for Hosts
+	 *
+	 * @param value object
+	 * @return hostname of object
+	 */
+	private final native String getHostname(T value) /*-{
+		if (value.hostname == null) {
+			return "";
+		}
+		return value.hostname;
+	}-*/;
+
+	/**
+	 * Returns Id of object
+	 *
+	 * @param value object
+	 * @return id of object
+	 */
+	private final native int getId(T value) /*-{
+		if (value.id == null) { return 0; }
+		return value.id;
+	}-*/;
+
+	/**
+	 * Returns shortName of object
+	 *
+	 * @param value object
+	 * @return shortName of object
+	 */
+	private final native String getShortName(T value) /*-{
+		if (value.shortName == null || value.shortName == "") { return ""; }
+		return value.shortName;
+	}-*/;
+
+	/**
+	 * Returns description of object
+	 *
+	 * @param value object
+	 * @return description of object
+	 */
+	private final native String getDescription(T value) /*-{
+		if (value.description == null || value.description == "") { return ""; }
+		return value.description;
+	}-*/;
+
+	/**
+	 * Returns service of object (used for Tasks and RichDestinations compare)
+	 *
+	 * @param value object
+	 * @return service of object
+	 */
+	private final String getService(T value) {
+
+		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichDestination")) {
+			Destination dest = (Destination)value;
+			return dest.getService().getName();
+		} else if (((GeneralObject)value).getObjectType().equalsIgnoreCase("ExecService")) {
+			ExecService exec = (ExecService)value;
+			return exec.getService().getName();
+		} else if (((GeneralObject)value).getObjectType().equalsIgnoreCase("ServiceState")) {
+			ServiceState state = (ServiceState)value;
+			return state.getService().getName();
+		} else {
+			Task task = (Task)value;
+			return task.getExecService().getService().getName() + task.getExecService().getType();
+		}
+
+	}
 }

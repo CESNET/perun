@@ -196,7 +196,7 @@ public class ServiceState {
 	 * @return Time when was last task scheduled.
 	 */
 	public Date getScheduled() {
-		if (ExecService.ExecServiceType.GENERATE.equals(lastScheduled())) {
+		if (ExecService.ExecServiceType.GENERATE.equals(getLastScheduled())) {
 			return getGenScheduled();
 		} else {
 			return getSendScheduled();
@@ -209,7 +209,7 @@ public class ServiceState {
 	 * @return Time when was last task scheduled.
 	 */
 	public Date getStartTime() {
-		if (ExecService.ExecServiceType.GENERATE.equals(lastScheduled())) {
+		if (ExecService.ExecServiceType.GENERATE.equals(getLastScheduled())) {
 			return getGenStartTime();
 		} else {
 			return getSendStartTime();
@@ -222,7 +222,7 @@ public class ServiceState {
 	 * @return Time when was last task scheduled.
 	 */
 	public Date getEndTime() {
-		if (ExecService.ExecServiceType.GENERATE.equals(lastScheduled())) {
+		if (ExecService.ExecServiceType.GENERATE.equals(getLastScheduled())) {
 			return getGenEndTime();
 		} else {
 			return getSendEndTime();
@@ -238,26 +238,11 @@ public class ServiceState {
 	 * @return TaskStatus of service on facility
 	 */
 	public Task.TaskStatus getStatus() {
-		if (ExecService.ExecServiceType.GENERATE.equals(lastScheduled())) {
+		if (ExecService.ExecServiceType.GENERATE.equals(getLastScheduled())) {
 			return getGenStatus();
 		} else {
 			return getSendStatus();
 		}
-	}
-
-	public String getBeanName() {
-		return this.getClass().getSimpleName();
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder str = new StringBuilder();
-		return str.append(getBeanName()).append(":[")
-				.append("service='").append(getService().toString())
-				.append("', facility='").append(getFacility().toString())
-				.append("', genTask='").append(getGenTask())
-				.append("', sendTask='").append(getSendTask())
-				.append("']").toString();
 	}
 
 	/**
@@ -266,7 +251,7 @@ public class ServiceState {
 	 *
 	 * @return Return type of Task, which was last scheduled
 	 */
-	private ExecService.ExecServiceType lastScheduled() {
+	public ExecService.ExecServiceType getLastScheduled() {
 		if (getGenScheduled() != null && getSendScheduled() != null) {
 			if (getGenScheduled().after(getSendScheduled())) {
 				// gen was last scheduled
@@ -282,6 +267,21 @@ public class ServiceState {
 		if (getSendScheduled() != null) return ExecService.ExecServiceType.SEND;
 		// no task was ever scheduled - make it generate
 		return ExecService.ExecServiceType.GENERATE;
+	}
+
+	public String getBeanName() {
+		return this.getClass().getSimpleName();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		return str.append(getBeanName()).append(":[")
+				.append("service='").append(getService().toString())
+				.append("', facility='").append(getFacility().toString())
+				.append("', genTask='").append(getGenTask())
+				.append("', sendTask='").append(getSendTask())
+				.append("']").toString();
 	}
 
 }
