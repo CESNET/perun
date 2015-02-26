@@ -26,10 +26,13 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -944,6 +947,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param role
 	 * @param PerunBean particular class (e.g. Vo, Group, ...)
 	 * @return list of complementary objects
+	 * 
 	 * @throws InternalErrorException
 	 */
 	public static List<PerunBean> getComplementaryObjectsForRole(PerunSession sess, Role role, Class perunBeanClass) throws InternalErrorException {
@@ -951,50 +955,70 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		Utils.notNull(sess.getPerunPrincipal(), "sess.getPerunPrincipal()");
 
 		List<PerunBean> complementaryObjects = new ArrayList<PerunBean>();
-		try {
-			if (sess.getPerunPrincipal().getRoles().get(role) != null) {
-				for (String beanName : sess.getPerunPrincipal().getRoles().get(role).keySet()) {
-					// Do we filter results on particular class?
-					if (perunBeanClass == null || beanName.equals(perunBeanClass.getSimpleName())) {
+		if (sess.getPerunPrincipal().getRoles().get(role) != null) {
+			for (String beanName : sess.getPerunPrincipal().getRoles().get(role).keySet()) {
+				// Do we filter results on particular class?
+				if (perunBeanClass == null || beanName.equals(perunBeanClass.getSimpleName())) {
 
-						if (beanName.equals(Vo.class.getSimpleName())) {
-							for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+					if (beanName.equals(Vo.class.getSimpleName())) {
+						for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+							try {
 								complementaryObjects.add(perunBlImpl.getVosManagerBl().getVoById(sess, beanId));
+							} catch (VoNotExistsException ex) {
+								//this is ok, vo was probably deleted but still exists in user session, only log it
+								log.debug("Vo not find by id {} but still exists in user session when getComplementaryObjectsForRole method was called.", beanId);
 							}
 						}
+					}
 
-						if (beanName.equals(Group.class.getSimpleName())) {
-							for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+					if (beanName.equals(Group.class.getSimpleName())) {
+						for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+							try {
 								complementaryObjects.add(perunBlImpl.getGroupsManagerBl().getGroupById(sess, beanId));
+							} catch (GroupNotExistsException ex) {
+								//this is ok, group was probably deleted but still exists in user session, only log it
+								log.debug("Group not find by id {} but still exists in user session when getComplementaryObjectsForRole method was called.", beanId);
 							}
 						}
+					}
 
-						if (beanName.equals(Facility.class.getSimpleName())) {
-							for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+					if (beanName.equals(Facility.class.getSimpleName())) {
+						for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+							try {
 								complementaryObjects.add(perunBlImpl.getFacilitiesManagerBl().getFacilityById(sess, beanId));
+							} catch (FacilityNotExistsException ex) {
+								//this is ok, facility was probably deleted but still exists in user session, only log it
+								log.debug("Facility not find by id {} but still exists in user session when getComplementaryObjectsForRole method was called.", beanId);
 							}
 						}
+					}
 
-						if (beanName.equals(Resource.class.getSimpleName())) {
-							for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+					if (beanName.equals(Resource.class.getSimpleName())) {
+						for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+							try {
 								complementaryObjects.add(perunBlImpl.getResourcesManagerBl().getResourceById(sess, beanId));
+							} catch (ResourceNotExistsException ex) {
+								//this is ok, resource was probably deleted but still exists in user session, only log it
+								log.debug("Resource not find by id {} but still exists in user session when getComplementaryObjectsForRole method was called.", beanId);
 							}
 						}
+					}
 
-						if (beanName.equals(Service.class.getSimpleName())) {
-							for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+					if (beanName.equals(Service.class.getSimpleName())) {
+						for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+							try {
 								complementaryObjects.add(perunBlImpl.getServicesManagerBl().getServiceById(sess, beanId));
+							} catch (ServiceNotExistsException ex) {
+								//this is ok, service was probably deleted but still exists in user session, only log it
+								log.debug("Service not find by id {} but still exists in user session when getComplementaryObjectsForRole method was called.", beanId);
 							}
 						}
 					}
 				}
 			}
+		}
 
 			return complementaryObjects;
-
-		} catch (PerunException e) {
-			throw new InternalErrorException(e);
-		}
 	}
 
 	/**
