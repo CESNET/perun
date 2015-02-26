@@ -266,9 +266,9 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	 * @param Facility int ID of facility
 	 * @return List<ServiceState> serviceStates.
 	 */
-	getFacilityServicesState{
+	getFacilityServicesState {
 		public List<ServiceState> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getPropagationStatsReader().getFacilityServicesState(ac.getFacilityById(parms.readInt("facility")));
+			return ac.getPropagationStatsReader().getFacilityServicesState(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
 		}
 	};
 }

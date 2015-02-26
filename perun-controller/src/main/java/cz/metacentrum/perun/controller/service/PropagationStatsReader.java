@@ -128,26 +128,18 @@ public interface PropagationStatsReader {
 	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException;
 	
 	/**
-	 * Returns list of ServiceStates for given facility.
-	 * 
+	 * Returns list of ServiceStates for given facility. It lists states for all services, which are currently
+	 * assigned to the facility or has any Task related to this facility.
+	 *
+	 * So results are returned even when there was no previous propagation of such service or service is no longer assigned.
+	 *
+	 * @param sess
 	 * @param facility
 	 * @return list of ServiceStates
 	 * @throws InternalErrorException
 	 * @throws ServiceNotExistsException
 	 * @throws PrivilegeException
 	 */	
-	List<ServiceState> getFacilityServicesState(Facility facility) throws InternalErrorException, ServiceNotExistsException, PrivilegeException;
-	
-	/**
-	 * Returns true if ExecService is denied on facility, false otherwise.
-	 * 
-	 * @param execService
-	 * @param facility
-	 * @return
-	 * @throws ServiceNotExistsException
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException 
-	 */
-	public boolean isExecServiceDeniedOnFacility(ExecService execService, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
-	
+	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, ServiceNotExistsException, PrivilegeException;
+
 }
