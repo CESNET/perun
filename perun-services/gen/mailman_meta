@@ -51,12 +51,13 @@ foreach my $rData (@resourcesData) {
 	my $listNameEN = $listName . "-en";
 	my $listNameCS = $listName . "-cs";
 
-	#create mailing list in structure (even if is empty)
+	#create not existing mailing list in structure (even if is empty)
 	if($useLangVariants) {
-		$mailinglistStruc->{$listNameCS} = {};
-		$mailinglistStruc->{$listNameEN} = {};
+		$mailinglistStruc->{$listNameCS} = {} unless $mailinglistStruc->{$listNameCS};
+		$mailinglistStruc->{$listNameEN} = {} unless $mailinglistStruc->{$listNameEN};
 	} else {
-		$mailinglistStruc->{$listName} = {};
+		print "No list\n";
+		$mailinglistStruc->{$listName} = {} unless $mailinglistStruc->{$listName};
 	}
 
 	foreach my $memberAttributes (dataToAttributesHashes @membersData) {
