@@ -11,32 +11,27 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-">
+"
+	default-lazy-init="true"
+>
+	<!-- we will rather do only component scan for service beans, we will (re)define DAOs later -->
+	<!-- 
     <import resource="classpath:perun-engine-datasources.xml"/>
     <import resource="classpath:perun-tasks-lib-applicationcontext.xml"/>
-
-     <!-- Transaction manager for Spring JDBC -->
-    <bean id="transactionManagerPerunEngine" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-
+	-->
+	
     <!-- Enable @Transactional support -->
      <tx:annotation-driven transaction-manager="transactionManagerPerunEngine"/>
 
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
 
+     <!-- Importing Perun Core... -->
+    <import resource="classpath:perun-beans.xml"/>
+ 
     <!-- Scans for @Repository, @Service and @Component -->
+   	<context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
     <context:component-scan base-package="cz.metacentrum.perun.engine"/>
-
-    <!-- DAOs -->
-    <bean id="engineDao" class="cz.metacentrum.perun.engine.dao.jdbc.EngineDaoJdbc" init-method="initialize">
-      <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <bean id="processingRuleDao" class="cz.metacentrum.perun.engine.dao.jdbc.ProcessingRuleDaoJdbc">
-      <property name="dataSource" ref="dataSource"/>
-    </bean>
 
     <task:scheduler id="scheduler" pool-size="4" />
 
@@ -92,14 +87,14 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     </bean>
 
     <bean id="taskExecutorGenWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-          <property name="corePoolSize" value="10" />
-          <property name="maxPoolSize" value="10" />
+          <property name="corePoolSize" value="5" />
+          <property name="maxPoolSize" value="5" />
           <property name="queueCapacity" value="2000" />
     </bean>
 
     <bean id="taskExecutorSendWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
           <property name="corePoolSize" value="200" />
-          <property name="maxPoolSize" value="200" />
+          <property name="maxPoolSize" value="1000" />
           <property name="queueCapacity" value="200000" />
     </bean>
 
@@ -107,6 +102,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
             <list>
+				<value>classpath:perun-engine.properties</value>
                 <value>file:${perun.conf}perun-engine.properties</value>
                 <value>file:${perun.conf.custom}perun-engine.properties</value>
             </list>
