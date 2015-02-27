@@ -55,7 +55,7 @@ public class Synchronizer {
 				log.debug("Synchronizer starting synchronizing the groups");
 				this.perunBl.getGroupsManagerBl().synchronizeGroups(this.sess);
 				if (!synchronizeGroupsRunning.compareAndSet(true, false)) {
-					log.error("Synchonizer: group synchronization out of sync, reseting.");
+					log.error("Synchonizer: group synchronization out of sync, resetting.");
 					synchronizeGroupsRunning.set(false);
 				}
 			} catch (InternalErrorException e) {
@@ -133,7 +133,7 @@ public class Synchronizer {
 	}
 
 	public void initialize() throws InternalErrorException {
-		String synchronizerPrincipal = "Synchronizer";
+		String synchronizerPrincipal = "perunSynchronizer";
 		this.sess = perunBl.getPerunSession(new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 	}
 

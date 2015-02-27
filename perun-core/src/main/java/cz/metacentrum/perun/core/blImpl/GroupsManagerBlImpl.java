@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
+
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -93,7 +94,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 	
 	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws InternalErrorException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException {
-		//Use sorting by group names reverse order (frist name A:B:c then A:B etc.)
+		//Use sorting by group names reverse order (first name A:B:c then A:B etc.)
 		Collections.sort(groups, Collections.reverseOrder(
 				new Comparator<Group>() {
 					@Override
@@ -1263,13 +1264,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 									//First try to disable member, if is invalid, delete him from Vo
 									try {
 										getPerunBl().getMembersManagerBl().disableMember(sess, member);
-										log.info("Group synchronization {}: Member id {} disabled because synchronizator wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+										log.info("Group synchronization {}: Member id {} disabled because synchronizer wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
 										getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
 										log.info("Group synchronization {}: Member id {} removed.", group, member.getId());
 									} catch(MemberNotValidYetException ex) {
 										//Member is still invalid in perun. We can delete him.
 										getPerunBl().getMembersManagerBl().deleteMember(sess, member);
-										log.info("Group synchronization {}: Member id {} would have been disabled but he has been deleted instead because he was invalid and synchronizator wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
+										log.info("Group synchronization {}: Member id {} would have been disabled but he has been deleted instead because he was invalid and synchronizer wants to remove him from last authoritativeGroup in Vo.", group, member.getId());
 									}
 								} else {
 									//If there is still some other authoritative group for this member, only remove him from group
@@ -1326,7 +1327,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * Adds the group synchronization process in the groupSynchronizerThreads.
 	 *
-	 * @param sess
 	 * @param group
 	 */
 	public void forceGroupSynchronization(PerunSession sess, Group group) throws GroupSynchronizationAlreadyRunningException {
@@ -1412,7 +1412,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					// If the time is greater than timeout set in the configuration file (in minutes)
 					if (timeDiff/1000/60 > timeout) {
 						// Timeout reach, stop the thread
-						log.warn("Timeout {} minutes of the synchronizatin thread for the group {} reached.", timeout, group);
+						log.warn("Timeout {} minutes of the synchronization thread for the group {} reached.", timeout, group);
 						groupSynchronizerThreads.get(group).interrupt();
 						groupSynchronizerThreads.remove(group);
 						numberOfTerminatedSynchronizations++;
@@ -1422,7 +1422,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				} else {
 					// Start and run the new thread
 					try {
-						// Do not overload externalSource, run each synchronizatin in 0-30s steps
+						// Do not overload externalSource, run each synchronization in 0-30s steps
 						Thread.sleep(rand.nextInt(30000));
 					} catch (InterruptedException e) {
 						// Do nothing
@@ -1444,13 +1444,24 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	private static class GroupSynchronizerThread extends Thread {
+
+		// all synchronization runs under synchronizer identity.
+		final PerunPrincipal pp = new PerunPrincipal("perunSynchronizer", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		private PerunBl perunBl;
 		private PerunSession sess;
 		private Group group;
 		private long startTime;
 
 		public GroupSynchronizerThread(PerunSession sess, Group group) {
-			this.sess = sess;
+			// take only reference to perun
+			this.perunBl = (PerunBl) sess.getPerun();
 			this.group = group;
+			try {
+				// create own session
+				this.sess = perunBl.getPerunSession(pp);
+			} catch (InternalErrorException ex) {
+				log.error("Unable to create internal session for Synchronizer with credentials {} because of exception {}", pp, ex);
+			}
 		}
 
 		public void run() {
@@ -1466,8 +1477,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// Set the start time, so we can check the timeout of the thread
 				startTime = System.currentTimeMillis();
 
-				//synchronize Group and get informatou about skipped Members
-				List<String> skippedMembers = ((PerunBl) sess.getPerun()).getGroupsManagerBl().synchronizeGroup(sess, group);
+				//synchronize Group and get information about skipped Members
+				List<String> skippedMembers = perunBl.getGroupsManagerBl().synchronizeGroup(sess, group);
 
 				//prepare variables for checking max length of message and create human readable text
 				boolean exceedMaxChars = false;
@@ -1505,12 +1516,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				Date currentTimestamp = new Date();
 				//Save information about group synchronization, this method run in new transaction
 				try {
-					((PerunBl) sess.getPerun()).getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, failedDueToException, exceptionMessage);
+					perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, failedDueToException, exceptionMessage);
 				} catch (Exception ex) {
 					log.error("When synchronization group " + group + ", exception was thrown.", ex);
 					log.error("Info about exception from synchronization: " + skippedMembersMessage);
 				}
-				log.debug("GroupSynchronizerThread finnished for group: {}", group);
+				log.debug("GroupSynchronizerThread finished for group: {}", group);
 			}
 		}
 
@@ -1615,7 +1626,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				throw new InternalErrorException("There is unrecognized object in primaryHolder of aidingAttr.");
 			}
 		} else {
-			throw new InternalErrorException("Aiding attribtue must have primaryHolder which is not null.");
+			throw new InternalErrorException("Aiding attribute must have primaryHolder which is not null.");
 		}
 
 		//Important For Groups not work with Subgroups! Invalid members are executed too.
@@ -1766,13 +1777,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		//Set correct format of currentTimestamp
-		String currectTimestampString = BeansUtils.getDateFormatter().format(currentTimestamp);
+		String correctTimestampString = BeansUtils.getDateFormatter().format(currentTimestamp);
 
-		//Get both attribute defintion lastSynchroTimestamp and lastSynchroState
+		//Get both attribute definition lastSynchroTimestamp and lastSynchroState
 		//Get definitions and values, set values
 		Attribute lastSynchronizationTimestamp = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSynchronizationTimestamp"));
 		Attribute lastSynchronizationState = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":lastSynchronizationState"));
-		lastSynchronizationTimestamp.setValue(currectTimestampString);
+		lastSynchronizationTimestamp.setValue(correctTimestampString);
 		//if exception is null, set null to value => remove attribute instead of setting in method setAttributes
 		lastSynchronizationState.setValue(exceptionMessage);
 
@@ -1780,12 +1791,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Attribute> attrsToSet = new ArrayList<>();
 
 		//null in exceptionMessage means no exception, success
-		//Set lastSuccessSynchronzationTimestamp if this one is success
+		//Set lastSuccessSynchronizationTimestamp if this one is success
 		if(exceptionMessage == null) {
 			String attrName = AttributesManager.NS_GROUP_ATTR_DEF + ":lastSuccessSynchronizationTimestamp";
 			try {
 				Attribute lastSuccessSynchronizationTimestamp = new Attribute(((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, attrName));
-				lastSuccessSynchronizationTimestamp.setValue(currectTimestampString);
+				lastSuccessSynchronizationTimestamp.setValue(correctTimestampString);
 				attrsToSet.add(lastSuccessSynchronizationTimestamp);
 			} catch (AttributeNotExistsException ex) {
 				log.error("Can't save lastSuccessSynchronizationTimestamp, because there is missing attribute with name {}",attrName);
