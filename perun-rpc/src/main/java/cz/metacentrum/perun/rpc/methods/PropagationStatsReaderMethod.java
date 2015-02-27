@@ -5,6 +5,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
+import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -256,6 +257,18 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	getTaskResultsForDestinations {
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getPropagationStatsReader().getTaskResultsForDestinations(ac.getSession(), parms.readList("destinations", String.class));
+		}
+	},
+	
+	/*#
+	 * Returns service states for defined facility.
+	 *
+	 * @param Facility int ID of facility
+	 * @return List<ServiceState> serviceStates.
+	 */
+	getFacilityServicesState{
+		public List<ServiceState> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getPropagationStatsReader().getFacilityServicesState(ac.getFacilityById(parms.readInt("facility")));
 		}
 	};
 }
