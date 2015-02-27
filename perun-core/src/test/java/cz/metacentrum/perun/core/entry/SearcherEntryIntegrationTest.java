@@ -221,12 +221,12 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 	// PRIVATE METHODS -----------------------------------------------------------
 
 	private void setUpUser1() throws Exception {
-		member1 = perun.getMembersManagerBl().createMember(sess, vo, candidate1);
+		member1 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate1);
 		user1 = perun.getUsersManagerBl().getUserByMember(sess, member1);
 	}
 
 	private void setUpUser2() throws Exception {
-		member2 = perun.getMembersManagerBl().createMember(sess, vo, candidate2);
+		member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate2);
 		user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
 	}
 
