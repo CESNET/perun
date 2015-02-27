@@ -82,7 +82,7 @@ public class ServiceState {
 		this.isBlockedOnFacility = isBlockedOnFacility;
 	}
 
-	public boolean hasDestinations() {
+	public boolean getHasDestinations() {
 		return hasDestinations;
 	}
 

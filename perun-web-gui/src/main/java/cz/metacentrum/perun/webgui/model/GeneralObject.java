@@ -24,7 +24,9 @@ public class GeneralObject extends JavaScriptObject {
 		}
 		if (this.beanName == "ServiceState") {
 			return this.taskId;
-		} else {
+		} else if (this.beanName == "RichMember") {
+			return this.user.id;
+		}else {
 			return this.id;
 		}
 	}-*/;

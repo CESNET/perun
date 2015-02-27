@@ -27,6 +27,7 @@ import java.util.ArrayList;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
+@Deprecated
 public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTable<Task> {
 
 	// Session

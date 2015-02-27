@@ -14,7 +14,6 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
-import cz.metacentrum.perun.webgui.json.keyproviders.ServiceStateKeyProvider;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.ServiceState;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
@@ -42,7 +41,7 @@ public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable
 	private ArrayList<ServiceState> list = new ArrayList<ServiceState>();
 	private PerunTable<ServiceState> table;
 	// Selection model
-	final MultiSelectionModel<ServiceState> selectionModel = new MultiSelectionModel<ServiceState>(new ServiceStateKeyProvider<ServiceState>());
+	final MultiSelectionModel<ServiceState> selectionModel = new MultiSelectionModel<ServiceState>(new GeneralKeyProvider<ServiceState>());
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// entities
@@ -173,17 +172,47 @@ public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable
 					}
 				}, tableFieldUpdater);
 
+		blockedColumn.setSortable(true);
+		columnSortHandler.setComparator(blockedColumn, new Comparator<ServiceState>() {
+			@Override
+			public int compare(ServiceState o1, ServiceState o2) {
+				String val1 = (o1.isBlockedOnFacility()) ? "BLOCKED" : ((o1.isBlockedGlobally()) ? "BLOCKED GLOBALLY" : "ALLOWED");
+				String val2 = (o2.isBlockedOnFacility()) ? "BLOCKED" : ((o2.isBlockedGlobally()) ? "BLOCKED GLOBALLY" : "ALLOWED");
+				return val1.compareTo(val2);
+			}
+		});
+
 		// start COLUMN
 		TextColumn<ServiceState> startTimeColumn = new TextColumn<ServiceState>() {
 			public String getValue(ServiceState result) {
 				return result.getStartTime();
 			}
 		};
+		startTimeColumn.setSortable(true);
+		columnSortHandler.setComparator(startTimeColumn, new Comparator<ServiceState>() {
+			@Override
+			public int compare(ServiceState o1, ServiceState o2) {
+				return o1.getStartTime().compareTo(o2.getStartTime());
+			}
+		});
 
 		// end COLUMN
 		TextColumn<ServiceState> endTimeColumn = new TextColumn<ServiceState>() {
 			public String getValue(ServiceState result) {
 				return result.getEndTime();
+			}
+		};
+		endTimeColumn.setSortable(true);
+		columnSortHandler.setComparator(endTimeColumn, new Comparator<ServiceState>() {
+			@Override
+			public int compare(ServiceState o1, ServiceState o2) {
+				return o1.getEndTime().compareTo(o2.getEndTime());
+			}
+		});
+
+		TextColumn<ServiceState> destColumn = new TextColumn<ServiceState>() {
+			public String getValue(ServiceState result) {
+				return result.getHasDestinations();
 			}
 		};
 

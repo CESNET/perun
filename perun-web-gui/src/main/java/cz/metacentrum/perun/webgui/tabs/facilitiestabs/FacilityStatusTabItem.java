@@ -19,14 +19,12 @@ import cz.metacentrum.perun.webgui.json.generalServiceManager.BanExecServiceOnFa
 import cz.metacentrum.perun.webgui.json.generalServiceManager.ForceServicePropagation;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.FreeDenialOfExecServiceOnFacility;
 import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetFacilityServicesState;
-import cz.metacentrum.perun.webgui.json.propagationStatsReader.ListAllRichTasksForFacility;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
-import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
@@ -90,7 +88,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 	public Widget draw() {
 
 		// title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Propagation status");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Services status");
 
 		// main content
 		final VerticalPanel vp = new VerticalPanel();
@@ -131,7 +129,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 					// TODO - translated Widget
 					boolean denied = false;
 					VerticalPanel vp = new VerticalPanel();
-					vp.add(new HTML("<p>Some services can't be forcefully propagated, because they are <strong>denied on facility</strong>. Please change their state to 'Allowed' before starting force propagation.</p>"));
+					vp.add(new HTML("<p>Some services can't be forcefully propagated, because they are <strong>blocked on facility</strong>. Please change their state to 'Allowed' before starting force propagation.</p>"));
 					for (int i=0; i<forceList.size(); i++ ) {
 						if (forceList.get(i).isBlockedOnFacility() || forceList.get(i).isBlockedGlobally()) {
 							vp.add(new Label(" - "+forceList.get(i).getService().getName()));
@@ -224,13 +222,6 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		JsonUtils.addTableManagedButton(callback, table, allowButton);
 		JsonUtils.addTableManagedButton(callback, table, blockButton);
 
-		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
-			@Override
-			public void searchFor(String text) {
-				callback.filterTable(text);
-			}
-		}, "Filter propagations by service name or type");
-
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 		vp.add(sp);
@@ -281,7 +272,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(facility, "Propagation status", getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(facility, "Services status", getUrlWithParameters());
 		if(facility != null) {
 			session.setActiveFacility(facility);
 		} else {
@@ -299,7 +290,7 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 
 	}
 
-	public final static String URL = "propagation";
+	public final static String URL = "status";
 
 	public String getUrl()
 	{

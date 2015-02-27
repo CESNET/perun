@@ -98,6 +98,10 @@ public class ServiceState extends JavaScriptObject {
 		return this.lastScheduled;
 	}-*/;
 
+	public final native String getHasDestinations() /*-{
+		return (this.hasDestinations == true) ? "" : "Service has no destinations defined.";
+	}-*/;
+
 	/**
 	 * Returns Perun specific type of object
 	 *

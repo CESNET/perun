@@ -432,7 +432,6 @@ public class MainMenu {
 		TabItemWithUrl detail = null;
 		TabItemWithUrl resources = null;
 		TabItemWithUrl admins = null;
-		TabItemWithUrl propagation = null;
 		TabItemWithUrl status = null;
 		TabItemWithUrl destinations = null;
 		TabItemWithUrl settings = null;
@@ -447,7 +446,6 @@ public class MainMenu {
 			detail = new FacilityDetailTabItem(facility);
 			resources = new FacilityResourcesTabItem(facility);
 			admins = new FacilityManagersTabItem(facility);
-			propagation = new FacilityPropagationTabItem(facility);
 			status = new FacilityStatusTabItem(facility);
 			destinations = new FacilityDestinationsTabItem(facility);
 			settings = new FacilitySettingsTabItem(facility);
@@ -462,8 +460,7 @@ public class MainMenu {
 		menu.addItem(new MainMenuItem(facilityName, detail, SmallIcons.INSTANCE.databaseServerIcon()));
 		menu.addItem(new MainMenuItem("Resources", resources, SmallIcons.INSTANCE.serverGroupIcon()));
 		menu.addItem(new MainMenuItem("Allowed groups", allowedGroups, SmallIcons.INSTANCE.groupIcon()));
-		menu.addItem(new MainMenuItem("Propagation status", status, SmallIcons.INSTANCE.serverInformationIcon()));
-		menu.addItem(new MainMenuItem("Services propagation", propagation, SmallIcons.INSTANCE.arrowRightIcon()));
+		menu.addItem(new MainMenuItem("Services status", status, SmallIcons.INSTANCE.serverInformationIcon()));
 		menu.addItem(new MainMenuItem("Services settings", settings, SmallIcons.INSTANCE.settingToolsIcon()));
 
 		menu.setDisplayAdvanced(getAdvancedStateFromBrowser(FACILITY_ADMIN+"", menu));
