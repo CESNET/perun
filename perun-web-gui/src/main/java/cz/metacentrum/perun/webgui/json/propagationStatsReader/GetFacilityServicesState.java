@@ -15,38 +15,39 @@ import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.Task;
+import cz.metacentrum.perun.webgui.model.ServiceState;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Ajax query to get all RichTasks for selected facility
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTable<Task> {
+public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable<ServiceState> {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// JSON URL
-	static private final String JSON_URL = "propagationStatsReader/listAllRichTasksForFacility";
+	static private final String JSON_URL = "propagationStatsReader/getFacilityServicesState";
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// data providers
-	private ListDataProvider<Task> dataProvider = new ListDataProvider<Task>();
-	private ArrayList<Task> list = new ArrayList<Task>();
-	private PerunTable<Task> table;
+	private ListDataProvider<ServiceState> dataProvider = new ListDataProvider<ServiceState>();
+	private ArrayList<ServiceState> list = new ArrayList<ServiceState>();
+	private PerunTable<ServiceState> table;
 	// Selection model
-	final MultiSelectionModel<Task> selectionModel = new MultiSelectionModel<Task>(new GeneralKeyProvider<Task>());
+	final MultiSelectionModel<ServiceState> selectionModel = new MultiSelectionModel<ServiceState>(new GeneralKeyProvider<ServiceState>());
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// entities
 	private int facilityId = 0;
-	private FieldUpdater<Task, String> tableFieldUpdater;
-	private ArrayList<Task> backupList = new ArrayList<Task>();
+	private FieldUpdater<ServiceState, String> tableFieldUpdater;
+	private ArrayList<ServiceState> backupList = new ArrayList<ServiceState>();
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
 	private boolean checkable = true; // default is checkable
 
@@ -55,7 +56,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 *
 	 * @param facilityId facility ID
 	 */
-	public ListAllRichTasksForFacility(int facilityId) {
+	public GetFacilityServicesState(int facilityId) {
 		this.facilityId = facilityId;
 	}
 
@@ -65,54 +66,54 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 * @param facilityId facility ID
 	 * @param events external events
 	 */
-	public ListAllRichTasksForFacility(int facilityId, JsonCallbackEvents events) {
+	public GetFacilityServicesState(int facilityId, JsonCallbackEvents events) {
 		this.facilityId = facilityId;
 		this.events = events;
 	}
 
 	/**
-	 * Return table with tasks - starts RPC call
+	 * Return table with ServiceStates - starts RPC call
 	 *
 	 * @return table
 	 */
-	public CellTable<Task> getTable() {
+	public CellTable<ServiceState> getTable() {
 		retrieveData();
 		return getEmptyTable();
 	}
 
 	/**
-	 * Return table with tasks and custom field updater
+	 * Return table with ServiceStates and custom field updater
 	 *
 	 * @return table widget
 	 */
-	public CellTable<Task> getTable(FieldUpdater<Task, String> tfu) {
+	public CellTable<ServiceState> getTable(FieldUpdater<ServiceState, String> tfu) {
 		this.tableFieldUpdater=tfu;
 		retrieveData();
 		return getEmptyTable();
 	}
 
 	/**
-	 * Return table with tasks
+	 * Return table with ServiceStates
 	 *
 	 * @return table widget
 	 */
-	public CellTable<Task> getEmptyTable() {
+	public CellTable<ServiceState> getEmptyTable() {
 
 		// Table data provider.
-		dataProvider = new ListDataProvider<Task>(list);
+		dataProvider = new ListDataProvider<ServiceState>(list);
 
 		// Cell table
-		table = new PerunTable<Task>(list);
+		table = new PerunTable<ServiceState>(list);
 
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
 		// Sorting
-		ListHandler<Task> columnSortHandler = new ListHandler<Task>(dataProvider.getList());
+		ListHandler<ServiceState> columnSortHandler = new ListHandler<ServiceState>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
 
 		// table selection
-		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Task> createCheckboxManager());
+		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<ServiceState> createCheckboxManager());
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
@@ -123,65 +124,115 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 			table.addCheckBoxColumn();
 		}
 
-		table.addIdColumn("Task Id", tableFieldUpdater);
+		table.addIdColumn("ID", tableFieldUpdater);
 
 		// Service column
-		Column<Task, String> serviceColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<Task, String>() {
-					public String getValue(Task task) {
-						return String.valueOf(task.getExecService().getService().getName());
+		Column<ServiceState, String> serviceColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<ServiceState, String>() {
+					public String getValue(ServiceState ServiceState) {
+						return String.valueOf(ServiceState.getService().getName());
 					}
 				}, tableFieldUpdater);
 
-		// Service Type column
-		Column<Task, String> serviceTypeColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<Task, String>() {
-					public String getValue(Task task) {
-						return String.valueOf(task.getExecService().getType());
-					}
-				}, tableFieldUpdater);
-
+		serviceColumn.setSortable(true);
+		columnSortHandler.setComparator(serviceColumn, new Comparator<ServiceState>() {
+			@Override
+			public int compare(ServiceState o1, ServiceState o2) {
+				return o1.getService().getName().compareTo(o2.getService().getName());
+			}
+		});
 
 		// status column
-		Column<Task, String> statusColumn = JsonUtils.addColumn(
-				new JsonUtils.GetValue<Task, String>() {
-					public String getValue(Task task) {
-						return String.valueOf(task.getStatus());
+		Column<ServiceState, String> statusColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<ServiceState, String>() {
+					public String getValue(ServiceState serviceState) {
+						return String.valueOf(serviceState.getStatus()+" ("+serviceState.getLastScheduled().toLowerCase()+")");
 					}
 				}, tableFieldUpdater);
 
+		statusColumn.setSortable(true);
+		columnSortHandler.setComparator(statusColumn, new Comparator<ServiceState>() {
+			@Override
+			public int compare(ServiceState o1, ServiceState o2) {
+				return o1.getStatus().compareTo(o2.getStatus());
+			}
+		});
+
+		// status column
+		Column<ServiceState, String> blockedColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<ServiceState, String>() {
+					public String getValue(ServiceState serviceState) {
+						if (serviceState.isBlockedOnFacility()) {
+							return "BLOCKED";
+						} else if (serviceState.isBlockedGlobally()) {
+							return "BLOCKED GLOBALLY";
+						} else {
+							return "ALLOWED";
+						}
+					}
+				}, tableFieldUpdater);
+
+		blockedColumn.setSortable(true);
+		columnSortHandler.setComparator(blockedColumn, new Comparator<ServiceState>() {
+			@Override
+			public int compare(ServiceState o1, ServiceState o2) {
+				String val1 = (o1.isBlockedOnFacility()) ? "BLOCKED" : ((o1.isBlockedGlobally()) ? "BLOCKED GLOBALLY" : "ALLOWED");
+				String val2 = (o2.isBlockedOnFacility()) ? "BLOCKED" : ((o2.isBlockedGlobally()) ? "BLOCKED GLOBALLY" : "ALLOWED");
+				return val1.compareTo(val2);
+			}
+		});
+
 		// start COLUMN
-		TextColumn<Task> startTimeColumn = new TextColumn<Task>() {
-			public String getValue(Task result) {
+		TextColumn<ServiceState> startTimeColumn = new TextColumn<ServiceState>() {
+			public String getValue(ServiceState result) {
 				return result.getStartTime();
 			}
 		};
+		startTimeColumn.setSortable(true);
+		columnSortHandler.setComparator(startTimeColumn, new Comparator<ServiceState>() {
+			@Override
+			public int compare(ServiceState o1, ServiceState o2) {
+				return o1.getStartTime().compareTo(o2.getStartTime());
+			}
+		});
 
 		// end COLUMN
-		TextColumn<Task> endTimeColumn = new TextColumn<Task>() {
-			public String getValue(Task result) {
+		TextColumn<ServiceState> endTimeColumn = new TextColumn<ServiceState>() {
+			public String getValue(ServiceState result) {
 				return result.getEndTime();
+			}
+		};
+		endTimeColumn.setSortable(true);
+		columnSortHandler.setComparator(endTimeColumn, new Comparator<ServiceState>() {
+			@Override
+			public int compare(ServiceState o1, ServiceState o2) {
+				return o1.getEndTime().compareTo(o2.getEndTime());
+			}
+		});
+
+		TextColumn<ServiceState> destColumn = new TextColumn<ServiceState>() {
+			public String getValue(ServiceState result) {
+				return result.getHasDestinations();
 			}
 		};
 
 		// schedule COLUMN
-		TextColumn<Task> scheduleColumn = new TextColumn<Task>() {
-			public String getValue(Task result) {
+		TextColumn<ServiceState> scheduleColumn = new TextColumn<ServiceState>() {
+			public String getValue(ServiceState result) {
 				return result.getSchedule();
 			}
 		};
 
 		// Add the columns.
 		table.addColumn(serviceColumn, "Service");
-		table.addColumn(serviceTypeColumn, "Type");
 		table.addColumn(statusColumn, "Status");
-		table.addColumn(scheduleColumn, "Scheduled");
+		table.addColumn(blockedColumn, "Blocked");
 		table.addColumn(startTimeColumn, "Started");
 		table.addColumn(endTimeColumn, "Ended");
 
-		// set row styles based on task state
-		table.setRowStyles(new RowStyles<Task>(){
-			public String getStyleNames(Task row, int rowIndex) {
+		// set row styles based on ServiceState state
+		table.setRowStyles(new RowStyles<ServiceState>(){
+			public String getStyleNames(ServiceState row, int rowIndex) {
 
 				if (row.getStatus().equalsIgnoreCase("NONE")) {
 					return "rowdarkgreen";
@@ -216,7 +267,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 * Sorts table by objects date
 	 */
 	public void sortTable() {
-		list = new TableSorter<Task>().sortByService(getList());
+		list = new TableSorter<ServiceState>().sortByService(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -226,10 +277,9 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 *
 	 * @param object Resource to be added as new row
 	 */
-	public void addToTable(Task object) {
+	public void addToTable(ServiceState object) {
 		list.add(object);
-		oracle.add(object.getExecService().getService().getName());
-		oracle.add(object.getExecService().getType());
+		oracle.add(object.getService().getName());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -239,7 +289,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 *
 	 * @param object Resource to be removed as row
 	 */
-	public void removeFromTable(Task object) {
+	public void removeFromTable(ServiceState object) {
 		list.remove(object);
 		selectionModel.getSelectedSet().remove(object);
 		dataProvider.flush();
@@ -269,7 +319,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 *
 	 * @return return list of checked items
 	 */
-	public ArrayList<Task> getTableSelectedList(){
+	public ArrayList<ServiceState> getTableSelectedList(){
 		return JsonUtils.setToList(selectionModel.getSelectedSet());
 	}
 
@@ -277,7 +327,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 * Called, when an error occurs
 	 */
 	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Error while loading Tasks.");
+		session.getUiElements().setLogErrorText("Error while loading ServiceStates.");
 		loaderImage.loadingError(error);
 		events.onError(error);
 	}
@@ -286,7 +336,7 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 * Called, when loading starts
 	 */
 	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading Tasks started.");
+		session.getUiElements().setLogText("Loading ServiceStates started.");
 		events.onLoadingStart();
 	}
 
@@ -294,18 +344,17 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 	 * Called when loading successfully finishes.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		setList(JsonUtils.<Task>jsoAsList(jso));
+		setList(JsonUtils.<ServiceState>jsoAsList(jso));
 		sortTable();
 		loaderImage.loadingFinished();
-		session.getUiElements().setLogText("Tasks loaded: " + list.size());
+		session.getUiElements().setLogText("ServiceStates loaded: " + list.size());
 		events.onFinished(jso);
 
 	}
 
-	public void insertToTable(int index, Task object) {
+	public void insertToTable(int index, ServiceState object) {
 		list.add(index, object);
-		oracle.add(object.getExecService().getService().getName());
-		oracle.add(object.getExecService().getType());
+		oracle.add(object.getService().getName());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -318,18 +367,17 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 		this.checkable = checkable;
 	}
 
-	public void setList(ArrayList<Task> list) {
+	public void setList(ArrayList<ServiceState> list) {
 		clearTable();
 		this.list.addAll(list);
-		for (Task object : list) {
-			oracle.add(object.getExecService().getService().getName());
-			oracle.add(object.getExecService().getType());
+		for (ServiceState object : list) {
+			oracle.add(object.getService().getName());
 		}
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
 
-	public ArrayList<Task> getList() {
+	public ArrayList<ServiceState> getList() {
 		return this.list;
 	}
 
@@ -351,10 +399,8 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 		if (filter.equalsIgnoreCase("")) {
 			list.addAll(backupList);
 		} else {
-			for (Task tsk : backupList){
-				if (tsk.getExecService().getService().getName().toLowerCase().startsWith(filter.toLowerCase())) {
-					list.add(tsk);
-				} else if (tsk.getExecService().getType().toLowerCase().startsWith(filter.toLowerCase())) {
+			for (ServiceState tsk : backupList){
+				if (tsk.getService().getName().toLowerCase().startsWith(filter.toLowerCase())) {
 					list.add(tsk);
 				}
 			}
@@ -380,5 +426,8 @@ public class ListAllRichTasksForFacility implements JsonCallback, JsonCallbackTa
 		this.oracle = oracle;
 	}
 
+	public MultiSelectionModel<ServiceState> getSelectionModel() {
+		return this.selectionModel;
+	}
 
 }

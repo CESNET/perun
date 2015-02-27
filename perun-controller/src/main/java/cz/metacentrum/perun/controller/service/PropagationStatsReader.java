@@ -5,6 +5,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
+import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
@@ -125,4 +126,20 @@ public interface PropagationStatsReader {
 	 * @throws InternalErrorException
 	 */
 	List<ResourceState> getResourcesState(PerunSession session, Vo vo) throws PrivilegeException, VoNotExistsException, InternalErrorException;
+	
+	/**
+	 * Returns list of ServiceStates for given facility. It lists states for all services, which are currently
+	 * assigned to the facility or has any Task related to this facility.
+	 *
+	 * So results are returned even when there was no previous propagation of such service or service is no longer assigned.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of ServiceStates
+	 * @throws InternalErrorException
+	 * @throws ServiceNotExistsException
+	 * @throws PrivilegeException
+	 */	
+	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, ServiceNotExistsException, PrivilegeException;
+
 }

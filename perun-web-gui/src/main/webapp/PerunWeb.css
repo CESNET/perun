@@ -1107,7 +1107,11 @@ td div.customTextCell {
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell .customClickableTextCell,
 .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell .customClickableTextCell a,
 tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell,
-tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell td {
+tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell td,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell:hover .customClickableTextCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell:hover .customClickableTextCell a,
+tr:hover .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell,
+tr:hover .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell td {
 	color:#fff !important;
 	background: none repeat scroll 0 0 #628CD5 !important;
 }

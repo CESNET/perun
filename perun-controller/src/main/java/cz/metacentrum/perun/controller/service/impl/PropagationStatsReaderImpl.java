@@ -6,11 +6,11 @@ import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
-import cz.metacentrum.perun.taskslib.service.impl.TaskManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.FacilityState.FacilityPropagationState;
+import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.controller.service.PropagationStatsReader;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -20,9 +20,9 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 /**
- *
  * @author Michal Karm Babacek
  *         JavaDoc coming soon...
  *
@@ -268,4 +268,67 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
 		return resourceStateList;
 	}
+
+	@Override
+	public List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws ServiceNotExistsException, InternalErrorException, PrivilegeException{
+
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException("getFacilityServicesState");
+		}
+
+		Map<Service, ServiceState> serviceStates = new HashMap<Service, ServiceState>();
+
+		// fill states for all services which are currently on facility
+		for (Service service : perun.getServicesManagerBl().getAssignedServices(sess, facility)) {
+
+			serviceStates.put(service, new ServiceState(service, facility));
+
+			try {
+				// fill global allowance state based on existing exec services
+				List<ExecService> execs = getGeneralServiceManager().listExecServices(sess, service.getId());
+				for (ExecService ex : execs) {
+					if (!ex.isEnabled()) serviceStates.get(service).setBlockedGlobally(true);
+					// fill facility allowance state based on existing exec services
+					if (getGeneralServiceManager().isExecServiceDeniedOnFacility(ex, facility)) serviceStates.get(service).setBlockedOnFacility(true);
+				}
+
+			} catch (EmptyResultDataAccessException ex) {
+				// service has no exec services -> blocked globally
+				serviceStates.get(service).setBlockedGlobally(true);
+			}
+
+			// service has destination on facility
+			serviceStates.get(service).setHasDestinations(!perun.getServicesManagerBl().getDestinations(sess, service, facility).isEmpty());
+
+		}
+
+		// fill states for all tasks on facility
+
+		List<Task> tasks = taskDao.listAllTasksForFacility(facility.getId());
+
+		for (Task task : tasks) {
+
+			Service taskService = task.getExecService().getService();
+
+			ServiceState serviceState = serviceStates.get(taskService);
+			if (serviceState == null) {
+				serviceState = new ServiceState(taskService, facility);
+				serviceStates.put(taskService, serviceState);
+				// fill destinations if service was not assigned
+				serviceStates.get(taskService).setHasDestinations(!perun.getServicesManagerBl().getDestinations(sess, taskService, facility).isEmpty());
+			}
+
+			// fill service state
+			if (ExecService.ExecServiceType.GENERATE.equals(task.getExecService().getExecServiceType())) {
+				serviceState.setGenTask(task);
+			} else {
+				serviceState.setSendTask(task);
+			}
+
+		}
+
+		return new ArrayList<ServiceState>(serviceStates.values());
+
+	}
+
 }

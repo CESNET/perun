@@ -1,10 +1,10 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
+import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -49,34 +49,9 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	 * @param facility int Facility ID
 	 * @return List<Tasks> Tasks
 	 */
-	listAllRichTasksForFacility {
+	listAllTasksForFacility {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getPropagationStatsReader().listAllTasksForFacility(ac.getSession(), parms.readInt("facility"));
-		}
-	},
-
-	/*#
-	 * Returns RichTasks for a service.
-	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
-	 * @return List<Tasks> Tasks
-	 */
-	getServiceRichTasks {
-		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			List<ExecService> list = ac.getGeneralServiceManager().listExecServices(ac.getSession(), parms.readInt("service"));
-			List<Task> tasks = new ArrayList<Task>();
-
-			for (ExecService exec : list) {
-				Task task = ac.getPropagationStatsReader().getTask(ac.getSession(), exec.getId(), parms.readInt("facility"));
-				if (task != null) {
-					Task rtask = (Task) task;
-					rtask.setExecService(exec);
-					tasks.add(rtask);
-				}
-			}
-			return tasks;
 		}
 	},
 
@@ -256,6 +231,18 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	getTaskResultsForDestinations {
 		public List<TaskResult> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getPropagationStatsReader().getTaskResultsForDestinations(ac.getSession(), parms.readList("destinations", String.class));
+		}
+	},
+	
+	/*#
+	 * Returns service states for defined facility.
+	 *
+	 * @param Facility int ID of facility
+	 * @return List<ServiceState> serviceStates.
+	 */
+	getFacilityServicesState {
+		public List<ServiceState> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getPropagationStatsReader().getFacilityServicesState(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
 		}
 	};
 }
