@@ -120,7 +120,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 									logger.error("No object recognized in objects from message for class: " + className);
 								}
 							} catch (ClassNotFoundException ex) {
-								logger.error("Class from template cannot be resolved: " + className);
+								logger.error("Class from template cannot be resolved: " + className, ex);
 							}
 						}
 					}
