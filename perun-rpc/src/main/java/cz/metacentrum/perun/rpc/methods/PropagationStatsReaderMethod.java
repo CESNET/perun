@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import cz.metacentrum.perun.controller.model.FacilityState;
@@ -50,34 +49,9 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	 * @param facility int Facility ID
 	 * @return List<Tasks> Tasks
 	 */
-	listAllRichTasksForFacility {
+	listAllTasksForFacility {
 		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getPropagationStatsReader().listAllTasksForFacility(ac.getSession(), parms.readInt("facility"));
-		}
-	},
-
-	/*#
-	 * Returns RichTasks for a service.
-	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
-	 * @return List<Tasks> Tasks
-	 */
-	getServiceRichTasks {
-		public List<Task> call(ApiCaller ac, Deserializer parms) throws PerunException {
-
-			List<ExecService> list = ac.getGeneralServiceManager().listExecServices(ac.getSession(), parms.readInt("service"));
-			List<Task> tasks = new ArrayList<Task>();
-
-			for (ExecService exec : list) {
-				Task task = ac.getPropagationStatsReader().getTask(ac.getSession(), exec.getId(), parms.readInt("facility"));
-				if (task != null) {
-					Task rtask = (Task) task;
-					rtask.setExecService(exec);
-					tasks.add(rtask);
-				}
-			}
-			return tasks;
 		}
 	},
 
