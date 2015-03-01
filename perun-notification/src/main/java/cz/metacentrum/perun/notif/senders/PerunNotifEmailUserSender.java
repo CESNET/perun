@@ -8,7 +8,6 @@ import cz.metacentrum.perun.notif.dto.PerunNotifEmailMessageToSendDto;
 import cz.metacentrum.perun.notif.dto.PerunNotifMessageDto;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
-import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
 import cz.metacentrum.perun.notif.managers.PerunNotifEmailManager;
 import org.slf4j.Logger;
@@ -59,7 +58,6 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 		for (PerunNotifMessageDto messageDto : dtosToSend) {
 
 			PerunNotifReceiver receiver = messageDto.getReceiver();
-			PerunNotifTemplate template = messageDto.getTemplate();
 			PoolMessage dto = messageDto.getPoolMessage();
 
 			logger.debug("Creating email for user, receiver: {}", receiver.getId());
@@ -68,10 +66,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 			emailDto.setSubject(messageDto.getSubject());
 			usedPools.addAll(messageDto.getUsedPoolIds());
 
-			String sender = dto.getKeyAttributes().get(template.getSender());
-			if (sender == null || sender.isEmpty()) {
-				sender = template.getSender();
-			}
+			String sender = messageDto.getSender();
 			emailDto.setSender(sender);
 			logger.debug("Calculated sender for receiver: {}, sender: {}", Arrays.asList(receiver.getId(), sender));
 

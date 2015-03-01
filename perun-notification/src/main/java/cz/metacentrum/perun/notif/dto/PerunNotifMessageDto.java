@@ -17,6 +17,11 @@ public class PerunNotifMessageDto {
 	private PerunNotifReceiver receiver;
 
 	/**
+	 * Sender of messageToSend
+	 */
+	private String sender;
+
+	/**
 	 * Complete message send to receiver
 	 */
 	private String messageToSend;
@@ -40,6 +45,14 @@ public class PerunNotifMessageDto {
 	 * Template used for this message
 	 */
 	private PerunNotifTemplate template;
+
+	public String getSender() {
+		return sender;
+	}
+
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
 
 	public PerunNotifReceiver getReceiver() {
 		return receiver;

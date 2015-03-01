@@ -89,10 +89,6 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 					Map<String, String> retrievedPrimaryProperties = new HashMap<String, String>();
 					Set<String> classNames = new HashSet<String>();
 					classNames.addAll(template.getPrimaryProperties().keySet());
-					// recognize sender
-					if (!(template.getSender().contains("@"))) {
-						classNames.add(template.getSender());
-					}
 					for (PerunNotifReceiver receiver : template.getReceivers()) {
 						classNames.add(receiver.getTarget());
 					}
