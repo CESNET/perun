@@ -5,6 +5,8 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -95,5 +97,22 @@ public interface Searcher {
 	 * @throws PrivilegeException
 	 */
 	List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws PrivilegeException, InternalErrorException;
+
+	/**
+	 * Return members with expiration date set, which will expire on specified date.
+	 * You can specify operator for comparison (by default "=") returning exact match.
+	 * So you can get all expired members (including today) using "<=" and current date.
+	 * or using "<" and tomorrow date.
+	 *
+	 * Method ignores current member state, just compares expiration date !
+	 *
+	 * @param sess PerunSession
+	 * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
+	 * @param date Date to compare expiration with (if null, current date is used).
+	 * @return Members with expiration relative to method params.
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws PrivilegeException, InternalErrorException;
 
 }

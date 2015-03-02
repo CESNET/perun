@@ -1,20 +1,16 @@
 package cz.metacentrum.perun.core.impl;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
 /**
@@ -74,6 +70,9 @@ public class Synchronizer {
 
 		try {
 
+			// we must retrieve current date only once per method run
+			Calendar compareDate = Calendar.getInstance();
+
 			// get all available VOs
 			List<Vo> vos = perunBl.getVosManagerBl().getVos(sess);
 			Map<Integer, Vo> vosMap = new HashMap<Integer, Vo>();
@@ -82,37 +81,43 @@ public class Synchronizer {
 			}
 
 			// log message for all members which will expire in 30 days
-			List<Member> expireIn30Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", 30);
+			compareDate.add(Calendar.DAY_OF_MONTH, 30);
+			List<Member> expireIn30Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
 			for (Member m : expireIn30Days) {
 				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 30, vosMap.get(m.getVoId()));
 			}
 
 			// log message for all members which will expire in 14 days
-			List<Member> expireIn14Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", 14);
+			compareDate.add(Calendar.DAY_OF_MONTH, -16);
+			List<Member> expireIn14Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
 			for (Member m : expireIn14Days) {
 				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
 			}
 
 			// log message for all members which will expire in 7 days
-			List<Member> expireIn7Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", 7);
+			compareDate.add(Calendar.DAY_OF_MONTH, -7);
+			List<Member> expireIn7Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
 			for (Member m : expireIn7Days) {
 				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
 			}
 
 			// log message for all members which will expire tomorrow
-			List<Member> expireIn1Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", 1);
+			compareDate.add(Calendar.DAY_OF_MONTH, -6);
+			List<Member> expireIn1Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
 			for (Member m : expireIn1Days) {
 				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
 			}
 
 			// log message for all members which expired 7 days ago
-			List<Member> expired7DaysAgo = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", -7);
+			compareDate.add(Calendar.DAY_OF_MONTH, -8);
+			List<Member> expired7DaysAgo = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
 			for (Member m : expired7DaysAgo) {
 				getPerun().getAuditer().log(sess, "{} has expired {} days ago in {}.", m, 7, vosMap.get(m.getVoId()));
 			}
 
 			// switch members, which expire today
-			List<Member> shouldBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, "<=", 0);
+			compareDate.add(Calendar.DAY_OF_MONTH, 7);
+			List<Member> shouldBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, "<=", compareDate);
 			for (Member member : shouldBeExpired) {
 				if (member.getStatus().equals(Status.VALID)) {
 					try {
@@ -125,7 +130,7 @@ public class Synchronizer {
 			}
 
 			// switch members, which shouldn't be expired
-			List<Member> shouldntBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, ">", 0);
+			List<Member> shouldntBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, ">", compareDate);
 			for (Member member : shouldntBeExpired) {
 				if (member.getStatus().equals(Status.EXPIRED)) {
 					try {

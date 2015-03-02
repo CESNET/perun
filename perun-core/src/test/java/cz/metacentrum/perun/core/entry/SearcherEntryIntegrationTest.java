@@ -178,6 +178,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getMembersByExpiration() throws Exception {
+		System.out.println("Searcher.getMembersByExpiration");
 
 		// setup required attribute if not exists
 		try {
@@ -215,6 +216,25 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue("Member with expiration yesterday was found for = tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, "=", 1).contains(member2));
 		assertTrue("Member with expiration today was found for > tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, ">", 1).contains(member1));
 		assertTrue("Member with expiration yesterday was not found for < tomorrow.", perun.getSearcher().getMembersByExpiration(sess, "<", 1).contains(member2));
+
+		// check members by expiration date
+		assertTrue("Member with expiration yesterday was not found for = yesterday.", perun.getSearcher().getMembersByExpiration(sess, "=", calendar).contains(member2));
+		assertTrue("Member with expiration today was not found for > yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">", calendar).contains(member1));
+		assertTrue("Member with expiration today was not found for >= yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">=", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for >= yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">=", calendar).contains(member2));
+
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+		assertTrue("Member with expiration today was not found for = today.", perun.getSearcher().getMembersByExpiration(sess, "=", calendar).contains(member1));
+		assertTrue("Member with expiration today was not found for <= today.", perun.getSearcher().getMembersByExpiration(sess, "<=", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for <= today.", perun.getSearcher().getMembersByExpiration(sess, "<=", calendar).contains(member2));
+
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+		assertTrue("Member with expiration today was found for = tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, "=", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was found for = tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, "=", calendar).contains(member2));
+		assertTrue("Member with expiration today was found for > tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, ">", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for < tomorrow.", perun.getSearcher().getMembersByExpiration(sess, "<", calendar).contains(member2));
 
 	}
 

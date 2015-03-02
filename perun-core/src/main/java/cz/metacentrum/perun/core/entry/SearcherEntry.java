@@ -19,11 +19,8 @@ import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +129,18 @@ public class SearcherEntry implements Searcher {
 		}
 
 		return getPerunBl().getSearcherBl().getMembersByExpiration(sess, operator, days);
+
+	}
+
+	@Override
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws PrivilegeException, InternalErrorException {
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getMembersByExpiration");
+		}
+
+		return getPerunBl().getSearcherBl().getMembersByExpiration(sess, operator, date);
 
 	}
 

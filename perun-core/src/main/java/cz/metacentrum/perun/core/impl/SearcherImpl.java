@@ -143,13 +143,13 @@ public class SearcherImpl implements SearcherImplApi {
 	}
 
 	@Override
-	public List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws InternalErrorException {
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date, int days) throws InternalErrorException {
 
 		// this would default to now
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_MONTH, days);
+		if (date == null) date = Calendar.getInstance();
+		date.add(Calendar.DAY_OF_MONTH, days);
 		// create sql toDate()
-		String compareDate = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		String compareDate = BeansUtils.getDateFormatterWithoutTime().format(date.getTime());
 		compareDate = "TO_DATE('"+compareDate+"','yyyy-MM-dd')";
 
 		if (operator == null || operator.isEmpty()) operator = "=";

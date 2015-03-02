@@ -83,7 +83,12 @@ public class SearcherBlImpl implements SearcherBl {
 
 	@Override
 	public List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws InternalErrorException {
-		return getSearcherImpl().getMembersByExpiration(sess, operator, days);
+		return getSearcherImpl().getMembersByExpiration(sess, operator, null, days);
+	}
+
+	@Override
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws InternalErrorException {
+		return getSearcherImpl().getMembersByExpiration(sess, operator, date, 0);
 	}
 
 	/**

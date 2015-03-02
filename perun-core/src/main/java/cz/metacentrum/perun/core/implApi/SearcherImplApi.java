@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public interface SearcherImplApi {
 	List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException;
 
 	/**
-	 * Return members with expiration date set, which will expire on today +/- X days.
+	 * Return members with expiration date set, which will expire on date +/- X days.
 	 * You can specify operator for comparison (by default "=") returning exact match.
 	 * So you can get all expired members (including today) using "<=" and zero days shift.
 	 * or using "<" and +1 day shift.
@@ -49,10 +50,11 @@ public interface SearcherImplApi {
 	 *
 	 * @param sess PerunSession
 	 * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
-	 * @param days X days before/after today
+	 * @param date Date to compare expiration with (if null, current date is used).
+	 * @param days X days before/after today.
 	 * @return Members with expiration relative to method params.
 	 * @throws InternalErrorException
 	 */
-	List<Member> getMembersByExpiration(PerunSession sess, String operator, int days) throws InternalErrorException;
+	List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date, int days) throws InternalErrorException;
 
 }
