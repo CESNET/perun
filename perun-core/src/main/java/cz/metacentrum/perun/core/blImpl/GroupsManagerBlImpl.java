@@ -1513,10 +1513,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				exceptionMessage+= "due to unexpected exception: " + e.getClass().getName() + " => " + e.getMessage();
 				throw e;
 			} finally {
-				Date currentTimestamp = new Date();
 				//Save information about group synchronization, this method run in new transaction
 				try {
-					perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, currentTimestamp, failedDueToException, exceptionMessage);
+					perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, failedDueToException, exceptionMessage);
 				} catch (Exception ex) {
 					log.error("When synchronization group " + group + ", exception was thrown.", ex);
 					log.error("Info about exception from synchronization: " + skippedMembersMessage);
@@ -1754,7 +1753,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return convertGroupToRichGroupWithAttributesByName(sess, this.getGroupById(sess, groupId), attrNames);
 	}
 
-	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
+		//get current timestamp of this synchronization
+		Date currentTimestamp = new Date();
 		//If session is null, throw an exception
 		if (sess == null) {
 			throw new InternalErrorException("Session is null when trying to save information about synchronization. Group: " + group + ", timestamp: " + currentTimestamp + ",message: " + exceptionMessage);
@@ -1763,12 +1764,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//If group is null, throw an exception
 		if (group == null) {
 			throw new InternalErrorException("Object group is null when trying to save information about synchronization. Timestamp: " + currentTimestamp + ", message: " + exceptionMessage);
-		}
-
-		//if currentTimestamp is null, create new date and log this
-		if (currentTimestamp == null){
-			currentTimestamp = new Date();
-			log.error("When synchronize group " + group + " timestamp was null. Was create a new one and use it.");
 		}
 
 		//if exceptionMessage is empty, use "Empty message" instead
