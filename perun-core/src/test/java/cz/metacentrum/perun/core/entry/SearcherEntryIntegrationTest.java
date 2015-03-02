@@ -4,26 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.bl.SearcherBl;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @author Michal Šťava <stavamichal@gmail.com>
@@ -186,15 +176,77 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertTrue("member1 have to be found", members.contains(member1));
 	}
 
+	@Test
+	public void getMembersByExpiration() throws Exception {
+		System.out.println("Searcher.getMembersByExpiration");
+
+		// setup required attribute if not exists
+		try {
+			perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration");
+		} catch (AttributeNotExistsException ex) {
+			setUpMembershipExpirationAttribute();
+		}
+
+		// setup expiration dates
+		Calendar calendar = Calendar.getInstance();
+		String today = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+		calendar.add(Calendar.DAY_OF_MONTH, -1);
+		String yesterday = BeansUtils.getDateFormatterWithoutTime().format(calendar.getTime());
+
+		// set attributes
+		Attribute attribute = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration"));
+		attribute.setValue(today);
+		perun.getAttributesManager().setAttribute(sess, member1, attribute);
+
+		Attribute attribute2 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration"));
+		attribute2.setValue(yesterday);
+		perun.getAttributesManager().setAttribute(sess, member2, attribute2);
+
+		// check members by expiration
+		assertTrue("Member with expiration today was not found for = today.", perun.getSearcher().getMembersByExpiration(sess, "=", 0).contains(member1));
+		assertTrue("Member with expiration today was not found for <= today.", perun.getSearcher().getMembersByExpiration(sess, "<=", 0).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for <= today.", perun.getSearcher().getMembersByExpiration(sess, "<=", 0).contains(member2));
+
+		assertTrue("Member with expiration yesterday was not found for = yesterday.", perun.getSearcher().getMembersByExpiration(sess, "=", -1).contains(member2));
+		assertTrue("Member with expiration today was not found for > yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">", -1).contains(member1));
+		assertTrue("Member with expiration today was not found for >= yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">=", -1).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for >= yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">=", -1).contains(member2));
+
+		assertTrue("Member with expiration today was found for = tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, "=", 1).contains(member1));
+		assertTrue("Member with expiration yesterday was found for = tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, "=", 1).contains(member2));
+		assertTrue("Member with expiration today was found for > tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, ">", 1).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for < tomorrow.", perun.getSearcher().getMembersByExpiration(sess, "<", 1).contains(member2));
+
+		// check members by expiration date
+		assertTrue("Member with expiration yesterday was not found for = yesterday.", perun.getSearcher().getMembersByExpiration(sess, "=", calendar).contains(member2));
+		assertTrue("Member with expiration today was not found for > yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">", calendar).contains(member1));
+		assertTrue("Member with expiration today was not found for >= yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">=", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for >= yesterday.", perun.getSearcher().getMembersByExpiration(sess, ">=", calendar).contains(member2));
+
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+		assertTrue("Member with expiration today was not found for = today.", perun.getSearcher().getMembersByExpiration(sess, "=", calendar).contains(member1));
+		assertTrue("Member with expiration today was not found for <= today.", perun.getSearcher().getMembersByExpiration(sess, "<=", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for <= today.", perun.getSearcher().getMembersByExpiration(sess, "<=", calendar).contains(member2));
+
+		calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+		assertTrue("Member with expiration today was found for = tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, "=", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was found for = tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, "=", calendar).contains(member2));
+		assertTrue("Member with expiration today was found for > tomorrow.", !perun.getSearcher().getMembersByExpiration(sess, ">", calendar).contains(member1));
+		assertTrue("Member with expiration yesterday was not found for < tomorrow.", perun.getSearcher().getMembersByExpiration(sess, "<", calendar).contains(member2));
+
+	}
+
 	// PRIVATE METHODS -----------------------------------------------------------
 
 	private void setUpUser1() throws Exception {
-		member1 = perun.getMembersManagerBl().createMember(sess, vo, candidate1);
+		member1 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate1);
 		user1 = perun.getUsersManagerBl().getUserByMember(sess, member1);
 	}
 
 	private void setUpUser2() throws Exception {
-		member2 = perun.getMembersManagerBl().createMember(sess, vo, candidate2);
+		member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate2);
 		user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
 	}
 
@@ -297,6 +349,19 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		attr.setValue(value);
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
 		return attr;
+
+	}
+
+	private AttributeDefinition setUpMembershipExpirationAttribute() throws Exception {
+
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace("urn:perun:member:attribute-def:def");
+		attr.setFriendlyName("membershipExpiration");
+		attr.setType(String.class.getName());
+		attr.setDisplayName("Membership expiration");
+		attr.setDescription("Membership expiration date.");
+
+		return perun.getAttributesManager().createAttribute(sess, attr);
 
 	}
 

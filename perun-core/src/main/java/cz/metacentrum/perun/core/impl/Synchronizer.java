@@ -1,36 +1,23 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.api.BeansUtils;
 
 /**
  * Synchronizer, general tool for synchronization tasks.
  *
  * @author Michal Prochazka <michalp@ics.muni.cz>
- *
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class Synchronizer {
 
@@ -45,17 +32,21 @@ public class Synchronizer {
 
 	public Synchronizer(PerunBl perunBl) throws InternalErrorException {
 		this.perunBl = perunBl;
-
 		initialize();
 	}
 
+	/**
+	 * Start synchronization of groups if not running.
+	 *
+	 * Method is triggered by Spring scheduler (every 5 minutes).
+	 */
 	public void synchronizeGroups() {
 		if (synchronizeGroupsRunning.compareAndSet(false, true)) {
 			try {
 				log.debug("Synchronizer starting synchronizing the groups");
 				this.perunBl.getGroupsManagerBl().synchronizeGroups(this.sess);
 				if (!synchronizeGroupsRunning.compareAndSet(true, false)) {
-					log.error("Synchonizer: group synchronization out of sync, resetting.");
+					log.error("Synchronizer: group synchronization out of sync, resetting.");
 					synchronizeGroupsRunning.set(false);
 				}
 			} catch (InternalErrorException e) {
@@ -68,68 +59,99 @@ public class Synchronizer {
 	}
 
 	/**
-	 * Iterate through all VALID members and check whether they are still in valid period.
+	 * Perform check on members status and switch it between VALID and EXPIRED (if necessary).
+	 * Switching is based on current date and their value of membership expiration.
+	 *
+	 * Method also log audit messages, that membership will expired in X days or expired X days ago.
+	 *
+	 * Method is triggered by Spring scheduler (at midnight everyday).
 	 */
 	public void checkMembersState() {
-		Date now = new Date();
 
-		// Get all VO's
 		try {
-			for (Vo vo: perunBl.getVosManagerBl().getVos(this.sess)) {
-				// Get all members
-				for (Member member: perunBl.getMembersManagerBl().getMembers(sess, vo)) {
-					Date currentMembershipExpirationDate;
-					// Read membershipExpiration and check it
-					Attribute membersExpiration = perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration");
-					if (membersExpiration.getValue() != null) {
-						currentMembershipExpirationDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membersExpiration.getValue());
-						if (currentMembershipExpirationDate.before(now)) {
-							// Expired membership, set status to expired only if the user hasn't been in suspended state
-							if (!member.getStatus().equals(Status.EXPIRED) && !member.getStatus().equals(Status.SUSPENDED)) {
-								try {
-									perunBl.getMembersManagerBl().expireMember(sess, member);
-									log.info("Switching {} to EXPIRE state, due to expiration {}.", member, (String) membersExpiration.getValue());
-									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-								} catch (MemberNotValidYetException e) {
-									log.error("Consistency error while trying to expire member {}, exception {}", member, e);
-								}
-							}
-						} else if (member.getStatus().equals(Status.EXPIRED) || member.getStatus().equals(Status.DISABLED)) {
-							// Validate member only if the previous status was EXPIRED or DISABLED
-							try {
-								perunBl.getMembersManagerBl().validateMember(sess, member);
-								log.info("Switching {} to VALID state, due to changed expiration {}.", member, (String) membersExpiration.getValue());
-								log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-							} catch (WrongAttributeValueException e) {
-								log.error("Error during validating member {}, exception {}", member, e);
-							} catch (WrongReferenceAttributeValueException e) {
-								log.error("Error during validating member {}, exception {}", member, e);
-							}
-						}
 
-						//check for members' expiration in the future on in the past
-						int daysToExpire = (int) TimeUnit.DAYS.convert(currentMembershipExpirationDate.getTime() - now.getTime(), TimeUnit.MILLISECONDS);
-						switch(daysToExpire) {
-							case 30: case 14: case 7: case 1:
-									getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", member, daysToExpire, vo);
-									break;
-							case -7:
-									getPerun().getAuditer().log(sess, "{} has expired {} days ago in {}.", member, daysToExpire*(-1), vo);
-									break;
-						}
+			// we must retrieve current date only once per method run
+			Calendar compareDate = Calendar.getInstance();
+
+			// get all available VOs
+			List<Vo> vos = perunBl.getVosManagerBl().getVos(sess);
+			Map<Integer, Vo> vosMap = new HashMap<Integer, Vo>();
+			for (Vo vo : vos) {
+				vosMap.put(vo.getId(), vo);
+			}
+
+			// log message for all members which will expire in 30 days
+			compareDate.add(Calendar.DAY_OF_MONTH, 30);
+			List<Member> expireIn30Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			for (Member m : expireIn30Days) {
+				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 30, vosMap.get(m.getVoId()));
+			}
+
+			// log message for all members which will expire in 14 days
+			compareDate.add(Calendar.DAY_OF_MONTH, -16);
+			List<Member> expireIn14Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			for (Member m : expireIn14Days) {
+				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+			}
+
+			// log message for all members which will expire in 7 days
+			compareDate.add(Calendar.DAY_OF_MONTH, -7);
+			List<Member> expireIn7Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			for (Member m : expireIn7Days) {
+				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+			}
+
+			// log message for all members which will expire tomorrow
+			compareDate.add(Calendar.DAY_OF_MONTH, -6);
+			List<Member> expireIn1Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			for (Member m : expireIn1Days) {
+				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+			}
+
+			// log message for all members which expired 7 days ago
+			compareDate.add(Calendar.DAY_OF_MONTH, -8);
+			List<Member> expired7DaysAgo = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			for (Member m : expired7DaysAgo) {
+				getPerun().getAuditer().log(sess, "{} has expired {} days ago in {}.", m, 7, vosMap.get(m.getVoId()));
+			}
+
+			// switch members, which expire today
+			compareDate.add(Calendar.DAY_OF_MONTH, 7);
+			List<Member> shouldBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, "<=", compareDate);
+			for (Member member : shouldBeExpired) {
+				if (member.getStatus().equals(Status.VALID)) {
+					try {
+						perunBl.getMembersManagerBl().expireMember(sess, member);
+						log.info("Switching {} to EXPIRE state, due to expiration {}.", member, (String) perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
+					} catch (MemberNotValidYetException e) {
+						log.error("Consistency error while trying to expire member {}, exception {}", member, e);
 					}
 				}
-
 			}
+
+			// switch members, which shouldn't be expired
+			List<Member> shouldntBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, ">", compareDate);
+			for (Member member : shouldntBeExpired) {
+				if (member.getStatus().equals(Status.EXPIRED)) {
+					try {
+						perunBl.getMembersManagerBl().validateMember(sess, member);
+						log.info("Switching {} to VALID state, due to changed expiration {}.", member, (String) perunBl.getAttributesManagerBl().getAttribute(sess, member, "urn:perun:member:attribute-def:def:membershipExpiration").getValue());
+					} catch (WrongAttributeValueException e) {
+						log.error("Error during validating member {}, exception {}", member, e);
+					} catch (WrongReferenceAttributeValueException e) {
+						log.error("Error during validating member {}, exception {}", member, e);
+					}
+				}
+			}
+
 		} catch (InternalErrorException e) {
 			log.error("Synchronizer: checkMembersState, exception {}", e);
 		} catch (AttributeNotExistsException e) {
 			log.warn("Synchronizer: checkMembersState, attribute definition for membershipExpiration doesn't exist, exception {}", e);
 		} catch (WrongAttributeAssignmentException e) {
 			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace, exception {}", e);
-		} catch (ParseException e) {
-			log.error("Synchronizer: checkMembersState, member expiration String cannot be parsed, exception {}", e);
 		}
+
 	}
 
 	public void initialize() throws InternalErrorException {
@@ -144,4 +166,5 @@ public class Synchronizer {
 	public void setPerun(PerunBl perunBl) {
 		this.perunBl = perunBl;
 	}
+
 }
