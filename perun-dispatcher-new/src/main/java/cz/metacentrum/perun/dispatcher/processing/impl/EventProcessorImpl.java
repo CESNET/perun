@@ -214,6 +214,7 @@ public class EventProcessorImpl implements EventProcessor {
 						taskExecutor.execute(new Runnable() {
 							@Override
 							public void run() {
+								log.debug("  Force scheduling the task.");
 								taskScheduler.scheduleTask(task_final);
 							}
 						});
