@@ -999,7 +999,7 @@ public interface GroupsManagerBl {
 	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
 
 	/**
-	 * This method will set currentTimestamp and exceptionMessage to group attributes for the group.
+	 * This method will set timestamp and exceptionMessage to group attributes for the group.
 	 * Also log information about failed synchronization to auditer_log.
 	 * 
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
@@ -1012,7 +1012,6 @@ public interface GroupsManagerBl {
 	 * 
 	 * @param sess perun session
 	 * @param group the group for synchronization
-	 * @param currentTimestamp timestamp of last synchronization
 	 * @param failedDueToException if exception means fail of whole synchronization of this group or only problem with some data
 	 * @param exceptionMessage message of an exception, ok if everything is ok
 	 * @throws AttributeNotExistsException
@@ -1021,5 +1020,5 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException 
 	 */
-	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 }
