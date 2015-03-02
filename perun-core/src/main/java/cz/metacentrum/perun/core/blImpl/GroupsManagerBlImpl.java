@@ -102,7 +102,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
 					}
 				}));
-		
+
 		for(Group group: groups) {
 			this.deleteGroup(perunSession, group, forceDelete);
 		}
@@ -298,7 +298,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		List<Group> allSubgroups = this.getAllSubGroups(sess, group);
 		for(Group g: allSubgroups) {
-			getPerunBl().getAuditer().log(sess, "{} updated.", g);
+			String subGroupName = g.getName();
+			// get substring of groups name without the name of a first parent group
+			g.setName(group.getName() + ":" + subGroupName.substring(subGroupName.indexOf(":") + 1));
+			getGroupsManagerImpl().updateGroup(sess, g);
 		}
 
 		return group;

@@ -118,15 +118,7 @@ public class SearcherImpl implements SearcherImplApi {
 		}
 
 		try {
-			if (Compatibility.isOracle()) {
-				return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
-			} else if (Compatibility.isPostgreSql()) {
-				return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
-				//throw new InternalErrorException("Unsupported postgreSQL type");
-			} else {
-				throw new InternalErrorException("Unsupported db type");
-			}
-
+			return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<User>();
 		} catch (RuntimeException e) {

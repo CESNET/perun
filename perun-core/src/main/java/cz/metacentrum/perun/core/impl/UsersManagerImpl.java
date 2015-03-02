@@ -692,6 +692,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				return jdbc.query("select " + userMappingSelectQuery + "  from users " +
 						"where strpos(lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+"),?) > 0",
 						USER_MAPPER, searchString);
+			} else if (Compatibility.isHSQLDB()) {
+				return jdbc.query("select " + userMappingSelectQuery + "  from users " +
+								"where lower("+Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')")+") like '%' || ? || '%'",
+						USER_MAPPER, searchString);
 			} else {
 				throw new InternalErrorException("Unsupported db type");
 			}

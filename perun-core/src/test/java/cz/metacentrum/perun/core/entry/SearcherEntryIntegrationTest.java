@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 	private Vo vo;
 	String extLogin = "aaa";              // his login in external source
 	String extLogin2 = "bbb";
-	String extSourceName = "LDAPMETA";        // real ext source with his login
+	String extSourceName = "SearcherEntryIntegrationTest";
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	private SearcherBl searcherBl;
 	private Attribute integerAttr;
@@ -205,8 +206,8 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		// create test VO in database
 		assertNotNull("unable to create testing Vo",returnedVo);
 		assertEquals("both VOs should be the same",newVo,returnedVo);
-
-		ExtSource es = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
+		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
 		// get real external source from DB
 		perun.getExtSourcesManager().addExtSource(sess, returnedVo, es);
 		// add real ext source to our VO

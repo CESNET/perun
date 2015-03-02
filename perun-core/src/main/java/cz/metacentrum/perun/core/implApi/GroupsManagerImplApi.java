@@ -80,13 +80,13 @@ public interface GroupsManagerImplApi {
 	/**
 	 * Updates group by ID.
 	 *
-	 * Update shortName (use shortName) and description. Group.name is ignored.
-	 * Return Group with correctly set parameters (including group.name)
+	 * Update name (with ":") and description.
+	 * Return Group with correctly set parameters
 	 *
 	 * @param perunSession
-	 * @param group to update (use only ID, shortName and description)
+	 * @param group to update (use only ID, name and description)
 	 *
-	 * @return updated group with correctly set parameters (including group.name)
+	 * @return updated group with correctly set parameters
 	 *
 	 * @throws InternalErrorException
 	 */

@@ -4611,7 +4611,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			ActionType actionType;
 			boolean roleExists;
 			while (rs.next()) {
-				role = Role.valueOf(rs.getString("role_name").toUpperCase());
+				// HSQLDB cant use aliasses instead of name of column this way
+				role = Role.valueOf(rs.getString("name").toUpperCase());
 				actionType = ActionType.valueOf(rs.getString("action_type").toUpperCase());
 				roleExists = false;
 
