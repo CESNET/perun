@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import org.xml.sax.SAXParseException;
 
 
 /**
@@ -181,10 +182,12 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 			} else {
 				throw new InternalErrorException("Document can't be parsed, because there is no way (file or uri) to this document in xpathParser.");
 			}			
+		} catch (SAXParseException ex) {
+			throw new InternalErrorException("Error when parsing uri by document builder.", ex);
 		} catch (SAXException ex) {
-			throw new InternalErrorException("Error when parsing uri by document builder.", ex);
+			throw new InternalErrorException("Problem with parsing is more complex, not only invalid characters.", ex);
 		} catch (IOException ex) {
-			throw new InternalErrorException("Error when parsing uri by document builder.", ex);
+			throw new InternalErrorException("Error when parsing uri by document builder. Problem with input or output.", ex);
 		}
 		
 		//Prepare xpath expression
@@ -388,7 +391,13 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 			con.setRequestProperty(reqHeaderKey, reqHeaderValue);
 		}
 
-		return con.getInputStream();
+		int responseCode = con.getResponseCode();
+		if(responseCode == 200) {
+			InputStream is = con.getInputStream();
+			return is;
+		}
+
+		throw new InternalErrorException("Wrong response code while opening connection on uri '" + uri + "'. Response code: " + responseCode);
 	}
 
 
