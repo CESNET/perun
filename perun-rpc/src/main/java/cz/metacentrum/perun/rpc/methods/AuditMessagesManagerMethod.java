@@ -7,6 +7,7 @@ import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.List;
+import java.util.Map;
 
 public enum AuditMessagesManagerMethod implements ManagerMethod {
 
@@ -111,6 +112,28 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 
 			ac.getAuditMessagesManager().createAuditerConsumer(ac.getSession(), parms.readString("consumerName"));
 			return null;
+		}
+	},
+
+	/*#
+	 * Get all auditer consumers from database. In map is String = name and Integer = lastProcessedId.
+	 */
+	getAllAuditerConsumers {
+		@Override
+		public Map<String, Integer> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getAuditMessagesManager().getAllAuditerConsumers(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Get last message id from auditer_log.
+	 */
+	getLastMessageId {
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getAuditMessagesManager().getLastMessageId(ac.getSession());
 		}
 	},
 
