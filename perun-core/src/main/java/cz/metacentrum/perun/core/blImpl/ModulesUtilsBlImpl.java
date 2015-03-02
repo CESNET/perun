@@ -549,8 +549,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public boolean isNameOfEmailValid(PerunSessionImpl sess, String email) {
 		if (email == null) return false;
 
-		Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+]+(\\.[-_A-Za-z0-9]+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
-		Matcher emailMatcher = emailPattern.matcher(email);
+		Matcher emailMatcher = Utils.emailPattern.matcher(email);
 		if (emailMatcher.find()) return true;
 
 		return false;
