@@ -4431,6 +4431,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDisplayName("Group description");
 		attributes.add(attr);
 
+		//Group.parentGroupId
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("parentGroupId");
+		attr.setDisplayName("Id of group's parent group.");
+		attributes.add(attr);
+
 		//Vo.id
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
