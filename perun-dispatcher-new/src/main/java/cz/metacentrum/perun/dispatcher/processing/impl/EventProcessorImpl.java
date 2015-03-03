@@ -209,7 +209,7 @@ public class EventProcessorImpl implements EventProcessor {
 						log.debug("  Created new task and added to the pool.");
 					}
 					final Task task_final = task;
-					if (event.getHeader().contains("forceit")) {
+					if (event.getData().contains("force propagation:")) {
 						// expedite task processing
 						taskExecutor.execute(new Runnable() {
 							@Override
