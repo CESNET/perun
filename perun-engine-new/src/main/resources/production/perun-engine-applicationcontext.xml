@@ -30,7 +30,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     <import resource="classpath:perun-beans.xml"/>
  
     <!-- Scans for @Repository, @Service and @Component -->
-   	<context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
+	<context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
     <context:component-scan base-package="cz.metacentrum.perun.engine"/>
 
     <task:scheduler id="scheduler" pool-size="4" />
