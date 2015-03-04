@@ -108,33 +108,30 @@ public class PerunWebSession {
 	 * @return URL
 	 */
 	public String getRpcUrl() {
+
 		if(!rpcUrl.isEmpty()){
 			return rpcUrl;
 		}
 
 		String rpcType = getRpcServer();
 		if(rpcType == null){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrl();
-			return rpcUrl;
+			UiElements.generateAlert("Unable to find Perun server", "Path to Perun server can't be determined, you" +
+					"probably used wrong URL.");
 		}
 
-		if(rpcType.equals("krb")){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlKrb();
-		}else if (rpcType.equals("fed")){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlFed();
-		}else if (rpcType.equals("cert")) {
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlCert();
-		}else if (rpcType.equals("einfra")){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlKrbEinfra();
-		}else{
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrl();
+		String modifier = PerunWebConstants.INSTANCE.perunRpcUrlModifier();
+		if (modifier == null || modifier.equalsIgnoreCase("${gui.url.modifier}")) {
+			rpcUrl = "/"+rpcType+"/rpc/jsonp/";
+		} else {
+			rpcUrl = "/"+rpcType+"/rpc"+modifier+"/jsonp/";
 		}
+
 		return rpcUrl;
+
 	}
 
 	/**
-	 * Returns RPC type: default, krb, cert, fed
-	 * RPC type should be included in PerunWeb*.html
+	 * Returns RPC type determined as first part of path in current page URL.
 	 *
 	 * @return RPC type
 	 */
@@ -142,14 +139,14 @@ public class PerunWebSession {
 		return $wnd.RPC_SERVER;
 	}-*/;
 
-		/**
-		 * Returns the UI elements
-		 *
-		 * @return return class which contains UI elements - menus,log,pages,tabs
-		 */
-		public UiElements getUiElements() {
-			return this.uiElements;
-		}
+	/**
+	 * Returns the UI elements
+	 *
+	 * @return return class which contains UI elements - menus,log,pages,tabs
+	 */
+	public UiElements getUiElements() {
+		return this.uiElements;
+	}
 
 	/**
 	 * Sets the UI elements handler class.
@@ -728,10 +725,10 @@ public class PerunWebSession {
 	public void setActiveVoId(final int voId) {
 		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso)
-		{
-			VirtualOrganization vo = jso.cast();
-			setActiveVo(vo);
-		}
+			{
+				VirtualOrganization vo = jso.cast();
+				setActiveVo(vo);
+			}
 		}).retrieveData();
 	}
 
@@ -745,10 +742,10 @@ public class PerunWebSession {
 	{
 		new GetEntityById(PerunEntity.GROUP, groupId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso)
-		{
-			Group group = jso.cast();
-			setActiveGroup(group);
-		}
+			{
+				Group group = jso.cast();
+				setActiveGroup(group);
+			}
 		}).retrieveData();
 	}
 
@@ -761,10 +758,10 @@ public class PerunWebSession {
 	public void setActiveFacilityId(int facilityId) {
 		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso)
-		{
-			Facility f = jso.cast();
-			setActiveFacility(f);
-		}
+			{
+				Facility f = jso.cast();
+				setActiveFacility(f);
+			}
 		}).retrieveData();
 	}
 

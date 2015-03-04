@@ -315,7 +315,7 @@ public class ApplicationFormGui implements EntryPoint {
 							bodySplitter.add(ft);
 
 							// challange captcha only for default URL (non)
-						} else if (session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+						} else if (session.getRpcUrl().startsWith("/non/rpc")) {
 
 							// IF VALIDATION LINK
 
