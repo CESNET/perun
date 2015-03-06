@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.voot;
 
+import java.util.Arrays;
+
 /**
  * Structure of response with information about startIndex, totalResult, itemsPerPage and results of request.
  * Results are items, e.g. array of members or groups.
@@ -102,16 +104,11 @@ public class Response {
 
 	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder("Response:[startIndex='" + startIndex + ", totalResults='" + totalResults + ", itemsPerPage='" + itemsPerPage + ", entry=['");
-
-		for(int i=0;i<entry.length;i++){
-			sb.append(entry[i] + ", ");
-		}
-
-		sb.deleteCharAt(sb.length() - 2);
-		sb.append("']");
-
-		return sb.toString();
+		return new StringBuilder().append(getClass().getSimpleName()).append(":[")
+				.append("startIndex='").append(getStartIndex()).append("', ")
+				.append("totalResults='").append(getTotalResults()).append("', ")
+				.append("itemsPerPage='").append(getItemsPerPage()).append("', ")
+				.append("entry='").append(Arrays.toString(getEntry())).append("']").toString();
 	}
 
 }

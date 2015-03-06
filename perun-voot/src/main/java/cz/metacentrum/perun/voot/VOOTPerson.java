@@ -2,6 +2,8 @@ package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.User;
 
+import java.util.Arrays;
+
 /**
  * Class defines Person encoded according to the OpenSocial Social Data Specification.
  * Attributes that are not part of specifiacation have namespace prefix 'voot_'.
@@ -101,18 +103,10 @@ public class VOOTPerson implements Comparable<VOOTPerson>{
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-
-		sb.append("VOOTPerson:[id='" + id + "', displayName='" + displayName +"', emails=['");
-
-		if(emails != null){
-			for(int i=0;i<emails.length;i++){
-				sb.append(emails[i] + ", ");
-			}
-		}
-
-		sb.deleteCharAt(sb.length() - 2);
-		sb.append("']]");
-
+		sb.append(this.getClass().getSimpleName()).append(":[")
+				.append("id='").append(getId()).append("', ")
+				.append("displayName='").append(getDisplayName()).append("', ")
+				.append("emails='").append(Arrays.toString(getEmails())).append("']");
 		return sb.toString();
 	}
 }
