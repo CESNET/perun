@@ -3,18 +3,15 @@ package cz.metacentrum.perun.voot;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.voot.comparators.vootgroupcomparator.VOOTGroupDefaultDescComparator;
@@ -35,14 +32,10 @@ import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberMemb
 import cz.metacentrum.perun.voot.comparators.vootmembercomparator.VOOTMemberMembershipRoleDescComparator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,7 +182,7 @@ public class VOOT {
 	 * then method returns original array of items.
 	 *
 	 * @param items   array of items, that could be limited
-	 * @param response  response, in which are setted indexes.
+	 * @param response  response, in which are set indexes.
 	 * @return          array of limited items or original array of items
 	 */
 	private Object[] limitResult(Object[] items, Response response){
@@ -254,7 +247,7 @@ public class VOOT {
 
 	/**
 	 * This method creates members used by VOOT, that are represented to end-user. They are created from members by provider and membership role
-	 * is setted by relationship of member and specific group.
+	 * is set by relationship of member and specific group.
 	 *
 	 * @param members           members by provider
 	 * @param group             specific group
@@ -299,7 +292,7 @@ public class VOOT {
 	}
 
 	/**
-	 * Return email adresses of specific user. Now is only preferred mail required. If user has not email, then is returned empty array.
+	 * Return email addresses of specific user. Now is only preferred mail required. If user has not email, then is returned empty array.
 	 *
 	 * @param user              specific user
 	 * @return                  emails of user, if user has not emails is returned empty array
@@ -315,10 +308,10 @@ public class VOOT {
 		try{
 			preferredEmailAttribute = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
 			if(preferredEmailAttribute.getValue() != null){
-				Email preferedEmail = new Email();
-				preferedEmail.setType("mail");
-				preferedEmail.setValue((String) preferredEmailAttribute.getValue());
-				emails[0] = preferedEmail;
+				Email email = new Email();
+				email.setType("mail");
+				email.setValue((String) preferredEmailAttribute.getValue());
+				emails[0] = email;
 			}else{
 				emails = null;
 			}
@@ -353,12 +346,12 @@ public class VOOT {
 	 */
 	private Group getGroupByName(String name) throws VOOTException{
 
-		String[] groupNames = name.split(":");
+		String voName = name.split(":")[0];
 
 		Vo vo = null;
 
 		try{
-			vo = perun.getVosManagerBl().getVoByShortName(session, groupNames[0]);
+			vo = perun.getVosManagerBl().getVoByShortName(session, voName);
 		}catch(InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
 		}catch(VoNotExistsException ex){
@@ -368,7 +361,7 @@ public class VOOT {
 		Group group = null;
 
 		try{
-			group = perun.getGroupsManagerBl().getGroupByName(session, vo, groupNames[groupNames.length - 1]);
+			group = perun.getGroupsManagerBl().getGroupByName(session, vo, name.substring(name.indexOf(":")+1, name.length()));
 		}catch(GroupNotExistsException ex){
 			throw new VOOTException("internal_server_error", "group not exists");
 		}catch(InternalErrorException ex){
@@ -802,7 +795,7 @@ public class VOOT {
 
 		}else if(filterByValue != null && filterValueValue == null){
 
-			if(!filterByValue.equals(PRESENT)) throw new VOOTException("internal_server_error", "invalid fielterValue field");
+			if(!filterByValue.equals(PRESENT)) throw new VOOTException("internal_server_error", "invalid filterValue field");
 
 			for(VOOTGroup filterGroup : vootGroups){
 

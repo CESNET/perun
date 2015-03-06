@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  *
  * @author Martin Malik <374128@mail.muni.cz>
  */
-public class VOOTException extends PerunException{
+public class VOOTException extends PerunException {
 	static final long serialVersionUID = 0;
 
 	String error;
@@ -36,16 +36,14 @@ public class VOOTException extends PerunException{
 		return error;
 	}
 
-	public String getError_description() {
+	public String getErrorDescription() {
 		return error_description;
 	}
 
 	@Override
 	public String toString(){
-		if(error_description != null){
-			return "error: " + error + ",error_description: " + error_description;
-		}else{
-			return "error: " + error;
-		}
+		return new StringBuilder(getClass().getName()).append(":[")
+				.append("error='").append(getError()).append("', ")
+				.append("error_description='").append(getErrorDescription()).append("']").toString();
 	}
 }

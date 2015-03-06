@@ -2,6 +2,8 @@ package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.User;
 
+import java.util.Arrays;
+
 /**
  * Class defines person with membership encoded according to the OpenSocial Social Data Specification.
  * Attributes that are not part of specifiacation have namespace prefix 'voot_'.
@@ -9,7 +11,7 @@ import cz.metacentrum.perun.core.api.User;
  * @author Martin Malik<374128@mail.muni.cz>
  * @see <a href="http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Social-Data.xml#Person">Social-Data-Person</a>
  */
-public class VOOTMember extends VOOTPerson{
+public class VOOTMember extends VOOTPerson {
 
 	private String voot_membership_role;
 
@@ -57,10 +59,13 @@ public class VOOTMember extends VOOTPerson{
 	}
 
 	@Override
-	public String toString(){
-		StringBuilder sb = new StringBuilder(super.toString());
-		sb.append(", voot_memberhip_role='" + voot_membership_role + "']");
-
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.getClass().getSimpleName()).append(":[")
+				.append("id='").append(getId()).append("', ")
+				.append("displayName='").append(getDisplayName()).append("', ")
+				.append("emails='").append(Arrays.toString(getEmails())).append("', ")
+				.append("voot_membership_role='").append(getVoot_membership_role()).append("']");
 		return sb.toString();
 	}
 }
