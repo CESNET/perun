@@ -379,12 +379,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
 			} else if(member != null) {
 				if(roles.contains(Role.VOADMIN)) {
-					Vo v = getPerunBlImpl().getMembersManagerBl().getMemberVo(sess, member);
-					if(isAuthorized(sess, Role.VOADMIN, v)) return true;
+					if(isAuthorized(sess, Role.VOADMIN, member)) return true;
 				}
 				if(roles.contains(Role.VOOBSERVER)) {
-					Vo v = getPerunBlImpl().getMembersManagerBl().getMemberVo(sess, member);
-					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
+					if(isAuthorized(sess, Role.VOOBSERVER, member)) return true;
 				}
 				if(roles.contains(Role.GROUPADMIN)) {
 					//if principal is groupManager in vo where the member has membership
@@ -393,8 +391,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				}
 				if(roles.contains(Role.FACILITYADMIN)); //Not allowed
 				if(roles.contains(Role.SELF)) {
-					User u = getPerunBlImpl().getUsersManagerBl().getUserByMember(sess, member);
-					if(isAuthorized(sess, Role.SELF, u)) return true;
+					if(isAuthorized(sess, Role.SELF, member)) return true;
 				}
 			} else if(vo != null) {
 				if(roles.contains(Role.VOADMIN)) {
