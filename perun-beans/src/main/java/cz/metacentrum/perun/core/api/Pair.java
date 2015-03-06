@@ -2,7 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 import java.io.Serializable;
 
-public class Pair<L,R>  implements Serializable{
+public class Pair<L,R> implements Serializable {
 
 	private static final long serialVersionUID = -1483403913023086683L;
 
@@ -65,8 +65,7 @@ public class Pair<L,R>  implements Serializable{
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append("[Left:").append(this.getLeft()).append(", Right:").append(this.getRight()).append("]").toString();
+		return str.append(this.getClass().getSimpleName()).append(":[Left='").append(this.getLeft()).append("', Right='").append(this.getRight()).append("']").toString();
 	}
 
 }
