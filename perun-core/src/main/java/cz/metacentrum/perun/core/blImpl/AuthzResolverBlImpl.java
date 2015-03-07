@@ -202,7 +202,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if(getPerunBlImpl().getAttributesManagerBl().isFromNamespace(sess, attrDef, AttributesManager.NS_ENTITYLESS_ATTR)) return false;
 
 		//This method get all possible roles which can do action on attribute
-		List<Role> roles = getRolesWhichCanWorkWithAttribute(sess, actionType, attrDef);
+		List<Role> roles = cz.metacentrum.perun.core.impl.AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(sess, actionType, attrDef);
 
 		//Now get information about primary and secondary holders to identify them!
 		//All possible useful perunBeans
