@@ -25,7 +25,7 @@ for ENTRY in "$SRC_PATH"/*
 do
 	INDEX=`expr index "$ENTRY" -`
 	SERVICE=${ENTRY:$INDEX: -3}
-	PACKAGE_NAME="perun-slave-$SERVICE"
+	PACKAGE_NAME="perun-slave-process-$SERVICE"
 	if [[ $ENTRY == $SRC_PATH/process-*.sh ]]; then
 
 		SRV_DIR="$SRC_PATH/$SERVICE"
@@ -57,9 +57,9 @@ done
 
 # PACKAGE META PACKAGE
 if [[ $1 == "deb" ]]; then
-	eval "fpm -s empty -t deb -n 'perun-slave-meta' -v $VERSION.$RELEASE -a all --deb-meta-file ../slave/debian/ --description 'Metapackage of Perun slave scripts, used to manage all kind of services on your machine by Perun. This package install support for all services.' -m 'Pavel Zlámal <zlamal@cesnet.cz>' --vendor 'CESNET z.s.p.o.' --license 'MIT' -f $META_DEPS --deb-priority 'optional' --url 'http://perun.cesnet.cz/web/' --deb-changelog $SRC_PATH/debian/changelog"
+	eval "fpm -s empty -t deb -n 'perun-slave-full' -v $VERSION.$RELEASE -a all --deb-meta-file ../slave/debian/ --description 'Metapackage of Perun slave scripts, used to manage all kind of services on your machine by Perun. This package install support for all services.' -m 'Pavel Zlámal <zlamal@cesnet.cz>' --vendor 'CESNET z.s.p.o.' --license 'MIT' -f $META_DEPS --deb-priority 'optional' --url 'http://perun.cesnet.cz/web/' --deb-changelog $SRC_PATH/debian/changelog"
 fi
 
 if [[ $1 == "rpm" ]]; then
-	eval "fpm -s empty -t rpm -n 'perun-slave-meta' -v $VERSION.$RELEASE -a noarch --description 'Metapackage of Perun slave scripts, used to manage all kind of services on your machine by Perun. This package install support for all services.' -m 'Pavel Zlámal <zlamal@cesnet.cz>' --vendor 'CESNET z.s.p.o.' --license 'MIT' -f $META_DEPS --url 'http://perun.cesnet.cz/web/'"
+	eval "fpm -s empty -t rpm -n 'perun-slave-full' -v $VERSION.$RELEASE -a noarch --description 'Metapackage of Perun slave scripts, used to manage all kind of services on your machine by Perun. This package install support for all services.' -m 'Pavel Zlámal <zlamal@cesnet.cz>' --vendor 'CESNET z.s.p.o.' --license 'MIT' -f $META_DEPS --url 'http://perun.cesnet.cz/web/'"
 fi
