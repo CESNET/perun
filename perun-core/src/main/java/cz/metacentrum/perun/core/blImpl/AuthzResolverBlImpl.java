@@ -170,12 +170,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
-		log.trace("Entering isAuthorizedForAttribute: sess='" +  sess + "', actiontType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
+		log.trace("Entering isAuthorizedForAttribute: sess='" +  sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
 		Utils.notNull(sess, "sess");
 		Utils.notNull(actionType, "ActionType");
 		Utils.notNull(attrDef, "AttributeDefinition");
-		getPerunBlImpl().getAttributesManagerBl().checkActionTypeExists(sess, actionType);
 		getPerunBlImpl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 
 		// We need to load additional information about the principal
@@ -252,18 +251,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if(roles.contains(Role.VOOBSERVER)) {
 				if(isAuthorized(sess, Role.VOOBSERVER, member)) return true;
 			}
+			if(roles.contains(Role.FACILITYADMIN)) {
+				if(isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
+			}
+			if(roles.contains(Role.SELF)) {
+				if(isAuthorized(sess, Role.SELF, member)) return true;
+			}
 			if(roles.contains(Role.GROUPADMIN)) {
 				//If groupManager has right on any group assigned to resource
 				List<Group> groups = getPerunBlImpl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
 				for(Group g: groups) {
 					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 				}
-			}
-			if(roles.contains(Role.FACILITYADMIN)) {
-				if(isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
-			}
-			if(roles.contains(Role.SELF)) {
-				if(isAuthorized(sess, Role.SELF, member)) return true;
 			}
 		} else if(resource != null && group != null) {
 			if(roles.contains(Role.VOADMIN)) {
@@ -287,6 +286,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 			if(roles.contains(Role.SELF)); //Not Allowed
 		} else if(user != null && facility != null) {
+			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
 			if(roles.contains(Role.VOADMIN)) {
 				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
 				List<Resource> resourcesFromUser = new ArrayList<Resource>();
@@ -337,9 +338,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if(isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId())) return true;
 				}
 			}
-			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
-			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
 		} else if(user != null) {
+			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
 			if(roles.contains(Role.VOADMIN)) {
 				//TEMPORARY, PROBABLY WILL BE FALSE
 				List<Vo> vosFromUser = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
@@ -362,13 +362,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				}
 			}
 			if(roles.contains(Role.FACILITYADMIN)); //Not allowed
-			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
 		} else if(member != null) {
+
 			if(roles.contains(Role.VOADMIN)) {
 				if(isAuthorized(sess, Role.VOADMIN, member)) return true;
 			}
 			if(roles.contains(Role.VOOBSERVER)) {
 				if(isAuthorized(sess, Role.VOOBSERVER, member)) return true;
+			}
+			if(roles.contains(Role.SELF)) {
+				if(isAuthorized(sess, Role.SELF, member)) return true;
 			}
 			if(roles.contains(Role.GROUPADMIN)) {
 				//if principal is groupManager in vo where the member has membership
@@ -376,9 +379,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if(isAuthorized(sess, Role.GROUPADMIN, v)) return true;
 			}
 			if(roles.contains(Role.FACILITYADMIN)); //Not allowed
-			if(roles.contains(Role.SELF)) {
-				if(isAuthorized(sess, Role.SELF, member)) return true;
-			}
 		} else if(vo != null) {
 			if(roles.contains(Role.VOADMIN)) {
 				if(isAuthorized(sess, Role.VOADMIN, vo)) return true;
@@ -409,17 +409,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if(roles.contains(Role.VOOBSERVER)) {
 				if(isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
 			}
+			if(roles.contains(Role.FACILITYADMIN)) {
+				if(isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
+			}
 			if(roles.contains(Role.GROUPADMIN)); {
 				List<Group> groupsFromResource = getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 				for(Group g: groupsFromResource) {
 					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 				}
 			}
-			if(roles.contains(Role.FACILITYADMIN)) {
-				if(isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
-			}
 			if(roles.contains(Role.SELF)); //Not allowed
 		} else if(facility != null) {
+			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
 			if(roles.contains(Role.VOADMIN)) {
 				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 				List<Vo> vosFromResources = new ArrayList<Vo>();
@@ -453,7 +454,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 				}
 			}
-			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
 			if(roles.contains(Role.SELF)) {
 				List<User> usersFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 				if(usersFromFacility.contains(sess.getPerunPrincipal().getUser())) {
