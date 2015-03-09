@@ -170,12 +170,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	public static boolean isAuthorizedForAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef, Object primaryHolder, Object secondaryHolder) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
-		log.trace("Entering isAuthorizedForAttribute: sess='" +  sess + "', actiontType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
+		log.trace("Entering isAuthorizedForAttribute: sess='" +  sess + "', actionType='" + actionType + "', attrDef='" + attrDef + "', primaryHolder='" + primaryHolder + "', secondaryHolder='" + secondaryHolder + "'");
 
 		Utils.notNull(sess, "sess");
 		Utils.notNull(actionType, "ActionType");
 		Utils.notNull(attrDef, "AttributeDefinition");
-		getPerunBlImpl().getAttributesManagerBl().checkActionTypeExists(sess, actionType);
 		getPerunBlImpl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 
 		// We need to load additional information about the principal
@@ -202,7 +201,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if(getPerunBlImpl().getAttributesManagerBl().isFromNamespace(sess, attrDef, AttributesManager.NS_ENTITYLESS_ATTR)) return false;
 
 		//This method get all possible roles which can do action on attribute
-		List<Role> roles = getRolesWhichCanWorkWithAttribute(sess, actionType, attrDef);
+		List<Role> roles = cz.metacentrum.perun.core.impl.AuthzResolverImpl.getRolesWhichCanWorkWithAttribute(sess, actionType, attrDef);
 
 		//Now get information about primary and secondary holders to identify them!
 		//All possible useful perunBeans
@@ -245,257 +244,212 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		} // If not, its ok, secondary holder can be null
 
 		//Important: There is no options for other roles like service, serviceUser and other!
-		try {
-			if(resource != null && member != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					List<Vo> vos = getPerunBlImpl().getVosManagerBl().getVosByPerunBean(sess, resource);
-					for(Vo v: vos) {
-						if(isAuthorized(sess, Role.VOADMIN, v)) return true;
-					}
+		if(resource != null && member != null) {
+			if(roles.contains(Role.VOADMIN)) {
+				if(isAuthorized(sess, Role.VOADMIN, member)) return true;
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				if(isAuthorized(sess, Role.VOOBSERVER, member)) return true;
+			}
+			if(roles.contains(Role.FACILITYADMIN)) {
+				if(isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
+			}
+			if(roles.contains(Role.SELF)) {
+				if(isAuthorized(sess, Role.SELF, member)) return true;
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				//If groupManager has right on any group assigned to resource
+				List<Group> groups = getPerunBlImpl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
+				for(Group g: groups) {
+					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					List<Vo> vos = getPerunBlImpl().getVosManagerBl().getVosByPerunBean(sess, resource);
-					for(Vo v: vos) {
-						if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-					}
-				}
-				if(roles.contains(Role.GROUPADMIN)) {
-					//If groupManager has right on any group assigned to resource
+			}
+		} else if(resource != null && group != null) {
+			if(roles.contains(Role.VOADMIN)) {
+				if(isAuthorized(sess, Role.VOADMIN, resource)) return true;
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				if(isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				//If groupManager has right on the group
+				if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
+			}
+			if(roles.contains(Role.FACILITYADMIN)) {
+				//IMPORTANT "for now possible, but need to discuss"
+				if(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource).contains(group)) {
 					List<Group> groups = getPerunBlImpl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
 					for(Group g: groups) {
 						if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 					}
 				}
-				if(roles.contains(Role.FACILITYADMIN)) {
-					Facility facilityFromResource = getPerunBlImpl().getResourcesManagerBl().getFacility(sess, resource);
-					if(isAuthorized(sess, Role.FACILITYADMIN, facilityFromResource)) return true;
-				}
-				if(roles.contains(Role.SELF)) {
-					if(getPerunBlImpl().getUsersManagerBl().getUserByMember(sess, member).equals(sess.getPerunPrincipal().getUser())) return true;
-				}
-			} else if(resource != null && group != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					List<Vo> vos = getPerunBlImpl().getVosManagerBl().getVosByPerunBean(sess, resource);
-					for(Vo v: vos) {
-						if(isAuthorized(sess, Role.VOADMIN, v)) return true;
-					}
-				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					List<Vo> vos = getPerunBlImpl().getVosManagerBl().getVosByPerunBean(sess, resource);
-					for(Vo v: vos) {
-						if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-					}
-				}
-				if(roles.contains(Role.GROUPADMIN)) {
-					//If groupManager has right on the group
-					if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
-				}
-				if(roles.contains(Role.FACILITYADMIN)) {
-					//IMPORTANT "for now possible, but need to discuss"
-					if(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource).contains(group)) {
-						List<Group> groups = getPerunBlImpl().getGroupsManagerBl().getGroupsByPerunBean(sess, resource);
-						for(Group g: groups) {
-							if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
-						}
-					}
-				}
-				if(roles.contains(Role.SELF)); //Not Allowed
-			} else if(user != null && facility != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
-					List<Resource> resourcesFromUser = new ArrayList<Resource>();
-					for(Member memberElement: membersFromUser) {
-						resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
-					}
-					resourcesFromUser = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromUser));
-					resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-					List<Vo> vos = new ArrayList<Vo>();
-					for(Resource resourceElement: resourcesFromUser) {
-						vos.add(getPerunBlImpl().getResourcesManagerBl().getVo(sess, resourceElement));
-					}
-					for(Vo v: vos) {
-						if(isAuthorized(sess, Role.VOADMIN, v)) return true;
-					}
-				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
-					List<Resource> resourcesFromUser = new ArrayList<Resource>();
-					for(Member memberElement: membersFromUser) {
-						resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
-					}
-					resourcesFromUser = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromUser));
-					resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-					List<Vo> vos = new ArrayList<Vo>();
-					for(Resource resourceElement: resourcesFromUser) {
-						vos.add(getPerunBlImpl().getResourcesManagerBl().getVo(sess, resourceElement));
-					}
-					for(Vo v: vos) {
-						if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-					}
-				}
-				if(roles.contains(Role.GROUPADMIN)) {
-					//If groupManager has rights on "any group which is assigned to any resource from the facility" and "the user has also member in vo where exists this group"
-					List<Vo> userVos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
-					Set<Integer> userVosIds = new HashSet<>();
-					for(Vo voElement: userVos) {
-						userVosIds.add(voElement.getId());
-					}
-
-					List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-					Set<Group> groupsFromFacility = new HashSet<Group>();
-					for(Resource resourceElement: resourcesFromFacility) {
-						groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-					}
-
-					for(Group groupElement: groupsFromFacility) {
-						if(isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId())) return true;
-					}
-				}
-				if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
-				if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
-			} else if(user != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					//TEMPORARY, PROBABLY WILL BE FALSE
-					List<Vo> vosFromUser = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
-					for(Vo v: vosFromUser) {
-						if(isAuthorized(sess, Role.VOADMIN, v)) return true;
-					}
-				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					//TEMPORARY, PROBABLY WILL BE FALSE
-					List<Vo> vosFromUser = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
-					for(Vo v: vosFromUser) {
-						if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-					}
-				}
-				if(roles.contains(Role.GROUPADMIN)) {
-					//If principal is groupManager in any vo where user has member
-					List<Vo> userVos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
-					for(Vo voElement: userVos) {
-							if(isAuthorized(sess, Role.GROUPADMIN, voElement)) return true;
-					}
-				}
-				if(roles.contains(Role.FACILITYADMIN)); //Not allowed
-				if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
-			} else if(member != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					Vo v = getPerunBlImpl().getMembersManagerBl().getMemberVo(sess, member);
-					if(isAuthorized(sess, Role.VOADMIN, v)) return true;
-				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					Vo v = getPerunBlImpl().getMembersManagerBl().getMemberVo(sess, member);
-					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-				}
-				if(roles.contains(Role.GROUPADMIN)) {
-					//if principal is groupManager in vo where the member has membership
-					Vo v = getPerunBlImpl().getMembersManagerBl().getMemberVo(sess, member);
-					if(isAuthorized(sess, Role.GROUPADMIN, v)) return true;
-				}
-				if(roles.contains(Role.FACILITYADMIN)); //Not allowed
-				if(roles.contains(Role.SELF)) {
-					User u = getPerunBlImpl().getUsersManagerBl().getUserByMember(sess, member);
-					if(isAuthorized(sess, Role.SELF, u)) return true;
-				}
-			} else if(vo != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					if(isAuthorized(sess, Role.VOADMIN, vo)) return true;
-				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					if(isAuthorized(sess, Role.VOOBSERVER, vo)) return true;
-				}
-				if(roles.contains(Role.GROUPADMIN)) {
-					//if Principal is GroupManager in the vo
-					if(isAuthorized(sess, Role.GROUPADMIN, vo)) return true;
-				}
-				if(roles.contains(Role.FACILITYADMIN)); //Not allowed
-				if(roles.contains(Role.SELF)); //Not allowed
-			} else if(group != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					Vo v = getPerunBlImpl().getGroupsManagerBl().getVo(sess, group);
-					if(isAuthorized(sess, Role.VOADMIN, v)) return true;
-				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					Vo v = getPerunBlImpl().getGroupsManagerBl().getVo(sess, group);
-					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-				}
-				if(roles.contains(Role.GROUPADMIN)) if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
-				if(roles.contains(Role.FACILITYADMIN)); //Not allowed
-				if(roles.contains(Role.SELF)); //Not allowed
-			} else if(resource != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					Vo v = getPerunBlImpl().getResourcesManagerBl().getVo(sess, resource);
-					if(isAuthorized(sess, Role.VOADMIN, v)) return true;
-				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					Vo v = getPerunBlImpl().getResourcesManagerBl().getVo(sess, resource);
-					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-				}
-				if(roles.contains(Role.GROUPADMIN)); {
-					List<Group> groupsFromResource = getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource);
-					for(Group g: groupsFromResource) {
-						if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
-					}
-				}
-				if(roles.contains(Role.FACILITYADMIN)) {
-					Facility f = getPerunBlImpl().getResourcesManagerBl().getFacility(sess, resource);
-					if(isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
-				}
-				if(roles.contains(Role.SELF)); //Not allowed
-			} else if(facility != null) {
-				if(roles.contains(Role.VOADMIN)) {
-					List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-					List<Vo> vosFromResources = new ArrayList<Vo>();
-					for(Resource resourceElement: resourcesFromFacility) {
-						vosFromResources.add(getPerunBlImpl().getResourcesManagerBl().getVo(sess, resourceElement));
-					}
-					vosFromResources = new ArrayList<Vo>(new HashSet<Vo>(vosFromResources));
-					for(Vo v: vosFromResources) {
-						if(isAuthorized(sess, Role.VOADMIN, v)) return true;
-					}
-				}
-				if(roles.contains(Role.VOOBSERVER)) {
-					List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-					List<Vo> vosFromResources = new ArrayList<Vo>();
-					for(Resource resourceElement: resourcesFromFacility) {
-						vosFromResources.add(getPerunBlImpl().getResourcesManagerBl().getVo(sess, resourceElement));
-					}
-					vosFromResources = new ArrayList<Vo>(new HashSet<Vo>(vosFromResources));
-					for(Vo v: vosFromResources) {
-						if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
-					}
-				}
-				if(roles.contains(Role.GROUPADMIN)) {
-					List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-					List<Group> groupsFromFacility = new ArrayList<Group>();
-					for(Resource resourceElement: resourcesFromFacility) {
-						groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-					}
-					groupsFromFacility = new ArrayList<Group>(new HashSet<Group>(groupsFromFacility));
-					for(Group g: groupsFromFacility){
-						if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
-					}
-				}
-				if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
-				if(roles.contains(Role.SELF)) {
-					List<User> usersFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-					if(usersFromFacility.contains(sess.getPerunPrincipal().getUser())) {
-						return true;
-					}
-				}
-			} else if(host != null) {
-				if(roles.contains(Role.VOADMIN)); //Not allowed
-				if(roles.contains(Role.VOOBSERVER)); //Not allowed
-				if(roles.contains(Role.GROUPADMIN)); //Not allowed
-				if(roles.contains(Role.FACILITYADMIN)) {
-					Facility f = getPerunBlImpl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-					if(isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
-				}
-				if(roles.contains(Role.SELF)); //Not allowed
-			} else {
-				throw new InternalErrorException("There is no other possible variants for now!");
 			}
-		} catch (VoNotExistsException ex) {
-			throw new InternalErrorException(ex);
+			if(roles.contains(Role.SELF)); //Not Allowed
+		} else if(user != null && facility != null) {
+			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
+			if(roles.contains(Role.VOADMIN)) {
+				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
+				HashSet<Resource> resourcesFromUser = new HashSet<Resource>();
+				for(Member memberElement: membersFromUser) {
+					resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
+				}
+				resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
+				for(Resource resourceElement: resourcesFromUser) {
+					if(isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
+				}
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
+				HashSet<Resource> resourcesFromUser = new HashSet<Resource>();
+				for(Member memberElement: membersFromUser) {
+					resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
+				}
+				resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
+				for(Resource resourceElement: resourcesFromUser) {
+					if(isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
+				}
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				//If groupManager has rights on "any group which is assigned to any resource from the facility" and "the user has also member in vo where exists this group"
+				List<Vo> userVos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+				Set<Integer> userVosIds = new HashSet<>();
+				for(Vo voElement: userVos) {
+					userVosIds.add(voElement.getId());
+				}
+
+				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+				Set<Group> groupsFromFacility = new HashSet<Group>();
+				for(Resource resourceElement: resourcesFromFacility) {
+					groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
+				}
+
+				for(Group groupElement: groupsFromFacility) {
+					if(isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId())) return true;
+				}
+			}
+		} else if(user != null) {
+			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
+			if(roles.contains(Role.VOADMIN)) {
+				//TEMPORARY, PROBABLY WILL BE FALSE
+				List<Vo> vosFromUser = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+				for(Vo v: vosFromUser) {
+					if(isAuthorized(sess, Role.VOADMIN, v)) return true;
+				}
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				//TEMPORARY, PROBABLY WILL BE FALSE
+				List<Vo> vosFromUser = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+				for(Vo v: vosFromUser) {
+					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
+				}
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				//If principal is groupManager in any vo where user has member
+				List<Vo> userVos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+				for(Vo voElement: userVos) {
+					if(isAuthorized(sess, Role.GROUPADMIN, voElement)) return true;
+				}
+			}
+			if(roles.contains(Role.FACILITYADMIN)); //Not allowed
+		} else if(member != null) {
+
+			if(roles.contains(Role.VOADMIN)) {
+				if(isAuthorized(sess, Role.VOADMIN, member)) return true;
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				if(isAuthorized(sess, Role.VOOBSERVER, member)) return true;
+			}
+			if(roles.contains(Role.SELF)) {
+				if(isAuthorized(sess, Role.SELF, member)) return true;
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				//if principal is groupManager in vo where the member has membership
+				Vo v = getPerunBlImpl().getMembersManagerBl().getMemberVo(sess, member);
+				if(isAuthorized(sess, Role.GROUPADMIN, v)) return true;
+			}
+			if(roles.contains(Role.FACILITYADMIN)); //Not allowed
+		} else if(vo != null) {
+			if(roles.contains(Role.VOADMIN)) {
+				if(isAuthorized(sess, Role.VOADMIN, vo)) return true;
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				if(isAuthorized(sess, Role.VOOBSERVER, vo)) return true;
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				//if Principal is GroupManager in the vo
+				if(isAuthorized(sess, Role.GROUPADMIN, vo)) return true;
+			}
+			if(roles.contains(Role.FACILITYADMIN)); //Not allowed
+			if(roles.contains(Role.SELF)); //Not allowed
+		} else if(group != null) {
+			if(roles.contains(Role.VOADMIN)) {
+				if(isAuthorized(sess, Role.VOADMIN, group)) return true;
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				if(isAuthorized(sess, Role.VOOBSERVER, group)) return true;
+			}
+			if(roles.contains(Role.GROUPADMIN)) if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
+			if(roles.contains(Role.FACILITYADMIN)); //Not allowed
+			if(roles.contains(Role.SELF)); //Not allowed
+		} else if(resource != null) {
+			if(roles.contains(Role.VOADMIN)) {
+				if(isAuthorized(sess, Role.VOADMIN, resource)) return true;
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				if(isAuthorized(sess, Role.VOOBSERVER, resource)) return true;
+			}
+			if(roles.contains(Role.FACILITYADMIN)) {
+				if(isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
+			}
+			if(roles.contains(Role.GROUPADMIN)); {
+				List<Group> groupsFromResource = getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+				for(Group g: groupsFromResource) {
+					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
+				}
+			}
+			if(roles.contains(Role.SELF)); //Not allowed
+		} else if(facility != null) {
+			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+			if(roles.contains(Role.VOADMIN)) {
+				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+				for(Resource r: resourcesFromFacility) {
+					if(isAuthorized(sess, Role.VOADMIN, r)) return true;
+				}
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+				for(Resource r: resourcesFromFacility) {
+					if(isAuthorized(sess, Role.VOOBSERVER, r)) return true;
+				}
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+				Set<Group> groupsFromFacility = new HashSet<Group>();
+				for(Resource resourceElement: resourcesFromFacility) {
+					groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
+				}
+				for(Group g: groupsFromFacility){
+					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
+				}
+			}
+			if(roles.contains(Role.SELF)) {
+				List<User> usersFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
+				if(usersFromFacility.contains(sess.getPerunPrincipal().getUser())) {
+					return true;
+				}
+			}
+		} else if(host != null) {
+			if(roles.contains(Role.VOADMIN)); //Not allowed
+			if(roles.contains(Role.VOOBSERVER)); //Not allowed
+			if(roles.contains(Role.GROUPADMIN)); //Not allowed
+			if(roles.contains(Role.FACILITYADMIN)) {
+				Facility f = getPerunBlImpl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
+				if(isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
+			}
+			if(roles.contains(Role.SELF)); //Not allowed
+		} else {
+			throw new InternalErrorException("There is no other possible variants for now!");
 		}
 
 		return false;
