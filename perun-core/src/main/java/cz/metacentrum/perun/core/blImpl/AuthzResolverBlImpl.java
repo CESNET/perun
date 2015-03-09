@@ -290,34 +290,24 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
 			if(roles.contains(Role.VOADMIN)) {
 				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Resource> resourcesFromUser = new ArrayList<Resource>();
+				HashSet<Resource> resourcesFromUser = new HashSet<Resource>();
 				for(Member memberElement: membersFromUser) {
 					resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
 				}
-				resourcesFromUser = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromUser));
 				resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-				List<Vo> vos = new ArrayList<Vo>();
 				for(Resource resourceElement: resourcesFromUser) {
-					vos.add(getPerunBlImpl().getResourcesManagerBl().getVo(sess, resourceElement));
-				}
-				for(Vo v: vos) {
-					if(isAuthorized(sess, Role.VOADMIN, v)) return true;
+					if(isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
 				}
 			}
 			if(roles.contains(Role.VOOBSERVER)) {
 				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Resource> resourcesFromUser = new ArrayList<Resource>();
+				HashSet<Resource> resourcesFromUser = new HashSet<Resource>();
 				for(Member memberElement: membersFromUser) {
 					resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
 				}
-				resourcesFromUser = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromUser));
 				resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-				List<Vo> vos = new ArrayList<Vo>();
 				for(Resource resourceElement: resourcesFromUser) {
-					vos.add(getPerunBlImpl().getResourcesManagerBl().getVo(sess, resourceElement));
-				}
-				for(Vo v: vos) {
-					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
+					if(isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
 				}
 			}
 			if(roles.contains(Role.GROUPADMIN)) {
@@ -423,33 +413,22 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
 			if(roles.contains(Role.VOADMIN)) {
 				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Vo> vosFromResources = new ArrayList<Vo>();
-				for(Resource resourceElement: resourcesFromFacility) {
-					vosFromResources.add(getPerunBlImpl().getResourcesManagerBl().getVo(sess, resourceElement));
-				}
-				vosFromResources = new ArrayList<Vo>(new HashSet<Vo>(vosFromResources));
-				for(Vo v: vosFromResources) {
-					if(isAuthorized(sess, Role.VOADMIN, v)) return true;
+				for(Resource r: resourcesFromFacility) {
+					if(isAuthorized(sess, Role.VOADMIN, r)) return true;
 				}
 			}
 			if(roles.contains(Role.VOOBSERVER)) {
 				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Vo> vosFromResources = new ArrayList<Vo>();
-				for(Resource resourceElement: resourcesFromFacility) {
-					vosFromResources.add(getPerunBlImpl().getResourcesManagerBl().getVo(sess, resourceElement));
-				}
-				vosFromResources = new ArrayList<Vo>(new HashSet<Vo>(vosFromResources));
-				for(Vo v: vosFromResources) {
-					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
+				for(Resource r: resourcesFromFacility) {
+					if(isAuthorized(sess, Role.VOOBSERVER, r)) return true;
 				}
 			}
 			if(roles.contains(Role.GROUPADMIN)) {
 				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Group> groupsFromFacility = new ArrayList<Group>();
+				Set<Group> groupsFromFacility = new HashSet<Group>();
 				for(Resource resourceElement: resourcesFromFacility) {
 					groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
 				}
-				groupsFromFacility = new ArrayList<Group>(new HashSet<Group>(groupsFromFacility));
 				for(Group g: groupsFromFacility){
 					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 				}
