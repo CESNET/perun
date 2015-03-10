@@ -296,7 +296,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group), true);
 	}
 
 	public List<RichMember> getGroupRichMembers(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -310,7 +310,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group, status));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group, status), true);
 	}
 
 	public List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -324,7 +324,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembersWithAttributes");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group), true);
 	}
 
 	public List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -337,7 +337,7 @@ public class GroupsManagerEntry implements GroupsManager {
 				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupRichMembersWithAttributes");
 				}
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status), true);
 	}
 
 	public int getGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
@@ -768,7 +768,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembers(sess, group));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembers(sess, group), true);
 	}
 
 	public List<RichMember> getParentGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -782,7 +782,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembersWithAttributes(sess, group));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembersWithAttributes(sess, group), true);
 	}
 
 
