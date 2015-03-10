@@ -1291,6 +1291,83 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return filteredRichMembers;
 	}
 
+	public List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, boolean useContext) throws InternalErrorException {
+		//If no context should be used - every attribute is unique in context of member (for every member test access rights for all attributes again)
+		if(!useContext) return filterOnlyAllowedAttributes(sess, richMembers);
+
+		//If context should be used - every attribute is unique in context of friendlyName (every attribute test only once per friendlyName)
+		List<RichMember> filteredRichMembers = new ArrayList<RichMember>();
+		if(richMembers == null || richMembers.isEmpty()) return filteredRichMembers;
+
+		// attr_name to boolean where null means - no rights at all, false means no write rights, true means read and write rights
+		Map<String, Boolean> contextMap = new HashMap<>();
+		// voId is there the context
+		Integer voId = null;
+		for(RichMember rm: richMembers) {
+			//set or test voId for testing of context
+			if(voId == null) {
+				voId = rm.getVoId();
+			} else {
+				if(rm.getVoId() != voId) throw new InternalErrorException("Method using filtering by context, but some members are not from the same Vo!");
+			}
+
+			//Filtering members attributes
+			if(rm.getMemberAttributes() != null) {
+				List<Attribute> memberAttributes = rm.getMemberAttributes();
+				List<Attribute> allowedMemberAttributes = new ArrayList<Attribute>();
+				for(Attribute membAttr: memberAttributes) {
+					//if there is record in contextMap, use it
+					if(contextMap.containsKey(membAttr.getFriendlyName())) {
+						Boolean isWritable = contextMap.get(membAttr.getFriendlyName());
+						if(isWritable != null) {
+							membAttr.setWritable(isWritable);
+							allowedMemberAttributes.add(membAttr);
+						}
+					//if not, get information about authz rights and set record to contextMap
+					} else {
+						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, membAttr, rm, null)) {
+							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, membAttr, rm, null);
+							membAttr.setWritable(isWritable);
+							allowedMemberAttributes.add(membAttr);
+							contextMap.put(membAttr.getFriendlyName(), isWritable);
+						} else {
+							contextMap.put(membAttr.getFriendlyName(), null);
+						}
+					}
+				}
+				rm.setMemberAttributes(allowedMemberAttributes);
+			}
+			//Filtering users attributes
+			if(rm.getUserAttributes() != null) {
+				List<Attribute> userAttributes = rm.getUserAttributes();
+				List<Attribute> allowedUserAttributes = new ArrayList<Attribute>();
+				for(Attribute userAttr: userAttributes) {
+					//if there is record in contextMap, use it
+					if(contextMap.containsKey(userAttr.getFriendlyName())) {
+						Boolean isWritable = contextMap.get(userAttr.getFriendlyName());
+						if(isWritable != null) {
+							userAttr.setWritable(isWritable);
+							allowedUserAttributes.add(userAttr);
+						}
+					//if not, get information about authz rights and set record to contextMap
+					} else {
+						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, userAttr, rm.getUser(), null)) {
+							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, userAttr, rm.getUser(), null);
+							userAttr.setWritable(isWritable);
+							allowedUserAttributes.add(userAttr);
+							contextMap.put(userAttr.getFriendlyName(), isWritable);
+						} else {
+							contextMap.put(userAttr.getFriendlyName(), null);
+						}
+					}
+				rm.setUserAttributes(allowedUserAttributes);
+				}
+			}
+			filteredRichMembers.add(rm);
+		}
+		return filteredRichMembers;
+	}
+
 	/**
 	 * More info on https://wiki.metacentrum.cz/wiki/VO_managers%27s_manual
 	 *
