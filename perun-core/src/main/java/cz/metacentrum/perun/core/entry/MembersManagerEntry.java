@@ -305,7 +305,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, attrsDef));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, attrsDef), true);
 	}
 
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
@@ -320,7 +320,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributesByNames(sess, vo, attrsNames));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributesByNames(sess, vo, attrsNames), true);
 	}
 
 	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
@@ -335,7 +335,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames), true);
 	}
 
 	public List<RichMember> getCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
@@ -350,7 +350,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames, allowedStatuses));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, vo, attrsNames, allowedStatuses), true);
 	}
 
 	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, VoNotExistsException, AttributeNotExistsException {
@@ -365,7 +365,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), true);
 	}
 
 	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, VoNotExistsException, AttributeNotExistsException {
@@ -380,7 +380,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getCompleteRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, allowedStatuses, lookingInParentGroup));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, allowedStatuses, lookingInParentGroup), true);
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
@@ -395,7 +395,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, searchString));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, searchString), true);
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
@@ -410,7 +410,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, allowedStatuses, searchString));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, allowedStatuses, searchString), true);
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException, VoNotExistsException, AttributeNotExistsException {
@@ -425,7 +425,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, searchString, lookingInParentGroup), true);
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException, VoNotExistsException, AttributeNotExistsException {
@@ -440,7 +440,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findCompleteRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, allowedStatuses, searchString, lookingInParentGroup));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, group, attrsNames, allowedStatuses, searchString, lookingInParentGroup), true);
 	}
 
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, PrivilegeException, GroupNotExistsException, AttributeNotExistsException {
@@ -455,7 +455,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMembersWithAttributesByNames");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributesByNames(sess, group, attrsNames));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributesByNames(sess, group, attrsNames), true);
 	}
 
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -470,7 +470,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMemberWithAttributes");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, group, attrsDef));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, group, attrsDef), true);
 	}
 
 	public List<RichMember> getRichMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -485,7 +485,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "getRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, group));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, group), true);
 	}
 
 	public List<RichMember> getRichMembers(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
@@ -500,7 +500,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo), true);
 	}
 
 	public List<RichMember> getRichMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException, PrivilegeException, VoNotExistsException {
@@ -515,7 +515,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo, status));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembers(sess, vo, status), true);
 	}
 
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
@@ -530,7 +530,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo), true);
 	}
 
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status) throws InternalErrorException, PrivilegeException, VoNotExistsException {
@@ -545,7 +545,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, status));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, status), true);
 	}
 
 	public int getMembersCount(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
@@ -648,7 +648,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersInGroup");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInGroup(sess, group, searchString));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInGroup(sess, group, searchString), true);
 	}
 
 	public List<Member> findMembersInParentGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException{
@@ -677,7 +677,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersInParentGroup");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInParentGroup(sess, group, searchString));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInParentGroup(sess, group, searchString), true);
 	}
 
 	public List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException {
@@ -691,7 +691,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersInVo");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersInVo(sess, vo, searchString));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersInVo(sess, vo, searchString), true);
 	}
 
 	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException, PrivilegeException, VoNotExistsException {
@@ -705,7 +705,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "findRichMembersWithAttributesInVo");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInVo(sess, vo, searchString));
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findRichMembersWithAttributesInVo(sess, vo, searchString), true);
 	}
 
 	public Member setStatus(PerunSession sess, Member member, Status status) throws InternalErrorException, PrivilegeException, MemberNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, MemberNotValidYetException {
