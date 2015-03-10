@@ -1028,7 +1028,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		char ch = iterator.current();
 
 		while( ch != StringCharacterIterator.DONE ){
-			if(Character.getNumericValue(ch)>0){
+			if(Character.getNumericValue(ch)>=0){
 				sb.append( ch );
 			}else{
 				boolean f=false;
