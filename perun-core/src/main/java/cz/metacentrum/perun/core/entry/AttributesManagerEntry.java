@@ -1577,7 +1577,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		for (Member member : members) {
 			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-			}
+		}
 		HashMap<Member, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, workWithUserAttributes);
 		for (Member member : result.keySet()) {
 			Iterator<Attribute> attrIter = result.get(member).iterator();
@@ -1620,7 +1620,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		for (Member member : members) {
 			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-			}
+		}
 		HashMap<Member, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, service, resource, members);
 		for (Member member : result.keySet()) {
 			Iterator<Attribute> attrIter = result.get(member).iterator();
@@ -1647,7 +1647,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 		for (Member member : members) {
 			getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-			}
+		}
 		HashMap<Member, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, resource, service, members);
 		for (Member member : result.keySet()) {
 			Iterator<Attribute> attrIter = result.get(member).iterator();
@@ -1674,7 +1674,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		for (User user : users) {
 			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-			}
+		}
 		HashMap<User, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, service, facility, users);
 		for (User user : result.keySet()) {
 			Iterator<Attribute> attrIter = result.get(user).iterator();
@@ -1700,7 +1700,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
 		for (User user : users) {
 			getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-			}
+		}
 		HashMap<User, List<Attribute>> result = getAttributesManagerBl().getRequiredAttributes(sess, service, users);
 		for (User user : result.keySet()) {
 			Iterator<Attribute> attrIter = result.get(user).iterator();

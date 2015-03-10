@@ -1852,6 +1852,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, List<Member> members, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		// check if members are from the same VO as resource
+		if (members.isEmpty()) {
+			return new HashMap<>();
+		}
+
 		for (Member m : members) {
 			this.checkMemberIsFromTheSameVoLikeResource(sess, m, resource);
 		}
@@ -1934,22 +1938,34 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
-		return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
+		if (!members.isEmpty()) {
+			return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
+		}
+		return new HashMap<>();
 	}
 
 	@Override
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Resource resource, Service service, List<Member> members) throws InternalErrorException {
-		return getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members);
+		if (!members.isEmpty()) {
+			return getAttributesManagerImpl().getRequiredAttributes(sess, resource, service, members);
+		}
+		return new HashMap<>();
 	}
 
 	@Override
 	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
-		return getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users);
+		if (!users.isEmpty()) {
+			return getAttributesManagerImpl().getRequiredAttributes(sess, service, facility, users);
+		}
+		return new HashMap<>();
 	}
 
 	@Override
 	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
-		return getAttributesManagerImpl().getRequiredAttributes(sess, service, users);
+		if (!users.isEmpty()) {
+			return getAttributesManagerImpl().getRequiredAttributes(sess, service, users);
+		}
+		return new HashMap<>();
 	}
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException {

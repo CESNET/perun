@@ -1631,6 +1631,7 @@ public interface AttributesManagerBl {
 	/**
 	 * Get member-resource, member, user-facility and user attributes which are required by service for each member in list of members.
 	 * If workWithUserAttributes is false return only member-resource attributes.
+	 * !!! Method checks if members list is not empty (returns empty HashMap)!!!
 	 *
 	 * @param sess perun session
 	 * @param service attribute required by this service
@@ -1646,6 +1647,7 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Get member-resource attributes which are required by service for each member in list of members.
+	 * !!! Method checks if members list is not empty (returns empty HashMap)!!!
 	 *
 	 * @param sess perun session
 	 * @param service attribute required by this service
@@ -1659,6 +1661,7 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Get member attributes which are required by service for each member in list of members.
+	 * !!! Method checks if members list is not empty (returns empty HashMap)!!!
 	 *
 	 * @param sess perun session
 	 * @param service attribute required by this service
@@ -1672,6 +1675,7 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Get user-facility attributes which are required by the service for each user in list of users.
+	 * !!! Method checks if members list is not empty (returns empty HashMap)!!!
 	 *
 	 * @param sess perun session
 	 * @param service attribute required by this service
@@ -1685,6 +1689,7 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Get user attributes which are required by the service for each user in list of users.
+	 * !!! Method checks if members list is not empty (returns empty HashMap)!!!
 	 *
 	 * @param sess perun session
 	 * @param service attribute required by this service
