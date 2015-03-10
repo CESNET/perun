@@ -1305,7 +1305,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				} catch (ExtSourceUnsupportedOperationException e) {
 					// ExtSource doesn't support that functionality, so silently skip it.
 				} catch (InternalErrorException e) {
-					log.error("Can't close membersSource connection. Cause: {}", e);
+					log.info("Can't close membersSource connection. Cause: {}", e);
 				}
 			}
 			if(source != null) {
@@ -1314,7 +1314,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				} catch (ExtSourceUnsupportedOperationException e) {
 					// ExtSource doesn't support that functionality, so silently skip it.
 				} catch (InternalErrorException e) {
-					log.error("Can't close extSource connection. Cause: {}", e);
+					log.info("Can't close extSource connection. Cause: {}", e);
 				}
 			}
 		}
@@ -1496,7 +1496,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 					skippedMembersMessage+= " }";
 					if(!exceedMaxChars) exceptionMessage = skippedMembersMessage;
-					log.error("Info about exception from synchronization: " + skippedMembersMessage);
+					log.info("Info about exception from synchronization: " + skippedMembersMessage);
 				}
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
@@ -1518,7 +1518,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					perunBl.getGroupsManagerBl().saveInformationAboutGroupSynchronization(sess, group, failedDueToException, exceptionMessage);
 				} catch (Exception ex) {
 					log.error("When synchronization group " + group + ", exception was thrown.", ex);
-					log.error("Info about exception from synchronization: " + skippedMembersMessage);
+					log.info("Info about exception from synchronization: " + skippedMembersMessage);
 				}
 				log.debug("GroupSynchronizerThread finished for group: {}", group);
 			}
