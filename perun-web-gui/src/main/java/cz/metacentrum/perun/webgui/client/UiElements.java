@@ -940,7 +940,7 @@ public class UiElements {
 		HTML foot = new HTML("<strong>About: </strong>" + a + "<strong>&nbsp;|&nbsp;Support: </strong>" + mail+", "+lnk);
 		ft.setWidget(0, 0, foot);
 
-		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + ", version: " + PerunWebConstants.INSTANCE.guiVersion()));
+		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + " " + JsonUtils.getCurrentYear() + ", version: " + PerunWebConstants.INSTANCE.guiVersion()));
 		ft.setWidget(0, 2, new HTML("<strong>" + ButtonTranslation.INSTANCE.settingsButton() + ": </strong>"));
 
 		ftf.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
