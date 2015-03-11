@@ -104,20 +104,12 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	}
 
 	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException, PrivilegeException {
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getAllAuditerConsumers");
-		}
-
+		// anybody can call this method
 		return getAuditMessagesManagerBl().getAllAuditerConsumers(sess);
 	}
 
 	public int getLastMessageId(PerunSession sess) throws InternalErrorException, PrivilegeException {
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getLastMessageId");
-		}
-
+		// anybody can call this method
 		return getAuditMessagesManagerBl().getLastMessageId();
 	}
 
