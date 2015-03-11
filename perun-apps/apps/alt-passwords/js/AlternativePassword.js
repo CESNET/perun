@@ -12,6 +12,7 @@ function entryPoint(user) {
             (staticMessager.newMessage("Can't set alternative passwords", "You don't have eInfra login", "danger")).draw();
             return;
         } else {
+	        $("#passSubmit").removeAttr('disabled');
             loadAlternativePasswords(user);
         }
     });
