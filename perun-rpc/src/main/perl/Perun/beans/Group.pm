@@ -42,6 +42,7 @@ sub TO_JSON
 
 	my $voId;
 	if (defined($self->{_voId})) {
+		$voId = $self->{_voId}*1;
 	} else {
 		$voId = 0;
 	}
