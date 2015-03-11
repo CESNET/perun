@@ -824,9 +824,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SYNCHRONIZER)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOADMIN, group))  {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group))  {
 			throw new PrivilegeException(sess, "synchronizeGroup");
 		}
 
@@ -837,7 +836,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SYNCHRONIZER))  {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))  {
 			throw new PrivilegeException(sess, "synchronizeGroups");
 		}
 
