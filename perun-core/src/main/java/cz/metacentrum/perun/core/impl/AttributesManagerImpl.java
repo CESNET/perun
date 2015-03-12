@@ -348,6 +348,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						value = String.valueOf(value);
 					} else if(attribute.getType().equals(Integer.class.getName()) && !(value instanceof Integer)) {
 						//TODO try to cast to integer
+					} else if(attribute.getType().equals(Boolean.class.getName()) && !(value instanceof Boolean)) {
+						//TODO try to cast to boolean
 					} else if(attribute.getType().equals(ArrayList.class.getName()) && !(value instanceof ArrayList)) {
 						if(value instanceof List) {
 							value = new ArrayList<String>((List)value);
@@ -4571,7 +4573,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 			jdbc.update("insert into attr_names (id, attr_name, type, dsc, namespace, friendly_name, display_name, default_attr_id) values (?,?,?,?,?,?,?,NULL)",
 					attributeId, attribute.getName(), attribute.getType(), attribute.getDescription(), attribute.getNamespace(), attribute.getFriendlyName(), attribute.getDisplayName());
-			log.info("Attribute created during inicialization of attributesManager: {}", attribute);
+			log.info("Attribute created during initialization of attributesManager: {}", attribute);
 		} catch (DataIntegrityViolationException e) {
 			throw new ConsistencyErrorException("Attribute already exists: " + attribute, e);
 		} catch (RuntimeException e) {

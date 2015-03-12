@@ -147,6 +147,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 
 		typeListBox.addItem("String", "java.lang.String");
 		typeListBox.addItem("Integer", "java.lang.Integer");
+		typeListBox.addItem("Boolean", "java.lang.Boolean");
 		typeListBox.addItem("Array", "java.util.ArrayList");
 		typeListBox.addItem("LinkedHashMap", "java.util.LinkedHashMap");
 

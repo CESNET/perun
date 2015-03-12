@@ -179,9 +179,6 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 		ListHandler<Attribute> columnSortHandler = new ListHandler<Attribute>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
 
-		// table selection
-		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager());
-
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 		loaderImage.setEmptyResultMessage("No settings found. Use 'Add' button to add new setting.");
@@ -226,6 +223,9 @@ public class GetRequiredAttributesV2 implements JsonCallback, JsonCallbackTable<
 					}
 				}
 			});
+
+			// table selection
+			table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager(0));
 
 			table.addColumn(checkBoxColumn, checkBoxHeader);
 
