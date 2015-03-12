@@ -7,7 +7,6 @@ public enum Role {
 	GROUPADMIN ("groupadmin"),
 	SELF ("self"),
 	FACILITYADMIN ("facilityadmin"),
-	SYNCHRONIZER ("synchronizer"),
 	REGISTRAR ("registrar"),
 	ENGINE ("engine"),
 	RPC ("rpc"),
