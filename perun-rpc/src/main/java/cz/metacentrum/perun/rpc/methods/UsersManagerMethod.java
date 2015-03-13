@@ -627,6 +627,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param attribute Attribute JSON object
 	 * @return List<User> Found users
 	 */
+	/*#
+	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.
+	 *
+	 * @param attributeName String URN of attribute to search by
+	 * @param attributeValue Object Value to search by (type of value must match attribute value type)
+	 * @return List<User> Found users
+	 */
 	getUsersByAttribute {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -639,15 +646,15 @@ public enum UsersManagerMethod implements ManagerMethod {
 						attr.setValue(parms.readInt("attributeValue"));
 					} else if(attr.getType().equals(String.class.getName())) {
 						attr.setValue(parms.readString("attributeValue"));
-						return ac.getUsersManager().getUsersByAttribute(ac.getSession(),attr);
+					} else if(attr.getType().equals(Boolean.class.getName())) {
+						attr.setValue(parms.readBoolean("attributeValue"));
 					} else if(attr.getType().equals(ArrayList.class.getName())) {
 						attr.setValue(parms.readList("attributeValue", String.class));
 					} else if(attr.getType().equals(LinkedHashMap.class.getName())) {
 						attr.setValue(parms.read("attributeValue", LinkedHashMap.class));
 					} else {
-						throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, "attributeValue is not the same type like value of attribute with the attributeName.");
+						throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, "attributeValue is not the same type like value of attribute with the attributeName.");
 					}
-
 					return ac.getUsersManager().getUsersByAttribute(ac.getSession(),attr);
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "attributeValue");
@@ -664,7 +671,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all users who have attribute which have value which contains searchString.
 	 *
-	 * @param attribute Attribute JSON object
+	 * @param attributeName String URN of attribute to search by
+	 * @param attributeValue String Value to search by
 	 * @return List<User> Found users
 	 */
 	getUsersByAttributeValue {

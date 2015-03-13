@@ -50,6 +50,13 @@ public class UrlDeserializer extends Deserializer {
 	}
 
 	@Override
+	public Boolean readBoolean(String name) throws RpcException {
+		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+
+		return Boolean.parseBoolean(req.getParameter(name));
+	}
+
+	@Override
 	public int readInt(String name) throws RpcException {
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
@@ -78,6 +85,8 @@ public class UrlDeserializer extends Deserializer {
 				list.add(valueType.cast(param));
 			} else if (valueType.isAssignableFrom(Integer.class)) {
 				list.add(valueType.cast(Integer.valueOf(param)));
+			} else if (valueType.isAssignableFrom(Boolean.class)) {
+				list.add(valueType.cast(Boolean.valueOf(param)));
 			} else if (valueType.isAssignableFrom(Float.class)) {
 				list.add(valueType.cast(Float.valueOf(param)));
 			}

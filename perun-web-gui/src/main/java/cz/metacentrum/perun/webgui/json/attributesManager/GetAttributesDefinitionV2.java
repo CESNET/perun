@@ -6,10 +6,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.view.client.DefaultSelectionEventManager;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.MultiSelectionModel;
-import com.google.gwt.view.client.SelectionModel;
+import com.google.gwt.view.client.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
@@ -100,14 +97,13 @@ public class GetAttributesDefinitionV2 implements JsonCallback, JsonCallbackTabl
 		ListHandler<Attribute> columnSortHandler = new ListHandler<Attribute>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
 
-		// table selection
-		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager());
-
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
 		// checkbox column column
 		if (checkable) {
+			// table selection
+			table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager(0));
 			table.addCheckBoxColumn();
 		}
 

@@ -765,7 +765,7 @@ public class ApplicationFormGui implements EntryPoint {
 		}
 
 		ft.setWidget(0, 0, voContact);
-		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright()));
+		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + " " + JsonUtils.getCurrentYear()));
 
 		ftf.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
 		ftf.setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
