@@ -110,6 +110,10 @@ function PerunTable() {
                     case "table":
                         html += this.values[row][column.name].draw();
                         break;
+                    case "date":
+                        var date = this.values[row][column.name].split("-");
+                        html += date[2]+"."+date[1]+"."+date[0];
+                        break;
                     default :
                         if (this.values.length == 0) {
                             break;
