@@ -102,7 +102,9 @@ function callPerunPost(manager, method, args, callBack, perunError, perunComplet
                     (flowMessager.newMessage(data.name, data.message, "danger")).draw();
                 }
             } else {
-                callBack(data);
+                if (callBack) {
+                    callBack(data);
+                }
             }
         },
         statusCode: {
