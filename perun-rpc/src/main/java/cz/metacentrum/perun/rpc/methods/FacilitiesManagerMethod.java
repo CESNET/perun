@@ -579,8 +579,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all Facility admins.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param facility int Facility ID
 	 * @return List<User> List of Users who are admins in the facility.
 	 */
@@ -603,12 +602,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all Facility direct admins.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param facility int Facility ID
 	 * @return List<User> list of admins of the facility
 	 */
-	@Deprecated
 	getDirectAdmins {
 
 		@Override
@@ -652,9 +649,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 */
 	/*#
     * Get all Facility admins as RichUsers
-    *
-	* !!! DEPRECATED version !!!
 	*
+	* @deprecated
     * @param facility int Facility ID
     * @return List<RichUser> admins
     */
@@ -679,12 +675,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Facility admins as RichUsers with all their non-null user attributes
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param facility int Facility ID
 	* @return List<RichUser> admins with attributes
 	*/
-	@Deprecated
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -698,13 +692,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Facility admins as RichUsers with specific attributes (from user namespace)
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param facility int Facility ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> admins with attributes
 	*/
-	@Deprecated
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -720,13 +712,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	* Get all Facility admins, which are assigned directly,
 	* as RichUsers with specific attributes (from user namespace)
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param facility int Facility ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> direct admins with attributes
 	*/
-	@Deprecated
 	getDirectRichAdminsWithSpecificAttributes {
 
 		@Override

@@ -396,8 +396,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns administrators of a group.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param group int Group ID
 	 * @return List<User> Group admins
 	 */
@@ -419,12 +418,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns direct administrators of a group.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param group int Group ID
 	 * @return List<User> Group admins
 	 */
-	@Deprecated
 	getDirectAdmins {
 
 		@Override
@@ -467,8 +464,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Group admins as RichUsers
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param group int Group ID
 	* @return List<RichUser> admins
 	*/
@@ -492,12 +488,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Group admins as RichUsers with all their non-null user attributes
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param group int Group ID
 	* @return List<RichUser> admins with attributes
 	*/
-	@Deprecated
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -510,13 +504,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Group admins as RichUsers with specific attributes (from user namespace)
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param group int Group ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> admins with attributes
 	*/
-	@Deprecated
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -532,13 +524,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	* Get all Group admins, which are assigned directly,
 	*  as RichUsers with specific attributes (from user namespace)
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param group int Group ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> direct admins with attributes
 	*/
-	@Deprecated
 	getDirectRichAdminsWithSpecificAttributes {
 
 		@Override

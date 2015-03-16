@@ -219,8 +219,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns administrators of a VO.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param vo int VO ID
 	 * @return List<User> VO admins
 	 */
@@ -249,12 +248,10 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns direct administrators of a VO.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param vo int VO ID
 	 * @return List<User> VO admins
 	 */
-	@Deprecated
 	getDirectAdmins {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms)
@@ -277,8 +274,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns group administrators of a VO.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param vo int VO ID
 	 * @return List<User> VO admins
 	 */
@@ -322,8 +318,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns administrators of a VO.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param vo int VO ID
 	 * @return List<RichUser> VO admins
 	 */
@@ -353,12 +348,10 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns administrators of a VO with additional information.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param vo int VO ID
 	 * @return List<RichUser> VO admins
 	 */
-	@Deprecated
 	getRichAdminsWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms)
@@ -371,13 +364,11 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns administrators of a VO with additional information.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param vo int VO ID
 	 * @param specificAttributes List<String> list of attributes URNs
 	 * @return List<RichUser> VO rich admins with attributes
 	 */
-	@Deprecated
 	getRichAdminsWithSpecificAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -392,13 +383,11 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * Returns administrators of a VO, which are directly assigned
 	 * with additional information.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param vo int VO ID
 	 * @param specificAttributes List<String> list of attributes URNs
 	 * @return List<RichUser> VO rich admins with attributes
 	 */
-	@Deprecated
 	getDirectRichAdminsWithSpecificAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
