@@ -24,14 +24,15 @@ function loadProjects(user) {
                 {member: members[i].id, attributeName: "urn:perun:member:attribute-def:def:membershipExpiration"});
             var loadRules = callPerun("attributesManager", "getAttribute",
                 {vo: members[i].voId, attributeName: "urn:perun:vo:attribute-def:def:membershipExpirationRules"});
-            //var loadExtend = callPerun("membersManager", "canExtendMembership", {member: members[i].id} )
-            $.when(loadVos, loadExpiration, loadRules).done(success(members[i]));
+            var loadExtend = callPerunPost("membersManager", "canExtendMembership", {member: members[i].id} )
+            $.when(loadVos, loadExpiration, loadRules, loadExtend).done(success(members[i]));
         }
         function success(member) {
             return function (vo, expiration, rules, extend) {
                 vo = vo[0];
                 var expirationDate = new Date(expiration[0].value);
                 var rules = rules[0].value;
+                console.log(extend[0]);
                 var stateBtn = stateButton(expirationDate, rules, member);
                 var project = {name: vo.name, expiration: expirationDate, state: stateBtn};
                 projects.push(project);
