@@ -190,6 +190,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 *
 	 * @param execService int ExecService ID
 	 * @param facility int Facility ID
+	 * @exampleResponse 1
 	 * @return int 1 = true - the execService is denied on the facility, 0 = false - the execService in NOT denied on the facility
 	 */
 	isExecServiceDeniedOnFacility {
@@ -206,6 +207,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service ID
 	 * @param facility int Facility ID
+	 * @exampleResponse 1
 	 * @return int 1 = true - the service is denied on the facility, 0 = false - the service in NOT denied on the facility
 	 */
 	isServiceDeniedOnFacility {
@@ -227,6 +229,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 *
 	 * @param execService int ExecService ID
 	 * @param destination int Destination ID
+	 * @exampleResponse 1
 	 * @return int 1 = true - the execService is denied on the destination, 0 = false - the execService in NOT denied on the destination
 	 */
 	isExecServiceDeniedOnDestination {
@@ -326,6 +329,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 *
 	 * @param dependantExecService int DependantExecService ID
 	 * @param execService int ExecService ID
+	 * @exampleResponse 1
 	 * @return int 1 = true - yes, there is such a dependency, 0 = false - no, there is not such a dependency
 	 */
 	isThereDependency {

@@ -502,17 +502,17 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Locks and unlocks publications.
-		* @param publications List<Publication> Publications
-		* @param lock int 1 = lock, 0 = unlock
-		* @return int Number of updated rows
-		*/
+	 * Locks and unlocks publications.
+	 * @param publications List<Publication> Publications
+	 * @param lock boolean true = lock, false = unlock
+	 * @return int Number of updated rows
+	 */
 	lockPublications {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			ac.stateChangingCheck();
 
 			List<Publication> pubs = parms.readList("publications", Publication.class);
-			boolean lockState = parms.readInt("lock") == 1 ? true : false;
+			boolean lockState = parms.readBoolean("lock");
 			return ac.getCabinetManager().lockPublications(ac.getSession(), lockState, pubs);
 
 		}

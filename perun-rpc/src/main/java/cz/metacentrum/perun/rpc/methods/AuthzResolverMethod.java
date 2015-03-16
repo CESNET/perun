@@ -27,12 +27,11 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Get all richUser administrators for complementary object and role with specify attributes.
+	 * Get all RichUser administrators for complementary object and role with specify attributes.
 	 *
-	 * If "onlyDirectAdmins" is "true", return only direct users of the complementary object for role with specific attributes.
-	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
-	 *
-	 * @return list of richUser administrators for complementary object and role with specify attributes.
+	 * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with specific attributes.
+	 * @param allUserAttributes boolean When true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 * @return List of RichUser administrators for complementary object and role with specify attributes.
 	 */
 	getRichAdmins {
 		@Override
@@ -50,15 +49,18 @@ public enum AuthzResolverMethod implements ManagerMethod {
 							parms.readInt("complementaryObjectId"),
 							parms.readString("complementaryObjectName"),
 							parms.readList("specificAttributes", String.class),
-							role, parms.readInt("onlyDirectAdmins") == 1,
-							parms.readInt("allUserAttributes") == 1);
+							role, parms.readBoolean("onlyDirectAdmins"),
+							parms.readBoolean("allUserAttributes"));
 		}
 	},
 
 	/*#
 	 * Get all authorizedGroups for complementary object and role.
 	 *
-	 * @return list of authoriedGroups for complementary object and role
+	 * @param role String Expected Role to filter authorizedGroups by.
+	 * @param complementaryObjectId int ID of complementary object to get authorizedGroups for.
+	 * @param complementaryObjectName String BeanName of complementary object = type.
+	 * @return list of authorizedGroups for complementary object and role
 	 */
 	getAdminGroups {
 		@Override
@@ -204,6 +206,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns 1 if user is a VO admin.
+	 * @exampleResponse 1
 	 * @return int 1 = true, 0 = false
 	 */
 	isVoAdmin {
@@ -217,6 +220,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns 1 if user is a Group admin.
+	 * @exampleResponse 1
 	 * @return int 1 = true, 0 = false
 	 */
 	isGroupAdmin {
@@ -230,6 +234,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns 1 if user is a Facility admin.
+	 * @exampleResponse 1
 	 * @return int 1 = true, 0 = false
 	 */
 	isFacilityAdmin {
@@ -243,6 +248,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns 1 if user is a Perun admin.
+	 * @exampleResponse 1
 	 * @return int 1 = true, 0 = false
 	 */
 	isPerunAdmin {
@@ -279,7 +285,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Returns "OK" string.
 	 * Helper method for GUI to keep connection alive
-	 *
+	 * @exampleResponse OK
 	 * @return String "OK"
 	 */
 	keepAlive {

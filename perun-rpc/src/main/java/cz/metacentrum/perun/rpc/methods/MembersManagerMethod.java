@@ -234,7 +234,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 *
  	 * @param vo int Vo ID
  	 * @param attrsNames List<String> Attribute names
- 	 * @return list of richMembers with specific attributes from Vo
+ 	 * @return List<RichMember> List of RichMembers with specific attributes from Vo
  	 */
 	/*#
  	 * Get all RichMembers with attributes specific for list of attrsNames from the group and have only
@@ -248,7 +248,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @param group int Group ID
  	 * @param attrsNames List<String> Attribute names
  	 * @param allowedStatuses List<String> Allowed Statuses
- 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of richMembers with specific attributes from group
  	 */
 	/*#
@@ -260,7 +260,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 *
  	 * @param group int Group ID
  	 * @param attrsNames List<String> Attribute names
- 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @param lookingInParentGroup If true, look up in a parent group
  	 * @return List<RichMember> List of richMembers with specific attributes from Group
  	 */
 	getCompleteRichMembers {
@@ -301,14 +301,14 @@ public enum MembersManagerMethod implements ManagerMethod {
 								ac.getGroupById(parms.readInt("group")),
 								parms.readList("attrsNames", String.class),
 								parms.readList("allowedStatuses", String.class),
-								parms.readInt("lookingInParentGroup") == 1);
+								parms.readBoolean("lookingInParentGroup"));
 					} else {
 						// with all attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
 								null,
 								parms.readList("allowedStatuses", String.class),
-								parms.readInt("lookingInParentGroup") == 1);
+								parms.readBoolean("lookingInParentGroup"));
 					}
 				} else {
 					if (parms.contains("attrsNames")) {
@@ -316,13 +316,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
 								parms.readList("attrsNames", String.class),
-								parms.readInt("lookingInParentGroup") == 1);
+								parms.readBoolean("lookingInParentGroup"));
 					} else {
 						// with all attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
 								null,
-								parms.readInt("lookingInParentGroup") == 1);
+								parms.readBoolean("lookingInParentGroup"));
 					}
 				}
 			}
@@ -637,7 +637,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @param attrsNames List<String> Attribute names
  	 * @param allowedStatuses List<String> Allowed statuses
  	 * @param searchString String String to search by
- 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @param lookingInParentGroup If true, look up in a parent group
  	 * @return List<RichMember> List of founded richMembers with specific attributes from Group for searchString
  	 */
 	/*#
@@ -650,7 +650,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @param group int Group ID
  	 * @param attrsNames List<String> Attribute names
  	 * @param searchString String String to search by
- 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @param lookingInParentGroup If true, look up in a parent group
  	 * @return List<RichMember> List of founded richMembers with specific attributes from Group for searchString
  	 */
 	findCompleteRichMembers {
@@ -676,13 +676,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 							parms.readList("attrsNames", String.class),
 							parms.readList("allowedStatuses", String.class),
 							parms.readString("searchString"),
-							parms.readInt("lookingInParentGroup") == 1);
+							parms.readBoolean("lookingInParentGroup"));
 				} else {
 					return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
 							ac.getGroupById(parms.readInt("group")),
 							parms.readList("attrsNames", String.class),
 							parms.readString("searchString"),
-							parms.readInt("lookingInParentGroup") == 1);
+							parms.readBoolean("lookingInParentGroup"));
 				}
 			}
 		}

@@ -1039,7 +1039,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Enable or disable sending for list of mail definitions.
 	 *
 	 * @param mails List<ApplicationMail> Mail definitions to update
-	 * @param enabled int 1 for enabled, 0 for disabled
+	 * @param enabled boolean true for enabled, false for disabled
 	 * @return Object Always null
 	 */
 	setSendingEnabled {
@@ -1050,7 +1050,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			ac.getRegistrarManager().getMailManager().setSendingEnabled(ac.getSession(),
 					parms.readList("mails", ApplicationMail.class),
-					parms.readInt("enabled")==1 ? true : false);
+					parms.readBoolean("enabled"));
 
 			return null;
 		}
