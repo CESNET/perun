@@ -51,14 +51,14 @@ function loadProjects(user) {
     });
 }
 
-function stateButton(expiration, extend, member) {
+function stateButton(expiration, canExtend, member) {
     if (expiration instanceof Date) {
         if (expiration.getTime() < (new Date()).getTime()) {
             action = new TableButton(member.id, "expired", "extend", "danger", {fnc: extend, params: [member.id]});
             return action;
         }
     }
-    if (extend) {
+    if (canExtend) {
         //var gracePeriod = rules.gracePeriod;
         action = new TableButton(member.id, "gracePeriod", "extend", "warning", {fnc: extend, params: [member.id]});
         return action;
