@@ -111,7 +111,11 @@ function PerunTable() {
                         html += this.values[row][column.name].draw();
                         break;
                     case "date":
-                        html += this.values[row][column.name].toLocaleDateString();
+                        if (this.values[row][column.name] instanceof Date) {
+                            html += this.values[row][column.name].toLocaleDateString();
+                        } else {
+                            html += this.values[row][column.name];
+                        }
                         break;
                     default :
                         if (this.values.length == 0) {

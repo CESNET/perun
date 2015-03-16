@@ -25,15 +25,20 @@ function loadProjects(user) {
             var loadRules = callPerun("attributesManager", "getAttribute",
                 {vo: members[i].voId, attributeName: "urn:perun:vo:attribute-def:def:membershipExpirationRules"});
             var loadExtend = callPerunPost("membersManager", "canExtendMembership", {member: members[i].id} )
-            $.when(loadVos, loadExpiration, loadRules, loadExtend).done(success(members[i]));
+            $.when(loadVos, loadExpiration, loadExtend).done(success(members[i]));
         }
         function success(member) {
-            return function (vo, expiration, rules, extend) {
+            return function (vo, expiration, extend) {
                 vo = vo[0];
-                var expirationDate = new Date(expiration[0].value);
-                var rules = rules[0].value;
-                console.log(extend[0]);
-                var stateBtn = stateButton(expirationDate, rules, member);
+                var expirationDate;
+                if (expiration[0].value) {
+                    expirationDate = new Date(expiration[0].value);
+                } else {
+                    expirationDate = "unlimited";
+                }
+                extend = extend[0];
+                //var rules = rules[0].value;
+                var stateBtn = stateButton(expirationDate, extend, member);
                 var project = {name: vo.name, expiration: expirationDate, state: stateBtn};
                 projects.push(project);
                 projectsCurrent++;
@@ -46,19 +51,18 @@ function loadProjects(user) {
     });
 }
 
-function stateButton(expiration, rules, member) {
-    if (expiration.getTime() < (new Date()).getTime()) {
-        action = new TableButton(member.id, "expired", "extend", "danger", {fnc: extend, params: [member.id]});
-        return action;
-    }
-    if (rules) {
-        var gracePeriod = rules.gracePeriod;
-        if (false) {
-            action = new TableButton(member.id, "gracePeriod", "extend", "warning", {fnc: extend, params: [member.id]});
+function stateButton(expiration, extend, member) {
+    if (expiration instanceof Date) {
+        if (expiration.getTime() < (new Date()).getTime()) {
+            action = new TableButton(member.id, "expired", "extend", "danger", {fnc: extend, params: [member.id]});
             return action;
         }
     }
-
+    if (extend) {
+        //var gracePeriod = rules.gracePeriod;
+        action = new TableButton(member.id, "gracePeriod", "extend", "warning", {fnc: extend, params: [member.id]});
+        return action;
+    }
     action = new TableButton(member.id, "ok", "<i class='glyphicon glyphicon-ok'></i>", "success", {fnc: extend, params: [member.id]});
     action.setDisabled(true);
     return action;
@@ -78,7 +82,7 @@ function fillProjects(projects) {
     var projectTable = new PerunTable();
     projectTable.addColumn({type:"number", title:"#"});
     projectTable.addColumn({type:"text", title:"Virtual Organizations", name:"name"});
-    projectTable.addColumn({type:"date", title:"Expiration", name:"expiration"});
+    projectTable.addColumn({type:"date", title:"Membership Expiration", name:"expiration"});
     projectTable.addColumn({type: "button2", title: "Extend", button: "state"});
     projectTable.setValues(projects);
     var tableHtml = projectTable.draw();
