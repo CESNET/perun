@@ -1,3 +1,9 @@
+perun-slave (3.0.0-0.0.88) stable; urgency=low
+
+  * Add new service drupal_elixir
+
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 17 Mar 2015 11:34:21 +0100
+
 perun-slave (3.0.0-0.0.87) stable; urgency=low
 
    * Fixed example pre script name for ldap service. It was previously

@@ -1,0 +1,4 @@
+#!/bin/bash
+SERVICE_NAME="drupal_elixir"
+
+. generic_send
