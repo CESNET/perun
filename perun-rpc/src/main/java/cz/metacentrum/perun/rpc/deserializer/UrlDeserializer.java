@@ -53,7 +53,18 @@ public class UrlDeserializer extends Deserializer {
 	public Boolean readBoolean(String name) throws RpcException {
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
-		return Boolean.parseBoolean(req.getParameter(name));
+		try {
+			// check if parameter in URL isn't passed as number
+			// if yes, conform JsonDeserializer implementation
+			// => only 0 is considered FALSE, other numbers are TRUE
+			int number = Integer.parseInt(req.getParameter(name));
+			if (number == 0) return false;
+			return true;
+		} catch (NumberFormatException ex) {
+			// parameter is passed in URL as a String
+			return Boolean.parseBoolean(req.getParameter(name));
+		}
+
 	}
 
 	@Override
