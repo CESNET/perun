@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.ExtSourcesManagerImplApi;
+import java.util.Map;
 
 /**
  * ExtSourcesManager entry logic.
@@ -236,5 +237,21 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(sess, source);
 
 		return getExtSourcesManagerBl().getCandidate(sess, source, login);
+	}
+
+	@Override
+	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException {
+		Utils.checkPerunSession(perunSession);
+		Utils.notNull(subjectData, "subjectData");
+		Utils.notNull(subjectData.get("login"), "subjectLogin");
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "getCandidate");
+		}
+
+		getExtSourcesManagerBl().checkExtSourceExists(perunSession, source);
+
+		return getExtSourcesManagerBl().getCandidate(perunSession, subjectData, source, subjectData.get("login"));
 	}
 }

@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
@@ -179,9 +180,9 @@ public class VosManagerEntry implements VosManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getVoByShortName");
-				}
+		}
 
 		return vo;
 	}
@@ -194,7 +195,7 @@ public class VosManagerEntry implements VosManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC) &&
 				!AuthzResolver.isAuthorized(sess, Role.SELF)) {
 			throw new PrivilegeException(sess, "getVoById");
@@ -286,6 +287,71 @@ public class VosManagerEntry implements VosManager {
 		vosManagerBl.removeAdmin(sess, vo, group);
 	}
 
+	public List<User> getAdmins(PerunSession perunSession, Vo vo, Role role, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException {
+		Utils.checkPerunSession(perunSession);
+		Utils.notNull(role, "role");
+		vosManagerBl.checkVoExists(perunSession, vo);
+
+		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
+		if(!role.equals(Role.TOPGROUPCREATOR) && 
+						!(role.equals(Role.VOADMIN) &&
+						!(role.equals(role.VOOBSERVER)))) {
+			throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.", role);
+		}
+
+		//  Authorization - Vo admin required
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, vo)) {
+			throw new PrivilegeException(perunSession, "getAdmins");
+		}
+
+		return vosManagerBl.getAdmins(perunSession, vo, role, onlyDirectAdmins);
+	}
+
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Vo vo, Role role, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException, RoleNotSupportedException {
+		Utils.notNull(perunSession, "perunSession");
+		Utils.notNull(role, "role");
+		vosManagerBl.checkVoExists(perunSession, vo);
+
+		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
+		if(!role.equals(Role.TOPGROUPCREATOR) && 
+						!(role.equals(Role.VOADMIN) &&
+						!(role.equals(role.VOOBSERVER)))) {
+			throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.", role);
+		}
+
+		//  Authorization - Vo admin required
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, vo)) {
+			throw new PrivilegeException(perunSession, "getDirectRichAdminsWithSpecificAttributes");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, vosManagerBl.getRichAdmins(perunSession, vo, role, specificAttributes, allUserAttributes, onlyDirectAdmins));
+	}
+
+	public List<Group> getAdminGroups(PerunSession perunSession, Vo vo, Role role) throws InternalErrorException, PrivilegeException, VoNotExistsException, RoleNotSupportedException {
+		Utils.checkPerunSession(perunSession);
+		Utils.notNull(role, "role");
+		vosManagerBl.checkVoExists(perunSession, vo);
+
+		//Role can be only supported one (TopGroupCreator, VoAdmin or VoObserver)
+		if(!role.equals(Role.TOPGROUPCREATOR) && 
+						!(role.equals(Role.VOADMIN) &&
+						!(role.equals(role.VOOBSERVER)))) {
+			throw new RoleNotSupportedException("Supported roles are VoAdmin, VoObserver and TopGroupCreator.", role);
+		}
+
+		//  Authorization - Vo admin required
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, vo)) {
+			throw new PrivilegeException(perunSession, "getAdminGroups");
+				}
+
+		return vosManagerBl.getAdminGroups(perunSession, vo, role);
+	}
+
+
+	@Deprecated
 	public List<User> getAdmins(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
@@ -299,6 +365,7 @@ public class VosManagerEntry implements VosManager {
 		return vosManagerBl.getAdmins(sess, vo);
 	}
 
+	@Deprecated
 	@Override
 	public List<User> getDirectAdmins(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.notNull(sess, "sess");
@@ -313,6 +380,7 @@ public class VosManagerEntry implements VosManager {
 		return vosManagerBl.getDirectAdmins(sess, vo);
 	}
 
+	@Deprecated
 	@Override
 	public List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.notNull(sess, "sess");
@@ -327,6 +395,7 @@ public class VosManagerEntry implements VosManager {
 		return vosManagerBl.getAdminGroups(sess, vo);
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdmins(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
@@ -340,6 +409,7 @@ public class VosManagerEntry implements VosManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, vosManagerBl.getRichAdmins(sess, vo));
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
@@ -353,6 +423,7 @@ public class VosManagerEntry implements VosManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, vosManagerBl.getRichAdminsWithAttributes(sess, vo));
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession sess, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);
@@ -366,6 +437,7 @@ public class VosManagerEntry implements VosManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, vosManagerBl.getRichAdminsWithSpecificAttributes(sess, vo, specificAttributes));
 	}
 
+	@Deprecated
 	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession sess, Vo vo, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException {
 		Utils.notNull(sess, "sess");
 		vosManagerBl.checkVoExists(sess, vo);

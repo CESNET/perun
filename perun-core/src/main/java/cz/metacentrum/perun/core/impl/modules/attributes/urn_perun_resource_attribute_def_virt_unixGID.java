@@ -117,12 +117,12 @@ public class urn_perun_resource_attribute_def_virt_unixGID extends ResourceVirtu
 	}
 
 	@Override
-	public void removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public boolean removeAttributeValue(PerunSessionImpl sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		Attribute unixGIDNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getUnixGIDNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {
 			AttributeDefinition groupGidAttribute = sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace:" + unixGIDNamespaceAttribute.getValue());
-			sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupGidAttribute);
+			return sess.getPerunBl().getAttributesManagerBl().removeAttribute(sess, resource, groupGidAttribute);
 		} catch (AttributeNotExistsException ex) {
 			throw new InternalErrorException(ex);
 		} catch (WrongAttributeAssignmentException ex) {

@@ -172,6 +172,22 @@ public class Confirm {
 	}
 
 	/**
+	 * Creates the new instance of the Confirm widget
+	 * @param caption
+	 * @param content
+	 * @param okButton
+	 * @param cancelButton
+	 * @param useIcons (uses icons in widget) - if no icon set, use default
+	 */
+	public Confirm(String caption, Widget content, CustomButton okButton, CustomButton cancelButton, boolean useIcons) {
+		this.content = content;
+		this.okButton = okButton;
+		this.cancelButton = cancelButton;
+		this.caption = caption;
+		this.useIcons = useIcons;
+	}
+
+	/**
 	 * Creates the new instance of the Confirm widget with custom button labels
 	 * @param caption
 	 * @param content
@@ -337,68 +353,86 @@ public class Confirm {
 		// menu panel
 		TabMenu menu = new TabMenu();
 
-		// OK BUTTON
-		if(this.okButtonText.length() > 0) {
-
-			// build with icons
-			if (useIcons == true) {
-				// if no icon set - use default
-				if (okIcon == null) { okIcon = OK_ICON; }
-
-				okButton = new CustomButton(this.okButtonText, okIcon, new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						value = true;
-						okClickHandler.onClick(event);
-						eventCalled = true;
-						if (hideOnClick) dialogBox.hide();
-					}
-				});
-
-				// build without icons
-			} else {
-
-				okButton = new CustomButton(this.okButtonText, "", null, new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						value = true;
-						okClickHandler.onClick(event);
-						eventCalled = true;
-						if (hideOnClick) dialogBox.hide();
-					}
-				});
-
-			}
+		if (okButton != null) {
 
 			menu.addWidget(okButton);
 
+		} else {
+
+			// OK BUTTON
+			if(this.okButtonText.length() > 0) {
+
+				// build with icons
+				if (useIcons == true) {
+					// if no icon set - use default
+					if (okIcon == null) { okIcon = OK_ICON; }
+
+					okButton = new CustomButton(this.okButtonText, okIcon, new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							value = true;
+							okClickHandler.onClick(event);
+							eventCalled = true;
+							if (hideOnClick) dialogBox.hide();
+						}
+					});
+
+					// build without icons
+				} else {
+
+					okButton = new CustomButton(this.okButtonText, "", null, new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							value = true;
+							okClickHandler.onClick(event);
+							eventCalled = true;
+							if (hideOnClick) dialogBox.hide();
+						}
+					});
+
+				}
+
+				menu.addWidget(okButton);
+
+			}
+
 		}
 
-		// CANCEL BUTTON
-		if(this.cancelButtonText.length() > 0) {
+		if (cancelButton != null) {
 
-			// build with icons
-			if (useIcons == true ) {
-				// if no icon set - use default
-				if (cancelIcon == null) { cancelIcon = CANCEL_ICON; }
-				cancelButton = new CustomButton(this.cancelButtonText, cancelIcon, new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						value = false;
-						cancelClickHandler.onClick(event);
-						eventCalled = true;
-						if (hideOnClick) dialogBox.hide();
-					}
-				});
-				// build without icons
-			} else {
-				cancelButton = new CustomButton(this.cancelButtonText, "", null, new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						value = false;
-						cancelClickHandler.onClick(event);
-						eventCalled = true;
-						if (hideOnClick) dialogBox.hide();
-					}
-				});
-			}
 			menu.addWidget(cancelButton);
+
+		} else {
+
+			// CANCEL BUTTON
+			if(this.cancelButtonText.length() > 0) {
+
+				// build with icons
+				if (useIcons == true ) {
+					// if no icon set - use default
+					if (cancelIcon == null) { cancelIcon = CANCEL_ICON; }
+					cancelButton = new CustomButton(this.cancelButtonText, cancelIcon, new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							value = false;
+							cancelClickHandler.onClick(event);
+							eventCalled = true;
+							if (hideOnClick) dialogBox.hide();
+						}
+					});
+					// build without icons
+				} else {
+					cancelButton = new CustomButton(this.cancelButtonText, "", null, new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							value = false;
+							cancelClickHandler.onClick(event);
+							eventCalled = true;
+							if (hideOnClick) dialogBox.hide();
+						}
+					});
+				}
+
+				menu.addWidget(cancelButton);
+
+			}
+
 		}
 
 		// widget panel

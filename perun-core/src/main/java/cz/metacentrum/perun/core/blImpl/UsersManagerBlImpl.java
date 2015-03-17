@@ -28,7 +28,7 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
 /**
- * UsersManager buisness logic
+ * UsersManager business logic
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
@@ -54,7 +54,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	/**
 	 * Constructor.
 	 *
-	 * @param perunPool connection pool
+	 * @param usersManagerImpl connection pool
 	 */
 	public UsersManagerBlImpl(UsersManagerImplApi usersManagerImpl) {
 		this.usersManagerImpl = usersManagerImpl;
@@ -263,7 +263,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		try {
 			es = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
 		} catch (ExtSourceNotExistsException e1) {
-			throw new ConsistencyErrorException("Default extSource PERUN must exists! It is created in ExtSourcesManagerImpl.init fucntion.",e1);
+			throw new ConsistencyErrorException("Default extSource PERUN must exists! It is created in ExtSourcesManagerImpl.init function.",e1);
 		}
 		UserExtSource ues = new UserExtSource(es, 0, String.valueOf(user.getId()));
 		try {
@@ -539,8 +539,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	private List<User> getUsersByVirtualAttribute(PerunSession sess, AttributeDefinition attributeDef, String attributeValue) throws InternalErrorException {
 		// try to find method in attribute module
-		UserVirtualAttributesModuleImplApi attributeModul = perunBl.getAttributesManagerBl().getUserVirtualAttributeModule(sess, attributeDef);
-		List<User> listOfUsers = attributeModul.searchInAttributesValues((PerunSessionImpl) sess, attributeValue);
+		UserVirtualAttributesModuleImplApi attributeModule = perunBl.getAttributesManagerBl().getUserVirtualAttributeModule(sess, attributeDef);
+		List<User> listOfUsers = attributeModule.searchInAttributesValues((PerunSessionImpl) sess, attributeValue);
 
 		if (listOfUsers != null) {
 			return listOfUsers;
@@ -601,8 +601,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new ConsistencyErrorException("Attribute name:'"  + attributeName + "', value:'" + attributeValue + "' not exists ", e);
 		}
 	}
-
-
 
 	public List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException {
 		return this.getUsersManagerImpl().findUsers(sess, searchString);
@@ -1418,7 +1416,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				} else if (process.exitValue() == 6) {
 					throw new LoginNotExistsRuntimeException("User doesn't exists in underlying system for namespace " + loginNamespace + ", user: " + user + ".");
 				} else if (process.exitValue() == 7) {
-					throw new LoginNotExistsRuntimeException("Problem with creating user entry in underlying system " + loginNamespace + ", user: " + user + ".");
+					throw new InternalErrorException("Problem with creating user entry in underlying system " + loginNamespace + ", user: " + user + ".");
 				} else {
 					// Some other error occured
 					BufferedReader inReader = new BufferedReader(new InputStreamReader(es));

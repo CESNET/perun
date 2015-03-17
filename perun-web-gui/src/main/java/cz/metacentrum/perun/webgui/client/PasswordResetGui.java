@@ -8,7 +8,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.CustomButton;
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.passwordresetresources.PasswordResetFormPage;
 import cz.metacentrum.perun.webgui.client.passwordresetresources.PasswordResetLeftMenu;
@@ -18,12 +17,12 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetPerunPrincipal;
-import cz.metacentrum.perun.webgui.json.registrarManager.GetApplicationsForUser;
 import cz.metacentrum.perun.webgui.json.registrarManager.VerifyCaptcha;
 import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.PerunPrincipal;
 import cz.metacentrum.perun.webgui.widgets.*;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.recaptcha.RecaptchaWidget;
 
 /**
@@ -165,14 +164,14 @@ public class PasswordResetGui implements EntryPoint {
 								error.setName("Missing public key");
 								error.setErrorInfo("Public key for Re-Captcha service is missing. Please add public key to GUIs configuration file.");
 								error.setRequestURL("");
-								UiElements.generateError(error, "Missing public key", "Public key for Re-Captcha service is missing.<br />Accessing application form without authorization is not possible.");
+								UiElements.generateError(error, "Missing public key", "Public key for Re-Captcha service is missing.<br />Accessing password reset without authorization is not possible.");
 								loadingBox.hide();
 								return;
 							}
 
 							final RecaptchaWidget captcha = new RecaptchaWidget(key, LocaleInfo.getCurrentLocale().getLocaleName(), "clean");
 
-							final cz.metacentrum.perun.webgui.widgets.CustomButton cb = new cz.metacentrum.perun.webgui.widgets.CustomButton();
+							final CustomButton cb = new CustomButton();
 							cb.setIcon(SmallIcons.INSTANCE.arrowRightIcon());
 							cb.setText(ApplicationMessages.INSTANCE.captchaSendButton());
 							cb.setImageAlign(true);

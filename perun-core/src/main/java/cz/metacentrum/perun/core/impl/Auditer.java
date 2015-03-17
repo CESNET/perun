@@ -47,6 +47,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 
 import net.jcip.annotations.GuardedBy;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
  * This class is used for logging audit events. It get messages and stored it in asociation with current transaction. If there's no transaction currently running, message is immediateli flushed out.
@@ -147,6 +149,22 @@ public class Auditer {
 			return auditMessage.getMsg();
 		}
 	};
+
+	protected static final AuditerConsumerExtractor AUDITER_CONSUMER_EXTRACTOR = new AuditerConsumerExtractor();
+
+	private static class AuditerConsumerExtractor implements ResultSetExtractor<Map<String, Integer>> {
+
+		public Map<String, Integer> extractData(ResultSet rs) throws SQLException, DataAccessException {
+			Map<String, Integer> auditerConsumers = new HashMap<>();
+			while (rs.next()) {
+				// fetch from map by ID
+				String name = rs.getString("name");
+				Integer lastProcessedId = rs.getInt("last_processed_id");
+				auditerConsumers.put(name, lastProcessedId);
+			}
+			return auditerConsumers;
+		}
+	}
 
 	public Auditer() {
 	}
@@ -551,6 +569,18 @@ public class Auditer {
 		} catch(Exception ex) {
 			throw new InternalErrorException(ex);
 		}
+	}
+
+	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException {
+		Map<String, Integer> auditerConsumers = new HashMap<>();
+
+		try {
+			auditerConsumers = jdbc.query("select name, last_processed_id from auditer_consumers", AUDITER_CONSUMER_EXTRACTOR);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		return auditerConsumers;
 	}
 
 	/**

@@ -919,6 +919,25 @@ public interface MembersManagerBl {
 	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers) throws InternalErrorException;
 
 	/**
+	 * For list of richMembers filter all their user and member attributes and remove all which principal has no access to.
+	 *
+	 * Context means that voId for all members is same (rules can be same for all members in list)
+	 *
+	 * if useContext is true: every attribute is unique in context of friendlyName, which means more attributes for more members have same
+	 * rules if friendly name is same for all of them (better performance, worse authorization check)
+	 * if useContext is false: every attribute is unique in context of member, which means every attribute for more members need to be check separately,
+	 * because for example members can be from different vos (better authorization check, worse performance)
+	 *
+	 * @param sess
+	 * @param richMembers list of richMembers for which attributes need to be filtered
+	 * @param useContext true or false means using context or not using context (more above in javadoc)
+	 *
+	 * @return list of richMembers with only allowed attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> filterOnlyAllowedAttributes(PerunSession sess, List<RichMember> richMembers, boolean useContext) throws InternalErrorException;
+
+	/**
 	 * Send mail to user's preferred email address with link for non-authz password reset.
 	 * Correct authz information is stored in link's URL.
 	 *

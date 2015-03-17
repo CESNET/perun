@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesDefinition;
@@ -230,7 +231,7 @@ public class EditFormItemTabItem implements TabItem {
 
 			boxRow++;
 
-			Label boxContentLabel = new Label(item.getType().substring(0, 0)+item.getType().toLowerCase().substring(1)+" options:");
+			Label boxContentLabel = new Label(item.getType().substring(0, 1)+item.getType().toLowerCase().substring(1)+" options:");
 			boxItemTable.setWidget(boxRow, 0, boxContentLabel);
 			boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 0, "itemName");
 			boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
@@ -336,6 +337,8 @@ public class EditFormItemTabItem implements TabItem {
 		federationAttributes.addItem("First name", "givenName");
 		federationAttributes.addItem("Sure name", "sn");
 		federationAttributes.addItem("EPPN", "eppn");
+		federationAttributes.addItem("IdP Category", "md_entityCategory");
+		federationAttributes.addItem("IdP Affiliation", "affiliation");
 
 		// application types
 		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents() {
@@ -552,9 +555,9 @@ public class EditFormItemTabItem implements TabItem {
 		this.titleWidget.setText("Edit form item: " + item.getShortname());
 
 		// languages
-		ArrayList<String> languages = new ArrayList<String>();
-		languages.add("cs");
-		languages.add("en");
+		ArrayList<String> languages = item.getLocales();
+		if (!languages.contains(Utils.getNativeLanguage().get(0))) languages.add(Utils.getNativeLanguage().get(0));
+		if (!languages.contains("en")) languages.add("en");
 
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();

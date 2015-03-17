@@ -1,0 +1,124 @@
+<!DOCTYPE html>                                                                                                                                                                                
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link href="/apps-include/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/apps-include/icomoon/icomoon.css" rel="stylesheet">
+        <link href="/apps-include/css/multilevel-dropdown.css" rel="stylesheet">
+        <link href="/apps-include/css/layout.css" rel="stylesheet">
+        <link href="../non/css/main.css" rel="stylesheet">
+
+        <link rel="shortcut icon" href="/apps-include/img/favicons/favicon.ico">
+        <link rel="icon" sizes="16x16 32x32 64x64" href="/apps-include/img/favicons/favicon.ico">
+        <link rel="icon" type="image/png" sizes="64x64" href="/apps-include/img/favicons/favicon-64.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/apps-include/img/favicons/favicon-32.png">
+        <link rel="apple-touch-icon" href="/apps-include/img/favicons/favicon-57.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/apps-include/img/favicons/favicon-144.png">
+        <meta name="msapplication-TileImage" content="/apps-include/img/favicons/favicon-white-144.png">
+        <meta name="msapplication-TileColor" content="#00569c">
+        
+        <title>ELIXIR mailing list manager</title>
+    </head>
+    <body>
+
+        <!-- <div id="cesnet_linker_placeholder"></div> -->
+
+        <div id="header">
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-sm-2">
+                        <div class="logo">
+                            <img src="/apps-include/img/perun-white-logo.png" alt="elixir logo">
+                        </div>
+                    </div>
+                    <div class="col-sm-10">
+                        <div class="title">
+                            <h4><img src="../non/img/elixir_logo.png" alt="elixir logo">mailing list manager</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="container"> <!-- main container -->
+
+            <div class="row">
+
+                <div class="col-sm-12">
+                    <div id="content">  <!-- content -->
+
+                        <div id="staticMessager">
+                            <!-- contend loaded by JavaScript -->
+                        </div>
+
+                        <form class="form-horizontal" role="form" id="subscribeForm">
+                        <div class="page-header">
+                            <h2>
+                                Subscribe email to info@elixir-czech.cz
+                            </h2>
+                        </div>    
+                            <div class="form-group">
+                                <label for="name" class="col-sm-2 control-label">Name</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="name" placeholder="Name" required autofocus>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="surname" class="col-sm-2 control-label">Surname</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="surname" placeholder="Surname" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="col-sm-2 control-label">Email</label>
+                                <div class="col-sm-6">
+                                    <input type="email" class="form-control" id="email" placeholder="Email" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-success">Subscribe</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div> 
+
+
+            </div>         
+
+        </div> <!-- main container -->
+
+        <div id="flowMessager">  <!-- content -->
+            <!-- JS loadable content -->
+        </div>
+
+        <noscript>
+        <div class="modal">
+            <div class="modal-body">
+                <h3>Javascript is disabled</h3>
+                <p>This site will not work correctly because your browser is blocking JavaScript. Please enable JavaScript and reload page.</p>
+            </div>
+        </div>
+        </noscript>
+
+        <script src="/apps-include/js/vendor/jquery-1.11.1.min.js"></script>
+        <script src="/apps-include/bootstrap/js/bootstrap.min.js"></script>
+        <script src="../non/js/Configuration.js"></script>
+        <script src="/apps-include/js/PerunUtils.js"></script>
+        <script src="/apps-include/js/PerunTable.js"></script>
+        <!--<script src="../js/PerunUserLoader.js"></script>-->
+        <script src="/apps-include/js/PerunConnectionTester.js"></script>
+        <script src="/apps-include/js/Messager.js"></script>
+        <script src="/apps-include/js/LoadImage.js"></script>
+
+        <script src="../non/js/Common.js"></script>
+        <script src="../non/js/Subscribe.js"></script>
+        <!--<script type="text/javascript" async src="https://linker.cesnet.cz/linker.js"></script>-->
+    </body>
+</html>

@@ -4,19 +4,23 @@ import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.RowStyles;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.UiElements;
+import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
@@ -24,6 +28,8 @@ import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.Confirm;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableInfoCellWithImageResource;
@@ -188,7 +194,7 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 		table.addIdColumn("Group ID", tableFieldUpdater);
 
 		// Add a synchronization clicable icon column.
-		Column<RichGroup, RichGroup> syncColumn = new Column<RichGroup, RichGroup>(
+		final Column<RichGroup, RichGroup> syncColumn = new Column<RichGroup, RichGroup>(
 				new CustomClickableInfoCellWithImageResource("click")) {
 			@Override
 			public RichGroup getValue(RichGroup object) {
@@ -203,50 +209,119 @@ public class GetAllRichGroups implements JsonCallback, JsonCallbackTable<RichGro
 				}
 			}
 		};
-		syncColumn.setFieldUpdater( new FieldUpdater<RichGroup, RichGroup>() {
+		syncColumn.setFieldUpdater(new FieldUpdater<RichGroup, RichGroup>() {
 			@Override
-			public void update(int index, RichGroup object, RichGroup value) {
-				String name, syncEnabled, syncInterval, syncTimestamp, syncState, authGroup;
-				name = object.getName();
-				if (object.isSyncEnabled()) {
-					syncEnabled = "enabled";
-				} else {
-					syncEnabled = "disabled";
-				}
-				if (object.getSynchronizationInterval() == null) {
-					syncInterval = "N/A";
-				} else {
-					syncInterval = object.getSynchronizationInterval() + " hour(s)";
-				}
-				if (object.getLastSynchronizationState().equals("OK")) {
-					syncState = "OK";
-				} else {
-					if (session.isPerunAdmin()) {
-						syncState = object.getLastSynchronizationState();
-					} else {
-						syncState = "Internal Error";
-					}
-				}
-				if (object.getLastSynchronizationTimestamp() == null) {
-					syncTimestamp = "N/A";
-				} else {
-					syncTimestamp = object.getLastSynchronizationTimestamp().split("\\.")[0];
-				}
-				if (object.getAuthoritativeGroup() != null && object.getAuthoritativeGroup().equals("1")) {
-					authGroup = "Yes";
-				} else {
-					authGroup = "No";
-				}
+			public void update(int index, final RichGroup object, RichGroup value) {
 
-				String html = "Group name: <b>"+name+"</b><br>";
-				html += "Synchronization: <b>"+syncEnabled+"</b><br>";
-				if (object.isSyncEnabled()) {
-					html += "Last sync. state: <b>"+syncState+"</b><br>";
-					html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
-					html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
-					html += "Authoritative group: <b>"+authGroup+"</b><br>";
-				}
-				UiElements.generateInfo("Group synchronization info", html);
+				GetEntityById get = new GetEntityById(PerunEntity.RICH_GROUP, object.getId(), new JsonCallbackEvents() {
+
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+
+						final RichGroup object = jso.cast();
+
+						String name, syncEnabled, syncInterval, syncTimestamp, syncSuccessTimestamp, syncState, authGroup;
+						name = object.getName();
+						if (object.isSyncEnabled()) {
+							syncEnabled = "enabled";
+						} else {
+							syncEnabled = "disabled";
+						}
+						if (object.getSynchronizationInterval() == null) {
+							syncInterval = "N/A";
+						} else {
+
+							if (JsonUtils.checkParseInt(object.getSynchronizationInterval())) {
+								int time = Integer.parseInt(object.getSynchronizationInterval()) * 5 / 60;
+								if (time == 0) {
+									time = Integer.parseInt(object.getSynchronizationInterval()) * 5;
+									syncInterval = time + " minute(s)";
+								} else {
+									syncInterval = time + " hour(s)";
+								}
+							} else {
+								syncInterval = object.getSynchronizationInterval();
+							}
+
+						}
+						if (object.getLastSynchronizationState() == null) {
+							if (object.getLastSuccessSynchronizationTimestamp() != null) {
+								syncState = "OK";
+							} else {
+								syncState = "Not synced yet";
+							}
+						} else {
+							if (session.isPerunAdmin()) {
+								syncState = object.getLastSynchronizationState();
+							} else {
+								syncState = "Internal Error";
+							}
+						}
+						if (object.getLastSynchronizationTimestamp() == null) {
+							syncTimestamp = "N/A";
+						} else {
+							syncTimestamp = object.getLastSynchronizationTimestamp().split("\\.")[0];
+						}
+						if (object.getLastSuccessSynchronizationTimestamp() == null) {
+							syncSuccessTimestamp = "N/A";
+						} else {
+							syncSuccessTimestamp = object.getLastSuccessSynchronizationTimestamp().split("\\.")[0];
+						}
+						if (object.getAuthoritativeGroup() != null && object.getAuthoritativeGroup().equals("1")) {
+							authGroup = "Yes";
+						} else {
+							authGroup = "No";
+						}
+
+						String html = "Group name: <b>"+name+"</b><br>";
+						html += "Synchronization: <b>"+syncEnabled+"</b><br>";
+
+						if (object.isSyncEnabled()) {
+							html += "Last sync. state: <b>"+syncState+"</b><br>";
+							html += "Last sync. timestamp: <b>"+syncTimestamp+"</b><br>";
+							html += "Last successful sync. timestamp: <b>"+syncSuccessTimestamp+"</b><br>";
+							html += "Sync. Interval: <b>"+syncInterval+"</b><br>";
+							html += "Authoritative group: <b>"+authGroup+"</b><br>";
+						}
+
+						FlexTable layout = new FlexTable();
+
+						layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.informationIcon())));
+						layout.setHTML(0, 1, "<p style=\"line-height: 1.2;\">" + html);
+
+						layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+						layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+						layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+						final CustomButton okButton = new CustomButton("Force synchronization", SmallIcons.INSTANCE.arrowRefreshIcon());
+						okButton.addClickHandler(new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								ForceGroupSynchronization call = new ForceGroupSynchronization(JsonCallbackEvents.disableButtonEvents(okButton));
+								call.synchronizeGroup(object.getId());
+							}
+						});
+						okButton.setVisible(object.isSyncEnabled());
+
+						if (!session.isVoAdmin(object.getVoId()) && !session.isGroupAdmin(object.getId())) okButton.setEnabled(false);
+
+						final Confirm c = new Confirm("Group synchronization info", layout, okButton, null, true);
+						c.setHideOnButtonClick(false);
+						c.setCancelIcon(SmallIcons.INSTANCE.acceptIcon());
+						c.setCancelButtonText("OK");
+						c.setCancelClickHandler(new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								c.hide();
+							}
+						});
+
+						c.show();
+
+					}
+				});
+				get.retrieveData();
+
 			};
 		});
 

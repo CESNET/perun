@@ -277,7 +277,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("attrsNames[]")) {
+			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
 						parms.readInt("includedServiceUsers") == 1,
 						parms.readList("attrsNames", String.class));
@@ -299,7 +299,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("attrsNames[]")) {
+			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().findRichUsersWithAttributes(ac.getSession(),
 						parms.readString("searchString"),
 						parms.readList("attrsNames", String.class));
@@ -321,7 +321,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("attrsNames[]")) {
+			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().getRichUsersWithoutVoWithAttributes(ac.getSession(),
 						parms.readList("attrsNames", String.class));
 			} else {
@@ -342,7 +342,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			if (parms.contains("attrsNames[]")) {
+			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().findRichUsersWithoutSpecificVoWithAttributes(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						parms.readString("searchString"),
@@ -627,11 +627,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param attribute Attribute JSON object
 	 * @return List<User> Found users
 	 */
+	/*#
+	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.
+	 *
+	 * @param attributeName String URN of attribute to search by
+	 * @param attributeValue Object Value to search by (type of value must match attribute value type)
+	 * @return List<User> Found users
+	 */
 	getUsersByAttribute {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("attributeName")) {
-				if (parms.contains("attributeValue") || parms.contains("attributeValue[]")) {
+				if (parms.contains("attributeValue")) {
 					String attributeName = parms.readString("attributeName");
 					Attribute attr = new Attribute(ac.getAttributesManager().getAttributeDefinition(ac.getSession(), attributeName));
 
@@ -639,15 +646,15 @@ public enum UsersManagerMethod implements ManagerMethod {
 						attr.setValue(parms.readInt("attributeValue"));
 					} else if(attr.getType().equals(String.class.getName())) {
 						attr.setValue(parms.readString("attributeValue"));
-						return ac.getUsersManager().getUsersByAttribute(ac.getSession(),attr);
+					} else if(attr.getType().equals(Boolean.class.getName())) {
+						attr.setValue(parms.readBoolean("attributeValue"));
 					} else if(attr.getType().equals(ArrayList.class.getName())) {
 						attr.setValue(parms.readList("attributeValue", String.class));
 					} else if(attr.getType().equals(LinkedHashMap.class.getName())) {
 						attr.setValue(parms.read("attributeValue", LinkedHashMap.class));
 					} else {
-						throw new RpcException(RpcException.Type.CANNOT_SERIALIZE_VALUE, "attributeValue is not the same type like value of attribute with the attributeName.");
+						throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, "attributeValue is not the same type like value of attribute with the attributeName.");
 					}
-
 					return ac.getUsersManager().getUsersByAttribute(ac.getSession(),attr);
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "attributeValue");
@@ -664,7 +671,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all users who have attribute which have value which contains searchString.
 	 *
-	 * @param attribute Attribute JSON object
+	 * @param attributeName String URN of attribute to search by
+	 * @param attributeValue String Value to search by
 	 * @return List<User> Found users
 	 */
 	getUsersByAttributeValue {
@@ -994,7 +1002,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * by calling validatePreferredEmailChange() method with
 	 * proper set of parameters (sent in validation mail).
 	 *
-	 * @param user Integer User ID
+	 * @param user int User ID
 	 * @param email String new email address to set
 	 */
 	requestPreferredEmailChange {
@@ -1044,8 +1052,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * or requests are outside time window for validation,
 	 * returns empty list.
 	 *
-	 * @param sess PerunSession
-	 * @param user ID of user to check
+	 * @param user int ID of user to check
 	 *
 	 * @return List<String> user's email addresses pending validation
 	 */

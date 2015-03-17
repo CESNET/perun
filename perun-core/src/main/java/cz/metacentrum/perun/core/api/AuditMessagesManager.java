@@ -4,6 +4,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
+import java.util.Map;
 
 
 /**
@@ -113,4 +114,24 @@ public interface AuditMessagesManager {
 	 * @throws PrivilegeException
 	 */
 	void log(PerunSession sess, String message) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Get all auditer consumers like name=last_processed_id (map) from database.
+	 *
+	 * @param sess
+	 * @return map string to integer where string is name of consumer and int is last_processed_id of consumer
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Get last message id from auditer_log.
+	 *
+	 * @param sess
+	 * @return last message id
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	int getLastMessageId(PerunSession sess) throws InternalErrorException, PrivilegeException;
 }

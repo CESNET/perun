@@ -423,13 +423,13 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Attribute attr = new Attribute();
 		attr.setValue(goodName);
 
-		modulesUtilsBl.checkReservedNames(attr);
+		modulesUtilsBl.checkReservedUnixGroupNames(attr);
 
 		attr.setValue(badName);
 		boolean ok = false;
 
 		try {
-			modulesUtilsBl.checkReservedNames(attr);
+			modulesUtilsBl.checkReservedUnixGroupNames(attr);
 			ok = false;
 		} catch (WrongAttributeValueException ex) {
 			ok = true;

@@ -348,6 +348,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						value = String.valueOf(value);
 					} else if(attribute.getType().equals(Integer.class.getName()) && !(value instanceof Integer)) {
 						//TODO try to cast to integer
+					} else if(attribute.getType().equals(Boolean.class.getName()) && !(value instanceof Boolean)) {
+						//TODO try to cast to boolean
 					} else if(attribute.getType().equals(ArrayList.class.getName()) && !(value instanceof ArrayList)) {
 						if(value instanceof List) {
 							value = new ArrayList<String>((List)value);
@@ -3441,11 +3443,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		//TODO
 	}
 
-	public void removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, String key, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from entityless_attr_values where attr_id=? and subject=?", attribute.getId(), key)) {
 				log.info("Attribute (its value) with key was removed from entityless attributes. Attribute={}, key={}.", attribute, key);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3459,11 +3463,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 	
-	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from facility_attr_values where attr_id=? and facility_id=?", attribute.getId(), facility.getId())) {
 				log.info("Attribute (its value) was removed from facility. Attribute={}, facility={}.", attribute, facility);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3479,11 +3485,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Vo vo, AttributeDefinition attribute) throws InternalErrorException {
 		try {
-			if(0 > jdbc.update("delete from vo_attr_values where attr_id=? and vo_id=?", attribute.getId(), vo.getId())) {
+			if(0 < jdbc.update("delete from vo_attr_values where attr_id=? and vo_id=?", attribute.getId(), vo.getId())) {
 				log.info("Attribute (its value) was removed from vo. Attribute={}, vo={}.", attribute, vo);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3499,11 +3507,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Group group, AttributeDefinition attribute) throws InternalErrorException {
 		try {
-			if(0 > jdbc.update("delete from group_attr_values where attr_id=? and group_id=?", attribute.getId(), group.getId())) {
+			if(0 < jdbc.update("delete from group_attr_values where attr_id=? and group_id=?", attribute.getId(), group.getId())) {
 				log.info("Attribute (its value) was removed from group. Attribute={}, group={}.", attribute, group);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3519,11 +3529,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from resource_attr_values where attr_id=? and resource_id=?", attribute.getId(), resource.getId())) {
 				log.info("Attribute (its value) was removed from resource. Attribute={}, resource={}.", attribute, resource);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3539,11 +3551,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Resource resource, Member member, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from member_resource_attr_values where attr_id=? and member_id=? and resource_id=?", attribute.getId(), member.getId(), resource.getId())) {
 				log.info("Attribute (its value) was removed from member on resource. Attribute={}, member={}, resource=" + resource, attribute, member);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3559,11 +3573,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Member member, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from member_attr_values where attr_id=? and member_id=?", attribute.getId(), member.getId())) {
 				log.info("Attribute (its value) was removed from member. Attribute={}, member={}", attribute, member);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3579,11 +3595,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from user_facility_attr_values where attr_id=? and user_id=? and facility_id=?", attribute.getId(), user.getId(), facility.getId())) {
 				log.info("Attribute (its value) was removed from user on facility. Attribute={}, user={}, facility=" + facility, attribute, user);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3620,23 +3638,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void removeVirtualAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
-		getFacilityUserVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, facility, user, attribute);
+	public boolean removeVirtualAttribute(PerunSession sess, Facility facility, User user, AttributeDefinition attribute) throws InternalErrorException {
+		return getFacilityUserVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, facility, user, attribute);
 	}
 
-	public void removeVirtualAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		getResourceVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, resource, attribute);
+	public boolean removeVirtualAttribute(PerunSession sess, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		return getResourceVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, resource, attribute);
 	}
 
-	public void removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		getResourceGroupVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, resource, group, attribute);
+	public boolean removeVirtualAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		return getResourceGroupVirtualAttributeModule(sess, attribute).removeAttributeValue((PerunSessionImpl) sess, resource, group, attribute);
 	}
 
-	public void removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, User user, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from user_attr_values where attr_id=? and user_id=?", attribute.getId(), user.getId())) {
 				log.info("Attribute (its value) was removed from user. Attribute={}, user={}", attribute, user);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3651,11 +3671,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	public void removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Resource resource, Group group, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from group_resource_attr_values where attr_id=? and resource_id=? and group_id=?", attribute.getId(),resource.getId(),group.getId())) {
 				log.info("Attribute (its value) was removed from group on resource. Attribute={}, group={}, resource=" + attribute, group, resource);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3670,11 +3692,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	public void removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException {
+	public boolean removeAttribute(PerunSession sess, Host host, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from host_attr_values where attr_id=? and host_id=?", attribute.getId(), host.getId())) {
 				log.info("Attribute (its value) was removed from host. Attribute={}, host={}", attribute, host);
+				return true;
 			}
+			return false;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -4409,6 +4433,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDisplayName("Group description");
 		attributes.add(attr);
 
+		//Group.parentGroupId
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_CORE);
+		attr.setType(Integer.class.getName());
+		attr.setFriendlyName("parentGroupId");
+		attr.setDisplayName("Id of group's parent group.");
+		attributes.add(attr);
+
 		//Vo.id
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_VO_ATTR_CORE);
@@ -4541,7 +4573,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 			jdbc.update("insert into attr_names (id, attr_name, type, dsc, namespace, friendly_name, display_name, default_attr_id) values (?,?,?,?,?,?,?,NULL)",
 					attributeId, attribute.getName(), attribute.getType(), attribute.getDescription(), attribute.getNamespace(), attribute.getFriendlyName(), attribute.getDisplayName());
-			log.info("Attribute created during inicialization of attributesManager: {}", attribute);
+			log.info("Attribute created during initialization of attributesManager: {}", attribute);
 		} catch (DataIntegrityViolationException e) {
 			throw new ConsistencyErrorException("Attribute already exists: " + attribute, e);
 		} catch (RuntimeException e) {

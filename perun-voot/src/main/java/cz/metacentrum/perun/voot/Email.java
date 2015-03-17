@@ -81,6 +81,8 @@ public class Email {
 
 	@Override
 	public String toString(){
-		return "Email:[type='" + type + "', value='" + value + "']";
+		return new StringBuilder().append(getClass().getSimpleName()).append(":[")
+				.append("type='").append(getType()).append("', ")
+				.append("value='").append(getValue()).append("']").toString();
 	}
 }

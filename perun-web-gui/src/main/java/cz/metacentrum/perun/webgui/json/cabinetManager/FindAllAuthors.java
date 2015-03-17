@@ -11,7 +11,7 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
-import cz.metacentrum.perun.webgui.json.keyproviders.AuthorKeyProvider;
+import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.Author;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
@@ -38,7 +38,7 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 	// table data
 	private ArrayList<Author> list = new ArrayList<Author>();
 	// Selection model
-	final MultiSelectionModel<Author> selectionModel = new MultiSelectionModel<Author>(new AuthorKeyProvider());
+	final MultiSelectionModel<Author> selectionModel = new MultiSelectionModel<Author>(new GeneralKeyProvider<Author>());
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Table field updater

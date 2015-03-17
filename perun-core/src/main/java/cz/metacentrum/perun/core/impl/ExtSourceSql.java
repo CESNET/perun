@@ -21,12 +21,12 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSourceSql extends ExtSource implements ExtSourceApi {
+public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceSql.class);
 	private static Map<String, String> attributeNameMapping;
@@ -50,11 +50,11 @@ public class ExtSourceSql extends ExtSource implements ExtSourceApi {
 		attributeNameMapping.put("d", ":attribute-def:def:");
 	}
 
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
-		return findSubjects(searchString, 0);
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
+		return findSubjectsLogins(searchString, 0);
 	}
 
-	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String, String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
 		String query = getAttributes().get("query");
 		if (query == null) {
 			throw new InternalErrorException("query attribute is required");

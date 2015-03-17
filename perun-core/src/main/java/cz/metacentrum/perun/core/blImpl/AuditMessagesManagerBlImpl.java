@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * AuditMessagesManager manages audit messages (logs). Implementation of
@@ -79,5 +80,15 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 	public void log(PerunSession sess, String message) throws InternalErrorException {
 
 		perunBl.getAuditer().log(sess, message);
+	}
+
+	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException {
+
+		return perunBl.getAuditer().getAllAuditerConsumers(sess);
+	}
+
+	public int getLastMessageId() throws InternalErrorException {
+
+		return perunBl.getAuditer().getLastMessageId();
 	}
 }

@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -20,9 +21,9 @@ import java.util.regex.Pattern;
 public class BeansUtils {
 
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
+	private final static Pattern richBeanNamePattern = Pattern.compile("^Rich([A-Z].*$)");
 	public static final char LIST_DELIMITER = ',';
 	public static final char KEY_VALUE_DELIMITER = ':';
-	public final static DateFormat DATE_FORMATTER = getDateFormatter();
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -30,10 +31,30 @@ public class BeansUtils {
 	 *
 	 * Lenient on false means that formatter will be more strict to creating timestamp from string
 	 *
+	 * IMPORTANT: SimpleDateFormat is not thread safe !!!
+	 *
 	 * @return date formatter
 	 */
-	private static DateFormat getDateFormatter() {
+	public static DateFormat getDateFormatter() {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+		df.setLenient(false);
+		return df;
+	}
+
+	/**
+	 * Method create formatter with default settings for perun timestamps (only date without time)
+	 * and set lenient on false.
+	 *
+	 * Timestamp format:  "yyyy-MM-dd" - "ex. 2014-01-01"
+	 *
+	 * Lenient on false means that formatter will be more strict to creating timestamp from string
+	 *
+	 * IMPORTANT: SimpleDateFormat is not thread safe !!!
+	 *
+	 * @return date formatter
+	 */
+	public static DateFormat getDateFormatterWithoutTime() {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		df.setLenient(false);
 		return df;
 	}
@@ -167,6 +188,8 @@ public class BeansUtils {
 			return (String) attribute.getValue();
 		} else if(attribute.getType().equals(Integer.class.getName())) {
 			return Integer.toString((Integer) attribute.getValue());
+		} else if(attribute.getType().equals(Boolean.class.getName())) {
+			return Boolean.toString((Boolean) attribute.getValue());
 		} else if(attribute.getType().equals(ArrayList.class.getName())) {
 			StringBuilder sb = new StringBuilder();
 			for(String item : (List<String>) attribute.getValue()) {
@@ -285,6 +308,8 @@ public class BeansUtils {
 			return stringValue;
 		} else if(attributeClass.equals(Integer.class)) {
 			return Integer.parseInt(stringValue);
+		} else if(attributeClass.equals(Boolean.class)) {
+			return Boolean.parseBoolean(stringValue);
 		} else if(attributeClass.equals(ArrayList.class)) {
 			String[] array = stringValue.split(Character.toString(LIST_DELIMITER), -1);
 			List<String> attributeValue =  new ArrayList<String>();
@@ -370,6 +395,29 @@ public class BeansUtils {
 		} else {
 			throw new InternalErrorException("Unknown attribute type. ("+ attributeClass.toString() + ")");
 		}
+	}
 
+	/**
+	 * Take perunBean name and if it is RichObject, convert it to simple name.
+	 *
+	 * RichObject mean: starts with "Rich" and continue with Upper Letter [A-Z]
+	 *
+	 * Ex.: RichGroup -> Group, RichUser -> User
+	 * Ex.: RichardObject -> RichardObject
+	 * Ex.: Null -> Null
+	 *
+	 * @param beanName bean Name of PerunBean (simple name of object)
+	 *
+	 * @return converted beanName (without Rich part)
+	 */
+	public static String convertRichBeanNameToBeanName(String beanName) {
+		if(beanName == null || beanName.isEmpty()) return beanName;
+
+		Matcher richBeanNameMatcher = richBeanNamePattern.matcher(beanName);
+		if (richBeanNameMatcher.find()) {
+			return richBeanNameMatcher.group(1);
+		}
+
+		return beanName;
 	}
 }

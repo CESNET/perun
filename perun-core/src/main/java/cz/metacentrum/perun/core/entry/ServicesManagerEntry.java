@@ -109,7 +109,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "getServiceById");
 				}
@@ -123,7 +123,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getServiceByName");
 				}
 
@@ -176,7 +176,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getHierarchicalData");
 		}
 
@@ -190,7 +190,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getFlatData");
 		}
 
@@ -204,7 +204,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getDataWithGroups");
 		}
 
@@ -218,7 +218,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getDataWithVos");
 		}
 
@@ -536,7 +536,7 @@ public class ServicesManagerEntry implements ServicesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getDestinationById");
 				}
 
@@ -550,7 +550,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getDestinations");
 				}
 
@@ -579,7 +579,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
 				!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(perunSession, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(perunSession, Role.ENGINE)) {
 			throw new PrivilegeException(perunSession, "getAllRichDestinations");
 				}
 
@@ -604,7 +604,7 @@ public class ServicesManagerEntry implements ServicesManager {
 		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility) &&
 				!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(perunSession, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(perunSession, Role.ENGINE)) {
 			throw new PrivilegeException(perunSession, "getRichDestinations");
 				}
 
@@ -654,10 +654,9 @@ public class ServicesManagerEntry implements ServicesManager {
 
 		//Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-		    !AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getAssignedServices");
-				}
+		}
 
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 

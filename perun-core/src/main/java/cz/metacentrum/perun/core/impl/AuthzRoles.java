@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Role;
 import java.util.HashSet;
@@ -80,13 +81,17 @@ public class AuthzRoles extends HashMap<Role, Map<String, Set<Integer>>> {
 	}
 
 	public boolean hasRole(Role role, PerunBean perunBean) {
-		return this.get(role).containsKey(perunBean.getBeanName())
-			&& this.get(role).get(perunBean.getBeanName()).contains(perunBean.getId());
+		//Use converted beanName instead of classic bean name, because for ex.: RichGroup is the same like Group for this purpose
+		String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(perunBean.getBeanName());
+		return this.get(role).containsKey(convertedBeanName)
+			&& this.get(role).get(convertedBeanName).contains(perunBean.getId());
 	}
 
 	public boolean hasRole(Role role, String perunBeanName, int id) {
-		return this.get(role).containsKey(perunBeanName)
-			&& this.get(role).get(perunBeanName).contains(id);
+		//Use converted beanName instead of classic bean name, because for ex.: RichGroup is the same like Group for this purpose
+		String convertedBeanName = BeansUtils.convertRichBeanNameToBeanName(perunBeanName);
+		return this.get(role).containsKey(convertedBeanName)
+			&& this.get(role).get(convertedBeanName).contains(id);
 	}
 
 	public boolean hasRole(Role role) {

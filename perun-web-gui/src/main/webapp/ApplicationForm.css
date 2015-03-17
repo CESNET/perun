@@ -1,4 +1,4 @@
-body, table td, select, button, .gwt-TextBox, .gwt-PasswordTextBox{
+body, table td, button, .gwt-TextBox, .gwt-PasswordTextBox{
 	font-size:100% !important;
 }
 
@@ -102,6 +102,8 @@ body {
 /* GUI Listboxes with objects */
 select {
     max-width: 250px;
+	font-family: Arial Unicode MS,Arial,sans-serif;
+	font-size: small !important;
 }
 
 /* SUGGEST BOX popup - fix visibility on inner tabs */
@@ -114,7 +116,7 @@ select {
 }
 
 /* Style all input-text as gwt-Textbox */
-input[type=text], input[type=password] {
+input[type=text], input[type=password], input[type=text]:disabled, input[type=password]:disabled {
     -moz-border-bottom-colors: none;
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
@@ -125,7 +127,7 @@ input[type=text], input[type=password] {
     border-style: solid;
     border-width: 1px;
     font-family: Arial Unicode MS,Arial,sans-serif;
-    font-size: small;
+    font-size: small !important;
     padding: 5px 4px;
 }
 
@@ -313,6 +315,17 @@ input[type=text], input[type=password] {
     padding-top: 4px !important;
     padding-bottom: 4px !important;
 }
+/* GWT TABLE CELL STYLES - GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRowCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRowCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableFirstColumn,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableLastColumn,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell {
+	border: 0px !important; /* disable borders */
+	padding-top: 4px !important;
+	padding-bottom: 4px !important;
+}
 
 /* GWT GRID TABLE STYLES*/
 .GPBYFDEDG, .GPBYFDEEG, .GPBYFDEEH, .GPBYFDEBG, .GPBYFDEDG, .GPBYFDEEH, .GPBYFDEKG {
@@ -349,6 +362,14 @@ input[type=text], input[type=password] {
 .GALD-WOKD .customClickableTextCell, .GPBYFDEBE .customClickableTextCell, .GPBYFDEBE .customClickableTextCell a,tr .GPBYFDEBE, tr .GPBYFDEBE td, .GEATBOKCOC .customClickableTextCell,.GEATBOKCAD .customClickableTextCell, .GEATBOKCCE .customClickableTextCell {
     color:#fff !important;
     background: none repeat scroll 0 0 #628CD5 !important;
+}
+/* FIX COLORING OF SELECTED ROWS WHEN RECOLORED - GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell .customClickableTextCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell .customClickableTextCell a,
+tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell,
+tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell td {
+	color:#fff !important;
+	background: none repeat scroll 0 0 #628CD5 !important;
 }
 
 /* COLOR STYLES for ROWS and CELLS */

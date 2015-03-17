@@ -1,20 +1,26 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
 import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.bl.PerunBl;
+
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**
@@ -27,9 +33,11 @@ public class SearcherImpl implements SearcherImplApi {
 	private final static Logger log = LoggerFactory.getLogger(SearcherImpl.class);
 
 	private static NamedParameterJdbcTemplate jdbc;
+	private static JdbcTemplate jdbcTemplate;
 
 	public SearcherImpl(DataSource perunPool) {
 		jdbc = new NamedParameterJdbcTemplate(perunPool);
+		jdbcTemplate = new JdbcTemplate(perunPool);
 	}
 
 	public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {
@@ -71,6 +79,12 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, String.class.getName().toString());
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
+				} else if (key.getType().equals(Boolean.class.getName())) {
+					key.setValue(value);
+					whereClauses.add("lower("+Compatibility.convertToAscii("val" + counter + ".attr_value")+")=lower("+Compatibility.convertToAscii(":v"+counter)+") ");
+					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+					parameters.addValue("n" + counter, Boolean.class.getName().toString());
+					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
 				} else if (key.getType().equals(ArrayList.class.getName())) {
 					List<String> list = new ArrayList<String>();
 					list.add(value);
@@ -78,7 +92,7 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("val" + counter + ".attr_value LIKE :v" + counter + " ");
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, ArrayList.class.getName().toString());
-					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length()-1) + '%');
+					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length() - 1) + '%');
 				} else if (key.getType().equals(LinkedHashMap.class.getName())) {
 					String[] splitMapItem = value.split("=");
 					if(splitMapItem.length == 0) throw new InternalErrorException("Value can't be split by char '='.");
@@ -99,7 +113,7 @@ public class SearcherImpl implements SearcherImplApi {
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key) + '%');
 					parameters.addValue("vv" + counter,  "%," +  BeansUtils.attributeValueToString(key) + '%');
 				} else {
-					throw new InternalErrorException(key + " is not type of integer, string, array or hashmap.");
+					throw new InternalErrorException(key + " is not type of integer, string, boolean, array or hashmap.");
 				}
 			}
 		}
@@ -133,4 +147,35 @@ public class SearcherImpl implements SearcherImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	@Override
+	public List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date, int days) throws InternalErrorException {
+
+		// this would default to now
+		if (date == null) date = Calendar.getInstance();
+		date.add(Calendar.DAY_OF_MONTH, days);
+		// create sql toDate()
+		String compareDate = BeansUtils.getDateFormatterWithoutTime().format(date.getTime());
+		compareDate = "TO_DATE('"+compareDate+"','yyyy-MM-dd')";
+
+		if (operator == null || operator.isEmpty()) operator = "=";
+
+		if (!operator.equals("<") && !operator.equals("<=") && !operator.equals("=") && !operator.equals(">=") && !operator.equals(">"))
+			throw new InternalErrorException("Operator '"+operator+"' is not allowed in SQL.");
+
+		try {
+
+			AttributeDefinition def = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration");
+
+			String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from members left join member_attr_values val on " +
+					"val.member_id=members.id and val.attr_id=? where TO_DATE(val.attr_value, 'yyyy-MM-dd')"+operator+compareDate;
+
+			return jdbcTemplate.query(query.toString(), MembersManagerImpl.MEMBER_MAPPER, def.getId());
+
+		} catch (Exception e) {
+			throw new InternalErrorException(e);
+		}
+
+	}
+
 }

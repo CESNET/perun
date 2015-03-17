@@ -228,8 +228,6 @@ public class Utils {
 					baseUrl+="/krb";
 				} else if (rpc.equalsIgnoreCase("fed")) {
 					baseUrl+="/fed";
-				} else if (rpc.equalsIgnoreCase("forceAuthn-fed")) {
-					baseUrl+="/fed-force";
 				} else if (rpc.equalsIgnoreCase("cert")) {
 					baseUrl+="/cert";
 				} else if (rpc.equalsIgnoreCase("einfra")) {
@@ -331,6 +329,29 @@ public class Utils {
 			}
 		}
 		return "img/logo.png";
+
+	}
+
+	/**
+	 * Returns list of Strings representing native language in order "code","native name","english name"
+	 *
+	 * e,g. "cs","Česky","Czech" for Czech language.
+	 *
+	 * @return list of strings representing native language
+	 */
+	public static ArrayList<String> getNativeLanguage() {
+
+		ArrayList<String> list = new ArrayList<String>();
+		if (PerunWebSession.getInstance().getConfiguration() != null) {
+			String value = PerunWebSession.getInstance().getConfiguration().getCustomProperty("nativeLanguage");
+			if (value != null && !value.isEmpty()) {
+				String[] parts = value.split(",");
+				for (int i=0; i<parts.length; i++) {
+					list.add(parts[i]);
+				}
+			}
+		}
+		return list;
 
 	}
 
@@ -1115,5 +1136,50 @@ public class Utils {
 		return decodeURIComponent(string.replace(/\\x/g, '%'))
 
 	}-*/;
+
+	public static String translateIdp(String name) {
+
+		HashMap<String, String> orgs = new HashMap<String, String>();
+		orgs.put("https://idp.upce.cz/idp/shibboleth", "University in Pardubice");
+		orgs.put("https://idp.slu.cz/idp/shibboleth", "University in Opava");
+		orgs.put("https://login.feld.cvut.cz/idp/shibboleth", "Faculty of Electrical Engineering, Czech Technical University In Prague");
+		orgs.put("https://www.vutbr.cz/SSO/saml2/idp", "Brno University of Technology");
+		orgs.put("https://shibboleth.nkp.cz/idp/shibboleth", "The National Library of the Czech Republic");
+		orgs.put("https://idp2.civ.cvut.cz/idp/shibboleth", "Czech Technical University In Prague");
+		orgs.put("https://shibbo.tul.cz/idp/shibboleth", "Technical University of Liberec");
+		orgs.put("https://idp.mendelu.cz/idp/shibboleth", "Mendel University in Brno");
+		orgs.put("https://cas.cuni.cz/idp/shibboleth", "Charles University in Prague");
+		orgs.put("https://wsso.vscht.cz/idp/shibboleth", "Institute of Chemical Technology Prague");
+		orgs.put("https://idp.vsb.cz/idp/shibboleth", "VSB – Technical University of Ostrava");
+		orgs.put("https://whoami.cesnet.cz/idp/shibboleth", "CESNET");
+		orgs.put("https://helium.jcu.cz/idp/shibboleth", "University of South Bohemia");
+		orgs.put("https://idp.ujep.cz/idp/shibboleth", "Jan Evangelista Purkyne University in Usti nad Labem");
+		orgs.put("https://idp.amu.cz/idp/shibboleth", "Academy of Performing Arts in Prague");
+		orgs.put("https://idp.lib.cas.cz/idp/shibboleth", "Academy of Sciences Library");
+		orgs.put("https://shibboleth.mzk.cz/simplesaml/metadata.xml", "Moravian  Library");
+		orgs.put("https://idp2.ics.muni.cz/idp/shibboleth", "Masaryk University");
+		orgs.put("https://idp.upol.cz/idp/shibboleth", "Palacky University, Olomouc");
+		orgs.put("https://idp.fnplzen.cz/idp/shibboleth", "FN Plzen");
+		orgs.put("https://id.vse.cz/idp/shibboleth", "University of Economics, Prague");
+		orgs.put("https://shib.zcu.cz/idp/shibboleth", "University of West Bohemia");
+		orgs.put("https://idptoo.osu.cz/simplesaml/saml2/idp/metadata.php", "University of Ostrava");
+		orgs.put("https://login.ics.muni.cz/idp/shibboleth", "MetaCentrum");
+		orgs.put("https://idp.hostel.eduid.cz/idp/shibboleth", "eduID.cz Hostel");
+		orgs.put("https://shibboleth.techlib.cz/idp/shibboleth", "National Library of Technology");
+
+		orgs.put("@google.extidp.cesnet.cz", "Google");
+		orgs.put("@facebook.extidp.cesnet.cz", "Facebook");
+		orgs.put("@mojeid.extidp.cesnet.cz", "mojeID");
+		orgs.put("@linkedin.extidp.cesnet.cz", "LinkedIn");
+		orgs.put("@twitter.extidp.cesnet.cz", "Twitter");
+		orgs.put("@seznam.extidp.cesnet.cz", "Seznam");
+
+		if (orgs.get(name) != null) {
+			return orgs.get(name);
+		} else {
+			return name;
+		}
+
+	}
 
 }

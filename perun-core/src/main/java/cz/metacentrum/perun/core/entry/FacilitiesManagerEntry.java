@@ -87,7 +87,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "getFacilityById");
 				}
@@ -103,7 +103,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "getFacilityByName");
 				}
@@ -137,7 +137,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SERVICE) &&
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "getFacilitiesByDestination");
 				}
@@ -645,6 +645,33 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	}
 
+	public List<User> getAdmins(PerunSession perunSession, Facility facility, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
+		Utils.checkPerunSession(perunSession);
+		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(perunSession, "getAdmins");
+		}
+
+		return getFacilitiesManagerBl().getAdmins(perunSession, facility, onlyDirectAdmins);
+	}
+
+
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Facility facility, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException, PrivilegeException, FacilityNotExistsException {
+		Utils.checkPerunSession(perunSession);
+		getFacilitiesManagerBl().checkFacilityExists(perunSession, facility);
+		if(!allUserAttributes) Utils.notNull(specificAttributes, "specificAttributes");
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(perunSession, "getRichAdmins");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getFacilitiesManagerBl().getRichAdmins(perunSession, facility, specificAttributes, allUserAttributes, onlyDirectAdmins));
+	}
+
+	@Deprecated
 	public List<User> getAdmins(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -657,6 +684,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAdmins(sess, facility);
 	}
 
+	@Deprecated
 	@Override
 	public List<User> getDirectAdmins(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
@@ -683,6 +711,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAdminGroups(sess, facility);
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdmins(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -695,6 +724,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getFacilitiesManagerBl().getRichAdmins(sess, facility));
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession sess, Facility facility) throws InternalErrorException, UserNotExistsException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -707,6 +737,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getFacilitiesManagerBl().getRichAdminsWithAttributes(sess, facility));
 	}
 
+	@Deprecated
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(perunSession);
 
@@ -719,6 +750,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getFacilitiesManagerBl().getRichAdminsWithSpecificAttributes(perunSession, facility, specificAttributes));
 	}
 
+	@Deprecated
 	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Facility facility, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(perunSession);
 

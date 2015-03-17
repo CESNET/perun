@@ -253,7 +253,6 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		assertTrue( ! AuthzResolver.isAuthorized(sess1, Role.FACILITYADMIN, createdVo));
 		assertTrue( ! AuthzResolver.isAuthorized(sess1, Role.GROUPADMIN, createdVo));
-		assertTrue( ! AuthzResolver.isAuthorized(sess1, Role.SERVICE, createdVo));
 		assertTrue( ! AuthzResolver.isAuthorized(sess1, Role.SELF, createdVo));
 		assertTrue( ! AuthzResolver.isAuthorized(sess1, Role.PERUNADMIN, createdVo));
 	}

@@ -23,11 +23,11 @@ public class NotUserOfPerunWidget extends Composite {
 
 		String text = "";
 
-		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals("cs")) {
+		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0))) {
 			// english for all
 			text = "<h3>You are not user of Perun or you don't have registered identity you used to log in.</h3><h3>For joining your identities please go to:</h3>";
 
-		} else {
+		} else if (Utils.getNativeLanguage().get(0).equals("cs")) {
 			// czech for czech
 			text = "<h3>Buď nejste evidováni v systemu Perun a nebo nemáte zaregistrovanou Vaši identitu, kterou jste se teď přihlasil(a).</h3>" +
 				"<h3>Pro spárování identit pokračujte na:</h3>";

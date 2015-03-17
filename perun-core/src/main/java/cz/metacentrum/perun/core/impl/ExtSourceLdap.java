@@ -1,6 +1,3 @@
-/**
- *
- */
 package cz.metacentrum.perun.core.impl;
 
 import java.util.ArrayList;
@@ -21,6 +18,8 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +27,15 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 
 /**
+ * Ext source implementation for LDAP.
+ *
  * @author Michal Prochazka michalp@ics.muni.cz
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
+
 	private Map<String, String> mapping;
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceLdap.class);
@@ -47,11 +49,11 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return dirContext;
 	}
 
-	public List<Map<String,String>> findSubjects(String searchString) throws InternalErrorException {
-		return findSubjects(searchString, 0);
+	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
+		return findSubjectsLogins(searchString, 0);
 	}
 
-	public List<Map<String,String>> findSubjects(String searchString, int maxResults) throws InternalErrorException {
+	public List<Map<String,String>> findSubjectsLogins(String searchString, int maxResults) throws InternalErrorException {
 		// Prepare searchQuery
 		// attributes.get("query") contains query template, e.g. (uid=?), ? will be replaced by the searchString
 		String query = (String) getAttributes().get("query");
@@ -104,7 +106,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		String ldapGroupName = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 
 		try {
-			log.trace("LDAP External Source: searching for group subjects [{}]", ldapGroupName );
+			log.trace("LDAP External Source: searching for group subjects [{}]", ldapGroupName);
 
 			String attrName;
 			if (getAttributes().containsKey("memberAttribute")) {
@@ -131,7 +133,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				for (int i=0; i < ldapAttribute.size(); i++) {
 					String ldapSubjectDN = (String) ldapAttribute.get(i);
 					ldapGroupSubjects.add(ldapSubjectDN);
-					log.trace("LDAP Exteranl Source: found group subject [{}].", ldapSubjectDN);
+					log.trace("LDAP External Source: found group subject [{}].", ldapSubjectDN);
 				}
 			}
 
@@ -146,7 +148,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 		} catch (NamingException e) {
 			log.error("LDAP exception during running query '{}'", ldapGroupName);
-			throw new InternalErrorException(e);
+			throw new InternalErrorException("Entry '"+ldapGroupName+"' was not found in LDAP." , e);
 		} finally {
 			try {
 				if (results != null) { results.close(); }
@@ -213,7 +215,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				String ldapAttributeName = ldapAttributeNameRaw.replaceAll("\\{([^\\}]*)\\}", "$1"); // ldapAttributeNameRaw is encapsulate with {}, so remove it
 				// Replace {ldapAttrName} with the value
 				value = value.replace(ldapAttributeNameRaw, getLdapAttributeValue(attributes, ldapAttributeName));
-				log.trace("ExtSourceLDAP: Retrived value {} of attribute {} for {} and storing into the key {}.", new Object[]{value, ldapAttributeName, ldapAttributeNameRaw, key});
+				log.trace("ExtSourceLDAP: Retrieved value {} of attribute {} for {} and storing into the key {}.", new Object[]{value, ldapAttributeName, ldapAttributeNameRaw, key});
 			}
 
 			map.put(key, value);
@@ -320,9 +322,11 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				log.trace("search base [{}]", base);
 				// TODO jmena atributu spise prijimiat pres vstupni parametr metody
 				Attributes ldapAttributes = getContext().getAttributes(base);
-				Map<String, String> attributes = this.getSubjectAttributes(ldapAttributes);
-				if (!attributes.isEmpty()) {
-					subjects.add(attributes);
+				if (ldapAttributes.size() > 0) {
+					Map<String, String> attributes = this.getSubjectAttributes(ldapAttributes);
+					if (!attributes.isEmpty()) {
+						subjects.add(attributes);
+					}
 				}
 			} else {
 				log.trace("search string [{}]", query);
@@ -355,7 +359,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 		} catch (NamingException e) {
 			log.error("LDAP exception during running query '{}'", query);
-			throw new InternalErrorException(e);
+			throw new InternalErrorException("LDAP exception during running query: "+query+".", e);
 		} finally {
 			try {
 				if (results != null) { results.close(); }
@@ -376,4 +380,16 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			}
 		}
 	}
+
+	@Override
+	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		return findSubjects(searchString, 0);
+	}
+
+	@Override
+	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		// We can call original implementation, since LDAP always return whole entry and not just login
+		return findSubjectsLogins(searchString, maxResults);
+	}
+
 }

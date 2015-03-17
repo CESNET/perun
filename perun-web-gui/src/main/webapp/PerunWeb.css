@@ -432,12 +432,15 @@ table.inputFormFlexTableDark {
 .GPBYFDEFD input, th .GPBYFDEIG .GPBYFDEGG input, th .GPBYFDEHG .GPBYFDEFG input {
     position:relative;
 }
+/* PerunTable checkbox header - GWT 2.7+ */
+th .com-google-gwt-user-cellview-client-CellTable-Style-cellTableHeader .com-google-gwt-user-cellview-client-CellTable-Style-cellTableFirstColumnHeader input {
+	position: relative;
+}
 
 /* Checkboxes style */
 .gwt-CheckBox, .gwt-CheckBox input {
     vertical-align: middle;
     margin-right: 10px;
-
 }
 
 /* GUI Listboxes with objects */
@@ -455,7 +458,7 @@ select {
 }
 
 /* Style all input-text as gwt-Textbox */
-input[type=text], input[type=password] {
+input[type=text], input[type=password], input[type=text]:disabled, input[type=password]:disabled {
     -moz-border-bottom-colors: none;
     -moz-border-left-colors: none;
     -moz-border-right-colors: none;
@@ -466,14 +469,23 @@ input[type=text], input[type=password] {
     border-style: solid;
     border-width: 1px;
     font-family: Arial Unicode MS,Arial,sans-serif;
-    font-size: small;
+	font-size: small !important;
     padding: 5px 4px;
 }
 
 /* input-text in CellTables is 100% width by default */
-.GPBYFDEPC input[type=text], .GPBYFDEPD  input[type=text] {
+.GPBYFDEPC input[type=text], .GPBYFDEPD  input[type=text], .GPBYFDEPC input[type=text]:disabled, .GPBYFDEPD  input[type=text]:disabled {
     display: block;
     width: 100%;
+}
+
+/* input-text in CellTables is 100% width by default - GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRowCell input[type=text],
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRowCell input[type=text],
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRowCell input[type=text]:disabled,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRowCell input[type=text]:disabled {
+	display: block;
+	width: 100%;
 }
 
 /* Extended text box error text padding */
@@ -865,6 +877,15 @@ td.header {
 .GPBYFDEAE, .GPBYFDEOC, .GPBYFDEAD, .GPBYFDEBD, .GPBYFDECE, .GPBYFDEID, .GPBYFDEKD, .GPBYFDEHD, .GPBYFDEOC {
     border: 0px !important; /* disable borders */
 }
+/* GWT TABLE CELL STYLES - GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRowCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRowCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableFirstColumn,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableLastColumn,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell {
+	border: 0px !important; /* disable borders */
+}
 
 /* Display all cells with padding */
 /* min height of all rows is based on rows with checkboxes */
@@ -874,16 +895,42 @@ td.header {
     padding-bottom: 4px;
 }
 
+/* Display all cells with padding */
+/* min height of all rows is based on rows with checkboxes - GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td {
+	min-height: 22px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
 .GPBYFDEPC td div, .GPBYFDEPD td div {
     height: 100%;
     width: 100%;
     min-height: 22px;
     line-height: 22px;
 }
+/* GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td div,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td div,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td div {
+	height: 100%;
+	width: 100%;
+	min-height: 22px;
+	line-height: 22px;
+}
 
 .GPBYFDEPC td div > *, .GPBYFDEPD td div > * {
     width: auto;
     height: auto;
+}
+/* GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td div > *,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td div > *,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td div > * {
+	width: auto;
+	height: auto;
 }
 
 .GPBYFDEPC td div > *.customClickableTextCell, .GPBYFDEPD td div > *.customClickableTextCell {
@@ -892,7 +939,15 @@ td.header {
     padding-top: 0px;
     padding-bottom: 0px;
 }
-
+/* GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td div > *.customClickableTextCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td div > *.customClickableTextCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td div > *.customClickableTextCell {
+	min-height: 22px;
+	line-height: 22px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
 
 .GPBYFDEPC td div a.customClickableTextCell, .GPBYFDEPD td div a.customClickableTextCell {
 
@@ -919,6 +974,34 @@ td.header {
     width: calc(100% + 15px) !important;
 
 }
+/* GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableEvenRow td div a.customClickableTextCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableOddRow td div a.customClickableTextCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRow td div a.customClickableTextCell {
+
+	display: block;
+	min-height: 22px;
+	line-height: 22px;
+	position: relative;
+	left: -15px;
+	top: 0px;
+
+	padding-left: 15px !important;
+	padding-right: 15px !important;
+	padding-top: 0px !important;
+	padding-bottom: 0px !important;
+	height: 100% !important;
+
+	/* Firefox */
+	width: -moz-calc(100% + 15px) !important;
+	/* WebKit */
+	width: -webkit-calc(100% + 15px) !important;
+	/* Opera */
+	width: -o-calc(100% + 15px) !important;
+	/* Standard */
+	width: calc(100% + 15px) !important;
+
+}
 
 a.customClickableTextCell:hover {
     text-decoration: none;
@@ -930,8 +1013,8 @@ td div.customTextCell {
     word-break: break-all;
 }
 
-/* header row cell */
-.GPBYFDEFD {
+/* header row cell + GWT 2.7+ */
+.GPBYFDEFD, .com-google-gwt-user-cellview-client-CellTable-Style-cellTableHeader .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSortableHeader {
     padding-left: 15px !important;
     padding-right: 15px !important;
 }
@@ -1019,6 +1102,18 @@ td div.customTextCell {
 .GALD-WOKD .customClickableTextCell, .GPBYFDEBE .customClickableTextCell, .GPBYFDEBE .customClickableTextCell a,tr .GPBYFDEBE, tr .GPBYFDEBE td, .GEATBOKCOC .customClickableTextCell,.GEATBOKCAD .customClickableTextCell, .GEATBOKCCE .customClickableTextCell {
     color:#fff !important;
     background: none repeat scroll 0 0 #628CD5 !important;
+}
+/* FIX COLORING OF SELECTED ROWS WHEN RECOLORED - GWT 2.7+ */
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell .customClickableTextCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell .customClickableTextCell a,
+tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell,
+tr .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell td,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell:hover .customClickableTextCell,
+.com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell:hover .customClickableTextCell a,
+tr:hover .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell,
+tr:hover .com-google-gwt-user-cellview-client-CellTable-Style-cellTableSelectedRowCell td {
+	color:#fff !important;
+	background: none repeat scroll 0 0 #628CD5 !important;
 }
 
 .hyperlink-active{

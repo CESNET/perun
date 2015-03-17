@@ -1,18 +1,69 @@
+perun-slave (3.0.0-0.0.87) stable; urgency=low
+
+   * Fixed example pre script name for ldap service. It was previously
+     used as actual pre script and was overwritten on each package
+     upgrade (losing local changes - authz to LDAP).
+
+ -- Pavel Zlamal <zlamal@cesnet.cz>  Fri, 06 Mar 2015 11:44:00 +0100
+
+perun-slave (3.0.0-0.0.86) stable; urgency=low
+
+   * Slave scripts sshkeys_root and k5login_root at first check if there 
+     already exist appropriate destination file. 
+     If it doesn't exist, the file permissions are at first set only for
+     the file in perun working directory, then the permissions are checked
+     and if setting is valid then diff_mv handles destination file creating,
+     otherwise function returns 1.
+     If it exists, then diff_mv handles changes propagation from file in the
+     working directory to destination file.
+     
+ -- Sona Mastrakova <sona.mastrakova@gmail.com>  Fri, 06 Feb 2015 01:00:00 +0100
+
+perun-slave (3.0.0-0.0.85) stable; urgency=low
+
+  * sskeys_root do not add one concrete perun key to authorized keys. Instead
+    it keeps all keys containing perun command in authorized keys.
+
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Fri, 30 Jan 2015 11:55:47 +0100
+
+perun-slave (3.0.0-0.0.84) stable; urgency=low
+
+   * New service mailaliases_generic. This service is able to set any alias
+     for assigned users. Also use generic alias mail instead of preferred mail
+     if needed. All data is save into the file /etc/aliases.d/perun_generic.
+
+ -- Michal Stava <stavamichal@gmail.com> Wed, 28 Jan 2015 9:00:00 +0100
+
+perun-slave (3.0.0-0.0.83) stable; urgency=low
+
+   * When data are rejected by the slave script on destination node
+     because of wrong facility name or dns alias, tell what value was used
+     in error message.
+
+ -- Pavel Zlamal <zlamal@cesnet.cz> Tue, 09 Dec 2014 14:10:00 +0100
+
+perun-slave (3.0.0-0.0.82) stable; urgency=low
+
+   * ssh-keys service create .ssh dir and authorized_keys file with customary
+     priviledges (700 on .ssh and 600 on authorized_keys)
+
+ -- Michal Prochazka <michalp@ics.muni.cz> Tue, 04 Dec 2014 10:17:43 +0100
+
 perun-slave (3.0.0-0.0.81) stable; urgency=low
 
    * add possibility to edit umask on newly created directories by script
      fs_scratch_local
    * now there is attribute scratchLocalDirPermissions for this purpose
-   * prescript umask has biger priority
+   * prescript umask has bigger priority
 
- -- Michal Stava <stavamichal@gmail.com> Tue, 23 Sep 2014 14:30:00 +0200
+ -- Michal Stava <stavamichal@gmail.com> Tue, 23 Sep 2014 14:30:00 +0100
 
 perun-slave (3.0.0-0.0.80) stable; urgency=low
 
    * fix ownership and permissions on newly created files and dirs in slave
      skript ssh_keys
 
- -- Michal Stava <stavamichal@gmail.com> Thu, 18 Sep 2014 11:30:00 +0200
+ -- Michal Stava <stavamichal@gmail.com> Thu, 18 Sep 2014 11:30:00 +0100
 
 perun-slave (3.0.0-0.0.79) stable; urgency=low
 
@@ -20,26 +71,26 @@ perun-slave (3.0.0-0.0.79) stable; urgency=low
    * fix processing of errors when .ssh directory do not exists in service
      ssh_keys
 
- -- Slavek Licehammer <slavek@ics.muni.cz> Tue, 16 Sep 2014 17:55:00 +0200
+ -- Slavek Licehammer <slavek@ics.muni.cz> Tue, 16 Sep 2014 17:55:00 +0100
 
 perun-slave (3.0.0-0.0.78) stable; urgency=low
 
    * fs_scratch_global service deleted
 
- -- Zora Sebestianova <zora@ics.muni.cz> Tue, 16 Sep 2014 08:45:00 +0200
+ -- Zora Sebestianova <zora@ics.muni.cz> Tue, 16 Sep 2014 08:45:00 +0100
 
 perun-slave (3.0.0-0.0.77) stable; urgency=low
 
    * fs_home can get flag if quotas are enabled from perun attribute. This
-     flag still can be overriden by settings in pre skript.
+     flag still can be overridden by settings in pre script.
 
- -- Michal Stava <stavamichal@gmail.com>  Mon, 15 Sep 2014 13:30:00 +0200
+ -- Michal Stava <stavamichal@gmail.com>  Mon, 15 Sep 2014 13:30:00 +0100
 
 perun-slave (3.0.0-0.0.76) stable; urgency=low
 
    * afs_group can create new group if it doesn't exists
 
- -- Michal Stava <stavamichal@gmail.com>  Mon, 15 Sep 2014 13:30:00 +0200
+ -- Michal Stava <stavamichal@gmail.com>  Mon, 15 Sep 2014 13:30:00 +0100
 
 perun-slave (3.0.0-0.0.75) stable; urgency=low
 
@@ -47,7 +98,7 @@ perun-slave (3.0.0-0.0.75) stable; urgency=low
      service accounts (like www-data, tomcat or oneadmin). In other words this
      service is extension of k5login_root to manage accounts other than root.
 
- -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 12 Aug 2014 11:50:00 +0200
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 12 Aug 2014 11:50:00 +0100
 
 perun-slave (3.0.0-0.0.74) stable; urgency=low
 
@@ -55,13 +106,13 @@ perun-slave (3.0.0-0.0.74) stable; urgency=low
    * If target file is symlink, permissions is checked on linked file (not on
      symlink itself)
 
- -- Slavek Licehammer <slavek@ics.muni.cz>  Wed, 06 Aug 2014 14:30:00 +0200
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Wed, 06 Aug 2014 14:30:00 +0100
 
 perun-slave (3.0.0-0.0.73) stable; urgency=critical
 
    * Fix security issue with propagation to DNS alias
      Facility manager can create destination to any free hostname (or IP
-     adress). The "free" means that name is not used on other facilty as a
+     address). The "free" means that name is not used on other facility as a
      destination or host's name. Exception from this is when the manager is
      also facility manager on such facility.
      Therefore any facility manger could create destination to any machine
@@ -74,7 +125,7 @@ perun-slave (3.0.0-0.0.73) stable; urgency=critical
      By default slave only accepts configuration from `hostname -f`.
    * Add log_debug function to perun script
 
- -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 08 Jul 2014 10:30:00 +0200
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 08 Jul 2014 10:30:00 +0100
 
 perun-slave (3.0.0-0.0.72) stable; urgency=low
 
@@ -83,7 +134,7 @@ perun-slave (3.0.0-0.0.72) stable; urgency=low
    * remove list of supported services - supported services are determined by
      existence of process-$SERVICE_NAME.sh script
 
- -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 01 Jul 2014 16:00:00 +0200
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 01 Jul 2014 16:00:00 +0100
 
 perun-slave (3.0.0-0.0.71) stable; urgency=low
 
@@ -95,20 +146,20 @@ perun-slave (3.0.0-0.0.71) stable; urgency=low
 
 perun-slave (3.0.0-0.0.70) stable; urgency=low
 
-   * fs_scratch* services creates scratch dir with umask read from pre sript
+   * fs_scratch* services creates scratch dir with umask read from pre script
      or from obtained data from Perun (in that order). Unless the umask is
      specified in at least one of them, default is used - 0700 for fs_scratch,
      0755 for fs_scratch_{local,global}.
 
- -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 29 Apr 2014 12:00:00 +0200
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 29 Apr 2014 12:00:00 +0100
 
 perun-slave (3.0.0-0.0.69) stable; urgency=low
 
-   * completly rewriten slave script "mailaliases". Currently it removes
+   * completely rewritten slave script "mailaliases". Currently it removes
      last perun changes and find the destination file. After that merge 
      perun changes to this destination file and also save them for further
-     usage. Can work with /etc/aliases.d/ folder but only if there are no
-     duplicits. If something is not correct, recover files and exit with 
+     usage. Can work with /etc/aliases.d/ folder but only if there is no
+     duplicity. If something is not correct, recover files and exit with
      error.
    * bugfix: fix diff_update function in script "perun", use public variables
      and fix behavior of update
@@ -117,7 +168,7 @@ perun-slave (3.0.0-0.0.69) stable; urgency=low
 
 perun-slave (3.0.0-0.0.68) stable; urgency=medium
 
-   * completely rewriten function diff_update in script "perun". Currently it
+   * completely rewritten function diff_update in script "perun". Currently it
      keeps in state file only lines which where added to original file by Perun
      itself
    * bugfix: diff_mv and mv_chmod used to set wrong access rights if
@@ -136,43 +187,43 @@ perun-slave (3.0.0-0.0.66) stable; urgency=low
    * apache_ssl save configuration into the defined file and check apache
      configuration before reloading
 
- -- Michal Prochazka <michalp@ics.muni.cz>  Tue, 23 Sep 2013 23:07:00 +0200
+ -- Michal Prochazka <michalp@ics.muni.cz>  Tue, 23 Sep 2013 23:07:00 +0100
 
 perun-slave (3.0.0-0.0.65) stable; urgency=low
 
    * fs_home - additional column in received files from perun
 
- -- Slavek Licehammer <glory@ics.muni.cz>  Tue, 23 Sep 2013 10:55:00 +0200
+ -- Slavek Licehammer <glory@ics.muni.cz>  Tue, 23 Sep 2013 10:55:00 +0100
 
 perun-slave (3.0.0-0.0.64) stable; urgency=low
 
    * gridmap service - use kerberos login instead simple login
 
- -- Michal Prochazka <michalp@ics.muni.cz>  Wed, 26 Jun 2013 14:10:00 +0200
+ -- Michal Prochazka <michalp@ics.muni.cz>  Wed, 26 Jun 2013 14:10:00 +0100
 
 perun-slave (3.0.0-0.0.63) stable; urgency=low
 
    * gridmap service - set proper rights on the file
 
- -- Michal Prochazka <michalp@ics.muni.cz>  Thu, 25 Jun 2013 14:12:00 +0200
+ -- Michal Prochazka <michalp@ics.muni.cz>  Thu, 25 Jun 2013 14:12:00 +0100
 
 perun-slave (3.0.0-0.0.62) stable; urgency=low
 
    * new gridmap service
 
- -- Michal Prochazka <michalp@ics.muni.cz>  Thu, 20 Jun 2013 11:21:00 +0200
+ -- Michal Prochazka <michalp@ics.muni.cz>  Thu, 20 Jun 2013 11:21:00 +0100
 
 perun-slave (3.0.0-0.0.61) stable; urgency=low
 
    * new apache_basic_auth service
 
- -- Slavek Licehammer <glory@ics.muni.cz>  Tue, 18 Jun 2013 10:55:00 +0200
+ -- Slavek Licehammer <glory@ics.muni.cz>  Tue, 18 Jun 2013 10:55:00 +0100
 
 perun-slave (3.0.0-0.0.60) stable; urgency=low
 
    * typo in variable name in apache_ssl service
 
- -- Slavek Licehammer <glory@ics.muni.cz>  Mon, 10 Jun 2013 18:30:00 +0200
+ -- Slavek Licehammer <glory@ics.muni.cz>  Mon, 10 Jun 2013 18:30:00 +0100
 
 perun-slave (3.0.0-0.0.59) stable; urgency=low
 
@@ -180,25 +231,25 @@ perun-slave (3.0.0-0.0.59) stable; urgency=low
      SET_QUOTA_PROGRAM or SET_QUOTA_TEMPLATE is set
    * apache_ssl can update multiple authz files
 
- -- Slavek Licehammer <glory@ics.muni.cz>  Mon, 03 Jun 2013 14:10:00 +0200
+ -- Slavek Licehammer <glory@ics.muni.cz>  Mon, 03 Jun 2013 14:10:00 +0100
 
 perun-slave (3.0.0-0.0.58) stable; urgency=low
 
    * changes in voms service, use \t as a field separator
 
- -- Michal Prochazka <michalp@ics.muni.cz>  Fri, 31 May 2013 14:47:00 +0200
+ -- Michal Prochazka <michalp@ics.muni.cz>  Fri, 31 May 2013 14:47:00 +0100
 
 perun-slave (3.0.0-0.0.57) stable; urgency=low
 
    * new service pbs_publication_fairshare
 
- -- Slavek Licehammer <glory@ics.muni.cz>  Fri, 31 May 2013 11:25:00 +0200
+ -- Slavek Licehammer <glory@ics.muni.cz>  Fri, 31 May 2013 11:25:00 +0100
 
 perun-slave (3.0.0-0.0.56) stable; urgency=low
 
    * change of logging format in order to be compliant with RFC 5424
 
- -- Michal Prochazka <michalp@ics.muni.cz>  Fri, 17 May 2013 09:44:00 +0200
+ -- Michal Prochazka <michalp@ics.muni.cz>  Fri, 17 May 2013 09:44:00 +0100
 
 perun-slave (3.0.0-0.0.55) stable; urgency=low
 
@@ -206,20 +257,20 @@ perun-slave (3.0.0-0.0.55) stable; urgency=low
    * removed old example files
    * check destination directory existence in process-mailman.sh
 
- -- Michal Prochazka <michalp@ics.muni.cz>  Fri, 29 Apr 2013 13:35:00 +0200
+ -- Michal Prochazka <michalp@ics.muni.cz>  Fri, 29 Apr 2013 13:35:00 +0100
 
 perun-slave (3.0.0-0.0.54) stable; urgency=low
 
    * new apache_ssl service
 
- -- Michal Prochazka <michalp@ics.muni.cz>  Wed, 22 Apr 2013 09:11:00 +0200
+ -- Michal Prochazka <michalp@ics.muni.cz>  Wed, 22 Apr 2013 09:11:00 +0100
 
 perun-slave (3.0.0-0.0.53) stable; urgency=low
 
    * fs_home: quotas are disabled as a default, can be enabled in pre script
    * renamed files in fs_home.d
 
- -- Slavek Licehammer <glory@ics.muni.cz>  Wed, 03 Apr 2013 14:00:00 +0200
+ -- Slavek Licehammer <glory@ics.muni.cz>  Wed, 03 Apr 2013 14:00:00 +0100
 
 perun-slave (3.0.0-0.0.52) stable; urgency=low
 
@@ -255,7 +306,7 @@ perun-slave (3.0.0-0.0.48) stable; urgency=low
 perun-slave (3.0.0-0.0.47) stable; urgency=low
 
    * afs - receive new parameter TARGET_AFS_CELL; use "pts examine" instead of
-     "pts listentries" to chcek if user exists; fixed test if user's directory
+     "pts listentries" to check if user exists; fixed test if user's directory
      exists and set user's and root's rights
 
  -- Slavek Licehammer <glory@ics.muni.cz>  Thu, 10 Jan 2013 15:40:00 +0100
@@ -302,7 +353,7 @@ perun-slave (3.0.0-0.0.41) stable; urgency=low
 
 perun-slave (3.0.0-0.0.40) stable; urgency=low
 
-   * fixed completly broken fs_scratch. It didn't create scratch, required non
+   * fixed completely broken fs_scratch. It didn't create scratch, required non
      existing env variable and error messages contained wrong variables.
    * fs_scratch - set quota are not enabled by default
 
@@ -322,7 +373,7 @@ perun-slave (3.0.0-0.0.38) stable; urgency=low
 
 perun-slave (3.0.0-0.0.37) stable; urgency=low
 
-   * filename of the example configurations end with ".example" to not colide with other perun-slave packages
+   * filename of the example configurations end with ".example" to not collide with other perun-slave packages
 
  -- Michal Prochazka <michalp@ics.muni.cz>  Mon, 05 Oct 2012 14:29:00 +0100
 
@@ -340,7 +391,7 @@ perun-slave (3.0.0-0.0.35) stable; urgency=low
 
 perun-slave (3.0.0-0.0.34) stable; urgency=low
 
-   * supress unwanted stdout and stder messafe from "which sestatus" command
+   * suppress unwanted stdout and stder message from "which sestatus" command
    * fs_home - check UID on already created dirs
 
  -- Slavek Licehammer <glory@ics.muni.cz>  Tue, 11 Sep 2012 13:45:00 +0100
@@ -507,7 +558,7 @@ perun-slave (3.0.0-0.0.12) stable; urgency=low
 perun-slave (3.0.0-0.0.11) stable; urgency=low
    
   * finished eduroam_radius service
-  * eduroam-radius renamed to eduroam_radius in order to be compilant with other services
+  * eduroam-radius renamed to eduroam_radius in order to be compliant with other services
 
  -- Michal Prochazka <michalp@ics.muni.cz>  Wed, 18 Apr 2012 08:44:00 +0100
 
@@ -546,7 +597,7 @@ perun-slave (3.0.0-0.0.6) stable; urgency=low
 perun-slave (3.0.0-0.0.5) stable; urgency=low
   
   * do not preserve directory and file ownership
-  * fixed listin of pre and post scripts
+  * fixed listing of pre and post scripts
 
  -- Michal Prochazka <michalp@ics.muni.cz>  Wed, 29 Feb 2012 14:18:00 +0100
 
@@ -555,7 +606,7 @@ perun-slave (3.0.0-0.0.4) stable; urgency=low
   * quota support for fs_home and fs_scratch
   * change in the logic of the slave scripts, each script is checking its own protocol version
   * removed dual call of while in fs_home and fs_scratch
-  * each script can have pre_* and post_* script in own ${SERVICE}.d directory which will be called respectivelly
+  * each script can have pre_* and post_* script in own ${SERVICE}.d directory which will be called respectively
   * commented code for setting the quotas
   * passwd_nfs4, group_nfs4 - destination file is created if it doesn't exist
   * fixed wrong file name in process-group_nfs4
@@ -580,4 +631,4 @@ perun-slave (3.0.0) unstable; urgency=low
 
   * new upstream
 
- -- Michal Svamberg <svamberg@civ.zcu.cz>  Mon, 20 Sep 2010 17:45:24 +0200
+ -- Michal Svamberg <svamberg@civ.zcu.cz>  Mon, 20 Sep 2010 17:45:24 +0100

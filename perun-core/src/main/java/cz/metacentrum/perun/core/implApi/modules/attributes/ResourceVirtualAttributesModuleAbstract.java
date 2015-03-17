@@ -31,8 +31,8 @@ public abstract class ResourceVirtualAttributesModuleAbstract extends ResourceAt
 		return false;
 	}
 
-	public void removeAttributeValue(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-
+	public boolean removeAttributeValue(PerunSessionImpl perunSession, Resource resource, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		return false;
 	}
 
 	@Override

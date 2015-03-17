@@ -230,6 +230,7 @@ public class TabMenu extends Composite {
 	public <T extends SuggestOracle> SuggestOracle addFilterWidget(ExtendedSuggestBox box, final PerunSearchEvent filterEvent, final String title) {
 
 		final ExtendedSuggestBox suggest = box;
+		suggest.getSuggestBox().setAutoSelectEnabled(false);
 
 		// search box on enter
 		suggest.getSuggestBox().addKeyUpHandler(new KeyUpHandler() {

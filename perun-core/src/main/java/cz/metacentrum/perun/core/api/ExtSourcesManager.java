@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.impl.Utils;
+import java.util.Map;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -197,6 +198,24 @@ public interface ExtSourcesManager {
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
 	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException;
+
+	/**
+	 * Get the candidate from subjectData where at least login must exists.
+	 *
+	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
+	 *
+	 * @param perunSession
+	 * @param subjectData
+	 * @param source
+	 *
+	 * @return a Candidate object
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ExtSourceNotExistsException
+	 * @throws CandidateNotExistsException
+	 * @throws ExtSourceUnsupportedOperationException
+	 */
+	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Loads ext source definitions from the configuration file and updates entries stored in the DB.

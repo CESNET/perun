@@ -92,7 +92,7 @@ public class UiElements {
 	private ToggleButton logButton;
 	private SimplePanel logButtonWrapper = new SimplePanel();
 	private ToggleButton extendedInfoButton = new ToggleButton(new Image(SmallIcons.INSTANCE.attributesDisplayIcon()));
-	private ToggleButton languageButton = new ToggleButton(new Image(SmallIcons.INSTANCE.flagCzechBritainIcon()));
+	private ToggleButton languageButton = new ToggleButton(new Image(SmallIcons.INSTANCE.locateIcon()));
 
 	// Switch identity helping variabless
 	private int userCallcounter = 0;
@@ -940,7 +940,7 @@ public class UiElements {
 		HTML foot = new HTML("<strong>About: </strong>" + a + "<strong>&nbsp;|&nbsp;Support: </strong>" + mail+", "+lnk);
 		ft.setWidget(0, 0, foot);
 
-		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + ", version: " + PerunWebConstants.INSTANCE.guiVersion()));
+		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + " " + JsonUtils.getCurrentYear() + ", version: " + PerunWebConstants.INSTANCE.guiVersion()));
 		ft.setWidget(0, 2, new HTML("<strong>" + ButtonTranslation.INSTANCE.settingsButton() + ": </strong>"));
 
 		ftf.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
@@ -1058,8 +1058,8 @@ public class UiElements {
 
 		languageButton.setVisible(true); // display for perun admin only in WebGui.class
 
-		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals("cs")) {
-			languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToCzech());
+		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0))) {
+			languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToCzech(Utils.getNativeLanguage().get(1)));
 		} else {
 			languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToEnglish());
 		}
@@ -1073,12 +1073,12 @@ public class UiElements {
 						// on OK
 						// set proper locale
 						String localeName = LocaleInfo.getCurrentLocale().getLocaleName();
-						if (!localeName.equals("cs")) {
-							localeName = "cs";
+						if (!localeName.equals(Utils.getNativeLanguage().get(0))) {
+							localeName = Utils.getNativeLanguage().get(0);
 							languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToEnglish());
 						} else {
 							localeName = "en";
-							languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToCzech());
+							languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToCzech(Utils.getNativeLanguage().get(1)));
 						}
 
 						// set locale param to URL or local storage

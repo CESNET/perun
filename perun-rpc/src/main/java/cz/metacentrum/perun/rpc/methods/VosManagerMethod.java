@@ -45,7 +45,7 @@ public enum VosManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			if (parms.contains("force")) {
-				ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), true);
+				ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")), parms.readInt("force") == 1);
 			} else {
 				ac.getVosManager().deleteVo(ac.getSession(), ac.getVoById(parms.readInt("vo")));
 			}
@@ -147,6 +147,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO ID
 	 * @param user int User ID
+	 */
 	/*#
 	 *  Adds a group admin to a VO.
 	 *
@@ -176,11 +177,12 @@ public enum VosManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO ID
 	 * @param user int User ID
+	 */
 	/*#
 	 *  Removes a group admin from VO.
 	 *
 	 *  @param vo int VO ID
-	 *  @param group int Group ID
+	 *  @param authorizedGroup int Group ID
 	 */
 	removeAdmin {
 		@Override
@@ -200,27 +202,59 @@ public enum VosManagerMethod implements ManagerMethod {
 		}
 	},
 
+
+	/*#
+	 * Get list of all vo administrators for supported role and specific vo.
+	 *
+	 * If onlyDirectAdmins is == 1, return only direct admins of the vo for supported role.
+	 *
+	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 *
+	 * @param vo int VO ID
+	 * @param role String supported role name
+	 * @param onlyDirectAdmins int if == 1, get only direct VO administrators (if != 1, get both direct and indirect)
+	 *
+	 * @return List<User> list of all user administrators of the given vo for supported role
+	 */
 	/*#
 	 * Returns administrators of a VO.
+	 *
+	 * !!! DEPRECATED version !!!
 	 *
 	 * @param vo int VO ID
 	 * @return List<User> VO admins
 	 */
 	getAdmins {
 		@Override
-		public List<User> call(ApiCaller ac, Deserializer parms)
-				throws PerunException {
-			return ac.getVosManager().getAdmins(ac.getSession(),
+		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if(parms.contains("role")) {
+				String roleName = parms.readString("role");
+				Role role;
+				try {
+					role = Role.valueOf(roleName);
+				} catch (IllegalArgumentException ex) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+				}
+
+				return ac.getVosManager().getAdmins(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					role, parms.readInt("onlyDirectAdmins") == 1);
+			} else {
+				return ac.getVosManager().getAdmins(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")));
+			}
 		}
 	},
 
 	/*#
 	 * Returns direct administrators of a VO.
 	 *
+	 * !!! DEPRECATED version !!!
+	 *
 	 * @param vo int VO ID
 	 * @return List<User> VO admins
 	 */
+	@Deprecated
 	getDirectAdmins {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms)
@@ -231,40 +265,100 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get list of administrator groups of the given VO.
+	 *
+	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 *
+	 * @param vo int VO ID
+	 * @param role String Role name
+	 *
+	 * @return List<Group> List of groups, who are administrators of the VO with supported role. Returns empty list if there is no VO group admin.
+	 */
+	/*#
 	 * Returns group administrators of a VO.
+	 *
+	 * !!! DEPRECATED version !!!
 	 *
 	 * @param vo int VO ID
 	 * @return List<User> VO admins
 	 */
 	getAdminGroups {
 		@Override
-		public List<Group> call(ApiCaller ac, Deserializer parms)
-				throws PerunException {
-			return ac.getVosManager().getAdminGroups(ac.getSession(),
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if(parms.contains("role")) {
+				String roleName = parms.readString("role");
+				Role role;
+				try {
+					role = Role.valueOf(roleName);
+				} catch (IllegalArgumentException ex) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+				}
+
+				return ac.getVosManager().getAdminGroups(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")), role);
+			} else {
+				return ac.getVosManager().getAdminGroups(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")));
+			}
 		}
 	},
 
 	/*#
+	 * Get list of all richUser administrators for the vo and supported role with specific attributes.
+	 *
+	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
+	 *
+	 * If "onlyDirectAdmins" is == 1, return only direct admins of the vo for supported role with specific attributes.
+	 * If "allUserAttributes" is == 1, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param vo int VO Id
+	 * @param role String role name
+	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes int if == 1, get all possible user attributes and ignore list of specificAttributes (if != 1, get only specific attributes)
+	 * @param onlyDirectAdmins int if == 1, get only direct vo administrators (if != 1, get both direct and indirect)
+	 *
+	 * @return List<RichUser> list of RichUser administrators for the vo and supported role with attributes
+	 */
+	/*#
 	 * Returns administrators of a VO.
+	 *
+	 * !!! DEPRECATED version !!!
 	 *
 	 * @param vo int VO ID
 	 * @return List<RichUser> VO admins
 	 */
 	getRichAdmins {
 		@Override
-		public List<RichUser> call(ApiCaller ac, Deserializer parms)
-				throws PerunException {
-			return ac.getVosManager().getRichAdmins(ac.getSession(),
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if(parms.contains("role")) {
+				String roleName = parms.readString("role");
+				Role role;
+				try {
+					role = Role.valueOf(roleName);
+				} catch (IllegalArgumentException ex) {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+				}
+
+				return ac.getVosManager().getRichAdmins(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					role, parms.readList("specificAttributes", String.class),
+					parms.readInt("allUserAttributes") == 1,
+					parms.readInt("onlyDirectAdmins") == 1);
+			} else {
+				return ac.getVosManager().getRichAdmins(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")));
+			}
 		}
 	},
 	/*#
 	 * Returns administrators of a VO with additional information.
 	 *
+	 * !!! DEPRECATED version !!!
+	 *
 	 * @param vo int VO ID
 	 * @return List<RichUser> VO admins
 	 */
+	@Deprecated
 	getRichAdminsWithAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms)
@@ -277,10 +371,13 @@ public enum VosManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns administrators of a VO with additional information.
 	 *
+	 * !!! DEPRECATED version !!!
+	 *
 	 * @param vo int VO ID
 	 * @param specificAttributes List<String> list of attributes URNs
 	 * @return List<RichUser> VO rich admins with attributes
 	 */
+	@Deprecated
 	getRichAdminsWithSpecificAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -295,10 +392,13 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * Returns administrators of a VO, which are directly assigned
 	 * with additional information.
 	 *
+	 * !!! DEPRECATED version !!!
+	 *
 	 * @param vo int VO ID
 	 * @param specificAttributes List<String> list of attributes URNs
 	 * @return List<RichUser> VO rich admins with attributes
 	 */
+	@Deprecated
 	getDirectRichAdminsWithSpecificAttributes {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {

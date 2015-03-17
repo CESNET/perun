@@ -170,8 +170,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 		tabPanel.clear();
 		tabPanel.add(new FacilityResourcesTabItem(facility), "Resources");
 		tabPanel.add(new FacilityAllowedGroupsTabItem(facility), "Allowed Groups");
-		tabPanel.add(new FacilityStatusTabItem(facility), "Propagation status");
-		tabPanel.add(new FacilityPropagationTabItem(facility, tabPanel), "Services propagation");
+		tabPanel.add(new FacilityStatusTabItem(facility), "Services status");
 		tabPanel.add(new FacilitySettingsTabItem(facility), "Services settings");
 		tabPanel.add(new FacilityDestinationsTabItem(facility), "Services destinations");
 		tabPanel.add(new FacilityHostsTabItem(facility), "Hosts");

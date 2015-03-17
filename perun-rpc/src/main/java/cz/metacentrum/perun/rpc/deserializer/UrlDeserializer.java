@@ -30,9 +30,16 @@ public class UrlDeserializer extends Deserializer {
 		this.req = req;
 	}
 
+	/**
+	 * Returns {@code true} if value with the specified name is supplied. Check ignores array suffix "[]".
+	 * It means, that {@code true} is returned for both "name" and "name[]" parameters.
+	 *
+	 * @param name name of the value to check
+	 * @return {@code true} if value with the specified name is supplied, {@code false} otherwise
+	 */
 	@Override
 	public boolean contains(String name) {
-		return (req.getParameter(name) != null);
+		return (req.getParameter(name) != null || req.getParameter(name+"[]") != null);
 	}
 
 	@Override
@@ -40,6 +47,13 @@ public class UrlDeserializer extends Deserializer {
 		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
 		return req.getParameter(name);
+	}
+
+	@Override
+	public Boolean readBoolean(String name) throws RpcException {
+		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+
+		return Boolean.parseBoolean(req.getParameter(name));
 	}
 
 	@Override
@@ -55,17 +69,24 @@ public class UrlDeserializer extends Deserializer {
 
 	@Override
 	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
-		if (!contains(name + "[]")) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
+
+		if (!contains(name)) throw new RpcException(RpcException.Type.MISSING_VALUE, name);
 
 		List<T> list = new ArrayList<T>();
 
 		String[] stringParams = req.getParameterValues(name + "[]");
+		if (stringParams == null) {
+			// submitter probably forgot to add list decoration to param name ("[]").
+			stringParams = req.getParameterValues(name);
+		}
 
 		for (String param: stringParams) {
 			if (valueType.isAssignableFrom(String.class)) {
 				list.add(valueType.cast(param));
 			} else if (valueType.isAssignableFrom(Integer.class)) {
 				list.add(valueType.cast(Integer.valueOf(param)));
+			} else if (valueType.isAssignableFrom(Boolean.class)) {
+				list.add(valueType.cast(Boolean.valueOf(param)));
 			} else if (valueType.isAssignableFrom(Float.class)) {
 				list.add(valueType.cast(Float.valueOf(param)));
 			}

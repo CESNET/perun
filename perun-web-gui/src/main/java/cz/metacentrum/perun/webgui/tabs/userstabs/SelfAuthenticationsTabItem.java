@@ -225,7 +225,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 		}
 		@Override
 		public void onLoadingStart() {
-			certTable.setWidget(0, 1, new Image("/img/ajax-loader-small.gif"));
+			certTable.setWidget(0, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
 		}
 		});
 		ArrayList<String> list = new ArrayList<String>();

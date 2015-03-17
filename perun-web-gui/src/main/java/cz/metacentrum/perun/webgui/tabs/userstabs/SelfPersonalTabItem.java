@@ -120,7 +120,7 @@ public class SelfPersonalTabItem implements TabItem {
 		final ListBox preferredLanguage = new ListBox();
 
 		preferredLanguage.addItem("Not selected", "");
-		preferredLanguage.addItem("Czech", "cs");
+		preferredLanguage.addItem(Utils.getNativeLanguage().get(2), Utils.getNativeLanguage().get(0));
 		preferredLanguage.addItem("English", "en");
 
 		final ListBox timezone = new ListBox();
@@ -283,7 +283,7 @@ public class SelfPersonalTabItem implements TabItem {
 						// don't skip this null attribute
 						preferredUnixGroupNameWidget.setAttribute((Attribute)JsonUtils.clone(a).cast());
 					} else if (a.getFriendlyName().equalsIgnoreCase("preferredLanguage")) {
-						if (a.getValue().equals("cs")) {
+						if (a.getValue().equals(Utils.getNativeLanguage().get(0))) {
 							preferredLanguage.setSelectedIndex(1);
 						} else if (a.getValue().equals("en")) {
 							preferredLanguage.setSelectedIndex(2);

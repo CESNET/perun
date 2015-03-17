@@ -19,7 +19,16 @@ public class GeneralObject extends JavaScriptObject {
 	 * @return
 	 */
 	public final native int getId() /*-{
-		return this.id;
+		if (!this.beanName) {
+			return this.id;
+		}
+		if (this.beanName == "ServiceState") {
+			return this.taskId;
+		} else if (this.beanName == "RichMember") {
+			return this.user.id;
+		}else {
+			return this.id;
+		}
 	}-*/;
 	/**
 	 * Returns Perun specific type of object

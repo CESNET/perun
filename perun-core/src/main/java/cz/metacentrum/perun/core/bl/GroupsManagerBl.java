@@ -528,6 +528,45 @@ public interface GroupsManagerBl {
 	void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException;
 
 	/**
+	 * Get list of all user administrators for supported role and specific group.
+	 *
+	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 *
+	 * Supported roles: GroupAdmin
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of all user administrators of the given group for supported role
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws InternalErrorException;
+
+	/**
+	 * Get list of all richUser administrators for the group and supported role with specific attributes.
+	 *
+	 * Supported roles: GroupAdmin
+	 *
+	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @param specificAttributes list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of RichUser administrators for the group and supported role with attributes
+	 *
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException;
+
+	/**
 	 * Gets list of all user administrators of this group.
 	 * If some group is administrator of the given group, all members are included in the list.
 	 *
@@ -538,6 +577,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @return list of administrators
 	 */
+	@Deprecated
 	List<User> getAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
@@ -551,6 +591,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @return list of direct administrators
 	 */
+	@Deprecated
 	List<User> getDirectAdmins(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
@@ -574,6 +615,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws  UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -585,6 +627,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws  UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getDirectRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -596,6 +639,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -609,6 +653,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
 
 	/**
@@ -622,8 +667,8 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 */
+	@Deprecated
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, UserNotExistsException;
-
 
 	/**
 	 * Get all groups of users under the VO.
@@ -954,16 +999,20 @@ public interface GroupsManagerBl {
 	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
 
 	/**
-	 * This method will set currentTimestamp and exceptionMessage to group attributes for the group.
+	 * This method will set timestamp and exceptionMessage to group attributes for the group.
+	 * Also log information about failed synchronization to auditer_log.
 	 * 
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
 	 * 
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
+	 *
+	 * FailedDueToException is true means group synchronization failed at all.
+	 * FailedDueToException is false means group synchronization is ok or finished with some errors (some members were not synchronized)
 	 * 
 	 * @param sess perun session
 	 * @param group the group for synchronization
-	 * @param currentTimestamp timestamp of last synchronization
+	 * @param failedDueToException if exception means fail of whole synchronization of this group or only problem with some data
 	 * @param exceptionMessage message of an exception, ok if everything is ok
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
@@ -971,5 +1020,5 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException 
 	 */
-	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, Date currentTimestamp, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 }

@@ -69,10 +69,6 @@ public class FacilitiesTabs {
 			session.getTabManager().addTab(FacilityDestinationsTabItem.load(parameters), open);
 			return true;
 		}
-		if(tab.equals(FacilityPropagationTabItem.URL)){
-			session.getTabManager().addTab(FacilityPropagationTabItem.load(parameters), open);
-			return true;
-		}
 
 		if (tab.equals(FacilitySettingsTabItem.URL)) {
 			session.getTabManager().addTab(FacilitySettingsTabItem.load(parameters), open);

@@ -96,7 +96,7 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		} catch (InternalErrorException ex) {
 			log.error("Unable to log message authorship created to Auditer for");
 		}
-		perunService.updatePriorityCoeficient(sess, authorship.getUserId(), calculateNewRank(authorship.getUserId()));
+		perunService.updatePriorityCoefficient(sess, authorship.getUserId(), calculateNewRank(authorship.getUserId()));
 
 		perunService.setThanksAttribute(authorship.getUserId());
 
@@ -232,7 +232,7 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 				authors.addAll(authorService.findAuthorsByPublicationId(r.getPublicationId()));
 				// process them
 				for (Author a : authors) {
-					perunService.updatePriorityCoeficient(sess, a.getId(), calculateNewRank(a.getAuthorships()));
+					perunService.updatePriorityCoefficient(sess, a.getId(), calculateNewRank(a.getAuthorships()));
 				}
 				// calculate thanks for original user
 				perunService.setThanksAttribute(r.getUserId());
@@ -242,9 +242,9 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 				}
 			} else if (r.getUserId() != report.getUserId()) {
 				// if user (author) changed, update for both of them
-				perunService.updatePriorityCoeficient(sess, report.getUserId(), calculateNewRank(report.getUserId()));
+				perunService.updatePriorityCoefficient(sess, report.getUserId(), calculateNewRank(report.getUserId()));
 				perunService.setThanksAttribute(report.getId());
-				perunService.updatePriorityCoeficient(sess, report.getUserId(), calculateNewRank(r.getUserId()));
+				perunService.updatePriorityCoefficient(sess, report.getUserId(), calculateNewRank(r.getUserId()));
 				perunService.setThanksAttribute(r.getUserId());
 			}
 			log.debug("Authorship: [{}] updated to Authorship: [{}].", r, report);
@@ -281,7 +281,7 @@ public class AuthorshipServiceImpl implements IAuthorshipService {
 		if (rows > 0) {
 			// update coefficient
 			int userId = a.getUserId();
-			perunService.updatePriorityCoeficient(sess, userId, calculateNewRank(userId));
+			perunService.updatePriorityCoefficient(sess, userId, calculateNewRank(userId));
 			log.debug("Authorship: [{}] deleted.", a);
 			try {
 				perun.getAuditer().log(sess, "Authorship {} deleted.", a);

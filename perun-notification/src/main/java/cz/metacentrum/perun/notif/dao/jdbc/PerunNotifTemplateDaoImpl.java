@@ -93,7 +93,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 
 		int newPerunNotifReceiverId = Utils.getNewId(this.getJdbcTemplate(), "pn_receiver_id_seq");
 
-		this.getJdbcTemplate().update("insert into pn_receiver (id, target, type_of_receiver, template_id, locale) values (?, ?, ?, ?, ?)", newPerunNotifReceiverId, receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale().getLanguage());
+		this.getJdbcTemplate().update("insert into pn_receiver (id, target, type_of_receiver, template_id, locale) values (?, ?, ?, ?, ?)", newPerunNotifReceiverId, receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale());
 		receiver.setId(newPerunNotifReceiverId);
 
 		return receiver;
@@ -102,7 +102,7 @@ public class PerunNotifTemplateDaoImpl extends JdbcDaoSupport implements PerunNo
 	@Override
 	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException {
 
-		this.getJdbcTemplate().update("update pn_receiver set target = ?, type_of_receiver = ?, template_id = ?, locale = ? where id = ?", receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale().getLanguage(), receiver.getId());
+		this.getJdbcTemplate().update("update pn_receiver set target = ?, type_of_receiver = ?, template_id = ?, locale = ? where id = ?", receiver.getTarget(), receiver.getTypeOfReceiver().getKey(), receiver.getTemplateId(), receiver.getLocale(), receiver.getId());
 
 		return getPerunNotifReceiverById(receiver.getId());
 	}

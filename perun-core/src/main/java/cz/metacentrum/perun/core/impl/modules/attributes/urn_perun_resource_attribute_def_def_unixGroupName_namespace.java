@@ -34,8 +34,6 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 	private static final String A_R_unixGID_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGID-namespace";
 	private static final String A_G_unixGroupName_namespace = AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace";
 
-	final List<String> reservedNames = Arrays.asList("root", "daemon", "tty", "bin", "sys", "sudo", "nogroup");
-
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException{
 		//prepare namespace and groupName value variables
@@ -49,6 +47,9 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 		}else if(!groupName.matches("^[-_.a-zA-Z0-9]+$")){
 			throw new WrongAttributeValueException(attribute,"GroupName attributte content invalid characters. Allowed are only letters, numbers and characters _ and -.");
 		}
+
+		//Check reserved unix group names
+		sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);
 
 		try {
 			//prepare attributes group and resource unixGroupName

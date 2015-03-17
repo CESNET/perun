@@ -1,0 +1,43 @@
+.col-boolean {
+    width: 82px;
+}
+.col-boolean .true {
+    color: green;
+}
+.col-boolean .false {
+    color: #DD0022;
+}
+td.col-icon {
+    color: #ddd;
+}
+
+.progress-bar {
+    background-color: #ff5e00;
+}
+
+.table tr.toggle:last-child > td {
+    border-bottom-color: white;
+}
+.table tr.toggle > td {
+    padding: 0px 4px;
+    border-right-color: white;
+    border-left-color: white;
+}
+.table tr.toggle > td .toggle-wrap {
+    margin-bottom: 8px;
+}
+.table tr.toggle:hover > td {
+    background-color: white;
+}
+.table tr.toggle td .table {
+    background-color: #f5f5f5;
+    margin-top: -1px;
+    margin-bottom: 0px;
+}
+
+.table tr.toggle .progress {
+    border-top-left-radius: 0px;
+    border-top-rigth-radius: 0px;
+    margin-top: -1px;
+    margin-bottom: 0px;
+}

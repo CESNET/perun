@@ -65,13 +65,12 @@ public class PerunPrincipal {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":[" +
-			"actor='" + actor + "' " +
-			"user='" + (user != null ? user : "null") + "' " +
-			"extSourceName='" + extSourceName + "' " +
-			"authzRoles='" + authzRoles +  "' " +
-			"authzInitialized='" + authzInitialized + "' " +
-			']';
+		return new StringBuilder(getClass().getSimpleName()).append(":[")
+				.append("actor='").append(actor).append("', ")
+				.append("user='").append((user != null ? user : "null")).append("', ")
+				.append("extSourceName='").append(extSourceName).append("', ")
+				.append("authzRoles='").append(authzRoles).append("', ")
+				.append("authzInitialized='").append(authzInitialized).append("']").toString();
 	}
 
 	public String getExtSourceName() {
@@ -113,7 +112,6 @@ public class PerunPrincipal {
 	public void setRoles(AuthzRoles authzRoles) {
 		this.authzRoles = authzRoles;
 	}
-
 
 	public Map<String, String> getAdditionalInformations() {
 		return additionalInformations;

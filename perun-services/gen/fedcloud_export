@@ -17,10 +17,13 @@ my $data = perunServicesInit::getHierarchicalData;
 #Constants
 our $A_R_VO_SHORT_NAME;             *A_R_VO_SHORT_NAME =             \'urn:perun:resource:attribute-def:virt:voShortName';
 our $A_MEMBER_MAIL;                 *A_MEMBER_MAIL =                 \'urn:perun:user:attribute-def:def:preferredMail';
-our $A_USER_CERT_DNS;               *A_USER_CERT_DNS =               \'urn:perun:user:attribute-def:def:userCertDNs';
+our $A_MEMBER_STATUS;               *A_MEMBER_STATUS =               \'urn:perun:member:attribute-def:core:status';
+our $A_USER_CERT_DNS;               *A_USER_CERT_DNS =               \'urn:perun:user:attribute-def:virt:userCertDNs';
 our $A_USER_FACILITY_UID;           *A_USER_FACILITY_UID =           \'urn:perun:user_facility:attribute-def:virt:UID';
 our $A_USER_SSH_KEY;                *A_USER_SSH_KEY =                \'urn:perun:user:attribute-def:def:sshPublicKey';
 our $A_F_DESTINATION_PLATFORM_MAP;  *A_F_DESTINATION_PLATFORM_MAP =  \'urn:perun:facility:attribute-def:def:cloudPlatformDestinationMap';
+
+our $STATUS_VALID;                  *STATUS_VALID =                  \'VALID';
 
 my $RECORD_SEPARATOR = chr 30;
 
@@ -52,17 +55,19 @@ for my $rData (@resourcesData) {
 
 # DN uzivatele:DN certifikacni autority:jmeno uzivatele:email uzivatele
 foreach my $memberAttributes (@membersAttributes) {
-	my @DNs = keys %{$memberAttributes->{$A_USER_CERT_DNS}};
-	my $DN = $DNs[0];
-	my $uid = $memberAttributes->{$A_R_VO_SHORT_NAME} . "_" . $memberAttributes->{$A_USER_FACILITY_UID};
+	if ($memberAttributes->{$A_MEMBER_STATUS} eq $STATUS_VALID) {
+		my @DNs = keys %{$memberAttributes->{$A_USER_CERT_DNS}};
+		my $DN = $DNs[0];
+		my $uid = $memberAttributes->{$A_R_VO_SHORT_NAME} . "_" . $memberAttributes->{$A_USER_FACILITY_UID};
 
-	my $sshKeys = "";
-	if($memberAttributes->{$A_USER_SSH_KEY}) {
-		$sshKeys = join '|', @{$memberAttributes->{$A_USER_SSH_KEY}};
+		my $sshKeys = "";
+		if($memberAttributes->{$A_USER_SSH_KEY}) {
+			$sshKeys = join '|', @{$memberAttributes->{$A_USER_SSH_KEY}};
+		}
+
+		print FILE $uid, $RECORD_SEPARATOR, $memberAttributes->{$A_R_VO_SHORT_NAME}, $RECORD_SEPARATOR, $DN, $RECORD_SEPARATOR, $memberAttributes->{$A_MEMBER_MAIL}, $RECORD_SEPARATOR, $sshKeys, "\n";
 	}
-
-	print FILE $uid, $RECORD_SEPARATOR, $memberAttributes->{$A_R_VO_SHORT_NAME}, $RECORD_SEPARATOR, $DN, $RECORD_SEPARATOR, $memberAttributes->{$A_MEMBER_MAIL}, $RECORD_SEPARATOR, $sshKeys,  "\n";
 }
 
-close (FILE);
+close (FILE) or die "Cannot close $fileName: $! \n";
 perunServicesInit::finalize;

@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 
 /**
  * Class defines group encoded according to the OpenSocial Social Data Specification.
@@ -69,7 +68,7 @@ public class VOOTGroup implements Comparable<VOOTGroup>{
 	}
 
 	/**
-	 * Return memberhip role of person in current group, e.g. 'admin', 'member'.
+	 * Return membership role of person in current group, e.g. 'admin', 'member'.
 	 *
 	 * @return    membership role of person in group
 	 */
@@ -132,6 +131,12 @@ public class VOOTGroup implements Comparable<VOOTGroup>{
 
 	@Override
 	public String toString(){
-		return "VOOTGroup:[id='" + id + "', title='" + title + "',description='" + description + "', voot_membership_role='" + voot_membership_role + "']";
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName()).append(":[")
+				.append("id='").append(getId()).append("', ")
+				.append("title='").append(getTitle()).append("', ")
+				.append("description='").append(getDescription()).append("', ")
+				.append("voot_membership_role='").append(getVoot_membership_role()).append("']");
+		return sb.toString();
 	}
 }

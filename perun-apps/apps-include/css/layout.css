@@ -1,0 +1,160 @@
+/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+.low-opacity {
+  opacity: 0.3;
+}
+noscript {
+  opacity: 0.8;
+}
+noscript .modal {
+  color: white;
+  background-color: #ce0000;
+}
+.tooltip {
+  white-space: nowrap;
+}
+dl dt,
+dl dd {
+  line-height: 24px;
+}
+dl dt .btn,
+dl dd .btn {
+  max-height: 24px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+#header {
+  margin-bottom: 30px;
+}
+#header .logo {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+#header .logo img {
+  height: 32px;
+}
+#header .title h1,
+#header .title h2,
+#header .title h3,
+#header .title h4,
+#header .title h5,
+#header .title h6 {
+  margin-top: 11px;
+  margin-bottom: 11px;
+  line-height: 30px;
+}
+#menu {
+  margin-bottom: 30px;
+}
+#content {
+  overflow: visible;
+}
+#content .dropdown-menu {
+  min-width: 100px;
+}
+#content .dropdown-menu a[data-value] {
+  cursor: pointer;
+}
+table {
+  margin-bottom: 6px;
+}
+table thead th.col-button,
+table thead th.col-button2,
+table thead th.col-number,
+table thead th.col-boolean,
+table thead th.col-icon {
+  width: 1%;
+}
+table tbody td.col-button,
+table tbody td.col-button2 {
+  padding: 1px 0px;
+  text-align: center;
+}
+table tbody td.col-button .btn,
+table tbody td.col-button2 .btn {
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+}
+.clicable {
+  cursor: pointer;
+}
+#flowMessager {
+  position: fixed;
+  top: 52px;
+  right: 0px;
+  z-index: 1100;
+  width: 40%;
+  pointer-events: none;
+}
+#flowMessager .alert {
+  float: right;
+  clear: both;
+  margin-bottom: 0px;
+  opacity: 0.8;
+  pointer-events: auto;
+}
+#flowMessager .alert:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+@media (max-width: 480px) {
+  #flowMessager {
+    width: 100%;
+  }
+  #flowMessager .alert {
+    float: none;
+  }
+}
+#staticMessager .alert {
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+#staticMessager .alert:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+.load-image {
+  position: absolute;
+  width: 100%;
+  top: 8px;
+  z-index: 2;
+}
+.load-image img {
+  display: block;
+  margin: 0px auto;
+}
+.modal .modal-danger .modal-content {
+  background-color: #f2dede;
+  color: #a94442;
+  border-color: #ebccd1;
+}
+.modal .modal-danger .modal-content .modal-header {
+  border-bottom-color: #ebccd1;
+}
+#wrap {
+  padding-top: 0px;
+}
+#wrap #header {
+  margin-bottom: 50px;
+}
+#wrap #header .logo img {
+  height: 32px;
+}
+#wrap #header .title h1,
+#wrap #header .title h2,
+#wrap #header .title h3,
+#wrap #header .title h4,
+#wrap #header .title h5,
+#wrap #header .title h6 {
+  color: #333;
+  font-weight: normal;
+  font-size: 24px;
+}
+#wrap #header .user {
+  margin-top: 15px;
+}

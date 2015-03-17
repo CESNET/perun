@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * UsersManager manages users.
@@ -92,4 +93,21 @@ public interface AuditMessagesManagerBl {
 	 * @throws PrivilegeException
 	 */
 	void log(PerunSession sess, String message) throws InternalErrorException;
+
+	/**
+	 * Get all auditer consumers like name=last_processed_id (map) from database.
+	 *
+	 * @param sess
+	 * @return map string to integer where string is name of consumer and int is last_processed_id of consumer
+	 * @throws InternalErrorException
+	 */
+	Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Get last message id from auditer_log.
+	 *
+	 * @return last message id
+	 * @throws InternalErrorException
+	 */
+	int getLastMessageId() throws InternalErrorException;
 }

@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -25,6 +26,58 @@ public enum AuthzResolverMethod implements ManagerMethod {
 			return cz.metacentrum.perun.core.api.AuthzResolver.getPrincipalRoleNames(ac.getSession());
 		}
 	},
+	/*#
+	 * Get all richUser administrators for complementary object and role with specify attributes.
+	 *
+	 * If "onlyDirectAdmins" is "true", return only direct users of the complementary object for role with specific attributes.
+	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @return list of richUser administrators for complementary object and role with specify attributes.
+	 */
+	getRichAdmins {
+		@Override
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			//get role by name
+			String roleName = parms.readString("role");
+			Role role;
+			try {
+				role = Role.valueOf(roleName);
+			} catch (IllegalArgumentException ex) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+			}
+
+			return cz.metacentrum.perun.core.api.AuthzResolver.getRichAdmins(ac.getSession(),
+							parms.readInt("complementaryObjectId"),
+							parms.readString("complementaryObjectName"),
+							parms.readList("specificAttributes", String.class),
+							role, parms.readInt("onlyDirectAdmins") == 1,
+							parms.readInt("allUserAttributes") == 1);
+		}
+	},
+
+	/*#
+	 * Get all authorizedGroups for complementary object and role.
+	 *
+	 * @return list of authoriedGroups for complementary object and role
+	 */
+	getAdminGroups {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+		//get role by name
+			String roleName = parms.readString("role");
+			Role role;
+			try {
+				role = Role.valueOf(roleName);
+			} catch (IllegalArgumentException ex) {
+				throw new RpcException(RpcException.Type.WRONG_PARAMETER, "wrong parameter in role, not exists role with this name " + roleName);
+			}
+
+			return cz.metacentrum.perun.core.api.AuthzResolver.getAdminGroups(ac.getSession(),
+							parms.readInt("complementaryObjectId"),
+							parms.readString("complementaryObjectName"),
+							role);
+		}
+	},
 
 	/*#
 	 * Set role for user or authorized group and complementary object or objects
@@ -39,6 +92,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	setRole {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			//get role by name
 			String roleName = parms.readString("role");
 			Role role;
@@ -55,11 +109,11 @@ public enum AuthzResolverMethod implements ManagerMethod {
 								parms.readPerunBean("complementaryObject"),
 								role);
 					return null;
-				} else if(parms.contains("complementaryObjects[]")) {
+				} else if(parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								ac.getUserById(parms.readInt("user")),
 								role,
-								parms.readListPerunBeans("complementaryObjects[]"));
+								parms.readListPerunBeans("complementaryObjects"));
 					return null;
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "list of complementary objects or complementary object");
@@ -71,11 +125,11 @@ public enum AuthzResolverMethod implements ManagerMethod {
 								parms.readPerunBean("complementaryObject"),
 								role);
 					return null;
-				} else if(parms.contains("complementaryObjects[]")) {
+				} else if(parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.setRole(ac.getSession(),
 								ac.getGroupById(parms.readInt("authorizedGroup")),
 								role,
-								parms.readListPerunBeans("complementaryObjects[]"));
+								parms.readListPerunBeans("complementaryObjects"));
 					return null;
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "list of complementary objects or complementary object");
@@ -99,6 +153,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	unsetRole {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			//get role by name
 			String roleName = parms.readString("role");
 			Role role;
@@ -115,11 +170,11 @@ public enum AuthzResolverMethod implements ManagerMethod {
 								parms.readPerunBean("complementaryObject"),
 								role);
 					return null;
-				} else if (parms.contains("complementaryObjects[]")) {
+				} else if (parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 								ac.getUserById(parms.readInt("user")),
 								role,
-								parms.readListPerunBeans("complementaryObjects[]"));
+								parms.readListPerunBeans("complementaryObjects"));
 					return null;
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "list of complementary objects or complementary object");
@@ -131,11 +186,11 @@ public enum AuthzResolverMethod implements ManagerMethod {
 								parms.readPerunBean("complementaryObject"),
 								role);
 					return null;
-				} else if (parms.contains("complementaryObjects[]")) {
+				} else if (parms.contains("complementaryObjects")) {
 					cz.metacentrum.perun.core.api.AuthzResolver.unsetRole(ac.getSession(),
 								ac.getGroupById(parms.readInt("authorizedGroup")),
 								role,
-								parms.readListPerunBeans("complementaryObjects[]"));
+								parms.readListPerunBeans("complementaryObjects"));
 					return null;
 				} else {
 					throw new RpcException(RpcException.Type.MISSING_VALUE, "list of complementary objects or complementary object");

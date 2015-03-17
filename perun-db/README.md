@@ -9,7 +9,7 @@ This module holds all DB related utilities, which are necessary to install and r
 
 > Data in Perun is stored using UTF-8 charset. When using Oracle DB, some columns are limited to 4000 of ASCII characters (1000 with full UTF-8 set).
 
-## Instalation ##
+## Installation ##
 
 > Theses instructions doesn't cover creation of initial user (perun admin) and setting up other components like Apache and Tomcat. For complete installation instructions please refer to our wiki.
 
@@ -38,6 +38,8 @@ You can dump all data from one DB and put them to different DB using included ex
 **Content of table: auditer_log is exported only for entries from last 10 days, since it may contain a lot of entries.**
 
 **Content of tables: tasks and tasks_results is not exported.** They contain data about current state of services propagation and you might get stuck with _processing_ tasks, which are not actually running. Manual forced propagation of all services to all facilities is recommended after full migration.
+
+**Content of pn_receiver is not exported** This is in order to prevent notification module from sending any message. You can add table to the list manually.
 
 You can manually add missing tables names in _table_order_ file and modify script to get all data from auditer_log table.
 

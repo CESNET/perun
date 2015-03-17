@@ -191,7 +191,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_FROM_EMAIL);
 			attrDef.setDescription("Email address used as \"from\" in mail notifications.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_TO_EMAIL);
@@ -203,7 +207,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_TO_EMAIL);
 			attrDef.setDescription("Email addresses (of VO administrators) used as \"to\" in mail notifications.");
 			attrDef.setType("java.util.ArrayList");
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_TO_EMAIL);
@@ -215,7 +223,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_TO_EMAIL);
 			attrDef.setDescription("Email addresses (of Group administrators) used as \"to\" in mail notifications.");
 			attrDef.setType("java.util.ArrayList");
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_FROM_EMAIL);
@@ -227,7 +240,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_FROM_EMAIL);
 			attrDef.setDescription("Email address used as \"from\" in mail notifications.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_LANGUAGE_EMAIL);
@@ -239,7 +257,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_LANGUAGE_EMAIL);
 			attrDef.setDescription("Default language used for application notifications to VO administrators.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_LANGUAGE_EMAIL);
@@ -251,7 +273,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_LANGUAGE_EMAIL);
 			attrDef.setDescription("Default language used for application notifications to Group administrators.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_APPLICATION_URL);
@@ -263,7 +290,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_APPLICATION_URL);
 			attrDef.setDescription("Custom link to VO's application form used in e-mail invitations.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_APPLICATION_URL);
@@ -275,7 +306,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_APPLICATION_URL);
 			attrDef.setDescription("Custom link to group's application form used in e-mail invitations.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_VO_REGISTRAR_URL);
@@ -287,7 +323,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_VO_REGISTRAR_URL);
 			attrDef.setDescription("Custom URL used in registration notifications (hostname without any parameters like: https://hostname.domain/). If not set, default hostname of Perun instance is used.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 		try {
 			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_REGISTRAR_URL);
@@ -299,7 +339,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setNamespace(NAMESPACE_GROUP_REGISTRAR_URL);
 			attrDef.setDescription("Custom URL used in registration notifications (hostname without any parameters like: https://hostname.domain/). This value override same VO setting. If not set, default hostname of Perun instance is used.");
 			attrDef.setType(String.class.getName());
-			attrManager.createAttribute(registrarSession, attrDef);
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
 
 	}
@@ -466,65 +511,53 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public ApplicationForm getFormForVo(final Vo vo) throws PerunException {
 
-		if (vo == null) {
-			throw new InternalErrorException("VO can't be null");
-		}
+		if (vo == null) throw new InternalErrorException("VO can't be null");
 
-		List<ApplicationForm> forms = new ArrayList<ApplicationForm>();
-		forms = jdbc.query(FORM_SELECT+" where vo_id=? and group_id is null", new RowMapper<ApplicationForm>(){
-			@Override
-			public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
-				ApplicationForm form = new ApplicationForm();
-				form.setId(rs.getInt("id"));
-				form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
-				form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
-				form.setModuleClassName(rs.getString("module_name"));
-				form.setVo(vo);
-				return form;
-			}
-		}, vo.getId());
-		if (forms.size() > 1) {
-			throw new InternalErrorException("VO: "+vo.getName()+" should have exactly: 1 application form, but has: "+forms.size());
-		}
-		if (forms.size() == 0) {
+		try {
+			return jdbc.queryForObject(FORM_SELECT + " where vo_id=? and group_id is null", new RowMapper<ApplicationForm>() {
+				@Override
+				public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
+					ApplicationForm form = new ApplicationForm();
+					form.setId(rs.getInt("id"));
+					form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
+					form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
+					form.setModuleClassName(rs.getString("module_name"));
+					form.setVo(vo);
+					return form;
+				}
+			}, vo.getId());
+		} catch (EmptyResultDataAccessException ex) {
 			throw new FormNotExistsException("Form for VO: "+vo.getName()+" doesn't exists.");
 		}
-		return forms.get(0);
 
 	}
 
 	@Override
 	public ApplicationForm getFormForGroup(final Group group) throws PerunException {
 
-		if (group == null) {
-			throw new InternalErrorException("Group can't be null");
-		}
+		if (group == null) throw new InternalErrorException("Group can't be null");
 
-		List<ApplicationForm> forms = new ArrayList<ApplicationForm>();
-		forms = jdbc.query(FORM_SELECT+" where vo_id=? and group_id=?", new RowMapper<ApplicationForm>(){
-			@Override
-			public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
-				ApplicationForm form = new ApplicationForm();
-				form.setId(rs.getInt("id"));
-				form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
-				form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
-				form.setModuleClassName(rs.getString("module_name"));
-				form.setGroup(group);
-				try {
-					form.setVo(vosManager.getVoById(registrarSession, group.getVoId()));
-				} catch (Exception ex) {
-					// we don't care, shouldn't happen for internal identity.
+		try {
+			return jdbc.queryForObject(FORM_SELECT + " where vo_id=? and group_id=?", new RowMapper<ApplicationForm>() {
+				@Override
+				public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
+					ApplicationForm form = new ApplicationForm();
+					form.setId(rs.getInt("id"));
+					form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
+					form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
+					form.setModuleClassName(rs.getString("module_name"));
+					form.setGroup(group);
+					try {
+						form.setVo(vosManager.getVoById(registrarSession, group.getVoId()));
+					} catch (Exception ex) {
+						// we don't care, shouldn't happen for internal identity.
+					}
+					return form;
 				}
-				return form;
-			}
-		}, group.getVoId(), group.getId());
-		if (forms.size() > 1) {
-			throw new InternalErrorException("GROUP: "+group.getName()+" should have exactly: 1 application form, but has: "+forms.size());
+			}, group.getVoId(), group.getId());
+		} catch (EmptyResultDataAccessException ex) {
+			throw new FormNotExistsException("Form for Group: "+group.getName()+" doesn't exists.");
 		}
-		if (forms.size() == 0) {
-			throw new FormNotExistsException("Form for GROUP: "+group.getName()+" doesn't exists.");
-		}
-		return forms.get(0);
 
 	}
 
@@ -976,13 +1009,14 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			jdbc.update("delete from application where id=?", app.getId());
 
 		} else {
-			throw new RegistrarException("Only applications in NEW or REJECTED state can be deleted.");
+			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Verified application can't be deleted. Approve or reject application first. Try to refresh the view to see changes.");
+			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 		}
 
 	}
 
 	@Override
-	public Application verifyApplication(PerunSession sess, int appId) throws PerunException, PrivilegeException, InternalErrorException {
+	public Application verifyApplication(PerunSession sess, int appId) throws PerunException {
 
 		Application app = getApplicationById(appId);
 		if (app == null) throw new RegistrarException("Application with ID="+appId+" doesn't exists.");
@@ -1141,7 +1175,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// only VERIFIED applications can be approved
 		if (!AppState.VERIFIED.equals(app.getState())) {
-			throw new RegistrarException("Only applications in state VERIFIED can be approved. Please verify application manually before approval.");
+			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Application is already approved. Try to refresh the view to see changes.");
+			if (AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Rejected application cant' be approved. Try to refresh the view to see changes.");
+			throw new RegistrarException("Only VERIFIED applications can be approved. Please verify application manually before approval or wait for applicant own action.");
 		}
 
 		// mark as APPROVED
@@ -1403,17 +1439,57 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// authz ex post
 		if (app.getGroup() == null) {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
-					&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)) {
-				throw new PrivilegeException(sess, "getApplicationById");
+
+			if (app.getUser() != null) {
+
+				// is admin of application or self
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())) {
+					throw new PrivilegeException(sess, "getApplicationById");
+				}
+
+			} else {
+
+				// is admin of application or self based on current actor/extSource
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
+						     app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
+					throw new PrivilegeException(sess, "getApplicationById");
+				}
+
 			}
+
 		} else {
-			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
-					&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
-					&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)) {
-				throw new PrivilegeException(sess, "getApplicationById");
+
+			if (app.getUser() != null) {
+
+				// is admin of application or self
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
+						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !AuthzResolver.isAuthorized(sess, Role.SELF, app.getUser())) {
+					throw new PrivilegeException(sess, "getApplicationById");
+				}
+
+			} else {
+
+				// is admin of application or self based on current actor/extSource
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
+						&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, app.getGroup())
+						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
+						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
+						app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
+					throw new PrivilegeException(sess, "getApplicationById");
+				}
+
 			}
+
 		}
 
 		return app;
@@ -1557,27 +1633,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		List<ApplicationFormItem> items;
 		if (appType == null) {
-			items = jdbc.query("select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items where form_id=? order by ordnum asc",
-					ITEM_MAPPER, form.getId());
+			items = jdbc.query(FORM_ITEM_SELECT+" where form_id=? order by ordnum asc", ITEM_MAPPER, form.getId());
 		} else {
-			items = jdbc.query("select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items i,application_form_item_apptypes t "
-							+ " where form_id=? and i.id=t.item_id and t.apptype=? order by ordnum asc",
+			items = jdbc.query(FORM_ITEM_SELECT+" i,application_form_item_apptypes t where form_id=? and i.id=t.item_id and t.apptype=? order by ordnum asc",
 					ITEM_MAPPER, form.getId(), appType.toString());
 		}
 		for (ApplicationFormItem item : items) {
-			List<ItemTexts> texts = jdbc
-					.query("select locale,label,options,help,error_message from application_form_item_texts where item_id=?",
-							ITEM_TEXTS_MAPPER, item.getId());
+			List<ItemTexts> texts = jdbc.query(FORM_ITEM_TEXTS_SELECT + " where item_id=?", ITEM_TEXTS_MAPPER, item.getId());
 			for (ItemTexts itemTexts : texts) {
 				item.getI18n().put(itemTexts.getLocale(), itemTexts);
 			}
-			List<AppType> appTypes = jdbc.query("select apptype from application_form_item_apptypes where item_id=?",
-					new RowMapper<AppType>() {
-						@Override
-						public AppType mapRow(ResultSet rs, int i) throws SQLException {
-							return AppType.valueOf(rs.getString(1));
-						}
-					}, item.getId());
+			List<AppType> appTypes = jdbc.query(APP_TYPE_SELECT+" where item_id=?", APP_TYPE_MAPPER, item.getId());
 			item.setApplicationTypes(appTypes);
 		}
 
@@ -1587,39 +1653,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public ApplicationFormItem getFormItemById(int id) {
 		ApplicationFormItem item;
-		item = jdbc.queryForObject("select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items where id=?",
-				new RowMapper<ApplicationFormItem>() {
-					public ApplicationFormItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-						ApplicationFormItem app = new ApplicationFormItem(rs
-								.getInt("id"), rs.getString("shortname"), rs
-								.getBoolean("required"),
-								Type.valueOf(rs.getString("type")), rs
-								.getString("fed_attr"), rs.getString("dst_attr"), rs
-								.getString("regex"));
-						app.setOrdnum(rs.getInt("ordnum"));
-						return app;
-					}
-				}, id);
+		item = jdbc.queryForObject(FORM_ITEM_SELECT+" where id=?", ITEM_MAPPER, id);
 		if (item != null) {
-			List<ItemTexts> texts = jdbc.query("select locale,label,options,help,error_message from application_form_item_texts where item_id=?",
-					new RowMapper<ApplicationFormItem.ItemTexts>() {
-						@Override
-						public ItemTexts mapRow(ResultSet rs, int i) throws SQLException {
-							return new ItemTexts(new Locale(rs.getString("locale")), rs
-									.getString("label"), rs.getString("options"), rs
-									.getString("help"), rs.getString("error_message"));
-						}
-					}, item.getId());
+			List<ItemTexts> texts = jdbc.query(FORM_ITEM_TEXTS_SELECT+" where item_id=?", ITEM_TEXTS_MAPPER, item.getId());
 			for (ItemTexts itemTexts : texts) {
 				item.getI18n().put(itemTexts.getLocale(), itemTexts);
 			}
-			List<AppType> appTypes = jdbc.query("select apptype from application_form_item_apptypes where item_id=?",
-					new RowMapper<AppType>() {
-						@Override
-						public AppType mapRow(ResultSet rs, int i) throws SQLException {
-							return AppType.valueOf(rs.getString(1));
-						}
-					}, item.getId());
+			List<AppType> appTypes = jdbc.query(APP_TYPE_SELECT+" where item_id=?", APP_TYPE_MAPPER, item.getId());
 			item.setApplicationTypes(appTypes);
 		}
 
@@ -1657,7 +1697,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						List<Group> g = perun.getGroupsManager().getMemberGroups(registrarSession, m);
 						if (g.contains(group)) {
 							// user is member of group - can't post more initial applications
-							throw new AlreadyRegisteredException("You are already member of group: "+group.getName());
+							throw new AlreadyRegisteredException("You are already member of group "+group.getName()+".");
 						} else {
 							// user isn't member of group
 							regs.clear();
@@ -1669,7 +1709,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 									AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
 							if (!regs.isEmpty()) {
 								// user have unprocessed application for group
-								throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists", actor, extSourceName, regs.get(0));
+								throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
 							}
 							// pass if have approved or rejected app
 						}
@@ -1690,7 +1730,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 								AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
 						if (!regs.isEmpty()) {
 							// user have unprocessed application for group - can't post more
-							throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists", actor, extSourceName, regs.get(0));
+							throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
 						}
 						//throw new InternalErrorException("You must be member of vo: "+vo.getName()+" to apply for membership in group: "+group.getName());
 					} else {
@@ -1704,7 +1744,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 								AppType.INITIAL.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
 						if (!regs.isEmpty()) {
 							// user have unprocessed application for VO - can't post more
-							throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists", actor, extSourceName, regs.get(0));
+							throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
 						}
 						// pass not member and have only approved or rejected apps
 					}
@@ -1720,7 +1760,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 							AppType.INITIAL.toString(), vo.getId(), group.getId(), actor, extSourceName, AppState.REJECTED.toString()));
 
 					if (!regs.isEmpty()) {
-						throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists", actor, extSourceName, regs.get(0));
+						throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
 					}
 				} else {
 					// vo application
@@ -1746,8 +1786,22 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (user == null) {
 				throw new RegistrarException("Trying to get extension application for non-existing user. Try to log-in with different identity known to Perun.");
 			}
+
 			if (form.getGroup() != null) {
-				throw new RegistrarException("Membership in group can't be extended by application. It last as long as VO membership.");
+				throw new RegistrarException("You are already member of group "+form.getGroup().getShortName()+".");
+			}
+
+			// check for submitted registrations (only for VO)
+			List<Integer> regs = new ArrayList<Integer>();
+			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+					new SingleColumnRowMapper<Integer>(Integer.class),
+					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.NEW.toString()));
+			regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+					new SingleColumnRowMapper<Integer>(Integer.class),
+					AppType.EXTENSION.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
+			if (!regs.isEmpty()) {
+				// user have unprocessed application for group
+				throw new DuplicateRegistrationAttemptException("Extension application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
 			}
 
 			Member member = membersManager.getMemberByUser(sess, vo, user);
@@ -1810,19 +1864,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		List<ApplicationFormItemWithPrefilledValue> itemsWithMissingData = new ArrayList<ApplicationFormItemWithPrefilledValue>();
 
 		// get user attributes from federation
-		Iterator<ApplicationFormItemWithPrefilledValue> it = ((Collection<ApplicationFormItemWithPrefilledValue>) itemsWithValues).iterator();
+		Iterator<ApplicationFormItemWithPrefilledValue> it = (itemsWithValues).iterator();
 		while (it.hasNext()) {
 			ApplicationFormItemWithPrefilledValue itemW = it.next();
 			String fa = itemW.getFormItem().getFederationAttribute();
 			if (fa != null && !fa.isEmpty()) {
 
-				// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
-				if (itemW.getFormItem().isRequired() &&
-						(Type.FROM_FEDERATION_HIDDEN.equals(itemW.getFormItem().getType()) || Type.FROM_FEDERATION_SHOW.equals(itemW.getFormItem().getType())) &&
-						!federValues.containsKey(fa)) {
-					itemsWithMissingData.add(itemW);
-				}
-
+				// FILL VALUE FROM FEDERATION
 				String s = federValues.get(fa);
 				if (s != null && !s.isEmpty()) {
 					// In case of email, value from the federation can contain more than one entries, entries are separated by semi-colon
@@ -1839,64 +1887,70 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					itemW.setPrefilledValue(s);
 					itemW.setAssuranceLevel(federValues.get(shibLoAVar));
 				}
+
+				// TRY TO CONSTRUCT THE VALUE FROM PARTIAL FED-INFO
+
+				ApplicationFormItem item = itemW.getFormItem();
+				String dstAtt = item.getPerunDestinationAttribute();
+				if (URN_USER_TITLE_BEFORE.equals(dstAtt)) {
+					String titleBefore = parsedName.get("titleBefore");
+					if (titleBefore != null && !titleBefore.trim().isEmpty())
+						itemW.setPrefilledValue(titleBefore);
+				} else if (URN_USER_TITLE_AFTER.equals(dstAtt)) {
+					String titleAfter = parsedName.get("titleAfter");
+					if (titleAfter != null && !titleAfter.trim().isEmpty())
+						itemW.setPrefilledValue(titleAfter);
+				} else if (URN_USER_FIRST_NAME.equals(dstAtt)) {
+					String firstName = parsedName.get("firstName");
+					if (firstName != null && !firstName.trim().isEmpty())
+						itemW.setPrefilledValue(firstName);
+				} else if (URN_USER_LAST_NAME.equals(dstAtt)) {
+					String lastName = parsedName.get("lastName");
+					if (lastName != null && !lastName.trim().isEmpty())
+						itemW.setPrefilledValue(lastName);
+				} else if (URN_USER_DISPLAY_NAME.equals(dstAtt)) {
+
+					// overwrite only if not filled by Perun
+					if (itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) {
+
+						String displayName = "";
+
+						if (parsedName.get("titleBefore") != null && !parsedName.get("titleBefore").isEmpty())
+							displayName += parsedName.get("titleBefore");
+
+						if (parsedName.get("firstName") != null && !parsedName.get("firstName").isEmpty()) {
+							if (!displayName.isEmpty()) displayName += " ";
+							displayName += parsedName.get("firstName");
+						}
+						if (parsedName.get("lastName") != null && !parsedName.get("lastName").isEmpty()) {
+							if (!displayName.isEmpty()) displayName += " ";
+							displayName += parsedName.get("lastName");
+						}
+						if (parsedName.get("titleAfter") != null && !parsedName.get("titleAfter").isEmpty()) {
+							if (!displayName.isEmpty()) displayName += " ";
+							displayName += parsedName.get("titleAfter");
+						}
+
+						itemW.setPrefilledValue(displayName);
+
+					}
+
+				}
+
+				// We do require value from IDP (federation) if attribute is supposed to be pre-filled and item is required and not editable to users
+				if ((itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) && itemW.getFormItem().isRequired() &&
+						(Type.FROM_FEDERATION_HIDDEN.equals(itemW.getFormItem().getType()) || Type.FROM_FEDERATION_SHOW.equals(itemW.getFormItem().getType()))) {
+					itemsWithMissingData.add(itemW);
+				}
+
 			}
 		}
 
-		if (!itemsWithMissingData.isEmpty() && extSourceType.equals("cz.metacentrum.perun.core.impl.ExtSourceIdp")) {
+		if (!itemsWithMissingData.isEmpty() && extSourceType.equals(ExtSourcesManager.EXTSOURCE_IDP)) {
 			// throw exception only if user is logged-in by Federation IDP
 			String IDP = federValues.get("Shib-Identity-Provider");
 			log.error("[REGISTRAR] IDP {} doesn't provide data for following form items: {}", IDP, itemsWithMissingData);
 			throw new MissingRequiredDataException("Your IDP doesn't provide data required by this application form.", itemsWithMissingData);
-		}
-
-		// set names from federation attributes if not empty
-		for (ApplicationFormItemWithPrefilledValue itemW : itemsWithValues) {
-			ApplicationFormItem item = itemW.getFormItem();
-			String dstAtt = item.getPerunDestinationAttribute();
-			if (URN_USER_TITLE_BEFORE.equals(dstAtt)) {
-				String titleBefore = parsedName.get("titleBefore");
-				if (titleBefore != null && !titleBefore.trim().isEmpty())
-					itemW.setPrefilledValue(titleBefore);
-			} else if (URN_USER_TITLE_AFTER.equals(dstAtt)) {
-				String titleAfter = parsedName.get("titleAfter");
-				if (titleAfter != null && !titleAfter.trim().isEmpty())
-					itemW.setPrefilledValue(titleAfter);
-			} else if (URN_USER_FIRST_NAME.equals(dstAtt)) {
-				String firstName = parsedName.get("firstName");
-				if (firstName != null && !firstName.trim().isEmpty())
-					itemW.setPrefilledValue(firstName);
-			} else if (URN_USER_LAST_NAME.equals(dstAtt)) {
-				String lastName = parsedName.get("lastName");
-				if (lastName != null && !lastName.trim().isEmpty())
-					itemW.setPrefilledValue(lastName);
-			} else if (URN_USER_DISPLAY_NAME.equals(dstAtt)) {
-
-				// overwrite only if not filled by Perun
-				if (itemW.getPrefilledValue() == null || itemW.getPrefilledValue().isEmpty()) {
-
-					String displayName = "";
-
-					if (parsedName.get("titleBefore") != null && !parsedName.get("titleBefore").isEmpty())
-						displayName += parsedName.get("titleBefore");
-
-					if (parsedName.get("firstName") != null && !parsedName.get("firstName").isEmpty()) {
-						if (!displayName.isEmpty()) displayName += " ";
-						displayName += parsedName.get("firstName");
-					}
-					if (parsedName.get("lastName") != null && !parsedName.get("lastName").isEmpty()) {
-						if (!displayName.isEmpty()) displayName += " ";
-						displayName += parsedName.get("lastName");
-					}
-					if (parsedName.get("titleAfter") != null && !parsedName.get("titleAfter").isEmpty()) {
-						if (!displayName.isEmpty()) displayName += " ";
-						displayName += parsedName.get("titleAfter");
-					}
-
-					itemW.setPrefilledValue(displayName);
-
-				}
-
-			}
 		}
 
 		// return prefilled form
@@ -1925,8 +1979,15 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	}
 
 	@Override
-	public List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) {
-		// TODO authorization based on session (vo admin / user)
+	public List<ApplicationFormItemData> getApplicationDataById(PerunSession sess, int appId) throws PerunException {
+
+		// this ensure authorization of user on application
+		try {
+			getApplicationById(sess, appId);
+		} catch (PrivilegeException ex) {
+			throw new PrivilegeException(sess, "getApplicationDataById");
+		}
+
 		return jdbc.query("select id,item_id,shortname,value,assurance_level from application_data where app_id=?",
 				new RowMapper<ApplicationFormItemData>() {
 					@Override
@@ -2249,21 +2310,16 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// first check for display name
 			for (ApplicationFormItemData item : data) {
 				if (URN_USER_DISPLAY_NAME.equals(item.getFormItem().getPerunDestinationAttribute())) {
-					try {
-						if (item.getValue() != null && !item.getValue().isEmpty()) {
-							Map<String, String> commonName = Utils.parseCommonName(item.getValue());
-							if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
-								user.setTitleBefore(commonName.get("titleBefore"));
-								found = true;
-							}
-							if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
-								user.setTitleAfter(commonName.get("titleAfter"));
-								found = true;
-							}
+					if (item.getValue() != null && !item.getValue().isEmpty()) {
+						Map<String, String> commonName = Utils.parseCommonName(item.getValue());
+						if (commonName.get("titleBefore") != null && !commonName.get("titleBefore").isEmpty()) {
+							user.setTitleBefore(commonName.get("titleBefore"));
+							found = true;
 						}
-					} catch (InternalErrorException ex) {
-						// we don't care so much, try also other possibilities
-						log.error("[REGISTRAR] Unable to parse common name in order to update titles: {}", ex);
+						if (commonName.get("titleAfter") != null && !commonName.get("titleAfter").isEmpty()) {
+							user.setTitleAfter(commonName.get("titleAfter"));
+							found = true;
+						}
 					}
 					break;
 				}
@@ -2412,7 +2468,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (destAttr != null && !destAttr.isEmpty()) {
 				// get login attribute (for user only)
 				Attribute a = null;
-				if (destAttr.contains("urn:perun:user:attribute-def:def:login-namespace:")) {
+				if (destAttr.contains(AttributesManager.NS_USER_ATTR_DEF+":login-namespace:")) {
 					a = attrManager.getAttribute(registrarSession, user, destAttr);
 				} else {
 					continue;
@@ -2525,6 +2581,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	// ------------------ MAPPERS AND SELECTS -------------------------------------
 
+	// FIXME - we are retrieving GROUP name using only "short_name" so it's not same as getGroupById()
 	protected static final String APP_SELECT = "select a.id as id,a.vo_id as vo_id, a.group_id as group_id,a.apptype as apptype,a.fed_info as fed_info,a.state as state," +
 			"a.user_id as user_id,a.extsourcename as extsourcename, a.extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as app_modified_by, " +
 			"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.modified_by as vo_modified_by, " +
@@ -2532,7 +2589,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
 			"u.title_before as user_title_before, u.title_after as user_title_after from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
 
+	private static final String APP_TYPE_SELECT = "select apptype from application_form_item_apptypes";
+
 	private static final String FORM_SELECT = "select id,vo_id,group_id,automatic_approval,automatic_approval_extension,module_name from application_form";
+
+	private static final String FORM_ITEM_SELECT = "select id,ordnum,shortname,required,type,fed_attr,dst_attr,regex from application_form_items";
+
+	private static final String FORM_ITEM_TEXTS_SELECT = "select locale,label,options,help,error_message from application_form_item_texts";
 
 	protected static RowMapper<Application> APP_MAPPER = new RowMapper<Application>() {
 
@@ -2576,6 +2639,13 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			return app;
 
+		}
+	};
+
+	private static RowMapper<AppType> APP_TYPE_MAPPER= new RowMapper<AppType>() {
+		@Override
+		public AppType mapRow(ResultSet rs, int i) throws SQLException {
+			return AppType.valueOf(rs.getString(1));
 		}
 	};
 

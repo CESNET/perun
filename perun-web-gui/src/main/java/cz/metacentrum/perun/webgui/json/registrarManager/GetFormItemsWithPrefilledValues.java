@@ -18,6 +18,7 @@ import cz.metacentrum.perun.webgui.client.applicationresources.SendsApplicationF
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonClient;
@@ -289,10 +290,10 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
 		String locale;
 
-		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals("cs")) {
+		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0))) {
 			locale = "en";
 		} else {
-			locale = "cs";
+			locale = Utils.getNativeLanguage().get(0);
 		}
 
 		int i = 0;

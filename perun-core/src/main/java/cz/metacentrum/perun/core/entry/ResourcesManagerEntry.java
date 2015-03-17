@@ -167,7 +167,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getFacility");
 				}
 
@@ -197,7 +197,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.SERVICE)) {
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getVo");
 				}
 

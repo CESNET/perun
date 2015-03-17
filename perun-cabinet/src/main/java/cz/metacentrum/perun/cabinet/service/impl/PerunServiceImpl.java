@@ -1,26 +1,21 @@
 package cz.metacentrum.perun.cabinet.service.impl;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.cabinet.dao.IThanksDao;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.cabinet.service.CabinetException;
 import cz.metacentrum.perun.cabinet.service.ErrorCodes;
 import cz.metacentrum.perun.cabinet.service.IPerunService;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -107,7 +102,7 @@ public class PerunServiceImpl implements IPerunService {
 		}
 	}
 
-	public void updatePriorityCoeficient(PerunSession sess, Integer userId, Double rank) throws CabinetException {
+	public void updatePriorityCoefficient(PerunSession sess, Integer userId, Double rank) throws CabinetException {
 
 		try {
 			// get definition
@@ -178,7 +173,7 @@ public class PerunServiceImpl implements IPerunService {
 	/**
 	 * Init method
 	 *
-	 * Checks if attribute priorityCoeficient exists in DB,
+	 * Checks if attribute priorityCoefficient exists in DB,
 	 * if not, it's created.
 	 *
 	 * @throws PerunException
@@ -203,17 +198,22 @@ public class PerunServiceImpl implements IPerunService {
 			attributeDefinition.setNamespace(ATTR_COEF_NAMESPACE);
 			attributeDefinition.setType(ATTR_COEF_TYPE);
 			try {
+				// create attribute
 				attrDef = perun.getAttributesManager().createAttribute(cabinetSession, attributeDefinition);
+				// set attribute rights
+				List<AttributeRights> rights = new ArrayList<AttributeRights>();
+				rights.add(new AttributeRights(attrDef.getId(), Role.SELF, Arrays.asList(ActionType.READ)));
+				perun.getAttributesManager().setAttributeRights(cabinetSession, rights);
 			} catch (PerunException pe) {
 				log.error("Failed to create attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" in Perun.");
 				throw new CabinetException("Failed to create attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" in Perun.", ErrorCodes.PERUN_EXCEPTION, pe);
 			}
 			log.debug("Attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" successfully created.");
 		}
+		AttributeDefinition attrDef2;
 		try {
 			// check if attr exists
-			attrDef = null;
-			attrDef = perun.getAttributesManager().getAttributeDefinition(cabinetSession,ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME);
+			attrDef2 = perun.getAttributesManager().getAttributeDefinition(cabinetSession,ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME);
 		} catch (AttributeNotExistsException e) {
 			// if not - create it
 			log.warn("Attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" does not exist in Perun. Attempting to create it.");
@@ -224,7 +224,11 @@ public class PerunServiceImpl implements IPerunService {
 			attributeDefinition.setNamespace(ATTR_PUBS_NAMESPACE);
 			attributeDefinition.setType(ATTR_PUBS_TYPE);
 			try {
-				attrDef = perun.getAttributesManager().createAttribute(cabinetSession, attributeDefinition);
+				attrDef2 = perun.getAttributesManager().createAttribute(cabinetSession, attributeDefinition);
+				// set attribute rights
+				List<AttributeRights> rights = new ArrayList<AttributeRights>();
+				rights.add(new AttributeRights(attrDef2.getId(), Role.SELF, Arrays.asList(ActionType.READ)));
+				perun.getAttributesManager().setAttributeRights(cabinetSession, rights);
 			} catch (PerunException pe) {
 				log.error("Failed to create attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" in Perun.");
 				throw new CabinetException("Failed to create attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" in Perun.", ErrorCodes.PERUN_EXCEPTION, pe);

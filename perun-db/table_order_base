@@ -3,12 +3,10 @@ action_types
 membership_types
 attr_names
 attributes_authz
-auditer_consumers
 owners
 services
 service_required_attrs
 exec_services
-service_dependencies
 engines
 routing_rules
 engine_routing_rule

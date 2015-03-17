@@ -2963,8 +2963,8 @@ public interface SmallIcons extends ClientBundle{
 	@Source("icons/16x16/flag_czech_republic.png")
 	ImageResource flagCzechRepublicIcon();
 
-	@Source("icons/16x16/flag_cze_gb.png")
-	ImageResource flagCzechBritainIcon();
+	//@Source("icons/16x16/flag_cze_gb.png")
+	//ImageResource flagCzechBritainIcon();
 
 	//@Source("icons/16x16/flag_denmark.png")
 	//ImageResource flagDenmarkIcon();
@@ -4406,8 +4406,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/livejournal.png")
 	//ImageResource livejournalIcon();
 
-	//@Source("icons/16x16/locate.png")
-	//ImageResource locateIcon();
+	@Source("icons/16x16/locate.png")
+	ImageResource locateIcon();
 
 	//@Source("icons/16x16/location_pin.png")
 	//ImageResource locationPinIcon();

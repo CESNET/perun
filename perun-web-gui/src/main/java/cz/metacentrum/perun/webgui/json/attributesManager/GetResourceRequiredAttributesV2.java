@@ -144,9 +144,6 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 		ListHandler<Attribute> columnSortHandler = new ListHandler<Attribute>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
 
-		// table selection
-		table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager());
-
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
@@ -190,6 +187,9 @@ public class GetResourceRequiredAttributesV2 implements JsonCallback, JsonCallba
 					}
 				}
 			});
+
+			// table selection
+			table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Attribute> createCheckboxManager(0));
 
 			table.addColumn(checkBoxColumn, checkBoxHeader);
 

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.registrar.model;
 
 import java.util.*;
 
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
 
 /**
@@ -33,7 +34,21 @@ public class ApplicationFormItem {
 	private boolean forDelete = false;
 
 	public static final Locale EN = new Locale("en");
-	public static final Locale CS = new Locale("cs");
+	public static final Locale CS = new Locale(getNativeLanguage());
+
+	/**
+	 * Return code of native language defined in config file.
+	 * Return "cs" for Czech language if no native language set.
+	 *
+	 * @return String representation of native language
+	 */
+	public static String getNativeLanguage() {
+		try {
+			return Utils.getPropertyFromConfiguration("perun.native.language").split(",")[0];
+		} catch (Exception ex) {
+			return "cs";
+		}
+	}
 
 	public ApplicationFormItem(int id, String shortname, boolean required, Type type, String federationAttribute, String perunDestinationAttribute, String regex) {
 		this.id = id;
@@ -245,19 +260,17 @@ public class ApplicationFormItem {
 
 		@Override
 		public String toString() {
-			return "ItemTexts{" +
+			return getClass().getSimpleName() + ":[" +
 					"locale=" + locale +
 					", label='" + label + '\'' +
 					", options='" + options + '\'' +
 					", help='" + help + '\'' +
 					", errorMessage='" + errorMessage + '\'' +
-					'}';
+					']';
 		}
 	}
 
-
-	private Map<Locale,ItemTexts> i18n = new HashMap<Locale, ItemTexts>(3);
-	{
+	private Map<Locale,ItemTexts> i18n = new HashMap<Locale, ItemTexts>(3); {
 		// create with locale property set
 		i18n.put(CS,new ItemTexts(CS));
 		i18n.put(EN,new ItemTexts(EN));

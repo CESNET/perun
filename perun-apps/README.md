@@ -5,14 +5,16 @@ Apps can be easily styled, so user can identify application directly with each V
 
 ## Apps structure ##
 
-Common files used by all mini-apps are stored in /bootstrap /css /img and /js folders. If your app require own specific files, please put them as sub-folders of your miniapp. You can base you own mini-apps on example apps used for purpose of MetaCentrum VO (folder /metacentrum).
+Common files used by all mini-apps are stored in /apps-include folder and are meant to be accessible without authorization. If your app require own specific files, please put them as sub-folders of your miniapp. You can base you own mini-apps on examples contained in /apps folder.
 
-Apps are configured by /js/Configuration.js file, which stores URL to Perun's RPC. More info about RPC interface can be found at: https://wiki.metacentrum.cz/wiki/Perun_remote_interfaces
+Index files of each app are expected to be behind authorization. Since apps do support multiple types of authorization (kerberos, IdP Shibboleth, certificates), they must be referenced relatively to currently used authorization. Expected format of apps URL is ```hostname/apps/[appname]/[authz_type]/``` where [authz-type] can be one of non, krb, fed, cert.
 
-File /js/PerunLoader.js then contains shared pre-defined ajax calls, which retrieve information about user and perform keep-alive checking to Perun server.
+Apps are configured by /apps-include/js/Configuration.js file, which stores URL to Perun's RPC (relative to hostname by default). It can be overridden by same files included within your app. More info about RPC interface can be found at: https://wiki.metacentrum.cz/wiki/Perun_remote_interfaces
 
 ## Used external libraries ##
 
-- Bootstrap 3.0.2
-- jQuery 1.8.2
+- Bootstrap 3.2.0
+- jQuery 1.11.1
+- modernizr 2.6.2
+- respond 1.1.0
 
