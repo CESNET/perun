@@ -655,7 +655,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param m String Parameter m
 	 * @param i String Parameter i
-	 * @return bool True for validated, false for non-valid
+	 * @return boolean True for validated, false for non-valid
 	 */
 	validateEmail {
 
@@ -1062,7 +1062,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 *	@param challenge String Captcha challenge
 	 *	@param response String User response
-	 *	@return bool True if it is valid, False if failed
+	 *	@return boolean True if it is valid, False if failed
 	 */
 	verifyCaptcha {
 

@@ -285,7 +285,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Returns "OK" string.
 	 * Helper method for GUI to keep connection alive
-	 * @exampleResponse OK
+	 * @exampleResponse "OK"
 	 * @return String "OK"
 	 */
 	keepAlive {
