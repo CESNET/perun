@@ -22,7 +22,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Creates a new service.
 	 *
 	 * @param service Service JSON object
-	 * @param owner int Owner ID
+	 * @param owner int Owner <code>id</code>
 	 * @return Service Created Service
 	 */
 	createService {
@@ -40,7 +40,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes a service.
 	 *
-	 * @param service int Service ID
+	 * @param service int Service <code>id</code>
 	 */
 	deleteService {
 
@@ -72,9 +72,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a service by its ID.
+	 * Returns a service by its <code>id</code>.
 	 *
-	 * @param id int Service ID
+	 * @param id int Service <code>id</code>
 	 * @return Service Found Service
 	 */
 	getServiceById {
@@ -131,8 +131,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each member associated with the resource.
 	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID. You will get attributes for this facility, resources asociated with it and members assigned to the resources.
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources.
 	 * @return List<ServiceAttributes> Attributes in special structure. Facility is in the root, facility childrens are resources. And resource childrens are members.
 	 <pre>
 	 Facility
@@ -171,8 +171,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
 	 *
-	 * @param service int Service ID. You will get attributes required by this service
-	 * @param facility int Facility ID. You will get attributes for this facility, resources asociated with it and members assigned to the resources
+	 * @param service int Service <code>id</code>. You will get attributes required by this service
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources
 	 * @return ServiceAttributes Attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's childrens are all resources. Facility second child is abstract node with no attribute and it's childrens are all users.
 	 <pre>
 	 Facility
@@ -210,8 +210,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
-	 * @param service int Service ID. You will get attributes reuqired by this service
-	 * @param facility int Facility ID. You will get attributes for this facility, resources asociated with it and members assigned to the resources
+	 * @param service int Service <code>id</code>. You will get attributes reuqired by this service
+	 * @param facility int Facility <code>id</code>. You will get attributes for this facility, resources asociated with it and members assigned to the resources
 	 * @return ServiceAttributes Attributes in special structure. Facility is in the root, facility children are resources.
 	 *         Resource first chil is abstract structure which children are groups.
 	 *         Resource  second chi is abstract structure which children are members.
@@ -392,9 +392,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Gets package by ID.
+	 * Gets package by <code>id</code>.
 	 *
-	 * @param servicesPackageId int ServicesPackage ID.
+	 * @param servicesPackageId int ServicesPackage <code>id</code>.
 	 * @return ServicesPackage Found ServicesPackage
 	 */
 	getServicesPackageById {
@@ -440,7 +440,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes a services package.
 	 *
-	 * @param servicesPackage int ServicesPackage ID
+	 * @param servicesPackage int ServicesPackage <code>id</code>
 	 */
 	deleteServicesPackage {
 
@@ -474,8 +474,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds a Service to a Services Package.
 	 *
-	 * @param servicesPackage int Services package ID to which the service supposed to be added
-	 * @param service int Service ID to be added to the services package
+	 * @param servicesPackage int Services package <code>id</code> to which the service supposed to be added
+	 * @param service int Service <code>id</code> to be added to the services package
 	 */
 	addServiceToServicesPackage {
 
@@ -493,8 +493,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes a Service from a Services Package.
 	 *
-	 * @param servicesPackage int Services package ID from which the service supposed to be removed
-	 * @param service int Service ID that will be removed from the services package
+	 * @param servicesPackage int Services package <code>id</code> from which the service supposed to be removed
+	 * @param service int Service <code>id</code> that will be removed from the services package
 	 */
 	removeServiceFromServicesPackage {
 
@@ -512,7 +512,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Lists services stored in a package.
 	 *
-	 * @param servicesPackage int ServicesPackage ID
+	 * @param servicesPackage int ServicesPackage <code>id</code>
 	 * @return List<Service> List of services
 	 */
 	getServicesFromServicesPackage {
@@ -528,8 +528,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Mark the attribute as required for the service. Required attributes are requisite for Service to run.
 	 * If you add attribute which has a default attribute then this default attribute will be automatically add too.
 	 *
-	 * @param service int Service ID
-	 * @param attribute int Attribute ID
+	 * @param service int Service <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 */
 	addRequiredAttribute {
 
@@ -547,7 +547,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Batch version of addRequiredAttribute.
 	 *
-	 * @param service int Service ID
+	 * @param service int Service <code>id</code>
 	 * @param attributes int[] Attribute IDs
 	 */
 	addRequiredAttributes {
@@ -573,8 +573,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove required attribute from service.
 	 *
-	 * @param service int Service ID
-	 * @param attribute int Attribute ID
+	 * @param service int Service <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 */
 	removeRequiredAttribute {
 
@@ -592,7 +592,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove required attributes from service.
 	 *
-	 * @param service int Service ID
+	 * @param service int Service <code>id</code>
 	 * @param attributes int[] Attribute IDs
 	 */
 	removeRequiredAttributes {
@@ -618,7 +618,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove all required attributes from service.
 	 *
-	 * @param service int Service ID
+	 * @param service int Service <code>id</code>
 	 */
 	removeAllRequiredAttributes {
 
@@ -633,9 +633,9 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a destination by its ID.
+	 * Returns a destination by its <code>id</code>.
 	 *
-	 * @param id int Destination ID
+	 * @param id int Destination <code>id</code>
 	 * @return Destination Found Destination
 	 */
 	getDestinationById {
@@ -650,8 +650,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of all destinations defined for the service and facility.
 	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Destination> Found Destinations
 	 */
 	/*#
@@ -676,13 +676,13 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all rich destinations defined for a facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<RichDestination> Found RichDestinations
 	 */
 	/*#
 	 * Returns all rich destinations defined for a service.
 	 *
-	 * @param service int Service ID
+	 * @param service int Service <code>id</code>
 	 * @return List<RichDestination> Found RichDestinations
 	 */
 	getAllRichDestinations {
@@ -700,8 +700,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of all rich destinations defined for the service and facility.
 	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @return List<RichDestination> Found RichDestination
 	 */
 	getRichDestinations {
@@ -715,8 +715,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds an destination for a facility and service. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
 	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
 	 * @param type String Type
 	 * @return Destination Created destination.
@@ -725,7 +725,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Adds an destination for a facility and list of services. Destination.id doesn't need to be filled. If destination doesn't exist it will be created.
 	 *
 	 * @param services List<Service> Services
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
 	 * @param type String Type
 	 * @return Destination Created destination.
@@ -755,7 +755,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds destination for all services defined on the facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
 	 * @param type String Type
 	 * @return List<Destinations> Added destinations
@@ -777,8 +777,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * (assigned to all facility's resources). Destinations names are taken from
 	 * all facility's host hostnames.
 	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Destinations> Added destinations
 	 */
 	/*#
@@ -786,14 +786,14 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * all facility's host hostnames.
 	 *
 	 * @param services List<Service> Services
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Destinations> Added destinations
 	 */
 	/*#
 	 * Add services destinations for one service. Destinations names are taken from
 	 * all facility's host hostnames.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Destinations> Added destinations
 	 */
 	addDestinationsDefinedByHostsOnFacility {
@@ -821,8 +821,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes an destination from a facility and service.
 	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @param destination String Destination
 	 * @param type String Type
 	 */
@@ -844,8 +844,8 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes all destinations from a facility and service.
 	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 */
 	removeAllDestinations {
 
@@ -864,7 +864,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns owner of a Service.
 	 *
-	 * @param service int Service ID
+	 * @param service int Service <code>id</code>
 	 * @return Owner Owner
 	 */
 	getOwner {
@@ -881,7 +881,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * List all destinations for all facilities which are joined by resources to the VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<Destination> Found destinations
 	 */
 	getFacilitiesDestinations {
@@ -896,7 +896,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	/*#
 	 * List all services associated with the facility (via resource).
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Service> Found services
 	 */
 	getAssignedServices {

@@ -28,7 +28,7 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes an owner.
 	 *
-	 * @param owner int Owner ID
+	 * @param owner int Owner <code>id</code>
 	 * @return Object Always null
 	 */
 	deleteOwner {
@@ -44,9 +44,9 @@ public enum OwnersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns an owner by its ID.
+	 * Returns an owner by its <code>id</code>.
 	 *
-	 * @param id int Owner ID
+	 * @param id int Owner <code>id</code>
 	 * @return Owner Found Owner
 	 */
 	getOwnerById {

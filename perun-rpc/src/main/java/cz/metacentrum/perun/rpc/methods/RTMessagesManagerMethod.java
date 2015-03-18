@@ -10,7 +10,7 @@ public enum RTMessagesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Sends a message to RT.
-	 * Member ID is sent.
+	 * Member <code>id</code> is sent.
 	 *
 	 * @param memberId int Member whose e-mail address will be user
 	 * @param queue String RT queue
@@ -20,9 +20,9 @@ public enum RTMessagesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Sends a message to RT.
-	 * VO ID is sent.
+	 * VO <code>id</code> is sent.
 	 *
-	 * @param voId int VO ID
+	 * @param voId int VO <code>id</code>
 	 * @param queue String RT queue
 	 * @param subject String Message subject
 	 * @param text String Message text
@@ -30,10 +30,10 @@ public enum RTMessagesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Sends a message to RT.
-	 * VO ID is sent.
+	 * VO <code>id</code> is sent.
 	 * Queue is not sent.
 	 *
-	 * @param voId int VO ID
+	 * @param voId int VO <code>id</code>
 	 * @param subject String Message subject
 	 * @param text String Message text
 	 * @return RTMessage Confirmation with e-mail address the ticket was created for

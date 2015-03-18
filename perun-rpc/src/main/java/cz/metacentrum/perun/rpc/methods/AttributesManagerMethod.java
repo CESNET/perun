@@ -13,110 +13,137 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 public enum AttributesManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Returns User-Facility attributes. Returns only non-empty attributes.
-
-	 * @param facility int Facility ID
-	 * @param user int User ID
-	 * @return List<Attribute> Attributes
+	 * Returns all non-empty User-Facility attributes for selected User and Facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @return List<Attribute> All non-empty User-Facility attributes
+	 * @throw UserNotExistsException When User with <code>id</code> doesn't exist.
+	 * @throw FacilityNotExistsException When Facility with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns Facility attributes. Returns only non-empty attributes.
+	 * Returns all non-empty Facility attributes for selected Facility.
 	 *
-	 * @param facility int Facility ID
-	 * @return List<Attribute> Attributes
+	 * @param facility int Facility <code>id</code>
+	 * @return List<Attribute> All non-empty Facility attributes
+	 * @throw FacilityNotExistsException When Facility with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns all VO attributes. Returns only non-empty attributes.
+	 * Returns all non-empty Vo attributes for selected Vo.
 	 *
-	 * @param vo int VO ID
-	 * @return List<Attribute> Attributes
+	 * @param vo int Vo <code>id</code>
+	 * @return List<Attribute> All non-empty Vo attributes
+	 * @throw VoNotExistsException When Vo with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns chosen VO attributes. Returns only non-empty attributes.
+	 * Returns all specified Vo attributes for selected Vo.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param attrNames List<String> Attribute names
-	 * @return List<Attribute> Attributes
+	 * @return List<Attribute> Specified Vo attributes
+	 * @throw VoNotExistsException When Vo with <code>id</code> doesn't exist.
+	 * @exampleParam attrNames [ "urn:perun:vo:attribute-def:def:contactEmail" , "urn:perun:vo:attribute-def:core:shortName" ]
 	 */
 	/*#
-	 * Returns Member-Resource attributes. Returns only non-empty attributes.
+	 * Returns all non-empty Member-Resource attributes for selected Member and Resource.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
-	 * @return List<Attribute> Attributes
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @return List<Attribute> All non-empty Member-Resource attributes
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
+	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns Group-Resource attributes. Returns only non-empty attributes.
+	 * Returns all non-empty Group-Resource attributes for selected Group and Resource.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
-	 * @return List<Attribute> Attributes
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @return List<Attribute> All non-empty Group-Resource attributes
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns all Group-Resource attributes. Returns only non-empty attributes. Returns also group attributes if workWithGroupAttributes == true.
+	 * Returns all non-empty Group-Resource attributes for selected Group and Resource.
+	 * If <code>workWithGroupAttributes == true</code> then also all non-empty Group attributes are returned.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
-	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
-	 * @return List<Attribute> Attributes
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param workWithGroupAttributes boolean If <code>true</code>, return also Group attributes. <code>False</code> is default.
+	 * @return List<Attribute> All non-empty Group-Resource attributes
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns Resource attributes. Returns only non-empty attributes.
+	 * Returns all non-empty Resource attributes for selected Resource.
 	 *
-	 * @param resource int Resource ID
-	 * @return List<Attribute> Attributes
+	 * @param resource int Resource <code>id</code>
+	 * @return List<Attribute> All non-empty Resource attributes
+	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns all Member attributes. Returns only non-empty attributes.
+	 * Returns all non-empty Member attributes for selected Member.
 	 *
-	 * @param member int Member ID
-	 * @return List<Attribute> Attributes
+	 * @param member int Member <code>id</code>
+	 * @return List<Attribute> All non-empty Member attributes
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns all Member attributes. Returns only non-empty attributes. Returns also user attributes if workWithUserAttributes == true.
+	 * Returns all non-empty Member attributes for selected Member.
+	 * If <code>workWithUserAttributes == true</code> then also all non-empty User attributes are returned.
 	 *
-	 * @param member int Member ID
-	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
-	 * @return List<Attribute> Attributes
+	 * @param member int Member <code>id</code>
+	 * @param workWithUserAttributes boolean If <code>true</code>, return also User attributes. <code>False</code> is default.
+	 * @return List<Attribute> All non-empty Member attributes
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns chosen Member attributes. Returns only non-empty attributes.
+	 * Returns all specified Member attributes for selected Member.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param attrNames List<String> Attribute names
-	 * @return List<Attribute> Attributes
+	 * @return List<Attribute> Specified Member attributes
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
+	 * @exampleParam attrNames [ "urn:perun:member:attribute-def:def:mail" , "urn:perun:member:attribute-def:def:membershipExpiration" ]
 	 */
 	/*#
-	 * Returns all User attributes. Returns only non-empty attributes.
+	 * Returns all non-empty User attributes for selected User.
 	 *
-	 * @param user int User ID
-	 * @return List<Attribute> Attributes
+	 * @param user int User <code>id</code>
+	 * @return List<Attribute> All non-empty User attributes
+	 * @throw UserNotExistsException When User with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns chosen User attributes. Returns only non-empty attributes.
+	 * Returns all specified User attributes for selected User.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param attrNames List<String> Attribute names
-	 * @return List<Attribute> Attributes
+	 * @return List<Attribute> Specified User attributes
+	 * @throw UserNotExistsException When User with <code>id</code> doesn't exist.
+	 * @exampleParam attrNames [ "urn:perun:user:attribute-def:def:phone" , "urn:perun:user:attribute-def:def:preferredMail" ]
 	 */
 	/*#
-	 * Returns Group attributes. Returns only non-empty attributes.
+	 * Returns all non-empty Group attributes for selected Group.
 	 *
-	 * @param group int Group ID
-	 * @return List<Attribute> Attributes
+	 * @param group int Group <code>id</code>
+	 * @return List<Attribute> All non-empty Group attributes
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
 	 */
 	/*#
-	 * Returns chosen Group attributes. Returns only non-empty attributes.
+	 * Returns all specified Group attributes for selected Group.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param attrNames List<String> Attribute names
-	 * @return List<Attribute> Attributes
+	 * @return List<Attribute> Specified Group attributes
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @exampleParam attrNames [ "urn:perun:user:attribute-def:core:description" , "urn:perun:user:attribute-def:def:synchronizationEnabled" ]
 	 */
 	/*#
-	 * Returns Host attributes. Returns only non-empty attributes.
+	 * Returns all non-empty Host attributes for selected Host.
 	 *
-	 * @param host int Host ID
-	 * @return List<Attribute> Attributes
+	 * @param host int Host <code>id</code>
+	 * @return List<Attribute> All non-empty Host attributes
+	 * @throw HostNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @exampleParam attrNames [ "urn:perun:host:attribute-def:core:hostname" , "urn:perun:host:attribute-def:def:frontend" ]
 	 */
 	getAttributes {
 
@@ -206,10 +233,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Returns all entityless attributes with attrName.
+	 * Returns all entityless attributes with <code>attrName</code> (for all namespaces of same attribute).
 	 *
 	 * @param attrName String Attribute name
-	 * @return List<Attribute> Attributes
+	 * @return List<Attribute> All entityless attributes with same name
+	 * @exampleParam attrName "urn:perun:entityless:attribute-def:def:namespace-minUID"
 	 */
 	getEntitylessAttributes {
 		@Override
@@ -221,97 +249,97 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
 	 * Sets the attributes.
 	 *
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	setAttributes {
@@ -415,141 +443,141 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
-	 * @param attributeId int Attribute ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param attributeId int Attribute ID
+	 * @param facility int Facility <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param vo int VO ID
-	 * @param attributeId int Attribute ID
+	 * @param vo int VO <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
-	 * @param attributeId int Attribute ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
-	 * @param attributeId int Attribute ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param resource int Resource ID
-	 * @param attributeId int Attribute ID
+	 * @param resource int Resource <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param member int Member ID
-	 * @param attributeId int Attribute ID
+	 * @param member int Member <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param user int User ID
-	 * @param attributeId int Attribute ID
+	 * @param user int User <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID. Returns only non-empty attributes.
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
-	 * @param host int Host ID
-	 * @param attributeId int Attribute ID
+	 * @param host int Host <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
 	/*#
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
@@ -702,7 +730,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns AttributeDefinition.
 	 *
-	 * @param id int Attribute ID
+	 * @param id int Attribute <code>id</code>
 	 * @return AttributeDefinition Definition of an Attribute
 	 */
 	getAttributeDefinitionById {
@@ -734,13 +762,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Combination of entities is based on provided parameters, which are optional
 	 * (at least one must be present).
 	 *
-	 * @param member int ID of Member
-	 * @param user int ID of User
-	 * @param vo int ID of Virtual organization
-	 * @param group int ID of Group
-	 * @param resource int ID of Resource
-	 * @param facility int ID of Facility
-	 * @param host int ID of Host
+	 * @param member int <code>id</code> of Member
+	 * @param user int <code>id</code> of User
+	 * @param vo int <code>id</code> of Virtual organization
+	 * @param group int <code>id</code> of Group
+	 * @param resource int <code>id</code> of Resource
+	 * @param facility int <code>id</code> of Facility
+	 * @param host int <code>id</code> of Host
 	 *
 	 * @return List<AttributeDefinition> Definitions of Attributes for entities
 	 */
@@ -806,39 +834,39 @@ public enum AttributesManagerMethod implements ManagerMethod {
 
 
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
-	 * @param facility int Facility ID
-	 * @param id int Attribute ID
+	 * @param facility int Facility <code>id</code>
+	 * @param id int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
-	 * @param vo int VO ID
-	 * @param id int Attribute ID
+	 * @param vo int VO <code>id</code>
+	 * @param id int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
-	 * @param id int Attribute ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param id int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
-	 * @param resource int Resource ID
-	 * @param id int Attribute ID
+	 * @param resource int Resource <code>id</code>
+	 * @param id int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	/*#
-	 * Returns an Attribute by its ID.
+	 * Returns an Attribute by its <code>id</code>.
 	 *
-	 * @param host int Host ID
-	 * @param id int Attribute ID
+	 * @param host int Host <code>id</code>
+	 * @param id int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
 	getAttributeById {
@@ -877,65 +905,65 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param attribute Attribute JSON object
 	 *
 	 */
 	/*#
 	 * Sets an Attribute.
 	 *
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	setAttribute {
@@ -1028,7 +1056,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Deletion fails if any entity in Perun has
 	 * any value for this attribute set.
 	 *
-	 * @param attribute int AttributeDefinition ID
+	 * @param attribute int AttributeDefinition <code>id</code>
 	 */
 	deleteAttribute {
 
@@ -1045,107 +1073,107 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param member int Member ID
-	 * @param service int Service ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param service int Service <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param member int Member ID
-	 * @param service int Service ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param service int Service <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param group int Group ID
-	 * @param service int Service ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param service int Service <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param service int Service ID
-	 * @param resource int Resource ID
+	 * @param service int Service <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param service int Service ID
+	 * @param facility int Facility <code>id</code>
+	 * @param service int Service <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param services List<int> list of Service IDs
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param host int Host ID
-	 * @param service int Service ID
+	 * @param host int Host <code>id</code>
+	 * @param service int Service <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
 	 * Returns required attributes.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	getRequiredAttributes {
@@ -1255,7 +1283,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns required attributes definition for a Service.
 	 *
-	 * @param service int Service ID
+	 * @param service int Service <code>id</code>
 	 * @return List<AttributeDefinition> Attributes definitions
 	 */
 	getRequiredAttributesDefinition {
@@ -1271,9 +1299,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Gets member-resource attributes and also user, user-facility and member attributes, if workWithUserAttributes == true.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
-	 * @param resourceToGetServicesFrom int Resource to get services from ID
-	 * @param resource int Resource ID
-	 * @param member int Member ID
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Member-resource attributes (if workWithUserAttributes == true also user, user-facility and member attributes)
 	 */
@@ -1281,43 +1309,43 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Gets member-resource attributes.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
-	 * @param resourceToGetServicesFrom int Resource to get services from ID
-	 * @param resource int Resource ID
-	 * @param member int Member ID
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
 	 * @return List<Attribute> Member-resource attributes
 	 */
 	/*#
 	 * Gets member attributes.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
-	 * @param member int Member ID
-	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @param member int Member <code>id</code>
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
 	 * @return List<Attribute> Member attributes
 	 */
 	/*#
 	 * Gets user-facility attributes.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
-	 * @param resourceToGetServicesFrom int Resource to get services from ID
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @return List<Attribute> User-facility attributes
 	 */
 	/*#
 	 * Gets user attributes.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
-	 * @param user int User ID
-	 * @param resourceToGetServicesFrom int Resource to get services from ID
+	 * @param user int User <code>id</code>
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
 	 * @return List<Attribute> User's attributes
 	 */
 	/*#
 	 * Gets group-resource and also group attributes, if workWithGroupAttributes == true.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
-	 * @param resourceToGetServicesFrom int Resource to get services from ID
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
 	 * @return List<Attribute> Group-resource and (if workWithGroupAttributes == true) group required attributes
 	 */
@@ -1325,17 +1353,17 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Gets group-resource attributes.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
-	 * @param resourceToGetServicesFrom int Resource to get services from ID
-	 * @param resource int Resource ID
-	 * @param group int Group ID
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
 	 * @return List<Attribute> Group-resource attributes
 	 */
 	/*#
 	 * Gets group attributes.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
-	 * @param resourceToGetServicesFrom int Resource to get services from ID
-	 * @param group int Group ID
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param group int Group <code>id</code>
 	 * @return List<Attribute> Group's attributes
 	 */
 	getResourceRequiredAttributes {
@@ -1403,60 +1431,60 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Tries to fill group attribute.
 	 *
-	 * @param group int Group ID
-	 * @param attribute int Attribute ID
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which may have filled value
 	 */
 	/*#
 	 * Tries to fill host attribute.
 	 *
-	 * @param host int Host ID
-	 * @param attribute int Attribute ID
+	 * @param host int Host <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill group-resource attribute.
 	 *
-	 * @param resource int Resource ID
-	 * @param group int Group ID
-	 * @param attribute int Attribute ID
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill member-resource attribute.
 	 *
-	 * @param resource int Resource ID
-	 * @param member int Member ID
-	 * @param attribute int Attribute ID
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill resource attribute.
 	 *
-	 * @param resource int Resource ID
-	 * @param attribute int Attribute ID
+	 * @param resource int Resource <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill user-facility attribute.
 	 *
-	 * @param user int User ID
-	 * @param facility int Facility ID
-	 * @param attribute int Attribute ID
+	 * @param user int User <code>id</code>
+	 * @param facility int Facility <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill user attribute.
 	 *
-	 * @param user int User ID
-	 * @param attribute int Attribute ID
+	 * @param user int User <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill member attribute.
 	 *
-	 * @param member int Member ID
-	 * @param attribute int Attribute ID
+	 * @param member int Member <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
 	 */
 	fillAttribute {
@@ -1521,33 +1549,33 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Tries to fill host attributes.
 	 *
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill group-resource attributes.
 	 *
-	 * @param resource int Resource ID
-	 * @param group int Group ID
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill user, member, member-resource and user-facility attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param resource int Resource ID
-	 * @param user int User ID
-	 * @param member int Member ID
+	 * @param facility int Facility <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill member-resource attributes and also user and user-facility attributes, if workWithUserAttributes == true.
 	 *
-	 * @param resource int Resource ID
-	 * @param member int Member ID
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> attributes which MAY have filled value
@@ -1555,44 +1583,44 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Tries to fill member-resource attributes.
 	 *
-	 * @param resource int Resource ID
-	 * @param member int Member ID
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill resource attributes.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill group attributes.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill user-facility attributes.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill user attributes.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
 	 * Tries to fill member attributes.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
@@ -1696,39 +1724,39 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if this facility attribute is valid.
 	 *
-	 * @param facility int Facility ID
-	 * @param attribute int Attribute ID
+	 * @param facility int Facility <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 */
 	/*#
 	 * Checks if this vo attribute is valid.
 	 *
-	 * @param vo int Vo ID
-	 * @param attribute int Attribute ID
+	 * @param vo int Vo <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 */
 	/*#
 	 * Checks if this member-resource attribute is valid.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
-	 * @param attribute int Attribute ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 */
 	/*#
 	 * Checks if this resource attribute is valid.
 	 *
-	 * @param resource int Resource ID
-	 * @param attribute int Attribute ID
+	 * @param resource int Resource <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 */
 	/*#
 	 * Checks if this host attribute is valid.
 	 *
-	 * @param host int Host ID
-	 * @param attribute int Attribute ID
+	 * @param host int Host <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 */
 	/*#
 	 * Checks if this user attribute is valid.
 	 *
-	 * @param user int User ID
-	 * @param attribute int Attribute ID
+	 * @param user int User <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
 	 */
 	checkAttributeValue {
 
@@ -1771,38 +1799,38 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Checks if these facility attributes are valid.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these vo attributes are valid.
 	 *
-	 * @param vo int Vo ID
+	 * @param vo int Vo <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these member-resource attributes are valid.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these resource attributes are valid.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these host attributes are valid.
 	 *
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
 	 * Checks if these user attributes are valid.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	checkAttributesValue {
@@ -1853,10 +1881,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * user, user-facility, member, member-resource
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1864,8 +1892,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * user-facility
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1873,7 +1901,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * facility
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1881,7 +1909,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * vo
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1889,7 +1917,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * resource
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1897,8 +1925,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * group-resource, group (optional)
 	 *
-	 * @param resource int Resource ID
-	 * @param group int Group ID
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
 	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
@@ -1907,8 +1935,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * group-resource
 	 *
-	 * @param resource int Resource ID
-	 * @param group int Group ID
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1916,8 +1944,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * member-resource
 	 *
-	 * @param resource int Resource ID
-	 * @param member int Member ID
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1925,7 +1953,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * member, user (optional)
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param workWithUserAttributes boolean Set to true if you want to remove also user attributes. False is default value.
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
@@ -1934,7 +1962,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * member
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1942,7 +1970,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * group
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1950,7 +1978,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * host
 	 *
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1958,7 +1986,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * user
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	removeAttributes {
@@ -2049,83 +2077,83 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * user-facility
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
-	 * @param attribute int ID of attribute to remove
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * facility
 	 *
-	 * @param facility int Facility ID
-	 * @param attribute int ID of attribute to remove
+	 * @param facility int Facility <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * vo
 	 *
-	 * @param vo int VO ID
-	 * @param attribute int ID of attribute to remove
+	 * @param vo int VO <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * resource
 	 *
-	 * @param resource int Resource ID
-	 * @param attribute int ID of attribute to remove
+	 * @param resource int Resource <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * group-resource
 	 *
-	 * @param resource int Resource ID
-	 * @param group int Group ID
-	 * @param attribute int ID of attribute to remove
+	 * @param resource int Resource <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * member-resource
 	 *
-	 * @param resource int Resource ID
-	 * @param member int Member ID
-	 * @param attribute int ID of attribute to remove
+	 * @param resource int Resource <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * member
 	 *
-	 * @param member int Member ID
-	 * @param attribute int ID of attribute to remove
+	 * @param member int Member <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * group
 	 *
-	 * @param group int Group ID
-	 * @param attribute int ID of attribute to remove
+	 * @param group int Group <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * host
 	 *
-	 * @param host int Host ID
-	 * @param attribute int ID of attribute to remove
+	 * @param host int Host <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
 	 * Remove attribute of namespace:
 	 *
 	 * user
 	 *
-	 * @param user int User ID
-	 * @param attribute int ID of attribute to remove
+	 * @param user int User <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	removeAttribute {
 
@@ -2203,68 +2231,68 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	/*#
 	 * Unset all attributes for the user on the facility.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 * Unset all attributes for the facility and also user-facility attributes if workWithUserAttributes == true.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param workWithUserAttributes boolean Remove also user facility attributes. False is default value.
 	 */
 	/*#
 	 * Unset all attributes for the facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 */
 	/*#
 	 * Unset all attributes for the vo.
 	 *
-	 * @param vo int Vo ID
+	 * @param vo int Vo <code>id</code>
 	 */
 	/*#
 	 * Unset all attributes for the member on the resource.
 	 *
-	 * @param member int Member ID
-	 * @param resource int Resource ID
+	 * @param member int Member <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 */
 	/*#
 	 * Unset all group-resource attributes and also group attributes if WorkWithGroupAttributes == true.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
 	 */
 	/*#
 	 * Unset all group-resource attributes.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 */
 	/*#
 	 * Unset all resource attributes.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 */
 	/*#
 	 * Unset all member attributes.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 */
 	/*#
 	 * Unset all user attributes.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 * Unset all group attributes.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 */
 	/*#
 	 * Unset all host attributes.
 	 *
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 */
 	removeAllAttributes {
 
@@ -2337,12 +2365,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get all users logins as attributes
-	 * (all attributes with URN starting with:
-	 * "urn:perun:user:attribute-def:def:login-namespace:").
+	 * Get all users logins as Attributes. Meaning it returns all non-empty User attributes with
+	 * URN starting with: "urn:perun:user:attribute-def:def:login-namespace:".
 	 *
-	 * @param user int User ID
-	 * @return List<Attribute> list of users logins as attributes
+	 * @param user int User <code>id</code>
+	 * @return List<Attribute> List of users logins as Attributes
+	 * @throw UserNotExistsException When User with <code>id</code> doesn't exist.
 	 */
 	getLogins {
 		@Override
@@ -2352,12 +2380,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Updates attribute definition in Perun based on provided AttributeDefinition object.
+	 * Updates AttributeDefinition in Perun based on provided object.
+	 * Update is done on AttributeDefinition selected by its <code>id</code>.
 	 *
-	 * Update is done on attribute definition selected by its ID.
-	 *
-	 * @param attributeDefinition AttributeDefinition object with updated properties to store in DB
-	 * @return AttributeDefinition updated attribute definition
+	 * @param attributeDefinition AttributeDefinition AttributeDefinition with updated properties to store in DB
+	 * @return AttributeDefinition updated AttributeDefinition
+	 * @throw AttributeNotExistsException When AttributeDefinition with <code>id</code> in object doesn't exist.
 	 */
 	updateAttributeDefinition {
 
@@ -2370,9 +2398,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Takes all member-related attributes (member, user, member-resource, user-facility) and tries to fill them and set them.
+	 * Takes all Member related attributes (Member, User, Member-Resource, User-Facility) and tries to fill them and set them.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
+	 * @throw WrongAttributeAssignmentException When we try to fill/set Attribute from unrelated namespace.
+	 * @throw WrongAttributeValueException When value of some Attribute is not correct.
+	 * @throw WrongReferenceAttributeValueException When value of some Attribute is not correct regarding to other Attribute value.
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
 	 */
 	doTheMagic {
 		@Override
@@ -2383,10 +2415,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Gets attribute rights.
+	 * Gets AttributeRights for specified Attribute. Rights specify which Role can do particular actions
+	 * (read / write) with Attribute. Method always return rights for following roles:
+	 * voadmin, groupadmin, facilityadmin, self.
 	 *
-	 * @param attributeId int Attribute ID
+	 * @param attributeId int Attribute <code>id</code>
 	 * @return List<AttributeRights> all rights of the attribute
+	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 */
 	getAttributeRights {
 		@Override
@@ -2396,9 +2431,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Sets all attribute rights in the list given as a parameter.
+	 * Sets all AttributeRights in the list given as a parameter. Allowed Roles to set
+	 * rights for are: voadmin, groupadmin, facilityadmin, self.
 	 *
-	 * @param rights List<AttributeRights> list of attribute rights
+	 * @param rights List<AttributeRights> List of AttributeRights to set.
+	 * @throw AttributeNotExistsException When Attribute with <code>id</code> doesn't exist.
 	 */
 	setAttributeRights {
 		@Override

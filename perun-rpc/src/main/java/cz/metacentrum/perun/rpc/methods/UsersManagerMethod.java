@@ -46,9 +46,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns user by its ID.
+	 * Returns user by its <code>id</code>.
 	 *
-	 * @param id int User ID
+	 * @param id int User <code>id</code>
 	 * @return User User object
 	 */
 	getUserById {
@@ -88,7 +88,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Return all serviceUsers who are owned by the user.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<User> Service users for a user
 	 */
 	getServiceUsersByUser {
@@ -103,7 +103,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Return all users who owns the serviceUser.
 	 *
-	 * @param serviceUser int Service User ID
+	 * @param serviceUser int Service User <code>id</code>
 	 * @return List<User> Users for a service user
 	 */
 	getUsersByServiceUser {
@@ -118,8 +118,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Add serviceUser owner (the user).
 	 *
-	 * @param user int User ID
-	 * @param serviceUser int Service user ID
+	 * @param user int User <code>id</code>
+	 * @param serviceUser int Service user <code>id</code>
 	 */
 	addServiceUserOwner {
 
@@ -137,8 +137,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove serviceUser owner (the user).
 	 *
-	 * @param user int User ID
-	 * @param serviceUser int Service user ID
+	 * @param user int User <code>id</code>
+	 * @param serviceUser int Service user <code>id</code>
 	 */
 	removeServiceUserOwner {
 
@@ -156,7 +156,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Get User to RichUser without attributes.
 	 *
-	 * @param user int user ID
+	 * @param user int user <code>id</code>
 	 * @return RichUser found rich user
 	 */
 	getRichUser {
@@ -171,7 +171,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Get User to RichUser with attributes.
 	 *
-	 * @param user int user ID
+	 * @param user int user <code>id</code>
 	 * @return RichUser found rich user with attributes
 	 */
 	getRichUserWithAttributes {
@@ -358,13 +358,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes a user. User is not deleted, if is member of any VO or is associated with any service identity.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 * Deletes a user (force).
 	 * Also removes associated members.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param force boolean If true, use force deletion.
 	 */
 	deleteUser {
@@ -442,7 +442,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Gets list of all user's external sources of the user.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<UserExtSource> list of user's external sources
 	 */
 	getUserExtSources {
@@ -456,7 +456,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Adds user's external sources.
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param userExtSource UserExtSource JSON object
 	 * @return UserExtSource Newly added UserExtSource
 	 */
@@ -474,8 +474,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Remove user's external sources.
-	 * @param user int User ID
-	 * @param userExtSource int UserExtSource ID
+	 * @param user int User <code>id</code>
+	 * @param userExtSource int UserExtSource <code>id</code>
 	 */
 	removeUserExtSource {
 
@@ -493,7 +493,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Get the user ext source by its id.
 	 *
-	 * @param userExtSource int UserExtSource ID
+	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @return UserExtSource User external source for the id
 	 */
 	getUserExtSourceById {
@@ -525,7 +525,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns user by VO member.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @return User User object
 	 */
 	getUserByMember {
@@ -571,7 +571,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Return list of users who matches the searchString, searching name, email and logins
 	 * and are not member of specific VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param searchString String String to search by
 	 * @return List<User> Found users
 	 */
@@ -693,8 +693,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of VOs, where the user is an Administrator.
 	 *
-	 * @param user int User ID
-	 * @return List<VirtualOrganization> Found VOs
+	 * @param user int User <code>id</code>
+	 * @return List<Vo> Found VOs
 	 */
 	getVosWhereUserIsAdmin {
 
@@ -708,8 +708,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of VOs, where the user is a Member.
 	 *
-	 * @param user int User ID
-	 * @return List<VirtualOrganization> Found VOs
+	 * @param user int User <code>id</code>
+	 * @return List<Vo> Found VOs
 	 */
 	getVosWhereUserIsMember {
 
@@ -723,7 +723,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of Groups, where the user is an Administrator.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<Group> Found Groups
 	 */
 	getGroupsWhereUserIsAdmin {
@@ -738,14 +738,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all resources from the facility which have the user access on.
 	 *
-	 * @param user int User ID
-	 * @param facility int Facility ID
+	 * @param user int User <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Resource> Allowed resources
 	 */
 	/*#
 	 * Get all resources which have the user access on.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<Resource> Allowed resources
 	 */
 	getAllowedResources {
@@ -765,7 +765,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all rich resources which have the user assigned.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<RichResource> Assigned rich resources
 	 */
 	getAssignedRichResources {
@@ -814,7 +814,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds PERUNADMIN role to the user.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 */
 	makeUserPerunAdmin {
 		@Override
@@ -829,7 +829,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Changes user password in defined login-namespace.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param loginNamespace String Namespace
 	 * @param newPassword String New password
 	 * @param checkOldPassword boolean Must be false
@@ -838,7 +838,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Changes user password in defined login-namespace.
 	 * You must send the old password, which will be checked
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param loginNamespace String Namespace
 	 * @param oldPassword String Old password which will be checked.
 	 * @param newPassword String New password
@@ -899,7 +899,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Reserves a random password.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param namespace String Namespace
 	 */
 	reserveRandomPassword {
@@ -963,7 +963,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @param login String Login
 	 * @param namespace String Namespace
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 */
 	validatePasswordAndSetExtSources {
 		@Override
@@ -980,7 +980,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Set new login in namespace if login is available and user doesn't have login in that namespace.
 	 * !! Works only for service users !!
 	 *
-	 * @param user Integer User ID
+	 * @param user Integer User <code>id</code>
 	 * @param login String Login
 	 * @param namespace String Namespace
 	 */
@@ -1003,7 +1003,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * by calling validatePreferredEmailChange() method with
 	 * proper set of parameters (sent in validation mail).
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @param email String new email address to set
 	 */
 	requestPreferredEmailChange {
@@ -1053,7 +1053,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * or requests are outside time window for validation,
 	 * returns empty list.
 	 *
-	 * @param user int ID of user to check
+	 * @param user int <code>id</code> of user to check
 	 *
 	 * @return List<String> user's email addresses pending validation
 	 */
@@ -1070,7 +1070,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates alternative password in external system.
 	 *
-	 * @param user int Users ID
+	 * @param user int Users <code>id</code>
 	 * @param description String Description of a password (e.g. 'mobile phone', 'tablet', ...)
 	 * @param loginNamespace String Login namespace
 	 * @param password String String representation of password
@@ -1092,9 +1092,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes alternative password in external system.
 	 *
-	 * @param user int Users ID
+	 * @param user int Users <code>id</code>
 	 * @param loginNamespace String Login namespace
-	 * @param passwordId String Password ID
+	 * @param passwordId String Password <code>id</code>
 	 */
 	deleteAlternativePassword {
 		@Override

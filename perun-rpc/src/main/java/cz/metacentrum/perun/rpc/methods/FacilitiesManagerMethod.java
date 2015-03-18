@@ -16,7 +16,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Searches for the Facility with specified id.
 	 *
-	 * @param id int Facility ID
+	 * @param id int Facility <code>id</code>
 	 * @return Facility Found facility
 	 */
 	getFacilityById {
@@ -44,14 +44,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Lists all users assigned to facility containing resources where service is assigned.
 	 *
-	 * @param service int Service ID
-	 * @param facility int Facility ID
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @return List<User> assigned users
 	 */
 	/*#
 	 * Lists all users assigned to facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<User> assigned users
 	 */
 	getAssignedUsers {
@@ -119,7 +119,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns owners of a facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Owner> Facility owners
 	 */
 	getOwners {
@@ -134,8 +134,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Add owner of a facility.
 	 *
-	 * @param facility int Facility ID
-	 * @param owner int Owner ID
+	 * @param facility int Facility <code>id</code>
+	 * @param owner int Owner <code>id</code>
 	 */
 	addOwner {
 
@@ -151,8 +151,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove owner of a facility.
 	 *
-	 * @param facility int Facility ID
-	 * @param owner int Owner ID
+	 * @param facility int Facility <code>id</code>
+	 * @param owner int Owner <code>id</code>
 	 */
 	removeOwner {
 
@@ -168,7 +168,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Return all VO which can use a facility. (VO must have the resource which belongs to this facility.)
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Vo> List of VOs
 	 */
 	getAllowedVos {
@@ -183,29 +183,29 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all assigned groups on Facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Group> assigned groups
 	 */
 	/*#
 	 * Get all assigned groups on Facility filtered by VO.
 	 *
-	 * @param facility int Facility ID
-	 * @param vo int Vo ID to filter groups by
+	 * @param facility int Facility <code>id</code>
+	 * @param vo int Vo <code>id</code> to filter groups by
 	 * @return List<Group> assigned groups
 	 */
 	/*#
 	 * Get all assigned groups on Facility filtered by Service.
 	 *
-	 * @param facility int Facility ID
-	 * @param service int Service ID to filter groups by
+	 * @param facility int Facility <code>id</code>
+	 * @param service int Service <code>id</code> to filter groups by
 	 * @return List<Group> assigned groups
 	 */
 	/*#
 	 * Get all assigned groups on Facility filtered by VO and Service.
 	 *
-	 * @param facility int Facility ID
-	 * @param vo int Vo ID to filter groups by
-	 * @param service int Service ID to filter groups by
+	 * @param facility int Facility <code>id</code>
+	 * @param vo int Vo <code>id</code> to filter groups by
+	 * @param service int Service <code>id</code> to filter groups by
 	 * @return List<Group> assigned groups
 	 */
 	getAllowedGroups {
@@ -228,7 +228,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all resources assigned to a facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Resource> Resources
 	 */
 	getAssignedResources {
@@ -243,7 +243,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns all rich resources assigned to a facility with VO property filled.
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<RichResource> Resources
 	 */
 	getAssignedRichResources {
@@ -271,7 +271,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Deletes a facility.
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 */
 	deleteFacility {
 
@@ -300,7 +300,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns list of all facilities owned by the owner.
-	 * @param owner int Owner ID
+	 * @param owner int Owner <code>id</code>
 	 * @return List<Facility> Owner's facilities
 	 */
 	getOwnerFacilities {
@@ -314,7 +314,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Lists hosts of a Facility.
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Host> Hosts
 	 */
 	getHosts {
@@ -326,8 +326,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a host by its ID.
-	 * @param id int Host ID
+	 * Returns a host by its <code>id</code>.
+	 * @param id int Host <code>id</code>
 	 * @return Host Host object
 	 */
 	getHostById {
@@ -351,7 +351,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Return facility which has the host.
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 * @return Facility Facility object
 	 */
 	getFacilityForHost {
@@ -364,7 +364,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Count hosts of Facility.
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return int Hosts count
 	 */
 	getHostsCount {
@@ -379,8 +379,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Adds hosts to the Facility.
 	 *
 	 * @param hostnames List<String> Host names
-	 * @param facility int Facility ID
-	 * @return List<Host> Hosts with ID's set.
+	 * @param facility int Facility <code>id</code>
+	 * @return List<Host> Hosts with <code>id</code>'s set.
 	 */
 	addHosts {
 		@Override
@@ -398,7 +398,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove hosts from a Facility.
 	 * @param hosts List<Integer> List of Host IDs
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 */
 	removeHosts {
 		@Override
@@ -424,8 +424,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds host to a Facility.
 	 * @param hostname String Hostname
-	 * @param facility int Facility ID
-	 * @return Host Host with ID set.
+	 * @param facility int Facility <code>id</code>
+	 * @return Host Host with <code>id</code> set.
 	 */
 	addHost {
 		@Override
@@ -444,7 +444,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Removes a host.
-	 * @param host int Host ID
+	 * @param host int Host <code>id</code>
 	 */
 	removeHost {
 		@Override
@@ -463,25 +463,25 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get facilities where the service is defined..
 	 *
-	 * @param service int Service ID
+	 * @param service int Service <code>id</code>
 	 * @return List<Facility> Assigned facilities
 	 */
 	/*#
 	 * Get facilities which are assigned to a Group (via resource).
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @return List<Facility> Assigned facilities
 	 */
 	/*#
 	 * Get facilities which have the member access on.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @return List<Facility> Assigned facilities
 	 */
 	/*#
 	 * Get facilities which have the user access on.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<Facility> Assigned facilities
 	 */
 	getAssignedFacilities {
@@ -509,14 +509,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds a Facility admin.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 *  Adds a group administrator to the Facility.
 	 *
-	 *  @param facility int Facility ID
-	 *  @param authorizedGroup int Group ID
+	 *  @param facility int Facility <code>id</code>
+	 *  @param authorizedGroup int Group <code>id</code>
 	 */
 	addAdmin {
 		@Override
@@ -538,14 +538,14 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes a Facility admin.
 	 *
-	 * @param facility int Facility ID
-	 * @param user int User ID
+	 * @param facility int Facility <code>id</code>
+	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 *  Removes a group administrator of the Facility.
 	 *
-	 *  @param facility int Facility ID
-	 *  @param authorizedGroup int Group ID
+	 *  @param facility int Facility <code>id</code>
+	 *  @param authorizedGroup int Group <code>id</code>
 	 */
 	removeAdmin {
 		@Override
@@ -571,7 +571,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *
 	 * Supported roles: FacilityAdmin
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param onlyDirectAdmins boolean if true, get only direct facility administrators (if false, get both direct and indirect)
 	 *
 	 * @return List<User> list of all facility administrators of the given facility for supported role
@@ -580,7 +580,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Get all Facility admins.
 	 *
 	 * @deprecated
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<User> List of Users who are admins in the facility.
 	 */
 	getAdmins {
@@ -603,7 +603,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Get all Facility direct admins.
 	 *
 	 * @deprecated
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<User> list of admins of the facility
 	 */
 	getDirectAdmins {
@@ -619,7 +619,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all Facility group admins.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Group> admins
 	 */
 	getAdminGroups {
@@ -640,7 +640,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * If "onlyDirectAdmins" is true, return only direct admins of the facility for supported role with specific attributes.
 	 * If "allUserAttributes" is true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
 	 * @param allUserAttributes int if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
 	 * @param onlyDirectAdmins int if == true, get only direct facility administrators (if false, get both direct and indirect)
@@ -651,7 +651,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
     * Get all Facility admins as RichUsers
 	*
 	* @deprecated
-    * @param facility int Facility ID
+    * @param facility int Facility <code>id</code>
     * @return List<RichUser> admins
     */
 	getRichAdmins {
@@ -676,7 +676,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	* Get all Facility admins as RichUsers with all their non-null user attributes
 	*
 	* @deprecated
-	* @param facility int Facility ID
+	* @param facility int Facility <code>id</code>
 	* @return List<RichUser> admins with attributes
 	*/
 	getRichAdminsWithAttributes {
@@ -693,7 +693,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	* Get all Facility admins as RichUsers with specific attributes (from user namespace)
 	*
 	* @deprecated
-	* @param facility int Facility ID
+	* @param facility int Facility <code>id</code>
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> admins with attributes
 	*/
@@ -713,7 +713,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	* as RichUsers with specific attributes (from user namespace)
 	*
 	* @deprecated
-	* @param facility int Facility ID
+	* @param facility int Facility <code>id</code>
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> direct admins with attributes
 	*/
@@ -731,7 +731,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of Facilities, where the user is an Administrator.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<Facility> Found Facilities
 	 */
 	getFacilitiesWhereUserIsAdmin {
@@ -761,9 +761,9 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Return all users which can use this facility
 	 *
-	 * @param facility int Facility ID
-	 * @param vo int VO ID, if provided, filter out users who aren't in specific VO
-	 * @param service int Service ID, if provided, filter out users who aren't allowed to use the service on the facility
+	 * @param facility int Facility <code>id</code>
+	 * @param vo int VO <code>id</code>, if provided, filter out users who aren't in specific VO
+	 * @param service int Service <code>id</code>, if provided, filter out users who aren't allowed to use the service on the facility
 	 * @return List<User> list of allowed users
 	 */
 	getAllowedUsers {
@@ -797,8 +797,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Copy owners from source facility to destination facility.
 	 * You must be facility manager of both.
 	 *
-	 * @param srcFacility int facility ID
-	 * @param destFacility int facility ID
+	 * @param srcFacility int facility <code>id</code>
+	 * @param destFacility int facility <code>id</code>
 	 */
 	copyOwners {
 
@@ -819,8 +819,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Copy managers from source facility to destination facility.
 	 * You must be facility manager of both.
 	 *
-	 * @param srcFacility int facility ID
-	 * @param destFacility int facility ID
+	 * @param srcFacility int facility <code>id</code>
+	 * @param destFacility int facility <code>id</code>
 	 */
 	copyManagers {
 
@@ -841,8 +841,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Copy attributes (settings) from source facility to destination facility.
 	 * You must be facility manager of both.
 	 *
-	 * @param srcFacility int facility ID
-	 * @param destFacility int facility ID
+	 * @param srcFacility int facility <code>id</code>
+	 * @param destFacility int facility <code>id</code>
 	 */
 	copyAttributes {
 
