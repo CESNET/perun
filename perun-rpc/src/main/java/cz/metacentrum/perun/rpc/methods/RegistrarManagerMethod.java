@@ -655,7 +655,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @param m String Parameter m
 	 * @param i String Parameter i
-	 * @return bool True for validated, false for non-valid
+	 * @return boolean True for validated, false for non-valid
 	 */
 	validateEmail {
 
@@ -1039,7 +1039,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 * Enable or disable sending for list of mail definitions.
 	 *
 	 * @param mails List<ApplicationMail> Mail definitions to update
-	 * @param enabled int 1 for enabled, 0 for disabled
+	 * @param enabled boolean true for enabled, false for disabled
 	 * @return Object Always null
 	 */
 	setSendingEnabled {
@@ -1050,7 +1050,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			ac.getRegistrarManager().getMailManager().setSendingEnabled(ac.getSession(),
 					parms.readList("mails", ApplicationMail.class),
-					parms.readInt("enabled")==1 ? true : false);
+					parms.readBoolean("enabled"));
 
 			return null;
 		}
@@ -1062,7 +1062,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 *	@param challenge String Captcha challenge
 	 *	@param response String User response
-	 *	@return bool True if it is valid, False if failed
+	 *	@return boolean True if it is valid, False if failed
 	 */
 	verifyCaptcha {
 

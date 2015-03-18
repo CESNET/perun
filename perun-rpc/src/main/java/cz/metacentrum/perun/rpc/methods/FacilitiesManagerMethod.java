@@ -567,20 +567,19 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get list of all facility administrators for supported role and given facility.
 	 *
-	 * If onlyDirectAdmins is == 1, return only direct admins of the group for supported role.
+	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
 	 *
 	 * Supported roles: FacilityAdmin
 	 *
 	 * @param facility int Facility ID
-	 * @param onlyDirectAdmins int if == 1, get only direct facility administrators (if != 1, get both direct and indirect)
+	 * @param onlyDirectAdmins boolean if true, get only direct facility administrators (if false, get both direct and indirect)
 	 *
 	 * @return List<User> list of all facility administrators of the given facility for supported role
 	 */
 	/*#
 	 * Get all Facility admins.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param facility int Facility ID
 	 * @return List<User> List of Users who are admins in the facility.
 	 */
@@ -592,7 +591,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")),
-					parms.readInt("onlyDirectAdmins") ==1);
+					parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
@@ -603,12 +602,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all Facility direct admins.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
+	 * @deprecated
 	 * @param facility int Facility ID
 	 * @return List<User> list of admins of the facility
 	 */
-	@Deprecated
 	getDirectAdmins {
 
 		@Override
@@ -640,21 +637,20 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *
 	 * Supported roles: FacilityAdmin
 	 *
-	 * If "onlyDirectAdmins" is == 1, return only direct admins of the facility for supported role with specific attributes.
-	 * If "allUserAttributes" is == 1, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 * If "onlyDirectAdmins" is true, return only direct admins of the facility for supported role with specific attributes.
+	 * If "allUserAttributes" is true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
 	 *
 	 * @param facility int Facility ID
 	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
-	 * @param allUserAttributes int if == 1, get all possible user attributes and ignore list of specificAttributes (if != 1, get only specific attributes)
-	 * @param onlyDirectAdmins int if == 1, get only direct facility administrators (if != 1, get both direct and indirect)
+	 * @param allUserAttributes int if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins int if == true, get only direct facility administrators (if false, get both direct and indirect)
 	 *
 	 * @return List<RichUser> list of RichUser administrators for the facility and supported role with attributes
 	 */
 	/*#
     * Get all Facility admins as RichUsers
-    *
-	* !!! DEPRECATED version !!!
 	*
+	* @deprecated
     * @param facility int Facility ID
     * @return List<RichUser> admins
     */
@@ -667,8 +663,8 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")),
 					parms.readList("specificAttributes", String.class),
-					parms.readInt("allUserAttributes") == 1,
-					parms.readInt("onlyDirectAdmins") == 1);
+					parms.readBoolean("allUserAttributes"),
+					parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
@@ -679,12 +675,10 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Facility admins as RichUsers with all their non-null user attributes
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param facility int Facility ID
 	* @return List<RichUser> admins with attributes
 	*/
-	@Deprecated
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -698,13 +692,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Facility admins as RichUsers with specific attributes (from user namespace)
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param facility int Facility ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> admins with attributes
 	*/
-	@Deprecated
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -720,13 +712,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	* Get all Facility admins, which are assigned directly,
 	* as RichUsers with specific attributes (from user namespace)
 	*
-	* !!! DEPRECATED version !!!
-	*
+	* @deprecated
 	* @param facility int Facility ID
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> direct admins with attributes
 	*/
-	@Deprecated
 	getDirectRichAdminsWithSpecificAttributes {
 
 		@Override

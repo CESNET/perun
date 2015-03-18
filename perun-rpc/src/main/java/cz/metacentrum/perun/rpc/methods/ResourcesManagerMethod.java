@@ -34,6 +34,14 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+     * Returns resource by its name, Vo ID and Facility ID.
+     *
+     * @param vo int VO ID
+     * @param facility int Facility ID
+     * @param name String resource name
+     * @return Resource Found Resource based on the input.
+     */
 	getResourceByName {
 		@Override
 		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {

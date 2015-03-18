@@ -194,7 +194,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getUsersManager().getAllRichUsers(ac.getSession(),
-					parms.readInt("includedServiceUsers") == 1);
+					parms.readBoolean("includedServiceUsers"));
 		}
 	},
 
@@ -209,7 +209,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-					parms.readInt("includedServiceUsers") == 1);
+					parms.readBoolean("includedServiceUsers"));
 		}
 	},
 
@@ -279,11 +279,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-						parms.readInt("includedServiceUsers") == 1,
+						parms.readBoolean("includedServiceUsers"),
 						parms.readList("attrsNames", String.class));
 			} else {
 				return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-						parms.readInt("includedServiceUsers") == 1, null);
+						parms.readBoolean("includedServiceUsers"), null);
 			}
 		}
 	},
@@ -356,16 +356,16 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Deletes a user.
+	 * Deletes a user. User is not deleted, if is member of any VO or is associated with any service identity.
 	 *
 	 * @param user int User ID
 	 */
 	/*#
 	 * Deletes a user (force).
-	 * Also removes associeted members.
+	 * Also removes associated members.
 	 *
 	 * @param user int User ID
-	 * @param force int Parameter force must == 1
+	 * @param force boolean If true, use force deletion.
 	 */
 	deleteUser {
 
@@ -373,7 +373,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			if (parms.contains("force") && parms.readInt("force") == 1) {
+			if (parms.contains("force") && parms.readBoolean("force")) {
 				ac.getUsersManager().deleteUser(ac.getSession(),
 						ac.getUserById(parms.readInt("user")), true);
 			} else {
@@ -782,6 +782,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @param loginNamespace String Namespace
 	 * @param login String Login
+	 * @exampleResponse 1
 	 * @return int 1: login available, 0: login not available
 	 */
 	isLoginAvailable {
@@ -831,7 +832,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param user int User ID
 	 * @param loginNamespace String Namespace
 	 * @param newPassword String New password
-	 * @param checkOldPassword int checkOldPassword must be 0
+	 * @param checkOldPassword boolean Must be false
 	 */
 	/*#
 	 * Changes user password in defined login-namespace.
@@ -841,14 +842,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * @param loginNamespace String Namespace
 	 * @param oldPassword String Old password which will be checked.
 	 * @param newPassword String New password
-	 * @param checkOldPassword int checkOldPassword must be 1
+	 * @param checkOldPassword boolean Must be true
 	 */
 	changePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			User user = ac.getUserById(parms.readInt("user"));
 
-			if (parms.readInt("checkOldPassword") == 1) {
+			if (parms.readBoolean("checkOldPassword")) {
 				ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
 			} else {
 				ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);

@@ -53,11 +53,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns all Group-Resource attributes. Returns only non-empty attributes. Returns also group attributes if workWithGroupAttributes == 1.
+	 * Returns all Group-Resource attributes. Returns only non-empty attributes. Returns also group attributes if workWithGroupAttributes == true.
 	 *
 	 * @param group int Group ID
 	 * @param resource int Resource ID
-	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
@@ -73,10 +73,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
-	 * Returns all Member attributes. Returns only non-empty attributes. Returns also user attributes if workWithUserAttributes == 1.
+	 * Returns all Member attributes. Returns only non-empty attributes. Returns also user attributes if workWithUserAttributes == true.
 	 *
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int  Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Attributes
 	 */
 	/*#
@@ -150,7 +150,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
 								ac.getGroupById(parms.readInt("group")),
-								parms.readInt("workWithGroupAttributes") == 1);
+								parms.readBoolean("workWithGroupAttributes"));
 					} else {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
@@ -166,10 +166,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")),
 								parms.readList("attrNames", String.class),
-								parms.readInt("workWithUserAttributes") == 1);
+								parms.readBoolean("workWithUserAttributes"));
 					} else {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
-								ac.getMemberById(parms.readInt("member")), parms.readInt("workWithUserAttributes") == 1);
+								ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
 					}
 				} else if (parms.contains("attrNames")) {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
@@ -258,7 +258,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member ID
 	 * @param resource int Resource ID
-	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -273,7 +273,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param group int Group ID
 	 * @param resource int Resource ID
-	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -286,7 +286,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Sets the attributes.
 	 *
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -351,7 +351,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 								ac.getResourceById(parms.readInt("resource")),
 								ac.getMemberById(parms.readInt("member")),
 								parms.readList("attributes", Attribute.class),
-								parms.readInt("workWithUserAttributes") == 1);
+								parms.readBoolean("workWithUserAttributes"));
 					} else {
 						ac.getAttributesManager().setAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
@@ -364,7 +364,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 								ac.getResourceById(parms.readInt("resource")),
 								ac.getGroupById(parms.readInt("group")),
 								parms.readList("attributes", Attribute.class),
-								parms.readInt("workWithGroupAttributes") == 1);
+								parms.readBoolean("workWithGroupAttributes"));
 					} else {
 						ac.getAttributesManager().setAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
@@ -378,7 +378,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				}
 			} else if (parms.contains("member")) {
 				if(parms.contains("workWithUserAttributes")){
-					if(parms.readInt("workWithUserAttributes")!=1){
+					if(!parms.readBoolean("workWithUserAttributes")){
 						ac.getAttributesManager().setAttributes(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")),
 								parms.readList("attributes", Attribute.class),
@@ -1056,7 +1056,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param member int Member ID
 	 * @param service int Service ID
 	 * @param resource int Resource ID
-	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -1107,7 +1107,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param member int Member ID
 	 * @param resource int Resource ID
-	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -1139,7 +1139,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns required attributes.
 	 *
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -1160,7 +1160,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 									ac.getServiceById(parms.readInt("service")),
 									ac.getResourceById(parms.readInt("resource")),
 									ac.getMemberById(parms.readInt("member")),
-									parms.readInt("workWithUserAttributes") == 1);
+									parms.readBoolean("workWithUserAttributes"));
 						} else {
 							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 									ac.getServiceById(parms.readInt("service")),
@@ -1216,7 +1216,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					if (parms.contains("workWithUserAttributes")) {
 						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
-								ac.getMemberById(parms.readInt("member")), parms.readInt("workWithUserAttributes") == 1);
+								ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
 					} else {
 						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
@@ -1238,7 +1238,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			} else if (parms.contains("member")) {
 				if (parms.contains("workWithUserAttributes")){
 					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
-							ac.getMemberById(parms.readInt("member")), parms.readInt("workWithUserAttributes") == 1);
+							ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
 				} else {
 					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")), false);
@@ -1268,14 +1268,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Gets member-resource attributes and also user, user-facility and member attributes, if workWithUserAttributes == 1.
+	 * Gets member-resource attributes and also user, user-facility and member attributes, if workWithUserAttributes == true.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
 	 * @param resourceToGetServicesFrom int Resource to get services from ID
 	 * @param resource int Resource ID
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
-	 * @return List<Attribute> Member-resource attributes (if workWithUserAttributes == 1 also user, user-facility and member attributes)
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
+	 * @return List<Attribute> Member-resource attributes (if workWithUserAttributes == true also user, user-facility and member attributes)
 	 */
 	/*#
 	 * Gets member-resource attributes.
@@ -1312,14 +1312,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> User's attributes
 	 */
 	/*#
-	 * Gets group-resource and also group attributes, if workWithGroupAttributes == 1.
+	 * Gets group-resource and also group attributes, if workWithGroupAttributes == true.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
 	 * @param resourceToGetServicesFrom int Resource to get services from ID
 	 * @param group int Group ID
 	 * @param resource int Resource ID
-	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
-	 * @return List<Attribute> Group-resource and (if workWithGroupAttributes == 1) group required attributes
+	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
+	 * @return List<Attribute> Group-resource and (if workWithGroupAttributes == true) group required attributes
 	 */
 	/*#
 	 * Gets group-resource attributes.
@@ -1349,7 +1349,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							return	ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
 									ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
 									ac.getResourceById(parms.readInt("resource")),
-									ac.getMemberById(parms.readInt("member")), parms.readInt("workWithUserAttributes") == 1);
+									ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
 						} else {
 							return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
 									ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
@@ -1379,7 +1379,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 									ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
 									ac.getResourceById(parms.readInt("resource")),
 									ac.getGroupById(parms.readInt("group")),
-									parms.readInt("workWithGroupAttributes") == 1);
+									parms.readBoolean("workWithGroupAttributes"));
 						} else {
 							return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
 									ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
@@ -1544,12 +1544,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
-	 * Tries to fill member-resource attributes and also user and user-facility attributes, if workWithUserAttributes == 1.
+	 * Tries to fill member-resource attributes and also user and user-facility attributes, if workWithUserAttributes == true.
 	 *
 	 * @param resource int Resource ID
 	 * @param member int Member ID
 	 * @param attributes List<Attribute> List of attributes
-	 * @param workWithUserAttributes int Work with user attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
@@ -1640,7 +1640,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				} else if (parms.contains("member")) {
 					Member member = ac.getMemberById(parms.readInt("member"));
 					if (parms.contains("workWithUserAttributes")) {
-						if(parms.readInt("workWithUserAttributes") != 1) {
+						if(!parms.readBoolean("workWithUserAttributes")) {
 							return ac.getAttributesManager().fillAttributes(ac.getSession(),
 									resource,
 									member,
@@ -1899,7 +1899,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param resource int Resource ID
 	 * @param group int Group ID
-	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -1926,7 +1926,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * member, user (optional)
 	 *
 	 * @param member int Member ID
-	 * @param workWithUserAttributes int Set to 1 if you want to remove also user attributes. 0 is default value.
+	 * @param workWithUserAttributes boolean Set to true if you want to remove also user attributes. False is default value.
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
 	/*#
@@ -2003,7 +2003,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				} else if (parms.contains("group")) {
 					Group group = ac.getGroupById(parms.readInt("group"));
 					if (parms.contains("workWithGroupAttributes")) {
-						ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes, parms.readInt("workWithGroupAttributes") == 1 );
+						ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes, parms.readBoolean("workWithGroupAttributes"));
 					} else {
 						ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes);
 					}
@@ -2022,7 +2022,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			} else if (parms.contains("member")) {
 				if (parms.contains("workWithUserAttributes")) {
 					Member member = ac.getMemberById(parms.readInt("member"));
-					if(parms.readInt("workWithUserAttributes") != 1) {
+					if(!parms.readBoolean("workWithUserAttributes")) {
 						ac.getAttributesManager().removeAttributes(ac.getSession(), member, false, attributes);
 					} else {
 						ac.getAttributesManager().removeAttributes(ac.getSession(), member, true, attributes);
@@ -2207,10 +2207,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param user int User ID
 	 */
 	/*#
-	 * Unset all attributes for the facility and also user-facility attributes if workWithUserAttributes == 1.
+	 * Unset all attributes for the facility and also user-facility attributes if workWithUserAttributes == true.
 	 *
 	 * @param facility int Facility ID
-	 * @param workWithUserAttributes int Remove also user facility attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithUserAttributes boolean Remove also user facility attributes. False is default value.
 	 */
 	/*#
 	 * Unset all attributes for the facility.
@@ -2229,11 +2229,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param resource int Resource ID
 	 */
 	/*#
-	 * Unset all group-resource attributes and also group attributes if WorkWithGroupAttributes == 1.
+	 * Unset all group-resource attributes and also group attributes if WorkWithGroupAttributes == true.
 	 *
 	 * @param group int Group ID
 	 * @param resource int Resource ID
-	 * @param workWithGroupAttributes int Work with group attributes integer (1 = true, 0 = false). 0 is default value.
+	 * @param workWithGroupAttributes boolean Work with group attributes. False is default value.
 	 */
 	/*#
 	 * Unset all group-resource attributes.
@@ -2279,7 +2279,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							facility, ac.getUserById(parms.readInt("user")));
 				} else if (parms.contains("workWithUserAttributes")) {
 					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-							facility, parms.readInt("workWithUserAttributes") == 1);
+							facility, parms.readBoolean("workWithUserAttributes"));
 				} else {
 					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 							facility);
@@ -2302,7 +2302,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
 								ac.getGroupById(parms.readInt("group")),
-								parms.readInt("workWithGroupAttributes") == 1);
+								parms.readBoolean("workWithGroupAttributes"));
 					} else {
 						ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
