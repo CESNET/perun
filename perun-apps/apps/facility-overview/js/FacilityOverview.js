@@ -140,6 +140,6 @@ function getTechnicalOwners(owners) {
 function setProgressBar(value, bar) {
     var showProgress = Math.floor(value);
     if (bar.attr('aria-valuenow') != showProgress) {
-        bar.css('width', showProgress + '%').attr('aria-valuenow', showProgress).text(showProgress + '%');
+        bar.css('width', showProgress + '%').attr('aria-valuenow', showProgress).text("Loading " + showProgress + '%');
     }
 }
