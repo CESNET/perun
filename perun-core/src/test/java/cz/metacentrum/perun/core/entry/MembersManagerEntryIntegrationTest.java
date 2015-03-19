@@ -22,6 +22,8 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -33,6 +35,9 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	private Vo createdVo = null;
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	private Group createdGroup;
+	private Group g1;
+	private Group g2;
+	private Group g3ing1;
 	private Candidate candidate;
 	private UserExtSource ues;
 	private Member createdMember;
@@ -76,6 +81,10 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, createdMember));
 		// save user for deletion after test
 
+		//need for testing creating members
+		g1 = perun.getGroupsManagerBl().createGroup(sess, createdVo, new Group("TESTINGGROUP1", "TESTINGGROUP1"));
+		g2 = perun.getGroupsManagerBl().createGroup(sess, createdVo, new Group("TESTINGGROUP2", "TESTINGGROUP2"));
+		g3ing1 = perun.getGroupsManagerBl().createGroup(sess, g1, new Group("TESTINGGROUP3", "TESTINGGROUP3"));
 	}
 
 	@Test
@@ -91,6 +100,173 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, m));
 		// save user for deletion after test
 		assertTrue(m.getId() > 0);
+	}
+
+	@Test
+	public void createMemberFromCandidateInGroup() throws Exception {
+		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+
+		//Create vo and groups
+		
+		//g3in1 - direct, g1 indirect
+		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+
+		//Create new locale member for puprose of this method
+		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		Candidate candidate = new Candidate();
+		candidate.setFirstName(userFirstName);
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
+		candidate.setUserExtSource(ues);
+		candidate.setAttributes(new HashMap<String,String>());
+
+		Member member = perun.getMembersManager().createMember(sess, createdVo, candidate, groups);
+
+		//test if member is in vo and also in defined groups
+		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));
+		List<Group> returnedGroups = perun.getGroupsManagerBl().getMemberGroups(sess, member);
+		
+		assertTrue(returnedGroups.contains(g1));
+		assertTrue(!returnedGroups.contains(g2));
+		assertTrue(returnedGroups.contains(g3ing1));
+
+		// save user for deletion after test
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+	}
+
+	@Test
+	public void createMemberFromUserInGroup() throws Exception {
+		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+
+		//get user of existing member
+		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		perun.getMembersManager().deleteMember(sess, createdMember);
+
+		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+
+		Member member = perun.getMembersManager().createMember(sess, createdVo, user, groups);
+
+		//test if member is in vo and also in defined groups
+		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));
+		List<Group> returnedGroups = perun.getGroupsManagerBl().getMemberGroups(sess, member);
+
+		assertTrue(returnedGroups.contains(g1));
+		assertTrue(!returnedGroups.contains(g2));
+		assertTrue(returnedGroups.contains(g3ing1));
+	}
+
+	@Test
+	public void createMemberFromCandidateWithExtSourceInGroup() throws Exception {
+		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+
+		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+
+		//Create new locale member for puprose of this method
+		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		Candidate candidate = new Candidate();
+		candidate.setFirstName(userFirstName);
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
+		candidate.setAttributes(new HashMap<String,String>());
+
+		Member member = perun.getMembersManager().createMember(sess, createdVo, ues.getExtSource().getName(), ues.getExtSource().getType(), ues.getLogin(), candidate, groups);
+
+		//test if member is in vo and also in defined groups
+		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));
+		List<Group> returnedGroups = perun.getGroupsManagerBl().getMemberGroups(sess, member);
+
+		assertTrue(returnedGroups.contains(g1));
+		assertTrue(!returnedGroups.contains(g2));
+		assertTrue(returnedGroups.contains(g3ing1));
+
+		// save user for deletion after test
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+	}
+
+	@Test
+	public void createMemberFromCandidateWithExtSourceAndLoaInGroup() throws Exception {
+		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+
+		//g3in1 - direct, g1 indirect
+		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+
+		//Create new locale member for puprose of this method
+		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		Candidate candidate = new Candidate();
+		candidate.setFirstName(userFirstName);
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
+		candidate.setAttributes(new HashMap<String,String>());
+
+		Member member = perun.getMembersManager().createMember(sess, createdVo, ues.getExtSource().getName(), ues.getExtSource().getType(), 2, ues.getLogin(), candidate, groups);
+
+		//test if member is in vo and also in defined groups
+		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));
+		List<Group> returnedGroups = perun.getGroupsManagerBl().getMemberGroups(sess, member);
+
+		assertTrue(returnedGroups.contains(g1));
+		assertTrue(!returnedGroups.contains(g2));
+		assertTrue(returnedGroups.contains(g3ing1));
+
+		// save user for deletion after test
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+	}
+
+	@Test
+	public void createServiceMemberFromCandidateInGroup() throws Exception {
+		System.out.println(MEMBERS_MANAGER_ENTRY + ".createServiceMember()");
+
+		//g3in1 - direct, g1 indirect
+		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
+
+		//Create new locale member for puprose of this method
+		String userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		Candidate candidate = new Candidate();
+		candidate.setFirstName(userFirstName);
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
+		candidate.setUserExtSource(ues);
+		candidate.setAttributes(new HashMap<String,String>());
+
+		List<User> serviceUserOwners = new ArrayList<>();
+		serviceUserOwners.add(perun.getUsersManagerBl().getUserByMember(sess, createdMember));
+
+		Member member = perun.getMembersManager().createServiceMember(sess, createdVo, candidate, serviceUserOwners, groups);
+
+		//test if member is in vo and also in defined groups
+		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));
+		List<Group> returnedGroups = perun.getGroupsManagerBl().getMemberGroups(sess, member);
+
+		assertTrue(returnedGroups.contains(g1));
+		assertTrue(!returnedGroups.contains(g2));
+		assertTrue(returnedGroups.contains(g3ing1));
+
+		// save user for deletion after test
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
 	}
 
 	@Test (expected=VoNotExistsException.class)
