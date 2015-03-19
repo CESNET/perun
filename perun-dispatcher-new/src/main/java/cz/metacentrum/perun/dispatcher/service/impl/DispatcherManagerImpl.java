@@ -97,12 +97,12 @@ public class DispatcherManagerImpl implements DispatcherManager {
 
 	@Override
 	public void startPocessingEvents() {
-		eventProcessor.startPocessingEvents();
+		eventProcessor.startProcessingEvents();
 	}
 
 	@Override
 	public void stopPocessingEvents() {
-		eventProcessor.stopPocessingEvents();
+		eventProcessor.stopProcessingEvents();
 	}
 
 	public void setDispatcherDao(DispatcherDao dispatcherDao) {

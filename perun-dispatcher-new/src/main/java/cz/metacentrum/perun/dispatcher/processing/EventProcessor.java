@@ -7,7 +7,7 @@ package cz.metacentrum.perun.dispatcher.processing;
  */
 public interface EventProcessor {
 
-	void startPocessingEvents();
+	void startProcessingEvents();
 
-	void stopPocessingEvents();
+	void stopProcessingEvents();
 }

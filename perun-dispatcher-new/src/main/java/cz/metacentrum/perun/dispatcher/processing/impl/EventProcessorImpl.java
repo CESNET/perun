@@ -229,7 +229,7 @@ public class EventProcessorImpl implements EventProcessor {
 	}
 
 	@Override
-	public void startPocessingEvents() {
+	public void startProcessingEvents() {
 		try {
 			evProcessor = new EvProcessor();
 			taskExecutor.execute(evProcessor);
@@ -239,7 +239,7 @@ public class EventProcessorImpl implements EventProcessor {
 	}
 
 	@Override
-	public void stopPocessingEvents() {
+	public void stopProcessingEvents() {
 		evProcessor.stop();
 	}
 
