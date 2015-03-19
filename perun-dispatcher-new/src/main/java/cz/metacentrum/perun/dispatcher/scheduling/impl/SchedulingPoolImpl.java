@@ -82,7 +82,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 					tasksById.put(task.getId(),
 							new Pair<Task, DispatcherQueue>(task,
 									dispatcherQueue));
-					pool.get(task.getStatus()).add(task);
+					List<Task> list = pool.get(task.getStatus());
+					if(list == null) {
+						log.info("Making new list for task status " + task.getStatus().toString());
+						list = new ArrayList<Task>();
+						pool.put(task.getStatus(), list);
+					}
+					list.add(task);
 				} else {
 					log.debug("There already is task for given ExecService and Facility pair");
 				}
@@ -102,7 +108,14 @@ public class SchedulingPoolImpl implements SchedulingPool {
 							new Pair<ExecService, Facility>(task
 									.getExecService(), task.getFacility()),
 							task);
-					pool.get(task.getStatus()).add(task);
+					List<Task> list = pool.get(task.getStatus());
+					if(list == null) {
+						log.info("Making new list for task status " + task.getStatus().toString());
+						list = new ArrayList<Task>();
+						pool.put(task.getStatus(), list);
+					}
+					list.add(task);
+					// pool.get(task.getStatus()).add(task);
 				}
 			}
 			try {
