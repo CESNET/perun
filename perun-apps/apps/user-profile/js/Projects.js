@@ -72,7 +72,8 @@ function stateButton(expiration, canExtend, vo) {
 function extend(voId, voShortName) {
     callPerun("attributesManager", "getAttribute",
         {vo: voId, attributeName: "urn:perun:vo:attribute-def:def:registrarURL"}, function(url) {
-            window.location.href = buildRegistrarUrl(url, voShortName);
+            var regUrl = buildRegistrarUrl(url.value, voShortName);
+            window.location.href = regUrl;
         });
 }
 
