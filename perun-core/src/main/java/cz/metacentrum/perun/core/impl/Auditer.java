@@ -406,7 +406,7 @@ public class Auditer {
 
 	public void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException {
 		try {
-			jdbc.update("update auditer_consumers set last_processed_id=? where name=?", lastProcessedId, consumerName);
+			jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=? where name=?", lastProcessedId, Compatibility.getSysdate() ,consumerName);
 		} catch (Exception ex) {
 			throw new InternalErrorException(ex);
 		}
