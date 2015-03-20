@@ -38,7 +38,7 @@ function loadProjects(user) {
                 }
                 extend = extend[0];
                 //var rules = rules[0].value;
-                var stateBtn = stateButton(expirationDate, extend, member);
+                var stateBtn = stateButton(expirationDate, extend, vo);
                 var project = {name: vo.name, expiration: expirationDate, state: stateBtn};
                 projects.push(project);
                 projectsCurrent++;
@@ -51,27 +51,51 @@ function loadProjects(user) {
     });
 }
 
-function stateButton(expiration, canExtend, member) {
+function stateButton(expiration, canExtend, vo) {
+    var fnc = {fnc: extend, params: [vo.id, "'"+vo.shortName+"'"]};
     if (expiration instanceof Date) {
         if (expiration.getTime() < (new Date()).getTime()) {
-            action = new TableButton(member.id, "expired", "extend", "danger", {fnc: extend, params: [member.id]});
+            action = new TableButton(vo.id, "expired", "extend", "danger", fnc);
             return action;
         }
     }
     if (canExtend) {
         //var gracePeriod = rules.gracePeriod;
-        action = new TableButton(member.id, "gracePeriod", "extend", "warning", {fnc: extend, params: [member.id]});
+        action = new TableButton(vo.id, "gracePeriod", "extend", "warning", fnc);
         return action;
     }
-    action = new TableButton(member.id, "ok", "<i class='glyphicon glyphicon-ok'></i>", "success", {fnc: extend, params: [member.id]});
+    action = new TableButton(vo.id, "ok", "<i class='glyphicon glyphicon-ok'></i>", "success", fnc);
     action.setDisabled(true);
     return action;
 }
 
+function extend(voId, voShortName) {
+    callPerun("attributesManager", "getAttribute",
+        {vo: voId, attributeName: "urn:perun:vo:attribute-def:def:registrarURL"}, function(url) {
+            window.location.href = buildRegistrarUrl(url, voShortName);
+        });
+}
 
-
-function extend(member) {
-    alert("extend member " + member + ": unsupported yet");
+function buildRegistrarUrl(attrUrl, voShortName) {
+    var host, authz;
+    if (attrUrl) {
+        var parser = document.createElement('a');
+        parser.href = attrUrl;
+        host = parser.protocol + "//" + parser.host;
+        if (parser.pathname.length <= 1) {  // true when pathname is "/"
+            authz = getAuthz();
+        } else {
+            authz = parser.pathname.split("/")[1];
+        }
+    } else {
+        host = location.protocol + "//" + location.host;
+        if (voShortName == "meta") {
+            authz = "fed"
+        } else {
+            authz = getAuthz();
+        }
+    }
+    return host + "/" + authz + "/registrar/?vo=" + voShortName;
 }
 
 function fillProjects(projects) {
