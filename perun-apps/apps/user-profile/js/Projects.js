@@ -70,10 +70,12 @@ function stateButton(expiration, canExtend, vo) {
 }
 
 function extend(voId, voShortName) {
+    var loadImage = new LoadImage($("#projects-table .btn[id*='"+voId+"']"), "18px");
     callPerun("attributesManager", "getAttribute",
         {vo: voId, attributeName: "urn:perun:vo:attribute-def:def:registrarURL"}, function(url) {
             var regUrl = buildRegistrarUrl(url.value, voShortName);
             window.location.href = regUrl;
+            loadImage.hide();
         });
 }
 
