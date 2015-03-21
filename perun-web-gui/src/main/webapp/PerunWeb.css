@@ -1099,7 +1099,36 @@ td div.customTextCell {
 }
 
 /* FIX COLORING OF SELECTED ROWS WHEN RECOLORED */
-.GALD-WOKD .customClickableTextCell, .GPBYFDEBE .customClickableTextCell, .GPBYFDEBE .customClickableTextCell a,tr .GPBYFDEBE, tr .GPBYFDEBE td, .GEATBOKCOC .customClickableTextCell,.GEATBOKCAD .customClickableTextCell, .GEATBOKCCE .customClickableTextCell {
+.GALD-WOKD .customClickableTextCell,
+.GPBYFDEBE .customClickableTextCell,
+.GPBYFDEBE .customClickableTextCell a,
+/* Style of selected row */
+tr .GPBYFDEBE,
+tr .GPBYFDEBE td,
+/* Style of cell in selected row */
+td .GPBYFDECE,
+td .GPBYFDECE .GPBYFDEHD,
+.GEATBOKCOC .customClickableTextCell,
+.GEATBOKCAD .customClickableTextCell,
+.GEATBOKCCE .customClickableTextCell,
+/* cell of hovered row
+td .GPBYFDEHD,
+*/
+/* hovered row
+tr .GPBYFDEGD,
+tr .GPBYFDEGD td,
+tr:hover .GPBYFDEGD,
+tr:hover .GPBYFDEGD td
+*/
+.GPBYFDECE .customClickableTextCell,
+.GPBYFDECE .customClickableTextCell a,
+tr .GPBYFDECE,
+tr .GPBYFDECE td,
+.GPBYFDECE:hover .customClickableTextCell,
+.GPBYFDECE:hover .customClickableTextCell a,
+tr:hover .GPBYFDECE,
+tr:hover .GPBYFDECE td
+{
     color:#fff !important;
     background: none repeat scroll 0 0 #628CD5 !important;
 }
