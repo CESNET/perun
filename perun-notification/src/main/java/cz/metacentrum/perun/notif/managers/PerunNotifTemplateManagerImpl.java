@@ -52,12 +52,6 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
 
 	@Autowired
-	private PerunNotifEmailManager perunNotifEmailManager;
-
-	@Autowired
-	private PerunNotifRegexManager perunNotifRegexManager;
-
-	@Autowired
 	private PerunBl perun;
 
 	private List<PerunNotifSender> notifSenders;
@@ -590,7 +584,8 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			for (PerunNotifRegex regex : template.getMatchingRegexs()) {
 				if (regex.getId() != null) {
 					//We update relation between template and regex
-					perunNotifRegexManager.saveTemplateRegexRelation(template.getId(), regex.getId());
+					perunNotifTemplateDao.saveTemplateRegexRelation(template.getId(), regex.getId());
+					assignTemplateToRegex(regex.getId(), template);
 				}
 			}
 		}

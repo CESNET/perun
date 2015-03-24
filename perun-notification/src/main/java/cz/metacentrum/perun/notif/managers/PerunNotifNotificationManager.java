@@ -313,4 +313,23 @@ public interface PerunNotifNotificationManager {
 	 * @throws TemplateException
 	 */
 	public String testPerunNotifMessageText(String template, Map<Integer, List<PerunBean>> regexIdsPerunBeans) throws IOException, TemplateException;
+
+	/**
+	 * Stops notifications processing.
+	 *
+	 */
+	public void stopNotifications();
+
+	/**
+	 * Starts notifications processing, if it was stopped before.
+	 *
+	 */
+	public void startNotifications();
+
+	/**
+	 * Method checks if the notifications module is running at the time.
+	 *
+	 * @return true if running
+	 */
+	public boolean isNotificationsRunning();
 }
