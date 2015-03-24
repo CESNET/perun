@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.StringTemplateLoader;
 import cz.metacentrum.perun.notif.dao.PerunNotifTemplateDao;
 import cz.metacentrum.perun.notif.dto.PerunNotifMessageDto;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
 import javax.annotation.PostConstruct;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -69,6 +71,8 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 	private Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
+	private String EVALUATION_TEMPLATE = "evaluation";
+
 	@PostConstruct
 	public void init() throws Exception {
 
@@ -100,9 +104,14 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, pattern);
 			}
 		}
+		// create evaluation freemarker template
+		stringTemplateLoader.putTemplate(EVALUATION_TEMPLATE, "");
+
 		//All templates loaded to freemarker configuration
 
 		configuration = createFreemarkerConfiguration(stringTemplateLoader);
+
+
 
 		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
 	}
@@ -348,6 +357,9 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			usedPoolIds.add(message.getId());
 		}
 
+		// resolve sender
+		String sender = resolveSender(template.getSender(), container);
+
 		// Create of message based on receiver
 		List<PerunNotifMessageDto> result = new ArrayList<PerunNotifMessageDto>();
 		for (PerunNotifReceiver receiver : template.getReceivers()) {
@@ -362,6 +374,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			messageDto.setReceiver(receiver);
 			messageDto.setTemplate(template);
 			messageDto.setSubject(subjectContent);
+			messageDto.setSender(sender);
 
 			result.add(messageDto);
 		}
@@ -909,5 +922,45 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			}
 		}
 		return loc;
+	}
+	
+	private String resolveSender(String input, Map<String,Object> container) throws IOException {
+		Matcher emailMatcher = Utils.emailPattern.matcher(input);
+		String method = null;
+		String email = null;
+		if (input.contains(";")) {
+			String[] parts = input.split(";", 2);
+			method = parts[0];
+			email = parts[1];
+		} else if (!emailMatcher.find()) {
+			method = input;
+		} else {
+			email = input;
+		}
+
+		if (method != null) {
+			StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
+			stringTemplateLoader.putTemplate(EVALUATION_TEMPLATE, "${" + method + "}");
+			configuration.clearTemplateCache();
+			Template freeMarkerTemplate = this.configuration.getTemplate(EVALUATION_TEMPLATE);
+			StringWriter stringWriter = new StringWriter(4096);
+			try {
+				freeMarkerTemplate.process(container, stringWriter);
+			} catch (TemplateException ex) {
+				stringWriter = null;
+			}
+			if (stringWriter != null) {
+				if (stringWriter.toString().trim().isEmpty()) {
+					stringWriter = null;
+				}
+			}
+			if (stringWriter == null) {
+				return email;
+			} else {
+				return stringWriter.toString();
+			}
+		} else {
+			return email;
+		}
 	}
 }
