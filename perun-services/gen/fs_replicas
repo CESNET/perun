@@ -18,11 +18,12 @@ my $DIRECTORY = perunServicesInit::getDirectory;
 my $data = perunServicesInit::getDataWithGroups;
 
 #Constants
-our $A_USER_LOGIN;                 *A_USER_LOGIN =                   \'urn:perun:user_facility:attribute-def:virt:login';
-our $A_USER_LOGIN_NAMESPACE;       *A_USER_LOGIN_NAMESPACE =         \'urn:perun:facility:attribute-def:def:loginNamespace';
-our $A_R_DESTINATION;              *A_R_DESTINATION =                \'urn:perun:resource:attribute-def:def:replicaDestination';
-our $A_R_DESTINATION_PATH;         *A_R_DESTINATION_PATH =           \'urn:perun:resource:attribute-def:def:replicaDestinationPath';
-our $A_R_SOURCE_PATH;              *A_R_SOURCE_PATH =                \'urn:perun:resource:attribute-def:def:replicaSourcePath';
+our $A_USER_LOGIN;                              *A_USER_LOGIN =                              \'urn:perun:user_facility:attribute-def:virt:login';
+our $A_USER_LOGIN_NAMESPACE;                    *A_USER_LOGIN_NAMESPACE =                    \'urn:perun:facility:attribute-def:def:loginNamespace';
+our $A_R_DESTINATION;                           *A_R_DESTINATION =                           \'urn:perun:resource:attribute-def:def:replicaDestination';
+our $A_R_DESTINATION_PATH;                      *A_R_DESTINATION_PATH =                      \'urn:perun:resource:attribute-def:def:replicaDestinationPath';
+our $A_R_SOURCE_PATH;                           *A_R_SOURCE_PATH =                           \'urn:perun:resource:attribute-def:def:replicaSourcePath';
+our $A_R_IS_REPLICA_SOURCE_PATH_STANDALONE_DIR; *A_R_IS_REPLICA_SOURCE_PATH_STANDALONE_DIR = \'urn:perun:resource:attribute-def:def:isReplicaSourcePathStandaloneDir';
 
 #Global data structure
 our $struc = {};
@@ -38,7 +39,14 @@ foreach my $replicaDestinationPath (sort keys %$struc) {
 	foreach my $replicaSourcePath (sort keys %{$struc->{$replicaDestinationPath}}) {
 		foreach my $replicaDestination (sort keys %{$struc->{$replicaDestinationPath}->{$replicaSourcePath}}) {
 			foreach my $login (sort keys %{$struc->{$replicaDestinationPath}->{$replicaSourcePath}->{$replicaDestination}}) {
-				print FILE $replicaSourcePath, $login, "/ ", $replicaDestination, ":", $replicaDestinationPath, "\n";
+				#use delimiter / if needed, or space if not needed
+				my $delimiter;
+				if($login eq "") { 
+					$delimiter = " "; 
+				} else {
+					$delimiter = "/ ";
+				}
+				print FILE $replicaSourcePath, $login, $delimiter, $replicaDestination, ":", $replicaDestinationPath, "\n";
 			}
 		}
 	}
@@ -57,10 +65,17 @@ sub processMemberData {
 	my $replicaDestination = shift;
 	my $replicaDestinationPath = shift;
 	my $replicaSourcePath = shift;
+	my $isReplicaStandAloneDir = shift;
 	my $memberData = shift;
 
 	my %memberAttributes = attributesToHash $memberData->getAttributes;
-	my $login = $memberAttributes{$A_USER_LOGIN};
+	my $login;
+	#use empty login if this replica is standalone directory
+	if($isReplicaStandAloneDir) {
+		$login = "";
+	} else {
+		$login = $memberAttributes{$A_USER_LOGIN};
+	}
 
 	unless(exists $struc->{$replicaDestinationPath}->{$replicaSourcePath}->{$replicaDestination}->{$login}) {
 		$struc->{$replicaDestinationPath}->{$replicaSourcePath}->{$replicaDestination}->{$login} = {};
@@ -77,6 +92,7 @@ sub processResourceData {
 	my $replicaDestination = $resourceAttributes{$A_R_DESTINATION};
 	my $replicaDestinationPath = $resourceAttributes{$A_R_DESTINATION_PATH};
 	my $replicaSourcePath = $resourceAttributes{$A_R_SOURCE_PATH};
+	my $isReplicaStandAloneDir = $resourceAttributes{$A_R_IS_REPLICA_SOURCE_PATH_STANDALONE_DIR};
 
 	unless((substr $replicaDestinationPath, -1) eq "/") {
 		$replicaDestinationPath = $replicaDestinationPath . "/";
@@ -87,7 +103,7 @@ sub processResourceData {
 	}
 
 	foreach my $memberData(($resource->getChildElements)[1]->getChildElements) {
-		processMemberData $replicaDestination, $replicaDestinationPath, $replicaSourcePath, $memberData;
+		processMemberData $replicaDestination, $replicaDestinationPath, $replicaSourcePath, $isReplicaStandAloneDir, $memberData;
 	}
 }
 
