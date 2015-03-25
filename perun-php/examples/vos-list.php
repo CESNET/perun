@@ -1,5 +1,5 @@
 <?php
-include ("PerunRpcClient.php");
+include ("../PerunRpcClient.php");
 
 // CLIENT
 $client = new PerunRpcClient();
@@ -12,6 +12,15 @@ if($vos === null){
 	print "Error while getting the VOs.";
 	exit;
 }
+
+// PRINT HTML
+print "
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">
+	</head>
+	<body>\n";
 
 // PRINTING DATA
 print "<h1>List of VOs</h1>";
@@ -32,3 +41,7 @@ foreach($vos as $vo){
 }
 
 print "</table>\n";
+
+print "
+	</body>
+</html>";

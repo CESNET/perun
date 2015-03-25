@@ -1,5 +1,5 @@
 <?php
-include ("PerunRpcClient.php");
+include ("../PerunRpcClient.php");
 
 // CLIENT
 $client = new PerunRpcClient();
@@ -14,8 +14,17 @@ if($members === false){
 	exit;
 }
 
+// PRINT HTML
+print "
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">
+	</head>
+	<body>\n";
+
 // PRINTING DATA
-print "<h1>Members of Metacentrum</h1>";
+print "<h1>Members of MetaCentrum</h1>";
 print "<h2>Example</h2>";
 print "<table>\n";
 print "  <tr>\n";
@@ -31,3 +40,6 @@ foreach($members as $richMember){
 }
 
 print "</table>\n";
+print "
+	</body>
+</html>";
