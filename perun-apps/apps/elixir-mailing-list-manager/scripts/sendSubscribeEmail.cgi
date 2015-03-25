@@ -118,7 +118,7 @@ if ($@) {
 }
 
 #send email with informations
-my $urlAddress = "https://perun.metacentrum.cz/apps-non/elixir-mailing-list-manager/subscribe-confirmation.html?callback=neco&secret=" . $encodedEncryptedText;
+my $urlAddress = "https://einfra.cesnet.cz/a/elixir-mailing-list-manager/non/subscribe-confirmation.html?callback=neco&secret=" . $encodedEncryptedText;
 open(MAIL, "|/usr/sbin/sendmail -t");
 #Email header
 my $from = 'perun@cesnet.cz';

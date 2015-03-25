@@ -90,7 +90,7 @@ if ($@) {
 
 #send email with informations
 #TODO: change this url before using on production
-my $urlAddress = "https://perun.cesnet.cz/apps-non/elixir-mailing-list-manager/unsubscribe-confirmation.html?secret=" . $encodedEncryptedText;
+my $urlAddress = "https://einfra.cesnet.cz/a/elixir-mailing-list-manager/non/unsubscribe-confirmation.html?secret=" . $encodedEncryptedText;
 open(MAIL, "|/usr/sbin/sendmail -t");
 #Email header
 my $from = 'perun@cesnet.cz';

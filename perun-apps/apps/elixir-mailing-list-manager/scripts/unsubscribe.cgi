@@ -197,7 +197,7 @@ ELIXIR Project Czech Node <http://www.elixir-czech.org> support\@elixir-czech.or
 
 ---------------------------------------------------------------------------
 If you want to receive this newsletter again, subscribe using
-https://perun.cesnet.cz/apps-non/elixir-mailing-list-manager/subscribe.html
+https://einfra.cesnet.cz/a/elixir-mailing-list-manager/non/subscribe.html
 };
 
 #Send Mail
