@@ -50,6 +50,8 @@ class PerunRpcClient{
 		if ($vars != NULL) {
 			curl_setopt($this -> curl, CURLOPT_POST, 1);
 			curl_setopt($this -> curl, CURLOPT_POSTFIELDS, json_encode($vars));
+			// Allow correct processing of POST request and response
+			curl_setopt($this -> curl, CURLOPT_HTTPHEADER, array('Content-type: text/javascript;charset=utf-8'));
 		}
 
 		$response = curl_exec($this -> curl);
