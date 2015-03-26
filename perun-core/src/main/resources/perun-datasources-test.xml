@@ -11,4 +11,5 @@
         <jdbc:script location="classpath:schema.sql"/>
         <jdbc:script location="classpath:test-data.sql"/>
     </jdbc:embedded-database>
+
 </beans>

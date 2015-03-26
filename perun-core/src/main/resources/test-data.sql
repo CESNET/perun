@@ -4,7 +4,6 @@ insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,23,
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,24,'self');
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,25,'authzresolver');
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,26,'facilityadmin');
-insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,28,'synchronizer');
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,29,'registrar');
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,30,'engine');
 insert into roles (created_by_uid,modified_by_uid,id,name) values (null,null,31,'rpc');
@@ -2186,8 +2185,7 @@ insert into service_dependencies (created_by_uid,modified_by_uid,type,exec_servi
 insert into service_dependencies (created_by_uid,modified_by_uid,type,exec_service_id,dependency_id,created_at,created_by,modified_at,modified_by,status) values (null,null,'SERVICE',281,280,timestamp '2012-08-24 15:30:56.6','PERUNV3',timestamp '2012-08-24 15:30:56.6','PERUNV3','0');
 insert into service_dependencies (created_by_uid,modified_by_uid,type,exec_service_id,dependency_id,created_at,created_by,modified_at,modified_by,status) values (null,null,'SERVICE',371,370,timestamp '2013-04-24 13:19:52.4','PERUNV3',timestamp '2013-04-24 13:19:52.4','PERUNV3','0');
 insert into service_dependencies (created_by_uid,modified_by_uid,type,exec_service_id,dependency_id,created_at,created_by,modified_at,modified_by,status) values (null,null,'SERVICE',391,390,timestamp '2014-01-09 10:50:38.5','PERUNV3',timestamp '2014-01-09 10:50:38.5','PERUNV3','0');
-insert into configurations (property,value) values ('DATABASE VERSION','3.1.19');
-
+insert into configurations (property,value) values ('DATABASE VERSION','3.1.21');
 
 drop sequence service_principals_id_seq;
 create sequence service_principals_id_seq start with 1;
