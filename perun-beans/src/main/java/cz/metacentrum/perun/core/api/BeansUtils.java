@@ -24,6 +24,7 @@ public class BeansUtils {
 	private final static Pattern richBeanNamePattern = Pattern.compile("^Rich([A-Z].*$)");
 	public static final char LIST_DELIMITER = ',';
 	public static final char KEY_VALUE_DELIMITER = ':';
+	private final static int MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE = 1000;
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -419,5 +420,67 @@ public class BeansUtils {
 		}
 
 		return beanName;
+	}
+
+	/**
+	 * Create a string with set of IN clause. Every in clause has maximum 1000 ids.
+	 * Identifier means for what IN clause is calling (Like 'table.id')
+	 *
+	 * Reason for using is compatibility with oracle and other dbs.
+	 *
+	 * Example: " ( in (10,15,...) or in (...) or ... ) "
+	 *
+	 * @param beans list of perun beans
+	 * @return string with some sql IN clause
+	 */
+	public static String prepareInSQLCaluse(String identifier, List<? extends PerunBean> beans) {
+		StringBuilder sb = new StringBuilder();
+		//use or in sql clause
+		boolean useOr = false;
+		//first bracket
+		sb.append(" (");
+
+		//for every maxSize of beans
+		while(beans.size() > MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE ) {
+
+			if(useOr) sb.append(" or ");
+			else useOr = true;
+
+			sb.append(" ");
+			sb.append(identifier);
+			sb.append(" in (");
+			List<? extends PerunBean> partOfBeans = beans.subList(0, MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE);
+			sb.append(beanIdsToString(partOfBeans));
+			sb.append(") ");
+			partOfBeans.clear();
+		}
+
+		//for rest of beans less or equals to 1000
+		if(useOr) sb.append(" or ");
+		sb.append(" ");
+		sb.append(identifier);
+		sb.append(" in (");
+		sb.append(beanIdsToString(beans));
+		sb.append(") ");
+
+		//last bracket
+		sb.append(") ");
+		return sb.toString();
+	}
+
+	/**
+	 * Convert list of beans to string of bean IDs
+	 *
+	 * @param beans List of beans to construct string with ids
+	 * @return string representation of list of ids
+	 */
+	public static String beanIdsToString(List<? extends PerunBean> beans) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for(PerunBean bean : beans) {
+			stringBuilder.append(",");
+			stringBuilder.append(bean.getId());
+			}
+		stringBuilder.deleteCharAt(0);
+		return stringBuilder.toString();
 	}
 }
