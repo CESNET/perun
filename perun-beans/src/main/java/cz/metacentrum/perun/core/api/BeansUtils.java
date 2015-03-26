@@ -434,6 +434,12 @@ public class BeansUtils {
 	 * @return string with some sql IN clause
 	 */
 	public static String prepareInSQLCaluse(String identifier, List<? extends PerunBean> beans) {
+		//get Ids
+		List<Integer> beansIds = new ArrayList<>();
+		for(PerunBean pb: beans) {
+			beansIds.add(pb.getId());
+		}
+
 		StringBuilder sb = new StringBuilder();
 		//use or in sql clause
 		boolean useOr = false;
@@ -441,7 +447,7 @@ public class BeansUtils {
 		sb.append(" (");
 
 		//for every maxSize of beans
-		while(beans.size() > MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE ) {
+		while(beansIds.size() > MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE ) {
 
 			if(useOr) sb.append(" or ");
 			else useOr = true;
@@ -449,10 +455,10 @@ public class BeansUtils {
 			sb.append(" ");
 			sb.append(identifier);
 			sb.append(" in (");
-			List<? extends PerunBean> partOfBeans = beans.subList(0, MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE);
-			sb.append(beanIdsToString(partOfBeans));
+			List<Integer> partOfBeansIds = beansIds.subList(0, MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE);
+			sb.append(beanIdsToString(partOfBeansIds));
 			sb.append(") ");
-			partOfBeans.clear();
+			partOfBeansIds.clear();
 		}
 
 		//for rest of beans less or equals to 1000
@@ -460,7 +466,7 @@ public class BeansUtils {
 		sb.append(" ");
 		sb.append(identifier);
 		sb.append(" in (");
-		sb.append(beanIdsToString(beans));
+		sb.append(beanIdsToString(beansIds));
 		sb.append(") ");
 
 		//last bracket
@@ -469,16 +475,16 @@ public class BeansUtils {
 	}
 
 	/**
-	 * Convert list of beans to string of bean IDs
+	 * Convert list of beans ids to one string with ',' between ids
 	 *
-	 * @param beans List of beans to construct string with ids
+	 * @param beans List of ids to construct string with
 	 * @return string representation of list of ids
 	 */
-	public static String beanIdsToString(List<? extends PerunBean> beans) {
+	public static String beanIdsToString(List<Integer> beansIds) {
 		StringBuilder stringBuilder = new StringBuilder();
-		for(PerunBean bean : beans) {
+		for(Integer beanId : beansIds) {
 			stringBuilder.append(",");
-			stringBuilder.append(bean.getId());
+			stringBuilder.append(beanId);
 			}
 		stringBuilder.deleteCharAt(0);
 		return stringBuilder.toString();
