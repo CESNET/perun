@@ -297,10 +297,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		getPerunBl().getAuditer().log(sess, "{} updated.", group);
 
 		List<Group> allSubgroups = this.getAllSubGroups(sess, group);
+		String[] groupNames = group.getName().split(":");
+
 		for(Group g: allSubgroups) {
-			String subGroupName = g.getName();
-			// get substring of groups name without the name of a first parent group
-			g.setName(group.getName() + ":" + subGroupName.substring(subGroupName.indexOf(":") + 1));
+			String[] subGroupNames = g.getName().split(":");
+			for (int i=0; i<groupNames.length; i++) {
+				if (!subGroupNames[i].equals(groupNames[i])) {
+					// this part of name changed
+					subGroupNames[i] = groupNames[i];
+				}
+			}
+			// create new name
+			StringBuilder sb = new StringBuilder();
+			for (String sgName : subGroupNames) {
+				sb.append(sgName).append(":");
+			}
+			// set name without last ":"
+			g.setName(sb.toString().substring(0, sb.length()-1));
 			getGroupsManagerImpl().updateGroup(sess, g);
 		}
 

@@ -56,7 +56,7 @@ public class UpdateGroup {
 		JSONObject newGroup = new JSONObject();
 		newGroup.put("id", oldGroup.get("id"));
 		// fake new group short name as name in order to update
-		newGroup.put("name", oldGroup.get("shortName"));
+		newGroup.put("name", oldGroup.get("name"));
 		newGroup.put("description", oldGroup.get("description"));
 		newGroup.put("voId", oldGroup.get("voId"));
 		newGroup.put("beanName", oldGroup.get("beanName"));
