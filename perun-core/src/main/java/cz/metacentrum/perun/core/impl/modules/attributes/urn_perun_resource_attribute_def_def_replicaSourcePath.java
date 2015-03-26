@@ -37,10 +37,10 @@ public class urn_perun_resource_attribute_def_def_replicaSourcePath extends Reso
 		}
 
 		if(facilityAttr.getValue() == null) {
-			throw new WrongReferenceAttributeValueException(attribute, facilityAttr, "Reference attribute has null value.");
+			throw new WrongReferenceAttributeValueException(attribute, facilityAttr, resource, facility, "Reference attribute has null value.");
 		}
 		
-		if (!((List<String>) facilityAttr.getValue()).containsAll((List<String>) attribute.getValue())) {
+		if (!((List<String>) facilityAttr.getValue()).contains((String) attribute.getValue())) {
 			throw new WrongReferenceAttributeValueException(attribute, facilityAttr, resource, facility, "ReplicaSourcePath has to be the same as one of the F:D:homeMountPoints");
 		}
 	}

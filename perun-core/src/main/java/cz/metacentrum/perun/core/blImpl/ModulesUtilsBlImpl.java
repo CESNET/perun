@@ -562,9 +562,8 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 		Pattern fqdnPattern = Pattern.compile("^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63}\\.?$");
 		Matcher fqdnMatcher = fqdnPattern.matcher(fqdn);
-		if (fqdnMatcher.find()) return true;
 
-		return false;
+		return fqdnMatcher.find();
 	}
 
 	public void checkFormatOfShell(String shell, Attribute attribute) throws WrongAttributeValueException {
