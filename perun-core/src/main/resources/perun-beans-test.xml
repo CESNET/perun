@@ -85,7 +85,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
         <property name="servicesManagerBl" ref="servicesManagerBl"/>
         <property name="ownersManagerBl" ref="ownersManagerBl"/>
         <property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
-        <property name="rTMessagesManagerBl" ref="rTMessagesManagerBl"/>
+        <property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
         <property name="searcherBl" ref="searcherBl"/>
         <property name="modulesUtilsBl" ref="modulesUtilsBl"/>
         <property name="databaseManagerBl" ref="databaseManagerBl"/>
@@ -101,7 +101,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
         <property name="servicesManager" ref="servicesManager"/>
         <property name="ownersManager" ref="ownersManager"/>
         <property name="auditMessagesManager" ref="auditMessagesManager"/>
-        <property name="rTMessagesManager" ref="rTMessagesManager"/>
+        <property name="RTMessagesManager" ref="RTMessagesManager"/>
         <property name="searcher" ref="searcher"/>
         <property name="auditer" ref="auditer"/>
         <property name="databaseManager" ref="databaseManager"/>
@@ -155,9 +155,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
         <property name="perunBl" ref="perun"/>
         <property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
     </bean>
-    <bean id="rTMessagesManager" class="cz.metacentrum.perun.core.entry.RTMessagesManagerEntry" scope="singleton">
+    <bean id="RTMessagesManager" class="cz.metacentrum.perun.core.entry.RTMessagesManagerEntry" scope="singleton">
         <property name="perunBl" ref="perun"/>
-        <property name="rTMessagesManagerBl" ref="rTMessagesManagerBl"/>
+        <property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
     </bean>
     <bean id="searcher" class="cz.metacentrum.perun.core.entry.SearcherEntry" scope="singleton">
         <property name="perunBl" ref="perun"/>
@@ -215,7 +215,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
         <property name="perunBl" ref="perun"/>
         <property name="auditer" ref="auditer"/>
     </bean>
-    <bean id="rTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton">
+    <bean id="RTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton">
         <property name="perunBl" ref="perun"/>
     </bean>
     <bean id="authzResolverBl" class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" scope="singleton">
@@ -286,9 +286,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
         <property name="properties">
             <props>
                 <prop key="perun.admins">perunTests, perunController, perunEngine, perunRegistrar, perunSynchronizer, perunCabinet</prop>
-                <prop key="perun.grouper.toplevelstem">perunMeta</prop>
                 <prop key="perun.engine.principals">perunv3/engine@META</prop>
-                <prop key="perun.synchronizer.principals">perunSynchronizer</prop>
                 <prop key="perun.registrar.principals">perunv3-registrar@META</prop>
                 <prop key="perun.notification.principals">perunNotifications</prop>
                 <prop key="perun.rpc.principal">perunRpc</prop>
