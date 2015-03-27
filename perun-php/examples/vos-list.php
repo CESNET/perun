@@ -1,4 +1,12 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
 <?php
+
 include ("../PerunRpcClient.php");
 
 // CLIENT
@@ -13,18 +21,9 @@ if($vos === null){
 	exit;
 }
 
-// PRINT HTML
-print "
-<!doctype html>
-<html>
-	<head>
-		<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">
-	</head>
-	<body>\n";
-
 // PRINTING DATA
-print "<h1>List of VOs</h1>";
-print "<h2>Example</h2>";
+print "<h1>List of VOs</h1>\n";
+print "<h2>Example</h2>\n";
 print "<table>\n";
 print "  <tr>\n";
 print "    <th>ID</th>\n";
@@ -42,6 +41,7 @@ foreach($vos as $vo){
 
 print "</table>\n";
 
-print "
-	</body>
-</html>";
+?>
+
+</body>
+</html>
