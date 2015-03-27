@@ -73,7 +73,7 @@ public class AuditerConsumer {
 				lastProcessedId = jdbc.queryForInt("select max(id) from auditer_log");
 
 				int consumerId = Utils.getNewId(jdbc, "auditer_consumers_id_seq");
-				jdbc.update("insert into auditer_consumers (id, name, last_processed_id) values (?,?,?)", consumerId, consumerName, lastProcessedId);
+				jdbc.update("insert into auditer_consumers (id, name, last_processed_id, modified_at) values (?,?,?," + Compatibility.getSysdate() + ")", consumerId, consumerName, lastProcessedId);
 				log.debug("New consumer [name: '{}', lastProcessedId: '{}'] created.", consumerName, lastProcessedId);
 			} catch(Exception e) {
 				throw new InternalErrorException(e);
@@ -89,7 +89,7 @@ public class AuditerConsumer {
 			if(maxId > lastProcessedId) {
 				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER, this.lastProcessedId, maxId);
 				this.lastProcessedId = maxId;
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=? where name=?", this.lastProcessedId, Compatibility.getSysdate(), this.consumerName);
+				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", this.lastProcessedId, this.consumerName);
 				return messages;
 			}
 			return new ArrayList<String>();
@@ -104,7 +104,7 @@ public class AuditerConsumer {
 			if(maxId > lastProcessedId) {
 				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_FULL_LOG_MAPPER, this.lastProcessedId, maxId);
 				this.lastProcessedId = maxId;
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=? where name=?", this.lastProcessedId, Compatibility.getSysdate(), this.consumerName);
+				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", this.lastProcessedId, this.consumerName);
 				return messages;
 			}
 			return new ArrayList<String>();
@@ -119,7 +119,7 @@ public class AuditerConsumer {
 			if(maxId > lastProcessedId) {
 				List<String> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER_FOR_PARSER, this.lastProcessedId, maxId);
 				this.lastProcessedId = maxId;
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=? where name=?", this.lastProcessedId, Compatibility.getSysdate(), this.consumerName);
+				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", this.lastProcessedId, this.consumerName);
 				return messages;
 			}
 			return new ArrayList<String>();
@@ -134,7 +134,7 @@ public class AuditerConsumer {
 			if(maxId > lastProcessedId) {
 				List<Pair<String, Integer>> messages = jdbc.query("select " + Auditer.auditMessageMappingSelectQuery + " from auditer_log where id > ? and id <= ? order by id", AUDITER_LOG_MAPPER_FOR_PARSER_WITH_ID, this.lastProcessedId, maxId);
 				this.lastProcessedId = maxId;
-				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=? where name=?", this.lastProcessedId, Compatibility.getSysdate(), this.consumerName);
+				jdbc.update("update auditer_consumers set last_processed_id=?, modified_at=" + Compatibility.getSysdate() + " where name=?", this.lastProcessedId, this.consumerName);
 				return messages;
 			}
 			return new ArrayList<Pair<String, Integer>>();
