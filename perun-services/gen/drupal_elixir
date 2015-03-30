@@ -6,10 +6,11 @@ use perunServicesInit;
 use perunServicesUtils;
 use Perun::Agent;
 use Perun::GroupsAgent;
+use open qw/:std :utf8/;
 
 local $::SERVICE_NAME = "drupal_elixir";
 local $::PROTOCOL_VERSION = "3.0.0";
-my $SCRIPT_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.1";
 
 perunServicesInit::init;
 my $DIRECTORY = perunServicesInit::getDirectory;
@@ -24,6 +25,8 @@ sub processMemberships;
 our $A_USER_ID;                   *A_USER_ID =               \'urn:perun:user:attribute-def:core:id';
 our $A_USER_LOGIN;                *A_USER_LOGIN =            \'urn:perun:user:attribute-def:def:login-namespace:elixir';
 our $A_USER_STATUS;               *A_USER_STATUS =           \'urn:perun:member:attribute-def:core:status';
+our $A_USER_EMAIL;                *A_USER_EMAIL =            \'urn:perun:user:attribute-def:def:preferredMail';
+our $A_USER_D_NAME;               *A_USER_D_NAME =           \'urn:perun:user:attribute-def:core:displayName';
 our $A_GROUP_ID;                  *A_GROUP_ID =              \'urn:perun:group:attribute-def:core:id';
 our $A_GROUP_NAME;                *A_GROUP_NAME =            \'urn:perun:group:attribute-def:core:name';
 our $A_PARENT_GROUP_ID;           *A_PARENT_GROUP_ID =       \'urn:perun:group:attribute-def:core:parentGroupId';
@@ -34,8 +37,18 @@ our $A_M_TYPE_ADMIN;              *A_M_TYPE_ADMIN =          \'admin';
 our $STATUS_VALID;                *STATUS_VALID =            \'VALID';
 our $STATUS_EXPIRED;              *STATUS_EXPIRED =          \'EXPIRED';
 our $STATUS_SUSPENDED;            *STATUS_SUSPENDED =        \'SUSPENDED';
+
 our $userStruc = {};
+our $u_login = {};
+our $u_status = {};
+our $u_email = {};
+our $u_name = {};
+
 our $groupStruc = {};
+our $g_name = {};
+our $g_type = {};
+our $g_parent_id = {};
+
 our $membershipStruc = {};
 
 my $fileUsers = $DIRECTORY . "users.csv";
@@ -52,27 +65,17 @@ foreach my $resourceData ($data->getChildElements) {
 	}
 }
 
-# USERS: user_id login status
+# USERS: user_id login status e-mail display_name
 open FILE_USERS,">$fileUsers" or die "Cannot open $fileUsers: $! \n";
 foreach my $uid (sort keys %$userStruc) {
-	foreach my $login (sort keys %{$userStruc->{$uid}}){
-		foreach my $status (sort keys %{$userStruc->{$uid}->{$login}}){
-			print FILE_USERS "\"$uid\", \"$login\", \"$status\"", "\n";
-		}
-	}
+	print FILE_USERS "\"$uid\", \"$userStruc->{$uid}->{$u_login}\", \"$userStruc->{$uid}->{$u_status}\", \"$userStruc->{$uid}->{$u_email}\", \"$userStruc->{$uid}->{$u_name}\"", "\n";
 }
 close (FILE_USERS) or die "Cannot close $fileUsers: $! \n";
 
 # GROUPS: group_id group_name type parent_id
 open FILE_GROUPS,">$fileGroups" or die "Cannot open $fileGroups: $! \n";
 foreach my $gid (sort keys %$groupStruc) {
-	foreach my $name (sort keys %{$groupStruc->{$gid}}){
-		foreach my $type (sort keys %{$groupStruc->{$gid}->{$name}}){
-			foreach my $parentID (sort keys %{$groupStruc->{$gid}->{$name}->{$type}}){
-				print FILE_GROUPS "\"$gid\", \"$name\", \"$type\", \"$parentID\"", "\n";
-			}
-		}
-	}
+	print FILE_GROUPS "\"$gid\", \"$groupStruc->{$gid}->{$g_name}\", \"$groupStruc->{$gid}->{$g_type}\", \"$groupStruc->{$gid}->{$g_parent_id}\"", "\n";
 }
 close (FILE_GROUPS) or die "Cannot close $fileGroups: $! \n";
 
@@ -101,26 +104,28 @@ sub processUsers {
 	my $uid = $memberAttributes{$A_USER_ID};
 	my $login = $memberAttributes{$A_USER_LOGIN};
 	my $status = $memberAttributes{$A_USER_STATUS};
+	my $email = $memberAttributes{$A_USER_EMAIL};
+	my $d_name = $memberAttributes{$A_USER_D_NAME};
 
-	if(exists $userStruc->{$uid}->{$login}) {
-		my $memberStatus = keys %{$userStruc->{$uid}->{$login}};	
+	if(exists $userStruc->{$uid}->{$u_login}) {
+		my $memberStatus = $userStruc->{$uid}->{$u_status};
 
 		if ($memberStatus eq $STATUS_EXPIRED && $status eq $STATUS_VALID){
 			# change from EXPIRED to VALID  
-			$userStruc->{$uid}->{$login} = {};
-			$userStruc->{$uid}->{$login}->{$status} = {};
+			$userStruc->{$uid}->{$u_status} = $status;
 		} elsif ($memberStatus eq $STATUS_SUSPENDED && $status eq $STATUS_VALID){
 			# change from SUSPENDED to VALID
-			$userStruc->{$uid}->{$login} = {};
-			$userStruc->{$uid}->{$login}->{$status} = {};
+			$userStruc->{$uid}->{$u_status} = $status;
 		} elsif ($memberStatus eq $STATUS_SUSPENDED && $status eq $STATUS_EXPIRED){
 			# change from SUSPENDED to EXPIRED
-			$userStruc->{$uid}->{$login} = {};
-			$userStruc->{$uid}->{$login}->{$status} = {};
+			$userStruc->{$uid}->{$u_status} = $status;
 		}
 	}
 	else{
-		$userStruc->{$uid}->{$login}->{$status} = {};
+		$userStruc->{$uid}->{$u_login} = $login;
+		$userStruc->{$uid}->{$u_status} = $status;
+		$userStruc->{$uid}->{$u_email} = $email;
+		$userStruc->{$uid}->{$u_name} = $d_name;
 	}
 
 	if(@admins) {
@@ -152,8 +157,10 @@ sub processGroups {
 			$groupType = "public";
 		}
 
-		unless(exists $groupStruc->{$gid}->{$groupName}->{$groupType}->{$groupParentID}) {
-			$groupStruc->{$gid}->{$groupName}->{$groupType}->{$groupParentID} = {};
+		unless(exists $groupStruc->{$gid}) {
+			$groupStruc->{$gid}->{$g_name} = $groupName;
+			$groupStruc->{$gid}->{$g_type} = $groupType;
+			$groupStruc->{$gid}->{$g_parent_id} = $groupParentID;
 		}
 
 		my @admins = $groupAgent->getAdmins(group => $gid);
