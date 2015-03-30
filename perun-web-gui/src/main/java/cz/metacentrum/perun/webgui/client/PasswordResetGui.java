@@ -226,7 +226,7 @@ public class PasswordResetGui implements EntryPoint {
 							int row = 0;
 
 							ft.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
-							ft.setHTML(row, 0, "<h2>In order to continue to the password reset page, please, retype words below.</h2>");
+							ft.setHTML(row, 0, "<h2>In order to continue to the password reset page, please, use CAPTCHA below.</h2>");
 							ft.setWidget(row + 1, 0, captcha);
 							ft.getFlexCellFormatter().setHorizontalAlignment(row + 1, 0, HasHorizontalAlignment.ALIGN_CENTER);
 							ft.getFlexCellFormatter().setVerticalAlignment(row + 1, 0, HasVerticalAlignment.ALIGN_BOTTOM);
