@@ -14,7 +14,7 @@ $(document).ready(function() {
 function loadProjects(user) {
     var loadImage = new LoadImage($("#projects-table"), "auto");
     callPerun("membersManager", "getMembersByUser", {user: user.id}, function(members) {
-        members.push({id: members[0].id, voId: 1121});
+        //members.push({id: members[0].id, voId: 1121});
         var projectsNum = members.length;
         var projectsCurrent = 0;
         var projects = [];
@@ -30,15 +30,15 @@ function loadProjects(user) {
         function success(member) {
             return function (vo, expiration, extend) {
                 vo = vo[0];
-                var expirationDate;
+                extend = extend[0];
+                var expirationDate,stateBtn;
                 if (expiration[0].value) {
                     expirationDate = new Date(expiration[0].value);
+                    stateBtn = stateButton(expirationDate, extend, vo);
                 } else {
-                    expirationDate = "unlimited";
+                    expirationDate = "never";
+                    stateBtn = null;
                 }
-                extend = extend[0];
-                //var rules = rules[0].value;
-                var stateBtn = stateButton(expirationDate, extend, vo);
                 var project = {name: vo.name, expiration: expirationDate, state: stateBtn};
                 projects.push(project);
                 projectsCurrent++;

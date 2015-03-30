@@ -77,7 +77,10 @@ function PerunTable() {
                         html += (new TableButton(this.values[row][column.btnId], column.btnName, column.btnText, column.btnType)).html();
                         break;
                     case "button2":
-                        html += this.values[row][column.button].html();
+                        var btn = this.values[row][column.button];
+                        if (btn) {
+                            html += btn.html();
+                        }
                         break;
                     case "number":
                         html += (1 + parseInt(row));
