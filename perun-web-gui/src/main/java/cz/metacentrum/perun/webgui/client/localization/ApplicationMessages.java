@@ -171,7 +171,7 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("Contact: ")
 	String supportContact();
 
-	@DefaultMessage("<h2>In order to continue to the registration page, please, retype two words below.</h2>")
+	@DefaultMessage("<h2>In order to continue to the registration page, please use CAPTCHA below.</h2>")
 	String captchaDescription();
 
 	@DefaultMessage("Answer is incorrect. Please try again.")
