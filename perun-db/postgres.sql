@@ -744,6 +744,22 @@ create table "member_resource_attr_values" (
 	modified_by_uid integer
 );
 
+-- MEMBER_GROUP_ATTR_VALUES - values of attributes assigned to members in groups
+create table "member_group_attr_values" (
+	member_id integer not null,   --identifier of member (members.id)
+	group_id integer not null, --identifier of group (groups.id)
+	attr_id integer not null,     --identifier of attribute (attr_names.id)
+	attr_value varchar(4000),     --attribute value
+	created_at timestamp default now() not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now() not null,
+	modified_by varchar(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text text,         --attribute value in case it is very long text
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 -- USER_ATTR_VALUES - values of attributes assigned to users
 create table "user_attr_values" (
 	user_id integer not null,  --identifier of user (users.id)
@@ -1182,6 +1198,9 @@ create index idx_fk_grp_grp on groups(parent_group_id);
 create index idx_fk_memrav_mem on member_resource_attr_values(member_id);
 create index idx_fk_memrav_rsrc on member_resource_attr_values(resource_id);
 create index idx_fk_memrav_accattnam on member_resource_attr_values(attr_id);
+create index idx_fk_memgav_mem on member_group_attr_values(member_id);
+create index idx_fk_memgav_grp on member_group_attr_values(group_id);
+create index idx_fk_memgav_accattnam on member_group_attr_values(attr_id);
 create index idx_fk_usrfacav_mem on user_facility_attr_values(user_id);
 create index idx_fk_usrfacav_fac on user_facility_attr_values(facility_id);
 create index idx_fk_usrfacav_accattnam on user_facility_attr_values(attr_id);
@@ -1367,6 +1386,11 @@ alter table member_resource_attr_values add constraint memrav_mem_fk foreign key
 alter table member_resource_attr_values add constraint memrav_rsrc_fk foreign key (resource_id) references resources(id);
 alter table member_resource_attr_values add constraint memrav_accattnam_fk foreign key (attr_id) references attr_names(id);
 alter table member_resource_attr_values add constraint memrav_u unique(member_id,resource_id,attr_id);
+
+alter table member_group_attr_values add constraint memgav_mem_fk foreign key (member_id) references members(id);
+alter table member_group_attr_values add constraint memgav_grp_fk foreign key (group_id) references groups(id);
+alter table member_group_attr_values add constraint memgav_accattnam_fk foreign key (attr_id) references attr_names(id);
+alter table member_group_attr_values add constraint memgav_u unique(member_id,group_id,attr_id);
 
 alter table user_facility_attr_values add constraint usrfacav_mem_fk foreign key (user_id) references users(id);
 alter table user_facility_attr_values add constraint usrfacav_fac_fk foreign key (facility_id) references facilities(id);
@@ -1592,6 +1616,7 @@ grant all on service_packages to perun;
 grant all on service_service_packages to perun;
 grant all on groups to perun;
 grant all on member_resource_attr_values to perun;
+grant all on member_group_attr_values to perun;
 grant all on user_facility_attr_values to perun;
 grant all on tasks to perun;
 grant all on tasks_results to perun;
