@@ -3572,14 +3572,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public void checkAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+	public void checkAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
 		UserAttributesModuleImplApi attributeModule = getUserAttributeModule(sess, attribute);
 		if(attributeModule == null) return;
 		try {
 			attributeModule.checkAttributeValue((PerunSessionImpl) sess, user, attribute);
 		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
@@ -3590,8 +3588,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			attributeModule.checkAttributeValue((PerunSessionImpl) sess, member, attribute);
 		} catch (WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException(ex);
-		} catch (WrongReferenceAttributeValueException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
