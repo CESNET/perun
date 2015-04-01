@@ -30,7 +30,7 @@ public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAtt
 
 		String sub = value.substring(0,3);
 
-		if ( !(sub.equals("ou=") || sub.equals("dc=")) ) {
+		if ( !(sub.equalsIgnoreCase("ou=") || sub.equalsIgnoreCase("dc=")) ) {
 			throw new WrongAttributeValueException(attribute, facility, "attribute has to start with \"ou=\" or \"dc=\"");
 		}
 	}
@@ -42,7 +42,7 @@ public class urn_perun_facility_attribute_def_def_ldapBaseDN extends FacilityAtt
 		attr.setFriendlyName("ldapBaseDN");
 		attr.setDisplayName("LDAP base DN");
 		attr.setType(String.class.getName());
-		attr.setDescription("Base part of DN, which will be used for all entities propagated to facility. Should be like \"dc=example,dc=domain\" (without quotes)");
+		attr.setDescription("Base part of DN, which will be used for all entities propagated to facility. Should be like \"ou=sth,dc=example,dc=domain\" (without quotes)");
 		return attr;
 	}
 }
