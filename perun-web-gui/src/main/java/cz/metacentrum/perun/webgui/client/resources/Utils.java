@@ -83,10 +83,9 @@ public class Utils {
 			// always use URL of machine, where GUI runs
 			String baseUrl = Window.Location.getProtocol() + "//" + Window.Location.getHost();
 
-			// FIXME - production consolidator is still using old URL scheme
-			final String URL_KRB = baseUrl + "/perun-identity-consolidator-krb/";
-			final String URL_FED = baseUrl + "/perun-identity-consolidator-fed/";
-			final String URL_CERT = baseUrl + "/perun-identity-consolidator-cert/";
+			final String URL_KRB = baseUrl + "/krb/ic/index.cgi";
+			final String URL_FED = baseUrl + "/fed/ic/index.cgi";
+			final String URL_CERT = baseUrl + "/cert/ic/index.cgi";
 			String rpc = "";
 			String link = "";
 
@@ -143,10 +142,9 @@ public class Utils {
 			// always use URL of machine, where GUI runs
 			String baseUrl = Window.Location.getProtocol() + "//" + Window.Location.getHost();
 
-			// FIXME - production consolidator is still using old URL scheme
-			final String URL_KRB = baseUrl + "/perun-identity-consolidator-krb/";
-			final String URL_FED = baseUrl + "/perun-identity-consolidator-fed/";
-			final String URL_CERT = baseUrl + "/perun-identity-consolidator-cert/";
+			final String URL_KRB = baseUrl + "/krb/ic/index.cgi";
+			final String URL_FED = baseUrl + "/fed/ic/index.cgi";
+			final String URL_CERT = baseUrl + "/cert/ic/index.cgi";
 			String link = "";
 
 			if (authz.equalsIgnoreCase("krb")) {
