@@ -21,9 +21,9 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Returns an external source by its ID.
+	 * Returns an external source by its <code>id</code>.
 	 *
-	 * @param id int ExtSource ID
+	 * @param id int ExtSource <code>id</code>
 	 * @return ExtSource Found ExtSource
 	 */
 	getExtSourceById {
@@ -51,7 +51,7 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns the list of external sources associated with a VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<ExtSource> VO external sources
 	 */
 	getVoExtSources {
@@ -79,8 +79,8 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Associate an external source definition with a VO.
 	 *
-	 * @param vo int VO ID
-	 * @param source int ExtSource ID
+	 * @param vo int VO <code>id</code>
+	 * @param source int ExtSource <code>id</code>
 	 */
 	addExtSource {
 
@@ -99,8 +99,8 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove an association of an external source from a VO.
 	 *
-	 * @param vo int VO ID
-	 * @param source int ExtSource ID
+	 * @param vo int VO <code>id</code>
+	 * @param source int ExtSource <code>id</code>
 	 */
 	removeExtSource {
 

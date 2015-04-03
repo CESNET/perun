@@ -8,7 +8,7 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 public enum DatabaseManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Gets current version of DB schema like String (ex. 1.1.1).
+	 * Gets current version of DB schema like String (eg. 1.1.1).
 	 *
 	 * @exampleResponse "3.1.21"
 	 * @return String Current version of DB schema like String

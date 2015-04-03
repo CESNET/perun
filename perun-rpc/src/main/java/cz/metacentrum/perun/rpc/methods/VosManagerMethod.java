@@ -10,9 +10,8 @@ import java.util.List;
 public enum VosManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Returns list of all VOs.
-	 *
-	 * @return List<VirtualOrganization> Found VOs
+	 * Return list of VOs caller has relation with (is manager of VO, is manager of group in VO etc.).
+	 * @return List<Vo> Found VOs
 	 */
 	getVos {
 		@Override
@@ -21,6 +20,11 @@ public enum VosManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+     * Return list of all VOs in Perun.
+     *
+     * @return List<Vo> Found VOs
+     */
 	getAllVos {
 		@Override
 		public List<Vo> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -29,15 +33,20 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Deletes a VO.
+	 * Deletes a VO. If VO contain members, group or resources, it's not deleted and exception is thrown.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
+	 * @throw RelationExistsException When VO has members, groups or resources.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
 	 */
  	/*#
-	 * Deletes a VO (force).
+	 * Deletes a VO. If <code>force == true</code> then VO is deleted including members, groups and resources.
+	 * Otherwise only empty VO is deleted or exception is thrown.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param force boolean Force must be true
+	 * @throw RelationExistsException When VO has members, groups or resources and <code>force == false</code> is set.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
 	 */
 	deleteVo {
 		@Override
@@ -54,10 +63,11 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates a VO.
+	 * Creates new VO. Caller is automatically set as VO manager.
 	 *
-	 * @param vo VirtualOrganization JSON VO class
-	 * @return VirtualOrganization Newly created VO
+	 * @param vo Vo VO to create (value of VO's <code>id</code> is ignored and will be set internally)
+	 * @throw VoExistsException When VO you try to create already exists.
+	 * @return Vo Created VO with correct <code>id</code> set
 	 */
 	createVo {
 		@Override
@@ -69,10 +79,12 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Updates a VO.
+	 * Updates a VO. Only <code>name</code> parameter is updated. VO to updated is determined by <code>id</code>
+	 * parameter of passed VO object.
 	 *
-	 * @param vo VirtualOrganization JSON VO class
-	 * @return VirtualOrganization Updated VO
+	 * @param vo Vo VO to update with modified params
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @return Vo Updated VO
 	 */
 	updateVo {
 		@Override
@@ -84,10 +96,11 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a VO by a short name.
+	 * Returns a VO by its short name.
 	 *
 	 * @param shortName String VO shortName
-	 * @return VirtualOrganization Found VO
+	 * @throw VoNotExistsException When VO specified by short name doesn't exists.
+	 * @return Vo Found VO
 	 */
 	getVoByShortName {
 		@Override
@@ -98,10 +111,11 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a VO by ID.
+	 * Returns a VO by its <code>id</code>.
 	 *
-	 * @param id int VO ID
-	 * @return VirtualOrganization Found VO
+	 * @param id int VO <code>id</code>
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @return Vo Found VO
 	 */
 	getVoById {
 		@Override
@@ -112,19 +126,25 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Finds candidates for a VO.
+	 * Find candidates for VO. Candidates can be used to create new members. Candidates are searched
+	 * in VOs external sources (if available). Candidates, which are already members of VO are never
+	 * returned even if they match searchString.
 	 *
-	 * @param vo int VO ID
-	 * @param searchString String String to search by
-	 * @return List<Candidate> List of candidates
+	 * @param vo int VO <code>id</code>
+	 * @param searchString String Text to search by
+	 * @throw VoNotExistsException When <code>id</code> of VO doesn't match any existing VO.
+	 * @return List<Candidate> List of Candidates
 	 */
  	/*#
-	 * Finds candidates for a VO. Maximum results specified.
+	 * Find candidates for VO with specified maximum number of results. Candidates can be used to create new members.
+	 * Candidates are searched in VOs external sources (if available). Candidates, which are already members of VO are never
+	 * returned even if they match searchString.
 	 *
-	 * @param vo int VO ID
-	 * @param searchString String String to search by
-	 * @param maxNumOfResults int Maximum results
-	 * @return List<Candidate> List of candidates
+	 * @param vo int VO <code>id</code>
+	 * @param searchString String Text to search by
+	 * @param maxNumOfResults int Number of maximum results
+	 * @throw VoNotExistsException When <code>id</code> of VO doesn't match any existing VO.
+	 * @return List<Candidate> List of Candidates
 	 */
 	findCandidates {
 		@Override
@@ -143,16 +163,23 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Adds an admin to a VO.
+	 * Add user as a manager of VO.
 	 *
-	 * @param vo int VO ID
-	 * @param user int User ID
+	 * @param vo int VO <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @throw AlreadyAdminException When User is already manager of VO.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @throw UserNotExistsException When User specified by <code>id</code> doesn't exists.
 	 */
 	/*#
-	 *  Adds a group admin to a VO.
+	 * Add group as a manager of VO. All members of group will become VO managers.
+	 * It means, that who can manage group will also control VO managers (by managing group membership).
 	 *
-	 *  @param vo int VO ID
-	 *  @param authorizedGroup int Group ID
+	 * @param vo int VO <code>id</code>
+	 * @param authorizedGroup int Group <code>id</code>
+	 * @throw AlreadyAdminException When Group is already manager of VO.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @throw GroupNotExistsException When Group specified by <code>id</code> doesn't exists.
 	 */
 	addAdmin {
 		@Override
@@ -173,16 +200,24 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Removes an admin from a VO.
+	 * Removes user from managers of VO. Please note, that user can keep management rights if they
+	 * are provided by group membership and group is assigned as manager of VO.
 	 *
-	 * @param vo int VO ID
-	 * @param user int User ID
+	 * @param vo int VO <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @throw UserNotAdminException When User is not manager of VO.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @throw UserNotExistsException When User specified by <code>id</code> doesn't exists.
 	 */
 	/*#
-	 *  Removes a group admin from VO.
+	 * Removes group from managers of VO. Please note, that users can keep their management rights if they
+	 * are provided by concrete manager role assignment to selected users.
 	 *
-	 *  @param vo int VO ID
-	 *  @param authorizedGroup int Group ID
+	 * @param vo int VO <code>id</code>
+	 * @param authorizedGroup int Group <code>id</code>
+	 * @throw GroupNotAdminException When Group is not manager of VO.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @throw GroupNotExistsException When Group specified by <code>id</code> doesn't exists.
 	 */
 	removeAdmin {
 		@Override
@@ -202,7 +237,6 @@ public enum VosManagerMethod implements ManagerMethod {
 		}
 	},
 
-
 	/*#
 	 * Get list of all vo administrators for supported role and specific vo.
 	 *
@@ -210,7 +244,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 *
 	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param role String supported role name
 	 * @param onlyDirectAdmins boolean if true, get only direct VO administrators (if false, get both direct and indirect)
 	 *
@@ -220,7 +254,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * Returns administrators of a VO.
 	 *
 	 * @deprecated
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<User> VO admins
 	 */
 	getAdmins {
@@ -249,7 +283,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * Returns direct administrators of a VO.
 	 *
 	 * @deprecated
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<User> VO admins
 	 */
 	getDirectAdmins {
@@ -266,7 +300,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 *
 	 * Supported roles: VoObserver, TopGroupCreator, VoAdmin
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param role String Role name
 	 *
 	 * @return List<Group> List of groups, who are administrators of the VO with supported role. Returns empty list if there is no VO group admin.
@@ -275,7 +309,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * Returns group administrators of a VO.
 	 *
 	 * @deprecated
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<User> VO admins
 	 */
 	getAdminGroups {
@@ -319,7 +353,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * Returns administrators of a VO.
 	 *
 	 * @deprecated
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<RichUser> VO admins
 	 */
 	getRichAdmins {
@@ -349,7 +383,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * Returns administrators of a VO with additional information.
 	 *
 	 * @deprecated
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<RichUser> VO admins
 	 */
 	getRichAdminsWithAttributes {
@@ -365,7 +399,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * Returns administrators of a VO with additional information.
 	 *
 	 * @deprecated
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param specificAttributes List<String> list of attributes URNs
 	 * @return List<RichUser> VO rich admins with attributes
 	 */
@@ -384,7 +418,7 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * with additional information.
 	 *
 	 * @deprecated
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param specificAttributes List<String> list of attributes URNs
 	 * @return List<RichUser> VO rich admins with attributes
 	 */

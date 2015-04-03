@@ -22,10 +22,10 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 public enum NotificationManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Method returns PerunNotifObject from db with given ID.
+	 * Method returns PerunNotifObject from db with given <code>id</code>.
 	 * Method for PerunNotifObject.
 	 *
-	 * @param id int ID of PerunNotifObject
+	 * @param id int <code>id</code> of PerunNotifObject
 	 * @return PerunNotifObject PerunNotifObject
 	 */
 	getPerunNotifObjectById {
@@ -52,10 +52,10 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Saves PerunNotifObject to db and creates ID.
+	 * Saves PerunNotifObject to db and creates <code>id</code>.
 	 *
-	 * @param object PerunNotifObject Object without ID
-	 * @return PerunNotifObject PerunNotifObject with new ID set
+	 * @param object PerunNotifObject Object without <code>id</code>
+	 * @return PerunNotifObject PerunNotifObject with new <code>id</code> set
 	 */
 	createPerunNotifObject {
 		@Override
@@ -101,8 +101,8 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Saves relation between object and regex if not exists.
 	 *
-	 * @param regexId int Regex ID
-	 * @param objectId int Object ID
+	 * @param regexId int Regex <code>id</code>
+	 * @param objectId int Object <code>id</code>
 	 */
 	saveObjectRegexRelation {
 		@Override
@@ -117,8 +117,8 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes relation between object and regex.
 	 *
-	 * @param regexId int Regex ID
-	 * @param objectId int Object ID
+	 * @param regexId int Regex <code>id</code>
+	 * @param objectId int Object <code>id</code>
 	 */
 	removePerunNotifRegexObjectRelation {
 		@Override
@@ -134,7 +134,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	 * Return PerunNotifReceiver with given id from db.
 	 * Object for PerunNotifReceiver.
 	 *
-	 * @param id int Receiver ID
+	 * @param id int Receiver <code>id</code>
 	 * @return PerunNotifReceiver PerunNotifReceiver
 	 */
 	getPerunNotifReceiverById {
@@ -161,10 +161,10 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Saves PerunNotifReceiver to db and creates ID.
+	 * Saves PerunNotifReceiver to db and creates <code>id</code>.
 	 *
-	 * @param receiver PerunNotifReceiver PerunNotifReceiver object without ID
-	 * @return PerunNotifReceiver PerunNotifReceiver with new ID set
+	 * @param receiver PerunNotifReceiver PerunNotifReceiver object without <code>id</code>
+	 * @return PerunNotifReceiver PerunNotifReceiver with new <code>id</code> set
 	 */
 	createPerunNotifReceiver {
 		@Override
@@ -195,7 +195,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes PerunNotifReceiver from db.
 	 *
-	 * @param id int PerunNotifReceiver ID
+	 * @param id int PerunNotifReceiver <code>id</code>
 	 */
 	removePerunNotifReceiverById {
 		@Override
@@ -208,10 +208,10 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns PerunNotifRegex by ID, returns also object related to regex.
+	 * Returns PerunNotifRegex by <code>id</code>, returns also object related to regex.
 	 * Methods for PerunNotifRegexp.
 	 *
-	 * @param id int PerunNotifRegex ID
+	 * @param id int PerunNotifRegex <code>id</code>
 	 * @return PerunNotifRegex PerunNotifRegex
 	 */
 	getPerunNotifRegexById {
@@ -238,10 +238,10 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Saves perunNotifRegex to db and creates ID, also saves relation
+	 * Saves perunNotifRegex to db and creates <code>id</code>, also saves relation
 	 * between regex and object.
 	 *
-	 * @param regex PerunNotifRegex PerunNotifRegex object without ID
+	 * @param regex PerunNotifRegex PerunNotifRegex object without <code>id</code>
 	 * @return PerunNotifRegex PerunNotifRegex with new id set
 	 */
 	createPerunNotifRegex {
@@ -275,7 +275,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	 * Removes PerunNotifRegex from db, if regex is referenced from template
 	 * exception is thrown. Also removes relation between regex and objects.
 	 *
-	 * @param id int PerunNotifRegex ID
+	 * @param id int PerunNotifRegex <code>id</code>
 	 */
 	removePerunNotifRegexById {
 		@Override
@@ -294,8 +294,8 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Save relation between template and regex if not exists yet.
 	 *
-	 * @param templateId int Template ID
-	 * @param regexId int Regex ID
+	 * @param templateId int Template <code>id</code>
+	 * @param regexId int Regex <code>id</code>
 	 */
 	saveTemplateRegexRelation {
 		@Override
@@ -310,7 +310,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all regexes related to given template.
 	 *
-	 * @param templateId int Template ID
+	 * @param templateId int Template <code>id</code>
 	 * @return List<PerunNotifRegex> List of regexes
 	 */
 	getRelatedRegexesForTemplate {
@@ -323,8 +323,8 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes relation between PerunNotifRegex and PerunNotifTemplate.
 	 *
-	 * @param templateId int Template ID
-	 * @param regexId int Regex ID
+	 * @param templateId int Template <code>id</code>
+	 * @param regexId int Regex <code>id</code>
 	 */
 	removePerunNotifTemplateRegexRelation {
 		@Override
@@ -340,7 +340,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	 * Gets PerunNotifTemplateMessage from db.
  	 * Methods for perunNotifTemplateMessage.
  	 *
-	 * @param id int PerunNotifTemplateMessage ID
+	 * @param id int PerunNotifTemplateMessage <code>id</code>
 	 * @return PerunNotifTemplateMessage PerunNotifTemplateMessage
 	 */
 	getPerunNotifTemplateMessageById {
@@ -367,9 +367,9 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Saves perunNotifTemplateMessage to db and creates ID.
+	 * Saves perunNotifTemplateMessage to db and creates <code>id</code>.
 	 *
-	 * @param message PerunNotifTemplateMessage PerunNotifTemplateMessage object without ID
+	 * @param message PerunNotifTemplateMessage PerunNotifTemplateMessage object without <code>id</code>
 	 * @return PerunNotifTemplateMessage PerunNotifTemplateMessage with new id set
 	 */
 	createPerunNotifTemplateMessage {
@@ -401,7 +401,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes PerunNotifTemplateMessage from db.
 	 *
-	 * @param id int PerunNotifTemplateMessage ID
+	 * @param id int PerunNotifTemplateMessage <code>id</code>
 	 */
 	removePerunNotifTemplateMessage {
 		@Override
@@ -417,7 +417,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	 * Return perunNotifTemplate from db, return also all filled collections.
 	 * Methods for perunNotifTemplate.
 	 *
-	 * @param id int perunNotifTemplate ID
+	 * @param id int perunNotifTemplate <code>id</code>
 	 * @return PerunNotifTemplate PerunNotifTemplate
 	 */
 	getPerunNotifTemplateById {
@@ -446,7 +446,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Saves PerunNotifTemplate to db and saves all relations to db.
 	 *
-	 * @param template PerunNotifTemplate PerunNotifTemplate object without ID
+	 * @param template PerunNotifTemplate PerunNotifTemplate object without <code>id</code>
 	 * @return PerunNotifTemplate PerunNotifTemplate with new id set
 	 */
 	createPerunNotifTemplate {
@@ -479,7 +479,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes perunNotifTemplate from db.
 	 *
-	 * @param id int PerunNotifTemplate ID
+	 * @param id int PerunNotifTemplate <code>id</code>
 	 */
 	removePerunNotifTemplateById {
 		@Override
