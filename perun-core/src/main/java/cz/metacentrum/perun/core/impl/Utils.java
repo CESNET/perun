@@ -41,7 +41,7 @@ public class Utils {
 	private final static Logger log = LoggerFactory.getLogger(Utils.class);
 	public final static String configurationsLocations = "/etc/perun/";
 	private static Properties properties;
-	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
 	private static final Pattern titleBeforePattern = Pattern.compile("^([\\p{L}]+[.])|(et)$");
 	private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");
