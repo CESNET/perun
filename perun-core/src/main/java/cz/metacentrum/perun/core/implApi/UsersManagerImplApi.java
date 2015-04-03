@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
+ * @author Sona Mastrakova
  */
 public interface UsersManagerImplApi {
 	/**
@@ -463,6 +464,16 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException;
+        
+        /**
+	 * Returns list of users who exactly matches the searchString
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException;
 
 	/**
 	 * Returns all users who have set the attribute with the value. Searching only def and opt attributes.

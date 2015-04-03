@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
  * UsersManager entry logic
  *
  * @author Slavek Licehammer glory@ics.muni.cz
+ * @author Sona Mastrakova
  */
 public class UsersManagerEntry implements UsersManager {
 
@@ -540,6 +541,13 @@ public class UsersManagerEntry implements UsersManager {
 
 		// Probably without authorization
 		return getUsersManagerBl().findUsersByName(sess, titleBefore, firstName, middleName, lastName, titleAfter);
+	}
+        
+        public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Probably without authorization
+		return getUsersManagerBl().findUsersByExactName(sess, searchString);
 	}
 
 	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, PrivilegeException {

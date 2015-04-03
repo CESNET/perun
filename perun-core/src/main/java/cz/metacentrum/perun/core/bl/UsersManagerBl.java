@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.*;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
+ * @author Sona Mastrakova
  */
 public interface UsersManagerBl {
 
@@ -553,7 +554,7 @@ public interface UsersManagerBl {
 	List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
 
 	/**
-	 * Returns list of users' who matches the searchString
+	 * Returns list of users who matches the searchString
 	 *
 	 * @param sess
 	 * @param searchString
@@ -575,6 +576,16 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException;
+        
+        /**
+	 * Returns list of users who exactly matches the searchString
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException;
 
 	/**
 	 * Checks if the login is available in the namespace.

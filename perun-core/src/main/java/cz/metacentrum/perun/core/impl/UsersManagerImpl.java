@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedEx
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
+ * @author Sona Mastrakova
  */
 public class UsersManagerImpl implements UsersManagerImplApi {
 
@@ -732,6 +733,45 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" where coalesce(lower(users.title_before), '%') like ? and lower(users.first_name) like ? and coalesce(lower(users.middle_name),'%') like ? and " +
 					"lower(users.last_name) like ?  and coalesce(lower(users.title_after), '%') like ?",
 					USER_MAPPER, titleBefore, firstName, middleName, lastName, titleAfter);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<User>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+        
+        public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
+		if (searchString == null || searchString.isEmpty()) {
+			return new ArrayList<User>();
+		}
+
+		// Convert to lower case
+		searchString = searchString.toLowerCase();
+		log.debug("Search string '{}' converted into the lowercase", searchString);
+
+		// Convert to ASCII
+		searchString = utftoasci(searchString);
+		log.debug("Search string '{}' converted into the ASCII", searchString);
+
+		// remove spaces from the search string
+		searchString = searchString.replaceAll(" ", "");
+
+		log.debug("Searching users by name using searchString '{}'", searchString);
+
+		// the searchString is already lower cased and converted into the ASCII
+		try {
+			if (Compatibility.isOracle()) {
+				// Search users' names
+				return (jdbc.query("select " + userMappingSelectQuery + " from users "
+                                        + "where strcmp(lower(" + Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name") + "),?) = 0",
+                                        USER_MAPPER, searchString));  
+			} else if (Compatibility.isPostgreSql()) {
+				return jdbc.query("select " + userMappingSelectQuery + " from users "
+                                        + "where lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=?",
+                                        USER_MAPPER, searchString);
+			} else {
+				throw new InternalErrorException("Unsupported db type");
+			}
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<User>();
 		} catch (RuntimeException e) {

@@ -32,6 +32,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
+ * @author Sona Mastrakova
  */
 public class UsersManagerBlImpl implements UsersManagerBl {
 
@@ -624,6 +625,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		titleAfter = titleAfter.toLowerCase();
 
 		return this.getUsersManagerImpl().findUsersByName(sess, titleBefore, firstName, middleName, lastName, titleAfter);
+	}
+        
+        public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
+		return this.getUsersManagerImpl().findUsersByExactName(sess, searchString);
 	}
 
 	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException {
