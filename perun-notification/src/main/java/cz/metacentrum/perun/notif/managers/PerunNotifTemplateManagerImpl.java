@@ -923,7 +923,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		}
 		return loc;
 	}
-	
+
 	private String resolveSender(String input, Map<String,Object> container) throws IOException {
 		Matcher emailMatcher = Utils.emailPattern.matcher(input);
 		String method = null;
@@ -945,9 +945,12 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 			Template freeMarkerTemplate = this.configuration.getTemplate(EVALUATION_TEMPLATE);
 			StringWriter stringWriter = new StringWriter(4096);
 			try {
+				// because for template messages the nulls are ignored, now we want to fail when null
+				this.configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 				freeMarkerTemplate.process(container, stringWriter);
 			} catch (TemplateException ex) {
 				stringWriter = null;
+				logger.info("Resolving sender for method " + method + " failed because of exception: ", ex);
 			}
 			if (stringWriter != null) {
 				if (stringWriter.toString().trim().isEmpty()) {
