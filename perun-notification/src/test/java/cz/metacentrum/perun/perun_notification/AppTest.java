@@ -11,7 +11,6 @@ import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
 import cz.metacentrum.perun.notif.exceptions.TemplateMessageSyntaxErrorException;
-import cz.metacentrum.perun.notif.listener.NotificationListener;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManagerImpl;
 import cz.metacentrum.perun.notif.managers.SchedulingManagerImpl;
@@ -68,12 +67,11 @@ public class AppTest extends AbstractTest {
 			"perun-notification-applicationcontext-scheduling-test.xml"
 		);
 
-		NotificationListener notificationListener = springCtx.getBean("notificationListener", NotificationListener.class);
-
-		notificationListener.processOneAuditerMessage("Member:[id=<4054>, userId=<3354>, voId=<21>, status=<VALID>] created.");
-		notificationListener.processOneAuditerMessage("Member:[id=<4054>, userId=<3354>, voId=<21>, status=<VALID>] validated.");
 
 		SchedulingManagerImpl schedulingManager = springCtx.getBean("schedulingManager", SchedulingManagerImpl.class);
+
+		schedulingManager.processOneAuditerMessage("Member:[id=<4054>, userId=<3354>, voId=<21>, status=<VALID>] created.");
+		schedulingManager.processOneAuditerMessage("Member:[id=<4054>, userId=<3354>, voId=<21>, status=<VALID>] validated.");
 
 		schedulingManager.doNotification();
 

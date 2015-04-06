@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.dao.PerunNotifPoolMessageDao;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
@@ -25,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
 
 //TODO:optimalizace, preprocesing, pro vsechny template
 @Service("perunNotifPoolMessageManager")
@@ -89,12 +91,11 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 					Map<String, String> retrievedPrimaryProperties = new HashMap<String, String>();
 					Set<String> classNames = new HashSet<String>();
 					classNames.addAll(template.getPrimaryProperties().keySet());
-					// recognize sender
-					if (!(template.getSender().contains("@"))) {
-						classNames.add(template.getSender());
-					}
 					for (PerunNotifReceiver receiver : template.getReceivers()) {
-						classNames.add(receiver.getTarget());
+						Matcher emailMatcher = Utils.emailPattern.matcher(receiver.getTarget());
+						if (!emailMatcher.find()) {
+							classNames.add(receiver.getTarget());
+						}
 					}
 					for (String className : classNames) {
 
@@ -120,7 +121,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 									logger.error("No object recognized in objects from message for class: " + className);
 								}
 							} catch (ClassNotFoundException ex) {
-								logger.error("Class from template cannot be resolved: " + className);
+								logger.error("Class from template cannot be resolved: " + className, ex);
 							}
 						}
 					}

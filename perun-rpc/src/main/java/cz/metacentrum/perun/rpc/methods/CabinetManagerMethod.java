@@ -148,7 +148,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		*
 		* If you don't want to filter by publication params, do not include the attribute in the query.
 		*
-		* @param id int Publication ID
+		* @param id int Publication <code>id</code>
 		* @param title String Title
 		* @param isbn String ISBN
 		* @param year int Year
@@ -157,7 +157,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		* @param locked boolean Publication locked
 		* @param yearSince int Year since
 		* @param yearTill int Year till
-		* @param userId int User ID
+		* @param userId int User <code>id</code>
 		* @return List<PublicationForGUI> Found publications
 		*/
 	findPublicationsByGUIFilter {
@@ -218,8 +218,8 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns a Publication by its ID.
-		* @param id int Publication ID
+		* Returns a Publication by its <code>id</code>.
+		* @param id int Publication <code>id</code>
 		* @return PublicationForGUI found Publication
 		*/
 	findPublicationById {
@@ -252,8 +252,8 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns an Authorship by its ID.
-		* @param id int Authorship ID
+		* Returns an Authorship by its <code>id</code>.
+		* @param id int Authorship <code>id</code>
 		* @return Authorship found Authorship
 		*/
 	findAuthorshipById {
@@ -274,7 +274,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 		* Finds Authors of a Publication.
-		* @param id int Publication ID
+		* @param id int Publication <code>id</code>
 		* @return List<Author> Authors
 		*/
 	findAuthorsByPublicationId {
@@ -306,7 +306,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 		* Finds thanks by a Publication.
-		* @param id int Publication ID
+		* @param id int Publication <code>id</code>
 		* @return List<ThanksForGUI> Found thanks
 		*/
 	findThanksByPublicationId {
@@ -356,7 +356,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 		* Deletes a category.
-		* @param id int Category ID
+		* @param id int Category <code>id</code>
 		*/
 	deleteCategory {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
@@ -403,8 +403,8 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 		* Deletes an Authorship.
-		* @param publicationId int Publication ID
-		* @param userId int User ID
+		* @param publicationId int Publication <code>id</code>
+		* @param userId int User <code>id</code>
 		*/
 	deleteAuthorship {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
@@ -466,7 +466,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 		* Deletes a Publication.
-		* @param id int Publication ID
+		* @param id int Publication <code>id</code>
 		*/
 	deletePublication {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
@@ -480,8 +480,8 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		* Checks whether a publication exists.
 		* If you don't want to filter by a publication param, do not include the attribute in the query.
 		*
-		* @param externalId int External ID
-		* @param pubSysId int PubSys ID
+		* @param externalId int External <code>id</code>
+		* @param pubSysId int PubSys <code>id</code>
 		* @param isbn String ISBN
 		* @return boolean True if exists
 		*/
@@ -502,17 +502,17 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Locks and unlocks publications.
-		* @param publications List<Publication> Publications
-		* @param lock int 1 = lock, 0 = unlock
-		* @return int Number of updated rows
-		*/
+	 * Locks and unlocks publications.
+	 * @param publications List<Publication> Publications
+	 * @param lock boolean true = lock, false = unlock
+	 * @return int Number of updated rows
+	 */
 	lockPublications {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 			ac.stateChangingCheck();
 
 			List<Publication> pubs = parms.readList("publications", Publication.class);
-			boolean lockState = parms.readInt("lock") == 1 ? true : false;
+			boolean lockState = parms.readBoolean("lock");
 			return ac.getCabinetManager().lockPublications(ac.getSession(), lockState, pubs);
 
 		}
@@ -533,7 +533,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 		* Deletes Thanks.
-		* @param id int Thanks ID
+		* @param id int Thanks <code>id</code>
 		*/
 	deleteThanks {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
@@ -548,7 +548,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	/*#
 		* Returns user's rank.
 		*
-		* @param user int User ID
+		* @param user int User <code>id</code>
 		* @return double User's rank
 		*/
 	getRank {

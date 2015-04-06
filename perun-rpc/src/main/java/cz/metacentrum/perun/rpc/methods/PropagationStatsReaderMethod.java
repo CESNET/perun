@@ -20,8 +20,8 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Returns a task.
 	 *
-	 * @param execService int Exec service ID
-	 * @param facility int Facility ID
+	 * @param execService int Exec service <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @return Task Found task
 	 */
 	getTask {
@@ -46,7 +46,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Returns all tasks associated with selected facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return List<Tasks> Tasks
 	 */
 	listAllTasksForFacility {
@@ -94,8 +94,8 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Whether task exists.
 	 *
-	 * @param execService int ExecService ID
-	 * @param facility int Facility ID
+	 * @param execService int ExecService <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @return int 1 = true; 0 = false
 	 */
 	isThereSuchTask {
@@ -131,7 +131,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Return list of TaskResults by a Task.
 	 *
-	 * @param task int Task ID
+	 * @param task int Task <code>id</code>
 	 * @return List<TaskResult> Results
 	 */
 	getTaskResultsByTask {
@@ -153,9 +153,9 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns TaskResult by its ID.
+	 * Returns TaskResult by its <code>id</code>.
 	 *
-	 * @param taskResult int TaskResult ID
+	 * @param taskResult int TaskResult <code>id</code>
 	 * @return TaskResult Result
 	 */
 	getTaskResultById {
@@ -165,9 +165,9 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns Task by its ID.
+	 * Returns Task by its <code>id</code>.
 	 *
-	 * @param id int Task ID
+	 * @param id int Task <code>id</code>
 	 * @return Task Task
 	 */
 
@@ -180,7 +180,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Return propagation status of facility.
 	 *
-	 * @param facility int Facility ID
+	 * @param facility int Facility <code>id</code>
 	 * @return FacilityState Facility state
 	 */
 	getFacilityState {
@@ -197,7 +197,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Return propagation status of all facilities related to VO resources.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<FacilityState> Propagation status
 	 */
 	getAllFacilitiesStates {
@@ -213,7 +213,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Return propagation status of all resources related to VO.
 	 *
-	 * @param voId int VO ID
+	 * @param voId int VO <code>id</code>
 	 * @return List<ResourceState> Propagation status
 	 */
 	getAllResourcesState {
@@ -237,7 +237,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Returns service states for defined facility.
 	 *
-	 * @param Facility int ID of facility
+	 * @param Facility int <code>id</code> of facility
 	 * @return List<ServiceState> serviceStates.
 	 */
 	getFacilityServicesState {

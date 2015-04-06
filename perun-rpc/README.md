@@ -1,40 +1,49 @@
 # Perun RPC (server) #
 
-This module wraps others into a single java web application and represent single Perun instance. This module also provides REST API to work with Perun itslef. Application is expected to run inside Tomcat 7 container and receive all requests on AJP port. Perun rely on Apache web server for authentication of users.
+This module wraps others into a single web application and represents single Perun instance. Application contains server side RPC API which you can use to manage your Perun instance. For this purpose, Perl CLI tools are also provided in module sources. See on bottom how to make it work. GUI is provided by *perun-web-gui* module, which is not packaged inside *perun-rpc* and must be built and deployed separately into some web server (Apache).
 
-You can find REST API documentation here:
+Application is expected to run inside Tomcat 7 container and receive all requests on AJP port (8009). Perun rely on Apache web server for passing requests, authentication of users and setting up environment variables. User credentials are passed to Perun to perform authorization. If approved, required action is performed and response returned to user through Apache web server.
 
-* [How to use RPC interface](https://wiki.metacentrum.cz/wiki/Perun_remote_interfaces#RPC)
-* [List of available methods (javadoc)](http://perun.cesnet.cz/javadoc-rpc/)
+You can find full documentation of Perun RPC API [on our web](http://perun.metacentrum.cz/web/rpc-javadoc-howto.shtml).
 
 ### Build and local run ###
 
 > Please note, that to actually run Perun, you must:
 >
 > * Setup DB and create initial user entry including roles and authz data.
-> * Have a bunch of configuration files with proper setting in /etc/perun/ folder
-> * Setup some authentication in Apache server.
-> * Pass authentication data from Apache to Tomcat (AJP port) so Perun can locate user based on that.
+> * Have a bunch of configuration files with proper settings in /etc/perun/ folder
+> * Setup some authentication in Apache.
+> * Pass requests and authentication data from Apache to Tomcat (AJP port) so Perun can locate user based on that.
 >
-> For complete installation instructions, please refer to our wiki.
+> For now NON of these steps are covered on public wiki/web.
 
-To build production version of Perun RPC from sources use Maven command in repository root folder:
+To build production version of Perun RPC from sources use Maven command in a project root folder:
 
-``mvn clean package -pl perun-rpc -am -Pproduction -DskipTests``
+```
+mvn clean install -pl perun-rpc -am -Dproduction -DskipTests
+```
 
-You can then deploy ``perun-rpc.war`` into running Tomcat. You can also run Perun locally (e.g. for some tests). Just run Maven with jetty plugin in ``perun-rpc/`` folder:
+You can then deploy ``perun-rpc/target/perun-rpc.war`` into running Tomcat and it will be running under *http(s)://localhost:8009/perun-rpc* path. 
 
-``mvn jetty:run-exploded``
+You must setup Apache to provide authentication or modify it to provide necessary data in HTTP headers. Otherwise all requests to the app will end with wrong authentication.
 
-You still must setup Apache to provide authentication or modify ``jetty.xml`` to provide necessary data in HTTP request attributes.
+Also you must redirect all requests to the right URL (provided by tomcat), since GUI and CLI tools expect to find Perun on *http(s)://[hostname]/[krb/cert/fed]/rpc/[rest_of_request_path+params]* URL.
+
+You can also run Perun locally (e.g. for some tests). Just run Maven with tomcat plugin in ``perun-rpc/`` folder:
+
+```
+mvn tomcat7:run-war
+```
 
 ### CLI tools ###
 
-Perun can be also managed using CLI tools (Perl scripts). You can find them in ``/src/main/perl`` folder.
+Perun can be managed using CLI tools (Perl scripts). You can find them in ``/src/main/perl`` folder.
 
 In order to use them, you must install following Perl packages (example for Debian):
 
-```apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl```
+```bash
+apt-get install libswitch-perl liblwp-authen-negotiate-perl libjson-any-perl libtext-asciitable-perl libterm-readkey-perl libwww-perl libcrypt-ssleay-perl libtext-unidecode-perl libdate-calc-perl
+```
 
 Then you must setup environmental variables to locate your Perun instance:
 

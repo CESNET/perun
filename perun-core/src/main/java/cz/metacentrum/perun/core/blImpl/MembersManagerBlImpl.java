@@ -908,8 +908,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		Status oldStatus = member.getStatus();
 		getMembersManagerImpl().setStatus(sess, member, Status.VALID);
-		getPerunBl().getAuditer().log(sess, "{} validated.", member);
 		member.setStatus(Status.VALID);
+		getPerunBl().getAuditer().log(sess, "{} validated.", member);
 		if(oldStatus.equals(Status.INVALID)) {
 			try {
 				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
@@ -953,8 +953,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		getMembersManagerImpl().setStatus(sess, member, Status.INVALID);
-		getPerunBl().getAuditer().log(sess, "{} invalidated.", member);
 		member.setStatus(Status.INVALID);
+		getPerunBl().getAuditer().log(sess, "{} invalidated.", member);
 		return member;
 	}
 
@@ -965,8 +965,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.SUSPENDED);
-		getPerunBl().getAuditer().log(sess, "{} suspended #{}.", member, Auditer.engineForceKeyword);
 		member.setStatus(Status.SUSPENDED);
+		getPerunBl().getAuditer().log(sess, "{} suspended #{}.", member, Auditer.engineForceKeyword);
 		return member;
 	}
 
@@ -978,8 +978,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.EXPIRED);
-		getPerunBl().getAuditer().log(sess, "{} expired.", member);
 		member.setStatus(Status.EXPIRED);
+		getPerunBl().getAuditer().log(sess, "{} expired.", member);
 		return member;
 	}
 
@@ -991,8 +991,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		if(this.haveStatus(sess, member, Status.INVALID)) throw new MemberNotValidYetException(member);
 		getMembersManagerImpl().setStatus(sess, member, Status.DISABLED);
-		getPerunBl().getAuditer().log(sess, "{} disabled.", member);
 		member.setStatus(Status.DISABLED);
+		getPerunBl().getAuditer().log(sess, "{} disabled.", member);
 		return member;
 	}
 

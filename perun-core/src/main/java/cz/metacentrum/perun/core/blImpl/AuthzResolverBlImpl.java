@@ -5,24 +5,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.ActionType;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -129,36 +115,38 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return false;
 		}
 
-		// Check if the principal has the priviledge
+		// Check if the principal has the privileges
 		if (complementaryObject != null) {
+
+			String beanName = BeansUtils.convertRichBeanNameToBeanName(complementaryObject.getBeanName());
 
 			// Check various combinations of role and complementary objects
 			if (role.equals(Role.VOADMIN) || role.equals(Role.VOOBSERVER)) {
 				// VO admin (or VoObserver) and group, get vo id from group and check if the user is vo admin (or VoObserver)
-				if (complementaryObject.getBeanName().equals(Group.class.getSimpleName())) {
+				if (beanName.equals(Group.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Vo.class.getSimpleName(), ((Group) complementaryObject).getVoId());
 				}
 				// VO admin (or VoObserver) and resource, check if the user is vo admin (or VoObserver)
-				if (complementaryObject.getBeanName().equals(Resource.class.getSimpleName())) {
+				if (beanName.equals(Resource.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Vo.class.getSimpleName(), ((Resource) complementaryObject).getVoId());
 				}
 				// VO admin (or VoObserver) and member, check if the member is from that VO
-				if (complementaryObject.getBeanName().equals(Member.class.getSimpleName())) {
+				if (beanName.equals(Member.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Vo.class.getSimpleName(), ((Member) complementaryObject).getVoId());
 				}
 			} else if (role.equals(Role.FACILITYADMIN)) {
 				// Facility admin and resource, get facility id from resource and check if the user is facility admin
-				if (complementaryObject.getBeanName().equals(Resource.class.getSimpleName())) {
+				if (beanName.equals(Resource.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Facility.class.getSimpleName(), ((Resource) complementaryObject).getFacilityId());
 				}
 			} else if (role.equals(Role.GROUPADMIN) || role.equals(Role.TOPGROUPCREATOR)) {
 				// Group admin can see some of the date of the VO
-				if (complementaryObject.getBeanName().equals(Vo.class.getSimpleName())) {
+				if (beanName.equals(Vo.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Vo.class.getSimpleName(), ((Vo) complementaryObject).getId());
 				}
 			} else if (role.equals(Role.SELF)) {
 				// Check if the member belogs to the self role
-				if (complementaryObject.getBeanName().equals(Member.class.getSimpleName())) {
+				if (beanName.equals(Member.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, User.class.getSimpleName(), ((Member) complementaryObject).getUserId());
 				}
 			}

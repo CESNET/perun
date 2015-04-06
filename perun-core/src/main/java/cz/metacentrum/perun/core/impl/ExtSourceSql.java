@@ -235,6 +235,9 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
         this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"), null)).createConnection();
       }
       
+      // Set connection to read-only mode
+      this.con.setReadOnly(true);
+      
       if (this.con.getMetaData().getDriverName().toLowerCase().contains("oracle")) {
         this.isOracle = true;
       }

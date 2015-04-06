@@ -21,9 +21,9 @@ import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 public enum ResourcesManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Returns resource by its ID.
+	 * Returns resource by its <code>id</code>.
 	 *
-	 * @param id int Resource ID
+	 * @param id int Resource <code>id</code>
 	 * @return Resource Found Resource
 	 */
 	getResourceById {
@@ -34,6 +34,14 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+     * Returns resource by its name, Vo <code>id</code> and Facility <code>id</code>.
+     *
+     * @param vo int VO <code>id</code>
+     * @param facility int Facility <code>id</code>
+     * @param name String resource name
+     * @return Resource Found Resource based on the input.
+     */
 	getResourceByName {
 		@Override
 		public Resource call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -45,9 +53,9 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns RichResource by its ID (also containing facility and VO inside)
+	 * Returns RichResource by its <code>id</code> (also containing facility and VO inside)
 	 *
-	 * @param id int RichResource ID
+	 * @param id int RichResource <code>id</code>
 	 * @return RichResource Found RichResource
 	 */
 	getRichResourceById {
@@ -62,8 +70,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * Creates a new resource.
 	 *
 	 * @param resource Resource JSON object
-	 * @param vo int virtual organization ID
-	 * @param facility int Facility ID
+	 * @param vo int virtual organization <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 * @return Resource Created resource
 	 */
 	createResource {
@@ -99,7 +107,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes a resource.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 */
 	deleteResource {
 
@@ -116,7 +124,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get facility which belongs to a specific resource.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return Facility Found facility
 	 */
 	getFacility {
@@ -131,8 +139,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Sets Facility to resource.
 	 *
-	 * @param resource int Resource ID
-	 * @param facility int Facility ID
+	 * @param resource int Resource <code>id</code>
+	 * @param facility int Facility <code>id</code>
 	 */
 	setFacility {
 
@@ -150,7 +158,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns Vo which is tied to a specific resource.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return Vo VirtualOrganization
 	 */
 	getVo {
@@ -165,7 +173,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all members assigned to the resource.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Member> Members assigned to the resource
 	 */
 	getAllowedMembers {
@@ -180,7 +188,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all users assigned to the resource.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return List<User> Users assigned to the resource
 	 */
 	getAllowedUsers {
@@ -195,8 +203,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Assign group to a resource. Check if attributes for each member from group are valid. Fill members' attributes with missing value.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 */
 	assignGroupToResource {
 
@@ -215,7 +223,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * Assign groups to a resource. Check if attributes for each member from groups are valid. Fill members' attributes with missing values.
 	 *
 	 * @param groups List<Integer> list of groups IDs
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 */
 	assignGroupsToResource {
 
@@ -238,7 +246,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Assign group to resources. Check if attributes for each member from group are valid. Fill members' attributes with missing values.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param resources List<Integer> list of resources IDs
 	 */
 	assignGroupToResources {
@@ -263,8 +271,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * Remove group from a resource.
 	 * After removing, check attributes and fix them if it is needed.
 	 *
-	 * @param group int Group ID
-	 * @param resource int Resource ID
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
 	 */
 	removeGroupFromResource {
 
@@ -284,7 +292,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * After removing, check attributes and fix them if it is needed.
 	 *
 	 * @param groups List<Group> list of group
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 */
 	removeGroupsFromResource {
 
@@ -308,7 +316,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * Remove group from resources.
 	 * After removing, check attributes and fix them if it is needed.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param resources List<Integer> list of resources IDs
 	 */
 	removeGroupFromResources {
@@ -332,7 +340,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * List all groups associated with the resource.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Group> Resource groups
 	 */
 	getAssignedGroups {
@@ -347,13 +355,13 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * List all resources associated with a group.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @return List<Resource> Resources
 	 */
 	/*#
 	 * List all resources associated with a member's group.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @return List<Resource> Resources
 	 */
 	getAssignedResources {
@@ -378,20 +386,20 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all rich resources where the service and the member are assigned with facility property filled.
 	 *
-	 * @param member int Member ID
-	 * @param service int Service ID
+	 * @param member int Member <code>id</code>
+	 * @param service int Service <code>id</code>
 	 * @return List<RichResource> List of rich resources
 	 */
 	/*#
 	 * List all rich resources associated with a member's group.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @return List<RichResource> List of rich resources
 	 */
 	/*#
 	 * List all rich resources associated with a group.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @return List<RichResource> List of rich resources
 	 */
 	getAssignedRichResources {
@@ -416,7 +424,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all members assigned to the resource.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Member> list of assigned members
 	 */
 	getAssignedMembers {
@@ -430,7 +438,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all members assigned to the resource as RichMembers.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return List<RichMember> list of assigned rich members
 	 */
 	getAssignedRichMembers {
@@ -444,8 +452,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Assign service to resource.
 	 *
-	 * @param resource int Resource ID
-	 * @param service int Service ID
+	 * @param resource int Resource <code>id</code>
+	 * @param service int Service <code>id</code>
 	 */
 	assignService {
 
@@ -463,8 +471,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Assign all services from services package to resource.
 	 *
-	 * @param resource int Resource ID
-	 * @param servicesPackage int Services package ID
+	 * @param resource int Resource <code>id</code>
+	 * @param servicesPackage int Services package <code>id</code>
 	 */
 	assignServicesPackage {
 
@@ -482,8 +490,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes a service from a resource.
 	 *
-	 * @param resource int Resource ID
-	 * @param service int Service ID
+	 * @param resource int Resource <code>id</code>
+	 * @param service int Service <code>id</code>
 	 */
 	removeService {
 
@@ -501,8 +509,8 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove from resource all services from services package.
 	 *
-	 * @param resource int Resource ID
-	 * @param servicesPackage int Services package ID
+	 * @param resource int Resource <code>id</code>
+	 * @param servicesPackage int Services package <code>id</code>
 	 */
 	removeServicesPackage {
 
@@ -520,7 +528,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all VO resources.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<Resource> VO resources
 	 */
 	getResources {
@@ -534,7 +542,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all VO rich resources.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<RichResource> VO resources
 	 */
 	getRichResources {
@@ -548,7 +556,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns number of VO resources
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return int VO resources count
 	 */
 	getResourcesCount {
@@ -561,7 +569,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes all VO resources
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 */
 	deleteAllResources {
 
@@ -578,7 +586,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all resources which have the member access on.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @return List<Resource> VO resources
 	 */
 	getAllowedResources {
@@ -593,9 +601,9 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * Create new resource tag in VO
 	 *
 	 * @param resourceTag ResourceTag ResourceTag with tagName set
-	 * @param vo int ID of VO to create tag for
+	 * @param vo int <code>id</code> of VO to create tag for
 	 *
-	 * @return ResourceTag created ResourceTag with ID and VO_ID set
+	 * @return ResourceTag created ResourceTag with <code>id</code> and VO_ID set
 	 */
 	createResourceTag {
 		@Override
@@ -607,7 +615,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Update resource tag name by it's ID and VO_ID
+	 * Update resource tag name by it's <code>id</code> and VO_ID
 	 *
 	 * @param resourceTag ResourceTag ResourceTag with new tagName set
 	 *
@@ -622,7 +630,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Delete resource tag by it's ID and VO_ID
+	 * Delete resource tag by it's <code>id</code> and VO_ID
 	 *
 	 * @param resourceTag ResourceTag ResourceTag to delete
 	 */
@@ -638,7 +646,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Delete all resources tags of VO
 	 *
-	 * @param vo int ID of VO to delete all resources tags for
+	 * @param vo int <code>id</code> of VO to delete all resources tags for
 	 */
 	deleteAllResourcesTagsForVo {
 		@Override
@@ -653,7 +661,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * Assign resource tag to resource
 	 *
 	 * @param resourceTag ResourceTag ResourceTag to assign
-	 * @param resource int ID of Resource to assign tags for
+	 * @param resource int <code>id</code> of Resource to assign tags for
 	 */
 	assignResourceTagToResource {
 		@Override
@@ -669,7 +677,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * Remove resource tag from resource
 	 *
 	 * @param resourceTag ResourceTag ResourceTag to remove
-	 * @param resource int ID of Resource to remove tags for
+	 * @param resource int <code>id</code> of Resource to remove tags for
 	 */
 	removeResourceTagFromResource {
 		@Override
@@ -684,7 +692,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove all resources tags from resource
 	 *
-	 * @param resource int ID of Resource to remove all tags for
+	 * @param resource int <code>id</code> of Resource to remove all tags for
 	 */
 	removeAllResourcesTagFromResource {
 		@Override
@@ -713,7 +721,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all resource tags of VO
 	 *
-	 * @param vo int ID of VO to get all resource tags for
+	 * @param vo int <code>id</code> of VO to get all resource tags for
 	 *
 	 * @return List<ResourceTag> all resources tags of VO
 	 */
@@ -728,7 +736,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * Get all resource tags of Resource
 	 *
-	 * @param resource int ID of Resource to get all resource tags for
+	 * @param resource int <code>id</code> of Resource to get all resource tags for
 	 *
 	 * @return List<ResourceTag> all resources tags of Resource
 	 */
@@ -743,7 +751,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	/*#
 	 * List all services associated with the resource.
 	 *
-	 * @param resource int Resource ID
+	 * @param resource int Resource <code>id</code>
 	 * @return List<Service> Services
 	 */
 	getAssignedServices {

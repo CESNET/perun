@@ -10,6 +10,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.ProvidesKey;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
@@ -41,7 +42,7 @@ public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable
 	private ArrayList<ServiceState> list = new ArrayList<ServiceState>();
 	private PerunTable<ServiceState> table;
 	// Selection model
-	final MultiSelectionModel<ServiceState> selectionModel = new MultiSelectionModel<ServiceState>(new GeneralKeyProvider<ServiceState>());
+	final MultiSelectionModel<ServiceState> selectionModel = new MultiSelectionModel<ServiceState>(new ServiceStateKeyProvider());
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// entities
@@ -428,6 +429,15 @@ public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable
 
 	public MultiSelectionModel<ServiceState> getSelectionModel() {
 		return this.selectionModel;
+	}
+
+	public class ServiceStateKeyProvider implements ProvidesKey<ServiceState> {
+
+		public Object getKey(ServiceState object) {
+			// returns ID
+			return object.getService().getId();
+		}
+
 	}
 
 }

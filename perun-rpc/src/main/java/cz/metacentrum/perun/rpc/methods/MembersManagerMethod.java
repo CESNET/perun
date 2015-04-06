@@ -22,7 +22,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes only member data appropriated by member id.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 */
 	deleteMember {
 		@Override
@@ -40,7 +40,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * In list serviceUserOwners can't be serviceUser, only normal users are allowed.
 	 * <strong>This method runs asynchronously</strong>
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param candidate Candidate prepared future serviceUser
 	 * @param serviceUserOwners List<User> List of users who own serviceUser (can't be empty or contain serviceUser)
 	 * @return Member newly created member (of service User)
@@ -61,7 +61,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Creates a new member and sets all member's attributes from the candidate.
 	 * Also stores the associated user if doesn't exist. This method is used by the registrar.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param extSourceName String Name of the extSource
 	 * @param extSourceType String Type of the extSource
 	 * @param login String User's login within extSource
@@ -71,15 +71,15 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates a new member from user.
 	 *
-	 * @param vo int VO ID
-	 * @param user int User ID
+	 * @param vo int VO <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @return Member Created member
 	 */
 	/*#
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
 	 * <strong>This method runs asynchronously</strong>
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param candidate Candidate Candidate JSON object
 	 * @return Member Created member
 	 */
@@ -110,7 +110,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Find member of a VO by his login in an external source.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param userExtSource UserExtSource UserExtSource JSON object
 	 * @return Member Found member
 	 */
@@ -124,9 +124,9 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a member by their ID.
+	 * Returns a member by their <code>id</code>.
 	 *
-	 * @param id int Member ID
+	 * @param id int Member <code>id</code>
 	 * @return Member Found member
 	 */
 	getMemberById {
@@ -139,8 +139,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns a member by VO and User.
 	 *
-	 * @param vo int VO ID
-	 * @param user int User ID
+	 * @param vo int VO <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @return Member Found member
 	 */
 	getMemberByUser {
@@ -155,7 +155,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns members for a user.
 	 *
-	 * @param user int User ID
+	 * @param user int User <code>id</code>
 	 * @return List<Member> Found members
 	 */
 	getMembersByUser {
@@ -169,13 +169,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all members of a VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<Member> VO members
 	 */
 	/*#
 	 * Returns all members of a VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
 	 * @return List<Member> VO members
 	 */
@@ -193,13 +193,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all members of a VO with additional information.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<RichMember> VO members
 	 */
 	/*#
 	 * Returns all members of a VO with additional information.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
 	 * @return List<RichMember> VO members
 	 */
@@ -223,18 +223,18 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * If attrsNames is empty or null return all attributes for specific richMembers.
  	 * If listOfStatuses is empty or null, return all possible statuses.
  	 *
- 	 * @param vo int Vo ID
+ 	 * @param vo int Vo <code>id</code>
  	 * @param attrsNames List<String> Attribute names
- 	 * @param allowedStatuses List<String> Allowed Statuses
+ 	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
  	 * @return List<RichMember> List of richMembers with specific attributes from Vo
  	 */
 	/*#
  	 * Get all RichMembers with attributes specific for list of attrsNames from the vo.
  	 * If attrsNames is empty or null return all attributes for specific richMembers.
  	 *
- 	 * @param vo int Vo ID
+ 	 * @param vo int Vo <code>id</code>
  	 * @param attrsNames List<String> Attribute names
- 	 * @return list of richMembers with specific attributes from Vo
+ 	 * @return List<RichMember> List of RichMembers with specific attributes from Vo
  	 */
 	/*#
  	 * Get all RichMembers with attributes specific for list of attrsNames from the group and have only
@@ -245,10 +245,10 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * If lookingInParentGroup is true, get all these richMembers only for parentGroup of this group.
  	 * If this group is top level group, so get richMembers from members group.
  	 *
- 	 * @param group int Group ID
+ 	 * @param group int Group <code>id</code>
  	 * @param attrsNames List<String> Attribute names
- 	 * @param allowedStatuses List<String> Allowed Statuses
- 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
+ 	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of richMembers with specific attributes from group
  	 */
 	/*#
@@ -258,9 +258,9 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * If lookingInParentGroup is true, get all these richMembers only for parentGroup of this group.
  	 * If this group is top level group, so get richMembers from members group.
  	 *
- 	 * @param group int Group ID
+ 	 * @param group int Group <code>id</code>
  	 * @param attrsNames List<String> Attribute names
- 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of richMembers with specific attributes from Group
  	 */
 	getCompleteRichMembers {
@@ -301,14 +301,14 @@ public enum MembersManagerMethod implements ManagerMethod {
 								ac.getGroupById(parms.readInt("group")),
 								parms.readList("attrsNames", String.class),
 								parms.readList("allowedStatuses", String.class),
-								parms.readInt("lookingInParentGroup") == 1);
+								parms.readBoolean("lookingInParentGroup"));
 					} else {
 						// with all attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
 								null,
 								parms.readList("allowedStatuses", String.class),
-								parms.readInt("lookingInParentGroup") == 1);
+								parms.readBoolean("lookingInParentGroup"));
 					}
 				} else {
 					if (parms.contains("attrsNames")) {
@@ -316,13 +316,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
 								parms.readList("attrsNames", String.class),
-								parms.readInt("lookingInParentGroup") == 1);
+								parms.readBoolean("lookingInParentGroup"));
 					} else {
 						// with all attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
 								null,
-								parms.readInt("lookingInParentGroup") == 1);
+								parms.readBoolean("lookingInParentGroup"));
 					}
 				}
 			}
@@ -332,16 +332,17 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
  	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
  	 *
- 	 * @param vo int Vo ID
+ 	 * @param vo int Vo <code>id</code>
  	 * @param attrsNames List<String> List of attrNames for selected attributes
- 	 * @return List<RichMember> List of richmembers
+ 	 * @return List<RichMember> List of RichMembers in Vo
  	 */
 	/*#
  	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
  	 *
- 	 * @param group int Group ID
+ 	 * @exampleParam attrsNames [ "urn:perun:user:attribute-def:def:preferredMail" , "urn:perun:member:attribute-def:def:mail" ]
+ 	 * @param group int Group <code>id</code>
  	 * @param attrsNames List<String> List of attrNames for selected attributes
- 	 * @return List<RichMember> List of richmembers
+ 	 * @return List<RichMember> List of RichMembers in Group
  	 */
 	getRichMembersWithAttributesByNames {
 		@Override
@@ -359,30 +360,30 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
- 	 * Get all rich members of VO with specified status. Rich member object contains user, member, userExtSources and member/user attributes.
+ 	 * Get all RichMembers of VO with specified status. RichMember object contains user, member, userExtSources and member/user attributes.
  	 *
- 	 * @param vo int Vo ID
- 	 * @param status String Status
- 	 * @return List<RichMember> List of rich members with all member/user attributes, empty list if there are no members in VO with specified status
+ 	 * @param vo int Vo <code>id</code>
+ 	 * @param status String Status (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
+ 	 * @return List<RichMember> List of RichMembers with all member/user attributes, empty list if there are no members in VO with specified status
  	 */
 	/*#
  	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
  	 *
- 	 * @param vo int Vo ID
+ 	 * @param vo int Vo <code>id</code>
  	 * @param attrsDef List<AttributeDefinition> List of attrDefs only for selected attributes
- 	 * @return List<RichMember> List of richmembers
+ 	 * @return List<RichMember> List of RichMembers in VO
  	 */
 	/*#
  	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
  	 *
- 	 * @param group int Group ID
+ 	 * @param group int Group <code>id</code>
  	 * @param attrsDef List<AttributeDefinition> List of attrDefs only for selected attributes
- 	 * @return List<RichMember> List of richmembers
+ 	 * @return List<RichMember> List of RichMembers in Group
  	 */
 	/*#
- 	 * Get all rich members of VO. Rich member object contains user, member, userExtSources and member/user attributes.
+ 	 * Get all RichMembers of VO. RichMember object contains user, member, userExtSources and member/user attributes.
  	 *
- 	 * @param vo int Vo ID
+ 	 * @param vo int Vo <code>id</code>
  	 * @return List<RichMember> List of rich members with all member/user attributes, empty list if there are no members in VO
  	 */
 	getRichMembersWithAttributes {
@@ -392,7 +393,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 				return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						Status.valueOf(parms.readString("status")));
-			} else if(parms.contains("attrsDef")) {
+			} else if (parms.contains("attrsDef")) {
 				if(parms.contains("vo")) {
 					return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
 							ac.getVoById(parms.readInt("vo")),
@@ -410,10 +411,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a rich member by their member ID.
+	 * Returns a RichMember with all non-empty user/member attributes by it's member <code>id</code>.
 	 *
-	 * @param id int Member ID
-	 * @return RichMember Found member
+	 * @param id int Member <code>id</code>
+	 * @throw MemberNotExistsException When member with <code>id</code> doesn't exists
+	 * @return RichMember Found RichMember by it's <code>id</code>
 	 */
 	getRichMemberWithAttributes {
 		@Override
@@ -425,10 +427,11 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a rich member without attributes by id of member.
+	 * Returns a RichMember without attributes by it's member <code>id</code>.
 	 *
-	 * @param id int Member ID
-	 * @return RichMember Found member
+	 * @param id int Member <code>id</code>
+	 * @throw MemberNotExistsException When member with <code>id</code> doesn't exists
+	 * @return RichMember Found member by it's <code>id</code>
 	 */
 	getRichMember {
 		@Override
@@ -439,16 +442,16 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns VO members count.
+	 * Returns count of VO members with specified status.
 	 *
-	 * @param vo int VO ID
-	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
+	 * @param vo int VO <code>id</code>
+	 * @param status String Status (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
 	 * @return int Members count
 	 */
 	/*#
-	 * Returns VO members count.
+	 * Returns count of all VO members.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return int Members count
 	 */
 	getMembersCount {
@@ -466,7 +469,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Deletes all VO members.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 */
 	deleteAllMembers {
 		@Override
@@ -495,7 +498,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Searches for members in a VO by their name.
 	 *
 	 * @param searchString String String to search by
-	 * @param vo int VO ID to search in
+	 * @param vo int VO <code>id</code> to search in
 	 * @return List<Member> Found members
 	 */
 	findMembersByNameInVo {
@@ -509,7 +512,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Searches for members in a Group by their name.
 	 *
 	 * @param searchString String String to search by
-	 * @param group int Group ID to search in
+	 * @param group int Group <code>id</code> to search in
 	 * @return List<Member> Found members
 	 */
 	findMembersInGroup {
@@ -523,7 +526,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Searches for members in a parent group of supplied group by their name.
 	 *
 	 * @param searchString String String to search by
-	 * @param group int Group ID, in whose parent group to search in
+	 * @param group int Group <code>id</code>, in whose parent group to search in
 	 * @return List<Member> Found members
 	 */
 	findMembersInParentGroup {
@@ -537,7 +540,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Searches for rich members in a Group by their name.
 	 *
 	 * @param searchString String String to search by
-	 * @param group int Group ID to search in
+	 * @param group int Group <code>id</code> to search in
 	 * @return List<RichMember> Found members
 	 */
 	findRichMembersInGroup {
@@ -551,7 +554,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Searches for rich members in a parent group of supplied group by their name.
 	 *
 	 * @param searchString String String to search by
-	 * @param group int Group ID, in whose parent group to search in
+	 * @param group int Group <code>id</code>, in whose parent group to search in
 	 * @return List<RichMember> Found members
 	 */
 	findRichMembersInParentGroup {
@@ -565,7 +568,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Searches for members in a VO.
 	 *
 	 * @param searchString String String to search by
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<Members> Found members
 	 */
 	findMembersInVo {
@@ -579,7 +582,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Searches for members in a VO.
 	 *
 	 * @param searchString String String to search by
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<RichMembers> Found members
 	 */
 	findRichMembersInVo {
@@ -593,7 +596,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Searches for members in a VO, listing with additional attributes.
 	 *
 	 * @param searchString String String to search by
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<RichMembers> Found members
 	 */
 	findRichMembersWithAttributesInVo {
@@ -609,7 +612,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * If attrsNames is empty or null return all attributes for specific richMembers.
  	 * If listOfStatuses is empty or null, return all possible statuses.
  	 *
- 	 * @param vo int Vo ID
+ 	 * @param vo int Vo <code>id</code>
  	 * @param attrsNames List<String> Attribute names
  	 * @param allowedStatuses List<String> Allowed statuses
  	 * @param searchString String String to search by
@@ -619,7 +622,7 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames.
  	 * If attrsNames is empty or null return all attributes for specific richMembers.
  	 *
- 	 * @param vo int Vo ID
+ 	 * @param vo int Vo <code>id</code>
  	 * @param attrsNames List<String> Attribute names
  	 * @param searchString String String to search by
  	 * @return List<RichMember> List of founded richMembers with specific attributes from Vo for searchString
@@ -633,11 +636,11 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * If lookingInParentGroup is true, find all these richMembers only for parentGroup of this group.
  	 * If this group is top level group, so find richMembers from members group.
  	 *
- 	 * @param group int Group ID
+ 	 * @param group int Group <code>id</code>
  	 * @param attrsNames List<String> Attribute names
  	 * @param allowedStatuses List<String> Allowed statuses
  	 * @param searchString String String to search by
- 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of founded richMembers with specific attributes from Group for searchString
  	 */
 	/*#
@@ -647,10 +650,10 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * If lookingInParentGroup is true, find all these richMembers only for parentGroup of this group.
  	 * If this group is top level group, so find richMembers from members group.
  	 *
- 	 * @param group int Group ID
+ 	 * @param group int Group <code>id</code>
  	 * @param attrsNames List<String> Attribute names
  	 * @param searchString String String to search by
- 	 * @param lookingInParentGroup int 1 = True, 0 = False
+ 	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of founded richMembers with specific attributes from Group for searchString
  	 */
 	findCompleteRichMembers {
@@ -676,24 +679,25 @@ public enum MembersManagerMethod implements ManagerMethod {
 							parms.readList("attrsNames", String.class),
 							parms.readList("allowedStatuses", String.class),
 							parms.readString("searchString"),
-							parms.readInt("lookingInParentGroup") == 1);
+							parms.readBoolean("lookingInParentGroup"));
 				} else {
 					return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
 							ac.getGroupById(parms.readInt("group")),
 							parms.readList("attrsNames", String.class),
 							parms.readString("searchString"),
-							parms.readInt("lookingInParentGroup") == 1);
+							parms.readBoolean("lookingInParentGroup"));
 				}
 			}
 		}
 	},
 
 	/*#
-	 * Sets a status of a member.
+	 * Set membership status of a member.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param status String VALID | INVALID | SUSPENDED | EXPIRED | DISABLED
-	 * @return Member Member object
+	 * @exampleParam status "SUSPENDED"
+	 * @return Member Member with status after change
 	 */
 	setStatus {
 		@Override
@@ -707,14 +711,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Validate all attributes for member and set member's status to VALID.
-	 * This method runs asynchronously.
 	 *
-	 * It immediately return member with <b>ORIGINAL</b> status and
+	 * This method runs asynchronously. It immediately return member with <b>original</b> status and
 	 * after asynchronous validation successfully finishes it switch member's
 	 * status to VALID. If validation ends with error, member keeps his status.
 	 *
-	 * @param member int Member ID
-	 * @return Member Member object
+	 * @param member int Member <code>id</code>
+	 * @return Member Member with original status
 	 */
 	validateMemberAsync {
 		@Override
@@ -726,12 +729,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 *  Checks if the user can apply membership to the VO.
-	 *  It's based on extendMembershipRules on the doNotAllowLoa key.
+	 *  Checks if the user can apply for membership in VO.
+	 *  Decision is based on VO rules for: extendMembershipRules and doNotAllowLoa.
 	 *
-	 *  @param vo int VO ID
-	 *  @param loa String LOA
-	 *  @param user User User JSON object
+	 *  @param vo int VO <code>id</code>
+	 *  @param loa String Level of Assurance (LoA) of user
+	 *  @param user User User to check
+	 *  @exampleResponse 1
 	 *  @return int 1 if true | 0 if false
 	 */
 	canBeMember {
@@ -748,12 +752,15 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
- 	 * Checks if the user can apply membership to the VO, it decides based on extendMembershipRules on the doNotAllowLoa key.
+ 	 * Checks if the user can apply for membership in VO.
+ 	 * Decision is based on VO rules for: extendMembershipRules and doNotAllowLoa.
  	 *
- 	 * @param vo int VO ID
- 	 * @param user User User JSON object
- 	 * @param loa String LOA
- 	 * @return int 1 if true | 0 if false
+ 	 * @param vo int VO <code>id</code>
+ 	 * @param user User User to check
+ 	 * @param loa String Level of Assurance (LoA) of user
+ 	 * @throw ExtendMembershipException When user can't become member of VO, reason is specified in exception text.
+ 	 * @exampleResponse 1
+ 	 * @return int 1 if true or throws exception if false
  	 */
 	canBeMemberWithReason {
 		@Override
@@ -769,9 +776,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Return true(1) if the membership can be extended or if no rules were set for the membershipExpiration, otherwise false.
+	 * Return <code>1 == true</code> if membership can be extended or if VO has no rules for the membershipExpiration.
+	 * Otherwise return <code>0 == false</code>.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @return int 1 if true | 0 if false
 	 */
 	canExtendMembership {
@@ -790,19 +798,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns the date to which will be extended member's expiration time.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 */
 	/*#
 	 * Returns the date to which will be extended member's expiration time.
 	 *
-	 * @param vo int Vo ID
-	 * @param user int User ID
+	 * @param vo int Vo <code>id</code>
+	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 * Returns the date to which will be extended member's expiration time.
 	 * Calculation is done just based on provided LoA and VO's membership expiration rules.
 	 *
-	 * @param vo int Vo ID
+	 * @param vo int Vo <code>id</code>
 	 * @param loa String LoA of user
 	 */
 	getNewExtendMembership {

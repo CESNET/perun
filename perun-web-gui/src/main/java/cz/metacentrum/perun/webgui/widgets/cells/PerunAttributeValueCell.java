@@ -420,6 +420,9 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 			value = "";
 		}
 
+		// make " ' & and etc. symbols printable in text box
+		value = SafeHtmlUtils.htmlEscape(value);
+
 		if (writable) {
 			return "<input type=\"text\" style=\"width:250px\" class=\"textbox-value gwt-TextBox \" value=\"" + value + "\" />";
 		} else {
@@ -439,6 +442,9 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 		if (value == null || value.equalsIgnoreCase("null")) {
 			value = "";
 		}
+
+		// make " ' & and etc. symbols printable in text box
+		value = SafeHtmlUtils.htmlEscape(value);
 
 		if (writable) {
 			return "<input type=\"text\" style=\"width:100px\" class=\"numberbox-value gwt-TextBox\" value=\"" + value + "\" />";
@@ -489,6 +495,9 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 				if (val == null) {
 					val = "";
 				}
+
+				// make " ' & and etc. symbols printable in text box
+				val = SafeHtmlUtils.htmlEscape(val);
 
 				if (writable) {
 					output += JsonUtils.stringFormat(LIST_ITEM_TABLE_ROW, "", val);

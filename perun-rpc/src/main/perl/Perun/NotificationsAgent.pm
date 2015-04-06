@@ -138,4 +138,14 @@ sub removePerunNotifTemplateById
     return Perun::Common::callManagerMethod('removePerunNotifTemplateById', 'null', @_);
 }
 
+sub stopNotifications
+{
+    return Perun::Common::callManagerMethod('stopNotifications', 'null', @_);
+}
+
+sub startNotifications
+{
+    return Perun::Common::callManagerMethod('startNotifications', 'null', @_);
+}
+
 1;

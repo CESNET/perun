@@ -224,7 +224,7 @@ ELIXIR Project Czech Node <http://www.elixir-czech.org> support\@elixir-czech.cz
 
 -----------------------------------------------------------------------------
 If you do not want to receive this newsletter any more, unsubscribe using
-https://perun.cesnet.cz/apps-non/elixir-mailing-list-manager/unsubscribe.html
+https://einfra.cesnet.cz/a/elixir-mailing-list-manager/non/unsubscribe.html
 };
 
 #Send Mail

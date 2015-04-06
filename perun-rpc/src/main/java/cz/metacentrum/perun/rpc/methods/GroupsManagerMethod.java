@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,14 +23,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates a subgroup of a group.
 	 *
-	 * @param parentGroup int Parent Group ID
+	 * @param parentGroup int Parent Group <code>id</code>
 	 * @param group Group JSON Group class
 	 * @return Group Newly created group
 	 */
 	/*#
 	 * Creates a new group in a VO.
 	 *
-	 * @param vo int Parent VO ID
+	 * @param vo int Parent VO <code>id</code>
 	 * @param group Group JSON Group class
 	 * @return Group Newly created group
 	 */
@@ -56,15 +55,15 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Deletes a group.
+	 * Deletes a group. Group is not deleted, if contains members or is assigned to any resource.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 */
 	/*#
-	 * Deletes a group (force).
+	 * Forcefully deletes a group (remove all group members, remove group from resources).
 	 *
-	 * @param group int Group ID
-	 * @param force int Force must be 1
+	 * @param group int Group <code>id</code>
+	 * @param force boolean If true use force delete.
 	 */
 	deleteGroup {
 
@@ -72,7 +71,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			if(parms.contains("force") && parms.readInt("force") == 1) {
+			if(parms.contains("force") && parms.readBoolean("force")) {
 				ac.getGroupsManager().deleteGroup(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")), true);
 				return null;
@@ -83,12 +82,12 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			}
 		}
 	},
-	
+
 	/*#
-	 * Delete groups (force).
+	 * Forcefully deletes a list of groups (remove all group members, remove group from resources).
 	 *
-	 * @param groups list of groups
-	 * @param forceDelete int 
+	 * @param groups int[] Array of Group IDs
+	 * @param forceDelete boolean If true use force delete.
 	 */
 	deleteGroups {
 		
@@ -105,7 +104,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			
 			ac.getGroupsManager().deleteGroups(ac.getSession(),
 					groups,
-					parms.readInt("forceDelete") == 1);
+					parms.readBoolean("forceDelete"));
 			return null;
 		}
 	},
@@ -128,9 +127,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns a group by ID.
+	 * Returns a group by <code>id</code>.
 	 *
-	 * @param id int Group ID
+	 * @param id int Group <code>id</code>
 	 * @return Group Found group
 	 */
 	getGroupById {
@@ -146,7 +145,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @param name String Group name
 	 * @return Group Found group
 	 */
@@ -163,8 +162,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds a member to a group.
 	 *
-	 * @param group int Group ID
-	 * @param member int Member ID
+	 * @param group int Group <code>id</code>
+	 * @param member int Member <code>id</code>
 	 */
 	addMember {
 
@@ -182,8 +181,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes a member from a group.
 	 *
-	 * @param group int Group ID
-	 * @param member int Member ID
+	 * @param group int Group <code>id</code>
+	 * @param member int Member <code>id</code>
 	 */
 	removeMember {
 
@@ -201,7 +200,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns members of a group.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @return List<Member> Group members
 	 */
 	getGroupMembers {
@@ -218,7 +217,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns members of a group.
 	 * RichMember contains User object.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @return List<RichMember> Group members
 	 */
 	getGroupRichMembers {
@@ -234,7 +233,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns members of a group.
 	 * RichMember contains User object and attributes.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @return List<RichMember> Group members
 	 */
 	getGroupRichMembersWithAttributes {
@@ -249,7 +248,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns count of group members.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @return int Members count
 	 */
 	getGroupMembersCount {
@@ -264,7 +263,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all groups in a VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<Group> Groups
 	 */
 	getAllGroups {
@@ -278,7 +277,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns all groups in a VO by a hierarchy.
 	 * Example: [Group => [Group => [Group => []], Group => []]]
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<Object> Groups with subgroups
 	 */
 	getAllGroupsWithHierarchy {
@@ -300,7 +299,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns a parent group of a group.
 	 *
-	 * @param group int Child group ID
+	 * @param group int Child group <code>id</code>
 	 * @return Group Parent group
 	 */
 	getParentGroup {
@@ -326,14 +325,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Adds an admin to a group.
 	 *
-	 * @param group int Group ID
-	 * @param user int User ID
+	 * @param group int Group <code>id</code>
+	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 * Adds an group admin to a group.
 	 *
-	 * @param group int Group ID
-	 * @param authorizedGroup int Group ID
+	 * @param group int Group <code>id</code>
+	 * @param authorizedGroup int Group <code>id</code>
 	 */
 	addAdmin {
 		@Override
@@ -355,14 +354,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Removes an admin of a group.
 	 *
-	 * @param group int Group ID
-	 * @param user int User ID
+	 * @param group int Group <code>id</code>
+	 * @param user int User <code>id</code>
 	 */
 	/*#
 	 * Removes a group admin of a group.
 	 *
-	 * @param group int Group ID
-	 * @param authorizedGroup int Group ID
+	 * @param group int Group <code>id</code>
+	 * @param authorizedGroup int Group <code>id</code>
 	 */
 	removeAdmin {
 		@Override
@@ -384,21 +383,20 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Get list of all group administrators for supported role and specific group.
 	 *
-	 * If onlyDirectAdmins is == 1, return only direct admins of the group for supported role.
+	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
 	 *
 	 * Supported roles: GroupAdmin
 	 *
-	 * @param group int Group ID
-	 * @param onlyDirectAdmins int if == 1, get only direct user administrators (if == 0, get both direct and indirect)
+	 * @param group int Group <code>id</code>
+	 * @param onlyDirectAdmins int if == true, get only direct user administrators (if == false, get both direct and indirect)
 	 *
 	 * @return List<User> list of all group administrators of the given group for supported role
 	 */
 	/*#
 	 * Returns administrators of a group.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
-	 * @param group int Group ID
+	 * @deprecated
+	 * @param group int Group <code>id</code>
 	 * @return List<User> Group admins
 	 */
 	getAdmins {
@@ -408,7 +406,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getGroupsManager().getAdmins(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
-					parms.readInt("onlyDirectAdmins") == 1);
+					parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getGroupsManager().getAdmins(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
@@ -419,12 +417,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns direct administrators of a group.
 	 *
-	 * !!! DEPRECATED version !!!
-	 *
-	 * @param group int Group ID
+	 * @deprecated
+	 * @param group int Group <code>id</code>
 	 * @return List<User> Group admins
 	 */
-	@Deprecated
 	getDirectAdmins {
 
 		@Override
@@ -437,7 +433,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns administrator groups of a group.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @return List<Group> admins
 	 */
 	getAdminGroups {
@@ -454,22 +450,21 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 *
 	 * Supported roles: GroupAdmin
 	 *
-	 * If "onlyDirectAdmins" is == 1, return only direct admins of the group for supported role with specific attributes.
-	 * If "allUserAttributes" is == 1, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 * If "onlyDirectAdmins" is == true, return only direct admins of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is == true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
-	 * @param allUserAttributes int if == 1, get all possible user attributes and ignore list of specificAttributes (if != 1, get only specific attributes)
-	 * @param onlyDirectAdmins int if == 1, get only direct group administrators (if != 1, get both direct and indirect)
+	 * @param allUserAttributes int if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins int if == true, get only direct group administrators (if false, get both direct and indirect)
 	 *
 	 * @return List<RichUser> list of RichUser administrators for the group and supported role with attributes
 	 */
 	/*#
 	* Get all Group admins as RichUsers
 	*
-	* !!! DEPRECATED version !!!
-	*
-	* @param group int Group ID
+	* @deprecated
+	* @param group int Group <code>id</code>
 	* @return List<RichUser> admins
 	*/
 	getRichAdmins {
@@ -480,8 +475,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
 								ac.getGroupById(parms.readInt("group")),
 								parms.readList("specificAttributes", String.class),
-								parms.readInt("allUserAttributes") == 1,
-								parms.readInt("onlyDirectAdmins") == 1);
+								parms.readBoolean("allUserAttributes"),
+								parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getGroupsManager().getRichAdmins(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
@@ -492,12 +487,10 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Group admins as RichUsers with all their non-null user attributes
 	*
-	* !!! DEPRECATED version !!!
-	*
-	* @param group int Group ID
+	* @deprecated
+	* @param group int Group <code>id</code>
 	* @return List<RichUser> admins with attributes
 	*/
-	@Deprecated
 	getRichAdminsWithAttributes {
 
 		@Override
@@ -510,13 +503,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	* Get all Group admins as RichUsers with specific attributes (from user namespace)
 	*
-	* !!! DEPRECATED version !!!
-	*
-	* @param group int Group ID
+	* @deprecated
+	* @param group int Group <code>id</code>
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> admins with attributes
 	*/
-	@Deprecated
 	getRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -532,13 +523,11 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	* Get all Group admins, which are assigned directly,
 	*  as RichUsers with specific attributes (from user namespace)
 	*
-	* !!! DEPRECATED version !!!
-	*
-	* @param group int Group ID
+	* @deprecated
+	* @param group int Group <code>id</code>
 	* @param specificAttributes List<String> list of attributes URNs
 	* @return List<RichUser> direct admins with attributes
 	*/
-	@Deprecated
 	getDirectRichAdminsWithSpecificAttributes {
 
 		@Override
@@ -553,7 +542,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns direct descendant groups of a VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return List<Group> Children groups
 	 */
 	getGroups {
@@ -569,7 +558,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns groups count in a VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 * @return int Groups count
 	 */
 	getGroupsCount {
@@ -583,7 +572,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns subgroups count of a group.
 	 *
-	 * @param parentGroup int Parent group ID
+	 * @param parentGroup int Parent group <code>id</code>
 	 * @return int Subgroups count
 	 */
 	getSubGroupsCount {
@@ -597,7 +586,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Delete all groups in a VO.
 	 *
-	 * @param vo int VO ID
+	 * @param vo int VO <code>id</code>
 	 */
 	deleteAllGroups {
 
@@ -614,7 +603,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Forces group synchronization.
 	 *
-	 * @param group int Group ID
+	 * @param group int Group <code>id</code>
 	 */
 	forceGroupSynchronization {
 
@@ -630,8 +619,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns parent VO of a group.
 	 *
-	 * @param group int Group ID
-	 * @return VirtualOrganization Parent VO
+	 * @param group int Group <code>id</code>
+	 * @return Vo Parent VO
 	 */
 	getVo {
 
@@ -646,7 +635,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns members of a parent group.
 	 *
-	 * @param group int Child group ID
+	 * @param group int Child group <code>id</code>
 	 * @return List<Member> Parent group members
 	 */
 	getParentGroupMembers {
@@ -663,7 +652,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns members of a parent group.
 	 * RichMember contains User object.
 	 *
-	 * @param group int Child group ID
+	 * @param group int Child group <code>id</code>
 	 * @return List<RichMember> Parent group members
 	 */
 	getParentGroupRichMembers {
@@ -680,7 +669,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Returns members of a parent group.
 	 * RichMember contains User object and attributes.
 	 *
-	 * @param group int Child group ID
+	 * @param group int Child group <code>id</code>
 	 * @return List<RichMember> Parent group members
 	 */
 	getParentGroupRichMembersWithAttributes {
@@ -696,7 +685,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns groups for a member.
 	 *
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @return List<Group> Groups of the member
 	 */
 	getMemberGroups {
@@ -712,9 +701,9 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns groups with specific attribute for a member.
 	 * 
-	 * @param member int Member ID
+	 * @param member int Member <code>id</code>
 	 * @param attribute Attribute attribute object with value
-	 * return List<Group> Groups of the member
+	 * @return List<Group> Groups of the member
 	 */
 	getMemberGroupsByAttribute {
 		
@@ -729,7 +718,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all RichGroups containing selected attributes
 	 *
-	 * @param vo int ID of vo
+	 * @param vo int <code>id</code> of vo
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
@@ -747,7 +736,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all RichSubGroups from parent group containing selected attributes
 	 *
-	 * @param group int ID of group
+	 * @param group int <code>id</code> of group
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
@@ -765,7 +754,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns RichGroup selected by id containing selected attributes
 	 *
-	 * @param groupId int ID of group
+	 * @param groupId int <code>id</code> of group
 	 * @param attrNames List<String> if attrNames is null method will return RichGroup containing all attributes
 	 * @return List<RichGroup> RichGroups containing selected attributes
 	 */
@@ -783,7 +772,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns all groups of specific member including group "members".
 	 *
-	 * @param member int ID of member
+	 * @param member int <code>id</code> of member
 	 * @return List<Group> Groups of member
 	 */
 	getAllMemberGroups {
