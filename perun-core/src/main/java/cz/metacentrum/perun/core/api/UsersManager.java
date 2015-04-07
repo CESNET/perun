@@ -860,6 +860,21 @@ public interface UsersManager {
 		throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
 	/**
+	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+	 * Name part is searched for exact match.
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @param attrNames
+	 * @return list of RichUsers with selected attributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrNames)
+		throws InternalErrorException, UserNotExistsException, PrivilegeException;
+
+	/**
 	 * Returns list of RichUsers which are not members of any VO and with selected attributes
 	 *
 	 * @param sess

@@ -670,6 +670,50 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		return new ArrayList<User>(users);
 	}
 
+	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException {
+		Set<User> users = new HashSet<User>();
+
+		log.debug("Searching for users using searchString '{}'", searchString);
+
+		// Search by mail (member)
+		users.addAll(jdbc.query("select " + userMappingSelectQuery +
+				" from users, members, member_attr_values, attr_names " +
+				"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
+				"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
+				"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+
+		// Search preferred email (user)
+		users.addAll(jdbc.query("select " + userMappingSelectQuery +
+				" from users, user_attr_values, attr_names " +
+				"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
+				"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
+				"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+
+		// Search logins in userExtSources
+		users.addAll(jdbc.query("select " + userMappingSelectQuery +
+				" from users, user_ext_sources " +
+				"where user_ext_sources.login_ext=? and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
+
+		// Search logins in attributes: login-namespace:*
+		users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
+						" from attr_names, user_attr_values, users " +
+						"where attr_names.friendly_name like 'login-namespace:%' and user_attr_values.attr_value=? " +
+						"and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
+				USER_MAPPER, searchString));
+
+		// Search by userId
+		try {
+			int userId = Integer.parseInt(searchString);
+			users.addAll(jdbc.query("select " + userMappingSelectQuery + " from users where id=?", USER_MAPPER, userId));
+		} catch (NumberFormatException e) {
+			// IGNORE
+		}
+
+		users.addAll(findUsersByExactName(sess, searchString));
+
+		return new ArrayList<User>(users);
+	}
+
 	public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException {
 		if (searchString == null || searchString.isEmpty()) {
 			return new ArrayList<User>();
@@ -739,8 +783,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
-        
-        public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
+
+	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
 		if (searchString == null || searchString.isEmpty()) {
 			return new ArrayList<User>();
 		}
@@ -763,12 +807,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			if (Compatibility.isOracle()) {
 				// Search users' names
 				return (jdbc.query("select " + userMappingSelectQuery + " from users "
-                                        + "where strcmp(lower(" + Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name") + "),?) = 0",
-                                        USER_MAPPER, searchString));  
+								+ "where strcmp(lower(" + Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name") + "),?) = 0",
+						USER_MAPPER, searchString));
 			} else if (Compatibility.isPostgreSql()) {
 				return jdbc.query("select " + userMappingSelectQuery + " from users "
-                                        + "where lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=?",
-                                        USER_MAPPER, searchString);
+								+ "where lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=?",
+						USER_MAPPER, searchString);
 			} else {
 				throw new InternalErrorException("Unsupported db type");
 			}

@@ -442,6 +442,16 @@ public interface UsersManagerImplApi {
 	List<User> findUsers(PerunSession sess, String searchString) throws InternalErrorException;
 
 	/**
+	 * Returns list of users who matches the searchString, searching name, email and logins.
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> findUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException;
+
+	/**
 	 * Returns list of users who matches the searchString
 	 *
 	 * @param sess

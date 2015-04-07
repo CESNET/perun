@@ -542,6 +542,18 @@ public interface UsersManagerBl {
 	List<RichUser> findRichUsers(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException;
 
 	/**
+	 * Returns list of richusers with attributes who matches the searchString, searching name, email, logins.
+	 * Name part is searched for exact match.
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @return list of richusers
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> findRichUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException;
+
+	/**
 	 * Return list of users who matches the searchString, searching name, email and logins
 	 * and are not member in specific VO.
 	 *
@@ -577,7 +589,7 @@ public interface UsersManagerBl {
 	 */
 	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException;
         
-        /**
+	/**
 	 * Returns list of users who exactly matches the searchString
 	 *
 	 * @param sess
@@ -932,6 +944,19 @@ public interface UsersManagerBl {
 	 * @throws UserNotExistsException
 	 */
 	List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException;
+
+	/**
+	 * Returns list of RichUsers with selected attributes who matches the searchString, searching name, email, logins.
+	 * Name part is searched for exact match.
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @param attrNames
+	 * @return list of RichUsers
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException;
 
 	/**
 	 * Get User to RichUser with attributes.

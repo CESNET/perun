@@ -612,6 +612,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
 	}
 
+	public List<RichUser> findRichUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException {
+		List<User> users = this.getUsersManagerImpl().findUsersByExactMatch(sess, searchString);
+		return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
+	}
+
 	public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException {
 		return this.getUsersManagerImpl().findUsersByName(sess, searchString);
 	}
@@ -626,9 +631,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		return this.getUsersManagerImpl().findUsersByName(sess, titleBefore, firstName, middleName, lastName, titleAfter);
 	}
-        
-        public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
+
+	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
 		return this.getUsersManagerImpl().findUsersByExactName(sess, searchString);
+	}
+
+	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException {
+		return this.getUsersManagerImpl().findUsersByExactMatch(sess, searchString);
 	}
 
 	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException {
@@ -1464,6 +1473,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			return convertRichUsersToRichUsersWithAttributes(sess, findRichUsers(sess, searchString));
 		} else {
 			return convertUsersToRichUsersWithAttributesByNames(sess, findUsers(sess, searchString), attrsName);
+		}
+
+	}
+
+	public List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
+
+		if(attrsName == null || attrsName.isEmpty()) {
+			return convertRichUsersToRichUsersWithAttributes(sess, findRichUsersByExactMatch(sess, searchString));
+		} else {
+			return convertUsersToRichUsersWithAttributesByNames(sess, findUsersByExactMatch(sess, searchString), attrsName);
 		}
 
 	}
