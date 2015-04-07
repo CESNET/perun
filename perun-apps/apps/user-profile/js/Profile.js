@@ -22,7 +22,7 @@ $(document).ready(function() {
     $("#preferredLanguage.dropdown-menu > li > a[data-value]").click(function() {
         var clicked = this;
         var loadImage = new LoadImage($('.user-preferredLanguage'), "20px");
-        
+
         callPerun("attributesManager", "getAttribute", {user: user.id, attributeName: "urn:perun:user:attribute-def:def:preferredLanguage"}, function(preferredLanguage) {
             preferredLanguage.value = $(clicked).attr("data-value").trim();
             callPerunPost("attributesManager", "setAttribute", {user: user.id, attribute: preferredLanguage}, function() {
@@ -38,10 +38,10 @@ $(document).ready(function() {
     $("#timezone.dropdown-menu.multi-level li>a[data-value]").click(function() {
         var clicked = this;
         var loadImage = new LoadImage($('.user-timezone'), "20px");
-        
+
         callPerun("attributesManager", "getAttribute", {user: user.id, attributeName: "urn:perun:user:attribute-def:def:timezone"}, function(timezone) {
             timezone.value = $(clicked).attr("data-value").trim();
-            
+
             callPerunPost("attributesManager", "setAttribute", {user: user.id, attribute: timezone}, function() {
                 var userAttributesFriendly = {};
                 userAttributesFriendly.timezone = timezone.value;
@@ -59,9 +59,9 @@ function checkUserEinfraLogin(user) {
         (flowMessager.newMessage("User login", "can't be loaded because user isn't loaded.", "danger")).draw();
         return;
     }
-    
+
     callPerun("attributesManager", "getAttribute", {user: user.id, attributeName: "urn:perun:user:attribute-def:def:login-namespace:einfra"}, function(login) {
-	if (!login) {
+        if (!login) {
             (flowMessager.newMessage("You can't use User profile app", "You don't have eInfra login", "warning")).draw();
             return;
         }
@@ -94,7 +94,7 @@ function loadUserAttributes(user) {
             userAttributesFriendly[userAttributes[attrId].friendlyName] = userAttributes[attrId].value;
         }
         fillUserAttributes(userAttributesFriendly);
-	    loadImage.hide();
+        loadImage.hide();
         if (!userAttributesFriendly["login-namespace:einfra"]) {
             $(".hide-without-login").hide(0);
         }
