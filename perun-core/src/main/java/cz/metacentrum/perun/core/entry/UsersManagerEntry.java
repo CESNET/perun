@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
  * UsersManager entry logic
  *
  * @author Slavek Licehammer glory@ics.muni.cz
+ * @author Sona Mastrakova
  */
 public class UsersManagerEntry implements UsersManager {
 
@@ -542,6 +543,13 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().findUsersByName(sess, titleBefore, firstName, middleName, lastName, titleAfter);
 	}
 
+	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Probably without authorization
+		return getUsersManagerBl().findUsersByExactName(sess, searchString);
+	}
+
 	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -916,6 +924,22 @@ public class UsersManagerEntry implements UsersManager {
 		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributes(sess, searchString, attrNames));
+
+	}
+
+	public List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF)) {
+			throw new PrivilegeException(sess, "findRichUsersWithAttributesByExactMatch");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributesByExactMatch(sess, searchString, attrNames));
 
 	}
 

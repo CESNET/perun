@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedEx
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
+ * @author Sona Mastrakova
  */
 public class UsersManagerImpl implements UsersManagerImplApi {
 
@@ -669,6 +670,50 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		return new ArrayList<User>(users);
 	}
 
+	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException {
+		Set<User> users = new HashSet<User>();
+
+		log.debug("Searching for users using searchString '{}'", searchString);
+
+		// Search by mail (member)
+		users.addAll(jdbc.query("select " + userMappingSelectQuery +
+				" from users, members, member_attr_values, attr_names " +
+				"where members.user_id=users.id and members.id=member_attr_values.member_id and member_attr_values.attr_id=attr_names.id and " +
+				"attr_names.attr_name='urn:perun:member:attribute-def:def:mail' and " +
+				"lower(member_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+
+		// Search preferred email (user)
+		users.addAll(jdbc.query("select " + userMappingSelectQuery +
+				" from users, user_attr_values, attr_names " +
+				"where users.id=user_attr_values.user_id and user_attr_values.attr_id=attr_names.id and " +
+				"attr_names.attr_name='urn:perun:user:attribute-def:def:preferredMail' and " +
+				"lower(user_attr_values.attr_value)=lower(?)", USER_MAPPER, searchString.toLowerCase()));
+
+		// Search logins in userExtSources
+		users.addAll(jdbc.query("select " + userMappingSelectQuery +
+				" from users, user_ext_sources " +
+				"where user_ext_sources.login_ext=? and user_ext_sources.user_id=users.id", USER_MAPPER, searchString));
+
+		// Search logins in attributes: login-namespace:*
+		users.addAll(jdbc.query("select distinct " + userMappingSelectQuery +
+						" from attr_names, user_attr_values, users " +
+						"where attr_names.friendly_name like 'login-namespace:%' and user_attr_values.attr_value=? " +
+						"and attr_names.id=user_attr_values.attr_id and user_attr_values.user_id=users.id",
+				USER_MAPPER, searchString));
+
+		// Search by userId
+		try {
+			int userId = Integer.parseInt(searchString);
+			users.addAll(jdbc.query("select " + userMappingSelectQuery + " from users where id=?", USER_MAPPER, userId));
+		} catch (NumberFormatException e) {
+			// IGNORE
+		}
+
+		users.addAll(findUsersByExactName(sess, searchString));
+
+		return new ArrayList<User>(users);
+	}
+
 	public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException {
 		if (searchString == null || searchString.isEmpty()) {
 			return new ArrayList<User>();
@@ -732,6 +777,45 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					" where coalesce(lower(users.title_before), '%') like ? and lower(users.first_name) like ? and coalesce(lower(users.middle_name),'%') like ? and " +
 					"lower(users.last_name) like ?  and coalesce(lower(users.title_after), '%') like ?",
 					USER_MAPPER, titleBefore, firstName, middleName, lastName, titleAfter);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<User>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
+		if (searchString == null || searchString.isEmpty()) {
+			return new ArrayList<User>();
+		}
+
+		// Convert to lower case
+		searchString = searchString.toLowerCase();
+		log.debug("Search string '{}' converted into the lowercase", searchString);
+
+		// Convert to ASCII
+		searchString = utftoasci(searchString);
+		log.debug("Search string '{}' converted into the ASCII", searchString);
+
+		// remove spaces from the search string
+		searchString = searchString.replaceAll(" ", "");
+
+		log.debug("Searching users by name using searchString '{}'", searchString);
+
+		// the searchString is already lower cased and converted into the ASCII
+		try {
+			if (Compatibility.isOracle()) {
+				// Search users' names
+				return (jdbc.query("select " + userMappingSelectQuery + " from users "
+								+ "where strcmp(lower(" + Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name") + "),?) = 0",
+						USER_MAPPER, searchString));
+			} else if (Compatibility.isPostgreSql()) {
+				return jdbc.query("select " + userMappingSelectQuery + " from users "
+								+ "where lower(" + Compatibility.convertToAscii("COALESCE(users.first_name,'') || COALESCE(users.middle_name,'') || COALESCE(users.last_name,'')") + ")=?",
+						USER_MAPPER, searchString);
+			} else {
+				throw new InternalErrorException("Unsupported db type");
+			}
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<User>();
 		} catch (RuntimeException e) {

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -517,9 +518,9 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Member member = setUpMember(vo);
 
 		User firstUser = usersManager.getUserByMember(sess, member);
-		assertNotNull("unable to get user by member from DB",firstUser);
+		assertNotNull("unable to get user by member from DB", firstUser);
 		User secondUser = usersManager.getUserById(sess,firstUser.getId());
-		assertEquals("both users should be the same",firstUser,secondUser);
+		assertEquals("both users should be the same", firstUser, secondUser);
 
 	}
 
@@ -563,7 +564,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 			List<Group> groups = usersManager.getGroupsWhereUserIsAdmin(sess, returnedUser);
 			assertTrue("our user should be admin in one group", groups.size() >= 1);
-			assertTrue("created group is not between them",groups.contains(group));
+			assertTrue("created group is not between them", groups.contains(group));
 
 		}
 
@@ -628,13 +629,9 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-	//FIXME az bude odstranen Grouper
-	@Ignore
 	@Test
 	public void findUsers() throws Exception {
 		System.out.println("UsersManager.findUsers");
-
-		// TODO otestovat hledani podle loginu i emailu
 
 		// Create second user
 		User user2 = new User();
@@ -660,8 +657,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertTrue("results must contain user and user2", users.contains(user) && users.contains(user2));
 	}
 
-	//FIXME az bude odstranen Grouper
-	@Ignore
 	@Test
 	public void findUsersByNameFullText() throws Exception {
 		System.out.println("UsersManager.findUsersByNameFullText");
@@ -678,7 +673,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersForDeletion.add(user2);
 		// save user for deletion after testing
 
-		List<User> users = usersManager.findUsersByName(sess, userFirstName +" "+ userLastName);
+		List<User> users = usersManager.findUsersByName(sess, userFirstName + " " + userLastName);
 		// This search must contain at least one result
 		assertTrue("results must contain at least one user", users.size() >= 1);
 		// And must contain the user
@@ -744,6 +739,36 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		perun.getAttributesManagerBl().setAttribute(sess, user, attr);
 
 		assertTrue("results must contain user", usersManager.getUsersByAttribute(sess, attr).contains(user));
+	}
+
+	@Test
+	public void findUsersByExactName() throws Exception {
+		System.out.println("UsersManager.findUsersByExactName");
+
+		String searchString = user.getFirstName()+user.getLastName();
+		List<User> users = perun.getUsersManager().findUsersByExactName(sess, searchString);
+		assertTrue("No users found for exact match!", !users.isEmpty());
+		assertTrue("Test user not found in results!", users.contains(user));
+
+		// we shouldn't find anybody using substring
+		searchString = searchString.substring(0, searchString.length()-3);
+		users = perun.getUsersManager().findUsersByExactName(sess, searchString);
+		assertTrue("Some user found using substring when we shouldn't find anybody!", users.isEmpty());
+		assertTrue("Test user found in results when shouldn't!", !users.contains(user));
+
+	}
+
+	@Test
+	public void findRichUsersWithAttributesByExactMatch() throws Exception {
+		System.out.println("UsersManager.findRichUsersWithAttributesByExactMatch");
+
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
+
+		String searchString = user.getFirstName()+user.getLastName();
+		List<RichUser> users = perun.getUsersManager().findRichUsersWithAttributesByExactMatch(sess, searchString, attrNames);
+		assertTrue("No users found for exact match!", !users.isEmpty());
+
 	}
 
 
