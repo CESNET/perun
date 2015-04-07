@@ -75,7 +75,15 @@ close (FILE_USERS) or die "Cannot close $fileUsers: $! \n";
 # GROUPS: group_id group_name type parent_id
 open FILE_GROUPS,">$fileGroups" or die "Cannot open $fileGroups: $! \n";
 foreach my $gid (sort keys %$groupStruc) {
-	print FILE_GROUPS "\"$gid\", \"$groupStruc->{$gid}->{$g_name}\", \"$groupStruc->{$gid}->{$g_type}\", \"$groupStruc->{$gid}->{$g_parent_id}\"", "\n";
+	print FILE_GROUPS "\"$gid\", \"$groupStruc->{$gid}->{$g_name}\", \"$groupStruc->{$gid}->{$g_type}\", ";
+	if ($groupStruc->{$gid}->{$g_parent_id}) {
+		# print parent group id
+		print FILE_GROUPS "\"$groupStruc->{$gid}->{$g_parent_id}\""
+	} else {
+		# Print 0 for top-level groups
+		print FILE_GROUPS "\"0\"";
+	}
+	print FILE_GROUPS "\n";
 }
 close (FILE_GROUPS) or die "Cannot close $fileGroups: $! \n";
 
