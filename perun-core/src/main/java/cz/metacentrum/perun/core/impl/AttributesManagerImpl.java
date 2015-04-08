@@ -3191,7 +3191,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
 							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"JOIN members ON " + BeansUtils.prepareInSQLCaluse("members.id", members) +
+							"JOIN members ON " + BeansUtils.prepareInSQLClause("members.id", members) +
 							"LEFT JOIN member_resource_attr_values mem ON attr_names.id=mem.attr_id AND mem.resource_id=? " +
 							"AND mem.member_id=members.id WHERE namespace IN (?,?,?)",
 					new MemberAttributeExtractor(sess, this, members), service.getId(), resource.getId(),
@@ -3205,7 +3205,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
 							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"JOIN members ON " + BeansUtils.prepareInSQLCaluse("members.id", members) +
+							"JOIN members ON " + BeansUtils.prepareInSQLClause("members.id", members) +
 							"LEFT JOIN member_attr_values mem ON attr_names.id=mem.attr_id " +
 							"AND mem.member_id=members.id WHERE namespace IN (?,?,?,?)",
 					new MemberAttributeExtractor(sess, this, members), service.getId(),
@@ -3221,7 +3221,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr_fac") + ", users.id FROM attr_names " +
 							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"JOIN users ON " + BeansUtils.prepareInSQLCaluse("users.id", users) +
+							"JOIN users ON " + BeansUtils.prepareInSQLClause("users.id", users) +
 							"LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id AND facility_id=? AND user_id=users.id " +
 							"WHERE namespace IN (?,?,?)",
 					new UserAttributeExtractor(sess, this, users, facility), service.getId(), facility.getId(), AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT, AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
@@ -3237,7 +3237,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr") + ", users.id FROM attr_names " +
 							"JOIN service_required_attrs on attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
-							"JOIN users ON " + BeansUtils.prepareInSQLCaluse("users.id", users) +
+							"JOIN users ON " + BeansUtils.prepareInSQLClause("users.id", users) +
 							"LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id AND user_id=users.id " +
 							"WHERE namespace IN (?,?,?,?)",
 					new UserAttributeExtractor(sess, this, users), service.getId(), AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT, AttributesManager.NS_USER_ATTR_VIRT);

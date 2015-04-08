@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.notif.dao.jdbc;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.dao.PerunNotifPoolMessageDao;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -87,15 +89,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 
 		logger.debug("Removing poolMessages from db with ids: {}", proccessedIds);
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("delete from pn_pool_message where id in (");
-		for (Iterator<Integer> iter = proccessedIds.iterator(); iter.hasNext();) {
-			Integer id = iter.next();
-			buffer.append(id);
-			if (iter.hasNext()) {
-				buffer.append(",");
-			}
-		}
-		buffer.append(")");
+		buffer.append("delete from pn_pool_message where " + BeansUtils.prepareInSQLClause(new ArrayList<Integer>(proccessedIds), "id"));
 		this.getJdbcTemplate().update(buffer.toString());
 		logger.debug("PoolMessages with id: {}, removed.", proccessedIds);
 	}
