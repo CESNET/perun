@@ -807,7 +807,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			if (Compatibility.isOracle()) {
 				// Search users' names
 				return (jdbc.query("select " + userMappingSelectQuery + " from users "
-								+ "where strcmp(lower(" + Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name") + "),?) = 0",
+								+ "where lower(" + Compatibility.convertToAscii("users.first_name || users.middle_name || users.last_name") + ")=?",
 						USER_MAPPER, searchString));
 			} else if (Compatibility.isPostgreSql()) {
 				return jdbc.query("select " + userMappingSelectQuery + " from users "
