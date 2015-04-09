@@ -1,4 +1,4 @@
--- database version 3.1.20 (don't forget to update insert statement at the end of file)
+-- database version 3.1.22 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1603,4 +1603,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.20');
+insert into configurations values ('DATABASE VERSION','3.1.22');

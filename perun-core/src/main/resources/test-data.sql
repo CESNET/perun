@@ -2185,7 +2185,7 @@ insert into service_dependencies (created_by_uid,modified_by_uid,type,exec_servi
 insert into service_dependencies (created_by_uid,modified_by_uid,type,exec_service_id,dependency_id,created_at,created_by,modified_at,modified_by,status) values (null,null,'SERVICE',281,280,timestamp '2012-08-24 15:30:56.6','PERUNV3',timestamp '2012-08-24 15:30:56.6','PERUNV3','0');
 insert into service_dependencies (created_by_uid,modified_by_uid,type,exec_service_id,dependency_id,created_at,created_by,modified_at,modified_by,status) values (null,null,'SERVICE',371,370,timestamp '2013-04-24 13:19:52.4','PERUNV3',timestamp '2013-04-24 13:19:52.4','PERUNV3','0');
 insert into service_dependencies (created_by_uid,modified_by_uid,type,exec_service_id,dependency_id,created_at,created_by,modified_at,modified_by,status) values (null,null,'SERVICE',391,390,timestamp '2014-01-09 10:50:38.5','PERUNV3',timestamp '2014-01-09 10:50:38.5','PERUNV3','0');
-insert into configurations (property,value) values ('DATABASE VERSION','3.1.21');
+insert into configurations (property,value) values ('DATABASE VERSION','3.1.22');
 
 drop sequence service_principals_id_seq;
 create sequence service_principals_id_seq start with 1;
