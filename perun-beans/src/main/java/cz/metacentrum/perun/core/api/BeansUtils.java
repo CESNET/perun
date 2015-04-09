@@ -433,13 +433,28 @@ public class BeansUtils {
 	 * @param beans list of perun beans
 	 * @return string with some sql IN clause
 	 */
-	public static String prepareInSQLCaluse(String identifier, List<? extends PerunBean> beans) {
+	public static String prepareInSQLClause(String identifier, List<? extends PerunBean> beans) {
 		//get Ids
 		List<Integer> beansIds = new ArrayList<>();
 		for(PerunBean pb: beans) {
 			beansIds.add(pb.getId());
 		}
+		return BeansUtils.prepareInSQLClause(beansIds, identifier);
+	}
 
+
+	/**
+	 * Create a string with set of IN clause. Every in clause has maximum 1000 ids.
+	 * Identifier means for what IN clause is calling (Like 'table.id')
+	 *
+	 * Reason for using is compatibility with oracle and other dbs.
+	 *
+	 * Example: " ( in (10,15,...) or in (...) or ... ) "
+	 *
+	 * @param beansIds list of perun bean ids
+	 * @return string with some sql IN clause
+	 */
+	public static String prepareInSQLClause(List<Integer> beansIds, String identifier) {
 		StringBuilder sb = new StringBuilder();
 		//use or in sql clause
 		boolean useOr = false;
