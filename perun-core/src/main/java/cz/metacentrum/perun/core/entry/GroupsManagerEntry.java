@@ -159,7 +159,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		//Test if all groups exists and user has right to delete all of them
 		for(Group group: groups) {
 			getGroupsManagerBl().checkGroupExists(perunSession, group);
-			//test of privilages on group
+			//test of privileges on group
 			if(!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 				throw new PrivilegeException(perunSession, "deleteGroups");
 			}

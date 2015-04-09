@@ -132,15 +132,7 @@ public class SearcherImpl implements SearcherImplApi {
 		}
 
 		try {
-			if (Compatibility.isOracle()) {
-				return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
-			} else if (Compatibility.isPostgreSql()) {
-				return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
-				//throw new InternalErrorException("Unsupported postgreSQL type");
-			} else {
-				throw new InternalErrorException("Unsupported db type");
-			}
-
+			return jdbc.query(query.toString(), parameters, UsersManagerImpl.USER_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<User>();
 		} catch (RuntimeException e) {
@@ -156,7 +148,7 @@ public class SearcherImpl implements SearcherImplApi {
 		date.add(Calendar.DAY_OF_MONTH, days);
 		// create sql toDate()
 		String compareDate = BeansUtils.getDateFormatterWithoutTime().format(date.getTime());
-		compareDate = "TO_DATE('"+compareDate+"','yyyy-MM-dd')";
+		compareDate = "TO_DATE('"+compareDate+"','YYYY-MM-DD')";
 
 		if (operator == null || operator.isEmpty()) operator = "=";
 
@@ -168,7 +160,7 @@ public class SearcherImpl implements SearcherImplApi {
 			AttributeDefinition def = ((PerunBl) sess.getPerun()).getAttributesManagerBl().getAttributeDefinition(sess, "urn:perun:member:attribute-def:def:membershipExpiration");
 
 			String query = "select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from members left join member_attr_values val on " +
-					"val.member_id=members.id and val.attr_id=? where TO_DATE(val.attr_value, 'yyyy-MM-dd')"+operator+compareDate;
+					"val.member_id=members.id and val.attr_id=? where TO_DATE(val.attr_value, 'YYYY-MM-DD')"+operator+compareDate;
 
 			return jdbcTemplate.query(query.toString(), MembersManagerImpl.MEMBER_MAPPER, def.getId());
 

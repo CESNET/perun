@@ -102,7 +102,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
 					}
 				}));
-		
+
 		for(Group group: groups) {
 			this.deleteGroup(perunSession, group, forceDelete);
 		}
@@ -293,11 +293,32 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
+
+		// return group with correct updated name and shortName
 		group = getGroupsManagerImpl().updateGroup(sess, group);
 		getPerunBl().getAuditer().log(sess, "{} updated.", group);
 
 		List<Group> allSubgroups = this.getAllSubGroups(sess, group);
+		String[] groupNames = group.getName().split(":");
+
 		for(Group g: allSubgroups) {
+			String[] subGroupNames = g.getName().split(":");
+			for (int i=0; i<groupNames.length; i++) {
+				if (!subGroupNames[i].equals(groupNames[i])) {
+					// this part of name changed
+					subGroupNames[i] = groupNames[i];
+				}
+			}
+			// create new name
+			StringBuilder sb = new StringBuilder();
+			for (String sgName : subGroupNames) {
+				sb.append(sgName).append(":");
+			}
+			// set name without last ":"
+			g.setName(sb.toString().substring(0, sb.length()-1));
+			// for subgroups we must update whole name
+			getGroupsManagerImpl().updateGroupName(sess, g);
+			// create auditer message for every updated group
 			getPerunBl().getAuditer().log(sess, "{} updated.", g);
 		}
 

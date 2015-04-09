@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.util.HashMap;
-import java.util.ServiceLoader;
+import java.util.*;
 
 import cz.metacentrum.perun.core.api.ActionType;
 import java.io.IOException;
@@ -14,17 +13,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +50,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -103,9 +95,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
-import java.util.Iterator;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 /**
  * AttributesManager implementation.
@@ -1878,7 +1868,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							try {
 								jdbc.queryForInt("select attr_id from resource_attr_values where attr_id=? and resource_id=? for update", attribute.getId(), resource.getId());
 							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
+								//Value doesn't exist -> insert   (and return from this method)
 								jdbc.update("insert into resource_attr_values (attr_id, resource_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
 										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), resource.getId(),
 										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
@@ -4775,77 +4765,94 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	@Override
-	public List<AttributeRights> getAttributeRights(PerunSession sess, int attributeId) throws InternalErrorException {
-		try {
-			SqlRowSet rs = jdbc.queryForRowSet("select " + attributeRightSelectQuery + " from attributes_authz join roles on "
-					+ "attributes_authz.role_id=roles.id join action_types on attributes_authz.action_type_id=action_types.id where "
-					+ "attributes_authz.attr_id=?", attributeId);
+	/**
+	 * Result Set Extractor for AttributeRights object
+	 */
+	private class AttributeRightsExtractor implements ResultSetExtractor<List<AttributeRights>> {
 
-			List<AttributeRights> attributeRights = new ArrayList<AttributeRights>();
-			rs.beforeFirst();
-			Role role;
-			ActionType actionType;
-			boolean roleExists;
-			while (rs.next()) {
-				role = Role.valueOf(rs.getString("role_name").toUpperCase());
-				actionType = ActionType.valueOf(rs.getString("action_type").toUpperCase());
-				roleExists = false;
+		private int attributeId;
 
-				Iterator itr = attributeRights.iterator();
-				while ((itr.hasNext())&&(!roleExists)) {
-					AttributeRights right = (AttributeRights) itr.next();
-					if (right.getRole().equals(role)) {
-						right.getRights().add(actionType);
-						roleExists = true;
-					}
-				}
-
-				if (!roleExists) {
-					List<ActionType> actionTypes = new ArrayList<ActionType>();
-					actionTypes.add(actionType);
-					attributeRights.add(new AttributeRights(attributeId, role, actionTypes));
-				}
-			}
-			// add roles with empty rights
-			List<Role> listOfRoles = new ArrayList<Role>();
-			listOfRoles.add(Role.FACILITYADMIN);
-			listOfRoles.add(Role.GROUPADMIN);
-			listOfRoles.add(Role.SELF);
-			listOfRoles.add(Role.VOADMIN);
-			for (Role roleToTry : listOfRoles) {
-				roleExists = false;
-
-				Iterator itr = attributeRights.iterator();
-				while ((itr.hasNext()) && (!roleExists)) {
-					AttributeRights right = (AttributeRights) itr.next();
-					if (right.getRole().equals(roleToTry)) {
-						roleExists = true;
-					}
-				}
-				if (!roleExists) {
-					attributeRights.add(new AttributeRights(attributeId, roleToTry, new ArrayList<ActionType>()));
-				}
-			}
-
-			return attributeRights;
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
+		public AttributeRightsExtractor(int attributeId) {
+			this.attributeId = attributeId;
 		}
+
+		public List<AttributeRights> extractData(ResultSet rs) throws SQLException, DataAccessException {
+
+			Map<Role, List<ActionType>> map = new HashMap<>();
+
+			while (rs.next()) {
+
+				Role role = Role.valueOf(rs.getString("role_name").toUpperCase());
+				ActionType actionType = ActionType.valueOf(rs.getString("action_type").toUpperCase());
+
+				if (map.get(role) != null) {
+					map.get(role).add(actionType);
+				} else {
+					map.put(role, new ArrayList<>(Arrays.asList(actionType)));
+				}
+
+			}
+
+			List<AttributeRights> rights = new ArrayList<>();
+			for (Role r : map.keySet()) {
+				rights.add(new AttributeRights(attributeId, r, map.get(r)));
+			}
+
+			return rights;
+
+		}
+	}
+
+	@Override
+	public List<AttributeRights> getAttributeRights(PerunSession sess, final int attributeId) throws InternalErrorException {
+
+		List<AttributeRights> rights = jdbc.query("select " + attributeRightSelectQuery + " from attributes_authz join roles on "
+				+ "attributes_authz.role_id=roles.id join action_types on attributes_authz.action_type_id=action_types.id where "
+				+ "attributes_authz.attr_id=?", new AttributeRightsExtractor(attributeId), attributeId);
+
+		// set also empty rights for other roles (not present in DB)
+
+		boolean roleExists;
+
+		List<Role> listOfRoles = new ArrayList<Role>();
+		listOfRoles.add(Role.FACILITYADMIN);
+		listOfRoles.add(Role.GROUPADMIN);
+		listOfRoles.add(Role.SELF);
+		listOfRoles.add(Role.VOADMIN);
+
+		for (Role roleToTry : listOfRoles) {
+			roleExists = false;
+
+			Iterator itr = rights.iterator();
+			while ((itr.hasNext()) && (!roleExists)) {
+				AttributeRights right = (AttributeRights) itr.next();
+				if (right.getRole().equals(roleToTry)) {
+					roleExists = true;
+				}
+			}
+			if (!roleExists) {
+				rights.add(new AttributeRights(attributeId, roleToTry, new ArrayList<ActionType>()));
+			}
+		}
+
+		return rights;
+
 	}
 
 	@Override
 	public void setAttributeRight(PerunSession sess, AttributeRights rights) throws InternalErrorException {
 		try {
 			// get action types of the attribute and role from the database
-			SqlRowSet rs = jdbc.queryForRowSet("select action_types.action_type as action_type from attributes_authz join action_types "
-					+ "on attributes_authz.action_type_id=action_types.id where attr_id=? and "
-					+ "role_id=(select id from roles where name=?)", rights.getAttributeId(), rights.getRole().getRoleName());
-			rs.beforeFirst();
-			List<ActionType> dbActionTypes = new ArrayList<ActionType>();
-			while (rs.next()) {
-				dbActionTypes.add(ActionType.valueOf(rs.getString("action_type").toUpperCase()));
-			}
+			List<ActionType> dbActionTypes = jdbc.query("select action_types.action_type as action_type from attributes_authz join action_types "
+							+ "on attributes_authz.action_type_id=action_types.id where attr_id=? and "
+							+ "role_id=(select id from roles where name=?)",
+					new RowMapper<ActionType>() {
+						@Override
+						public ActionType mapRow(ResultSet rs, int rowNum) throws SQLException {
+							return ActionType.valueOf(rs.getString("action_type").toUpperCase());
+						}
+					}, rights.getAttributeId(), rights.getRole().getRoleName());
+
 			// inserting
 			List<ActionType> actionTypesToInsert = new ArrayList<ActionType>();
 			actionTypesToInsert.addAll(rights.getRights());

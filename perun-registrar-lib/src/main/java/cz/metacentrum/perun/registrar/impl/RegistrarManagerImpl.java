@@ -2584,8 +2584,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	// FIXME - we are retrieving GROUP name using only "short_name" so it's not same as getGroupById()
 	protected static final String APP_SELECT = "select a.id as id,a.vo_id as vo_id, a.group_id as group_id,a.apptype as apptype,a.fed_info as fed_info,a.state as state," +
 			"a.user_id as user_id,a.extsourcename as extsourcename, a.extsourcetype as extsourcetype, a.extsourceloa as extsourceloa, a.user_id as user_id, a.created_at as app_created_at, a.created_by as app_created_by, a.modified_at as app_modified_at, a.modified_by as app_modified_by, " +
-			"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.modified_by as vo_modified_by, " +
-			"v.modified_at as vo_modified_at, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, " +
+			"v.name as vo_name, v.short_name as vo_short_name, v.created_by as vo_created_by, v.created_at as vo_created_at, v.created_by_uid as vo_created_by_uid, v.modified_by as vo_modified_by, " +
+			"v.modified_at as vo_modified_at, v.modified_by_uid as vo_modified_by_uid, g.name as group_name, g.dsc as group_description, g.created_by as group_created_by, g.created_at as group_created_at, g.modified_by as group_modified_by, g.created_by_uid as group_created_by_uid, g.modified_by_uid as group_modified_by_uid," +
 			"g.modified_at as group_modified_at, g.vo_id as group_vo_id, g.parent_group_id as group_parent_group_id, u.first_name as user_first_name, u.last_name as user_last_name, u.middle_name as user_middle_name, " +
 			"u.title_before as user_title_before, u.title_after as user_title_after from application a left outer join vos v on a.vo_id = v.id left outer join groups g on a.group_id = g.id left outer join users u on a.user_id = u.id";
 
@@ -2605,7 +2605,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			Application app = new Application(rs.getInt("id"), new Vo(rs.getInt("vo_id"),
 					rs.getString("vo_name"), rs.getString("vo_short_name"),
 					rs.getString("vo_created_at"), rs.getString("vo_created_by"),
-					rs.getString("vo_modified_at"), rs.getString("vo_modified_by")),
+					rs.getString("vo_modified_at"), rs.getString("vo_modified_by"),
+					rs.getInt("vo_created_by_uid"), rs.getInt("vo_modified_by_uid")),
 					null, Application.AppType.valueOf(rs.getString("apptype")),
 					rs.getString("fed_info"), AppState.valueOf(rs.getString("state")),
 					rs.getString("extsourcename"), rs.getString("extsourcetype"),
@@ -2616,7 +2617,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				app.setGroup(new Group(rs.getInt("group_id"), rs.getString("group_name"),
 						rs.getString("group_description"), rs.getString("group_created_at"),
 						rs.getString("group_created_by"), rs.getString("group_modified_at"),
-						rs.getString("group_modified_by")));
+						rs.getString("group_modified_by"), rs.getInt("group_created_by_uid"),
+						rs.getInt("group_modified_by_uid")));
 				app.getGroup().setVoId(rs.getInt("vo_id"));
 
 				if (rs.getInt("group_parent_group_id") != 0) {

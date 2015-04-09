@@ -196,8 +196,8 @@ public class VosManagerImpl implements VosManagerImplApi {
 
 	public List<Group> getAdminGroups(PerunSession sess, Vo vo, Role role) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery_compat + " from authz join groups on "
-					+ "authz.authorized_group_id=groups.id " + GroupsManagerImpl.groupQNameJoinQuery + " where authz.vo_id=? and authz.role_id=(select id from roles where name=?)",
+			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on "
+					+ "authz.authorized_group_id=groups.id where authz.vo_id=? and authz.role_id=(select id from roles where name=?)",
 					GroupsManagerImpl.GROUP_MAPPER, vo.getId(), role.getRoleName());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Group>();
@@ -248,8 +248,8 @@ public class VosManagerImpl implements VosManagerImplApi {
 	@Override
 	public List<Group> getAdminGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery_compat + " from authz join groups on "
-					+ "authz.authorized_group_id=groups.id " + GroupsManagerImpl.groupQNameJoinQuery + " where authz.vo_id=? and authz.role_id=(select id from roles where name='voadmin')",
+			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on "
+					+ "authz.authorized_group_id=groups.id where authz.vo_id=? and authz.role_id=(select id from roles where name='voadmin')",
 					GroupsManagerImpl.GROUP_MAPPER, vo.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Group>();

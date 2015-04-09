@@ -59,6 +59,7 @@ public class UpdateGroup {
 		newGroup.put("name", oldGroup.get("shortName"));
 		newGroup.put("description", oldGroup.get("description"));
 		newGroup.put("voId", oldGroup.get("voId"));
+		newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
 		newGroup.put("beanName", oldGroup.get("beanName"));
 		newGroup.put("createdAt", oldGroup.get("createdAt"));
 		newGroup.put("createdBy", oldGroup.get("createdBy"));

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  * Database manager can work with database version and upgraded state of perun DB.
@@ -40,7 +41,13 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	
 	public String getDatabaseDriverInformation(PerunSession sess) throws InternalErrorException {
 		try {
-			Connection con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
+			Connection con;
+			// for tests
+			if (Compatibility.isHSQLDB()) {
+				con = ((SimpleDriverDataSource) jdbc.getDataSource()).getConnection();
+			} else {
+				con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
+			}
 			String driverVersion = con.getMetaData().getDriverVersion();
 			String driverName = con.getMetaData().getDriverName();
 			con.close();
@@ -52,7 +59,13 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	
 	public String getDatabaseInformation(PerunSession sess) throws InternalErrorException {
 		try {
-			Connection con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
+			Connection con;
+			// for tests
+			if (Compatibility.isHSQLDB()) {
+				con = ((SimpleDriverDataSource) jdbc.getDataSource()).getConnection();
+			} else {
+				con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
+			}
 			String dbName = con.getMetaData().getDatabaseProductName();
 			String dbVersion = con.getMetaData().getDatabaseProductVersion();
 			con.close();
