@@ -293,6 +293,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
+
+		// return group with correct updated name and shortName
 		group = getGroupsManagerImpl().updateGroup(sess, group);
 		getPerunBl().getAuditer().log(sess, "{} updated.", group);
 
@@ -314,7 +316,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 			// set name without last ":"
 			g.setName(sb.toString().substring(0, sb.length()-1));
-			getGroupsManagerImpl().updateGroup(sess, g);
+			// for subgroups we must update whole name
+			getGroupsManagerImpl().updateGroupName(sess, g);
+			// create auditer message for every updated group
+			getPerunBl().getAuditer().log(sess, "{} updated.", g);
 		}
 
 		return group;

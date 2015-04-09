@@ -80,17 +80,35 @@ public interface GroupsManagerImplApi {
 	/**
 	 * Updates group by ID.
 	 *
-	 * Update name (with ":") and description.
+	 * Update shortName and description.
 	 * Return Group with correctly set parameters
 	 *
 	 * @param perunSession
-	 * @param group to update (use only ID, name and description)
+	 * @param group to update (use only ID, shortName and description)
 	 *
 	 * @return updated group with correctly set parameters
 	 *
 	 * @throws InternalErrorException
 	 */
 	Group updateGroup(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
+	 * Updates group by ID.
+	 *
+	 * !! IMPORTANT This method allows to change group name the way it doesn't correspond with the groups hierarchy !!
+	 * Meant for updating subgroups after parent group name is updated !!
+	 *
+	 * Update name (with ":").
+	 * Return Group with correctly set parameters
+	 *
+	 * @param perunSession
+	 * @param group to update (use only ID and name)
+	 *
+	 * @return updated group with correctly set parameters
+	 *
+	 * @throws InternalErrorException
+	 */
+	Group updateGroupName(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * Search for the group with specified id in all VOs.

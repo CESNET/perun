@@ -202,14 +202,15 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException("Group existence was checked at the higher level",e);
 		}
 
-		if (!dbGroup.getName().equals(group.getName())) {
+		// we allow only update on shortName part of name
+		if (!dbGroup.getShortName().equals(group.getShortName())) {
+			dbGroup.setShortName(group.getShortName());
 			try {
-				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", group.getName(),
-						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), group.getId());
+				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", dbGroup.getName(),
+						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), dbGroup.getId());
 			} catch (RuntimeException e) {
 				throw new InternalErrorException(e);
 			}
-			dbGroup.setName(group.getName());
 		}
 
 		if (group.getDescription() != null && !group.getDescription().equals(dbGroup.getDescription())) {
@@ -220,6 +221,29 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 				throw new InternalErrorException(e);
 			}
 			dbGroup.setDescription(group.getDescription());
+		}
+		return dbGroup;
+	}
+
+	public Group updateGroupName(PerunSession sess, Group group) throws InternalErrorException {
+		Utils.notNull(group.getName(), "group.getName()");
+
+		// Get the group stored in the DB
+		Group dbGroup;
+		try {
+			dbGroup = this.getGroupById(sess, group.getId());
+		} catch (GroupNotExistsException e) {
+			throw new InternalErrorException("Group existence was checked at the higher level",e);
+		}
+
+		if (!dbGroup.getName().equals(group.getName())) {
+			dbGroup.setName(group.getName());
+			try {
+				jdbc.update("update groups set name=?,modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?", dbGroup.getName(),
+						sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), dbGroup.getId());
+			} catch (RuntimeException e) {
+				throw new InternalErrorException(e);
+			}
 		}
 		return dbGroup;
 	}
