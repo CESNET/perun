@@ -58,16 +58,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			// this task was created new, so we have to check the
 			// ExecService,Facility pair
 			synchronized (tasksByServiceAndFacility) {
-				if (!tasksByServiceAndFacility
-						.containsKey(new Pair<ExecService, Facility>(task
-								.getExecService(), task.getFacility()))) {
+				if (!tasksByServiceAndFacility.containsKey(new Pair<ExecService, Facility>(task.getExecService(), task.getFacility()))) {
 					log.debug("Adding new task to pool " + task);
 					if (null == task.getStatus()) {
 						task.setStatus(TaskStatus.NONE);
 					}
 					try {
-						int id = taskManager.scheduleNewTask(task,
-								dispatcherQueue.getClientID());
+						int id = taskManager.scheduleNewTask(task, dispatcherQueue.getClientID());
 						task.setId(id);
 					} catch (InternalErrorException e) {
 						log.error("Error storing task " + task
@@ -75,13 +72,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 						throw new InternalErrorException(
 								"Could not assign id to newly created task", e);
 					}
-					tasksByServiceAndFacility.put(
-							new Pair<ExecService, Facility>(task
-									.getExecService(), task.getFacility()),
+					tasksByServiceAndFacility.put(new Pair<ExecService, Facility>(task.getExecService(), task.getFacility()),
 							task);
-					tasksById.put(task.getId(),
-							new Pair<Task, DispatcherQueue>(task,
-									dispatcherQueue));
+					tasksById.put(task.getId(), new Pair<Task, DispatcherQueue>(task, dispatcherQueue));
 					List<Task> list = pool.get(task.getStatus());
 					if(list == null) {
 						log.info("Making new list for task status " + task.getStatus().toString());

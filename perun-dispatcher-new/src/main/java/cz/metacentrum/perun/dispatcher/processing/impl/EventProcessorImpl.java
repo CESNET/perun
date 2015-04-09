@@ -87,21 +87,17 @@ public class EventProcessorImpl implements EventProcessor {
 									+ ").Processing event...");
 						}
 						boolean orphan = true;
-						for (DispatcherQueue dispatcherQueue : dispatcherQueuePool
-								.getPool()) {
+						for (DispatcherQueue dispatcherQueue : dispatcherQueuePool.getPool()) {
 							long timeStamp = 0;
 							if (log.isDebugEnabled()) {
 								timeStamp = System.currentTimeMillis();
 							}
-							if (smartMatcher
-									.doesItMatch(event, dispatcherQueue)) {
+							if (smartMatcher.doesItMatch(event, dispatcherQueue)) {
 								orphan = false;
 								createTask(dispatcherQueue, event);
-								eventLogger.logEvent(event,
-										dispatcherQueue.getClientID());
+								eventLogger.logEvent(event, dispatcherQueue.getClientID());
 								if (log.isDebugEnabled()) {
-									long timeStamp2 = System
-											.currentTimeMillis();
+									long timeStamp2 = System.currentTimeMillis();
 									log.debug("MATCH OK (took "
 											+ (timeStamp2 - timeStamp)
 											+ "ms) for "

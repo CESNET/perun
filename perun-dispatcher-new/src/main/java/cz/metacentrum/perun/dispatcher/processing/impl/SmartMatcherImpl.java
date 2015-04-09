@@ -35,8 +35,7 @@ public class SmartMatcherImpl implements SmartMatcher {
 
 	@Override
 	public boolean doesItMatch(Event event, DispatcherQueue dispatcherQueue) {
-		MatchingRule matchingRule = matchingRules.get(dispatcherQueue
-				.getClientID());
+		MatchingRule matchingRule = matchingRules.get(dispatcherQueue.getClientID());
 		if (matchingRule == null) {
 			if (log.isDebugEnabled()) {
 				log.debug("MATCHER rules(" + matchingRules.size()
