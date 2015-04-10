@@ -87,21 +87,17 @@ public class EventProcessorImpl implements EventProcessor {
 									+ ").Processing event...");
 						}
 						boolean orphan = true;
-						for (DispatcherQueue dispatcherQueue : dispatcherQueuePool
-								.getPool()) {
+						for (DispatcherQueue dispatcherQueue : dispatcherQueuePool.getPool()) {
 							long timeStamp = 0;
 							if (log.isDebugEnabled()) {
 								timeStamp = System.currentTimeMillis();
 							}
-							if (smartMatcher
-									.doesItMatch(event, dispatcherQueue)) {
+							if (smartMatcher.doesItMatch(event, dispatcherQueue)) {
 								orphan = false;
 								createTask(dispatcherQueue, event);
-								eventLogger.logEvent(event,
-										dispatcherQueue.getClientID());
+								eventLogger.logEvent(event, dispatcherQueue.getClientID());
 								if (log.isDebugEnabled()) {
-									long timeStamp2 = System
-											.currentTimeMillis();
+									long timeStamp2 = System.currentTimeMillis();
 									log.debug("MATCH OK (took "
 											+ (timeStamp2 - timeStamp)
 											+ "ms) for "
@@ -185,11 +181,17 @@ public class EventProcessorImpl implements EventProcessor {
 					if (task != null) {
 						// there already is a task in schedulingPool
 						log.debug("  Task is in the pool already.");
+						/*
 						if (!(task.getStatus().equals(Task.TaskStatus.PLANNED) || task
 								.getStatus().equals(Task.TaskStatus.PROCESSING))) {
 							log.debug("  Task is not PLANNED or PROCESSING, removing destinations to refetch them later on.");
 							task.setDestinations(null);
 						}
+						*/
+						log.debug("  Removing destinations from existing task to refetch them later on.");
+						task.setDestinations(null);
+						// signal that task needs to regenerate data
+						task.setSourceUpdated(true);
 					} else {
 						// no such task yet, create one
 						task = new Task();
@@ -198,15 +200,17 @@ public class EventProcessorImpl implements EventProcessor {
 						task.setStatus(TaskStatus.NONE);
 						task.setRecurrence(execService.getDefaultRecurrence());
 						task.setSchedule(new Date(System.currentTimeMillis()));
+						task.setSourceUpdated(false);
 						schedulingPool.addToPool(task, dispatcherQueue);
 						log.debug("  Created new task and added to the pool.");
 					}
 					final Task task_final = task;
-					if (event.getHeader().contains("forceit")) {
+					if (event.getData().contains("force propagation:")) {
 						// expedite task processing
 						taskExecutor.execute(new Runnable() {
 							@Override
 							public void run() {
+								log.debug("  Force scheduling the task.");
 								taskScheduler.scheduleTask(task_final);
 							}
 						});
@@ -221,7 +225,7 @@ public class EventProcessorImpl implements EventProcessor {
 	}
 
 	@Override
-	public void startPocessingEvents() {
+	public void startProcessingEvents() {
 		try {
 			evProcessor = new EvProcessor();
 			taskExecutor.execute(evProcessor);
@@ -231,7 +235,7 @@ public class EventProcessorImpl implements EventProcessor {
 	}
 
 	@Override
-	public void stopPocessingEvents() {
+	public void stopProcessingEvents() {
 		evProcessor.stop();
 	}
 

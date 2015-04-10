@@ -189,23 +189,19 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 			List<Resource> resourcesResolvedFromEvent = new ArrayList<Resource>();
 			List<Service> servicesResolvedFromEvent = new ArrayList<Service>();
 
-			// =============== Resolve facilities from
-			// event======================
+			// =============== Resolve facilities from event======================
 
 			PerunSession perunSession = perun
 					.getPerunSession(new PerunPrincipal(
 							propertiesBean.getProperty("perun.principal.name"),
-							propertiesBean
-									.getProperty("perun.principal.extSourceName"),
-							propertiesBean
-									.getProperty("perun.principal.extSourceType")));
+							propertiesBean.getProperty("perun.principal.extSourceName"),
+							propertiesBean.getProperty("perun.principal.extSourceType")));
 			// Try to find FACILITY in event
 			if (facility != null) {
 				try {
 					log.debug("Facility found in event. {}.", facility);
 					facilitiesResolvedFromEvent.add(facility);
-					resourcesResolvedFromEvent.addAll(perun
-							.getFacilitiesManager().getAssignedResources(
+					resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager().getAssignedResources(
 									perunSession, facility));
 				} catch (FacilityNotExistsException ex) {
 					log.debug(
@@ -220,9 +216,7 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 					// Try to find GROUP in event
 					if (group != null) {
 						try {
-							resourcesResolvedFromEvent = perun
-									.getResourcesManager()
-									.getAssignedResources(perunSession, group);
+							resourcesResolvedFromEvent = perun.getResourcesManager().getAssignedResources(perunSession, group);
 						} catch (GroupNotExistsException ex) {
 							log.debug(
 									"Non-existing group found while resolving event. id={}",
@@ -232,9 +226,8 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 						// try to find USER in event
 						if (user != null) {
 							try {
-								resourcesResolvedFromEvent = perun
-										.getUsersManager().getAllowedResources(
-												perunSession, user);
+								resourcesResolvedFromEvent = perun.getUsersManager().getAllowedResources(
+										perunSession, user);
 							} catch (UserNotExistsException ex) {
 								log.debug(
 										"Non-existing user found while resolving event. id={}",
@@ -244,10 +237,7 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 							// try to find MEMBER in event
 							if (member != null) {
 								try {
-									resourcesResolvedFromEvent = perun
-											.getResourcesManager()
-											.getAllowedResources(perunSession,
-													member);
+									resourcesResolvedFromEvent = perun.getResourcesManager().getAllowedResources(perunSession, member);
 								} catch (MemberNotExistsException ex) {
 									log.debug(
 											"Non-existing member found while resolving event. id={}",
@@ -260,17 +250,11 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 										log.debug(
 												"Host found in event.id= {}.",
 												host.getId());
-										facility = perun.getFacilitiesManager()
-												.getFacilityForHost(
-														perunSession, host);
-										facilitiesResolvedFromEvent
-												.add(facility);
-										resourcesResolvedFromEvent
-												.addAll(perun
-														.getFacilitiesManager()
-														.getAssignedResources(
-																perunSession,
-																facility));
+										facility = perun.getFacilitiesManager().getFacilityForHost(perunSession, host);
+										facilitiesResolvedFromEvent.add(facility);
+										resourcesResolvedFromEvent.addAll(perun.getFacilitiesManager().getAssignedResources(
+												perunSession,
+												facility));
 									} catch (FacilityNotExistsException ex) {
 										log.debug(
 												"Host on non-existing facility found while resolving event. Host id={}",
@@ -303,10 +287,21 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 				Facility facilityResolvedFromEvent;
 				List<Service> servicesResolvedFromResource;
 				try {
-					facilityResolvedFromEvent = perun.getResourcesManager()
-							.getFacility(perunSession, r);
-					servicesResolvedFromResource = perun.getResourcesManager()
-							.getAssignedServices(perunSession, r);
+					facilityResolvedFromEvent = perun.getResourcesManager().getFacility(perunSession, r);
+					servicesResolvedFromResource = perun.getResourcesManager().getAssignedServices(perunSession, r);
+					/* TESTING ONLY: drop any facilities not meant for test* */
+					/*
+					if(facilityResolvedFromEvent.getName().equals("alcor.ics.muni.cz") ||
+                       facilityResolvedFromEvent.getName().equals("aldor.ics.muni.cz") ||
+                       facilityResolvedFromEvent.getName().equals("ascor.ics.muni.cz") ||
+                       facilityResolvedFromEvent.getName().equals("torque.ics.muni.cz") ||
+                       facilityResolvedFromEvent.getName().equals("nympha-cloud.zcu.cz")) {
+                    } else {
+                            log.debug("Dropping facility {} that is not meant for testing", 
+                            		  facilityResolvedFromEvent.getName());
+                            continue;
+                    }
+                    */
 					// process only services resolved from event if any
 					if (!servicesResolvedFromEvent.isEmpty())
 						servicesResolvedFromResource

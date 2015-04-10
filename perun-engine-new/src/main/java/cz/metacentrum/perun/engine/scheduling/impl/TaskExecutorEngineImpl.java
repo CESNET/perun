@@ -61,16 +61,44 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	@Autowired
 	private SchedulingPool schedulingPool;
 
+	final int MAX_RUNNING_GEN = 20;
+	final int MAX_RUNNING = 1000;
+	
 	@Override
 	public void beginExecuting() {
+		int currentlyRunningGenTasks = 0;
+
+		// TODO count gen tasks when they run and finish
+		for(Task task : schedulingPool.getProcessingTasks()) {
+			if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+				currentlyRunningGenTasks++;
+			}
+		}
+		log.debug("There are " + currentlyRunningGenTasks + " running gen tasks.");
+		if(currentlyRunningGenTasks >= MAX_RUNNING_GEN) {
+			log.warn("Reached the maximum number of concurrently running gen tasks.");
+		}
+		
 		// run all tasks in scheduled state
 		Date now = new Date(System.currentTimeMillis());
 		for (Task task : schedulingPool.getPlannedTasks()) {
+			/*
+			if(schedulingPool.getProcessingTasks().size() > MAX_RUNNING) {
+				log.warn("Reached the maximum number of concurrently running tasks.");
+				break;
+			}
+			if(currentlyRunningGenTasks >= MAX_RUNNING_GEN) {
+				continue;
+			}
+			*/
 			log.debug("TASK " + task.toString() + " is to be run at "
 					+ task.getSchedule() + ", now is " + now);
 			if (task.getSchedule().before(now)) {
 				log.debug("TASK " + task.toString() + " is going to run");
 				runTask(task);
+				if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+					currentlyRunningGenTasks++;
+				}
 			}
 		}
 		/*
@@ -134,6 +162,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		task.setStartTime(new Date(System.currentTimeMillis()));
 		List<Task> dependencies = dependencyResolver.getDependencies(task);
 		// TODO: handle GEN tasks with no destinations
+		boolean started = false;
 		for (Destination destination : taskStatusManager.getTaskStatus(task)
 				.getWaitingDestinations()) {
 			// check if all the dependency destinations are done
@@ -153,19 +182,23 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 			}
 			if (proceed) {
 				try {
-					if (task.getExecService().getExecServiceType()
-							.equals(ExecServiceType.SEND)) {
-						taskStatusManager.getTaskStatus(task)
-								.setDestinationStatus(destination,
-										TaskDestinationStatus.PROCESSING);
+					if (task.getExecService().getExecServiceType().equals(ExecServiceType.SEND)) {
+						taskStatusManager.getTaskStatus(task).setDestinationStatus(
+								destination,
+								TaskDestinationStatus.PROCESSING);
 					}
 				} catch (InternalErrorException e) {
-					log.error(
-							"Error setting status for destination {} of task {}",
+					log.error("Error setting status for destination {} of task {}",
 							destination, task.toString());
 				}
 				startWorker(task, destination);
+				started = true;
 			}
+		}
+		if(!started) {
+			log.warn("No worker started for task {}, setting to ERROR", task.getId());
+			task.setEndTime(new Date(System.currentTimeMillis()));
+			schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 		}
 	}
 
@@ -180,15 +213,13 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		executorEngineWorker.setFacility(task.getFacility());
 		executorEngineWorker.setExecService(task.getExecService());
 		executorEngineWorker.setDestination(destination);
-		if (task.getExecService().getExecServiceType()
-				.equals(ExecServiceType.GENERATE)) {
-			executorEngineWorker
-					.setResultListener((TaskResultListener) schedulingPool);
+		if (task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+			executorEngineWorker.setResultListener((TaskResultListener) schedulingPool);
+			taskExecutorGenWorkers.execute(executorEngineWorker);
 		} else {
-			executorEngineWorker
-					.setResultListener((TaskResultListener) taskStatusManager);
+			executorEngineWorker.setResultListener((TaskResultListener) taskStatusManager);
+			taskExecutorSendWorkers.execute(executorEngineWorker);
 		}
-		taskExecutorSendWorkers.execute(executorEngineWorker);
 	}
 
 	/**
@@ -266,8 +297,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	 */
 
 	protected ExecutorEngineWorker createExecutorEngineWorker() {
-		ExecutorEngineWorker worker = (ExecutorEngineWorker) this.beanFactory
-				.getBean("executorEngineWorker");
+		ExecutorEngineWorker worker = (ExecutorEngineWorker) this.beanFactory.getBean("executorEngineWorker");
 		return worker;
 	}
 

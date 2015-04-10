@@ -170,6 +170,18 @@ public class TaskStatusImpl implements TaskStatus {
 
 	@Override
 	public boolean isTaskFinished() {
+		if(oneOfAllDestinations.size() + allDestinations.size() == 0){
+			return true;
+		}
+		// if task destinations were cleared, finish the task
+		if(task.getDestinations() == null) {
+			return true;
+		}
+		// if task destinations were manipulated, finish the tash
+		if(task.getExecService().getExecServiceType().equals(ExecServiceType.SEND) &&
+		   task.getDestinations().size() != allDestinations.size() + oneOfAllDestinations.size()) {
+			return true;
+		}
 		return oneOfAllSuccess
 				&& (countAllDone + countAllError >= allDestinations.size());
 	}
@@ -178,6 +190,15 @@ public class TaskStatusImpl implements TaskStatus {
 	public cz.metacentrum.perun.taskslib.model.Task.TaskStatus getTaskStatus() {
 		if (!isTaskFinished()) {
 			return cz.metacentrum.perun.taskslib.model.Task.TaskStatus.PROCESSING;
+		}
+		// if task destinations were cleared, error
+		if(task.getDestinations() == null) {
+			return cz.metacentrum.perun.taskslib.model.Task.TaskStatus.ERROR;
+		}
+		// if task destinations were manipulated, error
+		if(task.getExecService().getExecServiceType().equals(ExecServiceType.SEND) &&
+		   task.getDestinations().size() != allDestinations.size() + oneOfAllDestinations.size()) {
+			return cz.metacentrum.perun.taskslib.model.Task.TaskStatus.ERROR;
 		}
 		if (oneOfAllSuccess && countAllDone == allDestinations.size()) {
 			return cz.metacentrum.perun.taskslib.model.Task.TaskStatus.DONE;
