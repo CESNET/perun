@@ -150,14 +150,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getVirtualAttributes(sess, resource);
 	}
 
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+		return getAttributesManagerImpl().getVirtualAttributes(sess, resource, member);
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
 		return getAttributes(sess, resource, member, false);
 	}
 
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
-		List<Attribute> attributes = new ArrayList<Attribute>();
-		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, resource, member));
+		// get virtual attributes
+		List<Attribute> attributes = getAttributesManagerImpl().getAttributes(sess, resource, member);
+		List<Attribute> virtualAttributes = getVirtualAttributes(sess, resource, member);
+		//remove virtual attributes with null value
+		Iterator<Attribute> virtualAttributesIterator = virtualAttributes.iterator();
+		while (virtualAttributesIterator.hasNext()) if(virtualAttributesIterator.next().getValue() == null) virtualAttributesIterator.remove();
+		// adds non-empty non-virtual attributes
+		attributes.addAll(virtualAttributes);
+
 		if(workWithUserAttributes) {
 			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -4779,7 +4790,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					groupsFromFacility.addAll(getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
 				}
 				//Retain of Groups
-				groupsFromFacility.removeAll(groupsFromUser);
+				groupsFromFacility.retainAll(groupsFromUser);
 				//Resources from user
 				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 				List<Resource> resourcesFromUser = new ArrayList<Resource>();

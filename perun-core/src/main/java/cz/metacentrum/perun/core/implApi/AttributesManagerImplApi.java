@@ -161,6 +161,18 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException;
 
 	/**
+	 * Get all virtual attributes associated with the member on the resource.
+	 *
+	 * @param sess perun session
+	 * @param resource to get the attributes from
+	 * @param member to get the attributes from
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the member.
 	 *
 	 * @param sess perun session
