@@ -1,11 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
@@ -75,6 +70,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	updatePerunNotifObject {
 		@Override
 		public PerunNotifObject call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			if (parms.contains("object")) {
 				return ac.getNotificationManager().updatePerunNotifObject(parms.read("object", PerunNotifObject.class));
 			} else {
@@ -184,6 +180,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	updatePerunNotifReceiver {
 		@Override
 		public PerunNotifReceiver call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			if (parms.contains("receiver")) {
 				return ac.getNotificationManager().updatePerunNotifReceiver(parms.read("receiver", PerunNotifReceiver.class));
 			} else {
@@ -263,6 +260,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	updatePerunNotifRegex {
 		@Override
 		public PerunNotifRegex call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			if (parms.contains("regex")) {
 				return ac.getNotificationManager().updatePerunNotifRegex(parms.read("regex", PerunNotifRegex.class));
 			} else {
@@ -390,6 +388,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	updatePerunNotifTemplateMessage {
 		@Override
 		public PerunNotifTemplateMessage call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			if (parms.contains("message")) {
 				return ac.getNotificationManager().updatePerunNotifTemplateMessage(parms.read("message", PerunNotifTemplateMessage.class));
 			} else {
@@ -468,6 +467,7 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	updatePerunNotifTemplate {
 		@Override
 		public PerunNotifTemplate call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			if (parms.contains("template")) {
 				return ac.getNotificationManager().updatePerunNotifTemplate(parms.read("template", PerunNotifTemplate.class));
 			} else {
@@ -499,7 +499,6 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	stopNotifications {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
 
 			ac.getNotificationManager().stopNotifications();
 			return null;
@@ -513,7 +512,6 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	startNotifications {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
 
 			ac.getNotificationManager().startNotifications();
 			return null;
@@ -528,7 +526,6 @@ public enum NotificationManagerMethod implements ManagerMethod {
 	isNotificationsRunning {
 		@Override
 		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
 
 			return ac.getNotificationManager().isNotificationsRunning();
 		}
