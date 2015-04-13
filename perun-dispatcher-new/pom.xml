@@ -164,10 +164,17 @@
 
 		<!-- DB -->
 
+		<!-- use tomcat dbcp instead 
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 			<version>1.4</version>
+		</dependency>
+ 		-->
+ 		
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-dbcp</artifactId>
 		</dependency>
 
 		<dependency>

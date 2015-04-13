@@ -32,11 +32,9 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 @Scope(value = "singleton")
 public class SchedulingPoolImpl implements SchedulingPool, TaskResultListener {
 
-	private final static Logger log = LoggerFactory
-			.getLogger(SchedulingPoolImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
 
-	private Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(
-			TaskStatus.class);
+	private Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
 	private Map<Integer, Task> taskIdMap = new ConcurrentHashMap<Integer, Task>();
 
 	@Autowired
@@ -137,9 +135,12 @@ public class SchedulingPoolImpl implements SchedulingPool, TaskResultListener {
 	@Override
 	public void removeTask(Task task) {
 		synchronized (pool) {
-			List<Task> tasklist = pool.get(task.getStatus());
-			if (tasklist != null) {
-				tasklist.remove(task);
+			for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
+				// remove from everywhere, just to be sure
+				List<Task> tasklist = pool.get(status /* task.getStatus() */);
+				if (tasklist != null) {
+					tasklist.remove(task);
+				}
 			}
 			taskIdMap.remove(task.getId());
 		}

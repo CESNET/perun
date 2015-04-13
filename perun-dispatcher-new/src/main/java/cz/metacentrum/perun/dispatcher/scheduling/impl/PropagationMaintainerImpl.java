@@ -137,11 +137,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			if (howManyMinutesAgo >= task.getDelay()) {
 				// check if service is still assigned on facility
 				try {
-					List<Service> assignedServices = perun.getServicesManager()
-							.getAssignedServices(perunSession,
-									task.getFacility());
-					if (assignedServices.contains(task.getExecService()
-							.getService())) {
+					List<Service> assignedServices = perun.getServicesManager().getAssignedServices(perunSession, task.getFacility());
+					if (assignedServices.contains(task.getExecService().getService())) {
 						ExecService execService = task.getExecService();
 						Facility facility = task.getFacility();
 						log.info("TASK ["
@@ -162,22 +159,17 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 						// While engine starts in state GEN = ERROR, SEND = DONE
 						// => GEN will be rescheduled but without this SEND will
 						// never be propagated
-						List<ExecService> dependantServices = dependenciesResolver
-								.listDependantServices(execService);
+						List<ExecService> dependantServices = dependenciesResolver.listDependantServices(execService);
 						for (ExecService dependantService : dependantServices) {
-							Task dependantTask = schedulingPool.getTask(
-									dependantService, facility);
+							Task dependantTask = schedulingPool.getTask(dependantService, facility);
 							if (dependantTask == null) {
 								dependantTask = new Task();
 								dependantTask.setExecService(dependantService);
 								dependantTask.setFacility(facility);
-								dependantTask.setRecurrence(dependantService
-										.getDefaultRecurrence());
-								schedulingPool.addToPool(dependantTask,
-										schedulingPool.getQueueForTask(task));
+								dependantTask.setRecurrence(dependantService.getDefaultRecurrence());
+								schedulingPool.addToPool(dependantTask,	schedulingPool.getQueueForTask(task));
 								taskScheduler.scheduleTask(dependantTask);
-								log.info(
-										"{} was rescheduled because it depends on {}",
+								log.info("{} was rescheduled because it depends on {}",
 										dependantTask, task);
 							}
 						}
@@ -287,8 +279,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			TaskStatus status = task.getStatus();
 
 			if (status == null) {
-				log.error(
-						"ERROR: Task presumably in PLANNED or PROCESSING state, but does not have a valid status. Switching to ERROR. {}",
+				log.error("ERROR: Task presumably in PLANNED or PROCESSING state, but does not have a valid status. Switching to ERROR. {}",
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
@@ -296,8 +287,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			}
 
 			if (started == null && scheduled == null) {
-				log.error(
-						"ERROR: Task presumably in PLANNED or PROCESSING state, but does not have a valid scheduled or started time. Switching to ERROR. {}",
+				log.error("ERROR: Task presumably in PLANNED or PROCESSING state, but does not have a valid scheduled or started time. Switching to ERROR. {}",
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
@@ -309,8 +299,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 			// If too much time has passed something is broken
 			if (howManyMinutesAgo >= 60) {
-				log.error(
-						"ERROR: Task is stuck in PLANNED or PROCESSING state. Switching it to ERROR. {}",
+				log.error("ERROR: Task is stuck in PLANNED or PROCESSING state. Switching it to ERROR. {}",
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
@@ -348,17 +337,21 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		for (Task task : schedulingPool.getDoneTasks()) {
 			// skip GEN tasks
-			if (task.getExecService().getExecServiceType()
-					.equals(ExecService.ExecServiceType.GENERATE)) {
+			if (task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE)) {
 				log.debug(
 						"Found finished GEN TASK {} that was not running for a while, leaving it as is.",
 						task.toString());
 				continue;
 			}
 
-			Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60
-					* 24 * 2);
-			if (task.getEndTime().before(twoDaysAgo)) {
+			Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 2);
+			if (task.isSourceUpdated()) {
+				// reschedule the task
+				log.info("TASK ["
+						+ task
+						+ "] data changed. Going to schedule for propagation now.");
+				taskScheduler.scheduleTask(task);
+			} else 	if (task.getEndTime().before(twoDaysAgo)) {
 				// reschedule the task
 				log.info("TASK ["
 						+ task
@@ -395,20 +388,16 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 */
 
 	private void setAllGenerateDependenciesToNone(Task task) {
-		List<ExecService> dependencies = this.dependenciesResolver
-				.listDependencies(task.getExecService());
+		List<ExecService> dependencies = this.dependenciesResolver.listDependencies(task.getExecService());
 
 		for (ExecService dependencyToBeSetDirty : dependencies) {
-			if (dependencyToBeSetDirty.getExecServiceType().equals(
-					ExecServiceType.GENERATE)) {
-				Task taskToBeSetDirty = schedulingPool.getTask(
-						dependencyToBeSetDirty, task.getFacility());
+			if (dependencyToBeSetDirty.getExecServiceType().equals(ExecServiceType.GENERATE)) {
+				Task taskToBeSetDirty = schedulingPool.getTask(dependencyToBeSetDirty, task.getFacility());
 				if (taskToBeSetDirty != null) {
 					log.debug(
 							"Setting GEN dependency task {} to NONE state to regenerate data for completed task {}",
 							taskToBeSetDirty, task);
-					schedulingPool.setTaskStatus(taskToBeSetDirty,
-							TaskStatus.NONE);
+					schedulingPool.setTaskStatus(taskToBeSetDirty, TaskStatus.NONE);
 				}
 			}
 		}
@@ -457,9 +446,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		if (completedTask == null) {
 			// eh? how would that be possible?
-			log.error(
-					"TASK id {} reported as complete, but we do not know it... (yet?)",
-					taskId);
+			log.error("TASK id {} reported as complete, but we do not know it... (yet?)", taskId);
 			return;
 		}
 
@@ -468,27 +455,42 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			status = TaskStatus.ERROR;
 		} else if (status_s.equals("DONE")) {
 			status = TaskStatus.DONE;
+		} else {
+			log.error("Engine reported unexpected status {} for task id {}, setting to ERROR",
+					status_s, taskId);
+			status = TaskStatus.ERROR;
 		}
 
 		completedTask.setEndTime(new Date(System.currentTimeMillis()));
 
 		// if we are going to run this task again, make sure to generate up to
 		// date data
-		if (completedTask.getExecService().getExecServiceType()
-				.equals(ExecServiceType.SEND)) {
+		if (completedTask.getExecService().getExecServiceType().equals(ExecServiceType.SEND)) {
 			this.setAllGenerateDependenciesToNone(completedTask);
 		}
 
 		if (status.equals(TaskStatus.DONE)) {
 			// task completed successfully
+			// set destination list to null to refetch them later
+			completedTask.setDestinations(null);
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.DONE);
 			log.debug("TASK {} reported as DONE", completedTask.toString());
+			// for GEN tasks, signal SENDs that source data are updated
+			if(completedTask.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+				List<ExecService> dependantServices = dependenciesResolver.listDependantServices(completedTask.getExecService());
+				for (ExecService dependantService : dependantServices) {
+					Task dependantTask = schedulingPool.getTask(dependantService, completedTask.getFacility());
+					if (dependantTask != null && dependantService.getExecServiceType().equals(ExecServiceType.SEND)) {
+						dependantTask.setSourceUpdated(false);
+					}
+				}
+			}
+			
 		} else {
 			if (string.isEmpty()) {
 				// weird - task is in error and no destinations reported as
 				// failed...
-				log.warn(
-						"TASK {} ended in ERROR state with no remaining destinations.",
+				log.warn("TASK {} ended in ERROR state with no remaining destinations.",
 						completedTask.toString());
 			} else {
 				// task failed, some destinations remain
@@ -504,7 +506,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				} catch (InternalErrorException e) {
 					log.error("Could not resolve destination from destination list");
 				}
-				completedTask.setDestinations(destinationList);
+				if(completedTask.getDestinations() != null && 
+				   !completedTask.getDestinations().isEmpty()) {
+				        completedTask.setDestinations(destinationList);
+				}
 			}
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.ERROR);
 			log.debug("Task set to ERROR state with remaining destinations: "

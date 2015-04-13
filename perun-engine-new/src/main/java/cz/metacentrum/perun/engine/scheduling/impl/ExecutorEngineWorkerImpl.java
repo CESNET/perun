@@ -89,7 +89,7 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				if (returnCode != 0) {
 					log.info("GEN task failed. Ret code " + returnCode
-							+ ". STDOUT: {}  STDERR: {}. Task: " + task,
+							+ ". STDOUT: {}  STDERR: {}. Task: " + task.getId(),
 							stdout, stderr);
 					resultListener.onTaskDestinationError(task, destination,
 							null);
@@ -102,20 +102,23 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				log.error(e.toString(), e);
 				// task.setStatus(TaskStatus.ERROR);
 				task.setEndTime(new Date(System.currentTimeMillis()));
+				resultListener.onTaskDestinationError(task, destination,
+						null);
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 				// task.setStatus(TaskStatus.ERROR);
 				task.setEndTime(new Date(System.currentTimeMillis()));
+				resultListener.onTaskDestinationError(task, destination,
+						null);
 			} finally {
 				String ret = returnCode == -1 ? "unknown" : String
 						.valueOf(returnCode);
 				log.debug("GEN task ended. Ret code " + ret
-						+ ". STDOUT: {}  STDERR: {}. Task: " + task, stdout,
+						+ ". STDOUT: {}  STDERR: {}. Task: " + task.getId(), stdout,
 						stderr);
 				// taskManager.updateTask(task, getEngineId());
 			}
-		} else if (execService.getExecServiceType()
-				.equals(ExecServiceType.SEND)) {
+		} else if (execService.getExecServiceType().equals(ExecServiceType.SEND)) {
 
 			ProcessBuilder pb = new ProcessBuilder(execService.getScript(),
 					facility.getName(), destination.getDestination(),
@@ -164,19 +167,19 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 					resultListener.onTaskDestinationError(task, destination,
 							taskResult);
 					log.info("SEND task failed. Ret code " + returnCode
-							+ ". STDOUT: {}  STDERR: {}. Task: " + task,
+							+ ". STDOUT: {}  STDERR: {}. Task: " + task.getId(),
 							stdout, stderr);
 				} else {
 					resultListener.onTaskDestinationDone(task, destination,
 							taskResult);
 					log.info("SEND task completed. Ret code " + returnCode
-							+ ". STDOUT: {}  STDERR: {}. Task: " + task,
+							+ ". STDOUT: {}  STDERR: {}. Task: " + task.getId(),
 							stdout, stderr);
 				}
 
 			} catch (Exception e) {
 				log.info("SEND task ended. Ret code " + returnCode
-						+ ". STDOUT: {}  STDERR: {}. Task: " + task, stdout,
+						+ ". STDOUT: {}  STDERR: {}. Task: " + task.getId(), stdout,
 						stderr);
 				log.error("ERROR with TASK ID: " + task.getId()
 						+ " , Exception:" + e.toString(), e);
@@ -192,20 +195,17 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				resultListener.onTaskDestinationError(task, destination,
 						taskResult);
 				try {
-					taskResultDao
-							.insertNewTaskResult(taskResult, getEngineId());
+					taskResultDao.insertNewTaskResult(taskResult, getEngineId());
 				} catch (InternalErrorException e1) {
 					log.error(e.toString(), e);
 				}
 			} finally {
-				String ret = returnCode == -1 ? "unknown" : String
-						.valueOf(returnCode);
+				String ret = returnCode == -1 ? "unknown" : String.valueOf(returnCode);
 
 			}
 
 		} else {
-			throw new IllegalArgumentException(
-					"Expected ExecService type is SEND or GENERATE.");
+			throw new IllegalArgumentException("Expected ExecService type is SEND or GENERATE.");
 		}
 	}
 
