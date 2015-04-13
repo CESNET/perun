@@ -508,7 +508,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				}
 				if(completedTask.getDestinations() != null && 
 				   !completedTask.getDestinations().isEmpty()) {
-				        completedTask.setDestinations(destinationList);
+					completedTask.setDestinations(destinationList);
 				}
 			}
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.ERROR);
