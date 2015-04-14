@@ -2032,7 +2032,7 @@ public void setGroupResourceAttributes() throws Exception {
 
 @Test (expected=InternalErrorException.class)
 	public void setGroupResourceAttributesWhenTypeMismatch() throws Exception {
-		System.out.println("attributesManager.setMemberResourceAttributesWhenTypeMismatch");
+		System.out.println("attributesManager.setGroupResourceAttributesWhenTypeMismatch");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -2041,7 +2041,7 @@ public void setGroupResourceAttributes() throws Exception {
 		attributes = setUpGroupResourceAttribute();
 		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
-		attributesManager.setAttributes(sess, resource, member, attributes);
+		attributesManager.setAttributes(sess, resource, group, attributes);
 		// shouldn't set wrong attribute
 
 	}

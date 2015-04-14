@@ -750,6 +750,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + attributeDefinitionMappingSelectQuery + ", null as attr_value from attr_names " +
+							"where namespace=?",
+					new AttributeRowMapper(sess, this, resource, member), AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+		} catch(EmptyResultDataAccessException ex) {
+			log.debug("No virtual attribute for member-resource combination exists.");
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Member member) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
@@ -3299,9 +3313,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public Attribute fillAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException {
+		//Use attributes module
+		ResourceMemberAttributesModuleImplApi attributeModule = getResourceMemberAttributeModule(sess, attribute);
+		if(attributeModule == null) {
+				log.debug("fillAttribute - There's no attribute module for this attribute. Attribute wasn't filled. Attribute={}", attribute);
+				return attribute;
+			}
 
-		log.debug("fillAttribute - There's no rule for this attribute. Attribute wasn't filled. Attribute={}", attribute);
-		return attribute;
+			try {return attributeModule.fillAttribute((PerunSessionImpl) sess, resource, member, attribute);
+			} catch(WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+		}
 	}
 
 	public Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException {
