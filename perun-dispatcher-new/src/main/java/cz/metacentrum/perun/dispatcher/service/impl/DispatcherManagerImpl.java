@@ -31,8 +31,6 @@ public class DispatcherManagerImpl implements DispatcherManager {
 			.getLogger(DispatcherManagerImpl.class);
 
 	@Autowired
-	private DispatcherDao dispatcherDao;
-	@Autowired
 	private PerunHornetQServer perunHornetQServer;
 	@Autowired
 	private SystemQueueProcessor systemQueueProcessor;
@@ -46,16 +44,6 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	private SchedulingPool schedulingPool;
 	@Autowired
 	private Properties propertiesBean;
-
-	@Override
-	public void registerDispatcher() {
-		dispatcherDao.registerDispatcher();
-	}
-
-	@Override
-	public void checkIn() {
-		dispatcherDao.checkIn();
-	}
 
 	@Override
 	public void startPerunHornetQServer() {
@@ -103,10 +91,6 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	@Override
 	public void stopPocessingEvents() {
 		eventProcessor.stopProcessingEvents();
-	}
-
-	public void setDispatcherDao(DispatcherDao dispatcherDao) {
-		this.dispatcherDao = dispatcherDao;
 	}
 
 	public void setPerunHornetQServer(PerunHornetQServer perunHornetQServer) {

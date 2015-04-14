@@ -9,11 +9,6 @@ import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
  */
 public interface DispatcherManager {
 
-	// /Database///
-	void registerDispatcher();
-
-	void checkIn();
-
 	// /HornetQ server///
 	void startPerunHornetQServer();
 

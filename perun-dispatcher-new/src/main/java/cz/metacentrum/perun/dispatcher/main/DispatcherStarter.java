@@ -42,7 +42,7 @@ public class DispatcherStarter {
 			dispatcherStarter.springCtx.registerShutdownHook();
 
 			// Register into the database
-			dispatcherStarter.dispatcherManager.registerDispatcher();
+			// DO NOT: dispatcherStarter.dispatcherManager.registerDispatcher();
 			// Start HornetQ server
 			dispatcherStarter.dispatcherManager.startPerunHornetQServer();
 			// Start System Queue Processor

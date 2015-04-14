@@ -41,21 +41,6 @@ public class EngineStarter {
 			EngineStarter engineStarter = new EngineStarter();
 			// Just for the Spring IoC to exit gracefully...
 			engineStarter.springCtx.registerShutdownHook();
-			try {
-				log.info("Gonna register Engine and load Dispatcher settings...");
-				engineStarter.engineManager.registerEngine();
-			} catch (EngineNotConfiguredException e) {
-				log.error(
-						"This engine instance is not properly configured in PerunDB.",
-						e);
-				System.out
-						.print("Engine is not able to proceed. We gonna release reousrces and die. See log for details.");
-				System.exit(666);
-			} catch (DispatcherNotConfiguredException e) {
-				log.error(
-						"The Dispatcher instance is not properly configured in PerunDB.",
-						e);
-			}
 			log.info("Gonna loadSchedulingPool from file.");
 			// Yes, we do this in the main thread because we do want to carry
 			// this initial steps out sequentially.

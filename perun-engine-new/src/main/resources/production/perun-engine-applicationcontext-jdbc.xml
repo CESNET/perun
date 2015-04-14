@@ -31,11 +31,10 @@ http://www.springframework.org/schema/jdbc http://www.springframework.org/schema
     	<property name="password" value="" />
 	</bean>
 
-	<!-- should be done only once... 
-	<jdbc:initialize-database data-source="dataSourceLocal">
+	<!-- initialize database, ignore errors if database exists --> 
+	<jdbc:initialize-database data-source="dataSourceLocal" ignore-failures="ALL">
     	<jdbc:script location="classpath:schema.sql" />
  	</jdbc:initialize-database>   
- 	 -->
  	 
  	<!-- 
  	<jdbc:embedded-database id="dataSourceLocal">
