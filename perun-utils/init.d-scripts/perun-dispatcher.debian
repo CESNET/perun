@@ -1,28 +1,28 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:             perun-engine
+# Provides:             perun-dispatcher
 # Required-Start:       $local_fs $remote_fs $network
 # Required-Stop:        $local_fs $remote_fs
 # Default-Start:        2 3 4 5
 # Default-Stop:         0 1 6
-# Short-Description:    Perun Engine
-# Description:          Starts Perun Engine component.
+# Short-Description:    Perun Dispatcher
+# Description:          Starts Perun Dispatcher component.
 ### END INIT INFO
 #
 # Written by Michal Prochazka <michalp@ics.muni.cz>
 #
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-DESC="Perun Engine"
+DESC="Perun Dispatcher"
 DAEMON="/usr/bin/java"
-JAR=/home/perun/perun-engine/perun-engine-new-3.0.1-SNAPSHOT-production.jar
-LOG_FILE=/var/log/perun/perun-engine-out.log
-NAME=perun-engine
+JAR=/home/perun/perun-dispatcher/perun-dispatcher-new-3.0.1-SNAPSHOT-production.jar
+LOG_FILE=/var/log/perun/perun-dispatcher-out.log
+NAME=perun-dispatcher
 SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid
 LOG4J_CONF=/etc/perun/log4j.xml
-PERUN_ENGINE_CONF_DIR=/etc/perun/
-DAEMON_OPTS="-Dlog4j.debug -Djava.util.logging.config.file=$LOG4J_CONF -Dlog4j.configuration=file:$LOG4J_CONF -Dperun.conf.custom=$PERUN_ENGINE_CONF_DIR -jar $JAR"
+PERUN_DISPATCHER_CONF_DIR=/etc/perun/
+DAEMON_OPTS="-Dlog4j.debug -Djava.util.logging.config.file=$LOG4J_CONF -Dlog4j.configuration=file:$LOG4J_CONF -Dperun.conf.custom=$PERUN_DISPATCHER_CONF_DIR -jar $JAR"
 DAEMON_USER=perun
 JAVA=`which java`
 
@@ -41,7 +41,7 @@ JAVA=`which java`
 # Define LSB log_* functions.
 . /lib/lsb/init-functions
 
-# Start Perun Engine.
+# Start Perun Dispatcher.
 do_start () {
     # Return
     #   0 if daemon has been started
@@ -55,7 +55,7 @@ do_start () {
         || return 2
 }
 
-# Stop Perun Engine.
+# Stop Perun Dispatcher.
 do_stop () {
     # Return
     #   0 if daemon has been stopped
@@ -70,7 +70,7 @@ do_stop () {
 
 case "$1" in
 start)
-    # Don't start Perun Engine if NO_START is set.
+    # Don't start Perun Dispatcher if NO_START is set.
     if [ "$NO_START" = 1 ] ; then
         if [ "$VERBOSE" != no ] ; then
             echo "Not starting $DESC (see /etc/default/$NAME)"
