@@ -430,13 +430,13 @@ public class Api extends HttpServlet {
 				Timestamp timestamp = new Timestamp(date.getTime());
 
 				List<String> perunStatistics = new ArrayList<>();
-				perunStatistics.add("Current timestamp: " + timestamp + '\n');
-				perunStatistics.add("All users count: " + caller.call("usersManager", "getUsersCount", des) + '\n');
-				perunStatistics.add("All facilities count: " + caller.call("facilitiesManager", "getFacilitiesCount", des) + '\n');
-				perunStatistics.add("All destinations count: " + caller.call("servicesManager", "getDestinationsCount", des) + '\n');
-				perunStatistics.add("All vos count: " + caller.call("vosManager", "getVosCount", des) + '\n');
-				perunStatistics.add("All resources count: " + caller.call("resourcesManager", "getResourcesCount", des) + '\n');
-				perunStatistics.add("All groups count: " + caller.call("groupsManager", "getGroupsCount", des) + '\n');
+				perunStatistics.add("Timestamp: '" + timestamp + "'");
+				perunStatistics.add("USERS: '" + caller.call("usersManager", "getUsersCount", des) + "'");
+				perunStatistics.add("FACILITIES: '" + caller.call("facilitiesManager", "getFacilitiesCount", des) + "'");
+				perunStatistics.add("DESTINATIONS: '" + caller.call("servicesManager", "getDestinationsCount", des) + "'");
+				perunStatistics.add("VOS: '" + caller.call("vosManager", "getVosCount", des) + "'");
+				perunStatistics.add("RESOURCES: '" + caller.call("resourcesManager", "getResourcesCount", des) + "'");
+				perunStatistics.add("GROUPS: '" + caller.call("groupsManager", "getGroupsCount", des) + "'");
 				ser.write(perunStatistics);
 				
 				out.close();
