@@ -5244,17 +5244,6 @@ public void getResourceRequiredMemberResourceAttributesWorkWithUserWhenFakeResou
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, group);
 		assertNotNull("unable to get required member group attributes for its services", reqAttr);
 		assertTrue("Shouldn't return attribute, when there is no service on resource", reqAttr.size() == 0);
-
-		// FIXME vytvorit nejake fakeGrupy?
-		/*
-		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, fakeResource, member);
-		assertNotNull("unable to get required member group attributes for its services", reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource and no value set", reqAttr.size() == 0);
-
-		reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, fakeResource, member);
-		assertNotNull("unable to get required member group attributes for its services", reqAttr);
-		assertTrue("Should return 1 attribute (but with no value)", reqAttr.size() == 1);
-		*/
 	}
 
 
@@ -5338,17 +5327,6 @@ public void getResourceRequiredMemberResourceAttributesWorkWithUserWhenFakeResou
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, group, true);
 		assertNotNull("unable to get required member group attributes for its services", reqAttr);
 		assertTrue("Shouldn't return attribute, when there is no service on resource", reqAttr.size() == 0);
-
-		//FIXME vytvorit nejake fakeGrupy???
-		/*
-		reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, group, true);
-		assertNotNull("unable to get required member group attributes for its services", reqAttr);
-		assertTrue("Shouldn't return attribute, when there is no service on resource and no value set", reqAttr.size() == 0);
-
-		reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, fakeResource, member, true);
-		assertNotNull("unable to get required member resource attributes for its services",reqAttr);
-		assertTrue("Should return 4 attributes (but with no value)",reqAttr.size() == 4);
-		*/
 	}
 
 	@Test (expected=MemberNotExistsException.class)

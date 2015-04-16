@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -763,9 +764,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-							"left join member_group_attr_values mem on attr_names.id=mem.attr_id and mem.group_id=? and member_id=? " +
-							"where namespace in (?,?) and (mem.attr_value is not null or mem.attr_value_text is not null)",
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+							"left join member_group_attr_values mem_gr on attr_names.id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
+							"where namespace in (?,?) and (mem_gr.attr_value is not null or mem_gr.attr_value_text is not null)",
 					new AttributeRowMapper(sess, this, null), group.getId(), member.getId(),
 					AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
@@ -787,8 +788,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-						"left join member_group_attr_values mem on id=mem.attr_id and member_id=:mId and group_id=:gId " +
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+						"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and member_id=:mId and group_id=:gId " +
 						"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
 						parameters, new AttributeRowMapper(sess, this, member, group));
 		} catch(EmptyResultDataAccessException ex) {
@@ -1191,8 +1192,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-							"left join member_group_attr_values mem on id=mem.attr_id and mem.group_id=? and member_id=? " +
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where attr_name=?",
 					new AttributeRowMapper(sess, this, null), group.getId(), member.getId(), attributeName);
 
@@ -1409,8 +1410,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-					"left join member_group_attr_values mem on id=mem.attr_id and mem.group_id=? and member_id=? " +
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+					"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 					"where id=?",
 					new AttributeRowMapper(sess, this, member), group.getId(), member.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -2903,6 +2904,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		return getResourceGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, resource, group, attribute);
 	}
 
+	@Override
+	public boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException {
+		return getMemberGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, member, group, attribute);
+	}
+
 	public boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException {
 		return getUserVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, user, attribute);
 	}
@@ -3219,9 +3225,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-							"left join member_group_attr_values mem on id=mem.attr_id and mem.group_id=? and member_id=? " +
+							"left join member_group_attr_values mem_gr on id=mem.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where namespace in (?,?,?)",
 					new AttributeRowMapper(sess, this, member), service.getId(), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
 		} catch(RuntimeException ex) {
@@ -3232,8 +3238,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-							"left join member_group_attr_values mem on id=mem.attr_id and mem.group_id=? and member_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where namespace in (?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
@@ -4556,6 +4562,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return (ResourceGroupVirtualAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new InternalErrorException("Required attribute module isn't ResourceGroupVirtualAttributesModule");
+		}
+	}
+
+	/**
+	 * Get member-group attribute module for the attribute.
+	 *
+	 * @param attribute attribute for which you get the module
+	 * @return instance member-group attribute module null if the module doesn't exists
+	 *
+	 * @throws InternalErrorException
+	 */
+	public MemberGroupVirtualAttributesModuleImplApi getMemberGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+		Object attributeModule = getAttributesModule(sess, attribute);
+		if(attributeModule == null) return null;
+
+		if(attributeModule instanceof MemberGroupVirtualAttributesModuleImplApi) {
+			return (MemberGroupVirtualAttributesModuleImplApi) attributeModule;
+		} else {
+			throw new InternalErrorException("Required attribute module isn't MemberGroupVirtualAttributesModuleImplApi");
 		}
 	}
 

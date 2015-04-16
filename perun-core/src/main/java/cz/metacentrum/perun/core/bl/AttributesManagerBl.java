@@ -1037,13 +1037,14 @@ public interface AttributesManagerBl {
 	Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
 	/**
-	 * Get particular attribute for the member in this group.
+	 * Get particular attribute for the member in this group. Also it can return only member or only user attribute
+	 * if attr definition is not from NS_MEMBER_GROUP_ATTR but from NS_MEMBER_ATTR or NS_GROUP_ATTR
 	 *
-	 * @param sess
+	 * @param sess perun session
 	 * @param member to get attribute from
 	 * @param group to get attribute from
 	 * @param id attribute id
-	 * @return attribute
+	 * @return memberGroup, member OR user attribute
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws WrongAttributeAssignmentException

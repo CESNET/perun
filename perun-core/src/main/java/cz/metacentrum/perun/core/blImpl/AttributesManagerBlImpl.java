@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,9 +170,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if(attrNames.isEmpty()) return new ArrayList<>();
 		// get virtual attributes
 		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member, group);
-		// filter out virtual attributes with null value
+		// filter out virtual attributes witch are not in attrNames
 		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while(attributeIterator.hasNext()) if(attributeIterator.next().getValue() == null) attributeIterator.remove();
+		while (attributeIterator.hasNext()) {
+			if (!attrNames.contains(attributeIterator.next().getName())) attributeIterator.remove();
+		}
 		// adds non-empty non-virtual attributes
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group, attrNames));
 		return attributes;
@@ -190,8 +191,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group));
 		if(workWithUserAttributes) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, user));
-			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member));
+			// adds virtual attributes too
+			attributes.addAll(this.getAttributes(sess, user));
+			attributes.addAll(this.getAttributes(sess, member));
 		}
 		return attributes;
 	}
@@ -547,45 +549,20 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		removeAttributes(sess, member, group, attributesToRemove, workWithUserAttributes);
 		// fist we have to store attributes into DB because checkAttributesValue can be preformed only on stored attributes.
 		if (!workWithUserAttributes) {
-			long timer = Utils.startTimer();
 			for (Attribute attribute : attributesToSet) {
 				//skip core attributes
 				if (!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
 					setAttributeWithoutCheck(sess, member, group, attribute, false);
 				}
 			}
-			log.debug("addMember timer: setAttributes (for(Attribute attribute : attributes)) [{}].", Utils.getRunningTime(timer));
 		} else {
-			long timer = Utils.startTimer();
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			log.debug("addMember timer: getFacility and User [{}].", Utils.getRunningTime(timer));
 
 			for(Attribute attribute : attributesToSet) {
-				boolean changed = false;
 				// skip core attributes
 				if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
-
-					if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, member, group, attribute, false);
-						if(changed) {
-							log.debug("addMember timer: setAttribute rm [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
-					} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, user, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute u [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
-					} else if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR)) {
-						timer = Utils.startTimer();
-						changed = setAttributeWithoutCheck(sess, member, attribute);
-						if (changed) {
-							log.debug("addMember timer: setAttribute m [{}] [{}].", attribute, Utils.getRunningTime(timer));
-						}
-					} else {
-						throw new WrongAttributeAssignmentException(attribute);
-					}
+					// this can handle member-group, member and user attributes too
+					setAttributeWithoutCheck(sess, member, group, attribute, true);
 				}
 			}
 		}
@@ -1600,7 +1577,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		boolean changed = true;
 		if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_GROUP_ATTR)) {
 			if(getAttributesManagerImpl().isVirtAttribute(sess, attribute)) {
-				throw new InternalErrorException("Virtual attribute can't be set this way yet. Please set physical attribute instead.");
+				changed = getAttributesManagerImpl().setVirtualAttribute(sess, member, group, attribute);
 			} else {
 				changed = getAttributesManagerImpl().setAttribute(sess, member, group, attribute);
 				if(changed) {
@@ -1612,7 +1589,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			if(getAttributesManagerImpl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR)) {
 				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 				if(getAttributesManagerImpl().isVirtAttribute(sess, attribute)) {
-					throw new InternalErrorException("Virtual attribute can't be set this way yet. Please set physical attribute instead.");
+					changed = getAttributesManagerImpl().setVirtualAttribute(sess, user, attribute);
 				} else {
 					changed = setAttributeWithoutCheck(sess, user, attribute);
 				}
@@ -3406,7 +3383,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for(Attribute attribute : attributes) attribute.setValue(null);
 		try {
 			checkAttributesValue(sess, member, group, attributes);
-			checkAttributesValue(sess, member, group, attributes);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
@@ -4194,7 +4170,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			}
 			checkAttributesDependencies(sess, member, null, memberAttributes);
 			checkAttributesDependencies(sess, user, null, userAttributes);
-			checkAttributesDependencies(sess, group, member, memberGroupAttributes);
+			checkAttributesDependencies(sess, member, group, memberGroupAttributes);
 		} else {
 			checkAttributesDependencies(sess, member, group, attributes);
 		}

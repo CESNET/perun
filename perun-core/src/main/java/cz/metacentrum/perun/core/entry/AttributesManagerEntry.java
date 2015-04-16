@@ -878,7 +878,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
 		Attribute attribute = getAttributesManagerBl().getAttribute(sess, member, group, attributeName);
 		//Choose to which attributes has the principal access
-		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, member, group)) throw	new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attribute));
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, member, group)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attribute));
 		else attribute.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, member, group));
 
 		return attribute;

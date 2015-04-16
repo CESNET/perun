@@ -339,7 +339,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if(roles.contains(Role.SELF)) {
 				if(isAuthorized(sess, Role.SELF, member)) return true;
 			}
-			// kontrolovat groupAdmin pre membra ???
 			if(roles.contains(Role.GROUPADMIN)) {
 				if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
 			}

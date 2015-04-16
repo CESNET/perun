@@ -159,7 +159,7 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException;
 
 	/**
-	 * Get all <b>non-empty</b> attributes associated with the member in the group.
+	 * Get all <b>non-empty, non-virtual</b> attributes associated with the member in the group.
 	 *
 	 * @param sess perun session
 	 * @param member to get the attributes from
@@ -898,6 +898,21 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	boolean setVirtualAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Store the particular virtual attribute associated with the member and group combination.
+	 *
+	 * @param sess perun session
+	 * @param member
+	 * @param group
+	 * @param attribute attribute to set
+	 * @return true if attribute was really changed
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws ModuleNotExistsException
+	 * @throws WrongModuleTypeException
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Store the particular virtual attribute associated with the member.
