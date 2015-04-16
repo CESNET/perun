@@ -980,5 +980,15 @@ public interface UsersManager {
 	 */
 	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
-
+	/**
+	 * Get count of all users.
+	 *
+	 * @param sess PerunSession
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 *
+	 * @return count of all users
+	 */
+	int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
 }

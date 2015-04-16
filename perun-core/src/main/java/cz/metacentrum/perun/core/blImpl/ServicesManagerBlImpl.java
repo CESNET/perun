@@ -667,4 +667,8 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		List<Destination> destinations = getServicesManagerImpl().getFacilitiesDestinations(sess, vo);
 		return destinations;
 	}
+
+	public int getDestinationsCount(PerunSession sess) throws InternalErrorException {
+		return getServicesManagerImpl().getDestinationsCount(sess);
+	}
 }

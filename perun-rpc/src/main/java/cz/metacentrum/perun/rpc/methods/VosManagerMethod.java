@@ -163,6 +163,18 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets count of all vos.
+
+	 * @return int vos count
+	 */
+	getUsersCount {
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getUsersCount(ac.getSession());
+		}
+	},
+
+	/*#
 	 * Add user as a manager of VO.
 	 *
 	 * @param vo int VO <code>id</code>

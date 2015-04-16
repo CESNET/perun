@@ -1074,4 +1074,14 @@ public interface UsersManagerBl {
 	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password)
 			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException;
 
+	/**
+	 * Get count of all users.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all users
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getUsersCount(PerunSession perunSession) throws InternalErrorException;
 }

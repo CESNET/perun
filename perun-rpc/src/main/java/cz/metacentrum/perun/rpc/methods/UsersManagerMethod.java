@@ -1068,6 +1068,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets count of all users.
+
+	 * @return int Users count
+	 */
+	getUsersCount {
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getUsersCount(ac.getSession());
+		}
+	},
+
+	/*#
 	 * Creates alternative password in external system.
 	 *
 	 * @param user int Users <code>id</code>

@@ -559,10 +559,19 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 	 * @param vo int VO <code>id</code>
 	 * @return int VO resources count
 	 */
+	/*#
+	 * Gets count of all users.
+
+	 * @return int resources count
+	 */
 	getResourcesCount {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getResourcesManager().getResourcesCount(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			if(parms.contains("vo")) {
+				return ac.getResourcesManager().getResourcesCount(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			} else {
+				return ac.getResourcesManager().getResourcesCount(ac.getSession());
+			}
 		}
 	},
 

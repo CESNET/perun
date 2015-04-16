@@ -343,4 +343,15 @@ public interface VosManagerBl {
 	List<Vo> getVosByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException, VoNotExistsException;
 
 	void checkVoExists(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException;
+
+	/**
+	 * Get count of all vos.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all vos
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getVosCount(PerunSession perunSession) throws InternalErrorException;
 }

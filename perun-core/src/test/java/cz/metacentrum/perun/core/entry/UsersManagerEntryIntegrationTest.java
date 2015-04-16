@@ -772,6 +772,15 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
+	@Test
+	public void getUsersCount() throws Exception {
+		System.out.println("UsersManager.getUsersCount()");
+
+		setUpUser();
+		int count = perun.getUsersManager().getUsersCount(sess);
+		assertTrue(count>0);
+	}
+
 
 	// PRIVATE METHODS -------------------------------------------------------------
 

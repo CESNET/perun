@@ -1023,6 +1023,18 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertTrue(resourcesManager.getAssignedGroups(sess, secondResource).contains(group));
 	}
 
+	@Test
+	public void getResourcesCount() throws Exception {
+		System.out.println("ResourcesManager.getResourcesCount()");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		int count = resourcesManager.getResourcesCount(sess);
+		assertTrue(count>0);
+	}
+
 	// PRIVATE METHODS -----------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {

@@ -627,4 +627,12 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	public int getDestinationsCount(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(*) from destinations");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 }

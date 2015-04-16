@@ -1114,6 +1114,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	}
 
+	public int getUsersCount(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(*) from users");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		if(!userExists(sess, user)) throw new UserNotExistsException("User: " + user);
 	}

@@ -727,6 +727,14 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
+	public int getResourcesCount(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(*) from resources");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	protected void initialize() {
 	}
 }

@@ -1705,4 +1705,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
+	public int getUsersCount(PerunSession sess) throws InternalErrorException {
+		return getUsersManagerImpl().getUsersCount(sess);
+	}
 }
