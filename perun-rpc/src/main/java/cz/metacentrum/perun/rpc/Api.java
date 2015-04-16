@@ -433,7 +433,7 @@ public class Api extends HttpServlet {
 				perunStatistics.add("Current timestamp: " + timestamp + '\n');
 				perunStatistics.add("All users count: " + caller.call("usersManager", "getUsersCount", des) + '\n');
 				perunStatistics.add("All facilities count: " + caller.call("facilitiesManager", "getFacilitiesCount", des) + '\n');
-				perunStatistics.add("All destinations count: " + caller.call("servicesManager", "getServicesCount", des) + '\n');
+				perunStatistics.add("All destinations count: " + caller.call("servicesManager", "getDestinationsCount", des) + '\n');
 				perunStatistics.add("All vos count: " + caller.call("vosManager", "getVosCount", des) + '\n');
 				perunStatistics.add("All resources count: " + caller.call("resourcesManager", "getResourcesCount", des) + '\n');
 				perunStatistics.add("All groups count: " + caller.call("groupsManager", "getGroupsCount", des) + '\n');
