@@ -310,4 +310,11 @@ public class VosManagerImpl implements VosManagerImplApi {
 		jdbc.update("insert into application_form(id, vo_id) values (?,?)", id, vo.getId());
 	}
 
+	public int getVosCount(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(*) from vos");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 }

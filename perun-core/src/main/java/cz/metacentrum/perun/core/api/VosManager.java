@@ -381,4 +381,16 @@ public interface VosManager {
 	 */
 	@Deprecated
 	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException, UserNotExistsException;
+
+	/**
+	 * Get count of all vos.
+	 *
+	 * @param sess PerunSession
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 *
+	 * @return count of all vos
+	 */
+	int getVosCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
 }

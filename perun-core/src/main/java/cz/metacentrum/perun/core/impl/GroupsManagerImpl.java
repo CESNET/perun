@@ -662,4 +662,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			jdbc.update("delete from application_reserved_logins where app_id=?", appId);
 		}
 	}
+
+	public int getGroupsCount(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(*) from groups");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 }

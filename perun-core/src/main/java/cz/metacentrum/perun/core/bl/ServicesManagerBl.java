@@ -551,4 +551,15 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException;
+
+	/**
+	 * Get count of all destinations.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all destinations
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getDestinationsCount(PerunSession perunSession) throws InternalErrorException;
 }

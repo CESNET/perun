@@ -665,6 +665,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		}
 
 	@Test
+	public void getFacilitiesCount() throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".getFacilitiesCount()");
+
+		int count = facilitiesManagerEntry.getFacilitiesCount(sess);
+		assertTrue(count>0);
+	}
+
+	@Test
 	public void getHostsCount()throws Exception{
 		System.out.println(FACILITIES_MANAGER + ".getHostsCount()");
 

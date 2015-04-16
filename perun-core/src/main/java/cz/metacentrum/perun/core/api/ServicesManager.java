@@ -795,4 +795,16 @@ public interface ServicesManager {
 	 * @throws VoNotExistsException
 	 */
 	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
+
+	/**
+	 * Get count of all destinations.
+	 *
+	 * @param sess PerunSession
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 *
+	 * @return count of all destinations
+	 */
+	int getDestinationsCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
 }

@@ -713,6 +713,18 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().getGroupsCount(sess, vo);
 	}
 
+	@Override
+	public int getGroupsCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getGroupsCount");
+		}
+
+		return getGroupsManagerBl().getGroupsCount(sess);
+	}
+
 	public int getSubGroupsCount(PerunSession sess, Group parentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, parentGroup);

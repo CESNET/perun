@@ -446,6 +446,17 @@ public interface ResourcesManagerBl {
 	int getResourcesCount(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
+	 * Get count of all resources.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all resources
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getResourcesCount(PerunSession perunSession) throws InternalErrorException;
+
+	/**
 	 * Returns all resource which have set the attribute with the value. Searching only def and opt attributes.
 	 *
 	 * @param sess

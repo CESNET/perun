@@ -459,6 +459,18 @@ public interface ResourcesManager {
 	 */
 	int getResourcesCount(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
+	/**
+	 * Get count of all resources.
+	 *
+	 * @param perunSession
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * 
+	 * @return count of all resources
+	 */
+	int getResourcesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+
 
 	/**
 	 * Get all resources which have the member access on.

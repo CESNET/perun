@@ -451,6 +451,18 @@ public class VosManagerEntry implements VosManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, vosManagerBl.getDirectRichAdminsWithSpecificAttributes(sess, vo, specificAttributes));
 	}
 
+	@Override
+	public int getVosCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getVosCount");
+		}
+
+		return vosManagerBl.getVosCount(sess);
+	}
+
 	/**
 	 * Gets the perunBl for this instance.
 	 *

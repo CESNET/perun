@@ -742,6 +742,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return getGroupsManagerImpl().getGroupsCount(sess, vo);
 	}
 
+	public int getGroupsCount(PerunSession sess) throws InternalErrorException {
+		return getGroupsManagerImpl().getGroupsCount(sess);
+	}
+
 	public int getSubGroupsCount(PerunSession sess, Group parentGroup) throws InternalErrorException {
 		return getGroupsManagerImpl().getSubGroupsCount(sess, parentGroup);
 	}

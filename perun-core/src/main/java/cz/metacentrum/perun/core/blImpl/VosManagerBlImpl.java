@@ -491,6 +491,10 @@ public class VosManagerBlImpl implements VosManagerBl {
 		return vos;
 	}
 
+	public int getVosCount(PerunSession sess) throws InternalErrorException {
+		return getVosManagerImpl().getVosCount(sess);
+	}
+
 	/**
 	 * Gets the vosManagerImpl.
 	 *

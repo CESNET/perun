@@ -1123,14 +1123,26 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		}
 
 	@Test
-	public void getGroupsCount() throws Exception {
-		System.out.println("GroupsManager.getGroupsCount");
+	public void getVoGroupsCount() throws Exception {
+		System.out.println("GroupsManager.getVoGroupsCount");
 
 		vo = setUpVo();
 		setUpGroup(vo);
 
 		int count = groupsManager.getGroupsCount(sess, vo);
 		assertEquals(2, count);
+
+	}
+
+	@Test
+	public void getGroupsCount() throws Exception {
+		System.out.println("GroupsManager.getGroupsCount");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		int count = groupsManager.getGroupsCount(sess);
+		assertTrue(count>0);
 
 	}
 

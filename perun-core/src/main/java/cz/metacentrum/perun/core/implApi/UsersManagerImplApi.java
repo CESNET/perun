@@ -648,4 +648,14 @@ public interface UsersManagerImplApi {
 	 */
 	void removeAllPasswordResetRequests(PerunSession sess, User user) throws InternalErrorException;
 
+	/**
+	 * Get count of all users.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all users
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getUsersCount(PerunSession perunSession) throws InternalErrorException;
 }

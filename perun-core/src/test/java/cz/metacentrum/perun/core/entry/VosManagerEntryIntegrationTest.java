@@ -431,4 +431,13 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		esme.removeExtSource(sess, createdVo, es);
 	}
 
+	@Test
+	public void getVosCount() throws Exception {
+		System.out.println(VOS_MANAGER_ENTRY + ".getVosCount()");
+
+		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+
+		int count = vosManagerEntry.getVosCount(sess);
+		assertTrue(count>0);
+	}
 }

@@ -55,6 +55,7 @@ public class Api extends HttpServlet {
 	private final static String PERUNREQUESTS = "perunRequests";
 	private final static String PERUNREQUESTSURL = "getPendingRequests";
 	private final static String PERUNSTATUS = "getPerunStatus";
+	private final static String PERUNSTATISTICS = "getPerunStatistics";
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
@@ -424,6 +425,18 @@ public class Api extends HttpServlet {
 
 				out.close();
 				return;
+			} else if("utils".equals(manager) && PERUNSTATISTICS.equals(method)) {
+				Date date = new Date();
+				Timestamp timestamp = new Timestamp(date.getTime());
+
+				List<String> perunStatistics = new ArrayList<>();
+				perunStatistics.add("Current timestamp: " + timestamp + '\n');
+				perunStatistics.add("All users count: " + caller.call("usersManager", "getUsersCount", des) + '\n');
+				perunStatistics.add("All facilities count: " + caller.call("facilitiesManager", "getFacilitiesCount", des) + '\n');
+				perunStatistics.add("All destinations count: " + caller.call("servicesManager", "getServicesCount", des) + '\n');
+				perunStatistics.add("All vos count: " + caller.call("vosManager", "getVosCount", des) + '\n');
+				perunStatistics.add("All resources count: " + caller.call("resourcesManager", "getResourcesCount", des) + '\n');
+				perunStatistics.add("All groups count: " + caller.call("groupsManager", "getGroupsCount", des) + '\n');
 			}
 
 			// In case of GET requests (read ones) set changing state to false
