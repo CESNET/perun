@@ -437,6 +437,10 @@ public class Api extends HttpServlet {
 				perunStatistics.add("All vos count: " + caller.call("vosManager", "getVosCount", des) + '\n');
 				perunStatistics.add("All resources count: " + caller.call("resourcesManager", "getResourcesCount", des) + '\n');
 				perunStatistics.add("All groups count: " + caller.call("groupsManager", "getGroupsCount", des) + '\n');
+				ser.write(perunStatistics);
+				
+				out.close();
+				return;
 			}
 
 			// In case of GET requests (read ones) set changing state to false
