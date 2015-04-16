@@ -167,10 +167,10 @@ public enum VosManagerMethod implements ManagerMethod {
 
 	 * @return int vos count
 	 */
-	getUsersCount {
+	getVosCount {
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getUsersManager().getUsersCount(ac.getSession());
+			return ac.getVosManager().getVosCount(ac.getSession());
 		}
 	},
 
