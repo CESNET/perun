@@ -167,17 +167,9 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
-		if(attrNames.isEmpty()) return new ArrayList<>();
-		// get virtual attributes
-		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, member, group);
-		// filter out virtual attributes witch are not in attrNames
-		Iterator<Attribute> attributeIterator = attributes.iterator();
-		while (attributeIterator.hasNext()) {
-			if (!attrNames.contains(attributeIterator.next().getName())) attributeIterator.remove();
-		}
-		// adds non-empty non-virtual attributes
-		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group, attrNames));
-		return attributes;
+		if (attrNames.isEmpty()) return new ArrayList<>();
+		// adds all attributes which names are in attrNames list (virtual and empty too)
+		return  getAttributesManagerImpl().getAttributes(sess, member, group, attrNames);
 	}
 
 	@Override

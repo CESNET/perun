@@ -200,7 +200,7 @@ public interface AttributesManager {
 	List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws PrivilegeException, GroupNotExistsException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException;
 
 	/**
-	 * Get all attributes associated with the member in the group which have name in list attrNames (empty too).
+	 * Get all attributes (empty and virtual too)associated with the member in the group which have name in list attrNames.
 	 *
 	 * @param sess perun session
 	 * @param member to get the attributes from
