@@ -1,6 +1,10 @@
 package cz.metacentrum.perun.perun_notification;
 
 import com.dumbster.smtp.SimpleSmtpServer;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -23,7 +27,12 @@ import java.sql.Statement;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:perun-notification-applicationcontext-test.xml", "classpath:perun-notification-applicationcontext-jdbc-test.xml", "classpath:perun-notification-applicationcontext-scheduling-test.xml"})
-public class AbstractTest {
+public class AbstractTest  {
+
+	@Autowired
+	protected PerunBl perun;
+
+	protected PerunSession sess;
 
 	protected static ApplicationContext springCtx;
 	protected static SimpleSmtpServer smtpServer;
@@ -52,6 +61,12 @@ public class AbstractTest {
 		if (smtpServer == null) {
 			smtpServer = SimpleSmtpServer.start(8086);
 		}
+	}
+
+	@Before
+	public void setUpSess() throws Exception {
+		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		sess = perun.getPerunSession(pp);
 	}
 
 	@BeforeClass
