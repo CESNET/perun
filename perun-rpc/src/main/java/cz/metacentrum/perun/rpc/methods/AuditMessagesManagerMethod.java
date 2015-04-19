@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -13,11 +12,13 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Returns messages from audit's logs.
+	 * 
 	 * @param count int Messages limit
 	 * @return List<AuditMessage> Audit messages
 	 */
 	/*#
 	 * Returns reasonable number of messages from audit's logs.
+	 * 
 	 * @return List<AuditMessage> Audit messages
 	 */
 	getMessages {
@@ -32,10 +33,10 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns less than count or equals to count messages from audit's logs.
 	 *
-	 * Important: This variant does not guarantee returning just count of messages! It returns messages by Id from max_id to max_id-count (can be less then count messages)
+	 * IMPORTANT: This variant does not guarantee returning just count of messages! It returns messages by Id from max_id to max_id-count (can be less then count messages).
 	 *
 	 * @param count int Count of returned messages
-	 * @return List<AuditMessage> list of audit's messages
+	 * @return List<AuditMessage> List of audit's messages
 	 */
 	getMessagesByCount {
 		@Override
@@ -48,8 +49,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of messages from audit's log which id is bigger than last processed id.
 	 *
-	 * @param consumerName String consumer to get messages for
-	 * @return List<String> list of messages
+	 * @param consumerName String Consumer to get messages for
+	 * @return List<String> List of messages
 	 */
 	pollConsumerMessages {
 		@Override
@@ -62,8 +63,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of full messages from audit's log which id is bigger than last processed id.
 	 *
-	 * @param consumerName String consumer to get messages for
-	 * @return List<String> list of full messages
+	 * @param consumerName String Consumer to get messages for
+	 * @return List<String> List of full messages
 	 */
 	pollConsumerFullMessages {
 		@Override
@@ -76,8 +77,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of messages for parser from audit's log which id is bigger than last processed id.
 	 *
-	 * @param consumerName String consumer to get messages for
-	 * @return List<String> list of messages for parser
+	 * @param consumerName String Consumer to get messages for
+	 * @return List<String> List of messages for parser
 	 */
 	pollConsumerMessagesForParserSimple {
 		@Override
@@ -90,8 +91,8 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Returns list of auditMessages for parser from audit's log which id is bigger than last processed id.
 	 *
-	 * @param consumerName String consumer to get messages for
-	 * @return List<AuditMessage> list of auditMessages for parser
+	 * @param consumerName String Consumer to get messages for
+	 * @return List<AuditMessage> List of auditMessages for parser
 	 */
 	pollConsumerMessagesForParser {
 		@Override
@@ -104,7 +105,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	/*#
 	 * Creates new auditer consumer with last processed id which equals auditer log max id.
 	 *
-	 * @param consumerName String new name for consumer
+	 * @param consumerName String New name for consumer
 	 */
 	createAuditerConsumer {
 		@Override
@@ -127,7 +128,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get last message id from auditer_log.
+	 * Get id of last message from auditer_log.
 	 */
 	getLastMessageId {
 		@Override
@@ -138,7 +139,7 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Logs an auditer message
+	 * Logs an auditer message.
 	 *
 	 * @param msg String Message to be logged
 	 */
