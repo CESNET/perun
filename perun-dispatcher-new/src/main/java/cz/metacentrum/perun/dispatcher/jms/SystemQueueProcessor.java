@@ -113,7 +113,7 @@ public class SystemQueueProcessor {
 									.getProperty("dispatcher.ip.address")
 							+ "] on port["
 							+ propertiesBean.getProperty("dispatcher.port")
-							+ "] ? \nSee: dispatcher-config.properties. We gonna wait 5 sec and try again...",
+							+ "] ? \nSee: perun-dispatcher.properties. We gonna wait 5 sec and try again...",
 					e);
 
 			throw new RuntimeException(e);

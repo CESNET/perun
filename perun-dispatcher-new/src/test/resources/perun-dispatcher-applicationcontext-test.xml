@@ -82,6 +82,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 			</property>
 		</bean>
 	
+		<!--  
 		<bean id="checkInJob" class="org.springframework.scheduling.quartz.JobDetailBean">
 			<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.CheckInJob" />
 			<property name="jobDataAsMap">
@@ -90,7 +91,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 				</map>
 			</property>
 		</bean>
-
+		-->
+		
 		<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 			<property name="jobDetail" ref="maintenanceJob" />
 			<!-- Every 20 minutes -->
@@ -99,19 +101,21 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 			<property name="cronExpression" value="0/5 * * * * ?" />
 		</bean>
 	
+		<!--  
 		<bean id="checkInJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 			<property name="jobDetail" ref="checkInJob" />
-			<!-- Every 3 minutes -->
+			Every 3 minutes 
 			<property name="cronExpression" value="0 0/5 * * * ?" />
-			<!-- Every 10 seconds -->
-			<!-- property name="cronExpression" value="0/10 * * * * ?" /-->
+			Every 10 seconds 
+			property name="cronExpression" value="0/10 * * * * ?" / 
 		</bean>
-	
+		-->
+		
 		<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 			<property name="triggers">
 				<list>
 					<!--<ref bean="maintenanceJobTrigger" />-->
-					<ref bean="checkInJobTrigger" />
+					<!--<ref bean="checkInJobTrigger" /> -->
 				</list>
 			</property>
 		</bean>  

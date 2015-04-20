@@ -22,7 +22,7 @@ public class CheckInJob extends QuartzJobBean {
 	protected void executeInternal(JobExecutionContext arg0)
 			throws JobExecutionException {
 		log.debug("Entering CheckInJob...");
-		dispatcherManager.checkIn();
+		// dispatcherManager.checkIn();
 	}
 
 	public DispatcherManager getDispatcherManager() {

@@ -12,11 +12,6 @@ import cz.metacentrum.perun.rpclib.api.RpcCaller;
  */
 public interface EngineManager {
 
-	void registerEngine() throws EngineNotConfiguredException,
-			DispatcherNotConfiguredException;
-
-	void checkIn();
-
 	void startMessaging();
 
 	void loadSchedulingPool();

@@ -46,8 +46,6 @@ public class EngineManagerImpl implements EngineManager {
 			.getLogger(EngineManagerImpl.class);
 
 	@Autowired
-	private EngineDao engineDao;
-	@Autowired
 	private JMSQueueManager jmsQueueManager;
 	@Autowired
 	private Properties propertiesBean;
@@ -57,30 +55,10 @@ public class EngineManagerImpl implements EngineManager {
 	private TaskManager taskManager;
 
 	@Override
-	public void registerEngine() throws EngineNotConfiguredException,
-			DispatcherNotConfiguredException {
-		engineDao.registerEngine();
-		engineDao.loadDispatcherAddress();
-	}
-
-	@Override
-	public void checkIn() {
-		engineDao.checkIn();
-	}
-
-	@Override
 	public void startMessaging() {
 		// jmsQueueManager.initiateConnection();
 		// jmsQueueManager.registerForReceivingMessages();
 		jmsQueueManager.start();
-	}
-
-	public void setEngineDao(EngineDao engineDao) {
-		this.engineDao = engineDao;
-	}
-
-	public EngineDao getEngineDao() {
-		return engineDao;
 	}
 
 	public void setJmsQueueManager(JMSQueueManager jmsQueueManager) {
