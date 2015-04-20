@@ -122,9 +122,9 @@ public class AppTest extends AbstractTest {
 		template.setYoungestMessageTime(0L);
 		template.setSender("sender");
 
-		manager.createPerunNotifTemplate(template);
+		manager.createPerunNotifTemplate(sess, template);
 
-		PerunNotifTemplate templateFromDb = manager.getPerunNotifTemplateById(template.getId());
+		PerunNotifTemplate templateFromDb = manager.getPerunNotifTemplateById(sess, template.getId());
 		assertNotNull(templateFromDb);
 		assertEquals(template, templateFromDb);
 		assertEquals(template.getNotifyTrigger(), templateFromDb.getNotifyTrigger());
@@ -154,9 +154,9 @@ public class AppTest extends AbstractTest {
 		Set<PerunNotifObject> regexObjects = new HashSet<PerunNotifObject>();
 		regexObjects.add(objectFromDb);
 		regex.setObjects(regexObjects);
-		manager.createPerunNotifRegex(regex);
+		manager.createPerunNotifRegex(sess, regex);
 
-		PerunNotifRegex regexFromDb = manager.getPerunNotifRegexById(regex.getId());
+		PerunNotifRegex regexFromDb = manager.getPerunNotifRegexById(sess, regex.getId());
 		assertNotNull(regexFromDb);
 		assertEquals(regex, regexFromDb);
 		assertEquals(regex.getNote(), regexFromDb.getNote());
@@ -168,8 +168,8 @@ public class AppTest extends AbstractTest {
 		receiver.setTemplateId(template.getId());
 		receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
 
-		manager.createPerunNotifReceiver(receiver);
-		PerunNotifReceiver receiverFromDb = manager.getPerunNotifReceiverById(receiver.getId());
+		manager.createPerunNotifReceiver(sess, receiver);
+		PerunNotifReceiver receiverFromDb = manager.getPerunNotifReceiverById(sess, receiver.getId());
 		assertNotNull(receiverFromDb);
 		assertEquals(receiver, receiverFromDb);
 		assertEquals(receiver.getTemplateId(), receiverFromDb.getTemplateId());
@@ -182,8 +182,8 @@ public class AppTest extends AbstractTest {
 		templateMessage.setTemplateId(template.getId());
 		templateMessage.setSubject("cesky subject");
 
-		manager.createPerunNotifTemplateMessage(templateMessage);
-		PerunNotifTemplateMessage templateMessageFromDb = manager.getPerunNotifTemplateMessageById(templateMessage.getId());
+		manager.createPerunNotifTemplateMessage(sess, templateMessage);
+		PerunNotifTemplateMessage templateMessageFromDb = manager.getPerunNotifTemplateMessageById(sess, templateMessage.getId());
 		assertNotNull(templateMessageFromDb);
 		assertEquals(templateMessage, templateMessageFromDb);
 		assertEquals(templateMessage.getMessage(), templateMessageFromDb.getMessage());
@@ -191,12 +191,12 @@ public class AppTest extends AbstractTest {
 		assertEquals(templateMessage.getLocale(), templateMessageFromDb.getLocale());
 		Assert.assertEquals(templateMessage.getSubject(), templateMessageFromDb.getSubject());
 
-		templateFromDb = manager.getPerunNotifTemplateById(templateFromDb.getId());
+		templateFromDb = manager.getPerunNotifTemplateById(sess, templateFromDb.getId());
 		templateFromDb.addPerunNotifRegex(regex);
-		templateFromDb = manager.updatePerunNotifTemplate(templateFromDb);
+		templateFromDb = manager.updatePerunNotifTemplate(sess, templateFromDb);
 
 		//Test for complete load of template
-		PerunNotifTemplate templateFromDbForTest = manager.getPerunNotifTemplateById(template.getId());
+		PerunNotifTemplate templateFromDbForTest = manager.getPerunNotifTemplateById(sess, template.getId());
 
 		assertNotNull(templateFromDbForTest.getPerunNotifTemplateMessages());
 		assertNotNull(templateFromDbForTest.getMatchingRegexs());
@@ -211,25 +211,25 @@ public class AppTest extends AbstractTest {
 		assertTrue(templateFromDbForTest.getMatchingRegexs().contains(regex));
 		assertTrue(templateFromDbForTest.getPerunNotifTemplateMessages().contains(templateMessage));
 
-		manager.removePerunNotifTemplateMessage(templateMessage.getId());
-		assertNull(manager.getPerunNotifTemplateMessageById(templateMessage.getId()));
+		manager.removePerunNotifTemplateMessage(sess, templateMessage.getId());
+		assertNull(manager.getPerunNotifTemplateMessageById(sess, templateMessage.getId()));
 
-		manager.removePerunNotifReceiverById(receiver.getId());
-		assertNull(manager.getPerunNotifReceiverById(receiver.getId()));
+		manager.removePerunNotifReceiverById(sess, receiver.getId());
+		assertNull(manager.getPerunNotifReceiverById(sess, receiver.getId()));
 
-		manager.removePerunNotifTemplateRegexRelation(template.getId(), regex.getId());
-		manager.removePerunNotifRegexById(regex.getId());
-		assertNull(manager.getPerunNotifRegexById(regex.getId()));
+		manager.removePerunNotifTemplateRegexRelation(sess, template.getId(), regex.getId());
+		manager.removePerunNotifRegexById(sess, regex.getId());
+		assertNull(manager.getPerunNotifRegexById(sess, regex.getId()));
 
 		manager.removePerunNotifObjectById(object.getId());
 		assertNull(manager.getPerunNotifObjectById(object.getId()));
 
-		templateFromDb = manager.getPerunNotifTemplateById(template.getId());
+		templateFromDb = manager.getPerunNotifTemplateById(sess, template.getId());
 		assertTrue(templateFromDb.getMatchingRegexs() == null || templateFromDb.getMatchingRegexs().isEmpty());
 		assertTrue(templateFromDb.getPerunNotifTemplateMessages() == null || templateFromDb.getPerunNotifTemplateMessages().isEmpty());
 		assertTrue(templateFromDb.getReceivers() == null || templateFromDb.getReceivers().isEmpty());
 
-		manager.removePerunNotifTemplateById(template.getId());
-		assertNull(manager.getPerunNotifTemplateById(template.getId()));
+		manager.removePerunNotifTemplateById(sess, template.getId());
+		assertNull(manager.getPerunNotifTemplateById(sess, template.getId()));
 	}
 }

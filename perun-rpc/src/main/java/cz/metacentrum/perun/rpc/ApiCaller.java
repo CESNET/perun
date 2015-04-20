@@ -167,7 +167,7 @@ public class ApiCaller {
 		}
 		return databaseManager;
 	}
-	
+
 	public ResourcesManager getResourcesManager() {
 		if (resourcesManager == null) {
 			resourcesManager = rpcSession.getPerun().getResourcesManager();
@@ -215,7 +215,7 @@ public class ApiCaller {
 		}
 		return vootManager;
 	}
-	
+
 	public Vo getVoById(int id) throws PerunException {
 		return getVosManager().getVoById(rpcSession, id);
 	}
@@ -325,19 +325,19 @@ public class ApiCaller {
 	}
 
 	public PerunNotifReceiver getPerunNotifReceiverById(int id) throws PerunException {
-		return getNotificationManager().getPerunNotifReceiverById(id);
+		return getNotificationManager().getPerunNotifReceiverById(rpcSession, id);
 	}
 
 	public PerunNotifRegex getPerunNotifRegexById(int id) throws PerunException {
-		return getNotificationManager().getPerunNotifRegexById(id);
+		return getNotificationManager().getPerunNotifRegexById(rpcSession, id);
 	}
 
 	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) throws PerunException {
-		return getNotificationManager().getPerunNotifTemplateMessageById(id);
+		return getNotificationManager().getPerunNotifTemplateMessageById(rpcSession, id);
 	}
 
 	public PerunNotifTemplate getPerunNotifTemplateById(int id) throws PerunException {
-		return getNotificationManager().getPerunNotifTemplateById(id);
+		return getNotificationManager().getPerunNotifTemplateById(rpcSession, id);
 	}
 
 	public Destination getDestination(String destination, String type) throws PerunException {
