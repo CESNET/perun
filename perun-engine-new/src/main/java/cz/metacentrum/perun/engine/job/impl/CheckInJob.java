@@ -24,7 +24,7 @@ public class CheckInJob implements PerunEngineJob {
 	@Override
 	public void doTheJob() {
 		log.info("Entering CheckInJob: engineManager.checkIn()");
-		engineManager.checkIn();
+		//engineManager.checkIn();
 		log.info("CheckInJob: engineManager.checkIn() has completed.");
 	}
 
