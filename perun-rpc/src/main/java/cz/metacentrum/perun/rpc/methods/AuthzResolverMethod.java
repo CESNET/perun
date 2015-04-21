@@ -377,7 +377,6 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 * including user identification, authorization and metadata. Each call of this method refresh the
 	 * session including authorization data.
 	 *
-	 * @deprecated
 	 * @return PerunPrincipal PerunPrincipal object
 	 */
 	getPerunPrincipal {

@@ -185,7 +185,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess perun session
 	 * @param user the user for setting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session
 	 * @param complementaryObjects objects for which role will be set
 	 *
 	 * @throws InternalErrorException
@@ -211,7 +211,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess perun session
 	 * @param user the user for setting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session
 	 * @param complementaryObject object for which role will be set
 	 *
 	 * @throws InternalErrorException
@@ -235,7 +235,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess perun session
 	 * @param authorizedGroup the group for setting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session
 	 * @param complementaryObjects objects for which role will be set
 	 *
 	 * @throws InternalErrorException
@@ -259,7 +259,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess perun session
 	 * @param authorizedGroup the group for setting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session
 	 * @param complementaryObject object for which role will be set
 	 *
 	 * @throws InternalErrorException
@@ -283,7 +283,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess perun session
 	 * @param user the user for unsetting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session
 	 * @param complementaryObjects objects for which role will be unset
 	 *
 	 * @throws InternalErrorException
@@ -307,7 +307,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess perun session
 	 * @param user the user for unsetting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session
 	 * @param complementaryObject object for which role will be unset
 	 *
 	 * @throws InternalErrorException
@@ -331,7 +331,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess perun session
 	 * @param authorizedGroup the group for unsetting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session
 	 * @param complementaryObjects objects for which role will be unset
 	 *
 	 * @throws InternalErrorException
@@ -355,7 +355,7 @@ public class AuthzResolver {
 	 *
 	 * @param sess perun session
 	 * @param authorizedGroup the group for unsetting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session
 	 * @param complementaryObject object for which role will be unset
 	 *
 	 * @throws InternalErrorException
@@ -381,7 +381,7 @@ public class AuthzResolver {
 	 * @param complementaryObjectId id of object for which we will get richUser administrators
 	 * @param complementaryObjectName name of object for which we will get richUser administrators
 	 * @param specificAttributes list of specified attributes which are needed in object richUser
-	 * @param role expected role to filter managers by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator)
+	 * @param role expected role to filter managers by
 	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
 	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
 	 *

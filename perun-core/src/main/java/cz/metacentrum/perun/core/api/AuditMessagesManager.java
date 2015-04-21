@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface AuditMessagesManager {
 
-	Integer COUNTOFMESSAGES = 100;
+	public final static Integer COUNTOFMESSAGES = 100;
 
 	/**
 	 * Returns reasonable number of messages from audit's logs which is determined by the constant <b>CountOfMessages<b/>.
