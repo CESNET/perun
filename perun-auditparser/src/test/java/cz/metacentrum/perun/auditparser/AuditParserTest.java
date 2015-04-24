@@ -71,6 +71,7 @@ public class AuditParserTest {
 	@Before
 	public void setUp() throws Exception {
 		member.setMembershipType(MembershipType.DIRECT);
+		facility.setDescription(textMismatch);
 		Map<String, String> attributesMap = new HashMap<String, String>();
 		attributesMap.put("test1", textMismatch);
 		attributesMap.put("test", textMismatch);

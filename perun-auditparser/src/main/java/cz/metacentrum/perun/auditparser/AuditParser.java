@@ -352,6 +352,7 @@ public class AuditParser {
 		Facility facility = new Facility();
 		facility.setId(Integer.valueOf(beanAttr.get("id")).intValue());
 		facility.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
+		facility.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
 		return facility;
 	}
 

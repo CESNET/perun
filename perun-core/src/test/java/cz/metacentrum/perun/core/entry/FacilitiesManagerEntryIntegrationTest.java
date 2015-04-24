@@ -73,6 +73,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void setUp() throws Exception {
 
 		facility.setName("FacilitiesManagerTestFacility");
+		facility.setDescription("FacilityTestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, facility));
 		owner.setName("FacilityManagerTestOwner");
 		owner.setContact("testingContact");
@@ -435,7 +436,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		Facility facility = new Facility();
 		facility.setName("FacilitiesManagerTestSecondFacility");
-
+		facility.setDescription("TestSecondFacilityDescriptionText");
 		Facility returnedFacility = perun.getFacilitiesManager().createFacility(sess, facility);
 		assertNotNull("unable to create Facility",returnedFacility);
 		assertEquals("created and returned facility should be the same",returnedFacility,facility);
@@ -892,6 +893,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// set up second facility
 		Facility newFacility = new Facility();
 		newFacility.setName("FacilitiesManagerTestSecondFacility");
+		newFacility.setDescription("TestSecondFacilityDescriptionText");
 		Facility secondFacility = perun.getFacilitiesManager().createFacility(sess, newFacility);
 
 		// add first attribute to source
