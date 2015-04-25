@@ -869,17 +869,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getMemberGroups for " + member);
 				}
 
-		//Remove members and administrators groups
-		List<Group> groups = getGroupsManagerBl().getMemberGroups(sess, member);
-		if(!groups.isEmpty()) {
-			Iterator<Group> iterator = groups.iterator();
-			while(iterator.hasNext()) {
-				Group g = iterator.next();
-				if(g.getName().equals(VosManager.MEMBERS_GROUP)) iterator.remove();
-			}
-		}
-
-		return groups;
+		return getGroupsManagerBl().getMemberGroups(sess, member);
 	}
 
 		

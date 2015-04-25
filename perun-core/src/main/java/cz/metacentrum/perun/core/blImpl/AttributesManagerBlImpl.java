@@ -4075,7 +4075,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				throw new InternalErrorException("There is unrecognized object in primaryHolder of aidingAttr.");
 			}
 		} else {
-			throw new InternalErrorException("Aiding attribtue must have primaryHolder which is not null.");
+			throw new InternalErrorException("Aiding attribute must have primaryHolder which is not null.");
 		}
 
 		//Get object for secondaryHolder of aidingAttr
@@ -4196,7 +4196,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				List<Group> groupsFromMembers = new ArrayList<Group>();
 				for(Member memberElement: members) {
 					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
-						groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getMemberGroups(sess, memberElement));
+						groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
 					}
 				}
 				List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
@@ -4803,7 +4803,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 				//Retain of Resources
 				resourcesFromFacility.retainAll(resourcesFromUser);
-				//All posibilities
+				//All possibilities
 				resourcesFromFacility = new ArrayList<Resource>(new HashSet<Resource>(resourcesFromFacility));
 				for(Resource resourceElement: resourcesFromFacility) {
 					List<Group> groupsForResourceElement = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement);
@@ -5175,7 +5175,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			}
 		} else {
-			throw new InternalErrorException("There are unrecognized namespace in attribute " + attrDef);
+			throw new InternalErrorException("There is unrecognized namespace in attribute " + attrDef);
 		}
 
 		return listOfRichAttributes;

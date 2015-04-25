@@ -117,8 +117,8 @@ public class VOOT {
 	 * Allowed parameters request:
 	 * @see http://opensocial-resources.googlecode.com/svn/spec/2.0.1/Core-API-Server.xml#rfc.section.6
 	 *
-	 * In section 6.2 Collection request parameters are all avaible and is possible to use paramter SortBy.
-	 * Value of SortBy is singular attribute of oject, e.g. for group 'title' or for member 'displayName'.
+	 * In section 6.2 Collection request parameters are all available and it is possible to use parameter SortBy.
+	 * Value of SortBy is singular attribute of object, e.g. for group 'title' or for member 'displayName'.
 	 * This value is used to sort by this. If value is invalid items are sorting by default value.
 	 *
 	 * @param session           session of Perun
@@ -412,7 +412,7 @@ public class VOOT {
 		try{
 			for (Vo vo : vos) {
 				Member member = perun.getMembersManagerBl().getMemberByUser(session, vo, user);
-				groups.addAll(perun.getGroupsManagerBl().getMemberGroups(session, member));
+				groups.addAll(perun.getGroupsManagerBl().getAllMemberGroups(session, member));
 			}
 		}catch(InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
