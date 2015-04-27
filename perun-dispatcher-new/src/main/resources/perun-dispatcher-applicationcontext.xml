@@ -100,13 +100,13 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	</bean>
 
 	<!--  
-	<bean id="checkInJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="checkInJob" />
+	<bean id="checkInJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean"> -->
+	<!--<property name="jobDetail" ref="checkInJob" /> -->
 		<!-- Every 3 minutes -->
-		<property name="cronExpression" value="0 0/5 * * * ?" />
+	<!--<property name="cronExpression" value="0 0/5 * * * ?" /> -->
 		<!-- Every 10 seconds -->
 		<!-- property name="cronExpression" value="0/10 * * * * ?" /-->
-	</bean>
+	<!--</bean>
 	-->
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
