@@ -105,6 +105,7 @@ create table cabinet_thanks (
 create table facilities (
   id integer not null,
   name varchar(128) not null,
+  dsc varchar(1024),
   created_at timestamp default now not null,
   created_by varchar(1024) default user not null,
   modified_at timestamp default now not null,
