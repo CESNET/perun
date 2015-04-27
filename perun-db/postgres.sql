@@ -1,4 +1,4 @@
--- database version 3.1.22 (don't forget to update insert statement at the end of file)
+-- database version 3.1.23 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -116,6 +116,7 @@ create table "cabinet_thanks" (
 create table "facilities" (
 	id integer not null,
 	name varchar(128) not null, --unique name of facility
+        dsc varchar(1024),
 	created_at timestamp default now() not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now() not null,
@@ -1652,4 +1653,4 @@ grant all on mailchange to perun;
 grant all on pwdreset to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.22');
+insert into configurations values ('DATABASE VERSION','3.1.23');

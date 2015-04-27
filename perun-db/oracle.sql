@@ -1,4 +1,4 @@
--- database version 3.1.22 (don't forget to update insert statement at the end of file)
+-- database version 3.1.23 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -114,6 +114,7 @@ create table cabinet_thanks (
 create table facilities (
 	id integer not null,
 	name nvarchar2(128) not null,
+        dsc nvarchar2(1024),
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -1603,4 +1604,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.22');
+insert into configurations values ('DATABASE VERSION','3.1.23');
