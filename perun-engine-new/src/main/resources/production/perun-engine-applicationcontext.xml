@@ -41,7 +41,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
         <task:scheduled ref="propagationMaintainerJob" method="doTheJob" cron="45 0/4 * * * ?"/>
         <task:scheduled ref="processPoolJob" method="doTheJob" cron="0 0/2 * * * ?"/>
         <task:scheduled ref="taskExecutorEngineJob" method="doTheJob" cron="0 0/2 * * * ?"/>
-        <task:scheduled ref="checkInJob" method="doTheJob" cron="0 0/4 * * * ?"/>
+        <!--<task:scheduled ref="checkInJob" method="doTheJob" cron="0 0/4 * * * ?"/>-->
     </task:scheduled-tasks>
 
     <bean id="callerRuns" class="java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy"/>
