@@ -697,6 +697,21 @@ create table member_resource_attr_values (
 	modified_by_uid integer
 );
 
+create table member_group_attr_values (
+	member_id integer not null,
+	group_id integer not null,
+	attr_id integer not null,
+	attr_value nvarchar2(4000),
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create table user_attr_values (
 	user_id integer not null,
 	attr_id integer not null,
@@ -1104,6 +1119,9 @@ create index IDX_FK_GRP_GRP on groups(parent_group_id);
 create index IDX_FK_MEMRAV_MEM on member_resource_attr_values(member_id);
 create index IDX_FK_MEMRAV_RSRC on member_resource_attr_values(resource_id);
 create index IDX_FK_MEMRAV_ACCATTNAM on member_resource_attr_values(attr_id);
+create index IDX_FK_MEMGAV_MEM on member_group_attr_values(member_id);
+create index IDX_FK_MEMGAV_GRP on member_group_attr_values(group_id);
+create index IDX_FK_MEMGAV_ACCATTNAM on member_group_attr_values(attr_id);
 create index IDX_FK_USRFACAV_MEM on user_facility_attr_values(user_id);
 create index IDX_FK_USRFACAV_FAC on user_facility_attr_values(facility_id);
 create index IDX_FK_USRFACAV_ACCATTNAM on user_facility_attr_values(attr_id);
@@ -1303,6 +1321,12 @@ constraint MEMRAV_MEM_FK foreign key (member_id) references members(id),
 constraint MEMRAV_RSRC_FK foreign key (resource_id) references resources(id),
 constraint MEMRAV_ACCATTNAM_FK foreign key (attr_id) references attr_names(id),
 constraint MEMRAV_U unique(member_id,resource_id,attr_id)
+);
+alter table member_group_attr_values add (
+constraint MEMGAV_MEM_FK foreign key (member_id) references members(id),
+constraint MEMGAV_GRP_FK foreign key (group_id) references groups(id),
+constraint MEMGAV_ACCATTNAM_FK foreign key (attr_id) references attr_names(id),
+constraint MEMGAV_U unique(member_id,group_id,attr_id)
 );
 alter table user_facility_attr_values add (
 constraint USRFACAV_MEM_FK foreign key (user_id) references users(id),
@@ -1604,4 +1628,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.23');
+insert into configurations values ('DATABASE VERSION','3.1.24');

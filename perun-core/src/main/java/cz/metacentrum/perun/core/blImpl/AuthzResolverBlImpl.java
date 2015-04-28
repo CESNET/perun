@@ -274,47 +274,61 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 			if(roles.contains(Role.SELF)); //Not Allowed
 		} else if(user != null && facility != null) {
-			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
-			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
-			if(roles.contains(Role.VOADMIN)) {
+			if (roles.contains(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+			if (roles.contains(Role.SELF)) if (isAuthorized(sess, Role.SELF, user)) return true;
+			if (roles.contains(Role.VOADMIN)) {
 				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
 				HashSet<Resource> resourcesFromUser = new HashSet<Resource>();
-				for(Member memberElement: membersFromUser) {
+				for (Member memberElement : membersFromUser) {
 					resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
 				}
 				resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-				for(Resource resourceElement: resourcesFromUser) {
-					if(isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
+				for (Resource resourceElement : resourcesFromUser) {
+					if (isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
 				}
 			}
-			if(roles.contains(Role.VOOBSERVER)) {
+			if (roles.contains(Role.VOOBSERVER)) {
 				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
 				HashSet<Resource> resourcesFromUser = new HashSet<Resource>();
-				for(Member memberElement: membersFromUser) {
+				for (Member memberElement : membersFromUser) {
 					resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
 				}
 				resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-				for(Resource resourceElement: resourcesFromUser) {
-					if(isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
+				for (Resource resourceElement : resourcesFromUser) {
+					if (isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
 				}
 			}
-			if(roles.contains(Role.GROUPADMIN)) {
+			if (roles.contains(Role.GROUPADMIN)) {
 				//If groupManager has rights on "any group which is assigned to any resource from the facility" and "the user has also member in vo where exists this group"
 				List<Vo> userVos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
 				Set<Integer> userVosIds = new HashSet<>();
-				for(Vo voElement: userVos) {
+				for (Vo voElement : userVos) {
 					userVosIds.add(voElement.getId());
 				}
 
 				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 				Set<Group> groupsFromFacility = new HashSet<Group>();
-				for(Resource resourceElement: resourcesFromFacility) {
+				for (Resource resourceElement : resourcesFromFacility) {
 					groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
 				}
 
-				for(Group groupElement: groupsFromFacility) {
-					if(isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId())) return true;
+				for (Group groupElement : groupsFromFacility) {
+					if (isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId()))
+						return true;
 				}
+			}
+		} else if(member != null && group != null) {
+			if(roles.contains(Role.VOADMIN)) {
+				if(isAuthorized(sess, Role.VOADMIN, member)) return true;
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				if(isAuthorized(sess, Role.VOOBSERVER, member)) return true;
+			}
+			if(roles.contains(Role.SELF)) {
+				if(isAuthorized(sess, Role.SELF, member)) return true;
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
 			}
 		} else if(user != null) {
 			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;

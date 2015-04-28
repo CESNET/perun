@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleImplApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -763,6 +765,44 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
+	
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		try {
+			//member-group attributes, member core attributes
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+							"left join member_group_attr_values mem_gr on attr_names.id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
+							"where namespace in (?,?) and (mem_gr.attr_value is not null or mem_gr.attr_value_text is not null)",
+					new AttributeRowMapper(sess, this, null), group.getId(), member.getId(),
+					AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
+		} catch(EmptyResultDataAccessException ex) {
+			log.debug("No attribute for member-group combination exists.");
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException {
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("mId", member.getId());
+		parameters.addValue("gId", group.getId());
+		parameters.addValue("nSO", AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+						"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and member_id=:mId and group_id=:gId " +
+						"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+						parameters, new AttributeRowMapper(sess, this, member, group));
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 
 	public List<Attribute> getAttributes(PerunSession sess, Member member) throws InternalErrorException {
 		try {
@@ -923,6 +963,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					new AttributeRowMapper(sess, this, user, facility), AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("No virtual attribute for user-facility combination exists.");
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Attribute> getVirtualAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + attributeDefinitionMappingSelectQuery + ", null as attr_value from attr_names " +
+							"where namespace=?",
+					new AttributeRowMapper(sess, this, member, group), AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+		} catch(EmptyResultDataAccessException ex) {
+			log.debug("No virtual attribute for member-group combination exists.");
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -1139,6 +1193,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		try {
+			//member-group attributes, member core attributes
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
+							"where attr_name=?",
+					new AttributeRowMapper(sess, this, null), group.getId(), member.getId(), attributeName);
+
+		} catch(EmptyResultDataAccessException ex) {
+			throw new AttributeNotExistsException("Attribute name: \"" + attributeName +"\"", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public Attribute getAttribute(PerunSession sess, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		//member and member core attributes
 		try {
@@ -1334,6 +1404,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 					"where id=?",
 					new AttributeRowMapper(sess, this, member), resource.getId(), member.getId(), id);
+		} catch(EmptyResultDataAccessException ex) {
+			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
+		try {
+			//member-group attributes, member core attributes
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+					"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
+					"where id=?",
+					new AttributeRowMapper(sess, this, member), group.getId(), member.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
 		} catch(RuntimeException ex) {
@@ -2067,6 +2152,118 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public boolean setAttribute(final PerunSession sess, final Member member, final Group group, final Attribute attribute) throws InternalErrorException {
+		try {
+			if(isLargeAttribute(sess, attribute)) {
+				if(attribute.getValue() == null) {
+					int numAffected = jdbc.update("delete from member_group_attr_values where attr_id=? and member_id=? and group_id=?", attribute.getId(), member.getId(), group.getId());
+					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from member_group_attr_values where attr_id="+ attribute.getId() +" and member_id=" + member.getId() + " and group_id=" + group.getId());
+					return numAffected == 1;
+				}
+				int repetatCounter = 0;
+				while(true) {
+					try {
+						if(Compatibility.isMergeSupported()) {
+							return 0 < jdbc.execute("merge into member_group_attr_values using dual on (attr_id=? and group_id=? and member_id=?) " +
+											"when not matched then insert (attr_id, group_id, member_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
+											"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
+											"when matched then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
+									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
+										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
+											ps.setInt(1, attribute.getId());
+											ps.setInt(2, group.getId());
+											ps.setInt(3, member.getId());
+											ps.setInt(4, attribute.getId());
+											ps.setInt(5, group.getId());
+											ps.setInt(6, member.getId());
+											try {
+												lobCreator.setClobAsString(ps, 7, BeansUtils.attributeValueToString(attribute));
+												ps.setString(8, sess.getPerunPrincipal().getActor());
+												ps.setString(9, sess.getPerunPrincipal().getActor());
+												ps.setInt(10, sess.getPerunPrincipal().getUserId());
+												ps.setInt(11, sess.getPerunPrincipal().getUserId());
+												lobCreator.setClobAsString(ps, 11, BeansUtils.attributeValueToString(attribute));
+												ps.setString(12, sess.getPerunPrincipal().getActor());
+												ps.setInt(13, sess.getPerunPrincipal().getUserId());
+											} catch(InternalErrorException ex) {
+												throw new InternalErrorRuntimeException(ex);
+											}
+										}
+									}
+							);
+						} else {
+							try {
+								jdbc.queryForInt("select attr_id from member_group_attr_values where attr_id=? and group_id=? and member_id=? for update", attribute.getId(), group.getId(), member.getId());
+							} catch(EmptyResultDataAccessException ex) {
+								//Value doesn't exist -> insert (and return from this method
+								return 0 < jdbc.update("insert into member_group_attr_values (attr_id, group_id, member_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
+												"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), group.getId(),
+										member.getId(), BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+							}
+							//Exception wasn't thrown -> update
+							return 0 < jdbc.update("update member_group_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and group_id=? and member_id=?",
+									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), group.getId(), member.getId());
+							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
+						}
+					} catch(DataIntegrityViolationException ex) {
+						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
+						try {
+							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
+						} catch(InterruptedException IGNORE) { }
+					}
+				}
+			} else {
+				if(attribute.getValue() == null) {
+					int numAffected = jdbc.update("delete from member_group_attr_values where attr_id=? and member_id=? and group_id=?", attribute.getId(), member.getId(), group.getId());
+					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from member_group_attr_values where attr_id="+ attribute.getId() +" and member_id=" + member.getId() + " and group_id=" + group.getId());
+					return numAffected == 1;
+				}
+				try {
+					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from member_group_attr_values where attr_id=? and member_id=? and group_id=?", String.class, attribute.getId(), member.getId(), group.getId()), attribute.getType());
+					if(attribute.getValue().equals(value)) return false;
+				} catch(EmptyResultDataAccessException ex) {
+					//This is ok. Attribute will be stored later.
+				}
+				int repetatCounter = 0;
+				while(true) {
+					try {
+						if(Compatibility.isMergeSupported()) {
+							return 0 < jdbc.update("merge into member_group_attr_values using dual on (attr_id=? and group_id=? and member_id=?) " +
+											"when not matched then insert (attr_id, group_id, member_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
+											"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
+											"when matched then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
+									attribute.getId(), group.getId(), member.getId(), attribute.getId(), group.getId(), member.getId(),
+									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
+									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
+									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
+							);
+						} else {
+							try {
+								jdbc.queryForInt("select attr_id from member_group_attr_values where attr_id=? and group_id=? and member_id=? for update", attribute.getId(), group.getId(), member.getId());
+							} catch(EmptyResultDataAccessException ex) {
+								//Value doesn't exist -> insert (and return from this metod)
+								return 0 < jdbc.update("insert into member_group_attr_values (attr_id, group_id, member_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
+												"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), group.getId(),
+										member.getId(), BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+							}
+							//Exception wasn't thrown -> update
+							return 0 < jdbc.update("update member_group_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and group_id=? and member_id=?",
+									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), group.getId(), member.getId());
+						}
+					} catch(DataIntegrityViolationException ex) {
+						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
+						try {
+							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
+						} catch(InterruptedException IGNORE) { }
+					}
+				}
+			}
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public boolean setAttribute(final PerunSession sess, final Facility facility, final User user, final Attribute attribute) throws InternalErrorException {
 		try {
 			if(isLargeAttribute(sess, attribute)) {
@@ -2712,6 +2909,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		return getResourceGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, resource, group, attribute);
 	}
 
+	@Override
+	public boolean setVirtualAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException {
+		return getMemberGroupVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, member, group, attribute);
+	}
+
 	public boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException {
 		return getUserVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, user, attribute);
 	}
@@ -3025,6 +3227,35 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
+							"left join member_group_attr_values mem_gr on id=mem.attr_id and mem_gr.group_id=? and member_id=? " +
+							"where namespace in (?,?,?)",
+					new AttributeRowMapper(sess, this, member), service.getId(), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
+							"where namespace in (?,?,?) " +
+							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
+							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
+					new AttributeRowMapper(sess, this, null), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT, resourceToGetServicesFrom.getId());
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member) throws InternalErrorException {
 		//member and member core attributes
 		try {
@@ -3326,6 +3557,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public Attribute fillAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException {
+		//Use attributes module
+		MemberGroupAttributesModuleImplApi attributeModule = getMemberGroupAttributeModule(sess, attribute);
+		if(attributeModule == null) {
+			log.debug("fillAttribute - There's no attribute module for this attribute. Attribute wasn't filled. Attribute={}", attribute);
+			return attribute;
+		}
+
+		try {
+			return attributeModule.fillAttribute((PerunSessionImpl) sess, member, group, attribute);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public Attribute fillAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException {
 		//Use attributes module
 		FacilityUserAttributesModuleImplApi attributeModule = getFacilityUserAttributeModule(sess, attribute);
@@ -3502,6 +3749,18 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	@Override
+	public void changedAttributeHook(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		//Call attribute module
+		MemberGroupAttributesModuleImplApi memberGroupAttributesModule = getMemberGroupAttributeModule(sess, attribute);
+		if(memberGroupAttributesModule == null) return; //memberGroupAttributesModule module doesn't exists
+		try {
+			memberGroupAttributesModule.changedAttributeHook((PerunSessionImpl) sess, member, group, attribute);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		FacilityUserAttributesModuleImplApi facilityUserModule = getFacilityUserAttributeModule(sess, attribute);
@@ -3518,7 +3777,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
 		if(facilityModule == null) return; //facility module doesn't exists
 		try {
-			facilityModule.checkAttributeValue((PerunSessionImpl) sess,facility, attribute);
+			facilityModule.checkAttributeValue((PerunSessionImpl) sess, facility, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3569,6 +3828,18 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		if(resourceMemberGroupModule == null) return; //facility module doesn't exists
 		try {
 			resourceMemberGroupModule.checkAttributeValue((PerunSessionImpl) sess, resource, member, attribute);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void checkAttributeValue(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		//Call attribute module
+		MemberGroupAttributesModuleImplApi memberGroupAttributeModule = getMemberGroupAttributeModule(sess, attribute);
+		if(memberGroupAttributeModule == null) return; //memberGroupAttributesModule module doesn't exists
+		try {
+			memberGroupAttributeModule.checkAttributeValue((PerunSessionImpl) sess, member, group, attribute);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3746,6 +4017,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			if(0 < jdbc.update("delete from member_resource_attr_values where resource_id=? and member_id=?", resource.getId(), member.getId())) {
 				log.info("All attributes (theirs values) were removed from member on resource. Member={}, resource={}.", member, resource);
+			}
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public boolean removeAttribute(PerunSession sess, Member member, Group group, AttributeDefinition attribute) throws InternalErrorException {
+		try {
+			if(0 < jdbc.update("delete from member_group_attr_values where attr_id=? and member_id=? and group_id=?", attribute.getId(), member.getId(), group.getId())) {
+				log.info("Attribute (its value) was removed from member in group. Attribute={}, member={}, group=" + group, attribute, member);
+				return true;
+			}
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void removeAllAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
+		try {
+			if(0 < jdbc.update("delete from member_group_attr_values where group_id=? and member_id=?", group.getId(), member.getId())) {
+				log.info("All attributes (theirs values) were removed from member in group. Member={}, group={}.", member, group);
 			}
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -4174,6 +4469,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	/**
+	 * Get member-group attribute module for the attribute.
+	 *
+	 * @param attribute attribute for which you get the module
+	 * @return instance member group attribute module
+	 *         null if the module doesn't exists
+	 *
+	 * @throws WrongModuleTypeException
+	 * @throws InternalErrorException
+	 */
+	private MemberGroupAttributesModuleImplApi getMemberGroupAttributeModule(PerunSession sess, AttributeDefinition attribute) throws WrongModuleTypeException, InternalErrorException {
+		Object attributeModule = getAttributesModule(sess, attribute);
+		if(attributeModule == null) return null;
+
+		if(attributeModule instanceof MemberGroupAttributesModuleImplApi) {
+			return (MemberGroupAttributesModuleImplApi) attributeModule;
+		} else {
+			throw new WrongModuleTypeException("Required attribute module isn't MemberGroupAttributesModule");
+		}
+	}
+
+	/**
 	 * Get facility attribute module for the attribute.
 	 *
 	 * @param attribute attribute for which you get the module
@@ -4424,6 +4740,25 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return (ResourceGroupVirtualAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new InternalErrorException("Required attribute module isn't ResourceGroupVirtualAttributesModule");
+		}
+	}
+
+	/**
+	 * Get member-group attribute module for the attribute.
+	 *
+	 * @param attribute attribute for which you get the module
+	 * @return instance member-group attribute module null if the module doesn't exists
+	 *
+	 * @throws InternalErrorException
+	 */
+	public MemberGroupVirtualAttributesModuleImplApi getMemberGroupVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+		Object attributeModule = getAttributesModule(sess, attribute);
+		if(attributeModule == null) return null;
+
+		if(attributeModule instanceof MemberGroupVirtualAttributesModuleImplApi) {
+			return (MemberGroupVirtualAttributesModuleImplApi) attributeModule;
+		} else {
+			throw new InternalErrorException("Required attribute module isn't MemberGroupVirtualAttributesModuleImplApi");
 		}
 	}
 
