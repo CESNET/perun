@@ -1,3 +1,9 @@
+perun-slave (3.0.0-0.0.91) stable; urgency=low
+
+  * Add new service sympa, similar to mailman service
+
+ -- Michal Stava <stavamichal@gmail.com> Tue, 15 May 2015 7:40:00 +0100
+
 perun-slave (3.0.0-0.0.90) stable; urgency=low
 
   * Added ldap folder with shared scripts for all ldap services.
