@@ -52,6 +52,7 @@ group_resource_attr_values
 groups_members
 groups_resources
 member_attr_values
+member_group_attr_values
 member_resource_attr_values
 user_attr_values
 user_facility_attr_values
