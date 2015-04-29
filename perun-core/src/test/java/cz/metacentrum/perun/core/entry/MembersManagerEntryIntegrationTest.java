@@ -32,8 +32,9 @@ import java.util.Arrays;
 public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private static final String MEMBERS_MANAGER_ENTRY = "MembersManagerEntry";
+	private static final String EXT_SOURCE_NAME = "MembersManagerEntryExtSource";
 	private Vo createdVo = null;
-	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
+	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Group createdGroup;
 	private Group g1;
 	private Group g2;
@@ -49,11 +50,13 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	@Before
 	public void setUp() throws Exception {
 
+		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource);
+
 		usersManagerEntry = perun.getUsersManager();
 		attributesManagerEntry = perun.getAttributesManager();
 		membersManagerEntry = perun.getMembersManager();
 		final Vo vo = new Vo(0, "m3mb3r r00m", "m3mber-room");
-		VosManager vosManagerEntry = perun.getVosManager();//new VosManagerEntry(perun);
+		VosManager vosManagerEntry = perun.getVosManager();
 		createdVo = vosManagerEntry.createVo(sess, vo);
 		assertNotNull(createdVo);
 
@@ -72,7 +75,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		candidate.setLastName(userLastName);
 		candidate.setTitleBefore("");
 		candidate.setTitleAfter("");
-		ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
+		ues = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(ues);
 		candidate.setAttributes(new HashMap<String,String>());
 
@@ -122,7 +125,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		candidate.setLastName(userLastName);
 		candidate.setTitleBefore("");
 		candidate.setTitleAfter("");
-		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
+		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL), extLogin);
 		candidate.setUserExtSource(ues);
 		candidate.setAttributes(new HashMap<String,String>());
 
@@ -675,7 +678,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
 
 		// Set LOA 2 for member
-		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
 		ues = new UserExtSource(es, "abc");
 		ues.setLoa(2);
 
@@ -724,7 +727,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		attributesManagerEntry.setAttribute(sess, createdMember, membershipExpirationAttribute);
 
 		// Set LOA 1 for member
-		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
 		ues = new UserExtSource(es, "abc");
 		ues.setLoa(1);
 
@@ -761,7 +764,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
 
 		// Set LOA 1 for member
-		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
 		ues = new UserExtSource(es, "abc");
 		ues.setLoa(1);
 
@@ -811,7 +814,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
 
 		// Set LOA 1 for member
-		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
 		ues = new UserExtSource(es, "abc");
 		ues.setLoa(0);
 
@@ -847,7 +850,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
 
 		// Set LOA 1 for member
-		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "INTERNAL");
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
 		ues = new UserExtSource(es, "abc");
 		ues.setLoa(1);
 
