@@ -8,16 +8,10 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -33,7 +27,7 @@ import java.util.Set;
 public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private static final String CLASS_NAME = "AuthzResolver.";
-	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
+	final ExtSource extSource = new ExtSource(0, "AuthzResolverExtSource", ExtSourcesManager.EXTSOURCE_LDAP);
 
 	@Test
 	public void isAuthorizedInvalidPrincipal() throws Exception {
@@ -292,15 +286,10 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	}
 
-
-	private Member createSomeMember(final Vo createdVo)
-		throws InternalErrorException, ExtSourceNotExistsException,
-										PrivilegeException, VoNotExistsException,
-										ExtSourceAlreadyAssignedException, Exception,
-										AlreadyMemberException {
-						 final Candidate candidateKouril = setUpCandidate();
-						 final Member createdMemberKouril = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidateKouril);
-						 return createdMemberKouril;
+	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException {
+		final Candidate candidate = setUpCandidate();
+		final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
+		return createdMember;
 	}
 
 	private PerunSession getHisSession(final Member createdMember) throws InternalErrorException {
@@ -311,7 +300,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		}
 		UserExtSource ue = new UserExtSource();
 		for (UserExtSource u : ues) {
-			if (u.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_SQL)) {
+			if (u.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_LDAP)) {
 				ue = u;
 				break;
 			}
