@@ -1,0 +1,186 @@
+#!/usr/bin/perl
+use feature "switch";
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Text::Unidecode;
+
+local $::SERVICE_NAME = "ldap_vsb_vi";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $fileName = "$DIRECTORY/$::SERVICE_NAME".".ldif";
+my $baseDnFileName = "$DIRECTORY/baseDN";
+
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_F_BASE_DN;  *A_F_BASE_DN = \'urn:perun:facility:attribute-def:def:ldapBaseDN';
+our $A_R_VO_SHORT_NAME;  *A_R_VO_SHORT_NAME = \'urn:perun:resource:attribute-def:virt:voShortName';
+our $A_R_NAME;  *A_R_NAME = \'urn:perun:resource:attribute-def:core:name';
+
+# User attributes
+our $A_USER_LOGIN; *A_USER_LOGIN = \'urn:perun:user:attribute-def:def:login-namespace:einfra';
+our $A_FIRST_NAME;  *A_FIRST_NAME = \'urn:perun:user:attribute-def:core:firstName';
+our $A_LAST_NAME;  *A_LAST_NAME = \'urn:perun:user:attribute-def:core:lastName';
+our $A_MAIL;  *A_MAIL = \'urn:perun:user:attribute-def:def:preferredMail';
+
+# CHECK ON FACILITY ATTRIBUTES
+my %facilityAttributes = attributesToHash $data->getAttributes;
+if (!defined($facilityAttributes{$A_F_BASE_DN})) {
+	exit 1;
+}
+
+# GATHER USERS
+my $users;  # $users->{$login}->{ATTR} = $attrValue;
+my $usersVos; # $users->{$login}->{$voShortName} = 1;
+# GATHER VOS and RESOURCES
+my $allVosAndResources; #  $allVosAndResources->{$voShortName}->{$resourceName} = 1;
+# GATHER USERS FROM RESOURCES
+my $usersByResource;  # $usersByResource->{$resourceName}->{$login}->{ATTR} = $attrValue;
+
+my @resourcesData = $data->getChildElements;
+
+# FOR EACH RESOURCE
+foreach my $rData (@resourcesData) {
+
+	my %rAttributes = attributesToHash $rData->getAttributes;
+	my $voShortName = $rAttributes{$A_R_VO_SHORT_NAME};
+	my $resourceName = $rAttributes{$A_R_NAME};
+
+	# Fill all VOs reference
+	$allVosAndResources->{$voShortName}->{$resourceName} = 1;
+
+	# process members
+	my @membersData = $rData->getChildElements;
+
+	# FOR EACH MEMBER ON RESOURCE
+	foreach my $mData (@membersData) {
+
+		my %mAttributes = attributesToHash $mData->getAttributes;
+		my $login = $mAttributes{$A_USER_LOGIN};
+
+		# Store users in Resources structure
+		$usersByResource->{$resourceName}->{$login}->{$A_FIRST_NAME} = $mAttributes{$A_FIRST_NAME};
+		$usersByResource->{$resourceName}->{$login}->{$A_LAST_NAME} = $mAttributes{$A_LAST_NAME};
+		my $mail = $mAttributes{$A_MAIL};
+		if (defined $mail and length $mail) {
+			$usersByResource->{$resourceName}->{$login}->{$A_MAIL} = $mail;
+		}
+
+		# Store same user in flat structure
+		$users->{$login}->{$A_FIRST_NAME} = $mAttributes{$A_FIRST_NAME};
+		$users->{$login}->{$A_LAST_NAME} = $mAttributes{$A_LAST_NAME};
+		$users->{$login}->{$A_MAIL} = $mAttributes{$A_MAIL};
+
+		# Store VOS for member
+		$usersVos->{$login}->{$voShortName} = 1;
+
+	}
+
+}
+
+#
+# PRINT BASE_DN FILE
+#
+open FILE,">:encoding(UTF-8)","$baseDnFileName" or die "Cannot open $baseDnFileName: $! \n";
+print FILE $facilityAttributes{$A_F_BASE_DN};
+close(FILE);
+
+#
+# PRINT LDIF FILE
+#
+open FILE,">:encoding(UTF-8)","$fileName" or die "Cannot open $fileName: $! \n";
+
+# print base entry
+
+print FILE "dn: ou=perun,ou=users," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+print FILE "ou: perun\n";
+print FILE "objectClass: top\n";
+print FILE "objectClass: organizationalUnit\n";
+print FILE "\n";
+
+# FLAT structure is stored in ou=perun,ou=users + base DN
+for my $login (sort keys %$users) {
+
+	print FILE "dn: cn=" . $login . ",ou=perun,ou=users," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+	print FILE "cn: " . $login . "\n";
+	print FILE "uid: " . $login . "\n";
+
+	my $givenName = $users->{$login}->{$A_FIRST_NAME};
+	if (defined $givenName and length $givenName) {
+		print FILE "givenname: " . $givenName . "\n";
+	}
+	my $sn = $users->{$login}->{$A_LAST_NAME};
+	if (defined $givenName and length $givenName) {
+		print FILE "sn: " . $users->{$login}->{$A_LAST_NAME} . "\n";
+	}
+
+	my $mail = $users->{$login}->{$A_MAIL};
+	if (defined $mail and length $mail) {
+		print FILE "mail: " . $mail . "\n";
+	}
+
+	print FILE "userpassword: {SASL}" . $login . '@EINFRA' . "\n";
+
+	# print VO membership information
+	my @gs = keys %{$usersVos->{$login}};
+	for my $g (@gs) {
+		print FILE "ou: " . $g . "\n";
+	}
+
+	# print classes
+	print FILE "objectclass: top\n";
+	print FILE "objectclass: inetOrgPerson\n";
+
+	# There MUST be an empty line after each entry, so entry sorting and diff works on slave part
+	print FILE "\n";
+
+}
+
+# Print VOs entries like "ou=voShortName,ou=groups + baseDN"
+# Then Print also Resources inside VOs like: "cn=resourceName,ou=voShortName,ou=groups + baseDN" and their uniqueMembers
+
+# PRINT ALL VOS
+my @gs = sort keys %{$allVosAndResources};
+for my $g (@gs) {
+
+	# PRINT VO
+	print FILE "dn: ou=" . $g . ",ou=groups," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+	print FILE "ou: " . $g . "\n";
+	print FILE "objectclass: top\n";
+	print FILE "objectclass: organizationalUnit\n";
+
+	# There MUST be an empty line after each entry, so entry sorting and diff works on slave part
+    print FILE "\n";
+
+	# PRINT ALL RESOURCES
+	my @res = sort keys %{$allVosAndResources->{$g}};
+	for my $r (@res) {
+
+		# PRINT RESOURCE
+	    print FILE "dn: cn=" . $r . ",ou=" . $g . ",ou=groups," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+	    print FILE "cn: " . $r . "\n";
+        print FILE "ou: " . $g . "\n";
+        print FILE "objectclass: top\n";
+        print FILE "objectclass: groupOfUniqueNames\n";
+
+		# PRINT ALL USERS FROM RESOURCE
+        my @usrs = sort keys %{$usersByResource->{$r}};
+        for my $u (@usrs) {
+            print FILE "uniquemember: cn=" . $u . ",ou=perun," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+        }
+
+        # There MUST be an empty line after each entry, so entry sorting and diff works on slave part
+        print FILE "\n";
+
+	}
+
+}
+
+close(FILE);
+
+perunServicesInit::finalize;
