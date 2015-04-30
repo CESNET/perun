@@ -1,0 +1,4 @@
+#!/bin/bash
+SERVICE_NAME="ldap_vsb_vi"
+
+. generic_send
