@@ -765,6 +765,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		List<Integer> groupsIds = new ArrayList<Integer>(new HashSet<Integer>(this.groupsManagerImpl.getMemberGroupsIds(sess, member, vo)));
 		List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByIds(sess, groupsIds);
 
+		//Remove members group
+		if(!groups.isEmpty()) {
+			Iterator<Group> iterator = groups.iterator();
+			while(iterator.hasNext()) {
+				Group g = iterator.next();
+				if(g.getName().equals(VosManager.MEMBERS_GROUP)) iterator.remove();
+			}
+		}
+
 		// Sort
 		Collections.sort(groups);
 

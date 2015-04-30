@@ -403,7 +403,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	public List<Group> getGroupsByIds(PerunSession sess, List<Integer> groupsIds) throws InternalErrorException {
-		// If usersIds is empty, we can immediatelly return empty results
+		// If groupsIds are empty, we can immediately return empty result
 		if (groupsIds.size() == 0) {
 			return new ArrayList<Group>();
 		}
