@@ -1,6 +1,6 @@
-package cz.metacentrum.perun.rpc;
+package cz.metacentrum.perun.core.api.exceptions;
 
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 @SuppressWarnings("serial")
 /**
@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  * @author Jan Klos <ddd@mail.muni.cz>
  * @since 0.1
  */
-public class RpcException extends PerunException {
+public class RpcException extends InternalErrorException {
 
 	/**
 	 * This enum represents possible RPC error types.
@@ -33,7 +33,10 @@ public class RpcException extends PerunException {
 			CLASS_NOT_FOUND,
 			UNCATCHED_EXCEPTION,
 			NO_REMOTE_USER_SPECIFIED,
-			NO_REMOTE_USER_EXT_SOURCE_SPECIFIED;
+			UNKNOWN_PERUN_RPC_SERVER,
+			COMMUNICATION_ERROR_WITH_PERUN_RPC_SERVER,
+			PERUN_RPC_SERVER_ERROR_HTTP_CODE,
+			UNKNOWN_EXCEPTION;
 	}
 	private final Type type;
 	private final String errorInfo;
@@ -76,6 +79,14 @@ public class RpcException extends PerunException {
 	 */
 	public RpcException(Type type, Throwable cause) {
 		this(type, null, cause);
+	}
+
+	/**
+	 * @param type string representation of type of the error.
+	 * @param errorInfo additional error information.
+	 */
+	public RpcException(String type, String errorInfo) {
+		this(RpcException.Type.valueOf(type), errorInfo, null);
 	}
 
 	/**

@@ -1233,7 +1233,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		throws InternalErrorException {
 
 		// Check validity of original password
-		ProcessBuilder pb = new ProcessBuilder(Utils.getPropertyFromConfiguration("perun.passwordManager.program"),
+		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getPropertyFromConfiguration("perun.passwordManager.program"),
 				operation, loginNamespace, userLogin);
 
 		Process process;
@@ -1332,7 +1332,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if(passwordId == null) passwordId = Long.toString(System.currentTimeMillis());
 
 		//Prepare process builder
-		ProcessBuilder pb = new ProcessBuilder(Utils.getPropertyFromConfiguration("perun.alternativePasswordManager.program"), operation, loginNamespace, Integer.toString(user.getId()), passwordId);
+		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getPropertyFromConfiguration("perun.alternativePasswordManager.program"), operation, loginNamespace, Integer.toString(user.getId()), passwordId);
 
 		//Set password in Perun to attribute
 		if (operation.equals(PASSWORD_CREATE)) {

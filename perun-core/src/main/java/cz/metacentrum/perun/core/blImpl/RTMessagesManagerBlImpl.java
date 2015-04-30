@@ -23,6 +23,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessage;
@@ -53,11 +54,11 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
 	public RTMessagesManagerBlImpl(PerunBl perunBl) throws InternalErrorException {
 		this();
 		this.perunBl = perunBl;
-		rtURL = Utils.getPropertyFromConfiguration("perun.rt.url");
+		rtURL = BeansUtils.getPropertyFromConfiguration("perun.rt.url");
 	}
 
 	public RTMessagesManagerBlImpl() throws InternalErrorException {
-		rtURL = Utils.getPropertyFromConfiguration("perun.rt.url");
+		rtURL = BeansUtils.getPropertyFromConfiguration("perun.rt.url");
 	}
 
 	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException {
@@ -226,8 +227,8 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
 		if(text == null) text = "";
 
 		//Prepare credentials
-		String username = Utils.getPropertyFromConfiguration("perun.rt.serviceuser.username");
-		String password = Utils.getPropertyFromConfiguration("perun.rt.serviceuser.password");
+		String username = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.username");
+		String password = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.password");
 
 		//Prepare content of message
 		MultipartEntity entity = new MultipartEntity();

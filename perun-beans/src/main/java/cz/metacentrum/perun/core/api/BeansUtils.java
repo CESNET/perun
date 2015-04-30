@@ -2,6 +2,10 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,9 +14,12 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Beans Utilities.
@@ -20,11 +27,15 @@ import java.util.regex.Pattern;
  */
 public class BeansUtils {
 
+	private final static Logger log = LoggerFactory.getLogger(BeansUtils.class);
+
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
 	private final static Pattern richBeanNamePattern = Pattern.compile("^Rich([A-Z].*$)");
 	public static final char LIST_DELIMITER = ',';
 	public static final char KEY_VALUE_DELIMITER = ':';
 	private final static int MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE = 1000;
+	public final static String configurationsLocations = "/etc/perun/";
+	private static Properties properties;
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -503,5 +514,127 @@ public class BeansUtils {
 			}
 		stringBuilder.deleteCharAt(0);
 		return stringBuilder.toString();
+	}
+
+	/**
+	 * Gets particular property from perun.properties file.
+	 *
+	 * @param propertyName name of the property
+	 * @return value of the property
+	 */
+	public static String getPropertyFromConfiguration(String propertyName) throws InternalErrorException {
+		log.trace("Entering getPropertyFromConfiguration: propertyName='" +  propertyName + "'");
+		notNull(propertyName, "propertyName");
+
+		if(BeansUtils.properties == null) {
+			// Load properties file with configuration
+			Properties properties = new Properties();
+			try {
+				// Get the path to the perun.properties file
+				BufferedInputStream is = new BufferedInputStream(new FileInputStream(BeansUtils.configurationsLocations + "perun.properties"));
+				properties.load(is);
+				is.close();
+			} catch (FileNotFoundException e) {
+				throw new InternalErrorException("Cannot find perun.properties file", e);
+			} catch (IOException e) {
+				throw new InternalErrorException("Cannot read perun.properties file", e);
+			}
+
+			BeansUtils.properties = properties;
+		}
+		String property = BeansUtils.properties.getProperty(propertyName);
+		if (property == null) {
+			throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file");
+		}
+		return property;
+	}
+
+	/**
+	 * Gets particular property from custom property file.
+	 *
+	 * @param propertyFile name of properties file
+	 * @param propertyName name of the property
+	 * @return value of the property
+	 */
+	public static String getPropertyFromCustomConfiguration(String propertyFile, String propertyName) throws InternalErrorException {
+		log.trace("Entering getPropertyFromCustomConfiguration: propertyFile='" +  propertyFile + "' propertyName='" +  propertyName + "'");
+		notNull(propertyName, "propertyName");
+		notNull(propertyFile, "propertyFile");
+
+		// Load properties file with configuration
+		Properties properties = new Properties();
+		try {
+			// Get the path to the perun.properties file
+			BufferedInputStream is = new BufferedInputStream(new FileInputStream(BeansUtils.configurationsLocations + propertyFile));
+			properties.load(is);
+			is.close();
+
+			String property = properties.getProperty(propertyName);
+			if (property == null) {
+				throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file: "+propertyFile);
+			}
+			return property;
+		} catch (FileNotFoundException e) {
+			throw new InternalErrorException("Cannot find "+propertyFile+" file", e);
+		} catch (IOException e) {
+			throw new InternalErrorException("Cannot read "+propertyFile+" file", e);
+		}
+	}
+
+	/**
+	 * Gets all properties from custom property file.
+	 *
+	 * @param propertyFile name of properties file
+	 * @return all properties with values
+	 */
+	public static Map<String, String> getAllPropertiesFromCustomConfiguration(String propertyFile) throws InternalErrorException {
+		log.trace("Entering getAllPropertiesFromCustomConfiguration: propertyFile='" + propertyFile + "'");
+		notNull(propertyFile, "propertyFile");
+
+		// Load properties file with configuration
+		Properties properties = new Properties();
+		try {
+
+			// Get the path to the perun.properties file
+			BufferedInputStream is = new BufferedInputStream(new FileInputStream(BeansUtils.configurationsLocations + propertyFile));
+			properties.load(is);
+			is.close();
+
+			Map<String, String> myMap = new HashMap<String, String>();
+			for (Object key : properties.keySet()) {
+				myMap.put(key.toString(), properties.get(key).toString());
+			}
+			return myMap;
+
+		} catch (FileNotFoundException e) {
+			throw new InternalErrorException("Cannot find "+propertyFile+" file", e);
+		} catch (IOException e) {
+			throw new InternalErrorException("Cannot read "+propertyFile+" file", e);
+		}
+
+	}
+	
+	/**
+	 * Checks whether the object is null or not.
+	 *
+	 * @param e
+	 * @param name
+	 * @throws InternalErrorException which wraps NullPointerException
+	 */
+	public static void notNull(Object e, String name) throws InternalErrorException {
+		if(e == null){
+			throw new InternalErrorException(new NullPointerException("'" + name + "' is null"));
+		}
+	}
+
+	/**
+	 * Set already filled-in properties (used by Spring container to inject properties bean)
+	 *
+	 * @param properties
+	 * @return
+	 */
+	public static Properties setProperties(Properties properties) {
+		BeansUtils.properties = properties;
+		return BeansUtils.properties;
 	}
 }

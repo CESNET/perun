@@ -996,7 +996,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		int validWindow = VALIDATION_ALLOWED_HOURS;
 		try {
-			validWindow = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
+			validWindow = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
 		} catch (Exception ex) {
 			log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
 		}
@@ -1033,7 +1033,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		int validWindow = VALIDATION_ALLOWED_HOURS;
 		try {
-			validWindow = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
+			validWindow = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
 		} catch (Exception ex) {
 			log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
 		}
@@ -1068,7 +1068,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		int validWindow = VALIDATION_ALLOWED_HOURS;
 		try {
-			validWindow = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.pwdreset.validationWindow"));
+			validWindow = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.pwdreset.validationWindow"));
 		} catch (Exception ex) {
 			log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
 		}

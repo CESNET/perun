@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1402,8 +1403,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		// Get the default synchronization interval and synchronization timeout from the configuration file
-		int intervalMultiplier = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.group.synchronization.interval"));
-		int timeout = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.group.synchronization.timeout"));
+		int intervalMultiplier = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.group.synchronization.interval"));
+		int timeout = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.group.synchronization.timeout"));
 
 		// Get the number of seconds from the epoch, so we can divide it by the synchronization interval value
 		long minutesFromEpoch = System.currentTimeMillis()/1000/60;

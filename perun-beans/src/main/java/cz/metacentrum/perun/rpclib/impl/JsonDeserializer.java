@@ -22,7 +22,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Group;
 
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.rpclib.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 

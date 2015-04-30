@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,27 +15,27 @@ public class Compatibility {
 	private final static Logger log = LoggerFactory.getLogger(Compatibility.class);
 
 	public static boolean isMergeSupported() throws InternalErrorException {
-		String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 		return dbType.equals("oracle");
 	}
 
 	public static boolean isOracle() throws InternalErrorException {
-		String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 		return dbType.equals("oracle");
 	}
 
 	public static boolean isPostgreSql() throws InternalErrorException {
-		String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 		return dbType.equals("postgresql");
 	}
 
 	public static boolean isHSQLDB() throws InternalErrorException {
-		String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 		return dbType.equals("hsqldb");
 	}
 
 	public static String getSysdate() throws InternalErrorException {
-		String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 		if (dbType.equals("oracle")) {
 			return "sysdate";
 		} else if (dbType.equals("postgresql")) {
@@ -49,7 +50,7 @@ public class Compatibility {
 	public static String castToVarchar() {
 
 		try {
-			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
 				return "";
 			} else if (dbType.equals("postgresql")) {
@@ -66,7 +67,7 @@ public class Compatibility {
 	public static String castToInteger() {
 
 		try {
-			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
 				return "";
 			} else if (dbType.equals("postgresql")) {
@@ -83,7 +84,7 @@ public class Compatibility {
 	public static String getAsAlias(String aliasName) {
 
 		try {
-			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
 				return "";
 			} else if (dbType.equals("postgresql")) {
@@ -99,7 +100,7 @@ public class Compatibility {
 
 	public static String getRowNumberOver() {
 		try {
-			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("hsqldb")) {
 				return ",row_number() over () as rownumber";
 			} else {
@@ -113,7 +114,7 @@ public class Compatibility {
 	public static String orderByBinary(String columnName) {
 
 		try {
-			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
 				return "NLSSORT("+columnName+",'NLS_SORT=BINARY_AI')";
 			} else if (dbType.equals("postgresql")) {
@@ -130,7 +131,7 @@ public class Compatibility {
 	public static String convertToAscii(String columnName) {
 
 		try {
-			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
 				return "convert("+columnName+", 'US7ASCII', 'UTF8')"; // DESTINATION / SOURCE
 			} else if (dbType.equals("postgresql")) {
@@ -148,7 +149,7 @@ public class Compatibility {
 	
 	public static String toDate(String value, String format) {
 		try {
-			String dbType = Utils.getPropertyFromConfiguration("perun.db.type");
+			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
 				return "to_date("+value + ", " + format +")";
 			} else if (dbType.equals("postgresql")) {

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.rpclib.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
 import cz.metacentrum.perun.rpclib.api.RpcCaller;
 

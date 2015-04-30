@@ -13,7 +13,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.rpclib.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpclib.api.Serializer;
 
 /**

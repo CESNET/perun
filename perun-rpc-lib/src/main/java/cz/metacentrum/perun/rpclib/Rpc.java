@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpclib;
 
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.*;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
 import cz.metacentrum.perun.rpclib.api.RpcCaller;
-import cz.metacentrum.perun.rpclib.impl.JsonDeserializer;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 public class Rpc {

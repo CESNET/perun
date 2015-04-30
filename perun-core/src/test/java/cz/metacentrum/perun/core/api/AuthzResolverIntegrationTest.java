@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -13,7 +14,6 @@ import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
-import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import java.util.ArrayList;
 import java.util.HashSet;

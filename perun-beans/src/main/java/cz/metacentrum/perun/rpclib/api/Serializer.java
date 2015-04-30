@@ -2,7 +2,7 @@ package cz.metacentrum.perun.rpclib.api;
 
 import java.io.IOException;
 
-import cz.metacentrum.perun.rpclib.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 
 /**
  * Subclasses of {@code Serializer} class provide methods to serialize PerunAPI's datatypes (as JSON, for example).

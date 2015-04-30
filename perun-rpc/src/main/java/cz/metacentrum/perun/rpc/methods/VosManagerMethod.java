@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.*;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 
 import java.util.List;
 

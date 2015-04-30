@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;

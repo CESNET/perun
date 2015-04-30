@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.core.api.User;
 import java.util.HashMap;
 import java.util.Map;
 

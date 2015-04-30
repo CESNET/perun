@@ -3,6 +3,7 @@ package cz.metacentrum.perun.rpc.methods;
 import java.util.*;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
@@ -12,7 +13,7 @@ import cz.metacentrum.perun.registrar.model.*;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.rpc.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
@@ -1071,7 +1072,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
 
-			reCaptcha.setPrivateKey(Utils.getPropertyFromConfiguration("perun.recaptcha.privatekey"));
+			reCaptcha.setPrivateKey(BeansUtils.getPropertyFromConfiguration("perun.recaptcha.privatekey"));
 			reCaptcha.setRecaptchaServer(ReCaptchaImpl.HTTPS_SERVER);
 
 			// we don't need caller's address since our key is global
