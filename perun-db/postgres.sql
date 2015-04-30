@@ -1,4 +1,4 @@
--- database version 3.1.23 (don't forget to update insert statement at the end of file)
+-- database version 3.1.24 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -729,6 +729,22 @@ create table "member_attr_values" (
 	modified_by_uid integer
 );
 
+-- MEMBER_GROUP_ATTR_VALUES - values of attributes assigned to members in groups
+create table "member_group_attr_values" (
+    member_id integer not null,   --identifier of member (members.id)
+    group_id integer not null, --identifier of group (groups.id)
+    attr_id integer not null,     --identifier of attribute (attr_names.id)
+    attr_value varchar(4000),     --attribute value
+    created_at timestamp default now() not null,
+    created_by varchar(1024) default user not null,
+    modified_at timestamp default now() not null,
+    modified_by varchar(1024) default user not null,
+    status char(1) default '0' not null,
+    attr_value_text text,         --attribute value in case it is very long text
+    created_by_uid integer,
+    modified_by_uid integer
+);
+
 -- MEMBER_RESOURCE_ATTR_VALUES - values of attributes assigned to members on resources
 create table "member_resource_attr_values" (
 	member_id integer not null,   --identifier of member (members.id)
@@ -1288,6 +1304,9 @@ create index idx_fk_tags_res_tags on tags_resources(tag_id);
 create index idx_fk_tags_res_res on tags_resources(resource_id);
 create index idx_fk_mailchange_user_id on mailchange(user_id);
 create index idx_fk_pwdreset_user_id on pwdreset(user_id);
+create index idx_fk_memgav_mem on member_group_attr_values(member_id);
+create index idx_fk_memgav_grp on member_group_attr_values(group_id);
+create index idx_fk_memgav_accattnam on member_group_attr_values(attr_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1591,6 +1610,10 @@ alter table mailchange add constraint mailchange_pk primary key (id);
 alter table mailchange add constraint mailchange_u_fk foreign key (user_id) references users(id);
 alter table pwdreset add constraint pwdreset_pk primary key (id);
 alter table pwdreset add constraint pwdreset_u_fk foreign key (user_id) references users(id);
+alter table member_group_attr_values add constraint memgav_mem_fk foreign key (member_id) references members(id);
+alter table member_group_attr_values add constraint memgav_grp_fk foreign key (group_id) references groups(id);
+alter table member_group_attr_values add constraint memgav_accattnam_fk foreign key (attr_id) references attr_names(id);
+alter table member_group_attr_values add constraint memgav_u unique(member_id,group_id,attr_id);
 
 grant all on users to perun;
 grant all on vos to perun;
@@ -1676,6 +1699,7 @@ grant all on tags_resources to perun;
 grant all on configurations to perun;
 grant all on mailchange to perun;
 grant all on pwdreset to perun;
+grant all on member_group_attr_values to perun;
 
 -- set initial Perun DB version
 insert into configurations values ('DATABASE VERSION','3.1.24');
