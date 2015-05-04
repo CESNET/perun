@@ -1370,12 +1370,14 @@ constraint TASKRES_STAT_CHK check (status in ('DONE','ERROR','FATAL_ERROR','DENI
 );
 alter table service_denials add (
 constraint SRVDEN_PK primary key (id),
+constraint SRVDEN_U unique(exec_service_id,facility_id,destination_id),
 constraint SRVDEN_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint SRVDEN_FAC_FK foreign key (facility_id) references facilities(id),
 constraint SRVDEN_DEST_FK foreign key (destination_id) references destinations(id),
 constraint SRVDEN_U unique(exec_service_id,facility_id,destination_id)
 );
 alter table service_dependencies add (
+constraint SRVDEP_U unique(exec_service_id,dependency_id),
 constraint SRVDEP_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint SRVDEP_DEPEXSRV_FK foreign key (dependency_id) references exec_services(id),
 constraint SRVDEP_TYPE_CHK check (type in ('SERVICE','DESTINATION')),
