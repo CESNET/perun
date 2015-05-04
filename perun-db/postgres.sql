@@ -1,4 +1,4 @@
--- database version 3.1.24 (don't forget to update insert statement at the end of file)
+-- database version 3.1.25 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1418,10 +1418,12 @@ alter table user_facility_attr_values add constraint usrfacav_accattnam_fk forei
 alter table user_facility_attr_values add constraint usrfacav_u unique(user_id,facility_id,attr_id);
 
 alter table service_denials add constraint srvden_pk primary key (id);
+alter table service_denials add constraint srvden_u unique(exec_service_id,facility_id,destination_id); 
 alter table service_denials add constraint srvden_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table service_denials add constraint srvden_fac_fk foreign key (facility_id) references facilities(id);
 alter table service_denials add constraint srvden_dest_fk foreign key (destination_id) references destinations(id);
 
+alter table service_dependencies add constraint srvdep_u unique(exec_service_id,dependency_id); 
 alter table service_dependencies add constraint srvdep_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table service_dependencies add constraint srvdep_depexsrv_fk foreign key (dependency_id) references exec_services(id);
 alter table service_dependencies add constraint srvdep_type_chk check (type in ('SERVICE','DESTINATION'));
@@ -1702,4 +1704,4 @@ grant all on pwdreset to perun;
 grant all on member_group_attr_values to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.24');
+insert into configurations values ('DATABASE VERSION','3.1.25');

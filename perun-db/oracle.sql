@@ -1,4 +1,4 @@
--- database version 3.1.24 (don't forget to update insert statement at the end of file)
+-- database version 3.1.25 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1370,11 +1370,13 @@ constraint TASKRES_STAT_CHK check (status in ('DONE','ERROR','FATAL_ERROR','DENI
 );
 alter table service_denials add (
 constraint SRVDEN_PK primary key (id),
+constraint SRVDEN_U unique(exec_service_id,facility_id,destination_id),
 constraint SRVDEN_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint SRVDEN_FAC_FK foreign key (facility_id) references facilities(id),
 constraint SRVDEN_DEST_FK foreign key (destination_id) references destinations(id)
 );
 alter table service_dependencies add (
+constraint SRVDEP_U unique(exec_service_id,dependency_id),
 constraint SRVDEP_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint SRVDEP_DEPEXSRV_FK foreign key (dependency_id) references exec_services(id),
 constraint SRVDEP_TYPE_CHK check (type in ('SERVICE','DESTINATION'))
@@ -1652,4 +1654,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.24');
+insert into configurations values ('DATABASE VERSION','3.1.25');
