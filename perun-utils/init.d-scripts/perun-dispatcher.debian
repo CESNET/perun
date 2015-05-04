@@ -35,7 +35,7 @@ EXEC_DIR=/home/perun/perun-dispatcher/
 [ -x "$JAVA" ] || exit 0
 
 # Read configuration if it is present.
-[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+[ -r /etc/perun/$NAME ] && . /etc/perun/$NAME
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
