@@ -288,6 +288,10 @@ public class ApiCaller {
 		return getAttributesManager().getAttributeById(rpcSession, resource, member, id);
 	}
 
+	public Attribute getAttributeById(Member member, Group group, int id) throws PerunException {
+		return getAttributesManager().getAttributeById(rpcSession, member, group, id);
+	}
+
 	public Attribute getAttributeById(Host host, int id) throws PerunException {
 		return getAttributesManager().getAttributeById(rpcSession, host, id);
 	}
