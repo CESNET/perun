@@ -10,8 +10,10 @@
 ### END INIT INFO
 #
 # Written by Michal Prochazka <michalp@ics.muni.cz>
+# Modified by Pavel Zlamal <zlamal@cesnet.cz>
 #
-# 14.04.2015 Moddified path to perun.conf.custom and log4j to /etc/perun
+# 14.04.2015 Modified path to perun.conf.custom and log4j to /etc/perun
+# 04.05.2015 Create, chown and delete pidfile in order to allow user "perun" to start/stop the service
 #
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun Engine"
@@ -49,80 +51,84 @@ EXEC_DIR=/home/perun/perun-engine/
 
 # Start Perun Engine.
 do_start () {
-    # Return
-    #   0 if daemon has been started
-    #   1 if daemon was already running
-    #   2 if daemon could not be started
-    start-stop-daemon --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+	start-stop-daemon --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
         --pidfile $PIDFILE --chdir $EXEC_DIR --exec $DAEMON --test --background > /dev/null \
         || return 1
-    start-stop-daemon --make-pidfile --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
+	# Create empty pidfile
+	touch $PIDFILE;
+	chown $DAEMON_USER $PIDFILE;
+	start-stop-daemon --make-pidfile --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
         --pidfile $PIDFILE --chdir $EXEC_DIR --background --exec $DAEMON -- $DAEMON_OPTS \
         || return 2
 }
 
 # Stop Perun Engine.
 do_stop () {
-    # Return
-    #   0 if daemon has been stopped
-    #   1 if daemon was already stopped
-    #   2 if daemon could not be stopped
-    #   other if a failure occurred
-    start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+	#   other if a failure occurred
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
         --pidfile $PIDFILE
-    RETVAL="$?"
-    return "$RETVAL"
+	RETVAL="$?"
+	rm $PIDFILE
+	return "$RETVAL"
 }
 case "$1" in
-    start)
-    # Don't start Perun Engine if NO_START is set.
-        if [ "$NO_START" = 1 ] ; then
-            if [ "$VERBOSE" != no ] ; then
-                echo "Not starting $DESC (see /etc/default/$NAME)"
-            fi
-            exit 0
-        fi
-        [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
-        do_start
-        case "$?" in
-            0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-            2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-        esac
-    ;;
-    stop)
-        [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
-        do_stop
-        case "$?" in
-            0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-            2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
-        esac
-    ;;
-    restart|force-reload)
+	start)
+	# Don't start Perun Engine if NO_START is set.
+		if [ "$NO_START" = 1 ] ; then
+			if [ "$VERBOSE" != no ] ; then
+				echo "Not starting $DESC (see /etc/default/$NAME)"
+			fi
+			exit 0
+		fi
+		[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+		do_start
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+	;;
+	stop)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+			2)   [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		esac
+	;;
+	restart|force-reload)
 
-        log_daemon_msg "Restarting $DESC" "$NAME"
-        do_stop
-        case "$?" in
-            0|1)
-                do_start
-                case "$?" in
-                    0) log_end_msg 0 ;;
-                    1) log_end_msg 1 ;; # Old process is still running
-                    *) log_end_msg 1 ;; # Failed to start
-                esac
-            ;;
-            *)
-            # Failed to stop
-                log_end_msg 1
-            ;;
-        esac
-    ;;
-    status)
-        status_of_proc -p "$PIDFILE" "$DAEMON" "$NAME" && exit 0 || exit $?
-    ;;
-    *)
-        echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
-        exit 1
-    ;;
+		log_daemon_msg "Restarting $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1)
+				do_start
+				case "$?" in
+					0) log_end_msg 0 ;;
+					1) log_end_msg 1 ;; # Old process is still running
+					*) log_end_msg 1 ;; # Failed to start
+				esac
+			;;
+			*)
+			# Failed to stop
+				log_end_msg 1
+			;;
+		esac
+	;;
+	status)
+		status_of_proc -p "$PIDFILE" "$DAEMON" "$NAME" && exit 0 || exit $?
+	;;
+	*)
+		echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
+		exit 1
+	;;
 esac
 
 exit 0
