@@ -18,7 +18,6 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun Dispatcher"
 DAEMON="/usr/bin/java"
 JAR=/home/perun/perun-dispatcher/perun-dispatcher-new-3.0.1-SNAPSHOT-production.jar
-LOG_FILE=/var/log/perun/perun-dispatcher-out.log
 NAME=perun-dispatcher
 SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid
