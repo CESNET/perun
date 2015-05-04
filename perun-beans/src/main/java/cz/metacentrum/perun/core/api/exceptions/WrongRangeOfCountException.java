@@ -8,7 +8,6 @@ import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
 /**
  * Exception, which is using for bad range of messages count for audit messages.
  *
- * @see cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorException
  * @author Michal Šťava
  */
 public class WrongRangeOfCountException extends IllegalArgumentException {
