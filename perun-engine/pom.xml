@@ -10,11 +10,11 @@
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-engine-new</artifactId>
+	<artifactId>perun-engine</artifactId>
 	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
 	<packaging>jar</packaging>
 
-	<name>perun-engine-new</name>
+	<name>perun-engine</name>
 	<description>Execution module for Perun propagation sub-system</description>
 
 	<properties>
