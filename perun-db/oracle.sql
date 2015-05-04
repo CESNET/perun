@@ -1,4 +1,4 @@
--- database version 3.1.24 (don't forget to update insert statement at the end of file)
+-- database version 3.1.25 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -114,7 +114,7 @@ create table cabinet_thanks (
 create table facilities (
 	id integer not null,
 	name nvarchar2(128) not null,
-        dsc nvarchar2(1024),
+	dsc nvarchar2(1024),
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -1372,12 +1372,14 @@ alter table service_denials add (
 constraint SRVDEN_PK primary key (id),
 constraint SRVDEN_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint SRVDEN_FAC_FK foreign key (facility_id) references facilities(id),
-constraint SRVDEN_DEST_FK foreign key (destination_id) references destinations(id)
+constraint SRVDEN_DEST_FK foreign key (destination_id) references destinations(id),
+constraint SRVDEN_U unique(exec_service_id,facility_id,destination_id)
 );
 alter table service_dependencies add (
 constraint SRVDEP_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint SRVDEP_DEPEXSRV_FK foreign key (dependency_id) references exec_services(id),
-constraint SRVDEP_TYPE_CHK check (type in ('SERVICE','DESTINATION'))
+constraint SRVDEP_TYPE_CHK check (type in ('SERVICE','DESTINATION')),
+constraint SRVDEP_U unique(exec_service_id,dependency_id)
 );
 alter table service_required_attrs add (
 constraint SRVREQATTR_PK primary key (service_id,attr_id),
@@ -1652,4 +1654,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.24');
+insert into configurations values ('DATABASE VERSION','3.1.25');
