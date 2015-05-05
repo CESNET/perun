@@ -33,9 +33,11 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-engine-applicationcontext.xml", "classpath:perun-datasources.xml" })
+@ContextConfiguration(locations = {
+		"classpath:perun-engine-applicationcontext.xml",
+		"classpath:perun-datasources.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManagerPerunEngine")
-//@Transactional
+// @Transactional
 // @Transactional(propagation = Propagation.NEVER)
 public abstract class BaseTest {
 	@SuppressWarnings("unused")
@@ -82,57 +84,93 @@ public abstract class BaseTest {
 	public void cleanAll() {
 		// Clean up
 		/*
-		 * FIXME too danger code jdbcTemplate.update("delete from service_processing_rule"); jdbcTemplate.update("delete from service_denials"); jdbcTemplate.update("delete from service_dependencies"); jdbcTemplate.update("delete from service_service_packages");
-		 * jdbcTemplate.update("delete from service_packages"); jdbcTemplate.update("delete from service_required_attrs"); jdbcTemplate.update("delete from resource_services"); jdbcTemplate.update("delete from facility_service_destinations"); jdbcTemplate.update("delete from tasks_results");
-		 * jdbcTemplate.update("delete from tasks"); jdbcTemplate.update("delete from exec_services"); jdbcTemplate.update("delete from processing_rules"); jdbcTemplate.update("delete from destinations"); jdbcTemplate.update("delete from services");
+		 * FIXME too danger code
+		 * jdbcTemplate.update("delete from service_processing_rule");
+		 * jdbcTemplate.update("delete from service_denials");
+		 * jdbcTemplate.update("delete from service_dependencies");
+		 * jdbcTemplate.update("delete from service_service_packages");
+		 * jdbcTemplate.update("delete from service_packages");
+		 * jdbcTemplate.update("delete from service_required_attrs");
+		 * jdbcTemplate.update("delete from resource_services");
+		 * jdbcTemplate.update("delete from facility_service_destinations");
+		 * jdbcTemplate.update("delete from tasks_results");
+		 * jdbcTemplate.update("delete from tasks");
+		 * jdbcTemplate.update("delete from exec_services");
+		 * jdbcTemplate.update("delete from processing_rules");
+		 * jdbcTemplate.update("delete from destinations");
+		 * jdbcTemplate.update("delete from services");
 		 */
-		throw new UnsupportedOperationException("No hellish Clean-up for U bro...");
+		throw new UnsupportedOperationException(
+				"No hellish Clean-up for U bro...");
 	}
 
-	public void intiIt() throws PrivilegeException, InternalErrorException, OwnerNotExistsException, ServiceExistsException, FacilityExistsException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+	public void intiIt() throws PrivilegeException, InternalErrorException,
+			OwnerNotExistsException, ServiceExistsException,
+			FacilityExistsException, ServiceNotExistsException,
+			FacilityNotExistsException, DestinationAlreadyAssignedException {
 		// Test Owner
 		testOwner = new Owner();
 		testOwner.setContact("Call me babe");
-		testOwner.setName("Tester-" + Long.toHexString(System.currentTimeMillis()));
-		testOwner = (Rpc.OwnersManager.createOwner(engineManager.getRpcCaller(), testOwner));
+		testOwner.setName("Tester-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		testOwner = (Rpc.OwnersManager.createOwner(
+				engineManager.getRpcCaller(), testOwner));
 
 		// Test Service #1
 		testService1 = new Service();
-		testService1.setName("Test service 1-" + Long.toHexString(System.currentTimeMillis()));
-		testService1 = Rpc.ServicesManager.createService(engineManager.getRpcCaller(), testService1, testOwner);
+		testService1.setName("Test service 1-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		testService1 = Rpc.ServicesManager.createService(
+				engineManager.getRpcCaller(), testService1, testOwner);
 
 		// Test Service #2
 		testService2 = new Service();
-		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
-		testService2 = Rpc.ServicesManager.createService(engineManager.getRpcCaller(), testService2, testOwner);
+		testService2.setName("Test service 2-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		testService2 = Rpc.ServicesManager.createService(
+				engineManager.getRpcCaller(), testService2, testOwner);
 
 		// Test Service #3
 		testService3 = new Service();
-		testService3.setName("Test service 3-" + Long.toHexString(System.currentTimeMillis()));
-		testService3 = Rpc.ServicesManager.createService(engineManager.getRpcCaller(), testService3, testOwner);
+		testService3.setName("Test service 3-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		testService3 = Rpc.ServicesManager.createService(
+				engineManager.getRpcCaller(), testService3, testOwner);
 
 		// Test Facility #1
 		facility1 = new Facility();
-		facility1.setName("Facility 1-" + Long.toHexString(System.currentTimeMillis()));
-		facility1 = Rpc.FacilitiesManager.createFacility(engineManager.getRpcCaller(), facility1);
+		facility1.setName("Facility 1-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		facility1 = Rpc.FacilitiesManager.createFacility(
+				engineManager.getRpcCaller(), facility1);
 
 		// Test Facility #2
 		facility2 = new Facility();
-		facility2.setName("Facility 2-" + Long.toHexString(System.currentTimeMillis()));
-		facility2 = Rpc.FacilitiesManager.createFacility(engineManager.getRpcCaller(), facility2);
+		facility2.setName("Facility 2-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		facility2 = Rpc.FacilitiesManager.createFacility(
+				engineManager.getRpcCaller(), facility2);
 
 		// Test Facility #3
 		facility3 = new Facility();
-		facility3.setName("Facility 3-" + Long.toHexString(System.currentTimeMillis()));
-		facility3 = Rpc.FacilitiesManager.createFacility(engineManager.getRpcCaller(), facility3);
+		facility3.setName("Facility 3-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		facility3 = Rpc.FacilitiesManager.createFacility(
+				engineManager.getRpcCaller(), facility3);
 
-		/*servicePasswd = new Service();
-			servicePasswd.setName("ENGINE-passwd" + Long.toHexString(System.currentTimeMillis()));
-			servicePasswd = Rpc.ServicesManager.createService(engineManager.getRpcCaller(), servicePasswd, testOwner);*/
-		servicePasswd = Rpc.ServicesManager.getServiceById(engineManager.getRpcCaller(), 1);
+		/*
+		 * servicePasswd = new Service(); servicePasswd.setName("ENGINE-passwd"
+		 * + Long.toHexString(System.currentTimeMillis())); servicePasswd =
+		 * Rpc.ServicesManager.createService(engineManager.getRpcCaller(),
+		 * servicePasswd, testOwner);
+		 */
+		servicePasswd = Rpc.ServicesManager.getServiceById(
+				engineManager.getRpcCaller(), 1);
 
-		execServicePasswdGenerate = Rpc.GeneralServiceManager.getExecService(engineManager.getRpcCaller(), 12951);
-		execServicePasswdSend = Rpc.GeneralServiceManager.getExecService(engineManager.getRpcCaller(), 12950);
+		execServicePasswdGenerate = Rpc.GeneralServiceManager.getExecService(
+				engineManager.getRpcCaller(), 12951);
+		execServicePasswdSend = Rpc.GeneralServiceManager.getExecService(
+				engineManager.getRpcCaller(), 12950);
 
 		assertEquals(servicePasswd, execServicePasswdGenerate.getService());
 		assertEquals(servicePasswd, execServicePasswdSend.getService());
@@ -141,19 +179,23 @@ public abstract class BaseTest {
 		execService1.setDefaultDelay(10);
 		execService1.setEnabled(true);
 		execService1.setDefaultRecurrence(5);
-		execService1.setScript(ClassLoader.getSystemResource("serviceSend.bash").getPath());
+		execService1.setScript(ClassLoader
+				.getSystemResource("serviceSend.bash").getPath());
 		execService1.setService(testService1);
 		execService1.setExecServiceType(ExecServiceType.SEND);
-		execService1.setId(Rpc.GeneralServiceManager.insertExecService(engineManager.getRpcCaller(), execService1, testOwner));
+		execService1.setId(Rpc.GeneralServiceManager.insertExecService(
+				engineManager.getRpcCaller(), execService1, testOwner));
 
 		execService2 = new ExecService();
 		execService2.setDefaultDelay(10);
 		execService2.setEnabled(true);
 		execService2.setDefaultRecurrence(5);
-		execService2.setScript(ClassLoader.getSystemResource("serviceGenerate.bash").getPath());
+		execService2.setScript(ClassLoader.getSystemResource(
+				"serviceGenerate.bash").getPath());
 		execService2.setService(testService1);
 		execService2.setExecServiceType(ExecServiceType.GENERATE);
-		execService2.setId(Rpc.GeneralServiceManager.insertExecService(engineManager.getRpcCaller(), execService2, testOwner));
+		execService2.setId(Rpc.GeneralServiceManager.insertExecService(
+				engineManager.getRpcCaller(), execService2, testOwner));
 
 		facility1195 = new Facility();
 		facility1195.setId(1195);
@@ -174,24 +216,41 @@ public abstract class BaseTest {
 		destinationC.setType("host");
 		destinationC.setDestination("C");
 
-		//destinationA = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getServicePasswd(), getFacility1195(), destinationA);
-		//destinationB = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getServicePasswd(), getFacility1195(), destinationB);
-		//destinationC = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getServicePasswd(), getFacility1195(), destinationC);
+		// destinationA =
+		// Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(),
+		// getServicePasswd(), getFacility1195(), destinationA);
+		// destinationB =
+		// Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(),
+		// getServicePasswd(), getFacility1195(), destinationB);
+		// destinationC =
+		// Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(),
+		// getServicePasswd(), getFacility1195(), destinationC);
 	}
 
-	public void initDestinations() throws ServiceNotExistsException, FacilityNotExistsException, PrivilegeException, InternalErrorException, DestinationAlreadyAssignedException {
+	public void initDestinations() throws ServiceNotExistsException,
+			FacilityNotExistsException, PrivilegeException,
+			InternalErrorException, DestinationAlreadyAssignedException {
 		// Wooot? Thanks for code completion...
-		destination1.setDestination("Destination-1-" + Long.toHexString(System.currentTimeMillis()));
-		destination2.setDestination("Destination-2-" + Long.toHexString(System.currentTimeMillis()));
-		destination3.setDestination("Destination-3-" + Long.toHexString(System.currentTimeMillis()));
+		destination1.setDestination("Destination-1-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		destination2.setDestination("Destination-2-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		destination3.setDestination("Destination-3-"
+				+ Long.toHexString(System.currentTimeMillis()));
 
-		destination4.setDestination("Destination-4-" + Long.toHexString(System.currentTimeMillis()));
-		destination5.setDestination("Destination-5-" + Long.toHexString(System.currentTimeMillis()));
-		destination6.setDestination("Destination-6-" + Long.toHexString(System.currentTimeMillis()));
+		destination4.setDestination("Destination-4-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		destination5.setDestination("Destination-5-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		destination6.setDestination("Destination-6-"
+				+ Long.toHexString(System.currentTimeMillis()));
 
-		destination7.setDestination("Destination-7-" + Long.toHexString(System.currentTimeMillis()));
-		destination8.setDestination("Destination-8-" + Long.toHexString(System.currentTimeMillis()));
-		destination9.setDestination("Destination-9-" + Long.toHexString(System.currentTimeMillis()));
+		destination7.setDestination("Destination-7-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		destination8.setDestination("Destination-8-"
+				+ Long.toHexString(System.currentTimeMillis()));
+		destination9.setDestination("Destination-9-"
+				+ Long.toHexString(System.currentTimeMillis()));
 
 		destination1.setType("CLUSTER");
 		destination2.setType("CLUSTER");
@@ -205,23 +264,46 @@ public abstract class BaseTest {
 		destination8.setType("CLUSTER");
 		destination9.setType("CLUSTER");
 
-		destination1 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService1(), getFacility1(), destination1);
-		destination2 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService1(), getFacility1(), destination2);
-		destination3 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService1(), getFacility1(), destination3);
+		destination1 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService1(),
+				getFacility1(), destination1);
+		destination2 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService1(),
+				getFacility1(), destination2);
+		destination3 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService1(),
+				getFacility1(), destination3);
 
-		destination4 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService2(), getFacility1(), destination1);
-		destination5 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService2(), getFacility1(), destination2);
-		destination6 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService2(), getFacility1(), destination3);
+		destination4 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService2(),
+				getFacility1(), destination1);
+		destination5 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService2(),
+				getFacility1(), destination2);
+		destination6 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService2(),
+				getFacility1(), destination3);
 
-		destination7 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService3(), getFacility1(), destination1);
-		destination8 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService3(), getFacility1(), destination2);
-		destination9 = Rpc.ServicesManager.addDestination(engineManager.getRpcCaller(), getTestService3(), getFacility1(), destination3);
+		destination7 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService3(),
+				getFacility1(), destination1);
+		destination8 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService3(),
+				getFacility1(), destination2);
+		destination9 = Rpc.ServicesManager.addDestination(
+				engineManager.getRpcCaller(), getTestService3(),
+				getFacility1(), destination3);
 	}
 
-	public void cleanUpDestinations() throws ServiceNotExistsException, FacilityNotExistsException, PrivilegeException, InternalErrorException {
-		Rpc.ServicesManager.removeAllDestinations(engineManager.getRpcCaller(), getTestService1(), getFacility1());
-		Rpc.ServicesManager.removeAllDestinations(engineManager.getRpcCaller(), getTestService2(), getFacility1());
-		Rpc.ServicesManager.removeAllDestinations(engineManager.getRpcCaller(), getTestService3(), getFacility1());
+	public void cleanUpDestinations() throws ServiceNotExistsException,
+			FacilityNotExistsException, PrivilegeException,
+			InternalErrorException {
+		Rpc.ServicesManager.removeAllDestinations(engineManager.getRpcCaller(),
+				getTestService1(), getFacility1());
+		Rpc.ServicesManager.removeAllDestinations(engineManager.getRpcCaller(),
+				getTestService2(), getFacility1());
+		Rpc.ServicesManager.removeAllDestinations(engineManager.getRpcCaller(),
+				getTestService3(), getFacility1());
 	}
 
 	public void cleanUp() {
@@ -354,7 +436,8 @@ public abstract class BaseTest {
 		return execServicePasswdSend;
 	}
 
-	public void setExecServicePasswdGenerate(ExecService execServicePasswdGenerate) {
+	public void setExecServicePasswdGenerate(
+			ExecService execServicePasswdGenerate) {
 		this.execServicePasswdGenerate = execServicePasswdGenerate;
 	}
 

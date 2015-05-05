@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,13 +37,16 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
  * @author Michal Karm Babacek
- *
- *         Unfortunately, this test can not be transactional due to multi-threaded environment, hence it can not be rolled back. We have to clean up after ourselves...
+ * 
+ *         Unfortunately, this test can not be transactional due to
+ *         multi-threaded environment, hence it can not be rolled back. We have
+ *         to clean up after ourselves...
  */
-//@Transactional(propagation = Propagation.NEVER)
+// @Transactional(propagation = Propagation.NEVER)
 public class PropagationMaintainerTest extends BaseTest {
 
-	private final static Logger log = LoggerFactory.getLogger(PropagationMaintainerTest.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(PropagationMaintainerTest.class);
 	// Time out for threads to complete (milliseconds)
 	private final static int TIME_OUT = 20000;
 
@@ -77,40 +81,52 @@ public class PropagationMaintainerTest extends BaseTest {
 
 	@Before
 	public void rememberState() {
-		tasks = new HashSet<Integer>(getJdbcTemplate().queryForList("select id from tasks", Integer.class));
+		tasks = new HashSet<Integer>(getJdbcTemplate().queryForList(
+				"select id from tasks", Integer.class));
 	}
 
 	@After
 	public void returnToRememberedState() {
-		Set<Integer> currentTasks = new HashSet<Integer>(getJdbcTemplate().queryForList("select id from tasks", Integer.class));
+		Set<Integer> currentTasks = new HashSet<Integer>(getJdbcTemplate()
+				.queryForList("select id from tasks", Integer.class));
 		// Difference
 		currentTasks.removeAll(tasks);
 		// Log
-		log.debug("We are gonna delete TasksResults for Tasks:" + currentTasks.toString());
+		log.debug("We are gonna delete TasksResults for Tasks:"
+				+ currentTasks.toString());
 		for (Integer id : currentTasks) {
-			getJdbcTemplate().update("delete from tasks_results where tasks_results.task_id = ?", id);
+			getJdbcTemplate()
+					.update("delete from tasks_results where tasks_results.task_id = ?",
+							id);
 		}
 		log.debug("We are gonna delete Tasks:" + currentTasks.toString());
 		for (Integer id : currentTasks) {
-			getJdbcTemplate().update("delete from tasks where tasks.id = ?", id);
+			getJdbcTemplate()
+					.update("delete from tasks where tasks.id = ?", id);
 		}
 	}
 
+	@IfProfileValue(name = "test-groups", values = ("integration-tests"))
 	@Test
 	public void testExecutingRealMessage() throws InterruptedException {
 		String message = "event|1|[Tue Aug 30 12:29:23 CEST 2011][clockworkorange][Member:[id='36712'] added to Group:[id='16326', name='falcon', description='null'].]";
 
-		EventProcessorWorker eventProcessorWorker = new EventProcessorWorker(message);
+		EventProcessorWorker eventProcessorWorker = new EventProcessorWorker(
+				message);
 		taskExecutor.execute(eventProcessorWorker);
 		boolean itWentOk = false;
 		long started = System.currentTimeMillis();
 		while (System.currentTimeMillis() - started < TIME_OUT) {
 			if (taskScheduler.getPoolSize() >= 1) {
 				itWentOk = true;
-				log.debug("     #marDk323 OK, we have " + taskScheduler.getPoolSize() + " ExecService-Facility pairs in the pool.");
+				log.debug("     #marDk323 OK, we have "
+						+ taskScheduler.getPoolSize()
+						+ " ExecService-Facility pairs in the pool.");
 				break;
 			} else {
-				log.debug("     #marDk323 There are only " + taskScheduler.getPoolSize() + " ExecService-Facility pairs in the pool.");
+				log.debug("     #marDk323 There are only "
+						+ taskScheduler.getPoolSize()
+						+ " ExecService-Facility pairs in the pool.");
 			}
 			Thread.sleep(500);
 		}
@@ -125,15 +141,23 @@ public class PropagationMaintainerTest extends BaseTest {
 		while (System.currentTimeMillis() - started < TIME_OUT) {
 			itWentOk = true;
 			/*
-			 * No no no, PasswdSend can not be ready by this time, because we have PasswdGenerate in PLANNED.
-			 * if (taskManager.getTask(getExecServicePasswdSend(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
-			 * itWentOk = false;
-			 * }
+			 * No no no, PasswdSend can not be ready by this time, because we
+			 * have PasswdGenerate in PLANNED. if
+			 * (taskManager.getTask(getExecServicePasswdSend(),
+			 * getFacility1195(),
+			 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))
+			 * == null) { itWentOk = false; }
 			 */
-			if (taskManager.getTask(getExecServicePasswdGenerate(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
+			if (taskManager.getTask(getExecServicePasswdGenerate(),
+					getFacility1195(), Integer.parseInt(propertiesBean
+							.getProperty("engine.unique.id"))) == null) {
 				itWentOk = false;
 			}
-			log.debug("###TASK TASKS were:" + taskManager.listAllTasks(Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))).toString());
+			log.debug("###TASK TASKS were:"
+					+ taskManager.listAllTasks(
+							Integer.parseInt(propertiesBean
+									.getProperty("engine.unique.id")))
+							.toString());
 			Thread.sleep(500);
 			if (itWentOk) {
 				break;
@@ -146,28 +170,35 @@ public class PropagationMaintainerTest extends BaseTest {
 		TaskExecutorWorker taskExecutorWorker = new TaskExecutorWorker();
 		taskExecutor.execute(taskExecutorWorker);
 
-		///
+		// /
 		taskExecutor.execute(taskSchedulerWorker);
 		started = System.currentTimeMillis();
 		itWentOk = false;
 		while (System.currentTimeMillis() - started < TIME_OUT) {
 			itWentOk = true;
 
-			if (taskManager.getTask(getExecServicePasswdSend(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
+			if (taskManager.getTask(getExecServicePasswdSend(),
+					getFacility1195(), Integer.parseInt(propertiesBean
+							.getProperty("engine.unique.id"))) == null) {
 				itWentOk = false;
 			}
 			/*
-			 * if (taskManager.getTask(getExecServicePasswdGenerate(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
-			 * itWentOk = false;
-			 * }
+			 * if (taskManager.getTask(getExecServicePasswdGenerate(),
+			 * getFacility1195(),
+			 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))
+			 * == null) { itWentOk = false; }
 			 */
-			log.debug("###TASK TASKS were:" + taskManager.listAllTasks(Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))).toString());
+			log.debug("###TASK TASKS were:"
+					+ taskManager.listAllTasks(
+							Integer.parseInt(propertiesBean
+									.getProperty("engine.unique.id")))
+							.toString());
 			Thread.sleep(500);
 			if (itWentOk) {
 				break;
 			}
 		}
-		////
+		// //
 
 		taskExecutor.execute(taskSchedulerWorker);
 		started = System.currentTimeMillis();
@@ -175,15 +206,22 @@ public class PropagationMaintainerTest extends BaseTest {
 		while (System.currentTimeMillis() - started < TIME_OUT) {
 			itWentOk = true;
 
-			if (taskManager.getTask(getExecServicePasswdSend(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
+			if (taskManager.getTask(getExecServicePasswdSend(),
+					getFacility1195(), Integer.parseInt(propertiesBean
+							.getProperty("engine.unique.id"))) == null) {
 				itWentOk = false;
 			}
 			/*
-			 * if (taskManager.getTask(getExecServicePasswdGenerate(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
-			 * itWentOk = false;
-			 * }
+			 * if (taskManager.getTask(getExecServicePasswdGenerate(),
+			 * getFacility1195(),
+			 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))
+			 * == null) { itWentOk = false; }
 			 */
-			log.debug("###TASK TASKS were:" + taskManager.listAllTasks(Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))).toString());
+			log.debug("###TASK TASKS were:"
+					+ taskManager.listAllTasks(
+							Integer.parseInt(propertiesBean
+									.getProperty("engine.unique.id")))
+							.toString());
 			Thread.sleep(500);
 			if (itWentOk) {
 				break;
@@ -192,7 +230,7 @@ public class PropagationMaintainerTest extends BaseTest {
 
 		taskExecutor.execute(taskExecutorWorker);
 
-		/////
+		// ///
 
 		int expectedTaskResults = 3;
 		List<TaskResult> taskResults = null;
@@ -202,7 +240,9 @@ public class PropagationMaintainerTest extends BaseTest {
 			fail("taskManager really shouldn't be null :-)");
 		}
 
-		Task taskExecService1 = taskManager.getTask(getExecServicePasswdSend(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
+		Task taskExecService1 = taskManager.getTask(getExecServicePasswdSend(),
+				getFacility1195(), Integer.parseInt(propertiesBean
+						.getProperty("engine.unique.id")));
 		if (taskExecService1 == null) {
 			fail("taskExecService1 really shouldn't be null :-)");
 		}
@@ -211,7 +251,8 @@ public class PropagationMaintainerTest extends BaseTest {
 			if (taskResultDao == null) {
 				fail("taskResultDao really shouldn't be null :-)");
 			}
-			taskResults = taskResultDao.getTaskResultsByTask(taskExecService1.getId());
+			taskResults = taskResultDao.getTaskResultsByTask(taskExecService1
+					.getId());
 			log.debug("TASKRESULTS:" + taskResults.size());
 			// Are there three of them?
 			if (taskResults.size() != expectedTaskResults) {
@@ -222,22 +263,30 @@ public class PropagationMaintainerTest extends BaseTest {
 				boolean hasDestinationC = false;
 				for (TaskResult taskResult : taskResults) {
 					// DestinationA ?
-					if (taskResult.getDestinationId() == getDestinationA().getId()) {
+					if (taskResult.getDestinationId() == getDestinationA()
+							.getId()) {
 						hasDestinationA = true;
-						log.debug("Result " + taskResult.getId() + " hasDestinationA: TRUE");
+						log.debug("Result " + taskResult.getId()
+								+ " hasDestinationA: TRUE");
 					}
 					// DestinationB ?
-					if (taskResult.getDestinationId() == getDestinationB().getId()) {
+					if (taskResult.getDestinationId() == getDestinationB()
+							.getId()) {
 						hasDestinationB = true;
-						log.debug("Result " + taskResult.getId() + " hasDestinationB: TRUE");
+						log.debug("Result " + taskResult.getId()
+								+ " hasDestinationB: TRUE");
 					}
 					// DestinationC ?
-					if (taskResult.getDestinationId() == getDestinationC().getId()) {
+					if (taskResult.getDestinationId() == getDestinationC()
+							.getId()) {
 						hasDestinationC = true;
-						log.debug("Result " + taskResult.getId() + " hasDestinationC: TRUE");
+						log.debug("Result " + taskResult.getId()
+								+ " hasDestinationC: TRUE");
 					}
 				}
-				log.debug("hasDestinationA: " + hasDestinationA + ", hasDestinationB: " + hasDestinationB + ", hasDestinationC: " + hasDestinationC);
+				log.debug("hasDestinationA: " + hasDestinationA
+						+ ", hasDestinationB: " + hasDestinationB
+						+ ", hasDestinationC: " + hasDestinationC);
 				if (!(hasDestinationA && hasDestinationB && hasDestinationC)) {
 					itWentOk = false;
 				}
@@ -253,12 +302,18 @@ public class PropagationMaintainerTest extends BaseTest {
 
 		// GENERATE
 		log.debug("\tTASKRESULTS total:" + taskResults.size());
-		Task task = taskManager.getTask(getExecServicePasswdGenerate(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
-		assertNotNull("Task with getExecServicePasswdGenerate should not be null.", task);
+		Task task = taskManager.getTask(getExecServicePasswdGenerate(),
+				getFacility1195(), Integer.parseInt(propertiesBean
+						.getProperty("engine.unique.id")));
+		assertNotNull(
+				"Task with getExecServicePasswdGenerate should not be null.",
+				task);
 		if (!(task.getStatus().equals(TaskStatus.DONE))) {
 			fail("Task with getExecServicePasswdGenerate should be DONE.");
 		}
-		assertTrue("Task with getExecServicePasswdSend should have all its Task results.", itWentOk);
+		assertTrue(
+				"Task with getExecServicePasswdSend should have all its Task results.",
+				itWentOk);
 		// TODO: Put some While here...
 		Thread.sleep(10000);
 
@@ -267,13 +322,16 @@ public class PropagationMaintainerTest extends BaseTest {
 		started = System.currentTimeMillis();
 		itWentOk = false;
 		while (System.currentTimeMillis() - started < TIME_OUT) {
-			//SEND
-			task = taskManager.getTask(getExecServicePasswdSend(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
+			// SEND
+			task = taskManager.getTask(getExecServicePasswdSend(),
+					getFacility1195(), Integer.parseInt(propertiesBean
+							.getProperty("engine.unique.id")));
 			if (task.getStatus().equals(TaskStatus.DONE)) {
 				itWentOk = true;
 				break;
 			} else {
-				log.debug("#marDk323 Expected Task status is DONE but was " + task.getStatus());
+				log.debug("#marDk323 Expected Task status is DONE but was "
+						+ task.getStatus());
 			}
 			Thread.sleep(500);
 		}
@@ -385,7 +443,8 @@ public class PropagationMaintainerTest extends BaseTest {
 		return propagationMaintainer;
 	}
 
-	public void setPropagationMaintainer(PropagationMaintainer propagationMaintainer) {
+	public void setPropagationMaintainer(
+			PropagationMaintainer propagationMaintainer) {
 		this.propagationMaintainer = propagationMaintainer;
 	}
 

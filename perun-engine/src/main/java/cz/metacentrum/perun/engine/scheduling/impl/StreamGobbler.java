@@ -7,12 +7,12 @@ import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 class StreamGobbler extends Thread {
 
 	private InputStream is;
 	private StringBuilder sb;
-	private final static Logger log = LoggerFactory.getLogger(StreamGobbler.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(StreamGobbler.class);
 
 	StreamGobbler(InputStream is) {
 		super("StreamGobbler");
@@ -29,8 +29,8 @@ class StreamGobbler extends Thread {
 		try {
 			InputStreamReader isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
-			String line=null;
-			while ( (line = br.readLine()) != null) {
+			String line = null;
+			while ((line = br.readLine()) != null) {
 				this.sb.append(line);
 				this.sb.append("\n");
 			}

@@ -8,11 +8,11 @@ import cz.metacentrum.perun.engine.job.PerunEngineJob;
 import cz.metacentrum.perun.engine.service.EngineManager;
 
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
-//Service, no need to be concurrent...
+// Service, no need to be concurrent...
 @org.springframework.stereotype.Service(value = "checkInJob")
 public class CheckInJob implements PerunEngineJob {
 
@@ -24,7 +24,7 @@ public class CheckInJob implements PerunEngineJob {
 	@Override
 	public void doTheJob() {
 		log.info("Entering CheckInJob: engineManager.checkIn()");
-		engineManager.checkIn();
+		//engineManager.checkIn();
 		log.info("CheckInJob: engineManager.checkIn() has completed.");
 	}
 

@@ -26,3 +26,7 @@ http\://www.springframework.org/schema/lang@icon=org/springframework/scripting/c
 http\://www.springframework.org/schema/aop@name=aop Namespace
 http\://www.springframework.org/schema/aop@prefix=aop
 http\://www.springframework.org/schema/aop@icon=org/springframework/aop/config/spring-aop.gif
+# Tooling related information for the jdbc namespace
+http\://www.springframework.org/schema/jdbc@name=jdbc Namespace
+http\://www.springframework.org/schema/jdbc@prefix=jdbc
+http\://www.springframework.org/schema/jdbc@icon=org/springframework/jdbc/config/spring-jdbc.gif

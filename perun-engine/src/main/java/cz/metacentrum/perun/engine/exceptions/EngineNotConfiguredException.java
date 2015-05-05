@@ -2,7 +2,7 @@ package cz.metacentrum.perun.engine.exceptions;
 
 /**
  * Checked version of EngineNotConfiguredException.
- *
+ * 
  * @author Michal Karm Babacek
  */
 public class EngineNotConfiguredException extends EngineException {

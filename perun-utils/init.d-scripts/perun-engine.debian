@@ -18,8 +18,7 @@
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun Engine"
 DAEMON="/usr/bin/java"
-JAR=/home/perun/perun-engine/perun-engine-new-3.0.1-SNAPSHOT-production.jar
-LOG_FILE=/var/log/perun/perun-engine-out.log
+JAR=/home/perun/perun-engine/perun-engine-3.0.1-SNAPSHOT-production.jar
 NAME=perun-engine
 SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid
@@ -41,7 +40,7 @@ EXEC_DIR=/home/perun/perun-engine/
 [ -x "$JAVA" ] || exit 0
 
 # Read configuration if it is present.
-[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+[ -r /etc/perun/$NAME ] && . /etc/perun/$NAME
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
