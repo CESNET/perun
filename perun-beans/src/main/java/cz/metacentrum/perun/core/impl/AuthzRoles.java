@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Role;
 import java.util.HashSet;
 import java.util.List;

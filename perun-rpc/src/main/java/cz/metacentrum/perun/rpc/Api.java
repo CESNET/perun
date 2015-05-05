@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -26,6 +27,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
@@ -201,7 +203,7 @@ public class Api extends HttpServlet {
 
 		// If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
 		if (des != null && extLogin != null) {
-			List<String> powerUsers = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.rpc.powerusers").split("[ \t]*,[ \t]*")));
+			List<String> powerUsers = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.rpc.powerusers").split("[ \t]*,[ \t]*")));
 			if (powerUsers.contains(extLogin) && des.contains("delegatedLogin")) {
 				// Rewrite the remoteUser and extSource
 				extLogin = (String) des.readString("delegatedLogin");
@@ -242,8 +244,6 @@ public class Api extends HttpServlet {
 				perunPrincipal = setupPerunPrincipal(req);
 				wrt.write("OK! Version: " + PerunBl.PERUNVERSION + ", User: " + perunPrincipal.getActor() + ", extSource: " + perunPrincipal.getExtSourceName());
 			} catch (InternalErrorException e) {
-				wrt.write("ERROR! Exception " + e.getMessage());
-			} catch (RpcException e) {
 				wrt.write("ERROR! Exception " + e.getMessage());
 			} catch (UserNotExistsException e) {
 				wrt.write("ERROR! Exception " + e.getMessage());
@@ -397,7 +397,7 @@ public class Api extends HttpServlet {
 
 			} else if ("utils".equals(manager) && "getGuiConfiguration".equals(method)) {
 
-				ser.write(Utils.getAllPropertiesFromCustomConfiguration("perun-web-gui.properties"));
+				ser.write(BeansUtils.getAllPropertiesFromCustomConfiguration("perun-web-gui.properties"));
 				// closes the request
 				out.close();
 				return;

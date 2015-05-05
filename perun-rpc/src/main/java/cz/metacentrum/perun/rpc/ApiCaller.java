@@ -47,6 +47,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.notif.entities.PerunNotifObject;
 import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
 import cz.metacentrum.perun.notif.entities.PerunNotifRegex;

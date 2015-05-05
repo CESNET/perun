@@ -2,7 +2,7 @@ package cz.metacentrum.perun.rpclib.api;
 
 import java.util.List;
 
-import cz.metacentrum.perun.rpclib.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 
 /**
  * Subclasses of {@code Deserializer} class provide methods to deserialize values supplied as name/value pairs in some

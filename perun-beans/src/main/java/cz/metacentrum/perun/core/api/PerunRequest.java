@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+
 /**
  * Class containing information about PerunRequest.
  *

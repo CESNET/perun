@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -1331,7 +1332,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	private static void prepareServiceRoles(PerunSession sess) throws InternalErrorException {
 		// Load list of perunAdmins from the configuration, split the list by the comma
-		List<String> perunAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.admins").split("[ \t]*,[ \t]*")));
+		List<String> perunAdmins = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.admins").split("[ \t]*,[ \t]*")));
 
 		// Check if the PerunPrincipal is in a group of Perun Admins
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
@@ -1342,19 +1343,19 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return;
 		}
 
-		String perunRpcAdmin = Utils.getPropertyFromConfiguration("perun.rpc.principal");
+		String perunRpcAdmin = BeansUtils.getPropertyFromConfiguration("perun.rpc.principal");
 		if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
 			log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
 		}
 
-		List<String> perunEngineAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.engine.principals").split("[ \t]*,[ \t]*")));
+		List<String> perunEngineAdmins = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.engine.principals").split("[ \t]*,[ \t]*")));
 		if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
 			log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
 		}
 
-		List<String> perunNotifications = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.notification.principals").split("[ \t]*,[ \t]*")));
+		List<String> perunNotifications = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.notification.principals").split("[ \t]*,[ \t]*")));
 		if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
 
@@ -1364,7 +1365,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
 		}
 
-		List<String> perunRegistrars = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.registrar.principals").split("[ \t]*,[ \t]*")));
+		List<String> perunRegistrars = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.registrar.principals").split("[ \t]*,[ \t]*")));
 		if (perunRegistrars.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
 

@@ -1,8 +1,9 @@
 package cz.metacentrum.perun.registrar.model;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import java.util.*;
 
-import cz.metacentrum.perun.core.impl.Utils;
+//import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
 
 /**
@@ -11,6 +12,7 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
  * @author Martin Kuba makub@ics.muni.cz
  */
 public class ApplicationFormItem {
+	private static Object BeanUtils;
 
 	//data fields
 	private int id;
@@ -44,7 +46,7 @@ public class ApplicationFormItem {
 	 */
 	public static String getNativeLanguage() {
 		try {
-			return Utils.getPropertyFromConfiguration("perun.native.language").split(",")[0];
+			return BeansUtils.getPropertyFromConfiguration("perun.native.language").split(",")[0];
 		} catch (Exception ex) {
 			return "cs";
 		}
