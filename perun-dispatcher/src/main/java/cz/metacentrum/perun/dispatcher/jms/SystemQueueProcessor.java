@@ -36,7 +36,7 @@ public class SystemQueueProcessor {
 	private final static Logger log = LoggerFactory.getLogger(SystemQueueProcessor.class);
 
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	@Autowired
 	private DispatcherQueuePool dispatcherQueuePool;
 	@Autowired
@@ -60,10 +60,10 @@ public class SystemQueueProcessor {
 			log.debug("Creating transport configuration...");
 			Map<String, Object> connectionParams = new HashMap<String, Object>();
 			if (log.isDebugEnabled()) {
-				log.debug("Gonna connect to the host[" + propertiesBean.getProperty("dispatcher.ip.address") + "] on port[" + propertiesBean.getProperty("dispatcher.port") + "]...");
+				log.debug("Gonna connect to the host[" + dispatcherPropertiesBean.getProperty("dispatcher.ip.address") + "] on port[" + dispatcherPropertiesBean.getProperty("dispatcher.port") + "]...");
 			}
-			connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.parseInt(propertiesBean.getProperty("dispatcher.port")));
-			connectionParams.put(TransportConstants.HOST_PROP_NAME, propertiesBean.getProperty("dispatcher.ip.address"));
+			connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.parseInt(dispatcherPropertiesBean.getProperty("dispatcher.port")));
+			connectionParams.put(TransportConstants.HOST_PROP_NAME, dispatcherPropertiesBean.getProperty("dispatcher.ip.address"));
 			TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams);
 
 			// Step 3 Directly instantiate the JMS ConnectionFactory object
@@ -92,8 +92,8 @@ public class SystemQueueProcessor {
 			processingMessages = true;
 		} catch (JMSException e) {
 			// If unable to connect to the server...
-			log.error("Connection failed. \nThis is weird...are you sure that the Perun-Dispatcher is running on host[" + propertiesBean.getProperty("dispatcher.ip.address") + "] on port["
-					+ propertiesBean.getProperty("dispatcher.port") + "] ? \nSee: dispatcher-config.properties. We gonna wait 5 sec and try again...", e);
+			log.error("Connection failed. \nThis is weird...are you sure that the Perun-Dispatcher is running on host[" + dispatcherPropertiesBean.getProperty("dispatcher.ip.address") + "] on port["
+					+ dispatcherPropertiesBean.getProperty("dispatcher.port") + "] ? \nSee: dispatcher-config.properties. We gonna wait 5 sec and try again...", e);
 
 			throw new RuntimeException(e);
 		} catch (Exception e) {
@@ -203,8 +203,8 @@ public class SystemQueueProcessor {
 		this.dispatcherQueuePool = dispatcherQueuePool;
 	}
 
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
+	public void setDispatcherPropertiesBean(Properties propertiesBean) {
+		this.dispatcherPropertiesBean = propertiesBean;
 	}
 
 	public void setPerunHornetQServer(PerunHornetQServer perunHornetQServer) {

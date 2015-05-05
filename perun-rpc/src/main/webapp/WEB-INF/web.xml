@@ -16,7 +16,7 @@
 
     <context-param>
         <param-name>log4jConfigLocation</param-name>
-        <param-value>file://${perun.conf}log4j.xml</param-value>
+        <param-value>file://${perun.conf}log4j.properties</param-value>
     </context-param>
 
     <!-- !! MUST BE FIRST LISTENER IN THIS CONFIG FILE !! -->
@@ -40,6 +40,9 @@
             classpath:perun-registrar-lib-applicationcontext.xml
             classpath:perun-notification-applicationcontext.xml
             classpath:perun-notification-applicationcontext-scheduling.xml
+            classpath:perun-dispatcher-applicationcontext-jdbc.xml
+            classpath:perun-dispatcher-applicationcontext.xml
+            classpath:perun-rpc-dispatcher-applicationcontext.xml
         </param-value>
     </context-param>
 
@@ -52,5 +55,6 @@
         <servlet-name>api</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+
 
 </web-app>

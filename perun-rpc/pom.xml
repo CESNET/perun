@@ -112,6 +112,17 @@
 
 		</plugins>
 
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<!-- Exclude testing data -->
+				<excludes>
+					<exclude>test-*.txt</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
 	</build>
 
 	<dependencies>
@@ -162,6 +173,12 @@
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-voot</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-dispatcher-new</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

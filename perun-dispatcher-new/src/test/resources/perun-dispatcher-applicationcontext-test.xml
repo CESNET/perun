@@ -43,7 +43,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     <context:component-scan base-package="cz.metacentrum.perun.controller"/>
     
 	<!-- Properties Bean -->
-	<bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	<bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
         	<list>
 	           	<value>${perun.jdbc}</value>

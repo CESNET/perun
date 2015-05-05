@@ -49,14 +49,14 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	</bean>
 
     <!-- Properties Bean -->
-    <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
         	<list>
-	           	<value>${perun.jdbc}</value>
-				<value>file:${perun.conf.custom}jdbc.properties</value>
-	            <value>file:${perun.conf}perun-dispatcher.properties</value>
-                <value>file:${perun.conf.custom}perun-dispatcher.properties</value>
-            </list>
+	           <value>${perun.jdbc}</value>
+		   <value>file:${perun.conf.custom}jdbc.properties</value>
+	           <value>file:${perun.conf}perun-dispatcher.properties</value>
+                   <value>file:${perun.conf.custom}perun-dispatcher.properties</value>
+                </list>
         </property>
         <property name="ignoreResourceNotFound">
             <value>true</value>

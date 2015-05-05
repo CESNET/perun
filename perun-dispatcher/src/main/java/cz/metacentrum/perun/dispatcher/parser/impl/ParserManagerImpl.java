@@ -27,7 +27,7 @@ public class ParserManagerImpl implements ParserManager {
 	@Autowired
 	private EventQueue eventQueue;
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	@Autowired
 	private AuditerListener auditerListener;
 	@Autowired
@@ -45,7 +45,7 @@ public class ParserManagerImpl implements ParserManager {
 		//parsers.add(parserPerunDB);
 		//taskExecutor.execute(parserGrouper);
 		//parsers.add(parserGrouper);
-		String name = propertiesBean.getProperty("dispatcher.ip.address")+":"+propertiesBean.getProperty("dispatcher.port");
+		String name = dispatcherPropertiesBean.getProperty("dispatcher.ip.address")+":"+dispatcherPropertiesBean.getProperty("dispatcher.port");
 		auditerListener.setDispatcherName(name);
 		auditerListener.setEventQueue(eventQueue);
 		taskExecutor.execute(new Runnable() {
@@ -88,12 +88,12 @@ public class ParserManagerImpl implements ParserManager {
 		return eventQueue;
 	}
 
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
+	public void setDispatcherPropertiesBean(Properties propertiesBean) {
+		this.dispatcherPropertiesBean = propertiesBean;
 	}
 
-	public Properties getPropertiesBean() {
-		return propertiesBean;
+	public Properties getDispatcherPropertiesBean() {
+		return dispatcherPropertiesBean;
 	}
 
 	public void setTaskExecutor(TaskExecutor taskExecutor) {
