@@ -1321,7 +1321,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void convertGroupToRichGroupWithAttributesTest() throws Exception {
-		System.out.println("groupsManagerBl.convertGroupToRichGroupWithAttributes");
+		System.out.println("GroupsManagerBl.convertGroupToRichGroupWithAttributes");
 
 		vo = setUpVo();
 		attributesList = setUpGroupAttributes();
@@ -1334,7 +1334,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void convertGroupToRichGroupWithAttributesByNameTest() throws Exception {
-		System.out.println("groupsManagerBl.convertGroupToRichGroupWithAttributesByName");
+		System.out.println("GroupsManagerBl.convertGroupToRichGroupWithAttributesByName");
 
 		vo = setUpVo();
 		attributesList = setUpGroupAttributes();
@@ -1372,7 +1372,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void convertGroupsToRichGroupsWithAttributesWithListOfNamesTest() throws Exception {
-		System.out.println("groupsManagerBl.convertGroupsToRichGroupsWithAttributesWithListOfNamesTest");
+		System.out.println("GroupsManagerBl.convertGroupsToRichGroupsWithAttributesWithListOfNamesTest");
 
 		vo = setUpVo();
 		attributesList = setUpGroupAttributes();

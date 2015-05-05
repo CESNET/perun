@@ -59,6 +59,14 @@
 
 		</plugins>
 
+		<!-- set filtering on resources -->
+		<resources>
+			<resource>
+				<directory>src/main/resources/</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
 	</build>
 
 
@@ -140,6 +148,14 @@
 				<plugins>
 					<!-- profile build specific plugins -->
 				</plugins>
+
+				<!-- set filtering on resources -->
+				<resources>
+					<resource>
+						<directory>src/main/resources/</directory>
+						<filtering>true</filtering>
+					</resource>
+				</resources>
 
 			</build>
 
