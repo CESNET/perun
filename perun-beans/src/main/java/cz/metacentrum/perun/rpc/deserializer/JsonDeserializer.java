@@ -25,7 +25,10 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -78,6 +81,12 @@ public class JsonDeserializer extends Deserializer {
 
 		@JsonDeserialize
 		void setStatus(Status status);
+
+		@JsonIgnore
+		void setMembershipType(String type);
+
+		@JsonDeserialize
+		void setMembershipType(MembershipType type);
 	}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
@@ -132,6 +141,14 @@ public class JsonDeserializer extends Deserializer {
 
 		if (!root.isObject()) {
 			throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not a JSON Object");
+		}
+	}
+
+	public JsonDeserializer(InputStream in) throws IOException, RpcException {
+		try {
+			root = mapper.readTree(in);
+		} catch (JsonProcessingException ex) {
+			throw new RpcException(RpcException.Type.WRONGLY_FORMATTED_CONTENT, "not correct JSON data", ex);
 		}
 	}
 
@@ -227,8 +244,21 @@ public class JsonDeserializer extends Deserializer {
 	}
 
 	@Override
+	public <T> T read(Class<T> valueType) throws RpcException {
+		return this.read(null, valueType);
+	}
+
+	@Override
 	public <T> T read(String name, Class<T> valueType) throws RpcException {
-		JsonNode node = root.get(name);
+		JsonNode node;
+
+		if (name == null) {
+			// The object is not under root, but directly in the response
+			node = root;
+			name = "root";
+		} else {
+			node = root.get(name);
+		}
 
 		if (node == null) {
 			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
@@ -250,7 +280,15 @@ public class JsonDeserializer extends Deserializer {
 
 	@Override
 	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
-		JsonNode node = root.get(name);
+		JsonNode node;
+
+		if (name == null) {
+			// The object is not under root, but directly in the response
+			node = root;
+			name = "root";
+		} else {
+			node = root.get(name);
+		}
 
 		if (node == null) {
 			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
@@ -304,7 +342,14 @@ public class JsonDeserializer extends Deserializer {
 
 	@Override
 	public List<PerunBean> readListPerunBeans(String name) throws RpcException {
-		JsonNode node = root.get(name);
+		JsonNode node;
+		if (name == null) {
+			// The object is not under root, but directly in the response
+			node = root;
+			name = "root";
+		} else {
+			node = root.get(name);
+		}
 
 		if (node == null) {
 			throw new RpcException(RpcException.Type.MISSING_VALUE, name);
@@ -332,6 +377,11 @@ public class JsonDeserializer extends Deserializer {
 		} catch (IOException ex) {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean>", ex);
 		}
+	}
+
+	@Override
+	public <T> List<T> readList(Class<T> valueType) throws RpcException {
+		return readList(null, valueType);
 	}
 
 	public String readAll() throws RpcException {

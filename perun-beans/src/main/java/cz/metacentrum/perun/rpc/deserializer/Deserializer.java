@@ -73,6 +73,19 @@ public abstract class Deserializer {
 	}
 
 	/**
+	 * Reads value from root Json node.
+	 *
+	 * @param valueType type of the value to read
+	 * @return the value as {@code valueType}
+	 *
+	 * @throws UnsupportedOperationException if this deserializer does not implement this method
+	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
+	 */
+	public <T> T read(Class<T> valueType) throws RpcException {
+		throw new UnsupportedOperationException("read(Class<T> valueType)");
+	}
+
+	/**
 	 * Reads array with the specified name as {@code List<valueType>}.
 	 *
 	 * @param name name of the array to read
@@ -84,6 +97,19 @@ public abstract class Deserializer {
 	 */
 	public <T> List<T> readList(String name, Class<T> valueType) throws RpcException {
 		throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
+	}
+
+	/**
+	 * Reads array from root Json node.
+	 *
+	 * @param valueType type of the value to read
+	 * @return the value as {@code List<valueType>}
+	 *
+	 * @throws UnsupportedOperationException if this deserializer does not implement this method
+	 * @throws RpcException if the specified value cannot be parsed as {@code valueType} or if it is not supplied
+	 */
+	public <T> List<T> readList(Class<T> valueType) throws RpcException {
+		throw new UnsupportedOperationException("readList(Class<T> valueType)");
 	}
 
 	/**
