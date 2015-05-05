@@ -523,7 +523,7 @@ public class BeansUtils {
 	 * @return value of the property
 	 */
 	public static String getPropertyFromConfiguration(String propertyName) throws InternalErrorException {
-		log.trace("Entering getPropertyFromConfiguration: propertyName='" +  propertyName + "'");
+		log.trace("Entering getPropertyFromConfiguration: propertyName='" + propertyName + "'");
 		notNull(propertyName, "propertyName");
 
 		if(BeansUtils.properties == null) {

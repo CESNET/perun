@@ -7,7 +7,7 @@
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
-	<import resource="classpath:perun-beans-appcontext.xml"/>
+	<import resource="classpath:perun-beans-appcontext-tests.xml"/>
     <import resource="classpath:perun-transaction-manager.xml"/>
     <import resource="perun-datasources-test.xml"/>
 	
