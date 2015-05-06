@@ -1,3 +1,9 @@
+perun-slave (3.0.0-0.0.89) stable; urgency=low
+
+  * Add new service ldap_vsb_vi
+
+ -- Pavel Zlamal <zlamal@cesnet.cz>  Wed, 05 May 2015 11:32:00 +0100
+
 perun-slave (3.0.0-0.0.88) stable; urgency=low
 
   * Add new service drupal_elixir
@@ -38,7 +44,7 @@ perun-slave (3.0.0-0.0.84) stable; urgency=low
      for assigned users. Also use generic alias mail instead of preferred mail
      if needed. All data is save into the file /etc/aliases.d/perun_generic.
 
- -- Michal Stava <stavamichal@gmail.com> Wed, 28 Jan 2015 9:00:00 +0100
+ -- Michal Stava <stavamichal@gmail.com>  Wed, 28 Jan 2015 9:00:00 +0100
 
 perun-slave (3.0.0-0.0.83) stable; urgency=low
 
@@ -46,14 +52,14 @@ perun-slave (3.0.0-0.0.83) stable; urgency=low
      because of wrong facility name or dns alias, tell what value was used
      in error message.
 
- -- Pavel Zlamal <zlamal@cesnet.cz> Tue, 09 Dec 2014 14:10:00 +0100
+ -- Pavel Zlamal <zlamal@cesnet.cz>  Tue, 09 Dec 2014 14:10:00 +0100
 
 perun-slave (3.0.0-0.0.82) stable; urgency=low
 
    * ssh-keys service create .ssh dir and authorized_keys file with customary
      priviledges (700 on .ssh and 600 on authorized_keys)
 
- -- Michal Prochazka <michalp@ics.muni.cz> Tue, 04 Dec 2014 10:17:43 +0100
+ -- Michal Prochazka <michalp@ics.muni.cz>  Tue, 04 Dec 2014 10:17:43 +0100
 
 perun-slave (3.0.0-0.0.81) stable; urgency=low
 
@@ -62,14 +68,14 @@ perun-slave (3.0.0-0.0.81) stable; urgency=low
    * now there is attribute scratchLocalDirPermissions for this purpose
    * prescript umask has bigger priority
 
- -- Michal Stava <stavamichal@gmail.com> Tue, 23 Sep 2014 14:30:00 +0100
+ -- Michal Stava <stavamichal@gmail.com>  Tue, 23 Sep 2014 14:30:00 +0100
 
 perun-slave (3.0.0-0.0.80) stable; urgency=low
 
    * fix ownership and permissions on newly created files and dirs in slave
      skript ssh_keys
 
- -- Michal Stava <stavamichal@gmail.com> Thu, 18 Sep 2014 11:30:00 +0100
+ -- Michal Stava <stavamichal@gmail.com>  Thu, 18 Sep 2014 11:30:00 +0100
 
 perun-slave (3.0.0-0.0.79) stable; urgency=low
 
@@ -77,13 +83,13 @@ perun-slave (3.0.0-0.0.79) stable; urgency=low
    * fix processing of errors when .ssh directory do not exists in service
      ssh_keys
 
- -- Slavek Licehammer <slavek@ics.muni.cz> Tue, 16 Sep 2014 17:55:00 +0100
+ -- Slavek Licehammer <slavek@ics.muni.cz>  Tue, 16 Sep 2014 17:55:00 +0100
 
 perun-slave (3.0.0-0.0.78) stable; urgency=low
 
    * fs_scratch_global service deleted
 
- -- Zora Sebestianova <zora@ics.muni.cz> Tue, 16 Sep 2014 08:45:00 +0100
+ -- Zora Sebestianova <zora@ics.muni.cz>  Tue, 16 Sep 2014 08:45:00 +0100
 
 perun-slave (3.0.0-0.0.77) stable; urgency=low
 
