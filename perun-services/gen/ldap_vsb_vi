@@ -7,12 +7,14 @@ use perunServicesUtils;
 use Text::Unidecode;
 
 local $::SERVICE_NAME = "ldap_vsb_vi";
-local $::PROTOCOL_VERSION = "3.0.0";
-my $SCRIPT_VERSION = "3.0.0";
+local $::PROTOCOL_VERSION = "3.0.1";
+my $SCRIPT_VERSION = "3.0.1";
 
 perunServicesInit::init;
 my $DIRECTORY = perunServicesInit::getDirectory;
-my $fileName = "$DIRECTORY/$::SERVICE_NAME".".ldif";
+my $fileName_users = "$DIRECTORY/$::SERVICE_NAME"."_users".".ldif";
+my $fileName_groups = "$DIRECTORY/$::SERVICE_NAME"."_groups".".ldif";
+
 my $baseDnFileName = "$DIRECTORY/baseDN";
 
 my $data = perunServicesInit::getHierarchicalData;
@@ -93,7 +95,7 @@ close(FILE);
 #
 # PRINT LDIF FILE
 #
-open FILE,">:encoding(UTF-8)","$fileName" or die "Cannot open $fileName: $! \n";
+open FILE,">:encoding(UTF-8)","$fileName_users" or die "Cannot open $fileName_users: $! \n";
 
 # print base entry
 
@@ -141,7 +143,22 @@ for my $login (sort keys %$users) {
 
 }
 
-# Print VOs entries like "ou=voShortName,ou=groups + baseDN"
+close(FILE);
+
+#
+# PRINT LDIF FILE
+#
+open FILE,">:encoding(UTF-8)","$fileName_groups" or die "Cannot open $fileName_groups: $! \n";
+
+# print base entry
+
+print FILE "dn: ou=perun,ou=groups," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+print FILE "ou: perun\n";
+print FILE "objectClass: top\n";
+print FILE "objectClass: organizationalUnit\n";
+print FILE "\n";
+
+# Print VOs entries like "ou=voShortName,ou=perun,ou=groups + baseDN"
 # Then Print also Resources inside VOs like: "cn=resourceName,ou=voShortName,ou=groups + baseDN" and their uniqueMembers
 
 # PRINT ALL VOS
@@ -149,33 +166,33 @@ my @gs = sort keys %{$allVosAndResources};
 for my $g (@gs) {
 
 	# PRINT VO
-	print FILE "dn: ou=" . $g . ",ou=groups," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+	print FILE "dn: ou=" . $g . ",ou=perun,ou=groups," . $facilityAttributes{$A_F_BASE_DN} . "\n";
 	print FILE "ou: " . $g . "\n";
 	print FILE "objectclass: top\n";
 	print FILE "objectclass: organizationalUnit\n";
 
 	# There MUST be an empty line after each entry, so entry sorting and diff works on slave part
-    print FILE "\n";
+	print FILE "\n";
 
 	# PRINT ALL RESOURCES
 	my @res = sort keys %{$allVosAndResources->{$g}};
 	for my $r (@res) {
 
 		# PRINT RESOURCE
-	    print FILE "dn: cn=" . $r . ",ou=" . $g . ",ou=groups," . $facilityAttributes{$A_F_BASE_DN} . "\n";
-	    print FILE "cn: " . $r . "\n";
-        print FILE "ou: " . $g . "\n";
-        print FILE "objectclass: top\n";
-        print FILE "objectclass: groupOfUniqueNames\n";
+		print FILE "dn: cn=" . $r . ",ou=" . $g . ",ou=perun,ou=groups," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+		print FILE "cn: " . $r . "\n";
+		print FILE "ou: " . $g . "\n";
+		print FILE "objectclass: top\n";
+		print FILE "objectclass: groupOfUniqueNames\n";
 
 		# PRINT ALL USERS FROM RESOURCE
-        my @usrs = sort keys %{$usersByResource->{$r}};
-        for my $u (@usrs) {
-            print FILE "uniquemember: cn=" . $u . ",ou=perun," . $facilityAttributes{$A_F_BASE_DN} . "\n";
-        }
+		my @usrs = sort keys %{$usersByResource->{$r}};
+		for my $u (@usrs) {
+			print FILE "uniquemember: cn=" . $u . ",ou=perun," . $facilityAttributes{$A_F_BASE_DN} . "\n";
+		}
 
-        # There MUST be an empty line after each entry, so entry sorting and diff works on slave part
-        print FILE "\n";
+		# There MUST be an empty line after each entry, so entry sorting and diff works on slave part
+		print FILE "\n";
 
 	}
 
