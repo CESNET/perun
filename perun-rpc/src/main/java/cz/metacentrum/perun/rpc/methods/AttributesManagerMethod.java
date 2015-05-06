@@ -81,6 +81,18 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
 	 */
 	/*#
+	 * Returns all specified Member-Group attributes for selected Member and Group.
+	 * If <code>workWithUserAttribute == true</code> then also all non-empty User attributes are returned.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
+	 * @return List<Attribute> Specified Member-Group attributes
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
+	 */
+	/*#
 	 * Returns all non-empty Member attributes for selected Member.
 	 *
 	 * @param member int Member <code>id</code>
@@ -97,6 +109,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
 	 */
 	/*#
+	 * Returns all specified Member-Group attributes for selected Member and Group
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @return List<Attribute> Specified Member-Group attributes
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
+	 */
+	/*#
 	 * Returns all specified Member attributes for selected Member.
 	 *
 	 * @param member int Member <code>id</code>
@@ -104,6 +126,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Specified Member attributes
 	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
 	 * @exampleParam attrNames [ "urn:perun:member:attribute-def:def:mail" , "urn:perun:member:attribute-def:def:membershipExpiration" ]
+	 */
+	/*#
+	 * Returns all non-empty Member-Group attributes for selected Member and Group.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @return List<Attribute> All Member-Group attributes
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @throw MemberNotExistsException When Member with <code>id</code> doesn't exist.
 	 */
 	/*#
 	 * Returns all non-empty User attributes for selected User.
@@ -190,18 +221,37 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			} else if (parms.contains("member")) {
 				if (parms.contains("workWithUserAttributes")){
 					if (parms.contains("attrNames")) {
-						return ac.getAttributesManager().getAttributes(ac.getSession(),
-								ac.getMemberById(parms.readInt("member")),
-								parms.readList("attrNames", String.class),
-								parms.readBoolean("workWithUserAttributes"));
+						if (parms.contains("group")) {
+							return ac.getAttributesManager().getAttributes(ac.getSession(),
+									ac.getMemberById(parms.readInt("member")),
+									ac.getGroupById(parms.readInt("group")),
+									parms.readList("attrNames", String.class),
+									parms.readBoolean("workWithUserAttributes"));
+						} else {
+							return ac.getAttributesManager().getAttributes(ac.getSession(),
+									ac.getMemberById(parms.readInt("member")),
+									parms.readList("attrNames", String.class),
+									parms.readBoolean("workWithUserAttributes"));
+						}
 					} else {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")), parms.readBoolean("workWithUserAttributes"));
 					}
 				} else if (parms.contains("attrNames")) {
+					if (parms.contains("group")) {
+						return ac.getAttributesManager().getAttributes(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readList("attrNames", String.class));
+					} else {
+						return ac.getAttributesManager().getAttributes(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								parms.readList("attrNames", String.class));
+					}
+				} else if (parms.contains("group")) {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")),
-							parms.readList("attrNames", String.class));
+							ac.getGroupById(parms.readInt("group")));
 				} else {
 					return ac.getAttributesManager().getAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")));
@@ -314,7 +364,22 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Sets the attributes.
 	 *
 	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> List of attributes
+	 * @param workWithUserAttributes boolean If <code>true</code>, store also User and Member attributes. <code>False</code> is default.
+	 */
+	/*#
+	 * Sets the attributes.
+	 *
+	 * @param member int Member <code>id</code>
 	 * @param workWithUserAttributes boolean Work with user attributes. False is default value.
+	 * @param attributes List<Attribute> List of attributes
+	 */
+	/*#
+	 * Sets the attributes.
+	 * 
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -405,19 +470,25 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							parms.readList("attributes", Attribute.class));
 				}
 			} else if (parms.contains("member")) {
-				if(parms.contains("workWithUserAttributes")){
-					if(!parms.readBoolean("workWithUserAttributes")){
+				if (parms.contains("workWithUserAttributes")) {
+					if (parms.contains("group")) {
+						ac.getAttributesManager().setAttributes(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readList("attributes", Attribute.class),
+								parms.readBoolean("workWithUserAttributes"));
+					} else {
 						ac.getAttributesManager().setAttributes(ac.getSession(),
 								ac.getMemberById(parms.readInt("member")),
 								parms.readList("attributes", Attribute.class),
-								false);
-					}else{
-						ac.getAttributesManager().setAttributes(ac.getSession(),
-								ac.getMemberById(parms.readInt("member")),
-								parms.readList("attributes", Attribute.class),
-								true);
+								parms.readBoolean("workWithUserAttributes"));
 					}
-				}else{
+				} else if (parms.contains("group")) {
+					ac.getAttributesManager().setAttributes(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.readList("attributes", Attribute.class));
+				} else {
 					ac.getAttributesManager().setAttributes(ac.getSession(),
 							ac.getMemberById(parms.readInt("member")),
 							parms.readList("attributes", Attribute.class));
@@ -491,6 +562,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
 	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
+	 * @return Attribute Found Attribute
+	 */
+	/*#
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 *
+	 * @param member int Member <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
@@ -564,6 +643,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns an Attribute by its name. Returns only non-empty attributes.
 	 *
 	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributeName String Attribute name   
+	 * @return Attribute Found Attribute
+	 */
+	/*#
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 *
+	 * @param member int Member <code>id</code>
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
@@ -618,9 +705,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 								parms.readInt("attributeId"));
 					}
 				} else if (parms.contains("member")) {
-					return ac.getAttributesManager().getAttributeById(ac.getSession(),
-							ac.getMemberById(parms.readInt("member")),
-							parms.readInt("attributeId"));
+					if (parms.contains("group")) {
+						return ac.getAttributesManager().getAttributeById(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readInt("attributeId"));	
+					} else {
+						return ac.getAttributesManager().getAttributeById(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								parms.readInt("attributeId"));
+					}
 				} else if (parms.contains("user")) {
 					return ac.getAttributesManager().getAttributeById(ac.getSession(),
 							ac.getUserById(parms.readInt("user")),
@@ -675,9 +769,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 								parms.readString("attributeName"));
 					}
 				} else if (parms.contains("member")) {
-					return ac.getAttributesManager().getAttribute(ac.getSession(),
-							ac.getMemberById(parms.readInt("member")),
-							parms.readString("attributeName"));
+					if (parms.contains("group")) {
+						return ac.getAttributesManager().getAttribute(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readString("attributeName"));
+					} else {
+						return ac.getAttributesManager().getAttribute(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								parms.readString("attributeName"));
+					}
 				} else if (parms.contains("user")) {
 					return ac.getAttributesManager().getAttribute(ac.getSession(),
 							ac.getUserById(parms.readInt("user")),
@@ -875,6 +976,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Sets an Attribute.
 	 *
 	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute Attribute JSON object
+	 */
+	/*#
+	 * Sets an Attribute.
+	 *
+	 * @param member int Member <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
 	/*#
@@ -934,9 +1042,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							parms.read("attribute", Attribute.class));
 				}
 			} else if (parms.contains("member")) {
-				ac.getAttributesManager().setAttribute(ac.getSession(),
-						ac.getMemberById(parms.readInt("member")),
-						parms.read("attribute", Attribute.class));
+				if (parms.contains("group")) {
+					ac.getAttributesManager().setAttribute(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.read("attribute", Attribute.class));
+				} else {
+					ac.getAttributesManager().setAttribute(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							parms.read("attribute", Attribute.class));
+				}
 			} else if (parms.contains("user")) {
 				ac.getAttributesManager().setAttribute(ac.getSession(),
 						ac.getUserById(parms.readInt("user")),
@@ -1030,6 +1145,23 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param resource int Resource <code>id</code>
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns required attributes.
+	 * 
+	 * @param service int Service <code>id</code>
+	 * @param member int Member <code>id</code>   
+	 * @param group int Group <code>id</code>
+	 * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
+	 * @return List<Attribute> Required Attributes
+	 */
+	/*#
+	 * Returns required attributes.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param member int Member <code>id</code>   
+	 * @param group int Group <code>id</code>
 	 * @return List<Attribute> Required Attributes
 	 */
 	/*#
@@ -1134,6 +1266,23 @@ public enum AttributesManagerMethod implements ManagerMethod {
 						return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
 								ac.getServiceById(parms.readInt("service")),
 								ac.getResourceById(parms.readInt("resource")));
+					}
+				} else if (parms.contains("member")) {
+					if (parms.contains("group")) {
+						if (parms.contains("workWithUserAttributes")) {
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getMemberById(parms.readInt("member")),
+									ac.getGroupById(parms.readInt("group")),
+									parms.readBoolean("workWithUserAttributes"));
+						} else {
+							return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
+									ac.getServiceById(parms.readInt("service")),
+									ac.getMemberById(parms.readInt("member")),
+									ac.getGroupById(parms.readInt("group")));
+						}
+					} else {
+						throw new RpcException(RpcException.Type.MISSING_VALUE, "group");
 					}
 				} else if (parms.contains("facility")) {
 					return ac.getAttributesManager().getRequiredAttributes(ac.getSession(),
@@ -1245,6 +1394,25 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> Member-resource attributes
 	 */
 	/*#
+	 * Gets member-group attributes and also user and member attributes, if workWithUserAttributes == true.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 * 
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param workWithUserAttributes boolean If <code>true</code>, return also User and Member attributes. <code>False</code> is default.
+	 * @return List<Attribute> Member-group attributes
+	 */
+	/*#
+	 * Gets member-group attributes.
+	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
+	 *
+	 * @param resourceToGetServicesFrom int Resource to get services from <code>id</code>
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @return List<Attribute> Member-group attributes
+	 */
+	/*#
 	 * Gets member attributes.
 	 * It returns attributes required by all services assigned to specified resource. Both empty and non-empty attributes are returned.
 	 *
@@ -1314,6 +1482,19 @@ public enum AttributesManagerMethod implements ManagerMethod {
 									ac.getResourceById(parms.readInt("resource")),
 									ac.getMemberById(parms.readInt("member")));
 						}
+					} else if (parms.contains("group")) {
+						if (parms.contains("workWithUserAttributes")) {
+							return	ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
+									ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
+									ac.getMemberById(parms.readInt("member")),
+									ac.getGroupById(parms.readInt("group")),
+									parms.readBoolean("workWithUserAttributes"));
+						} else {
+							return	ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
+									ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
+									ac.getMemberById(parms.readInt("member")),
+									ac.getGroupById(parms.readInt("group")));
+						}
 					} else {
 						return ac.getAttributesManager().getResourceRequiredAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resourceToGetServicesFrom")),
@@ -1358,13 +1539,6 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		}
 	},
 
-	/*#
-	 * Tries to fill group attribute.
-	 *
-	 * @param group int Group <code>id</code>
-	 * @param attribute int Attribute <code>id</code>
-	 * @return Attribute attribute which may have filled value
-	 */
 	/*#
 	 * Tries to fill host attribute.
 	 *
@@ -1411,11 +1585,26 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return Attribute attribute which MAY have filled value
 	 */
 	/*#
+	 * Tries to fill member-group attribute.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 * @return Attribute attribute which MAY have filled value
+	 */
+	/*#
 	 * Tries to fill member attribute.
 	 *
 	 * @param member int Member <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 * @return Attribute attribute which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill group attribute.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 * @return Attribute attribute which may have filled value
 	 */
 	fillAttribute {
 
@@ -1423,12 +1612,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 		public Attribute call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			if (parms.contains("group")) {
-				Group group = ac.getGroupById(parms.readInt("group"));
-				return ac.getAttributesManager().fillAttribute(ac.getSession(),
-						group,
-						ac.getAttributeById(group, parms.readInt("attribute")));
-			} else if (parms.contains("host")) {
+			if (parms.contains("host")) {
 				Host host = ac.getHostById(parms.readInt("host"));
 				return ac.getAttributesManager().fillAttribute(ac.getSession(),
 						host,
@@ -1467,9 +1651,22 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				}
 			} else if (parms.contains("member")) {
 				Member member = ac.getMemberById(parms.readInt("member"));
-				return ac.getAttributesManager().fillAttribute(ac.getSession(),
-						member,
-						ac.getAttributeById(member, parms.readInt("attribute")));
+				if (parms.contains("group")) {
+					Group group = ac.getGroupById(parms.readInt("group"));
+					return ac.getAttributesManager().fillAttribute(ac.getSession(),
+							member,
+							group,
+							ac.getAttributeById(member, group, parms.readInt("attribute")));	
+				} else {
+					return ac.getAttributesManager().fillAttribute(ac.getSession(),
+							member,
+							ac.getAttributeById(member, parms.readInt("attribute")));
+				}
+			} else if (parms.contains("group")) {
+					Group group = ac.getGroupById(parms.readInt("group"));
+					return ac.getAttributesManager().fillAttribute(ac.getSession(),
+							group,
+							ac.getAttributeById(group, parms.readInt("attribute")));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "group, host, resource, user, member");
 			}
@@ -1526,9 +1723,26 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
-	 * Tries to fill group attributes.
-	 *
+	 * Tries to fill member-group attributes and also member and user attributes, if workWithUserAttributes == true.
+	 * 
+	 * @param member int Member <code>id</code>
 	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> List of attributes   
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>False</code> is default.
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill member-group attributes.
+	 * 
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> List of attributes   
+	 * @return List<Attribute> attributes which MAY have filled value
+	 */
+	/*#
+	 * Tries to fill member attributes.
+	 *
+	 * @param member int Member <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
@@ -1548,9 +1762,9 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
 	/*#
-	 * Tries to fill member attributes.
+	 * Tries to fill group attributes.
 	 *
-	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 * @return List<Attribute> attributes which MAY have filled value
 	 */
@@ -1622,11 +1836,27 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							resource,
 							attributes);
 				}
-			} else if (parms.contains("group")) {
-				Group group = ac.getGroupById(parms.readInt("group"));
-				return ac.getAttributesManager().fillAttributes(ac.getSession(),
-						group,
-						attributes);
+			} else if (parms.contains("member")) {
+				Member member = ac.getMemberById(parms.readInt("member"));
+				if (parms.contains("group")) {
+					Group group = ac.getGroupById(parms.readInt("group"));
+					if (parms.contains("workWithUserAttributes")) {
+						return ac.getAttributesManager().fillAttributes(ac.getSession(),
+								member,
+								group,
+								attributes,
+								parms.readBoolean("workWithUserAttributes"));
+					} else {
+						return ac.getAttributesManager().fillAttributes(ac.getSession(),
+								member,
+								group,
+								attributes);
+					}
+				} else {
+					return ac.getAttributesManager().fillAttributes(ac.getSession(),
+							member,
+							attributes);
+				}
 			} else if (parms.contains("user")) {
 				User user = ac.getUserById(parms.readInt("user"));
 				if (parms.contains("facility")) {
@@ -1640,10 +1870,10 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							user,
 							attributes);
 				}
-			} else if (parms.contains("member")) {
-				Member member = ac.getMemberById(parms.readInt("member"));
+			} else if (parms.contains("group")) {
+				Group group = ac.getGroupById(parms.readInt("group"));
 				return ac.getAttributesManager().fillAttributes(ac.getSession(),
-						member,
+						group,
 						attributes);
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "group, host, resource, user, member");
@@ -1675,6 +1905,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
+	 */
+	/*#
+	 * Checks if this member-group attribute is valid.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attribute int Attribute <code>id</code>   
 	 */
 	/*#
 	 * Checks if this host attribute is valid.
@@ -1710,6 +1947,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
 							ac.getResourceById(parms.readInt("resource")),
 							parms.read("attribute", Attribute.class));
+				}
+			} else if (parms.contains("member")) {
+				if (parms.contains("group")) {
+					ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							parms.read("attribute", Attribute.class));
+				} else {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "group");
 				}
 			} else if (parms.contains("host")) {
 				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
@@ -1752,6 +1998,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param attributes List<Attribute> Attributes List
 	 */
 	/*#
+	 * Checks if these member-group attributes are valid.
+	 * 
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 * @param workWithUserAttributes boolean If <code>true</code>, process also User and Member attributes. <code>False</code> is default.   
+	 */
+	/*#
+	 * Checks if these member-group attributes are valid.
+	 * 
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
+	/*#
 	 * Checks if these host attributes are valid.
 	 *
 	 * @param host int Host <code>id</code>
@@ -1789,6 +2050,25 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							ac.getResourceById(parms.readInt("resource")),
 							parms.readList("attributes", Attribute.class));
 					return null;
+				}
+			} else if (parms.contains("member")) {
+				if (parms.contains("group")) {
+					if (parms.contains("workWithUserAttributes")) {
+						ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readList("attributes", Attribute.class),
+								parms.readBoolean("workWithUserAttributes"));
+						return null;
+					} else {
+						ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+								ac.getMemberById(parms.readInt("member")),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readList("attributes", Attribute.class));
+						return null;
+					}
+				} else {
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "group");
 				}
 			} else if (parms.contains("host")) {
 				ac.getAttributesManager().checkAttributesValue(ac.getSession(),
@@ -1889,6 +2169,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 */
 	/*#
 	 * Remove attributes of namespace:
+	 * 
+	 * member-group
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
+	 * @param attributes List<Integer> List of attributes IDs to remove
+	 */
+	/*#
+	 * Remove attributes of namespace:
 	 *
 	 * member
 	 *
@@ -1961,7 +2250,8 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				} else if (parms.contains("group")) {
 					Group group = ac.getGroupById(parms.readInt("group"));
 					if (parms.contains("workWithGroupAttributes")) {
-						ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes, parms.readBoolean("workWithGroupAttributes"));
+						ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes, 
+								parms.readBoolean("workWithGroupAttributes"));
 					} else {
 						ac.getAttributesManager().removeAttributes(ac.getSession(), resource, group, attributes);
 					}
@@ -1969,30 +2259,28 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					ac.getAttributesManager().removeAttributes(ac.getSession(), resource, attributes);
 				}
 
-			} else if (parms.contains("group")) {
-				Group group = ac.getGroupById(parms.readInt("group"));
-				ac.getAttributesManager().removeAttributes(ac.getSession(), group, attributes);
-
+			} else if (parms.contains("member")) {
+				Member member = ac.getMemberById(parms.readInt("member"));
+				if (parms.contains("workWithUserAttributes")) {
+					ac.getAttributesManager().removeAttributes(ac.getSession(),	member,
+							parms.readBoolean("workWithUserAttributes"), attributes);
+				} else if (parms.contains("group")) {
+					Group group = ac.getGroupById(parms.readInt("group"));
+					ac.getAttributesManager().removeAttributes(ac.getSession(), member, group, attributes);
+				} else {
+					ac.getAttributesManager().removeAttributes(ac.getSession(), member, attributes);
+				}
 			} else if (parms.contains("host")) {
 				Host host = ac.getHostById(parms.readInt("host"));
 				ac.getAttributesManager().removeAttributes(ac.getSession(), host, attributes);
-
-			} else if (parms.contains("member")) {
-				if (parms.contains("workWithUserAttributes")) {
-					Member member = ac.getMemberById(parms.readInt("member"));
-					if(!parms.readBoolean("workWithUserAttributes")) {
-						ac.getAttributesManager().removeAttributes(ac.getSession(), member, false, attributes);
-					} else {
-						ac.getAttributesManager().removeAttributes(ac.getSession(), member, true, attributes);
-					}
-
-				} else {
-					Member member = ac.getMemberById(parms.readInt("member"));
-					ac.getAttributesManager().removeAttributes(ac.getSession(), member, attributes);
-				}
+			
 			} else if (parms.contains("user")) {
 				User user = ac.getUserById(parms.readInt("user"));
 				ac.getAttributesManager().removeAttributes(ac.getSession(), user, attributes);
+
+			} else if (parms.contains("group")) {
+				Group group = ac.getGroupById(parms.readInt("group"));
+				ac.getAttributesManager().removeAttributes(ac.getSession(), group, attributes);
 
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, group, host, resource, member or user");
@@ -2051,6 +2339,15 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param resource int Resource <code>id</code>
 	 * @param member int Member <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
+	 */
+	/*#
+	 * Remove attribute of namespace:
+	 * 
+	 * member-group
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
 	 * @param attribute int <code>id</code> of attribute to remove
 	 */
 	/*#
@@ -2133,10 +2430,18 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					return null;
 				}
 			} else if (parms.contains("member")) {
-				ac.getAttributesManager().removeAttribute(ac.getSession(),
-						ac.getMemberById(parms.readInt("member")),
-						ac.getAttributeDefinitionById(parms.readInt("attribute")));
-				return null;
+				if (parms.contains("group")) {
+					ac.getAttributesManager().removeAttribute(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")),
+							ac.getAttributeDefinitionById(parms.readInt("attribute")));
+					return null;
+				} else {
+					ac.getAttributesManager().removeAttribute(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getAttributeDefinitionById(parms.readInt("attribute")));
+					return null;
+				}
 			} else if (parms.contains("user")) {
 				ac.getAttributesManager().removeAttribute(ac.getSession(),
 						ac.getUserById(parms.readInt("user")),
@@ -2203,6 +2508,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Unset all resource attributes.
 	 *
 	 * @param resource int Resource <code>id</code>
+	 */
+	/*#
+	 * Unset all member-group attributes.
+	 *
+	 * @param member int Member <code>id</code>
+	 * @param group int Group <code>id</code>
 	 */
 	/*#
 	 * Unset all member attributes.
@@ -2273,9 +2584,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					return null;
 				}
 			} else if (parms.contains("member")) {
-				ac.getAttributesManager().removeAllAttributes(ac.getSession(),
-						ac.getMemberById(parms.readInt("member")));
-				return null;
+				if (parms.contains("group")) {
+					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")),
+							ac.getGroupById(parms.readInt("group")));
+					return null;
+				} else {
+					ac.getAttributesManager().removeAllAttributes(ac.getSession(),
+							ac.getMemberById(parms.readInt("member")));
+					return null;
+				}
 			} else if (parms.contains("user")) {
 				ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 						ac.getUserById(parms.readInt("user")));
