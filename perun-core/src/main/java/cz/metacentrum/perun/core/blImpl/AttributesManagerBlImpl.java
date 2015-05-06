@@ -1081,6 +1081,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				} else {
 					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, member, resource));
 				}
+			} else if(this.isFromNamespace(sess, attrDef, NS_MEMBER_GROUP_ATTR) && member != null && group != null) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, member, group)) {
+					iterator.remove();
+				} else {
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, member, group));
+				}
 			} else if(this.isFromNamespace(sess, attrDef, NS_GROUP_RESOURCE_ATTR) && group != null && resource != null) {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, group, resource)) {
 					iterator.remove();
