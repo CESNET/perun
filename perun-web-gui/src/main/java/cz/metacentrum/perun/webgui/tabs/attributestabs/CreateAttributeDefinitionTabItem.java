@@ -135,6 +135,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 		entityListBox.addItem("group_resource", "urn:perun:group_resource:");
 		entityListBox.addItem("host", "urn:perun:host:");
 		entityListBox.addItem("member", "urn:perun:member:");
+		entityListBox.addItem("member_group", "urn:perun:member_group:");
 		entityListBox.addItem("member_resource", "urn:perun:member_resource:");
 		entityListBox.addItem("user", "urn:perun:user:");
 		entityListBox.addItem("user_facility", "urn:perun:user_facility:");
