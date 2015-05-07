@@ -137,7 +137,7 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "createMember - from candidate");
 		}
 
-		Utils.notNull(candidate, "candiate");
+		Utils.notNull(candidate, "candidate");
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getMembersManagerBl().createMember(sess, vo, candidate, groups);
@@ -150,6 +150,11 @@ public class MembersManagerEntry implements MembersManager {
 	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+			throw new PrivilegeException(sess, "createMember - from candidate");
+		}
+
 		// if any group is not from the vo, throw an exception
 		if(groups != null) {
 			for(Group group: groups) {
@@ -157,8 +162,6 @@ public class MembersManagerEntry implements MembersManager {
 				if(group.getVoId() != vo.getId()) throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
 			}
 		}
-
-		//TODO Authorization
 
 		Utils.notNull(extSourceName, "extSourceName");
 		Utils.notNull(extSourceType, "extSourceType");
@@ -175,6 +178,11 @@ public class MembersManagerEntry implements MembersManager {
 	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+			throw new PrivilegeException(sess, "createMember - from candidate");
+		}
+
 		// if any group is not from the vo, throw an exception
 		if(groups != null) {
 			for(Group group: groups) {
@@ -182,8 +190,6 @@ public class MembersManagerEntry implements MembersManager {
 				if(group.getVoId() != vo.getId()) throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
 			}
 		}
-
-		//TODO Authorization
 
 		Utils.notNull(extSourceName, "extSourceName");
 		Utils.notNull(extSourceType, "extSourceType");
@@ -199,6 +205,14 @@ public class MembersManagerEntry implements MembersManager {
 	public Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+			throw new PrivilegeException(sess, "createMember - from user");
+		}
+
 		// if any group is not from the vo, throw an exception
 		if(groups != null) {
 			for(Group group: groups) {
@@ -206,14 +220,6 @@ public class MembersManagerEntry implements MembersManager {
 				if(group.getVoId() != vo.getId()) throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where user " + user + " should be added.");
 			}
 		}
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
-			throw new PrivilegeException(sess, "createMember - from user");
-		}
-
-		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		return getMembersManagerBl().createMember(sess, vo, user, groups);
 	}
