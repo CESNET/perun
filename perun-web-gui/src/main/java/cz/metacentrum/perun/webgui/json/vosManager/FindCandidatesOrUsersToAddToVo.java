@@ -208,7 +208,7 @@ public class FindCandidatesOrUsersToAddToVo implements JsonCallback, JsonCallbac
 			@Override
 			public String getValue(Candidate candidate) {
 				if (candidate.getObjectType().equalsIgnoreCase("RichUser")) {
-					return "User in Perun";
+					return "Local";
 				} else {
 					return "External identity";
 				}
