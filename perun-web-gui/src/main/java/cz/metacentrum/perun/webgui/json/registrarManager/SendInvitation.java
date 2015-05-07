@@ -146,7 +146,12 @@ public class SendInvitation {
 		}
 		if (name != null && !name.isEmpty()) query.put("name", new JSONString(name));
 		query.put("email", new JSONString(email));
-		query.put("language", new JSONString(language));
+
+		if (language != null && !language.isEmpty()) {
+			query.put("language", new JSONString(language));
+		} else {
+			query.put("language", new JSONObject(null));
+		}
 
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
