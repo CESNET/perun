@@ -376,6 +376,21 @@ public class MembersManagerEntry implements MembersManager {
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, attrsDef), true);
 	}
 
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getRichMembersWithAttributes");
+				}
+
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, allowedStatuses, group), true);
+	}
+
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 

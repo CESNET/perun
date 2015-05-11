@@ -485,6 +485,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 							ac.getGroupById(parms.readInt("group")),
 							parms.readList("attrsDef", AttributeDefinition.class));
 				}
+			} else if (parms.contains("group")) {
+				return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
+						parms.readList("allowedStatuses", String.class),
+						ac.getGroupById(parms.readInt("group")));
 			} else {
 				return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")));
