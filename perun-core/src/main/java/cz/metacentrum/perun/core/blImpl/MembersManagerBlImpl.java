@@ -736,6 +736,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.convertMembersToRichMembersWithAttributes(sess, richMembers);
 	}
 
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws InternalErrorException {
+		List<RichMember> richMembers = this.getRichMembers(sess, group);
+		return getOnlyRichMembersWithAllowedStatuses(sess, this.convertMembersToRichMembersWithAttributes(sess, richMembers), allowedStatuses);
+	}
+
 
 	public List<RichMember> convertMembersToRichMembers(PerunSession sess, List<Member> members) throws InternalErrorException {
 		List<RichMember> richMembers = new ArrayList<RichMember>();
