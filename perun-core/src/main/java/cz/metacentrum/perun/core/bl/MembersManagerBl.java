@@ -472,6 +472,17 @@ public interface MembersManagerBl {
 	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException;
 
 	/**
+	 * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources, userAttributes, memberAttributes.
+	 *
+	 * @param sess
+	 * @param group
+	 * @param allowedStatuses
+	 * @return list of rich members on specified page, empty list if there are no user in this group or in this page
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws InternalErrorException;
+
+	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsNames for vo.
 	 *
 	 * @param sess

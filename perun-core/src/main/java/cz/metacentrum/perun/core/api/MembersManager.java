@@ -411,6 +411,19 @@ public interface MembersManager {
 	 */
 	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, List<AttributeDefinition> attrsDef) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
+ 	/**
+	 * Get all rich members with allowed statuses from specific group. Rich member object contains user, member, userExtSources and member/user attributes.
+	 *
+	 * @param sess
+	 * @param group to get richMembers from
+	 * @param allowedStatuses only allowed statuses
+	 * @return list of rich members with all member/user attributes, empty list if there are no members in group
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws GroupNotExistsException
+	 */
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for vo.
 	 *
