@@ -95,7 +95,27 @@ my %canonicaldns;
 sub cmpdn {
 	my $cadn = ($canonicaldns{$a->[0]} ||= lc(canonical_dn($a->[0])));
 	my $cbdn = ($canonicaldns{$b->[0]} ||= lc(canonical_dn($b->[0])));
-	$cadn cmp $cbdn;
+
+	# sort by DN hierarchy
+	my @cadns = split(/(^|[^\\])(\\\\)*,/, $cadn);
+	my @cbdns = split(/(^|[^\\])(\\\\)*,/, $cbdn);
+
+	while (@cadns || @cbdns) {
+
+		# read from the top of the tree
+		my $cmpa = pop(@cadns);
+		my $cmpb = pop(@cbdns);
+
+		# if differs return cmp if not, continue with checking
+		if ($cmpa cmp $cmpb) {
+			return $cmpa cmp $cmpb;
+		}
+
+	}
+
+	# both entries match
+	return 0;
+
 }
 
 my $cmpfunc;
