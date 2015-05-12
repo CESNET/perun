@@ -2,9 +2,9 @@ package cz.metacentrum.perun.dispatcher.main;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
@@ -22,6 +22,13 @@ public class DispatcherStarter {
 	@Autowired
 	private AbstractApplicationContext springCtx;
 
+	public static void main(String[] arg) {
+		DispatcherStarter starter = new DispatcherStarter();
+		
+                starter.springCtx = new ClassPathXmlApplicationContext("/perun-dispatcher-applicationcontext.xml", "/perun-dispatcher-applicationcontext-jdbc.xml");
+                // no need to call init explicitely, gets called by spring when initializing this bean
+	}
+	
 	/**
 	 * Initialize integrated dispatcher.
 	 */
