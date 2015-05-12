@@ -33,8 +33,10 @@ public class EduGain implements RegistrarModule {
 			Vo vo = app.getVo();
 			User user = app.getUser();
 
-			AuthzResolver.setRole(session, user, vo, Role.VOOBSERVER);
 			AuthzResolver.setRole(session, user, vo, Role.TOPGROUPCREATOR);
+
+			Group membersGroup = session.getPerun().getGroupsManager().getGroupByName(session, vo, "members");
+			AuthzResolver.setRole(session, user, membersGroup, Role.GROUPADMIN);
 
 		}
 

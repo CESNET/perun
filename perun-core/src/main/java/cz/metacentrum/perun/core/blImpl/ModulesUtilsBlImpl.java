@@ -55,7 +55,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		        "gdm", "glite", "gnats", "haldaemon", "identd", "irc", "libuuid", "list", "lp", "mail", "man",
 		        "messagebus", "news", "nobody", "ntp", "openslp", "pcp", "polkituser", "postfix", "proxy",
 		        "pulse", "puppet", "root", "saned", "smmsp", "smmta", "sshd", "statd", "suse-ncc", "sync",
-		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "oneadmin", "tomcat6", "tomcat7", "tomcat8",
+		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "tomcat6", "tomcat7", "tomcat8",
 		        "nn", "dn", "rm", "nm", "sn", "jn", "jhs", "http", "yarn", "hdfs", "mapred", "hadoop", "hsqldb", "derby",
 		        "jetty", "hbase", "zookeeper", "hive", "hue");
 

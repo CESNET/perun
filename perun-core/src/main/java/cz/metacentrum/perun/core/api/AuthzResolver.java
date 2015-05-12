@@ -475,7 +475,6 @@ public class AuthzResolver {
 	 * @return perunPrincipal object
 	 * @throws InternalErrorException if the PerunSession is not valid.
 	 */
-	@Deprecated
 	public static PerunPrincipal getPerunPrincipal(PerunSession sess) throws InternalErrorException, UserNotExistsException {
 		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.getPerunPrincipal(sess);
 	}
