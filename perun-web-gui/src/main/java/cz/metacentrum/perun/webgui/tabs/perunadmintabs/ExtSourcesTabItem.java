@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.webgui.tabs.perunadmintabs;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
@@ -7,12 +9,15 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.extSourcesManager.GetExtSources;
+import cz.metacentrum.perun.webgui.json.extSourcesManager.LoadExtSourcesDefinitions;
 import cz.metacentrum.perun.webgui.model.ExtSource;
 import cz.metacentrum.perun.webgui.tabs.PerunAdminTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
@@ -70,6 +75,17 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 			}
 		}, "Filter external sources by name or type");
 
+		final CustomButton loadButton = new CustomButton("Load ext sources", "Load ext sources definitions from a local file.", SmallIcons.INSTANCE.worldIcon());
+		loadButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				LoadExtSourcesDefinitions loadCall = new LoadExtSourcesDefinitions(JsonCallbackEvents.disableButtonEvents(loadButton, JsonCallbackEvents.refreshTableEvents(getExtSources)));
+				loadCall.retrieveData();
+			}
+		});
+
+		menu.addWidget(loadButton);
+
 		// get CellTable from jsonCall
 		CellTable<ExtSource> extSourcesTable = getExtSources.getTable();
 		extSourcesTable.setStyleName("perun-table");
@@ -82,8 +98,6 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 		mainPage.add(scrollTable);
 
 		session.getUiElements().resizePerunTable(scrollTable, 350, this);
-
-
 		this.contentWidget.setWidget(mainPage);
 
 		return getWidget();
