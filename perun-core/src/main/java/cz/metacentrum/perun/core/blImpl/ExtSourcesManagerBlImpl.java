@@ -214,6 +214,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			if (attrName.startsWith(AttributesManager.NS_MEMBER_ATTR) || attrName.startsWith(AttributesManager.NS_USER_ATTR)) {
 				attributes.put(attrName, subject.get(attrName));
 			} else if (attrName.startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
+				if(subject.get(attrName) == null) continue; //skip null additional ext sources
 				// Add additionalUserExtSources
 				String[] userExtSourceRaw =  subject.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
 				log.debug("Processing additionalUserExtSource {}",  subject.get(attrName));
@@ -306,6 +307,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			if (attrName.startsWith(AttributesManager.NS_MEMBER_ATTR) || attrName.startsWith(AttributesManager.NS_USER_ATTR)) {
 				attributes.put(attrName, subjectData.get(attrName));
 			} else if (attrName.startsWith(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING)) {
+				if(subjectData.get(attrName) == null) continue; //skip null additional ext sources
 				// Add additionalUserExtSources
 				String[] userExtSourceRaw =  subjectData.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
 				log.debug("Processing additionalUserExtSource {}",  subjectData.get(attrName));
