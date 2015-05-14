@@ -329,7 +329,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				try {
 					method = attributeHolder.getClass().getMethod(methodName);
 				} catch(NoSuchMethodException ex) {
-					throw new InternalErrorRuntimeException("Bad core attribute definition. " + attribute , ex);
+					//try also "is"
+					log.debug("Bad core attribute definition for methodname " + methodName);
+					try {
+						methodName = "is" + Character.toUpperCase(attribute.getFriendlyName().charAt(0)) + attribute.getFriendlyName().substring(1);
+						method = attributeHolder.getClass().getMethod(methodName);
+					} catch (NoSuchMethodException e) {
+						throw new InternalErrorRuntimeException("Bad core attribute definition. " + attribute , e);
+					}
 				}
 				try {
 					Object value = method.invoke(attributeHolder);
@@ -4921,6 +4928,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setType(String.class.getName());
 		attr.setFriendlyName("titleAfter");
 		attr.setDisplayName("User title after");
+		attributes.add(attr);
+
+		//User.titleAfter
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
+		attr.setType(Boolean.class.getName());
+		attr.setFriendlyName("serviceUser");
+		attr.setDisplayName("If user is service user or not.");
 		attributes.add(attr);
 
 		//Group.id
