@@ -47,7 +47,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private Perun perun;
 	private PerunSession perunSession;
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	@Autowired
 	private DispatcherQueuePool dispatcherQueuePool;
 
@@ -452,10 +452,10 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		if (perunSession == null) {
 			perunSession = perun
 					.getPerunSession(new PerunPrincipal(
-							propertiesBean.getProperty("perun.principal.name"),
-							propertiesBean
+							dispatcherPropertiesBean.getProperty("perun.principal.name"),
+							dispatcherPropertiesBean
 									.getProperty("perun.principal.extSourceName"),
-							propertiesBean
+							dispatcherPropertiesBean
 									.getProperty("perun.principal.extSourceType")));
 		}
 	}

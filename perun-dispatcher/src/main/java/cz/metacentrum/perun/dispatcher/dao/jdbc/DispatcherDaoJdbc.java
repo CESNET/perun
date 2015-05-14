@@ -14,7 +14,7 @@ import cz.metacentrum.perun.dispatcher.dao.DispatcherDao;
 public class DispatcherDaoJdbc extends JdbcDaoSupport implements DispatcherDao {
 
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	private SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
 	private void cleanUpOldRecords() {
@@ -25,8 +25,8 @@ public class DispatcherDaoJdbc extends JdbcDaoSupport implements DispatcherDao {
 	public void registerDispatcher() {
 		cleanUpOldRecords();
 		this.getJdbcTemplate().update("insert into dispatcher_settings(ip_address, port, last_check_in) values (?,?,to_date(?,'YYYYMMDD HH24:MI:SS'))",
-				propertiesBean.getProperty("dispatcher.ip.address"),
-				Integer.parseInt(propertiesBean.getProperty("dispatcher.port")),
+				dispatcherPropertiesBean.getProperty("dispatcher.ip.address"),
+				Integer.parseInt(dispatcherPropertiesBean.getProperty("dispatcher.port")),
 				formater.format(new Date(System.currentTimeMillis())));
 	}
 
@@ -34,15 +34,15 @@ public class DispatcherDaoJdbc extends JdbcDaoSupport implements DispatcherDao {
 	public void checkIn() {
 		this.getJdbcTemplate().update("update dispatcher_settings set last_check_in = to_date(?,'YYYYMMDD HH24:MI:SS') where ip_address = ?",
 				formater.format(new Date(System.currentTimeMillis())),
-				propertiesBean.getProperty("dispatcher.ip.address"));
+				dispatcherPropertiesBean.getProperty("dispatcher.ip.address"));
 	}
 
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
+	public void setDispatcherPropertiesBean(Properties propertiesBean) {
+		this.dispatcherPropertiesBean = propertiesBean;
 	}
 
-	public Properties getPropertiesBean() {
-		return propertiesBean;
+	public Properties getDispatcherPropertiesBean() {
+		return dispatcherPropertiesBean;
 	}
 
 }

@@ -61,7 +61,7 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 	@Autowired
 	private ProcessingRuleDao processingRuleDao;
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	@Autowired
 	private Perun perun;
 	@Autowired
@@ -193,9 +193,9 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 
 			PerunSession perunSession = perun
 					.getPerunSession(new PerunPrincipal(
-							propertiesBean.getProperty("perun.principal.name"),
-							propertiesBean.getProperty("perun.principal.extSourceName"),
-							propertiesBean.getProperty("perun.principal.extSourceType")));
+							dispatcherPropertiesBean.getProperty("perun.principal.name"),
+							dispatcherPropertiesBean.getProperty("perun.principal.extSourceName"),
+							dispatcherPropertiesBean.getProperty("perun.principal.extSourceType")));
 			// Try to find FACILITY in event
 			if (facility != null) {
 				try {
@@ -355,9 +355,9 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 	public void refreshProcessingRules() throws ServiceNotExistsException,
 			InternalErrorException, PrivilegeException {
 		PerunSession perunSession = perun.getPerunSession(new PerunPrincipal(
-				propertiesBean.getProperty("perun.principal.name"),
-				propertiesBean.getProperty("perun.principal.extSourceName"),
-				propertiesBean.getProperty("perun.principal.extSourceType")));
+				dispatcherPropertiesBean.getProperty("perun.principal.name"),
+				dispatcherPropertiesBean.getProperty("perun.principal.extSourceName"),
+				dispatcherPropertiesBean.getProperty("perun.principal.extSourceType")));
 		rules.clear();
 		rules.putAll(processingRuleDao.getRules(perunSession));
 	}
@@ -375,12 +375,12 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 		this.processingRuleDao = processingRuleDao;
 	}
 
-	public Properties getPropertiesBean() {
-		return propertiesBean;
+	public Properties getDispatcherPropertiesBean() {
+		return dispatcherPropertiesBean;
 	}
 
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
+	public void setDispatcherPropertiesBean(Properties propertiesBean) {
+		this.dispatcherPropertiesBean = propertiesBean;
 	}
 
 	public Perun getPerun() {

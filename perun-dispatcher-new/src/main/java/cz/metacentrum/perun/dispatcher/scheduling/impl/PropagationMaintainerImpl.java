@@ -65,7 +65,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 * @Autowired private GeneralServiceManager generalServiceManager;
 	 */
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	private PerunSession perunSession;
 
 	/**
@@ -78,10 +78,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		try {
 			perunSession = perun
 					.getPerunSession(new PerunPrincipal(
-							propertiesBean.getProperty("perun.principal.name"),
-							propertiesBean
+							dispatcherPropertiesBean.getProperty("perun.principal.name"),
+							dispatcherPropertiesBean
 									.getProperty("perun.principal.extSourceName"),
-							propertiesBean
+							dispatcherPropertiesBean
 									.getProperty("perun.principal.extSourceType")));
 		} catch (InternalErrorException e1) {
 			// TODO Auto-generated catch block
@@ -551,12 +551,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		this.taskScheduler = taskScheduler;
 	}
 
-	public Properties getPropertiesBean() {
-		return propertiesBean;
+	public Properties getDispatcherPropertiesBean() {
+		return dispatcherPropertiesBean;
 	}
 
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
+	public void setDispatcherPropertiesBean(Properties propertiesBean) {
+		this.dispatcherPropertiesBean = propertiesBean;
 	}
 
 }

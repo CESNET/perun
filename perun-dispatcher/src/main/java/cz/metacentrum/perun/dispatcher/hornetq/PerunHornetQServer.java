@@ -23,7 +23,7 @@ public class PerunHornetQServer {
 	private final static Logger log = LoggerFactory.getLogger(PerunHornetQServer.class);
 
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	private FileConfiguration configuration = null;
 	private HornetQServer server = null;
 	private JMSServerManager jmsServerManager = null;
@@ -32,8 +32,8 @@ public class PerunHornetQServer {
 	public void startServer() {
 		try {
 
-			System.setProperty("perun.dispatcher.hornetq.remoting.netty.host", propertiesBean.getProperty("dispatcher.ip.address"));
-			System.setProperty("perun.dispatcher.hornetq.remoting.netty.port", propertiesBean.getProperty("dispatcher.port"));
+			System.setProperty("perun.dispatcher.hornetq.remoting.netty.host", dispatcherPropertiesBean.getProperty("dispatcher.ip.address"));
+			System.setProperty("perun.dispatcher.hornetq.remoting.netty.port", dispatcherPropertiesBean.getProperty("dispatcher.port"));
 
 			configuration = new FileConfiguration();
 			configuration.setConfigurationUrl("hornetq-configuration.xml");
@@ -70,11 +70,11 @@ public class PerunHornetQServer {
 		return serverRunning;
 	}
 
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
+	public void setDispatcherPropertiesBean(Properties propertiesBean) {
+		this.dispatcherPropertiesBean = propertiesBean;
 	}
 
-	public Properties getPropertiesBean() {
-		return propertiesBean;
+	public Properties getDispatcherPropertiesBean() {
+		return dispatcherPropertiesBean;
 	}
 }
