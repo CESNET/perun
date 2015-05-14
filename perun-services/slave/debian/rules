@@ -16,7 +16,6 @@
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-
 build: build-stamp
 
 build-stamp:
@@ -24,7 +23,7 @@ build-stamp:
 
 	touch $@
 
-clean: 
+clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
@@ -32,21 +31,21 @@ clean:
 	# Add here commands to clean up after the build process.
 	#$(MAKE) clean
 
-	dh_clean 
+	dh_clean
 
-install: build-stamp 
+install: build-stamp
 	dh_testdir
 	dh_testroot
-	dh_clean 
-	dh_prep 
+	dh_clean
+	dh_prep
 	dh_installdirs -i
 
 	# Add here commands to install the indep part of the package into
 	# debian/<package>-doc.
 	#INSTALLDOC#
 
-	dh_install -i -X .svn
-	dh_install -i -X .svn *.d opt/perun/bin
+	# install listed folders and files only
+	dh_install -i -X .svn -X prepare_rpm_spec_file ldap *.d opt/perun/bin
 
 binary-arch: build install
 
@@ -54,12 +53,12 @@ binary-indep: build install
 
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs 
+	dh_installchangelogs
 	dh_installdocs
 	dh_installexamples
 #	dh_installmenu
-	dh_installdebconf	
-#	dh_installlogrotate	
+	dh_installdebconf
+#	dh_installlogrotate
 #	dh_installemacsen
 #	dh_installpam
 #	dh_installmime
@@ -70,7 +69,7 @@ binary-indep: build install
 	dh_installman
 	dh_link
 	dh_strip
-	dh_compress 
+	dh_compress
 	dh_fixperms
 #	dh_perl
 	dh_makeshlibs
