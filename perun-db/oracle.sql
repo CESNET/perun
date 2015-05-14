@@ -712,21 +712,6 @@ create table member_resource_attr_values (
 	modified_by_uid integer
 );
 
-create table member_group_attr_values (
-	member_id integer not null,
-	group_id integer not null,
-	attr_id integer not null,
-	attr_value nvarchar2(4000),
-	created_at date default sysdate not null,
-	created_by nvarchar2(1024) default user not null,
-	modified_at date default sysdate not null,
-	modified_by nvarchar2(1024) default user not null,
-	status char(1) default '0' not null,
-	attr_value_text clob,
-	created_by_uid integer,
-	modified_by_uid integer
-);
-
 create table user_attr_values (
 	user_id integer not null,
 	attr_id integer not null,
@@ -1220,9 +1205,6 @@ create index IDX_FK_TAGS_RES_TAGS on tags_resources(tag_id);
 create index IDX_FK_TAGS_RES_RES on tags_resources(resource_id);
 create index IDX_FK_MAILCHANGE_USER_ID on mailchange(user_id);
 create index IDX_FK_PWDRESET_USER_ID on pwdreset(user_id);
-create index IDX_FK_MEMGAV_MEM on member_group_attr_values(member_id);
-create index IDX_FK_MEMGAV_GRP on member_group_attr_values(group_id);
-create index IDX_FK_MEMGAV_ACCATTNAM on member_group_attr_values(attr_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
@@ -1414,12 +1396,6 @@ alter table group_attr_values add (
 constraint GRPATTVAL_PK primary key (group_id,attr_id),
 constraint GRPATTVAL_GRP_FK foreign key (group_id) references groups(id),
 constraint GRPATTVAL_ATTR_FK foreign key (attr_id) references attr_names(id)
-);
-alter table member_group_attr_values add (
-constraint MEMGAV_MEM_FK foreign key (member_id) references members(id),
-constraint MEMGAV_GRP_FK foreign key (group_id) references groups(id),
-constraint MEMGAV_ACCATTNAM_FK foreign key (attr_id) references attr_names(id),
-constraint MEMGAV_U unique(member_id,group_id,attr_id)
 );
 alter table group_resource_attr_values add (
 constraint GRPRESAV_PK primary key (group_id,resource_id,attr_id),
