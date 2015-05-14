@@ -22,7 +22,6 @@
 		<module>perun-ldapc</module>
 		<module>perun-rpc</module>
 		<module>perun-notification</module>
-		<module>perun-dispatcher</module>
 		<module>perun-dispatcher-new</module>
 		<module>perun-engine</module>
 		<module>perun-web-gui</module>
