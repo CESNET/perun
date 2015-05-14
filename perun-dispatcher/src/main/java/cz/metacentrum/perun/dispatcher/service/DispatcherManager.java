@@ -3,38 +3,35 @@ package cz.metacentrum.perun.dispatcher.service;
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 public interface DispatcherManager {
 
-	///Database///
-	void registerDispatcher();
-
-	void checkIn();
-
-	///HornetQ server///
+	// /HornetQ server///
 	void startPerunHornetQServer();
 
 	void stopPerunHornetQServer();
 
-	///Prefetch rules and Dispatcher queues///
+	// /Prefetch rules and Dispatcher queues///
 	void prefetchRulesAndDispatcherQueues() throws PerunHornetQServerException;
 
-	///System Queue Processor///
+	// /System Queue Processor///
 	void startProcessingSystemMessages();
 
 	void stopProcessingSystemMessages();
 
-	///Parsing data///
+	// /Parsing data///
 	void startParsingData();
 
 	void stopParsingData();
 
-	///Event Processor///
+	// /Event Processor///
 	void startPocessingEvents();
 
 	void stopPocessingEvents();
+
+	// /Task database///
+	void loadSchedulingPool();
 }

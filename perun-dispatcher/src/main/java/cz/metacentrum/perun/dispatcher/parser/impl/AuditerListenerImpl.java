@@ -14,7 +14,8 @@ import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 
 @org.springframework.stereotype.Service(value = "auditerListener")
 public class AuditerListenerImpl implements AuditerListener {
-	private final static Logger log = LoggerFactory.getLogger(ParserGrouper.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(ParserGrouper.class);
 	private EventQueue eventQueue;
 	private AuditerConsumer auditerConsumer;
 	private String dispatcherName;
@@ -27,7 +28,8 @@ public class AuditerListenerImpl implements AuditerListener {
 	@Override
 	public void init() {
 		try {
-			this.auditerConsumer = new AuditerConsumer(dispatcherName, dataSource);
+			this.auditerConsumer = new AuditerConsumer(dispatcherName,
+					dataSource);
 			while (running) {
 				for (String message : auditerConsumer.getMessagesForParser()) {
 					Event event = new Event();

@@ -2,7 +2,7 @@ package cz.metacentrum.perun.dispatcher.exceptions;
 
 /**
  * Checked version of PerunHornetQServerException.
- *
+ * 
  * @author Michal Karm Babacek
  */
 public class PerunHornetQServerException extends DispatcherException {

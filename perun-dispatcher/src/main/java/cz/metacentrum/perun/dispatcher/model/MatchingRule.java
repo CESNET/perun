@@ -3,10 +3,9 @@ package cz.metacentrum.perun.dispatcher.model;
 import java.util.List;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 public class MatchingRule {
 

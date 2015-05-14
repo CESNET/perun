@@ -13,10 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import cz.metacentrum.perun.dispatcher.dao.RulesDao;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 @Transactional
 public class RulesDaoJdbc extends JdbcDaoSupport implements RulesDao {
@@ -25,7 +24,8 @@ public class RulesDaoJdbc extends JdbcDaoSupport implements RulesDao {
 
 		public EngineRules mapRow(ResultSet rs, int i) throws SQLException {
 			EngineRules engineRules = new EngineRules();
-			Integer clientID = rs.getInt("engine_id");
+			// Integer clientID = rs.getInt("engine_id");
+			Integer clientID = 2;
 			engineRules.setEngineID(clientID);
 			engineRules.setRoutingRules(loadRoutingRulesForEngine(clientID));
 			return engineRules;
@@ -35,10 +35,12 @@ public class RulesDaoJdbc extends JdbcDaoSupport implements RulesDao {
 
 	@Override
 	public Map<Integer, List<String>> loadRoutingRules() {
-		List<EngineRules> results = this.getJdbcTemplate().query("select engines.id as engine_id from engines", allRulesMapper);
+		List<EngineRules> results = this.getJdbcTemplate().query(
+				"select engines.id as engine_id from engines", allRulesMapper);
 		Map<Integer, List<String>> allRules = new HashMap<Integer, List<String>>();
 		for (EngineRules engineRules : results) {
-			allRules.put(engineRules.getEngineID(), engineRules.getRoutingRules());
+			allRules.put(engineRules.getEngineID(),
+					engineRules.getRoutingRules());
 		}
 		return allRules;
 
@@ -46,7 +48,11 @@ public class RulesDaoJdbc extends JdbcDaoSupport implements RulesDao {
 
 	@Override
 	public List<String> loadRoutingRulesForEngine(int clientID) {
-		return this.getJdbcTemplate().queryForList("select routing_rules.routing_rule from routing_rules, engine_routing_rule where routing_rules.id = engine_routing_rule.routing_rule_id and engine_routing_rule.engine_id = ?", new Integer[] { clientID }, String.class);
+		return this
+				.getJdbcTemplate()
+				.queryForList(
+						"select routing_rules.routing_rule from routing_rules, engine_routing_rule where routing_rules.id = engine_routing_rule.routing_rule_id and engine_routing_rule.engine_id = ?",
+						new Integer[] { clientID }, String.class);
 	}
 
 	private class EngineRules {

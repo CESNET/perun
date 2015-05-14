@@ -1,7 +1,15 @@
 package cz.metacentrum.perun.dispatcher.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Properties;
+
+import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.dispatcher.dao.DispatcherDao;
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
@@ -9,19 +17,18 @@ import cz.metacentrum.perun.dispatcher.jms.SystemQueueProcessor;
 import cz.metacentrum.perun.dispatcher.parser.ParserManager;
 import cz.metacentrum.perun.dispatcher.processing.EventProcessor;
 import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
+import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 @org.springframework.stereotype.Service(value = "dispatcherManager")
 public class DispatcherManagerImpl implements DispatcherManager {
+	private final static Logger log = LoggerFactory.getLogger(DispatcherManagerImpl.class);
 
-	@Autowired
-	private DispatcherDao dispatcherDao;
 	@Autowired
 	private PerunHornetQServer perunHornetQServer;
 	@Autowired
@@ -32,16 +39,10 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	private EventProcessor eventProcessor;
 	@Autowired
 	private SmartMatcher smartMatcher;
-
-	@Override
-	public void registerDispatcher() {
-		dispatcherDao.registerDispatcher();
-	}
-
-	@Override
-	public void checkIn() {
-		dispatcherDao.checkIn();
-	}
+	@Autowired
+	private SchedulingPool schedulingPool;
+	@Autowired
+	private Properties dispatcherPropertiesBean;
 
 	@Override
 	public void startPerunHornetQServer() {
@@ -54,7 +55,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	}
 
 	@Override
-	public void prefetchRulesAndDispatcherQueues() throws PerunHornetQServerException{
+	public void prefetchRulesAndDispatcherQueues()
+			throws PerunHornetQServerException {
 		smartMatcher.loadAllRulesFromDB();
 		systemQueueProcessor.createDispatcherQueuesForClients(smartMatcher.getClientsWeHaveRulesFor());
 	}
@@ -81,23 +83,20 @@ public class DispatcherManagerImpl implements DispatcherManager {
 
 	@Override
 	public void startPocessingEvents() {
-		eventProcessor.startPocessingEvents();
+		eventProcessor.startProcessingEvents();
 	}
 
 	@Override
 	public void stopPocessingEvents() {
-		eventProcessor.stopPocessingEvents();
-	}
-
-	public void setDispatcherDao(DispatcherDao dispatcherDao) {
-		this.dispatcherDao = dispatcherDao;
+		eventProcessor.stopProcessingEvents();
 	}
 
 	public void setPerunHornetQServer(PerunHornetQServer perunHornetQServer) {
 		this.perunHornetQServer = perunHornetQServer;
 	}
 
-	public void setSystemQueueProcessor(SystemQueueProcessor systemQueueProcessor) {
+	public void setSystemQueueProcessor(
+			SystemQueueProcessor systemQueueProcessor) {
 		this.systemQueueProcessor = systemQueueProcessor;
 	}
 
@@ -112,5 +111,23 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	public void setSmartMatcher(SmartMatcher smartMatcher) {
 		this.smartMatcher = smartMatcher;
 	}
+
+	@Override
+	public void loadSchedulingPool() {
+		schedulingPool.reloadTasks();
+	}
+
+	/*
+	 * public PerunSession getPerunSession() { if (this.dispatcherSession ==
+	 * null) { try { String perunPrincipal =
+	 * propertiesBean.getProperty("perun.principal.name"); String extSourceName
+	 * = propertiesBean.getProperty("perun.principal.extSourceName"); String
+	 * extSourceType =
+	 * propertiesBean.getProperty("perun.principal.extSourceType");
+	 * PerunPrincipal pp = new PerunPrincipal(perunPrincipal, extSourceName,
+	 * extSourceType); this.dispatcherSession = perun.getPerunSession(pp); }
+	 * catch (InternalErrorException e) { log.error(e.toString()); } } return
+	 * this.dispatcherSession; }
+	 */
 
 }

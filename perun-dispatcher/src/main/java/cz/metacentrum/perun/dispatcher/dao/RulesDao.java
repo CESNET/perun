@@ -4,14 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 public interface RulesDao {
 
-	Map<Integer,List<String>> loadRoutingRules();
+	Map<Integer, List<String>> loadRoutingRules();
 
 	List<String> loadRoutingRulesForEngine(int clientID);
 }

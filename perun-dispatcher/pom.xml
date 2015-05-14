@@ -19,6 +19,7 @@
 
 	<properties>
 		<!-- custom properties for all profiles -->
+		<perun.test.groups>unit-tests</perun.test.groups>
 	</properties>
 
 	<!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
@@ -60,6 +61,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
 				<configuration>
 					<archive>
 						<index>true</index>
@@ -142,37 +144,55 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- DBs -->
-		<!-- PostgreSQL driver -->
 		<dependency>
-			<groupId>postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-		</dependency>
-		<!-- Oracle jdbc driver -->
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc7</artifactId>
-		</dependency>
-		<!-- Oracle inernationalization -->
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>orai18n</artifactId>
-		</dependency>
-		<!-- SQL Lite -->
-		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-		</dependency>
-		<!-- Mysql -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-beans</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-tasks-lib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-controller</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- DB -->
+
+		<!-- use tomcat dbcp instead 
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 			<version>1.4</version>
+		</dependency>
+ 		-->
+ 		
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-dbcp</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.2.8</version>
+		</dependency>
+
+		<!-- Commented for test on perun-dev.meta.zcu.cz  -->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc7</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 		</dependency>
 
 		<!-- SPRING -->

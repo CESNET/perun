@@ -12,15 +12,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 @org.springframework.stereotype.Service(value = "systemQueueReceiver")
 public class SystemQueueReceiver implements Runnable {
 
-	private final static Logger log = LoggerFactory.getLogger(SystemQueueReceiver.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(SystemQueueReceiver.class);
 
 	@Autowired
 	private SystemQueueProcessor systemQueueProcessor;
@@ -65,12 +65,17 @@ public class SystemQueueReceiver implements Runnable {
 			messageReceived = null;
 			try {
 				log.debug("Gonna call messageConsumer.receive(timeout)...");
-				messageReceived = (TextMessage) messageConsumer.receive(timeout);
+				messageReceived = (TextMessage) messageConsumer
+						.receive(timeout);
 				if (messageReceived != null) {
 					if (log.isDebugEnabled()) {
-						log.debug("System message received[" + messageReceived.getText() + "]");
+						log.debug("System message received["
+								+ messageReceived.getText() + "]");
 					}
-					systemQueueProcessor.processDispatcherQueueAndMatchingRule(messageReceived.getText());
+					systemQueueProcessor
+							.processDispatcherQueueAndMatchingRule(messageReceived
+									.getText());
+					messageReceived.acknowledge();
 				}
 				if (log.isDebugEnabled()) {
 					if (messageReceived == null) {

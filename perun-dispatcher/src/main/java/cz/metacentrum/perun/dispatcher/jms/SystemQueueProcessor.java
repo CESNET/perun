@@ -24,16 +24,19 @@ import cz.metacentrum.perun.dispatcher.exceptions.MessageFormatException;
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
 import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
+import cz.metacentrum.perun.dispatcher.scheduling.PropagationMaintainer;
+import cz.metacentrum.perun.dispatcher.scheduling.TaskScheduler;
 
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
 @org.springframework.stereotype.Service(value = "systemQueueProcessor")
 public class SystemQueueProcessor {
 
-	private final static Logger log = LoggerFactory.getLogger(SystemQueueProcessor.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(SystemQueueProcessor.class);
 
 	@Autowired
 	private Properties dispatcherPropertiesBean;
@@ -48,6 +51,9 @@ public class SystemQueueProcessor {
 	private Session session = null;
 	@Autowired
 	private SystemQueueReceiver systemQueueReceiver;
+	@Autowired
+	private PropagationMaintainer propagationMaintainer;
+
 	private boolean processingMessages = false;
 	private boolean systemQueueInitiated = false;
 
@@ -60,16 +66,25 @@ public class SystemQueueProcessor {
 			log.debug("Creating transport configuration...");
 			Map<String, Object> connectionParams = new HashMap<String, Object>();
 			if (log.isDebugEnabled()) {
-				log.debug("Gonna connect to the host[" + dispatcherPropertiesBean.getProperty("dispatcher.ip.address") + "] on port[" + dispatcherPropertiesBean.getProperty("dispatcher.port") + "]...");
+				log.debug("Gonna connect to the host["
+						+ dispatcherPropertiesBean.getProperty("dispatcher.ip.address")
+						+ "] on port["
+						+ dispatcherPropertiesBean.getProperty("dispatcher.port")
+						+ "]...");
 			}
-			connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.parseInt(dispatcherPropertiesBean.getProperty("dispatcher.port")));
-			connectionParams.put(TransportConstants.HOST_PROP_NAME, dispatcherPropertiesBean.getProperty("dispatcher.ip.address"));
-			TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams);
+			connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer
+					.parseInt(dispatcherPropertiesBean.getProperty("dispatcher.port")));
+			connectionParams.put(TransportConstants.HOST_PROP_NAME,
+					dispatcherPropertiesBean.getProperty("dispatcher.ip.address"));
+			TransportConfiguration transportConfiguration = new TransportConfiguration(
+					NettyConnectorFactory.class.getName(), connectionParams);
 
 			// Step 3 Directly instantiate the JMS ConnectionFactory object
 			// using that TransportConfiguration
 			log.debug("Creating connection factory...");
-			ConnectionFactory cf = (ConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+			ConnectionFactory cf = (ConnectionFactory) HornetQJMSClient
+					.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+							transportConfiguration);
 
 			// Step 4.Create a JMS Connection
 			log.debug("Creating connection...");
@@ -92,8 +107,14 @@ public class SystemQueueProcessor {
 			processingMessages = true;
 		} catch (JMSException e) {
 			// If unable to connect to the server...
-			log.error("Connection failed. \nThis is weird...are you sure that the Perun-Dispatcher is running on host[" + dispatcherPropertiesBean.getProperty("dispatcher.ip.address") + "] on port["
-					+ dispatcherPropertiesBean.getProperty("dispatcher.port") + "] ? \nSee: dispatcher-config.properties. We gonna wait 5 sec and try again...", e);
+			log.error(
+					"Connection failed. \nThis is weird...are you sure that the Perun-Dispatcher is running on host["
+							+ dispatcherPropertiesBean
+									.getProperty("dispatcher.ip.address")
+							+ "] on port["
+							+ dispatcherPropertiesBean.getProperty("dispatcher.port")
+							+ "] ? \nSee: perun-dispatcher.properties. We gonna wait 5 sec and try again...",
+					e);
 
 			throw new RuntimeException(e);
 		} catch (Exception e) {
@@ -125,8 +146,11 @@ public class SystemQueueProcessor {
 		return systemQueueInitiated;
 	}
 
-	protected void processDispatcherQueueAndMatchingRule(String systemMessagetext) throws PerunHornetQServerException, MessageFormatException {
-		if (perunHornetQServer.isServerRunning() && perunHornetQServer.getJMSServerManager() != null) {
+	protected void processDispatcherQueueAndMatchingRule(
+			String systemMessagetext) throws PerunHornetQServerException,
+			MessageFormatException {
+		if (perunHornetQServer.isServerRunning()
+				&& perunHornetQServer.getJMSServerManager() != null) {
 			if (log.isDebugEnabled()) {
 				log.debug("Processing system message:" + systemMessagetext);
 			}
@@ -143,43 +167,72 @@ public class SystemQueueProcessor {
 			// where x is an Integer that represents Engine's ID in the Perun
 			// DB.
 
-			String[] clientIDsplitter = systemMessagetext.split(":");
-			if (!clientIDsplitter[0].equalsIgnoreCase("register")) {
-				throw new MessageFormatException("Client (Perun-Engine) sent a malformed message [" + systemMessagetext + "]");
-			}
+			// Task status message
+			// task:x:y:status:dest
+			// where x is an Integer that represents Engine's ID in the Perun
+			// y is an Integer that represents task ID
+			// status is string representation of task status
+			// dest is an comma separated list of successfully updated
+			// destinations
+			// (empty for DONE tasks)
+
+			String[] clientIDsplitter = systemMessagetext.split(":", 5);
 			int clientID = 0;
 			try {
 				clientID = Integer.parseInt(clientIDsplitter[1]);
 			} catch (NumberFormatException e) {
-				throw new MessageFormatException("Client (Perun-Engine) sent a malformed message [" + systemMessagetext + "]", e);
+				throw new MessageFormatException(
+						"Client (Perun-Engine) sent a malformed message ["
+								+ systemMessagetext + "]", e);
 			}
 
-			// Do we have this queue already?
-			DispatcherQueue dispatcherQueue = null;
-			dispatcherQueue = dispatcherQueuePool.getDispatcherQueueByClient(clientID);
-			// Yes, so we just reload matching rules...
-			if (dispatcherQueue != null) {
+			if (clientIDsplitter[0].equalsIgnoreCase("register")) {
 
-				smartMatcher.reloadRulesFromDBForEngine(clientID);
+				// Do we have this queue already?
+				DispatcherQueue dispatcherQueue = null;
+				dispatcherQueue = dispatcherQueuePool
+						.getDispatcherQueueByClient(clientID);
+				// Yes, so we just reload matching rules...
+				if (dispatcherQueue != null) {
 
-				// No, we have to create the whole JMS queue and load matching
-				// rules...
+					smartMatcher.reloadRulesFromDBForEngine(clientID);
+
+					// No, we have to create the whole JMS queue and load
+					// matching
+					// rules...
+				} else {
+					createDispatcherQueueForClient(clientID);
+				}
+			} else if (clientIDsplitter[0].equalsIgnoreCase("goodbye")) {
+				// engine going down, should mark all tasks as failed
+				propagationMaintainer.closeTasksForEngine(clientID);
+			} else if (clientIDsplitter[0].equalsIgnoreCase("task")) {
+				// task complete...
+				propagationMaintainer.onTaskComplete(
+						Integer.parseInt(clientIDsplitter[2]), clientID,
+						clientIDsplitter[3], clientIDsplitter[4]);
 			} else {
-				createDispatcherQueueForClient(clientID);
+				throw new MessageFormatException(
+						"Client (Perun-Engine) sent a malformed message ["
+								+ systemMessagetext + "]");
 			}
 
 		} else {
-			throw new PerunHornetQServerException("It looks like the HornetQ server is not running or JMSServerManager is fucked up...");
+			throw new PerunHornetQServerException(
+					"It looks like the HornetQ server is not running or JMSServerManager is fucked up...");
 		}
 	}
 
-	public void createDispatcherQueuesForClients(Set<Integer> clientIDs) throws PerunHornetQServerException {
-		if (perunHornetQServer.isServerRunning() && perunHornetQServer.getJMSServerManager() != null) {
+	public void createDispatcherQueuesForClients(Set<Integer> clientIDs)
+			throws PerunHornetQServerException {
+		if (perunHornetQServer.isServerRunning()
+				&& perunHornetQServer.getJMSServerManager() != null) {
 			for (Integer clientID : clientIDs) {
 				createDispatcherQueueForClient(clientID);
 			}
 		} else {
-			throw new PerunHornetQServerException("It looks like the HornetQ server is not running or JMSServerManager is fucked up...");
+			throw new PerunHornetQServerException(
+					"It looks like the HornetQ server is not running or JMSServerManager is fucked up...");
 		}
 	}
 
@@ -187,12 +240,14 @@ public class SystemQueueProcessor {
 		// Create a new queue
 		String queueName = "queue" + clientID;
 		try {
-			perunHornetQServer.getJMSServerManager().createQueue(false, queueName, null, false, new String[0]);
+			perunHornetQServer.getJMSServerManager().createQueue(false,
+					queueName, null, false, new String[0]);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
 
-		DispatcherQueue dispatcherQueue = new DispatcherQueue(clientID, queueName, session);
+		DispatcherQueue dispatcherQueue = new DispatcherQueue(clientID,
+				queueName, session);
 		// Rules
 		smartMatcher.reloadRulesFromDBForEngine(clientID);
 		// Add to the queue
