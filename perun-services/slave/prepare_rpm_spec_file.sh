@@ -36,10 +36,14 @@ rm -rf %{buildroot}
 
 %install
 mkdir -p %{buildroot}%{perun_home}
+mkdir -p %{buildroot}%{perun_home}/ldap
 install perun *.sh %{buildroot}%{perun_home}
+install ldap/* %{buildroot}%{perun_home}/ldap
+
 rsync -arvz *.d %{buildroot}%{perun_home} --exclude=".svn"
 
 %files
+%exclude %{perun_home}/prepare_rpm_spec_file.sh
 %defattr(-,root,root)
 %config(noreplace) %{perun_home}/*.d/*
 %{perun_home}

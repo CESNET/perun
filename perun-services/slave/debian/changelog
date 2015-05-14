@@ -1,3 +1,10 @@
+perun-slave (3.0.0-0.0.90) stable; urgency=low
+
+  * Added ldap folder with shared scripts for all ldap services.
+  * Removed build help file prepare_rpm_spec_file.sh from the package.
+
+ -- Pavel Zlamal <zlamal@cesnet.cz>  Wed, 05 May 2015 11:32:00 +0100
+
 perun-slave (3.0.0-0.0.89) stable; urgency=low
 
   * Add new service ldap_vsb_vi
