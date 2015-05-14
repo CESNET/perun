@@ -34,4 +34,6 @@ public interface DispatcherManager {
 
 	// /Task database///
 	void loadSchedulingPool();
+	
+	void cleanOldTaskResults();
 }

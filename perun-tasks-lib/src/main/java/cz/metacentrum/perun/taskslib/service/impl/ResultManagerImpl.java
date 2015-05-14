@@ -5,7 +5,9 @@ import java.util.List;
 import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.service.ResultManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,6 +80,11 @@ public class ResultManagerImpl implements ResultManager {
 	}
 
 	@Override
+	public int clearOld(int engineID, int numDays) throws InternalErrorException {
+		return taskResultDao.clearOld(engineID, numDays);
+	}
+
+	@Override
 	public List<TaskResult> getTaskResultsByTask(int taskId, int engineID) {
 		return taskResultDao.getTaskResultsByTask(taskId, engineID);
 	}
@@ -93,4 +100,5 @@ public class ResultManagerImpl implements ResultManager {
 	public TaskResultDao getTaskResultDao() {
 		return taskResultDao;
 	}
+
 }
