@@ -10,11 +10,11 @@
 	</parent>
 
 	<groupId>cz.metacentrum.perun</groupId>
-	<artifactId>perun-dispatcher-new</artifactId>
+	<artifactId>perun-dispatcher</artifactId>
 	<version>3.0.1-SNAPSHOT-${perun.build.type}</version>
 	<packaging>jar</packaging>
 
-	<name>perun-dispatcher-new</name>
+	<name>perun-dispatcher</name>
 	<description></description>
 
 	<properties>
