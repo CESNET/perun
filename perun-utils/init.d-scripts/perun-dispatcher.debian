@@ -23,7 +23,6 @@ SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid
 LOG4J_CONF=/etc/perun/log4j.xml
 PERUN_DISPATCHER_CONF_DIR=/etc/perun/
-DAEMON_OPTS="-Dlog4j.debug -Djava.util.logging.config.file=$LOG4J_CONF -Dlog4j.configuration=file:$LOG4J_CONF -Dperun.conf.custom=$PERUN_DISPATCHER_CONF_DIR -jar $JAR"
 DAEMON_USER=perun
 JAVA=`which java`
 EXEC_DIR=/home/perun/perun-dispatcher/
@@ -36,6 +35,8 @@ EXEC_DIR=/home/perun/perun-dispatcher/
 
 # Read configuration if it is present.
 [ -r /etc/perun/$NAME ] && . /etc/perun/$NAME
+
+DAEMON_OPTS="-Dlog4j.debug -Djava.util.logging.config.file=$LOG4J_CONF -Dlog4j.configuration=file:$LOG4J_CONF -Dperun.conf.custom=$PERUN_DISPATCHER_CONF_DIR $JAVA_OPTS -jar $JAR"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
