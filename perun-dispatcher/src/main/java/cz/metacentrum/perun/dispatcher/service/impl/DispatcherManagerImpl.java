@@ -89,12 +89,12 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	}
 
 	@Override
-	public void startPocessingEvents() {
+	public void startProcessingEvents() {
 		eventProcessor.startProcessingEvents();
 	}
 
 	@Override
-	public void stopPocessingEvents() {
+	public void stopProcessingEvents() {
 		eventProcessor.stopProcessingEvents();
 	}
 

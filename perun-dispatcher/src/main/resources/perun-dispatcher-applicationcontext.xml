@@ -117,6 +117,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 				<!-- <ref bean="checkInJobTrigger" /> -->
 				<ref bean="processPoolJobTrigger" />
 				<ref bean="propagationMaintainerJobTrigger" />
+				<ref bean="cleanTaskResultsJobTrigger" />
 			</list>
 		</property>
 	</bean>
@@ -160,7 +161,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	
 	<bean id="cleanTaskResultsJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="cleanTaskResultsJob" />
-		<property name="cronExpression" value="0 1 * * * ?" />
+		<property name="cronExpression" value="0 0 1 * * ?" />
 	</bean>
 	<!-- END Quartz tasks -->	
            

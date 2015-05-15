@@ -28,9 +28,9 @@ public interface DispatcherManager {
 	void stopParsingData();
 
 	// /Event Processor///
-	void startPocessingEvents();
+	void startProcessingEvents();
 
-	void stopPocessingEvents();
+	void stopProcessingEvents();
 
 	// /Task database///
 	void loadSchedulingPool();

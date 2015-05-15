@@ -17,6 +17,7 @@ public class CleanTaskResultsJob  extends QuartzJobBean {
 	protected void executeInternal(JobExecutionContext arg0) throws JobExecutionException {
 		log.debug("Entering CleanTaskResults job...");
 		dispatcherManager.cleanOldTaskResults();
+		log.debug("CleanTaskResults done.");
 	}
 
 	public DispatcherManager getDispatcherManager() {

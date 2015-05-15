@@ -191,16 +191,16 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 	public int clearOld(int engineID, int numDays) throws InternalErrorException {
 		return this.getJdbcTemplate().update("delete from tasks_results where engine_id = ? and " +
 				"id in (" +
-				"select otr.id from perunv3.tasks_results otr " +
+				"select otr.id from tasks_results otr " +
 				"         left join ( " +
 				"	select tr.destination_id, tr.task_id, max(tr.timestamp) as maxtimestamp " +
-				"	from perunv3.tasks_results tr " + 
-				"		inner join perunv3.tasks t on tr.task_id = t.id " +
+				"	from tasks_results tr " + 
+				"		inner join tasks t on tr.task_id = t.id " +
 				"		group by tr.destination_id,tr.task_id " +
 				"   )  tmp on otr.task_id = tmp.task_id and otr.destination_id = tmp.destination_id " +
 				"where otr.timestamp < maxtimestamp and otr.timestamp < ( " +
-				Compatibility.getSysdate() + " - ?) ", 
-				engineID, numDays);
+				Compatibility.getSysdate() + " - ?) ) ", 
+				new Object[] { engineID, numDays });
 	}
 
 	@Override
