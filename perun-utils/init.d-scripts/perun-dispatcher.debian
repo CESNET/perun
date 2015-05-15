@@ -23,7 +23,7 @@ SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid
 LOG4J_CONF=/etc/perun/log4j.xml
 PERUN_DISPATCHER_CONF_DIR=/etc/perun/
-DAEMON_OPTS="-Dlog4j.debug -Djava.util.logging.config.file=$LOG4J_CONF -Dlog4j.configuration=file:$LOG4J_CONF -Dperun.conf.custom=$PERUN_DISPATCHER_CONF_DIR -jar $JAR"
+DAEMON_OPTS='-Dlog4j.debug -Djava.util.logging.config.file=$LOG4J_CONF -Dlog4j.configuration=file:$LOG4J_CONF -Dperun.conf.custom=$PERUN_DISPATCHER_CONF_DIR $JAVA_OPTS -jar $JAR'
 DAEMON_USER=perun
 JAVA=`which java`
 EXEC_DIR=/home/perun/perun-dispatcher/
@@ -55,6 +55,8 @@ do_start () {
 	# Create empty pidfile
 	touch $PIDFILE;
 	chown $DAEMON_USER $PIDFILE;
+	# Eval all options for daemon
+	DAEMON_OPTS=eval echo ${DAEMON_OPTS};
 	start-stop-daemon --make-pidfile --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
         --pidfile $PIDFILE --chdir $EXEC_DIR --background --exec $DAEMON -- $DAEMON_OPTS \
         || return 2
