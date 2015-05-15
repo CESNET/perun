@@ -1,0 +1,66 @@
+#!/usr/bin/perl                                                                                                                     
+#
+# Generates members of a mailing list for sympa
+#
+use strict;
+use warnings;
+use perunServicesInit;
+use perunServicesUtils;
+use Text::Unidecode;
+use POSIX qw/strftime/; 
+
+local $::SERVICE_NAME = "sympa";
+local $::PROTOCOL_VERSION = "3.0.0";
+my $SCRIPT_VERSION = "3.0.0";
+
+perunServicesInit::init;
+my $DIRECTORY = perunServicesInit::getDirectory;
+my $data = perunServicesInit::getHierarchicalData;
+
+#Constants
+our $A_USER_NAME;                        *A_USER_NAME =                       \'urn:perun:user:attribute-def:core:displayName';
+our $A_USER_MAIL;                        *A_USER_MAIL =                       \'urn:perun:user:attribute-def:def:preferredMail';
+our $A_USER_STATUS;                      *A_USER_STATUS =                     \'urn:perun:member:attribute-def:core:status';
+
+our $A_RESOURCE_MAILING_LIST_NAME;       *A_RESOURCE_MAILING_LIST_NAME =      \'urn:perun:resource:attribute-def:def:mailingListName';
+
+
+my $mailinglistStruc = {};  # $mailinglistStruc->{"mailing list name"}->{"user's e-mail"}->{A_USER_*} 
+my $mailinglistAdminMailStruc = {};  # $mailinglistAdminMailStruc->{"mailing list name"}->{"admin's e-mail"} 
+
+
+my $mailinglistsDirectory = "$DIRECTORY/mailinglists";
+mkdir $mailinglistsDirectory or die "Can't mkdir $mailinglistsDirectory: $!";
+
+
+my @membersAttributes;
+my @resourcesData = $data->getChildElements;
+foreach my $rData (@resourcesData) {
+    my %resourceAttributes  = attributesToHash $rData->getAttributes;
+    local *FILE;
+
+    my @membersData = $rData->getChildElements;
+
+    my $listName = "$resourceAttributes{$A_RESOURCE_MAILING_LIST_NAME}";
+
+    foreach my $memberAttributes (dataToAttributesHashes @membersData) {
+        #list only VALID members except if allowNonvalidUsers is true
+        next unless($memberAttributes->{$A_USER_STATUS} eq "VALID");
+
+        $mailinglistStruc->{$listName}->{$memberAttributes->{$A_USER_MAIL}}->{$A_USER_NAME} = $memberAttributes->{$A_USER_NAME};
+    }
+}
+
+
+for my $listName (keys %$mailinglistStruc) {
+    my $fileName = "$mailinglistsDirectory/$listName";
+    open FILE,">$fileName" or die "Cannot open $fileName: $! \n";
+
+    for my $mail (keys %{$mailinglistStruc->{$listName}}) {
+      print FILE $mail, " ", unidecode($mailinglistStruc->{$listName}->{$mail}->{$A_USER_NAME}), "\n";
+    }
+
+    close FILE or die $!;
+}
+
+perunServicesInit::finalize;
