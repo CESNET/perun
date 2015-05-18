@@ -34,6 +34,8 @@ our $A_MR_FILESQUOTA;            *A_MR_FILESQUOTA =            \'urn:perun:membe
 
 our $A_U_KERBEROS_LOGINS;        *A_U_KERBEROS_LOGINS =        \'urn:perun:user:attribute-def:virt:kerberosLogins';
 our $A_U_SHIBBOLETH_EXT_SOURCES; *A_U_SHIBBOLETH_EXT_SOURCES = \'urn:perun:user:attribute-def:virt:shibbolethExtSources';
+our $A_U_ORGANIZATION;           *A_U_ORGANIZATION =           \'urn:perun:user:attribute-def:def:organization';
+our $A_U_RESEARCH_GROUP;         *A_U_RESEARCH_GROUP =         \'urn:perun:user:attribute-def:opt:researchGroup';
 
 our $A_RESOURCE_UNIX_GROUP_NAME; *A_RESOURCE_UNIX_GROUP_NAME = \'urn:perun:resource:attribute-def:virt:unixGroupName';
 our $A_RESOURCE_UNIX_GID;        *A_RESOURCE_UNIX_GID =        \'urn:perun:resource:attribute-def:virt:unixGID';
@@ -86,6 +88,8 @@ foreach my $rData (@resourcesData) {
 									"Kerberos"       => \@kerberosLogins,
 									"Shibboleth"     => \@shibbolethLogins,
 									"PerunUserID"    => $memberAttributes{$A_USER_ID},
+									"ResearchGroup"  => defined $memberAttributes{$A_U_RESEARCH_GROUP} ? $memberAttributes{$A_U_RESEARCH_GROUP} : "",
+									"Organization"   => defined $memberAttributes{$A_U_ORGANIZATION} ? $memberAttributes{$A_U_ORGANIZATION} : "",
 								};
 
 		}
