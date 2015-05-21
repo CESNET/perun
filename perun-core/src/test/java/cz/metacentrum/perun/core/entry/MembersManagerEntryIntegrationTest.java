@@ -144,6 +144,22 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void findCompleteRichMembers() throws Exception {
+		System.out.println(MEMBERS_MANAGER_ENTRY + ".findCompleteRichMembers()");
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+
+		List<RichMember> richMembers = perun.getMembersManager().findCompleteRichMembers(sess, new ArrayList<String>(), new ArrayList<String>(), user.getFirstName());
+
+		List<Integer> ids = new ArrayList<>();
+		for(RichMember rm: richMembers) {
+			ids.add(rm.getId());
+		}
+
+		assertTrue(ids.contains(createdMember.getId()));
+	}
+
+	@Test
 	public void createMemberFromUserInGroup() throws Exception {
 		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
 

@@ -577,6 +577,19 @@ public interface MembersManagerBl {
 	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
+	 * Return list of richMembers by the searchString with attributes specific for list of attrsNames.
+	 * If attrsNames is empty or null return all attributes for specific richMembers.
+	 *
+	 * @param sess
+	 * @param attrsNames
+	 * @param searchString
+	 * @return list of founded richMembers with specific attributes from Vo for searchString
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 */
+	List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeNotExistsException;
+
+	/**
 	 * Return list of richMembers for specific vo by the searchString with attributes specific for list of attrsNames
 	 * and who have only status which is contain in list of statuses.
 	 * If attrsNames is empty or null return all attributes for specific richMembers.
@@ -592,6 +605,22 @@ public interface MembersManagerBl {
 	 * @throws AttributeNotExistsException
 	 */
 	List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException;
+
+	/**
+	 * Return list of richMembers by the searchString with attributes specific for list of attrsNames
+	 * and who have only status which is contain in list of statuses.
+	 * If attrsNames is empty or null return all attributes for specific richMembers.
+	 * If listOfStatuses is empty or null, return all possible statuses.
+	 *
+	 * @param sess
+	 * @param attrsNames
+	 * @param allowedStatuses
+	 * @param searchString
+	 * @return list of founded richMembers with specific attributes by searchString with allowed statuses
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 */
+	List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
 	 * Return list of richMembers for specific group by the searchString with attributes specific for list of attrsNames.
@@ -870,6 +899,15 @@ public interface MembersManagerBl {
 	List<RichMember> findRichMembersInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
 
 	/**
+	 * Return list of rich members by theirs name or login or email
+	 * @param sess
+	 * @param searchString
+	 * @return list of rich members
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> findRichMembers(PerunSession sess, String searchString) throws InternalErrorException;
+
+	/**
 	 * Return list of rich members with attributes by theirs name or login or email under defined VO.
 	 * @param sess
 	 * @param searchString
@@ -878,6 +916,15 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
+
+	/**
+	 * Return list of rich members with attributes by theirs name or login or email
+	 * @param sess
+	 * @param searchString
+	 * @return list of rich members with attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString) throws InternalErrorException;
 
 	void checkMemberExists(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException;
 

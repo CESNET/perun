@@ -619,8 +619,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.getRichMembersOnlyWithSpecificAttrNames(sess, richMembersWithAttributesFromVo, attrsNames);
 	}
 
+
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeNotExistsException {
+		List<RichMember> richMembersWithAttributes = this.findRichMembersWithAttributes(sess, searchString);
+		return this.getRichMembersOnlyWithSpecificAttrNames(sess, richMembersWithAttributes, attrsNames);
+	}
+
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, vo, attrsNames, searchString), allowedStatuses);
+	}
+
+	@Override
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException {
+		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, attrsNames, searchString), allowedStatuses);
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
@@ -925,11 +936,30 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.convertMembersToRichMembers(sess, this.setAllMembersSameType(members, MembershipType.DIRECT));
 	}
 
+	@Override
+	public List<RichMember> findRichMembers(PerunSession sess, String searchString) throws InternalErrorException {
+
+		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
+
+		List<Member> members = new ArrayList<Member>();
+		for (User user: users) {
+			members.addAll(getMembersByUser(sess, user));
+		}
+
+		return this.convertMembersToRichMembers(sess, this.setAllMembersSameType(members, MembershipType.DIRECT));
+	}
+
 	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
 
 		List<RichMember> list = findRichMembersInVo(sess, vo, searchString);
 		return convertMembersToRichMembersWithAttributes(sess, list);
 
+	}
+
+	@Override
+	public List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString) throws InternalErrorException {
+		List<RichMember> list = findRichMembers(sess, searchString);
+		return convertMembersToRichMembersWithAttributes(sess, list);
 	}
 
 	public void checkMemberExists(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException {
