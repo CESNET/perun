@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Status;
@@ -36,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import java.util.Iterator;
 
 /**
  *
@@ -494,6 +496,46 @@ public class MembersManagerEntry implements MembersManager {
 				}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, allowedStatuses, searchString), true);
+	}
+
+	@Override
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, MemberNotExistsException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+			throw new PrivilegeException(sess, "findCompleteRichMembers");
+		}
+
+		List<RichMember> richMembers = getMembersManagerBl().findCompleteRichMembers(sess, attrsNames, allowedStatuses, searchString);
+
+		Iterator<RichMember> richMemberIter = richMembers.iterator();
+		while(richMemberIter.hasNext()) {
+			RichMember rm = richMemberIter.next();
+			
+			//if voadmin or voobserver or groupadmin has right to this member, its ok
+			if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, rm) ||
+				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rm) ||
+				AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, rm)) continue;
+
+			//if not, then try facility admin rights
+			List<Resource> membersResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, rm);
+			boolean found = false;
+			for(Resource resource: membersResources) {
+				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+					found = true;
+					break;
+				}
+			}
+			if(found) continue;
+
+			richMemberIter.remove();
+		}
+
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, richMembers, false);
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException, VoNotExistsException, AttributeNotExistsException {
