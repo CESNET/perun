@@ -86,7 +86,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 				if (id != null) {
 					try {
 						User user = perun.getUsersManagerBl().getUserById(session, id);
-						Attribute emailAttribute = perun.getAttributesManager().getAttribute(session, user, "urn:perun:user:attribute-def:def:preferredMail");
+						Attribute emailAttribute = perun.getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:preferredMail");
 						if (emailAttribute != null && StringUtils.hasText(emailAttribute.toString())) {
 							emailDto.setReceiver((String) emailAttribute.getValue());
 						}

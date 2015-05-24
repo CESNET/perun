@@ -80,7 +80,7 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
 							PerunNotifEmailMessageToSendDto memberEmailDto = new PerunNotifEmailMessageToSendDto();
 							memberEmailDto.setMessage(messageDto.getMessageToSend());
 							memberEmailDto.setSubject(messageDto.getSubject());
-							memberEmailDto.setReceiver((String) perun.getAttributesManager().getAttribute(session, perun.getUsersManager().getUserByMember(session, member), "urn:perun:user:attribute-def:def:preferredMail").getValue());
+							memberEmailDto.setReceiver((String) perun.getAttributesManagerBl().getAttribute(session, perun.getUsersManager().getUserByMember(session, member), "urn:perun:user:attribute-def:def:preferredMail").getValue());
 							memberEmailDto.setSender(groupSender);
 
 							messagesToSend.add(memberEmailDto);

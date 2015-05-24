@@ -101,7 +101,7 @@ public class PerunNotifJabberSender implements PerunNotifSender {
 					if (id != null) {
 						try {
 							User user = perun.getUsersManagerBl().getUserById(session, id);
-							Attribute emailAttribute = perun.getAttributesManager().getAttribute(session, user, "urn:perun:user:attribute-def:def:jabber");
+							Attribute emailAttribute = perun.getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:jabber");
 							if (emailAttribute != null && StringUtils.hasText(emailAttribute.toString())) {
 								message.setTo((String) emailAttribute.getValue());
 							}
