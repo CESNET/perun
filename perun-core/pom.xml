@@ -98,6 +98,13 @@
 									<resource>META-INF/spring.schemas</resource>
 								</transformer>
 							</transformers>
+							<artifactSet>
+								<excludes>
+									<!-- test artifacts are excluded by default -->
+									<!-- we don't need maven build plugins in our application -->
+									<exclude>org.apache.maven*</exclude>
+								</excludes>
+							</artifactSet>
 						</configuration>
 					</execution>
 				</executions>
@@ -269,6 +276,7 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.8.5</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

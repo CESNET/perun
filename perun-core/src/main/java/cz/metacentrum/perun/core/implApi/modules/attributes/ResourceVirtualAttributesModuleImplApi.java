@@ -7,7 +7,6 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import org.mockito.stubbing.VoidMethodStubbable;
 
 /**
  * This interface serves as a template for virtual attributes.
