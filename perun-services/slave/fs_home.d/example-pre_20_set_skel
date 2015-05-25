@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# Set custom skel dir
-# Colon separated list of paths where skel dir can be found. First path which exists and is a directory is used.
-#PERUN_SKEL_PATH="/etc/perun/skel:/etc/skel"

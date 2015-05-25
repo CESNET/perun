@@ -1,4 +1,0 @@
-#!/bin/bash
-SERVICE_NAME="fs_project"
-
-. generic_send

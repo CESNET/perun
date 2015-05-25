@@ -1,4 +1,0 @@
-#!/bin/bash
-SERVICE_NAME="k5login_generic"
-
-. generic_send

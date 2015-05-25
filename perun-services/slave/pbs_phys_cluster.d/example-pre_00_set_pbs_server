@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Set the name of the PBS/Torque server, by default it is read from /var/spool/torque/server_name
-#PBS_SERVER=arien

@@ -1,4 +1,0 @@
-#!/bin/bash
-SERVICE_NAME="sympa"
-
-. generic_send

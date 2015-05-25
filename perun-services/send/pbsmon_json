@@ -1,4 +1,0 @@
-#!/bin/bash
-SERVICE_NAME="pbsmon_json"
-
-. generic_send
