@@ -178,6 +178,13 @@ for my $g (@gs) {
 	my @res = sort keys %{$allVosAndResources->{$g}};
 	for my $r (@res) {
 
+		my @usrs = sort keys %{$usersByResource->{$r}};
+
+		# skip printing resource and it's users, if there are no users
+		unless (@usrs) {
+			next;
+		}
+
 		# PRINT RESOURCE
 		print FILE "dn: cn=" . $r . ",ou=" . $g . ",ou=perun,ou=groups," . $facilityAttributes{$A_F_BASE_DN} . "\n";
 		print FILE "cn: " . $r . "\n";
@@ -186,7 +193,6 @@ for my $g (@gs) {
 		print FILE "objectclass: groupOfUniqueNames\n";
 
 		# PRINT ALL USERS FROM RESOURCE
-		my @usrs = sort keys %{$usersByResource->{$r}};
 		for my $u (@usrs) {
 			print FILE "uniquemember: cn=" . $u . ",ou=perun," . $facilityAttributes{$A_F_BASE_DN} . "\n";
 		}
