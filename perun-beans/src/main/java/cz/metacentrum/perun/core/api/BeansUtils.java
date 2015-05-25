@@ -73,6 +73,8 @@ public class BeansUtils {
 
 	/**
 	 * This method take text and for every chars in "<>\" erase escaping
+	 * also change '\0' to 'null' if it is escaped zero symbol.
+	 *
 	 * Escaping char is \.
 	 * Expecting: Before using this method, text must be escaped by using method createEscaping.
 	 *            So in text will never be string like "\\>", "\" or "\\\".
@@ -84,6 +86,8 @@ public class BeansUtils {
 	 */
 	public static String eraseEscaping(String text) {
 		if(text == null || text.equals("\\0")) return null;
+		//change \0 to null if zero is escaped
+		text = text.replaceAll("((^|[^\\\\])(\\\\\\\\)*)(\\\\0)", "$1null");
 		text = text.replace("\\>", ">");
 		text = text.replace("\\<", "<");
 		text = text.replace("\\\\", "\\");
