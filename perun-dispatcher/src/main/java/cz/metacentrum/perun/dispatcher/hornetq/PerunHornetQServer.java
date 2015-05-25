@@ -59,6 +59,9 @@ public class PerunHornetQServer {
 		if (serverRunning && jmsServerManager != null) {
 			try {
 				jmsServerManager.stop();
+				server.stop();
+				configuration.stop();
+				serverRunning = false;
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 			}

@@ -13,12 +13,15 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.dispatcher.dao.DispatcherDao;
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
+import cz.metacentrum.perun.dispatcher.jms.DispatcherQueue;
 import cz.metacentrum.perun.dispatcher.jms.SystemQueueProcessor;
+import cz.metacentrum.perun.dispatcher.jms.DispatcherQueuePool;
 import cz.metacentrum.perun.dispatcher.parser.ParserManager;
 import cz.metacentrum.perun.dispatcher.processing.EventProcessor;
 import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
+import cz.metacentrum.perun.taskslib.service.ResultManager;
 
 /**
  * 
@@ -41,6 +44,10 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	private SmartMatcher smartMatcher;
 	@Autowired
 	private SchedulingPool schedulingPool;
+	@Autowired
+	private DispatcherQueuePool dispatcherQueuePool;
+	@Autowired
+	private ResultManager resultManager;
 	@Autowired
 	private Properties dispatcherPropertiesBean;
 
@@ -82,12 +89,12 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	}
 
 	@Override
-	public void startPocessingEvents() {
+	public void startProcessingEvents() {
 		eventProcessor.startProcessingEvents();
 	}
 
 	@Override
-	public void stopPocessingEvents() {
+	public void stopProcessingEvents() {
 		eventProcessor.stopProcessingEvents();
 	}
 
@@ -129,5 +136,18 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	 * catch (InternalErrorException e) { log.error(e.toString()); } } return
 	 * this.dispatcherSession; }
 	 */
+	
+	@Override
+	public void cleanOldTaskResults() {
+		for(DispatcherQueue queue: dispatcherQueuePool.getPool()) {
+			try {
+				int numRows = resultManager.clearOld(queue.getClientID(), 3);
+				log.debug("Cleaned {} old task results for engine {}", numRows, queue.getClientID());
+			} catch (InternalErrorException e) {
+				log.warn("Error cleaning old task results for engine {} : {}", 
+						queue.getClientID(), e.toString());
+			}
+		}
+	}
 
 }

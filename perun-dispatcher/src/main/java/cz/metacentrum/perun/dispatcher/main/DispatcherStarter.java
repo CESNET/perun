@@ -1,10 +1,13 @@
 package cz.metacentrum.perun.dispatcher.main;
 
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
@@ -36,7 +39,11 @@ public class DispatcherStarter {
 		try {
 
 			dispatcherManager = springCtx.getBean("dispatcherManager", DispatcherManager.class);
-			springCtx.registerShutdownHook();
+			if(springCtx instanceof WebApplicationContext) {
+				// do nothing here
+			} else {
+				springCtx.registerShutdownHook();
+			}
 
 			// Register into the database
 			// DO NOT: dispatcherStarter.dispatcherManager.registerDispatcher();
@@ -52,7 +59,7 @@ public class DispatcherStarter {
 			// Start parsers (mining data both from Grouper and PerunDB)
 			dispatcherManager.startParsingData();
 			// Start Event Processor
-			dispatcherManager.startPocessingEvents();
+			dispatcherManager.startProcessingEvents();
 			log.info("Done. Perun-Dispatcher has started.");
 		} catch (PerunHornetQServerException e) {
 			log.error(e.toString(), e);
@@ -62,4 +69,11 @@ public class DispatcherStarter {
 
 	}
 
+	@PreDestroy
+	public void destroy() {
+		dispatcherManager.stopProcessingEvents();
+		dispatcherManager.stopParsingData();
+		dispatcherManager.stopProcessingSystemMessages();
+		dispatcherManager.stopPerunHornetQServer();
+	}
 }

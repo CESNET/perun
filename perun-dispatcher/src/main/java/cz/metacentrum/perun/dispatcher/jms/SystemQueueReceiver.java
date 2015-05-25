@@ -92,6 +92,12 @@ public class SystemQueueReceiver implements Runnable {
 			}
 			// TODO: Close connection and restart SystemQueueProcessor?
 		}
+		try {
+			messageConsumer.close();
+		} catch (JMSException e) {
+			log.error(e.toString(), e);
+		}
+		messageConsumer = null;
 	}
 
 	public void stop() {

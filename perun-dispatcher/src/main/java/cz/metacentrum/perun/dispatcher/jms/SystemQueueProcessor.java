@@ -13,6 +13,7 @@ import javax.jms.Session;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.hornetq.api.jms.JMSFactoryType;
+import org.hornetq.jms.client.HornetQConnectionFactory;
 import org.hornetq.core.remoting.impl.netty.NettyConnectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,11 @@ public class SystemQueueProcessor {
 
 	private boolean processingMessages = false;
 	private boolean systemQueueInitiated = false;
-
+	private ConnectionFactory cf;
+	private Connection connection;
+	
 	public void startProcessingSystemMessages() {
-		Connection connection = null;
+		connection = null;
 		try {
 			// Step 2. Instantiate the TransportConfiguration object which
 			// contains the knowledge of what transport to use,
@@ -82,9 +85,9 @@ public class SystemQueueProcessor {
 			// Step 3 Directly instantiate the JMS ConnectionFactory object
 			// using that TransportConfiguration
 			log.debug("Creating connection factory...");
-			ConnectionFactory cf = (ConnectionFactory) HornetQJMSClient
-					.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-							transportConfiguration);
+			cf = (ConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+					transportConfiguration);
+			((HornetQConnectionFactory)cf).setUseGlobalPools(false);
 
 			// Step 4.Create a JMS Connection
 			log.debug("Creating connection...");
@@ -98,7 +101,7 @@ public class SystemQueueProcessor {
 			log.debug("Starting connection...");
 			connection.start();
 			if (processingMessages) {
-				stopProcessingSystemMessages();
+				systemQueueReceiver.stop();
 			}
 			systemQueueReceiver.setUp("systemQueue", session);
 			log.debug("Executor: taskExecutor.execute(systemQueueReceiver)...");
@@ -125,6 +128,13 @@ public class SystemQueueProcessor {
 	public void stopProcessingSystemMessages() {
 		if (processingMessages && systemQueueReceiver != null) {
 			systemQueueReceiver.stop();
+			try {
+				connection.stop();
+				connection.close();
+				((HornetQConnectionFactory)cf).close();
+			} catch (JMSException e) {
+				log.error("Error closing JMS client connection: ", e.toString());
+			}
 		}
 	}
 
