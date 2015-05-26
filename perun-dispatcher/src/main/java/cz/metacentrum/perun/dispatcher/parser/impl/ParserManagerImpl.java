@@ -12,13 +12,14 @@ import cz.metacentrum.perun.dispatcher.parser.AuditerListener;
 import cz.metacentrum.perun.dispatcher.parser.Parser;
 import cz.metacentrum.perun.dispatcher.parser.ParserManager;
 import cz.metacentrum.perun.dispatcher.processing.EventQueue;
+import org.springframework.stereotype.Service;
 
 /**
  * 
  * @author Michal Karm Babacek JavaDoc coming soon...
  * 
  */
-@org.springframework.stereotype.Service(value = "parserManager")
+@Service(value = "parserManager")
 public class ParserManagerImpl implements ParserManager {
 
 	private final static Logger log = LoggerFactory
@@ -27,7 +28,7 @@ public class ParserManagerImpl implements ParserManager {
 	@Autowired
 	private EventQueue eventQueue;
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	@Autowired
 	private AuditerListener auditerListener;
 	@Autowired
@@ -46,8 +47,8 @@ public class ParserManagerImpl implements ParserManager {
 		// parsers.add(parserPerunDB);
 		// taskExecutor.execute(parserGrouper);
 		// parsers.add(parserGrouper);
-		String name = propertiesBean.getProperty("dispatcher.ip.address") + ":"
-				+ propertiesBean.getProperty("dispatcher.port");
+		String name = dispatcherPropertiesBean.getProperty("dispatcher.ip.address") + ":"
+				+ dispatcherPropertiesBean.getProperty("dispatcher.port");
 		auditerListener.setDispatcherName(name);
 		auditerListener.setEventQueue(eventQueue);
 		taskExecutor.execute(new Runnable() {
@@ -92,11 +93,11 @@ public class ParserManagerImpl implements ParserManager {
 	}
 
 	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
+		this.dispatcherPropertiesBean = propertiesBean;
 	}
 
 	public Properties getPropertiesBean() {
-		return propertiesBean;
+		return dispatcherPropertiesBean;
 	}
 
 	public void setTaskExecutor(TaskExecutor taskExecutor) {
