@@ -233,8 +233,35 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		candidate.setFirstName("(Service)");
+
+		//Set organization only if user in sessione exists (in tests there is no user in session)
+		if(sess.getPerunPrincipal().getUser() != null) {
+			String userOrganization = AttributesManager.NS_USER_ATTR_DEF + ":organization";
+			String memberOrganization = AttributesManager.NS_MEMBER_ATTR_DEF + ":organization";
+
+			Map<String, String> candidateAttributes = candidate.getAttributes();
+			if(candidateAttributes == null) candidateAttributes = new HashMap<>();
+
+			if(candidateAttributes.get(memberOrganization) == null) {
+				Attribute actorUserOrganization;
+				String actorUserOrganizationValue;
+				try {
+					actorUserOrganization = perunBl.getAttributesManagerBl().getAttribute(sess, sess.getPerunPrincipal().getUser(), userOrganization);
+					actorUserOrganizationValue = (String) actorUserOrganization.getValue();
+				} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+					throw new InternalErrorException(ex);
+				}
+				
+				if(actorUserOrganizationValue != null) candidateAttributes.put(memberOrganization, actorUserOrganizationValue);
+			}
+
+			candidate.setAttributes(candidateAttributes);
+		}
+
+		//create member for service user from candidate
 		Member member = createMember(sess, vo, true, candidate, groups);
-		member.getUserId();
+
+		//set service owners
 		User serviceUser = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		for(User u: serviceUserOwners) {
 			try {
