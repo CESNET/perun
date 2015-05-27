@@ -48,7 +48,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// oracle
 	private ArrayList<Host> backupList = new ArrayList<Host>();
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .-");
 	private boolean checkable = true; // default is checkable
 
 	/**
@@ -284,7 +284,7 @@ public class GetHosts implements JsonCallback, JsonCallbackTable<Host>, JsonCall
 		} else {
 			for (Host o: backupList){
 				// store owner by filter
-				if (o.getName().toLowerCase().startsWith(filter.toLowerCase())) {
+				if (o.getName().toLowerCase().contains(filter.toLowerCase())) {
 					list.add(o);
 				}
 			}

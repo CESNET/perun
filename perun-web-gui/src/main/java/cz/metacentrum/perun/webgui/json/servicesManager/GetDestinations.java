@@ -52,7 +52,7 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 	private boolean showFac = false;
 	private boolean checkable = true;
 	// oracle support
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .-");
 	private ArrayList<Destination> fullBackup = new ArrayList<Destination>();
 
 	/**
@@ -408,11 +408,11 @@ public class GetDestinations implements JsonCallback, JsonCallbackTable<Destinat
 			for (Destination dst : fullBackup){
 				// store facility by filter
 				if (dst.getService() != null) {
-					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase()) || dst.getService().getName().toLowerCase().startsWith(text.toLowerCase())) {
+					if (dst.getDestination().toLowerCase().contains(text.toLowerCase()) || dst.getService().getName().toLowerCase().contains(text.toLowerCase())) {
 						list.add(dst);
 					}
 				} else {
-					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase())) {
+					if (dst.getDestination().toLowerCase().contains(text.toLowerCase())) {
 						list.add(dst);
 					}
 				}

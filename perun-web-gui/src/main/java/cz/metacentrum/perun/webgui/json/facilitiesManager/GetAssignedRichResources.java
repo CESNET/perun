@@ -42,7 +42,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	private ArrayList<RichResource> list = new ArrayList<RichResource>();
 	private FieldUpdater<RichResource, String> tableFieldUpdater;
 	final MultiSelectionModel<RichResource> selectionModel = new MultiSelectionModel<RichResource>(new GeneralKeyProvider<RichResource>());
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .-");
 	private ArrayList<RichResource> backupList = new ArrayList<RichResource>();
 	private boolean checkable = true;
 
@@ -319,9 +319,9 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 			list.addAll(backupList);
 		} else {
 			for (RichResource r : backupList){
-				if ((r.getName().toLowerCase().startsWith(text.toLowerCase())) ||
-						(r.getVo().getName().toLowerCase().startsWith(text.toLowerCase())) ||
-						(r.getVo().getShortName().toLowerCase().startsWith(text.toLowerCase()))) {
+				if ((r.getName().toLowerCase().contains(text.toLowerCase())) ||
+						(r.getVo().getName().toLowerCase().contains(text.toLowerCase())) ||
+						(r.getVo().getShortName().toLowerCase().contains(text.toLowerCase()))) {
 					list.add(r);
 						}
 			}
