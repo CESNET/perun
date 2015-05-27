@@ -346,9 +346,9 @@ public class Api extends HttpServlet {
 			// Initialize deserializer
 			Deserializer des;
 			if (isGet) {
-				des = new UrlDeserializer(req);
+				des = new UrlDeserializer(req, resp);
 			} else {
-				des = selectDeserializer(fcm[0], req);
+				des = selectDeserializer(fcm[0], req, resp);
 			}
 
 			// We have new request, so do the whole auth/authz stuff
@@ -538,14 +538,14 @@ public class Api extends HttpServlet {
 		}
 	}
 
-	private Deserializer selectDeserializer(String format, HttpServletRequest req) throws IOException, RpcException {
+	private Deserializer selectDeserializer(String format, HttpServletRequest req, HttpServletResponse resp) throws IOException, RpcException {
 		switch (Formats.match(format)) {
 			case json:
 			case jsonp:
-				return new JsonDeserializer(req);
+				return new JsonDeserializer(req, resp);
 			case urlinjsonout:
 			case voot:
-				return new UrlDeserializer(req);
+				return new UrlDeserializer(req, resp);
 			default:
 				throw new RpcException(RpcException.Type.UNKNOWN_DESERIALIZER_FORMAT, format);
 		}

@@ -1,17 +1,21 @@
 package cz.metacentrum.perun.registrar.impl;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
+import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.Identity;
+import net.jodah.expiringmap.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.sql.DataSource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manager for Identity consolidation in Registrar.
@@ -33,6 +38,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 	@Autowired PerunBl perun;
 	private JdbcPerunTemplate jdbc;
 	private PerunSession registrarSession;
+	// expiring thread safe map cache
+	private ExpiringMap<String, List<Object>> requestCache;
 
 	public void setRegistrarManager(RegistrarManager registrarManager) {
 		this.registrarManager = registrarManager;
@@ -49,6 +56,9 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 				ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
 		registrarSession = perun.getPerunSession(pp);
+
+		// cache expires after 3 minutes from creation
+		requestCache = ExpiringMap.builder().expiration(3, TimeUnit.MINUTES).expirationPolicy(ExpiringMap.ExpirationPolicy.CREATED).build();
 
 	}
 
@@ -261,6 +271,123 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			// not found, since not proper type of application to check users for
 			return convertToIdentities(result);
 		}
+
+	}
+
+	@Override
+	public String getConsolidatorToken(PerunSession sess) throws PerunException {
+
+		List<Object> valueList = new ArrayList<Object>();
+
+		String actor = sess.getPerunPrincipal().getActor();
+		String extSourceName = sess.getPerunPrincipal().getExtSourceName();
+		String extSourceType = sess.getPerunPrincipal().getExtSourceType();
+		Integer extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
+		User user = sess.getPerunPrincipal().getUser();
+
+		valueList.add(actor);
+		valueList.add(extSourceName);
+		valueList.add(extSourceType);
+		valueList.add(extSourceLoa);
+		valueList.add(user);
+
+		// create token from actual properties
+		String token = registrarManager.getMailManager().getMessageAuthenticationCode(System.currentTimeMillis()+actor+extSourceName+extSourceType+extSourceLoa);
+
+		requestCache.putIfAbsent(token, valueList);
+
+		return token;
+
+	}
+
+	@Override
+	public List<UserExtSource> consolidateIdentityUsingToken(PerunSession sess, String token) throws PerunException {
+
+		List<Object> originalIdentity = requestCache.get(token);
+
+		if (originalIdentity == null) {
+			throw new RegistrarException("Your token for joining identities is no longer valid. Please retry from the start.");
+		}
+
+		User originalUser = (User)originalIdentity.get(4);
+		User currentUser = sess.getPerunPrincipal().getUser();
+
+		if (originalUser == null && currentUser == null) {
+			throw new RegistrarException("Neither original or current identity is know to Perun. Please use at least one identity known to Perun.");
+		}
+
+		if (originalIdentity.get(1).equals(sess.getPerunPrincipal().getExtSourceName()) &&
+				originalIdentity.get(0).equals(sess.getPerunPrincipal().getActor())) {
+			// TODO write which identity was used
+			throw new RegistrarException("You tried to join same identity with itself. Please try again but select different identity.");
+		}
+
+		if (originalUser != null && currentUser != null && originalUser.equals(currentUser)) {
+			throw new RegistrarException("You already have both identities joined.");
+		}
+
+		if (originalUser != null && currentUser != null && !originalUser.equals(currentUser)) {
+			throw new RegistrarException("Your identity is already associated with a different user. If you are really the same person, please contact support to help you.");
+		}
+
+		if (originalUser == null && currentUser != null) {
+
+			// merge identity to current user
+			ExtSource extSource;
+
+			try {
+				extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, (String) originalIdentity.get(1));
+			} catch (ExtSourceNotExistsException ex) {
+
+				// create ext source on the fly
+				extSource = new ExtSource();
+				extSource.setName((String)originalIdentity.get(1));
+				extSource.setType((String)originalIdentity.get(2));
+				extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource);
+
+			}
+
+			UserExtSource ues = new UserExtSource();
+			ues.setLogin((String)originalIdentity.get(0));
+			ues.setLoa((Integer)originalIdentity.get(3));
+			ues.setExtSource(extSource);
+
+			perun.getUsersManager().addUserExtSource(registrarSession, currentUser, ues);
+
+		}
+
+		if (originalUser != null && currentUser == null) {
+
+			// merge identity to originalUser
+			ExtSource extSource;
+
+			try {
+				extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, sess.getPerunPrincipal().getExtSourceName());
+			} catch (ExtSourceNotExistsException ex) {
+
+				// create ext source on the fly
+				extSource = new ExtSource();
+				extSource.setName(sess.getPerunPrincipal().getExtSourceName());
+				extSource.setType(sess.getPerunPrincipal().getExtSourceType());
+				extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource);
+
+			}
+
+			UserExtSource ues = new UserExtSource();
+			ues.setUserId(originalUser.getId());
+			ues.setLogin(sess.getPerunPrincipal().getActor());
+			ues.setLoa(sess.getPerunPrincipal().getExtSourceLoa());
+			ues.setExtSource(extSource);
+
+			perun.getUsersManager().addUserExtSource(registrarSession, originalUser, ues);
+
+		}
+
+		AuthzResolverBlImpl.refreshSession(sess);
+
+		requestCache.remove(token);
+
+		return perun.getUsersManager().getUserExtSources(sess, sess.getPerunPrincipal().getUser());
 
 	}
 

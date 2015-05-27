@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -157,7 +158,17 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 */
 	public HttpServletRequest getServletRequest() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
+		throw new UnsupportedOperationException("getServletRequest()");
+	}
+
+	/**
+	 * Return HttpServletResponse related to concrete call this deserializer is used to process.
+	 *
+	 * @return HttpServletResponse related to concrete call
+	 * @throws UnsupportedOperationException if this deserializer does not implement this method
+	 */
+	public HttpServletResponse getServletResponse() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("getServletResponse()");
 	}
 
 }

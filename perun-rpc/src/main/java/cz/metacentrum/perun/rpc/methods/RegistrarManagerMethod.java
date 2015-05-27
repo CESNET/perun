@@ -2,11 +2,7 @@ package cz.metacentrum.perun.rpc.methods;
 
 import java.util.*;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.*;
@@ -17,6 +13,8 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
+
+import javax.servlet.http.Cookie;
 
 public enum RegistrarManagerMethod implements ManagerMethod {
 
@@ -1134,6 +1132,28 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			} else {
 				return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession());
 			}
+
+		}
+
+	},
+
+	getConsolidatorToken {
+
+		@Override
+		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getRegistrarManager().getConsolidatorManager().getConsolidatorToken(ac.getSession());
+
+		}
+
+	},
+
+	consolidateIdentityUsingToken {
+
+		@Override
+		public List<UserExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getRegistrarManager().getConsolidatorManager().consolidateIdentityUsingToken(ac.getSession(), parms.readString("token"));
 
 		}
 
