@@ -46,7 +46,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// display checkboxes
 	private boolean checkable = true;
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" ./-");
 	private ArrayList<ExtSource> fullBackup = new ArrayList<ExtSource>();
 
 	/**

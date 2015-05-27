@@ -53,7 +53,7 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 	private PerunEntity entity;
 	// oracle support
 	private ArrayList<RichResource> fullBackup = new ArrayList<RichResource>();
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .-");
 
 	/**
 	 * Creates a new getResources method instance
@@ -317,12 +317,12 @@ public class GetAssignedRichResources implements JsonCallback, JsonCallbackTable
 		} else {
 			for (RichResource res : fullBackup){
 				// store resource by filter
-				if (res.getName().toLowerCase().startsWith(filter.toLowerCase())) {
+				if (res.getName().toLowerCase().contains(filter.toLowerCase())) {
 					list.add(res);
 				}
 				for (ResourceTag r : res.getResourceTags()) {
 					// remove " (tag)" after tag name
-					if (r.getName().startsWith(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
+					if (r.getName().contains(filter.substring(0, (filter.length() > 6) ? filter.length()-6 : filter.length()).trim())) {
 						list.add(res);
 						break;
 					}

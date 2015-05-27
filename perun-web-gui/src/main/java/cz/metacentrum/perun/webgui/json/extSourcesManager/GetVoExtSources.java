@@ -47,7 +47,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
 	private ArrayList<ExtSource> fullBackup = new ArrayList<ExtSource>();
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" ./-");
 
 	/**
 	 * Creates a new callback
@@ -291,8 +291,8 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 		} else {
 			for (ExtSource src : fullBackup){
 				// store ext source if name or type matches
-				if ((src.getName().toLowerCase().startsWith(filter.toLowerCase())) ||
-						renameContent(src.getType()).toLowerCase().startsWith(filter.toLowerCase())) {
+				if ((src.getName().toLowerCase().contains(filter.toLowerCase())) ||
+						renameContent(src.getType()).toLowerCase().contains(filter.toLowerCase())) {
 					list.add(src);
 						}
 			}
