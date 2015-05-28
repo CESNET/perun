@@ -283,7 +283,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		//Validate synchronously
 		try {
-			member = validateMember(sess, member);
+			member = getPerunBl().getMembersManagerBl().validateMember(sess, member);
 		} catch (AttributeValueException ex) {
 			log.info("Member can't be validated. He stays in invalid state. Cause: " + ex);
 		}
