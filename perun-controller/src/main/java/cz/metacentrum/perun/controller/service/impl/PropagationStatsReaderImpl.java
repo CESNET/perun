@@ -325,6 +325,11 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 				serviceState.setSendTask(task);
 			}
 
+			if (!task.getExecService().isEnabled()) {
+				serviceStates.get(taskService).setBlockedGlobally(true);
+			}
+			if (getGeneralServiceManager().isExecServiceDeniedOnFacility(task.getExecService(), facility)) serviceStates.get(taskService).setBlockedOnFacility(true);
+
 		}
 
 		return new ArrayList<ServiceState>(serviceStates.values());
