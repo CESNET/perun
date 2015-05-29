@@ -13,6 +13,7 @@ sub toString {
 
 	my $id = $self->getId;
 	my $friendlyName = $self->getFriendlyName;
+	my $displayName = $self->getDisplayName;
 	my $namespace = $self->getNamespace;
 	my $description = $self->getDescription;
 	my $type = $self->getType;
@@ -20,6 +21,7 @@ sub toString {
 	my $str = 'Attribute (';
 	$str .= "id: $id, " if (defined($id));
 	$str .= "friendlyName: $friendlyName, " if (defined($friendlyName));
+	$str .= "displayName: $displayName, " if (defined($displayName));
 	$str .= "namespace: $namespace, " if (defined($namespace));
 	$str .= "description: $description, " if (defined($description));
 	$str .= "type: $type, " if (defined($type));
@@ -55,6 +57,13 @@ sub TO_JSON
 	} else {
 		$friendlyName = undef;
 	}
+	
+	my $displayName;
+	if (defined($self->{_displayName})) {
+		$displayName = "$self->{_displayName}";
+	} else {
+		$displayName = undef;
+	}
 
 	my $namespace;
 	if (defined($self->{_namespace})) {
@@ -77,8 +86,8 @@ sub TO_JSON
 		$type = undef;
 	}
 
-	return {id => $id, friendlyName => $friendlyName, namespace => $namespace,
-		description => $description, type => $type};
+	return {id => $id, friendlyName => $friendlyName, displayName => $displayName,
+		namespace => $namespace, description => $description, type => $type};
 }
 
 sub getId
@@ -108,6 +117,21 @@ sub getFriendlyName
 	my $self = shift;
 
 	return $self->{_friendlyName};
+}
+
+sub setDisplayName
+{
+	my $self = shift;
+	$self->{_displayName} = shift;
+
+	return;
+}
+
+sub getDisplayName
+{
+	my $self = shift;
+
+	return $self->{_displayName};
 }
 
 sub setFriendlyName

@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Removes selected group-member attribute. Group, VO, member, and attribute fields are required.
+	--------------------------------------
+	Available options:
+	--groupId      | -g group id
+	--groupName    | -G group name
+	--voId         | -v vo id
+	--voShortName  | -V vo short name
+	--memberId     | -m member id
+	--attributeId  | -a attribute id
+	--batch        | -b batch
+	--help         | -h prints this help
+
+	};
+}
+
+our $batch;
+my ($groupId, $groupName, $voId, $voShortName, $memberId, $resourceId, $attributeId);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+	 	 "batch|b" => \$batch,
+	 	 "groupId|g=i" => \$groupId,
+	 	 "groupName|G=s" => \$groupName,
+	 	 "voId|v=i" => \$voId,
+	 	 "voShortName|V=s" => \$voShortName, 
+	 	 "memberId|m=i" => \$memberId,
+	 	 "attributeId|a=i" => \$attributeId) || die help();
+
+# Check options
+unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}unless (defined($memberId)) { die "ERROR: memberId is required \n";}
+unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+unless(defined($groupId)) {
+	unless (defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		$voId = $vo->getId;
+	}
+
+	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	$groupId = $group->getId;
+}
+
+my $attributesAgent = $agent->getAttributesAgent;
+
+$attributesAgent->removeAttribute(member => $memberId, group => $groupId, attribute => $attributeId);
+
+printMessage("Attribute Id:$attributeId removed from the group Id:$groupId and member Id:$memberId", $batch);
+
+
+
