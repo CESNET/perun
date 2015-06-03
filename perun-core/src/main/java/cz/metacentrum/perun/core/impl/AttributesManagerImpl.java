@@ -329,13 +329,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				try {
 					method = attributeHolder.getClass().getMethod(methodName);
 				} catch(NoSuchMethodException ex) {
-					//try also "is"
-					log.debug("Bad core attribute definition for methodname " + methodName);
+					//if not "get", try "is"
+					String methodGet = methodName;
 					try {
 						methodName = "is" + Character.toUpperCase(attribute.getFriendlyName().charAt(0)) + attribute.getFriendlyName().substring(1);
 						method = attributeHolder.getClass().getMethod(methodName);
 					} catch (NoSuchMethodException e) {
-						throw new InternalErrorRuntimeException("Bad core attribute definition. " + attribute , e);
+						throw new InternalErrorRuntimeException("There is no method '" + methodGet + "' or '" + methodName + "'  for core attribute definition. " + attribute , e);
 					}
 				}
 				try {
