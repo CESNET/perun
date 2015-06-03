@@ -244,6 +244,14 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 												c.show();
 											}
 											layout.setVisible(true);
+											c.getOkButton().setText("Reload");
+											c.getOkButton().addClickHandler(new ClickHandler() {
+												@Override
+												public void onClick(ClickEvent event) {
+													Window.Location.reload();
+												}
+											});
+
 										}
 									}
 								}));
@@ -311,7 +319,9 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 								loadingFailedBox = session.getUiElements().perunLoadingFailedBox(error.getErrorInfo());
 							}
 						}
-						loadingFailedBox.show();
+						if (!error.getErrorId().equals("0")) {
+							loadingFailedBox.show();
+						}
 
 					}
 				});
