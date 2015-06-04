@@ -37,7 +37,7 @@
     <meta name="msapplication-TileImage" content="/apps-include/img/favicons/favicon-white-144.png">
     <meta name="msapplication-TileColor" content="#00569c">
 
-    <title>User profile in eInfrastructure</title>
+    <title>Miniapplication signpost</title>
 </head>
 <body>
 <!------------ LINKER ------->
@@ -55,12 +55,14 @@
                 </div>
                 <div class="col-sm-8">
                     <div class="title">
-                        <h3><img src="/apps-include/img/metalogo_pruhledne_150.png" alt="MetaCentrum logo"> eInfrastructure User Profile</h3>
+                        <h3><img src="../non/img/signpost.png" alt="Signpost">
+                            Miniapplication signpost
+                        </h3>
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="user">
-                        <span class="user-firstName">logged as ...</span> <span class="user-lastName"></span>
+                        <!--<span class="user-firstName">logged as ...</span> <span class="user-lastName"></span>-->
                     </div>
                 </div>
             </div>
@@ -78,158 +80,42 @@
                 <!-- contend loaded by JavaScript -->
             </div>
 
-            <div id="sidebar" class="col-md-3 col-sm-4">
 
-                <p class="visible-xs">
-                    <button type="button" class="btn btn-default btn-block btn-lg btn-collapse" data-toggle="collapse" data-target="#sidebar-content">
-                        <span class="glyphicon glyphicon-chevron-down pull-right"></span>
-                        Menu
-                    </button>
-                </p>
 
-                <div id="sidebar-content" class="collapse in" role="navigation">
+            <div id="content" class="col-md-6 col-sm-8 col-sm-offset-2">
 
-                    <ul id="menu" class="nav nav-pills nav-stacked">
-                        <li class="active">
-                            <a href="#">Menu</a>
-                            <ul class="nav nav-pills nav-stacked">
-                                <li class="active">
-                                    <a href="#profile" data-toggle="tab" id="profileLink">
-                                        <i class="glyphicon glyphicon-user"></i>&nbsp;My Profile
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#projects" data-toggle="tab" id="projectsLink">
-                                        <i class="glyphicon glyphicon-briefcase"></i> Virtual Organizations
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#identities" data-toggle="tab" id="identitiesLink">
-                                        <i class="glyphicon glyphicon-eye-open"></i>&nbsp;My Identities
-                                    </a>
-                                </li>
-                                <!--                                        <li>
-																			<a href="#sshkeys" data-toggle="tab" id="sshkeysLink">
-																				<i class="glyphicon icon-key2"></i>&nbsp;My SSH Keys
-																			</a>
-																			</li> -->
-                                <li class="hide-without-login">
-                                    <a class="resolve-url" href="/apps/alt-passwords/authz/">
-                                        <i class="glyphicon icon-key2"></i>&nbsp;My Alternative Passwords
-                                    </a>
-                                </li>
-                                <li class="hide-without-login">
-                                    <a href="/perun-password-reset/?login-namespace=einfra" class="clearfix">
-                                        <i class="glyphicon glyphicon-repeat"></i>
-                                        Password reset
-                                        <i class="glyphicon glyphicon-new-window low-opacity" data-toggle="tooltip" title="external link"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-
+                <div class="list-group">
+                    <a class="list-group-item resolve-url" href="/apps/alt-passwords/authz/">
+                        Alternative password manager
+                    </a>
+                    <a class="list-group-item resolve-url" href="/apps/centralni-portal-knihoven/authz/">
+                        Centralní portál knihoven
+                    </a>
+                    <a class="list-group-item resolve-url" href="/apps/du-samba/authz/">
+                        DU Samba
+                    </a>
+                    <a class="list-group-item" href="/apps/edugain-group/non/help.html">
+                        EduGain group manager
+                    </a>
+                    <a class="list-group-item" href="/apps/elixir-mailing-list-manager/non/subscribe.html">
+                        Elixir mailing list manager - subscribe email
+                    </a>
+                    <a class="list-group-item" href="/apps/elixir-mailing-list-manager/non/unsubscribe.html">
+                        Elixir mailing list manager - unsubscribe email
+                    </a>
+                    <a class="list-group-item resolve-url" href="/apps/establish-vo-form/authz/">
+                        Establish VO form
+                    </a>
+                    <a class="list-group-item resolve-url" href="/apps/facility-overview/authz/">
+                        Facility overview
+                    </a>
+                    <a class="list-group-item resolve-url" href="/apps/meta-mailing-list-manager/authz/">
+                        Meta mailing list manager
+                    </a>
+                    <a class="list-group-item resolve-url" href="/apps/user-profile/authz/">
+                        User profile
+                    </a>
                 </div>
-            </div>
-
-
-
-            <div id="content" class="col-md-9 col-sm-8">
-                <div class="tab-content content">  <!-- content -->
-
-                    <div class="tab-pane active" id="profile"> <!-- profile tab -->
-                        <div class="page-header">
-                            <h1>
-                                <span class="user-displayName"> ... </span>
-                            </h1>
-                        </div>
-
-                        <dl class="dl-horizontal user-attributes">
-                            <dt class="hide-without-login">Login</dt>
-                            <dd class="hide-without-login user-login-namespace-einfra"> ... </dd>
-                            <dt>Organization</dt>
-                            <dd class="user-organization"> ... </dd>
-                            <dt>E-mail</dt>
-                            <dd class="user-preferredMail"> ... </dd>
-                            <dt>Phone</dt>
-                            <dd class="user-phone"> ... </dd>
-                            <dt>Preferred language</dt>
-                            <dd>
-                                <span class="user-preferredLanguage"> ... </span>
-                                <div class="btn-group">
-                                    <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
-                                        <i class="caret"></i>
-                                    </button>
-                                    <ul class="dropdown-menu" id="preferredLanguage">
-                                        <li>
-                                            <a data-value="en">English</a>
-                                        </li>
-                                        <li>
-                                            <a data-value="cs">Česky</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </dd>
-                            <dt>Your timezone</dt>
-                            <dd>
-                                <span class="user-timezone"> ... </span>
-                                <div class="btn-group">
-                                    <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
-                                        <i class="icon caret"></i>
-                                    </button>
-                                    <ul class="dropdown-menu multi-level" id="timezone">
-                                        <!-- fill via javaScript -->
-                                    </ul>
-                                </div>
-                            </dd>
-                        </dl>
-
-                    </div> <!-- profile tab -->
-
-
-                    <div class="tab-pane" id="projects"> <!-- projects tab -->
-                        <div class="page-header">
-                            <h2>List of VOs you are associated with</h2>
-                        </div>
-                        <div id="projects-table"></div>
-                    </div> <!-- projects tab -->
-
-
-                    <div class="tab-pane" id="identities"> <!-- identities tab -->
-                        <div class="page-header">
-                            <h2>List of your registered digital identities</h2>
-                        </div>
-                        <div id="federations-table"><br></div>
-                        <p>
-                            <a class="resolve-url" href="/ic-fed/index-fed-en.html?target=/current/">
-                                <button class="btn btn-success" id="new-identity">Add new federated identity</button>
-                            </a>
-                        </p>
-                        <div id="certificates-table"><br></div>
-                        <p>
-                            <a class="resolve-url" href="/ic-fed/index-cert-en.html?target=/current/">
-                                <button class="btn btn-success">Add new certificate</button>
-                            </a>
-                        </p>
-                    </div> <!-- identities tab -->
-
-
-                    <div class="tab-pane" id="sshkeys"> <!-- sshkeys tab -->
-                        <div class="page-header">
-                            <h2>List of your registered SSH keys</h2>
-                        </div>
-                        <div id="sshkeys-table"></div>
-                        <div class="input-group">
-                            <input class="form-control" type="text" id="newSSHKey" placeholder="Paste SSH key here...">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-success" id="addNewSSHKey">Add new SSH key</button>
-                                    </span>
-                        </div>
-                    </div> <!-- sshkeys tab -->
-
-
-
-                </div> <!-- content -->
 
             </div> <!-- /#content -->
 
@@ -305,15 +191,12 @@
 <script src="/apps-include/js/PerunUtils.js"></script>
 <script src="/apps-include/js/PerunConnectionTester.js"></script>
 <script src="/apps-include/js/PerunTable.js"></script>
-<script src="/apps-include/js/PerunUserLoader.js"></script>
+<!--<script src="/apps-include/js/PerunUserLoader.js"></script>-->
 <script src="/apps-include/js/Modal.js"></script>
 <script src="/apps-include/js/Messager.js"></script>
 <script src="/apps-include/js/LoadImage.js"></script>
 
-<script src="../non/js/Profile.js"></script>
-<script src="../non/js/Projects.js"></script>
-<script src="../non/js/Identities.js"></script>
-<script src="../non/js/SSHKeys.js"></script>
+<script src="../non/js/Signpost.js"></script>
 
 </body>
 </html>
