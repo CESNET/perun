@@ -1,4 +1,4 @@
 #!/bin/bash
-SERVICE_NAME="samba"
+SERVICE_NAME="samba_du"
 
 . generic_send
