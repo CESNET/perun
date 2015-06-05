@@ -239,8 +239,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			String userOrganization = AttributesManager.NS_USER_ATTR_DEF + ":organization";
 			String memberOrganization = AttributesManager.NS_MEMBER_ATTR_DEF + ":organization";
 
-			Map<String, String> candidateAttributes = candidate.getAttributes();
-			if(candidateAttributes == null) candidateAttributes = new HashMap<>();
+			Map<String, String> candidateAttributes =  new HashMap<>();
+			if(candidate.getAttributes() != null) candidateAttributes.putAll(candidate.getAttributes());
 
 			if(candidateAttributes.get(memberOrganization) == null) {
 				Attribute actorUserOrganization;
@@ -252,10 +252,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					throw new InternalErrorException(ex);
 				}
 				
-				if(actorUserOrganizationValue != null) candidateAttributes.put(memberOrganization, actorUserOrganizationValue);
+				if(actorUserOrganizationValue != null) {
+					candidateAttributes.put(memberOrganization, actorUserOrganizationValue);
+					candidate.setAttributes(candidateAttributes);
+				}
 			}
-
-			candidate.setAttributes(candidateAttributes);
 		}
 
 		//create member for service user from candidate
