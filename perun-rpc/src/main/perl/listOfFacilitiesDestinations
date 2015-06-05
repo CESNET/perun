@@ -13,12 +13,12 @@ sub help {
 	Prints list of Destinations used for Facilities which have resource in defined VO.
 	---------------------------------------------------------------
 	Available options:
-	--voId									| -v  filter facilities by resources available in VO (defined by ID)
-	--voShortName					| -V  filter facilities by resources available in VO (defined by shortName)
-	--orderById						| -i  order by destination id
-	--orderByDestination		| -n  order by destination name
-	--batch								| -b  batch
-	--help									| -h  prints this help
+	--voId               | -v  filter facilities by resources available in VO (defined by ID)
+	--voShortName        | -V  filter facilities by resources available in VO (defined by shortName)
+	--orderById          | -i  order by destination id
+	--orderByDestination | -n  order by destination name
+	--batch              | -b  batch
+	--help               | -h  prints this help
 	};
 }
 

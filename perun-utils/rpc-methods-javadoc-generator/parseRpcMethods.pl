@@ -50,11 +50,11 @@ $objectExamples{"Vo"} = "{ \"id\" : 123 , \"name\" : \"My testing VO\" , \"short
 $objectExamples{"List&lt;Vo&gt;"} = $listPrepend . $objectExamples{"Vo"} . $listAppend;
 $objectExamples{"List<Vo>"} = $objectExamples{"List&lt;Vo&gt;"};
 
-$objectExamples{"Facility"} = "{ \"id\" : 24 , \"name\" : \"host.facility.cz\" , \"beanName\" : \"Facility\" }";
+$objectExamples{"Facility"} = "{ \"id\" : 24 , \"name\" : \"host.facility.cz\" , \"description\" : \"is optional\" , \"beanName\" : \"Facility\" }";
 $objectExamples{"List&lt;Facility&gt;"} = $listPrepend . $objectExamples{"Facility"} . $listAppend;
 $objectExamples{"List<Facility>"} = $objectExamples{"List&lt;Facility&gt;"};
 
-$objectExamples{"RichFacility"} = "{ \"id\" : 24 , \"name\" : \"host.facility.cz\" , \"facilityOwners\" : [ { \"id\" : 183 , \"name\" : \"Some Body\" , \"type\" : \"technical\" , \"contact\" : \"mail\@mail.com\" , \"beanName\" : \"Owner\" } ] , \"beanName\" : \"RichFacility\" }";
+$objectExamples{"RichFacility"} = "{ \"id\" : 24 , \"name\" : \"host.facility.cz\" , , \"description\" : \"is optional\" , \"facilityOwners\" : [ { \"id\" : 183 , \"name\" : \"Some Body\" , \"type\" : \"technical\" , \"contact\" : \"mail\@mail.com\" , \"beanName\" : \"Owner\" } ] , \"beanName\" : \"RichFacility\" }";
 $objectExamples{"List&lt;RichFacility&gt;"} = $listPrepend . $objectExamples{"RichFacility"} . $listAppend;
 $objectExamples{"List<RichFacility>"} = $objectExamples{"List&lt;RichFacility&gt;"};
 

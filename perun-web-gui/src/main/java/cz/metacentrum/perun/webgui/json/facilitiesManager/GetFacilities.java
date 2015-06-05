@@ -147,6 +147,8 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
 			table.addColumn(ownersColumn, "Technical owners");
 		}
 
+		table.addDescriptionColumn(tableFieldUpdater);
+
 		return table;
 	}
 

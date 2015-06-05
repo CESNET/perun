@@ -13,6 +13,7 @@ sub help {
 	Available options:
 	--likeFacility  | -l name of 'like' facility
 	--facilityName  | -F facility name
+	--facilityDsc   | -D facility description
 	--nodeName      | -n name of node
 	--fromNumber    | -o numbering of nodes starts from
 	--toNumber      | -d numbering of nodes ends to
@@ -22,11 +23,11 @@ sub help {
 	};
 }
 
-my ($facilityName,$batch,$likeFacility,$nodeName,$fromNumber,$toNumber);
+my ($facilityName,$facilityDescription,$batch,$likeFacility,$nodeName,$fromNumber,$toNumber);
 my %usedServices;
 
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"likeFacility|l=s" => \$likeFacility, "likeFacType|p=s" => \$likeFacType,
+"likeFacility|l=s" => \$likeFacility, "facilityDsc|D=s" => \$facilityDescription,
  "nodeName|n=s" => \$nodeName,
  "fromNumber|o=i" => \$fromNumber,"toNumber|d=i" => \$toNumber,
  "facilityName|F=s" => \$facilityName) || die help();
@@ -47,6 +48,9 @@ my $facilityIdO = $facilityO->getId;
 # vytvoreni facility
 my $facility=Perun::beans::Facility->new;
 $facility->setName($facilityName);
+if (defined($facilityDescription)) {
+	$facility->setDescription($facilityDescription);
+}
 
 $facility = $facilitiesAgent->createFacility(facility => $facility);
 my $facilityId = $facility->getId;
@@ -107,7 +111,6 @@ foreach my $resourceO (@resourcesO) {
 		my $resource = Perun::beans::Resource->new;
 		my $resourceName=$resourceNameO;
 		$resourceName =~ s/$likeFacility/$facilityName/;
-		$resourceName =~ s/$likeFacType/$facilityType/;
 		$resource->setName($resourceName);
 		$resource->setDescription($resourceName);
 
@@ -193,4 +196,4 @@ if (@managers) {
 	printMessage "No manager found", $batch;
 }
 
-printMessage "PLEASE CHECK VALUES OF ATTRIBUTES NAMELY ATRIBUTES FOR SERVICE pbsmon_json. UPDATE DESCRIPTIONS ON RESOURCES!!!",$batch;
+printMessage "PLEASE CHECK VALUES OF ATTRIBUTES NAMELY ATTRIBUTES FOR SERVICE pbsmon_json. UPDATE DESCRIPTIONS ON RESOURCES!!!",$batch;

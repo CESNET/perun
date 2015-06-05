@@ -58,6 +58,7 @@ public class UpdateFacility {
 		JSONObject newFacility = new JSONObject();
 		newFacility.put("id", oldFacility.get("id"));
 		newFacility.put("name", oldFacility.get("name"));
+		newFacility.put("description", oldFacility.get("description"));
 		newFacility.put("type", oldFacility.get("type"));
 		newFacility.put("beanName", oldFacility.get("beanName"));
 		newFacility.put("createdAt", oldFacility.get("createdAt"));

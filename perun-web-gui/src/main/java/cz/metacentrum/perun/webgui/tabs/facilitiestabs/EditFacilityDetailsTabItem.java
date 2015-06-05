@@ -9,7 +9,6 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.facilitiesManager.UpdateFacility;
@@ -75,7 +74,7 @@ public class EditFacilityDetailsTabItem implements TabItem {
 		nameTextBox.getTextBox().setText(facility.getName());
 
 		final TextBox descriptionTextBox = new TextBox();
-		//descriptionTextBox.setText(resource.getDescription());
+		descriptionTextBox.setText(facility.getDescription());
 
 		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
@@ -109,7 +108,7 @@ public class EditFacilityDetailsTabItem implements TabItem {
 				if (validator.validateTextBox()) {
 					Facility fac = JsonUtils.clone(facility).cast();
 					fac.setName(nameTextBox.getTextBox().getText().trim());
-					//facility.setDescription(descriptionTextBox.getText().trim());
+					fac.setDescription(descriptionTextBox.getText().trim());
 					UpdateFacility request = new UpdateFacility(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
 					request.updateFacility(fac);
 				}
@@ -128,8 +127,8 @@ public class EditFacilityDetailsTabItem implements TabItem {
 		// Add some standard form options
 		layout.setHTML(0, 0, "Name:");
 		layout.setWidget(0, 1, nameTextBox);
-		//layout.setHTML(1, 0, "Description:");
-		//layout.setWidget(1, 1, descriptionTextBox);
+		layout.setHTML(1, 0, "Description:");
+		layout.setWidget(1, 1, descriptionTextBox);
 
 		for (int i=0; i<layout.getRowCount(); i++) {
 			cellFormatter.addStyleName(i, 0, "itemName");
