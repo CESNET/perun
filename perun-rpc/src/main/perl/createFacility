@@ -12,15 +12,16 @@ sub help {
 	--------------------------------------
 	Available options:
 	--facilityName  | -F facility name
+	--facilityDsc   | -d facility description
 	--batch         | -b batch
 	--help          | -h prints this help
 
 	};
 }
 
-my ($facilityName, $facilityType, $batch);
+my ($facilityName, $facilityDescription, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"facilityName|F=s" => \$facilityName) || die help();
+"facilityName|F=s" => \$facilityName, "facilityDsc|d=s" => \$facilityDescription) || die help();
 
 # Check options
 unless (defined($facilityName)) { die "ERROR: facilityName is required \n";}
@@ -30,6 +31,10 @@ my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 my $facility=Perun::beans::Facility->new;
 $facility->setName($facilityName);
+
+if (defined($facilityDescription)) {
+	$facility->setDescription($facilityDescription);
+}
 
 $facility = $facilitiesAgent->createFacility(facility => $facility);
 
