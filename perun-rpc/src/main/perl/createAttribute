@@ -13,6 +13,7 @@ sub help {
 	Available options:
 	--attributeName       | -N attribute friendly name
 	--attributeNameSpace  | -n namespace
+	--attributeDisplayName| -e attribute display name
 	--attributeType       | -t attribute type (integer/string/array/hash)
 	--attributeDsc        | -d description
 	--batch               | -b batch
@@ -21,10 +22,11 @@ sub help {
 	};
 }
 
-my ($attributeName, $attributeNameSpace, $attributeType, $attributeDsc, $batch);
+my ($attributeName, $attributeDisplayName, $attributeNameSpace, $attributeType, $attributeDsc, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"attributeName|N=s" => \$attributeName,"attributeNameSpace|n=s" => \$attributeNameSpace,
- "attributeType|t=s" => \$attributeType,"attributeDsc|d=s" => \$attributeDsc) || die help();
+"attributeName|N=s" => \$attributeName, "attributeDisplayName|e=s" => \$attributeDisplayName, 
+"attributeNameSpace|n=s" => \$attributeNameSpace, "attributeType|t=s" => \$attributeType,
+"attributeDsc|d=s" => \$attributeDsc) || die help();
 
 # Check options
 unless (defined($attributeName)) { die "ERROR: attributeName is required \n";}
@@ -37,6 +39,7 @@ my $attributesAgent = $agent->getAttributesAgent;
 my $attribute = Perun::beans::AttributeDefinition->new;
 $attribute->setFriendlyName($attributeName);
 $attribute->setNamespace($attributeNameSpace);
+$attribute->setDisplayName($attributeDisplayName);
 $attribute->setType($attributeType);
 $attribute->setDescription($attributeDsc) if (defined($attributeDsc));
 
