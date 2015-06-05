@@ -191,6 +191,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 
 			// widgets
 			final ExtendedTextBox name = new ExtendedTextBox();
+			final ExtendedTextBox description = new ExtendedTextBox();
 			final ListBoxWithObjects<Facility> copyOfFacility = new ListBoxWithObjects<Facility>();
 
 			final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
@@ -217,8 +218,10 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			// Add some standard form options
 			layout.setHTML(0, 0, "Name:");
 			layout.setWidget(0, 1, name);
-			layout.setHTML(1, 0, "As copy of:");
-			layout.setWidget(1, 1, copyOfFacility);
+			layout.setHTML(1, 0, "Description:");
+			layout.setWidget(1, 1, description);
+			layout.setHTML(2, 0, "As copy of:");
+			layout.setWidget(2, 1, copyOfFacility);
 
 			final CustomButton create = TabMenu.getPredefinedButton(ButtonType.CREATE, "Create new facility");
 			TabMenu menu = new TabMenu();
@@ -312,7 +315,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 									copyOfFacility.setEnabled(true);
 								}
 							}));
-							request.createFacility(name.getTextBox().getText().trim());
+							request.createFacility(name.getTextBox().getText().trim(), description.getTextBox().getText().trim());
 						}
 
 					} else {
@@ -328,8 +331,12 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 
 				// if tab was visited
 				name.getTextBox().setValue(facility.getName());
+				if (facility.getDescription() != null) {
+					description.getTextBox().setValue(facility.getDescription());
+				}
 
 				name.getTextBox().setEnabled(false);
+				description.getTextBox().setEnabled(false);
 				copyOfFacility.setEnabled(false);
 
 				if (sourceFacility != null) {

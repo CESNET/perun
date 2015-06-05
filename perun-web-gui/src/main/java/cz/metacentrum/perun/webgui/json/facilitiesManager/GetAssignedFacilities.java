@@ -108,6 +108,8 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 		// Connect the table to the data provider.
 		dataProvider.addDataDisplay(table);
 
+		table.setHyperlinksAllowed(false); // prevent double-loading when clicked on name of facility in list
+
 		// Sorting
 		ListHandler<Facility> columnSortHandler = new ListHandler<Facility>(dataProvider.getList());
 		table.addColumnSortHandler(columnSortHandler);
@@ -122,6 +124,7 @@ public class GetAssignedFacilities implements JsonCallback, JsonCallbackTable<Fa
 		table.addCheckBoxColumn();
 		table.addIdColumn("Facility ID", tableFieldUpdater);
 		table.addNameColumn(tableFieldUpdater);
+		table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
 
