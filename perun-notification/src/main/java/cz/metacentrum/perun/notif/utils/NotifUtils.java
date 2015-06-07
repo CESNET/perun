@@ -1,14 +1,19 @@
 package cz.metacentrum.perun.notif.utils;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.notif.dao.jdbc.PerunNotifTemplateDaoImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class ParseUtils {
+public class NotifUtils {
+
+	public static PerunSession session = null;
 
 	public static Map<String, String> parseMap(String row) {
 
@@ -76,5 +81,12 @@ public class ParseUtils {
 		result.add(member);
 
 		return result;
+	}
+
+	public static PerunSession getPerunSession(PerunBl perun) throws InternalErrorException {
+		if (session == null) {
+			session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		}
+		return session;
 	}
 }

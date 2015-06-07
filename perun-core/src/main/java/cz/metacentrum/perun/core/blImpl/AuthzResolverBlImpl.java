@@ -1036,7 +1036,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * @param role to get object for
 	 * @param perunBeanClass particular class ( Vo | Group | ... )
 	 * @return list of complementary objects
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	public static List<PerunBean> getComplementaryObjectsForRole(PerunSession sess, Role role, Class perunBeanClass) throws InternalErrorException {
@@ -1355,16 +1355,6 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
 			log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
-		}
-
-		List<String> perunNotifications = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.notification.principals").split("[ \t]*,[ \t]*")));
-		if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
-
-			//FIXME ted pridame i roli plneho admina
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
-
-			log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
 		}
 
 		List<String> perunRegistrars = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.registrar.principals").split("[ \t]*,[ \t]*")));
