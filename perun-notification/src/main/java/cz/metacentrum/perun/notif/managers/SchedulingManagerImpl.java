@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.AuditerConsumer;
 import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
+import cz.metacentrum.perun.notif.utils.NotifUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -63,7 +64,7 @@ public class SchedulingManagerImpl {
 
 	@PostConstruct
 	public void init() throws InternalErrorException {
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = NotifUtils.getPerunSession(perun);
 	}
 
 	/**
@@ -126,7 +127,7 @@ public class SchedulingManagerImpl {
 	public void processPerunAuditMessages() throws Exception {
 		List<PerunNotifAuditMessage> perunNotifAuditMessages = new ArrayList<PerunNotifAuditMessage>();
 		try {
-			List<AuditMessage> messages = perun.getAuditMessagesManagerBl().pollConsumerMessagesForParser(session, consumerName);
+			List<AuditMessage> messages = perun.getAuditMessagesManagerBl().pollConsumerMessagesForParser(consumerName);
 
 			for (AuditMessage message : messages) {
 				try {

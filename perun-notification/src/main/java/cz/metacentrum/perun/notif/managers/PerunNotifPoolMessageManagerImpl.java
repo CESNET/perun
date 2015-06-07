@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.notif.utils.NotifUtils;
 import cz.metacentrum.perun.notif.dao.PerunNotifPoolMessageDao;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
@@ -56,7 +57,7 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	private void init() throws Exception {
 
 		perunNotifPoolMessageDao.setAllCreatedToNow();
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = NotifUtils.getPerunSession(perun);
 	}
 
 	public void savePerunNotifPoolMessages(List<PerunNotifPoolMessage> poolMessages) throws InternalErrorException {
