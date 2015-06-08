@@ -83,8 +83,19 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
 		if(user.isServiceUser()) throw new NotServiceUserExpectedException(user);
+
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
-			throw new PrivilegeException(sess, "getServiceUsersByUser");
+			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+			boolean found = false;
+			for (Vo vo : vos) {
+				if (found = AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) break;
+				if (found = AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) break;
+				if (found = AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) break;
+			}
+			// if not self or vo/group admin of any of users VOs
+			if (!found) {
+				throw new PrivilegeException(sess, "getServiceUsersByUser");
+			}
 		}
 		return getUsersManagerBl().getServiceUsersByUser(sess, user);
 	}
@@ -94,7 +105,17 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().checkUserExists(sess, serviceUser);
 		if(!serviceUser.isServiceUser()) throw new ServiceUserExpectedException(serviceUser);
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, serviceUser)) {
-			throw new PrivilegeException(sess, "getUsersByServiceUser");
+			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, serviceUser);
+			boolean found = false;
+			for (Vo vo : vos) {
+				if (found = AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) break;
+				if (found = AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) break;
+				if (found = AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) break;
+			}
+			// if not self or vo/group admin of any of users VOs
+			if (!found) {
+				throw new PrivilegeException(sess, "getUsersByServiceUser");
+			}
 		}
 		return getUsersManagerBl().getUsersByServiceUser(sess, serviceUser);
 	}
