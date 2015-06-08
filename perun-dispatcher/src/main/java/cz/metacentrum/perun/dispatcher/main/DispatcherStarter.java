@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.dispatcher.main;
 
+import java.util.Properties;
+
 import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
@@ -24,7 +27,11 @@ public class DispatcherStarter {
 	private DispatcherManager dispatcherManager;
 	@Autowired
 	private AbstractApplicationContext springCtx;
-
+	@Autowired
+	private Properties dispatcherPropertiesBean;
+	@Autowired
+	private SchedulerFactoryBean scheduler;
+	
 	public static void main(String[] arg) {
 		DispatcherStarter starter = new DispatcherStarter();
 		
@@ -36,6 +43,13 @@ public class DispatcherStarter {
 	 * Initialize integrated dispatcher.
 	 */
 	public final void init() {
+		
+		String dispatcherEnabled = dispatcherPropertiesBean.getProperty("dispatcher.enabled");
+		if(dispatcherEnabled != null && Boolean.parseBoolean(dispatcherEnabled) == false) {
+			log.debug("Dispatcher startup disabled by configuration.");
+			scheduler.stop();
+			return;
+		}
 		try {
 
 			dispatcherManager = springCtx.getBean("dispatcherManager", DispatcherManager.class);
@@ -75,5 +89,6 @@ public class DispatcherStarter {
 		dispatcherManager.stopParsingData();
 		dispatcherManager.stopProcessingSystemMessages();
 		dispatcherManager.stopPerunHornetQServer();
+		scheduler.stop();
 	}
 }

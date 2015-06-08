@@ -110,7 +110,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 	</bean>
 	-->
 
-	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	<bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
 				<!--<ref bean="maintenanceJobTrigger" />-->
