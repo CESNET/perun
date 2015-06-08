@@ -8,6 +8,7 @@ import cz.metacentrum.perun.notif.dto.PerunNotifMessageDto;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
+import cz.metacentrum.perun.notif.utils.NotifUtils;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.XMPPConnection;
@@ -45,7 +46,7 @@ public class PerunNotifJabberSender implements PerunNotifSender {
 
 	@PostConstruct
 	public void init() throws Exception {
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = NotifUtils.getPerunSession(perun);
 		this.jabberServer = (String) propertiesBean.get("notif.jabber.jabberServer");
 		this.port = Integer.valueOf((String) propertiesBean.get("notif.jabber.port"));
 		this.serviceName = (String) propertiesBean.get("notif.jabber.serviceName");

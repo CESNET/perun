@@ -1357,6 +1357,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
 		}
 
+		List<String> perunNotifications = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.notification.principals").split("[ \t]*,[ \t]*")));
+		if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
+			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
+
+			log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
+		}
+
 		List<String> perunRegistrars = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.registrar.principals").split("[ \t]*,[ \t]*")));
 		if (perunRegistrars.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
