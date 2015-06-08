@@ -11,6 +11,7 @@ import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
 import cz.metacentrum.perun.notif.managers.PerunNotifEmailManager;
+import cz.metacentrum.perun.notif.utils.NotifUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
 
 	@PostConstruct
 	public void init() throws Exception {
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = NotifUtils.getPerunSession(perun);
 	}
 
 	@Override
@@ -80,7 +81,7 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
 							PerunNotifEmailMessageToSendDto memberEmailDto = new PerunNotifEmailMessageToSendDto();
 							memberEmailDto.setMessage(messageDto.getMessageToSend());
 							memberEmailDto.setSubject(messageDto.getSubject());
-							memberEmailDto.setReceiver((String) perun.getAttributesManager().getAttribute(session, perun.getUsersManager().getUserByMember(session, member), "urn:perun:user:attribute-def:def:preferredMail").getValue());
+							memberEmailDto.setReceiver((String) perun.getAttributesManagerBl().getAttribute(session, perun.getUsersManager().getUserByMember(session, member), "urn:perun:user:attribute-def:def:preferredMail").getValue());
 							memberEmailDto.setSender(groupSender);
 
 							messagesToSend.add(memberEmailDto);

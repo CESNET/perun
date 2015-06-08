@@ -22,6 +22,7 @@ import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException
 import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.TemplateMessageSyntaxErrorException;
 import cz.metacentrum.perun.notif.senders.PerunNotifSender;
+import cz.metacentrum.perun.notif.utils.NotifUtils;
 import freemarker.cache.MruCacheStorage;
 import freemarker.core.Environment;
 import freemarker.core.InvalidReferenceException;
@@ -113,7 +114,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 
 
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = NotifUtils.getPerunSession(perun);
 	}
 
 	private Configuration createFreemarkerConfiguration(StringTemplateLoader stringTemplateLoader) {
