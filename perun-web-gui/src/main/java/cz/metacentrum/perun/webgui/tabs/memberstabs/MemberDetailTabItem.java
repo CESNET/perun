@@ -161,6 +161,11 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
 		tabPanel.add(new MemberResourcesTabItem(member, groupId), "Resources");
 		tabPanel.add(new MemberApplicationsTabItem(member, groupId), "Applications");
 		tabPanel.add(new MemberSettingsTabItem(member, groupId), "Settings");
+		if (member.getUser().isServiceUser()) {
+			tabPanel.add(new MemberServiceUsersTabItem(member, groupId), "Associated users");
+		} else {
+			tabPanel.add(new MemberServiceUsersTabItem(member, groupId), "Service identities");
+		}
 
 		// Resize must be called after page fully displays
 		Scheduler.get().scheduleDeferred(new Command() {
