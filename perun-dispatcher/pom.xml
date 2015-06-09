@@ -239,15 +239,6 @@
 			<version>1.5.2</version>
 		</dependency>
 
-
-		<!--
-				<dependency>
-					<groupId>opensymphony</groupId>
-					<artifactId>quartz</artifactId>
-					<version>1.6.3</version>
-				</dependency>
-			-->
-
 		<!-- HORNET-Q  -->
 
 		<dependency>
