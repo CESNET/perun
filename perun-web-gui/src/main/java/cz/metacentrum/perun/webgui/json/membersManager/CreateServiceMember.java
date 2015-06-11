@@ -128,8 +128,12 @@ public class CreateServiceMember {
 			errorMsg += "Wrong <strong>Email</strong> parameter.<br />";
 			result = false;
 		}
-		if((namespace.isEmpty() && login.isEmpty()) && (certDN.isEmpty() || caCertDN.isEmpty())){
-			errorMsg += "Wrong <strong>login-namespace</strong> or <strong>cert</strong> parameter.<br />";
+		if(!namespace.isEmpty() && login.isEmpty()){
+			errorMsg += "Wrong <strong>login-namespace</strong> parameter.<br />";
+			result = false;
+		}
+		if((certDN.isEmpty() && !caCertDN.isEmpty()) || (!certDN.isEmpty() && caCertDN.isEmpty())){
+			errorMsg += "Wrong <strong>Cert / CA Cert</strong> parameter.<br />";
 			result = false;
 		}
 
