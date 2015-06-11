@@ -13,7 +13,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -62,7 +61,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			+ "groups.modified_by_uid as groups_modified_by_uid, groups.created_by_uid as groups_created_by_uid ";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	// Group mapper
@@ -102,7 +101,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	 *
 	 */
 	public GroupsManagerImpl(DataSource perunPool) {
-		this.jdbc = new JdbcTemplate(perunPool);
+		this.jdbc = new JdbcPerunTemplate(perunPool);
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 	}
 
