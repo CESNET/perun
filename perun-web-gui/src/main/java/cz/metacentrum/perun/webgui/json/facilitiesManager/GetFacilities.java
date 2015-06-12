@@ -145,6 +145,7 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
 
 		if (provideRich) {
 			table.addColumn(ownersColumn, "Technical owners");
+			table.setColumnWidth(ownersColumn, "25%");
 		}
 
 		table.addDescriptionColumn(tableFieldUpdater);

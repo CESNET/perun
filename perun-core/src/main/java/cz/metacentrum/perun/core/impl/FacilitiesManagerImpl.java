@@ -148,7 +148,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 
 		if ((!dbFacility.getName().equals(facility.getName())) || 
-				(!dbFacility.getDescription().equals(facility.getDescription()))) {
+				((dbFacility.getDescription() != null && !dbFacility.getDescription().equals(facility.getDescription())) ||
+						(dbFacility.getDescription() == null && facility.getDescription() != null))) {
 			try {
 				jdbc.update("update facilities set name=?, dsc=?, modified_by=?, modified_by_uid=?, modified_at=" + 
 								Compatibility.getSysdate() + " where id=?",

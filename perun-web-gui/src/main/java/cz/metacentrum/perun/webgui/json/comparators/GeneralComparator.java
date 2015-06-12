@@ -83,7 +83,9 @@ public class GeneralComparator<T extends JavaScriptObject> implements Comparator
 	 */
 	private int compareByDescription(GeneralObject o1, GeneralObject o2)
 	{
-		return o1.getDescription().compareToIgnoreCase(o2.getDescription());
+		String desc = (o1.getDescription() != null) ? o1.getDescription() : "";
+		String desc2 = (o2.getDescription() != null) ? o2.getDescription() : "";
+		return desc.compareToIgnoreCase(desc2);
 	}
 
 	/**
