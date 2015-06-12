@@ -252,16 +252,25 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	}
 
 	public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException {
-            
-            return (ExtSource) jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes + " from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id where id=?", EXT_SOURCES_EXTRACTOR, id);
-	
-        }
+		try {
+			return (ExtSource) jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes + " from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id where id=?", EXT_SOURCES_EXTRACTOR, id);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new ExtSourceNotExistsException("ExtSource with ID="+id+" not exists", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 
 	public ExtSource getExtSourceByName(PerunSession sess, String name) throws InternalErrorException, ExtSourceNotExistsException {
-            
-            return (ExtSource) jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes +
+		try {
+			return (ExtSource) jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes +
 					" from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
 					"where name=?", EXT_SOURCES_EXTRACTOR, name);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new ExtSourceNotExistsException("ExtSource with name="+name+" not exists", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 
 	}
 
