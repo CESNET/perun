@@ -11,7 +11,6 @@ import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
@@ -21,12 +20,12 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
  */
 public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 	final static Logger log = LoggerFactory.getLogger(DatabaseManagerImpl.class);
-	private static JdbcTemplate jdbc;
+	private static JdbcPerunTemplate jdbc;
 	
 	private static final String VERSION_PROPETY = "DATABASE VERSION";
 	
 	public DatabaseManagerImpl(DataSource perunPool) {
-		jdbc = new JdbcTemplate(perunPool);
+		jdbc = new JdbcPerunTemplate(perunPool);
 	}
 	
 	public String getCurrentDatabaseVersion(PerunSession sess) throws InternalErrorException {

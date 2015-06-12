@@ -3,9 +3,9 @@ package cz.metacentrum.perun.registrar.impl;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
+import cz.metacentrum.perun.core.impl.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 import java.util.*;
@@ -32,7 +31,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 
 	@Autowired RegistrarManager registrarManager;
 	@Autowired PerunBl perun;
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 	private PerunSession registrarSession;
 
 	public void setRegistrarManager(RegistrarManager registrarManager) {
@@ -40,7 +39,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 	}
 
 	public void setDataSource(DataSource dataSource) {
-		this.jdbc = new JdbcTemplate(dataSource);
+		this.jdbc = new JdbcPerunTemplate(dataSource);
 	}
 
 	protected void initialize() throws PerunException {

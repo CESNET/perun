@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -65,7 +65,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		"res_tags.created_at as res_tags_created_at, res_tags.created_by as res_tags_created_by, res_tags.modified_by as res_tags_modified_by, " +
 		"res_tags.modified_at as res_tags_modified_at, res_tags.modified_by_uid as res_tags_modified_by_uid, res_tags.created_by_uid as res_tags_created_by_uid";
 
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
@@ -144,7 +144,7 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	}
 
 	public ResourcesManagerImpl(DataSource perunPool) {
-		this.jdbc = new JdbcTemplate(perunPool);
+		this.jdbc = new JdbcPerunTemplate(perunPool);
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 
 		// Initialize resources manager
@@ -164,30 +164,15 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	@Override
 	public RichResource getRichResourceById(PerunSession sess, int id) throws InternalErrorException, ResourceNotExistsException {
 		try {
-			List<RichResource> rich = jdbc.query("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
-					FacilitiesManagerImpl.facilityMappingSelectQuery + ", "+ resourceTagMappingSelectQuery +" from resources join vos on resources.vo_id=vos.id "
+			return (RichResource) jdbc.queryForObject("select " + resourceMappingSelectQuery + ", " + VosManagerImpl.voMappingSelectQuery + ", " +
+					FacilitiesManagerImpl.facilityMappingSelectQuery + ", " + resourceTagMappingSelectQuery + " from resources join vos on resources.vo_id=vos.id "
 					+ "join facilities on resources.facility_id=facilities.id left outer join tags_resources on resources.id=tags_resources.resource_id left outer join res_tags on tags_resources.tag_id=res_tags.id where resources.id=?", RICH_RESOURCE_WITH_TAGS_EXTRACTOR, id);
-
-			if (rich != null && rich.size()>1) {
-				throw new ConsistencyErrorException("There are more than one Resources under ID="+id);
-			} else if (rich != null && rich.isEmpty()) {
-				throw new ResourceNotExistsException("Resource with ID="+id+" not exists");
-			}
-			if (rich != null && rich.size() == 1) {
-				if (rich.get(0) != null) {
-					// return correct data
-					return rich.get(0);
-				} else {
-					throw new InternalErrorException("RichResource with ID="+id+" in null.");
-				}
-			}
-			// not correct data
-			throw new InternalErrorException("Response from SQL RowExttractor is null.");
-		} catch (EmptyResultDataAccessException e) {
-			throw new ResourceNotExistsException(e);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new ResourceNotExistsException("Resource with ID="+id+" not exists");
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
+
 	}
 
 	public Resource getResourceByName(PerunSession sess, Vo vo, Facility facility, String name) throws InternalErrorException, ResourceNotExistsException {

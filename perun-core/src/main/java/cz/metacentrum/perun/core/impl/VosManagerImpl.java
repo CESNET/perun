@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.Pair;
@@ -46,7 +45,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	public static final String PERSON_TYPE = "person";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 
 	protected final static String voMappingSelectQuery = "vos.id as vos_id,vos.name as vos_name, vos.short_name as vos_short_name, " +
 		"vos.created_at as vos_created_at, vos.created_by as vos_created_by, vos.modified_by as vos_modified_by, vos.modified_at as vos_modified_at, " +
@@ -71,7 +70,7 @@ public class VosManagerImpl implements VosManagerImplApi {
 	 * @param perunPool connection pool instance
 	 */
 	public VosManagerImpl(DataSource perunPool) {
-		this.jdbc = new JdbcTemplate(perunPool);
+		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
 	public List<Vo> getVos(PerunSession sess) throws InternalErrorException {

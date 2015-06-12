@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberGroupVirtualAttributesModuleImplApi;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -118,7 +116,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	private Perun perun;
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 	private LobHandler lobHandler;
 	private ClassLoader classLoader = this.getClass().getClassLoader();
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
@@ -133,7 +131,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 */
 	public AttributesManagerImpl(DataSource perunPool) throws InternalErrorException {
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
-		this.jdbc = new JdbcTemplate(perunPool);
+		this.jdbc = new JdbcPerunTemplate(perunPool);
 		if(Compatibility.isOracle()) {
 			OracleLobHandler oracleLobHandler = new OracleLobHandler();
 			oracleLobHandler.setNativeJdbcExtractor(new CommonsDbcpNativeJdbcExtractor());

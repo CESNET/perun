@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -33,11 +32,11 @@ public class SearcherImpl implements SearcherImplApi {
 	private final static Logger log = LoggerFactory.getLogger(SearcherImpl.class);
 
 	private static NamedParameterJdbcTemplate jdbc;
-	private static JdbcTemplate jdbcTemplate;
+	private static JdbcPerunTemplate jdbcTemplate;
 
 	public SearcherImpl(DataSource perunPool) {
 		jdbc = new NamedParameterJdbcTemplate(perunPool);
-		jdbcTemplate = new JdbcTemplate(perunPool);
+		jdbcTemplate = new JdbcPerunTemplate(perunPool);
 	}
 
 	public List<User> getUsers(PerunSession sess, Map<Attribute, String> attributesWithSearchingValues) throws InternalErrorException {

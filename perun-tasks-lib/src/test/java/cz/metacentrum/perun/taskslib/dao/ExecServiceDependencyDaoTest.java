@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -33,6 +32,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
+import cz.metacentrum.perun.core.impl.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
@@ -59,7 +59,7 @@ public class ExecServiceDependencyDaoTest {
 	private DataSource dataSource;
 	@Autowired
 	private Perun perun;
-	private JdbcTemplate jdbcTemplate;
+	private JdbcPerunTemplate jdbcTemplate;
 	private PerunSession perunSession;
 	private Owner testOwner;
 	private Service testService1;
@@ -75,7 +75,7 @@ public class ExecServiceDependencyDaoTest {
 		} catch (InternalErrorException e) {
 			log.error(e.toString());
 		}
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate = new JdbcPerunTemplate(dataSource);
 
 		// Test Owner
 		int newOwnerId = 0;

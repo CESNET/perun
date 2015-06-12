@@ -21,7 +21,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,7 +30,6 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
@@ -56,7 +54,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 			"ext_sources_attributes.attr_name as attr_name, ext_sources_attributes.attr_value as attr_value";
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private static JdbcTemplate jdbc;
+	private static JdbcPerunTemplate jdbc;
 
 	private static final RowMapper<ExtSource> EXTSOURCE_MAPPER = new RowMapper<ExtSource>() {
 		public ExtSource mapRow(ResultSet rs, int i) throws SQLException {
@@ -98,7 +96,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	};
 
 	public ExtSourcesManagerImpl(DataSource perunPool) throws InternalErrorException {
-		jdbc = new JdbcTemplate(perunPool);
+		jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
 	public ExtSource createExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException {
@@ -255,48 +253,25 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public ExtSource getExtSourceById(PerunSession sess, int id) throws InternalErrorException, ExtSourceNotExistsException {
 		try {
-			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes + " from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id where id=?", EXT_SOURCES_EXTRACTOR, id);
-
-			if (extSources.size() > 1) {
-				throw new ConsistencyErrorException("There are more than one extSources under ID="+id);
-			} else if (extSources.isEmpty()) {
-				throw new ExtSourceNotExistsException("ExtSource with ID="+id+" not exists");
-			}
-
-			if (extSources.get(0) != null) {
-				// return correct data
-				return extSources.get(0);
-			} else {
-				throw new InternalErrorException("extSource with ID="+id+" is null.");
-			}
-
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
+			return (ExtSource) jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes + " from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id where id=?", EXT_SOURCES_EXTRACTOR, id);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new ExtSourceNotExistsException("ExtSource with ID="+id+" not exists", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
 	public ExtSource getExtSourceByName(PerunSession sess, String name) throws InternalErrorException, ExtSourceNotExistsException {
 		try {
-			List<ExtSource> extSources = jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
+			return (ExtSource) jdbc.queryForObject("select " + extSourceMappingSelectQueryWithAttributes +
 					" from ext_sources left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
 					"where name=?", EXT_SOURCES_EXTRACTOR, name);
-
-			if (extSources.size() > 1) {
-				throw new ConsistencyErrorException("There are more than one extSources with name="+name);
-			} else if (extSources.isEmpty()) {
-				throw new ExtSourceNotExistsException("ExtSource with name="+name+" not exists");
-			}
-
-			if (extSources.get(0) != null) {
-				// return correct data
-				return extSources.get(0);
-			} else {
-				throw new InternalErrorException("extSource with name="+name+" is null.");
-			}
-
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new ExtSourceNotExistsException("ExtSource with name="+name+" not exists", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
+
 	}
 
 	public List<ExtSource> getVoExtSources(PerunSession sess, Vo vo) throws InternalErrorException {

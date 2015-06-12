@@ -7,11 +7,9 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.core.api.GroupsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -48,7 +46,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	final static Logger log = LoggerFactory.getLogger(FacilitiesManagerImpl.class);
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private static JdbcTemplate jdbc;
+	private static JdbcPerunTemplate jdbc;
 
 	// Part of the SQL script used for getting the Facility object
 	public final static String facilityMappingSelectQuery = " facilities.id as facilities_id, facilities.name as facilities_name, facilities.dsc as facilities_dsc, "
@@ -97,7 +95,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	};
 
 	public FacilitiesManagerImpl(DataSource perunPool) {
-		jdbc = new JdbcTemplate(perunPool);
+		jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
 	public Facility createFacility(PerunSession sess, Facility facility) throws InternalErrorException {

@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -121,7 +121,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Autowired ConsolidatorManager consolidatorManager;
 	private RegistrarManager registrarManager;
 	private PerunSession registrarSession;
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 	private AttributesManager attrManager;
 	private MembersManager membersManager;
 	private UsersManager usersManager;
@@ -135,7 +135,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private String shibLoAVar = "loa";
 
 	public void setDataSource(DataSource dataSource) {
-		this.jdbc = new JdbcTemplate(dataSource);
+		this.jdbc = new JdbcPerunTemplate(dataSource);
 	}
 
 	public void setRegistrarManager(RegistrarManager registrarManager) {

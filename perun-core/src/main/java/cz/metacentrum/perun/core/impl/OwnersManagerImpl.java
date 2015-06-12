@@ -10,7 +10,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.Owner;
@@ -29,7 +28,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 
 	final static Logger log = LoggerFactory.getLogger(OwnersManagerImpl.class);
 
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 
 	protected final static String ownerMappingSelectQuery = "owners.id as owners_id, owners.name as owners_name, owners.contact as owners_contact, owners.type as owners_type, " +
 		"owners.created_at as owners_created_at, owners.created_by as owners_created_by, owners.modified_by as owners_modified_by, owners.modified_at as owners_modified_at, " +
@@ -42,7 +41,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 	 * @param perunPool connection pool
 	 */
 	public OwnersManagerImpl(DataSource perunPool) {
-		this.jdbc = new JdbcTemplate(perunPool);
+		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
 	private static final RowMapper<Owner> OWNER_MAPPER = new RowMapper<Owner>() {
