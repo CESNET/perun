@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -60,7 +59,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		"user_ext_sources.modified_by as user_ext_sources_modified_by, user_ext_sources.modified_at as user_ext_sources_modified_at, " +
 		"user_ext_sources.created_by_uid as ues_created_by_uid, user_ext_sources.modified_by_uid as ues_modified_by_uid";
 
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
 
 	protected static final RowMapper<User> USER_MAPPER = new RowMapper<User>() {
@@ -120,7 +119,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	 * @param perunPool connection pool
 	 */
 	public UsersManagerImpl(DataSource perunPool) {
-		this.jdbc = new JdbcTemplate(perunPool);
+		this.jdbc = new JdbcPerunTemplate(perunPool);
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 	}
 

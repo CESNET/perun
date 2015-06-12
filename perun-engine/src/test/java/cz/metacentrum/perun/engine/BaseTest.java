@@ -8,14 +8,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
+import cz.metacentrum.perun.core.impl.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.Service;
@@ -46,7 +44,7 @@ public abstract class BaseTest {
 	@Autowired
 	private EngineManager engineManager;
 
-	private JdbcTemplate jdbcTemplate;
+	private JdbcPerunTemplate jdbcTemplate;
 	private Owner testOwner;
 	private Service testService1;
 	private Service testService2;
@@ -78,7 +76,7 @@ public abstract class BaseTest {
 	private DataSource dataSource;
 
 	public void initJdbcTemplate() {
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate = new JdbcPerunTemplate(dataSource);
 	}
 
 	public void cleanAll() {
@@ -316,7 +314,7 @@ public abstract class BaseTest {
 		throw new UnsupportedOperationException("No Clean-up for U bro...");
 	}
 
-	public JdbcTemplate getJdbcTemplate() {
+	public JdbcPerunTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}
 
