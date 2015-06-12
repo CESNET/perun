@@ -11,7 +11,6 @@ public class Facility extends Auditable implements Comparable<Facility> {
 
 	private String name;
 	private String description;
-	// TODO kontakty na spravce facility
 
 	public Facility() {
 	}
@@ -21,9 +20,16 @@ public class Facility extends Auditable implements Comparable<Facility> {
 		this.name = name;
 	}
 
-	public Facility(int id, String name, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
+	public Facility(int id, String name, String description) {
+		super(id);
+		this.name = name;
+		this.description = description;
+	}
+
+	public Facility(int id, String name, String description, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.name = name;
+		this.description = description;
 	}
 
 	public String getName() {

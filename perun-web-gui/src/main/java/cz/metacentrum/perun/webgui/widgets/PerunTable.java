@@ -382,7 +382,9 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 				@Override
 				public String getValue(T obj) {
 					GeneralObject go = obj.cast();
-					return go.getDescription();
+					String desc = go.getDescription();
+					if (desc == null) return "";
+					return desc;
 				}
 			};
 
@@ -424,7 +426,9 @@ public class PerunTable<T extends JavaScriptObject> extends CellTable<T>
 					new JsonUtils.GetValue<T, String>() {
 						public String getValue(T object) {
 							GeneralObject go = object.cast();
-							return go.getDescription();
+							String desc = go.getDescription();
+							if (desc == null) return "";
+							return desc;
 						}
 					}, tableFieldUpdater);
 

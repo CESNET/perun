@@ -146,7 +146,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 
 		column++;
 
-		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+group.getDescription()+"</span>");
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+group.getDescription()+"&nbsp;</span>");
 
 		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
 			@Override

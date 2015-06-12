@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.List;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import java.util.ArrayList;
 
 /**
@@ -17,7 +16,7 @@ public class RichFacility extends Facility {
 
 	public RichFacility(Facility facility, List<Owner> facilityOwners) {
 
-		super(facility.getId(), facility.getName(), facility.getCreatedAt(), facility.getCreatedBy(),
+		super(facility.getId(), facility.getName(), facility.getDescription(), facility.getCreatedAt(), facility.getCreatedBy(),
 				facility.getModifiedAt(), facility.getModifiedBy(), facility.getCreatedByUid(), facility.getModifiedByUid());
 		this.facilityOwners = facilityOwners;
 	}
@@ -83,6 +82,7 @@ public class RichFacility extends Facility {
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id=<").append(getId()).append(">").append(
 			", name=<").append(getName() == null ? "\\0" : BeansUtils.createEscaping(getName())).append(">").append(
+			", description=<").append(getDescription() == null ? "\\0" : BeansUtils.createEscaping(getDescription())).append(">").append(
 			", facilityOwners=<").append(sFacilityOwnersNew).append(">").append(
 			']').toString();
 	}
@@ -91,6 +91,7 @@ public class RichFacility extends Facility {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 
-		return str.append(getClass().getSimpleName()).append( ":[id='").append(getId()).append("', name='").append(this.getName()).append("', facilityOwners='").append(facilityOwners).append("']").toString();
+		return str.append(getClass().getSimpleName()).append( ":[id='").append(getId()).append("', name='").append(this.getName()).append(
+				"', description='").append(this.getDescription()).append("', facilityOwners='").append(facilityOwners).append("']").toString();
 	}
 }
