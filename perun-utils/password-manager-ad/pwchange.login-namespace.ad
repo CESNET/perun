@@ -12,3 +12,4 @@
 # 2nd line - login for AD admin access
 # 3rd line - pass for AD admin access
 # 4th line - base DN like: ou=authz,dc=perun,dc=domain,dc=com
+# 5th line - UAC for new accounts in a disabled state, eg. not 512 (NORMAL_ACCOUNT), but 514 (NORMAL_ACCOUNT+DISABLED)
