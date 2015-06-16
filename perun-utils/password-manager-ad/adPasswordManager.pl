@@ -91,14 +91,15 @@ switch ($action){
 		chomp($user_pass);
 
 		my $filename = "/etc/perun/pwchange.".$namespace.".ad";
-        unless (-e $filename) {
+		unless (-e $filename) {
 			ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
 			exit 2; # login-namespace is not supported
-        }
+		}
 
 		# load configuration file
 		open FILE, "<" . $filename;
 		my @lines = <FILE>;
+		close FILE;
 
 		# remove new-line characters from the end of lines
 		chomp @lines;
@@ -138,6 +139,23 @@ switch ($action){
 		my $converted_pass = convertPassword($user_pass);
 		ldap_connect( $namespace );
 
+		my $filename = "/etc/perun/pwchange.".$namespace.".ad";
+		unless (-e $filename) {
+			ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
+			exit 2; # login-namespace is not supported
+		}
+
+		# load configuration file
+		open FILE, "<" . $filename;
+		my @lines = <FILE>;
+		close FILE;
+
+		# remove new-line characters from the end of lines
+		chomp @lines;
+
+		# read configuration
+		my $uac = $lines[4];
+
 		# By default AD creates normal disabled entry with no password required (userAccountControl = 546)
 		my $entry = Net::LDAP::Entry->new;
 		$entry->dn("cn=" . $login . "," . $base_dn );
@@ -146,8 +164,9 @@ switch ($action){
 			unicodePwd => $converted_pass ,
 			cn => $login ,
 			sn => $login ,
+			samAccountName => $login ,
 			# create normal disabled account which requires password
-			userAccountControl => 514
+			userAccountControl => $uac
 		);
 
 		my $mesg;
@@ -204,21 +223,21 @@ switch ($action){
 		eval {
 			# Get current entry from LDAP
 			$mesg = $ldap->search( base => $base_dn ,
-                            scope => 'sub' ,
-                            filter => "(cn=$login)" ,
-                            attrs => ['userAccountControl']
-                        );
-            for my $entry ($mesg->entries) {
-                my $value = $entry->get_value('userAccountControl');
-                # Enable account
-                $value = $value & ~2;
-                # Update local entry
-                $entry->replace(
-                    userAccountControl => $value
-                );
-                # Update LDAP
-                $mesg = $entry->update($ldap);
-            }
+							scope => 'sub' ,
+							filter => "(cn=$login)" ,
+							attrs => ['userAccountControl']
+						);
+			for my $entry ($mesg->entries) {
+				my $value = $entry->get_value('userAccountControl');
+				# Enable account
+				$value = $value & ~2;
+				# Update local entry
+				$entry->replace(
+					userAccountControl => $value
+				);
+				# Update LDAP
+				$mesg = $entry->update($ldap);
+			}
 		};
 		if ( $@ ) {
 
@@ -244,6 +263,23 @@ switch ($action){
 
 		ldap_connect( $namespace );
 
+		my $filename = "/etc/perun/pwchange.".$namespace.".ad";
+		unless (-e $filename) {
+			ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
+			exit 2; # login-namespace is not supported
+		}
+
+		# load configuration file
+		open FILE, "<" . $filename;
+		my @lines = <FILE>;
+		close FILE;
+
+		# remove new-line characters from the end of lines
+		chomp @lines;
+
+		# read configuration
+		my $uac = $lines[4];
+
 		# CREATE ENTRY WITHOUT PASSWORD and as inactive
 		# By default AD creates normal disabled entry with no password required (userAccountControl = 546)
 		my $entry = Net::LDAP::Entry->new;
@@ -253,8 +289,9 @@ switch ($action){
 			#unicodePwd => $converted_pass ,
 			cn => $login ,
 			sn => $login ,
+			samAccountName => $login ,
 			# create normal disabled account which requires password
-			userAccountControl => 514
+			userAccountControl => $uac
 		);
 
 		my $mesg;
@@ -310,6 +347,7 @@ sub ldap_connect{
 	# load configuration file
 	open FILE, "<" . $filename;
 	my @lines = <FILE>;
+	close FILE;
 
 	# remove new-line characters from the end of lines
 	chomp @lines;
@@ -369,7 +407,7 @@ sub convertPassword() {
 	chomp($user_pass);
 	my $converted_pass = encode("UTF-16LE",'"'.$user_pass.'"');
 	# Do not convert to base64 since it will be performed automatically during print/transmission
-    #$converted_pass = encode_base64($converted_pass);
+	#$converted_pass = encode_base64($converted_pass);
 	if (!defined $converted_pass || $converted_pass eq '') {
 		ldap_log("[PWDM] Unable to convert password to unicode / utf-16-le.");
 		# setting new password failed
