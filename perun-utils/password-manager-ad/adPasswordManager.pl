@@ -27,6 +27,7 @@ sub ldap_connect;
 sub ldap_disconnect;
 sub ldap_log;
 sub convertPassword;
+sub getEntryByLogin;
 
 # ldap instance holder
 my $ldap = undef;
@@ -56,7 +57,8 @@ switch ($action){
 		ldap_connect($namespace);
 		my $mesg;
 		eval {
-			$mesg = $ldap->modify( "cn=" . $login . "," . $base_dn ,
+			my $entry = getEntryByLogin();
+			$mesg = $ldap->modify( $entry->dn() ,
 				replace => {
 					unicodePwd  => $converted_pass
 				}
@@ -90,6 +92,12 @@ switch ($action){
 		$user_pass = <STDIN>;
 		chomp($user_pass);
 
+		# get entry from LDAP to find out users DN
+		ldap_connect($namespace);
+		my $entry = getEntryByLogin();
+		my $dn = $entry->dn();
+		ldap_disconnect();
+
 		my $filename = "/etc/perun/pwchange.".$namespace.".ad";
 		unless (-e $filename) {
 			ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
@@ -113,8 +121,8 @@ switch ($action){
 
 		my $mesg;
 		eval {
-			$mesg = $ldap->bind( "cn=" . $login . "," . $base_dn , password => $user_pass );
-			ldap_log("[AD] connected as: cn=" . $login . "," . $base_dn );
+			$mesg = $ldap->bind( $dn , password => $user_pass );
+			ldap_log("[AD] connected as: " . $dn );
 		};
 		if ( $@ ) {
 			# ERROR WHEN CHECKING - e.g. entry doesn't exists
@@ -198,7 +206,11 @@ switch ($action){
 		ldap_connect( $namespace );
 		my $mesg;
 		eval {
-			$mesg = $ldap->delete( "cn=" . $login . "," . $base_dn );
+			my $entry = getEntryByLogin();
+			unless ($entry) {
+				exit 5; # can't delete password
+			}
+			$mesg = $ldap->delete( $entry->dn() );
 		};
 		if ( $@ ) {
 			ldap_log("[PWDM] Password deletion failed with AD return code: " . $@);
@@ -222,22 +234,19 @@ switch ($action){
 		my $mesg;
 		eval {
 			# Get current entry from LDAP
-			$mesg = $ldap->search( base => $base_dn ,
-							scope => 'sub' ,
-							filter => "(cn=$login)" ,
-							attrs => ['userAccountControl']
-						);
-			for my $entry ($mesg->entries) {
-				my $value = $entry->get_value('userAccountControl');
-				# Enable account
-				$value = $value & ~2;
-				# Update local entry
-				$entry->replace(
-					userAccountControl => $value
-				);
-				# Update LDAP
-				$mesg = $entry->update($ldap);
+			my $entry = getEntryByLogin();
+			unless ($entry) {
+				exit 6;
 			}
+			my $value = $entry->get_value('userAccountControl');
+			# Enable account
+			$value = $value & ~2;
+			# Update local entry
+			$entry->replace(
+				userAccountControl => $value
+			);
+			# Update LDAP
+			$mesg = $entry->update($ldap);
 		};
 		if ( $@ ) {
 
@@ -263,23 +272,6 @@ switch ($action){
 
 		ldap_connect( $namespace );
 
-		my $filename = "/etc/perun/pwchange.".$namespace.".ad";
-		unless (-e $filename) {
-			ldap_log("[PWDM] Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
-			exit 2; # login-namespace is not supported
-		}
-
-		# load configuration file
-		open FILE, "<" . $filename;
-		my @lines = <FILE>;
-		close FILE;
-
-		# remove new-line characters from the end of lines
-		chomp @lines;
-
-		# read configuration
-		my $uac = $lines[4];
-
 		# CREATE ENTRY WITHOUT PASSWORD and as inactive
 		# By default AD creates normal disabled entry with no password required (userAccountControl = 546)
 		my $entry = Net::LDAP::Entry->new;
@@ -290,8 +282,8 @@ switch ($action){
 			cn => $login ,
 			sn => $login ,
 			samAccountName => $login ,
-			# create normal disabled account which requires password
-			userAccountControl => $uac
+			# create disabled entry with no password required
+			userAccountControl => 546
 		);
 
 		my $mesg;
@@ -414,5 +406,31 @@ sub convertPassword() {
 		exit 3;
 	}
 	return $converted_pass;
+
+}
+
+#
+# Return single entry by users login since not
+# in all cases login is part of DN (cn), eg. CEITEC.
+# It must be called after ldap_connect() and
+# entry must be used before ldap_disconnect().
+#
+sub getEntryByLogin() {
+
+		my $mesg;
+		# Get current entry from LDAP
+		$mesg = $ldap->search( base => $base_dn ,
+						 scope => 'sub' ,
+						 filter => "(samAccountName=$login)" ,
+						 attrs => ['cn','samAccountName','userAccountControl']
+					   );
+
+		if ($mesg->entries != 1) {
+			return undef;
+		} else {
+			my @entries = $mesg->entries;
+			my $entry = pop(@entries);
+			return $entry;
+		}
 
 }
