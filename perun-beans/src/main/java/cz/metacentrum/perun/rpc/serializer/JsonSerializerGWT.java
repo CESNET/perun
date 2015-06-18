@@ -37,8 +37,8 @@ public final class JsonSerializerGWT implements Serializer {
 	}
 
 	@JsonIgnoreProperties({"commonName", "displayName"})
-		private interface UserMixIn {
-		}
+	private interface UserMixIn {
+	}
 
 	@JsonIgnoreProperties({"userExtSources"})
 	private interface CandidateMixIn {

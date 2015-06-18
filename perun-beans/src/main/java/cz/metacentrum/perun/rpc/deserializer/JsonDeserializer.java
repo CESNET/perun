@@ -26,12 +26,10 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Deserializer for JSON / JSONP data format.
@@ -121,21 +119,18 @@ public class JsonDeserializer extends Deserializer {
 
 	private JsonNode root;
 	private HttpServletRequest req;
-	private HttpServletResponse resp;
 
 	/**
 	 * Create deserializer for JSON/JSONP data format.
 	 *
 	 * @param request HttpServletRequest this deserializer is about to process
-	 * @param response HttpServletResponse this deserializer is about to process
 	 *
 	 * @throws IOException if an IO error occurs
 	 * @throws RpcException if content of {@code in} is wrongly formatted
 	 */
-	public JsonDeserializer(HttpServletRequest request, HttpServletResponse response) throws IOException, RpcException {
+	public JsonDeserializer(HttpServletRequest request) throws IOException, RpcException {
 
 		this.req = request;
-		this.resp = response;
 
 		try {
 			root = mapper.readTree(req.getInputStream());
@@ -395,11 +390,6 @@ public class JsonDeserializer extends Deserializer {
 	@Override
 	public HttpServletRequest getServletRequest() {
 		return this.req;
-	}
-
-	@Override
-	public HttpServletResponse getServletResponse() {
-		return this.resp;
 	}
 
 }

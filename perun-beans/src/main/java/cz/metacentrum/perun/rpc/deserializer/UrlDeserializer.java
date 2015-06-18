@@ -5,7 +5,6 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 
@@ -21,17 +20,14 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 public class UrlDeserializer extends Deserializer {
 
 	private HttpServletRequest req;
-	private HttpServletResponse resp;
 
 	/**
 	 * Create deserializer for URL data format.
 	 *
 	 * @param request HttpServletRequest this deserializer is about to process
-	 * @param response HttpServletResponse this deserializer is about to process
 	 */
-	public UrlDeserializer(HttpServletRequest request, HttpServletResponse response) {
+	public UrlDeserializer(HttpServletRequest request) {
 		this.req = request;
-		this.resp = response;
 	}
 
 	/**
@@ -122,11 +118,6 @@ public class UrlDeserializer extends Deserializer {
 	@Override
 	public HttpServletRequest getServletRequest() {
 		return this.req;
-	}
-
-	@Override
-	public HttpServletResponse getServletResponse() {
-		return this.resp;
 	}
 
 }

@@ -35,7 +35,6 @@ public abstract class Deserializer {
 	/**
 	 * Reads value as {@code String}.
 	 *
-	 * @param name name of the value to read
 	 * @return the value as {@code String}
 	 *
 	 * @throws RpcException If the specified value cannot be parsed as {@code String} or if it is not supplied
@@ -56,7 +55,6 @@ public abstract class Deserializer {
 	/**
 	 * Reads value as {@code int}.
 	 *
-	 * @param name name of the value to read
 	 * @return the value as {@code int}
 	 *
 	 * @throws RpcException if the specified value cannot be parsed as {@code int} or if it is not supplied
@@ -88,7 +86,6 @@ public abstract class Deserializer {
 	/**
 	 * Reads value as {@code valueType}.
 	 *
-	 * @param name name of the value to read
 	 * @param valueType type of the value to read
 	 * @return the value as {@code valueType}
 	 *

@@ -31,7 +31,6 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
@@ -346,9 +345,9 @@ public class Api extends HttpServlet {
 			// Initialize deserializer
 			Deserializer des;
 			if (isGet) {
-				des = new UrlDeserializer(req, resp);
+				des = new UrlDeserializer(req);
 			} else {
-				des = selectDeserializer(fcm[0], req, resp);
+				des = selectDeserializer(fcm[0], req);
 			}
 
 			// We have new request, so do the whole auth/authz stuff
@@ -538,14 +537,14 @@ public class Api extends HttpServlet {
 		}
 	}
 
-	private Deserializer selectDeserializer(String format, HttpServletRequest req, HttpServletResponse resp) throws IOException, RpcException {
+	private Deserializer selectDeserializer(String format, HttpServletRequest req) throws IOException, RpcException {
 		switch (Formats.match(format)) {
 			case json:
 			case jsonp:
-				return new JsonDeserializer(req, resp);
+				return new JsonDeserializer(req);
 			case urlinjsonout:
 			case voot:
-				return new UrlDeserializer(req, resp);
+				return new UrlDeserializer(req);
 			default:
 				throw new RpcException(RpcException.Type.UNKNOWN_DESERIALIZER_FORMAT, format);
 		}

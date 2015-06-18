@@ -35,13 +35,13 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 public class JsonDeserializer extends Deserializer {
 
 	@JsonIgnoreProperties({"name", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-		private interface AttributeMixIn {}
+	private interface AttributeMixIn {}
 
 	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
-		private interface AttributeDefinitionMixIn {}
+	private interface AttributeDefinitionMixIn {}
 
 	@JsonIgnoreProperties({"commonName", "displayName", "beanName"})
-		private interface UserMixIn {}
+	private interface UserMixIn {}
 
 	@JsonIgnoreProperties({"fullMessage"})
 	private interface AuditMessageMixIn {}
@@ -59,10 +59,10 @@ public class JsonDeserializer extends Deserializer {
 	private interface PerunExceptionMixIn {}
 
 	@JsonIgnoreProperties({"hostNameFromDestination", "beanName"})
-		private interface DestinationMixIn {}
+	private interface DestinationMixIn {}
 
 	@JsonIgnoreProperties({"shortName", "beanName"})
-		private interface GroupMixIn {}
+	private interface GroupMixIn {}
 
 	private interface MemberMixIn {
 		@JsonIgnore

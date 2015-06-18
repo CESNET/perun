@@ -4,7 +4,6 @@ import java.util.*;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.*;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
 import cz.metacentrum.perun.rpc.ApiCaller;
@@ -13,8 +12,6 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
-
-import javax.servlet.http.Cookie;
 
 public enum RegistrarManagerMethod implements ManagerMethod {
 
