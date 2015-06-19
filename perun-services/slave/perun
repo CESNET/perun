@@ -41,7 +41,30 @@ E_FROM_PERUN_FILE=(208 'FROM_PERUN file (to diff_update) does not exists or it i
 E_DESTINATION_FILE=(209 'Destination file (to diff_update) does not exists or do not have right persmissions')
 E_PERMISSIONS=(210 'Cannot set permissions')
 
+### declare list of all items in trap on exit
+declare -a on_exit_items
+
 ### Functions
+
+### for purpose of evaluating all on_exit items
+function on_exit()
+{
+    for i in "${on_exit_items[@]}"
+    do
+        eval $i
+    done
+}
+
+### add new on_exit item
+function add_on_exit()
+{
+    local n=${#on_exit_items[*]}
+    on_exit_items[$n]="$*"
+    if [[ $n -eq 0 ]]; then
+        trap on_exit EXIT
+    fi
+}
+
 function log_msg {
 	CODE=`eval echo '${'$1'[0]}'`
 	TEXT=`eval echo '${'$1'[1]}'`
@@ -96,7 +119,7 @@ function catch_error {
 
 function create_lock {
 	if mkdir "${LOCK_FILE}"; then
-		trap 'rm -r -f "${WORK_DIR}" "${LOCK_FILE}"' EXIT
+		add_on_exit 'rm -r -f "${LOCK_FILE}"'
 		catch_error E_LOCK_PIDFILE echo $$ > "$LOCK_PIDFILE"
 	else
 		# lock file exists, check for existence of concurrent process
@@ -108,7 +131,7 @@ function create_lock {
 			catch_error E_LOCK_DELETE rm -r "$LOCK_FILE"
 			echo "Invalid lock file found and deleted: $LOCK_FILE" >&2
 			catch_error E_LOCK_FILE mkdir "${LOCK_FILE}"
-			trap 'rm -r -f "${WORK_DIR}" "${LOCK_FILE}"' EXIT
+			add_on_exit 'rm -r -f "${LOCK_FILE}"'
 			catch_error E_LOCK_PIDFILE echo $$ > "$LOCK_PIDFILE"
 		fi
 	fi
@@ -227,7 +250,7 @@ function run_post_hooks {
 
 WORK_DIR=`mktemp -d ${TMPDIR:-/tmp}/${NAME}.XXXXXXXXXX`
 [ $? -ne 0 ] && log_msg E_WORK_DIR
-trap 'rm -r -f "${WORK_DIR}"' EXIT
+add_on_exit 'rm -r -f "${WORK_DIR}"'
 
 ### Receive and process data
 catch_error E_TAR_FILES tar --no-same-owner --no-same-permissions -x -C "${WORK_DIR}" <&0
