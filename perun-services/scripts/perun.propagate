@@ -1,3 +1,0 @@
-#!/bin/sh
-
-/bin/su -c /usr/local/bin/perun.propagate.pl perunv3

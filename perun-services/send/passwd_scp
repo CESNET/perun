@@ -1,4 +1,0 @@
-#!/bin/bash
-SERVICE_NAME="passwd_scp"
-
-. generic_send

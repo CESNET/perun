@@ -1,4 +1,0 @@
-#!/bin/bash
-SERVICE_NAME="metacloud_export"
-
-. generic_send
