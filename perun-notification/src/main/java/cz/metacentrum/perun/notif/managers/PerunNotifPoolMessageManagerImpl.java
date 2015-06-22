@@ -1,19 +1,15 @@
 package cz.metacentrum.perun.notif.managers;
 
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.utils.NotifUtils;
 import cz.metacentrum.perun.notif.dao.PerunNotifPoolMessageDao;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifAuditMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
-import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.utils.ParsedMethod;
 import org.joda.time.DateTime;
@@ -27,7 +23,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
 
 //TODO:optimalizace, preprocesing, pro vsechny template
 @Service("perunNotifPoolMessageManager")
@@ -92,12 +87,6 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 					Map<String, String> retrievedPrimaryProperties = new HashMap<String, String>();
 					Set<String> classNames = new HashSet<String>();
 					classNames.addAll(template.getPrimaryProperties().keySet());
-					for (PerunNotifReceiver receiver : template.getReceivers()) {
-						Matcher emailMatcher = Utils.emailPattern.matcher(receiver.getTarget());
-						if (!emailMatcher.find()) {
-							classNames.add(receiver.getTarget());
-						}
-					}
 					for (String className : classNames) {
 
 						if (className != null && !className.equals(METHOD_CLASSNAME)) {
