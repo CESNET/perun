@@ -72,8 +72,8 @@ create table exec_services (
 create table facilities (
     id integer not null,
     name varchar(128) not null,
-	dsc varchar(1024),
-    type varchar(32) not null,
+    dsc varchar(1024),
+	type varchar(32) not null,
     created_at date  default now not null,
     created_by varchar(1024) default user not null,
     modified_at date default now not null,
