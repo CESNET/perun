@@ -149,19 +149,42 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 			// get destination status
 			if (task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.SEND)) {
 				List<TaskResult> results = taskResultDao.getTaskResultsByTask(task.getId());
+
+				Map<Service, Map<Destination, TaskResult>> latestResults = new HashMap<Service, Map<Destination, TaskResult>>();
 				for (TaskResult res : results) {
 
-					String destination = res.getDestination().getDestination();
-					FacilityPropagationState propState = state.getResults().get(destination);
-					// if any error => state is error
-					if (TaskResult.TaskResultStatus.ERROR.equals(res.getStatus())){
-						state.getResults().put(destination, FacilityPropagationState.ERROR);
-						continue;
+					if (latestResults.get(res.getService()) == null) {
+						// put in map since result for service exists
+						Map<Destination, TaskResult> value = new HashMap<>();
+						value.put(res.getDestination(), res);
+						latestResults.put(res.getService(), value);
+					} else if (latestResults.get(res.getService()) != null && latestResults.get(res.getService()).get(res.getDestination()) == null) {
+						// put in inner map, since destination for service not yet exists
+						latestResults.get(res.getService()).put(res.getDestination(), res);
+					} else {
+						// update in inner map since this is later task result
+						if (latestResults.get(res.getService()).get(res.getDestination()).getId() < res.getId()) {
+							// put in map
+							latestResults.get(res.getService()).put(res.getDestination(), res);
+						}
 					}
-					// if result ok and previous was not bad
-					if (TaskResult.TaskResultStatus.DONE.equals(res.getStatus())) {
-						if (FacilityPropagationState.NOT_DETERMINED.equals(propState)) {
-							state.getResults().put(destination, FacilityPropagationState.OK);
+				}
+
+				for (Map<Destination, TaskResult> res : latestResults.values()) {
+					for (TaskResult result : res.values()) {
+						// iterate over all latest tasks results
+						String destination = result.getDestination().getDestination();
+						FacilityPropagationState propState = state.getResults().get(destination);
+						// if any error => state is error
+						if (TaskResult.TaskResultStatus.ERROR.equals(result.getStatus())) {
+							state.getResults().put(destination, FacilityPropagationState.ERROR);
+							continue;
+						}
+						// if result ok and previous was not bad
+						if (TaskResult.TaskResultStatus.DONE.equals(result.getStatus())) {
+							if (FacilityPropagationState.NOT_DETERMINED.equals(propState)) {
+								state.getResults().put(destination, FacilityPropagationState.OK);
+							}
 						}
 					}
 
