@@ -1129,6 +1129,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("To approve application user must already be member of VO.", ex);
 		} catch (UserNotExistsException ex) {
 			throw new RegistrarException("To approve application user must already be member of VO.", ex);
+		} catch (UserExtSourceNotExistsException ex) {
+			throw new RegistrarException("To approve application user must already be member of VO.", ex);
+		} catch (ExtSourceNotExistsException ex) {
+			throw new RegistrarException("To approve application user must already be member of VO.", ex);
 		}
 
 		Member member = perun.getMembersManager().getMemberByUser(registrarSession, app.getVo(), app.getUser());
