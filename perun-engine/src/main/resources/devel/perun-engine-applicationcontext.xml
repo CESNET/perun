@@ -37,9 +37,9 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     <task:scheduled-tasks scheduler="scheduler">
         <!-- 30 seconds: 0/30 * * * * ? -->
         <!--  3 minutes: 0 0/3 * * * ?  -->
-        <task:scheduled ref="propagationMaintainerJob" method="doTheJob" cron="45 0/4 * * * ?"/>
-        <task:scheduled ref="processPoolJob" method="doTheJob" cron="0 0/2 * * * ?"/>
-        <task:scheduled ref="taskExecutorEngineJob" method="doTheJob" cron="0 0/4 * * * ?"/>
+        <task:scheduled ref="propagationMaintainerJob" method="doTheJob" cron="${engine.cron.propagation}" />
+        <task:scheduled ref="processPoolJob" method="doTheJob" cron="${engine.cron.processpool}" />
+        <task:scheduled ref="taskExecutorEngineJob" method="doTheJob" cron="${engine.cron.taskexecutor}" />
         <!-- <task:scheduled ref="checkInJob" method="doTheJob" cron="0 0/4 * * * ?"/>  -->
     </task:scheduled-tasks>
 
@@ -87,13 +87,13 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
     <bean id="taskExecutorGenWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
           <property name="corePoolSize" value="10" />
-          <property name="maxPoolSize" value="10" />
+          <property name="maxPoolSize" value="${engine.thread.gentasks.max}" />
           <property name="queueCapacity" value="2000" />
     </bean>
 
     <bean id="taskExecutorSendWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
           <property name="corePoolSize" value="10" />
-          <property name="maxPoolSize" value="1000" />
+          <property name="maxPoolSize" value="${engine.thread.sendtasks.max}" />
           <property name="queueCapacity" value="200" />
     </bean>
 
@@ -106,9 +106,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
                 <value>file:${perun.conf.custom}perun-engine.properties</value>
             </list>
         </property>
-        <property name="ignoreResourceNotFound">
-            <value>true</value>
-        </property>
+        <property name="ignoreResourceNotFound" value="true"/>
         <property name="properties">
         	<props>
         		<prop key="engine.unique.id">0</prop>
@@ -117,7 +115,18 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		    	<prop key="perun.principal.name">perunTests</prop>
     	    	<prop key="perun.principal.extSourceName">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
     	    	<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+    	    	<prop key="engine.cron.propagation">45 0/4 * * * ?</prop>
+    	    	<prop key="engine.cron.processpool">0 0/2 * * * ?</prop>
+    	    	<prop key="engine.cron.taskexecutor">0 0/4 * * * ?</prop>
+    	    	<prop key="engine.thread.gentasks.max">10</prop>
+    	    	<prop key="engine.thread.sendtasks.max">1000</prop>
         	</props>
         </property>
     </bean>
+    
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="properties" ref="propertiesBean" />
+	</bean>
+    
 </beans>
