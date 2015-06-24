@@ -66,8 +66,16 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 				<prop key="perun.principal.name">perunDispatcher</prop>
 				<prop key="perun.principal.extSourceName">INTERNAL</prop>
 				<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+				<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
+				<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
+				<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
 			</props>
 		</property>
+	</bean>
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="properties" ref="dispatcherPropertiesBean" />
 	</bean>
 
 	<!-- BEGIN Quartz tasks -->
@@ -112,7 +120,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
 	<bean id="propagationMaintainerJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="propagationMaintainerJob" />
-		<property name="cronExpression" value="45 0/4 * * * ?" />
+		<property name="cronExpression" value="${dispatcher.cron.propagation}" />
 	</bean>
 
 	<bean id="processPoolJob" class="org.springframework.scheduling.quartz.JobDetailBean">
@@ -126,7 +134,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
 	<bean id="processPoolJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="processPoolJob" />
-		<property name="cronExpression" value="0 0/2 * * * ?" />
+		<property name="cronExpression" value="${dispatcher.cron.processpool}" />
 	</bean>
 
 	<bean id="cleanTaskResultsJob" class="org.springframework.scheduling.quartz.JobDetailBean">
@@ -140,7 +148,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 
 	<bean id="cleanTaskResultsJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="cleanTaskResultsJob" />
-		<property name="cronExpression" value="0 0 1 * * ?" />
+		<property name="cronExpression" value="${dispatcher.cron.cleantaskresults}" />
 	</bean>
 
 	<!--
