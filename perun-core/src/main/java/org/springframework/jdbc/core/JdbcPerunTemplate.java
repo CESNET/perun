@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.core.impl;
+package org.springframework.jdbc.core;
 
 import java.util.List;
 import javax.sql.DataSource;
