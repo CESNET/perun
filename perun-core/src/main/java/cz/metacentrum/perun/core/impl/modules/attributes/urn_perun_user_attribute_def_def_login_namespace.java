@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import java.lang.String;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -70,8 +71,12 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		try {
 			String nmspc = BeansUtils.getPropertyFromConfiguration("perun.loginNamespace.generated");
 			namespaces = Arrays.asList(nmspc.split(","));
-			for (String namespace : namespaces) {
+			Iterator<String> nameIter = namespaces.listIterator();
+			// trim and remove empty namespaces
+			while (nameIter.hasNext()) {
+				String namespace = nameIter.next();
 				namespace = namespace.trim();
+				if (namespace.isEmpty()) nameIter.remove();
 			}
 		} catch (InternalErrorException ex) {
 			// without value
