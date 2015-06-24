@@ -67,10 +67,10 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		Attribute filledAttribute = new Attribute(attribute);
 
 		// load namespaces to generate login for
-		List<String> namespaces = new ArrayList<String>();
+		List<String> namespaces;
 		try {
 			String nmspc = BeansUtils.getPropertyFromConfiguration("perun.loginNamespace.generated");
-			namespaces = Arrays.asList(nmspc.split(","));
+			namespaces = new ArrayList<String>(Arrays.asList(nmspc.split(",")));
 			Iterator<String> nameIter = namespaces.listIterator();
 			// trim and remove empty namespaces
 			while (nameIter.hasNext()) {
