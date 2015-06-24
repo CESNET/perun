@@ -857,5 +857,149 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			return null;
 
 		}
+	},
+
+	/*#
+	 * Get list of contact groups for the Owner.
+	 *
+	 * @param owner int Owner <code>id</code>
+	 * @return List<ContactGroup> list of assigned contact groups
+	 */
+	/*#
+	 * Get list of contact groups for the User.
+	 *
+	 * @param user int User <code>id</code>
+	 * @return List<ContactGroup> list of assigned contact groups
+	 */
+	/*#
+	 * Get list of contact groups for the Group.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return List<ContactGroup> list of assigned contact groups
+	 */
+	/*#
+	 * Get list of contact groups for the Facility.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @return List<ContactGroup> list of assigned contact groups
+	 */
+	getFacilityContactGroups {
+		@Override
+		public List<ContactGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if(parms.contains("owner")) {
+				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
+				  ac.getOwnerById(parms.readInt("owner")));
+			} else if(parms.contains("user")) {
+				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
+				  ac.getUserById(parms.readInt("user")));
+			} else if(parms.contains("group")) {
+				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
+				  ac.getGroupById(parms.readInt("group")));
+			} else if(parms.contains("facility")) {
+				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
+				  ac.getFacilityById(parms.readInt("facility")));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "owner or user or group or facility");
+			}
+		}
+	},
+
+	/*#
+	 * Get contact group for the facility and the name.
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param contactGroupName String name of the contact group
+	 * @return ContactGroup contactGroup for the facility and the name
+	 */
+	getFacilityContactGroup {
+		@Override
+		public ContactGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if(parms.contains("facility") && parms.contains("contactGroupName")) {
+				return ac.getFacilitiesManager().getFacilityContactGroup(ac.getSession(),
+				  ac.getFacilityById(parms.readInt("facility")), parms.readString("contactGroupName"));
+			} else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and contactGroupName");
+			}
+		}
+	},
+
+	/*#
+	 * Get all exist contact group names.
+	 *
+	 * @return List<String> list of contact group names
+	 */
+	getAllContactGroupNames {
+		@Override
+		public List<String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getAllContactGroupNames(ac.getSession());
+		}
+	},
+
+	/*#
+	 * Add all contacts in list of facilities contact groups
+	 *
+	 * @param contactGroupsToAdd List<ContactGroup> list of contact groups to add
+	 */
+	addFacilityContacts {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getFacilitiesManager().addFacilityContacts(ac.getSession(),
+					parms.readList("contactGroupsToAdd", ContactGroup.class));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Add all contacts in the contact group
+	 *
+	 * @param contactGroupToAdd ContactGroup contact group to add
+	 */
+	addFacilityContact {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getFacilitiesManager().addFacilityContact(ac.getSession(),
+					parms.read("contactGroupToAdd", ContactGroup.class));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove all contacts in list of facilities contact groups
+	 *
+	 * @param contactGroupsToRemove List<ContactGroup> list of contact groups to remove
+	 */
+	removeFacilityContacts {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getFacilitiesManager().removeFacilityContacts(ac.getSession(),
+					parms.readList("contactGroupsToRemove", ContactGroup.class));
+
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove all contacts in the contact group
+	 *
+	 * @param contactGroupToRemove ContactGroup contact group to remove
+	 */
+	removeFacilityContact {
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getFacilitiesManager().removeFacilityContact(ac.getSession(),
+					parms.read("contactGroupToRemove", ContactGroup.class));
+
+			return null;
+		}
 	};
 }

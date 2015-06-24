@@ -293,6 +293,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		}
 
+		//Remove all information about user on facilities (facilities contacts)
+		List<ContactGroup> userContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, user);
+		if(!userContactGroups.isEmpty()) {
+			if(forceDelete) {
+				getPerunBl().getFacilitiesManagerBl().removeAllUserContacts(sess, user);
+			} else {
+				throw new RelationExistsException("User has still some facilities contacts: " + userContactGroups);
+			}
+		}
+
 		// First delete all associated external sources to the user
 		getUsersManagerImpl().removeAllUserExtSources(sess, user);
 		getPerunBl().getAuditer().log(sess, "All user ext sources removed for {}.", user);

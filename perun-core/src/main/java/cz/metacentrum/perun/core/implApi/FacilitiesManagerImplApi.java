@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -14,6 +15,7 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
@@ -424,6 +426,200 @@ public interface FacilitiesManagerImplApi {
 	 * @return list of Users
 	 * @throws InternalErrorException
 	 */
-
 	List<User> getAssignedUsers(PerunSession sess, Facility facility, Service service)throws InternalErrorException;
+
+	// FACILITY CONTACTS METHODS
+
+	/**
+	 * Create new user contact for facility with contactGroupName
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param contactGroupName
+	 * @param user
+	 * @return contactGroup
+	 * @throws InternalErrorException
+	 */
+	ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException;
+
+	/**
+	 * Create new owner contact for facility with contactGroupName
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param contactGroupName
+	 * @param owner
+	 * @return contactGroup
+	 * @throws InternalErrorException
+	 */
+	ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException;
+
+	/**
+	 * Create new group contact for facility with contactGroupName
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param contactGroupName
+	 * @param group
+	 * @return contactGroup
+	 * @throws InternalErrorException
+	 */
+	ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException;
+
+	/**
+	 * Get list of contact groups for the owner.
+	 *
+	 * @param sess
+	 * @param owner
+	 * @return list of contactGroups
+	 * @throws InternalErrorException
+	 */
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException;
+
+	/**
+	 * Get list of contact groups for the user.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return list of contactGroups
+	 * @throws InternalErrorException
+	 */
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Get list of contact groups for the group.
+	 *
+	 * @param sess
+	 * @param group
+	 * @return list of contactGroups
+	 * @throws InternalErrorException
+	 */
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Get list of contact groups for the facility.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return list of contactGroups
+	 * @throws InternalErrorException
+	 */
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Get contact group for the facility and the contact group name.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param contactGroupName
+	 * @return contactGroup
+	 * @throws InternalErrorException
+	 * @throws FacilityContactNotExistsException if there is no such contact
+	 */
+	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException;
+
+	/**
+	 * Get list of unique contact group names.
+	 *
+	 * @param sess
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Check if contact for facility, contact name and owner exists.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param contactGroupName
+	 * @param owner
+	 * @throws InternalErrorException
+	 * @throws FacilityContactNotExistsException if there is no such contact
+	 */
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException;
+
+	/**
+	 * Check if contact for facility, contact name and user exists.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param contactGroupName
+	 * @param user
+	 * @throws InternalErrorException
+	 * @throws FacilityContactNotExistsException if there is no such contact
+	 */
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException, FacilityContactNotExistsException;
+
+	/**
+	 * Check if contact for facility, contact name and group exists.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param contactGroupName
+	 * @param group
+	 * @throws InternalErrorException
+	 * @throws FacilityContactNotExistsException if there is no such contact
+	 */
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException, FacilityContactNotExistsException;
+
+	/**
+	 * Remove owner contact for facility and contact name.
+	 *
+	 * @param sess
+	 * @param contactGroupName
+	 * @param facility
+	 * @param owner
+	 * @throws InternalErrorException
+	 */
+	void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException;
+
+	/**
+	 * Remove all facilities contacts assigned to this owner.
+	 *
+	 * @param sess
+	 * @param owner
+	 * @throws InternalErrorException
+	 */
+	void removeAllOwnerContacts(PerunSession sess, Owner owner) throws InternalErrorException;
+
+	/**
+	 * Remove all facilities contacts assigned to this user.
+	 *
+	 * @param sess
+	 * @param user
+	 * @throws InternalErrorException
+	 */
+	void removeAllUserContacts(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Remove all facilities contacts assigned to this group.
+	 *
+	 * @param sess
+	 * @param group
+	 * @throws InternalErrorException
+	 */
+	void removeAllGroupContacts(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Remove user contact for facility and contact name.
+	 *
+	 * @param sess
+	 * @param contactGroupName
+	 * @param facility
+	 * @param user
+	 * @throws InternalErrorException
+	 */
+	void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException;
+
+	/**
+	 * Remove group contact for facility and contact name.
+	 *
+	 * @param sess
+	 * @param contactGroupName
+	 * @param facility
+	 * @param group
+	 * @throws InternalErrorException
+	 */
+	void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException;
 }

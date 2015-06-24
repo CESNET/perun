@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -22,11 +23,13 @@ import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -36,6 +39,7 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -57,6 +61,12 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	protected final static String hostMappingSelectQuery = "hosts.id as hosts_id, hosts.hostname as hosts_hostname, " +
 		"hosts.created_at as hosts_created_at, hosts.created_by as hosts_created_by, hosts.modified_by as hosts_modified_by, hosts.modified_at as hosts_modified_at, " +
 		"hosts.created_by_uid as hosts_created_by_uid, hosts.modified_by_uid as hosts_modified_by_uid";
+
+	protected final static String facilityContactsMappingSelectQuery = " facility_contacts.facility_id as facility_contacts_id, facility_contacts.contact_group_name as facility_contacts_contact_group_name, " +
+	    "facility_contacts.owner_id as facility_contacts_owner_id, facility_contacts.user_id as facility_contacts_user_id, facility_contacts.group_id as facility_contacts_group_id";
+	
+	protected final static String facilityContactsMappingSelectQueryWithAllEntities = facilityContactsMappingSelectQuery + ", " + UsersManagerImpl.userMappingSelectQuery + ", " + 
+	  facilityMappingSelectQuery + ", " + OwnersManagerImpl.ownerMappingSelectQuery + ", " + GroupsManagerImpl.groupMappingSelectQuery;
 
 	public static final RowMapper<Facility> FACILITY_MAPPER = new RowMapper<Facility>() {
 		public Facility mapRow(ResultSet rs, int i) throws SQLException {
@@ -92,6 +102,108 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			if(rs.getInt("hosts_created_by_uid") == 0) h.setCreatedByUid(null);
 			else h.setCreatedByUid(rs.getInt("hosts_created_by_uid"));
 			return h;
+		}
+	};
+
+	//Facility Contact Mapper
+	private static final RowMapper<ContactGroup> FACILITY_CONTACT_MAPPER = new RowMapper<ContactGroup>() {
+		public ContactGroup mapRow(ResultSet rs, int i) throws SQLException {
+			ContactGroup contactGroup = new ContactGroup();
+
+			//set Facility
+			Facility facility = new Facility();
+			facility.setId(rs.getInt("facilities_id"));
+			facility.setName(rs.getString("facilities_name"));
+			facility.setDescription(rs.getString("facilities_dsc"));
+			facility.setCreatedAt(rs.getString("facilities_created_at"));
+			facility.setCreatedBy(rs.getString("facilities_created_by"));
+			facility.setModifiedAt(rs.getString("facilities_modified_at"));
+			facility.setModifiedBy(rs.getString("facilities_modified_by"));
+			if(rs.getInt("facilities_modified_by_uid") == 0) facility.setModifiedByUid(null);
+			else facility.setModifiedByUid(rs.getInt("facilities_modified_by_uid"));
+			if(rs.getInt("facilities_created_by_uid") == 0) facility.setCreatedByUid(null);
+			else facility.setCreatedByUid(rs.getInt("facilities_created_by_uid"));
+			contactGroup.setFacility(facility);
+
+			//set Name
+			String contactGroupName = rs.getString("facility_contacts_contact_group_name");
+			contactGroup.setContactGroupName(contactGroupName);
+
+			//if exists set owner
+			List<Owner> owners = new ArrayList<>();
+			if(rs.getInt("owners_id") != 0) {
+				Owner owner = new Owner();
+				owner.setId(rs.getInt("owners_id"));
+				owner.setName(rs.getString("owners_name"));
+				owner.setContact(rs.getString("owners_contact"));
+				owner.setTypeByString(rs.getString("owners_type"));
+				owner.setCreatedAt(rs.getString("owners_created_at"));
+				owner.setCreatedBy(rs.getString("owners_created_by"));
+				owner.setModifiedAt(rs.getString("owners_modified_at"));
+				owner.setModifiedBy(rs.getString("owners_modified_by"));
+				if(rs.getInt("owners_modified_by_uid") == 0) owner.setModifiedByUid(null);
+				else owner.setModifiedByUid(rs.getInt("owners_modified_by_uid"));
+				if(rs.getInt("owners_created_by_uid") == 0) owner.setCreatedByUid(null);
+				else owner.setCreatedByUid(rs.getInt("owners_created_by_uid"));
+				owners.add(owner);
+			}
+			contactGroup.setOwners(owners);
+
+			//if exists set user
+			List<RichUser> users = new ArrayList<>();
+			if(rs.getInt("users_id") != 0) {
+				RichUser user = new RichUser();
+				user.setId(rs.getInt("users_id"));
+				user.setFirstName(rs.getString("users_first_name"));
+				user.setLastName(rs.getString("users_last_name"));
+				user.setMiddleName(rs.getString("users_middle_name"));
+				user.setTitleBefore(rs.getString("users_title_before"));
+				user.setTitleAfter(rs.getString("users_title_after"));
+				user.setCreatedAt(rs.getString("users_created_at"));
+				user.setCreatedBy(rs.getString("users_created_by"));
+				user.setModifiedAt(rs.getString("users_modified_at"));
+				user.setModifiedBy(rs.getString("users_modified_by"));
+				user.setServiceUser(rs.getBoolean("users_service_acc"));
+				if(rs.getInt("users_created_by_uid") == 0) user.setCreatedByUid(null);
+				else user.setCreatedByUid(rs.getInt("users_created_by_uid"));
+				if(rs.getInt("users_modified_by_uid") == 0) user.setModifiedByUid(null);
+				else user.setModifiedByUid(rs.getInt("users_modified_by_uid"));
+				users.add(user);
+			}
+			contactGroup.setUsers(users);
+
+			//if exists set group
+			List<Group> groups = new ArrayList<>();
+			if(rs.getInt("groups_id") != 0) {
+				Group group = new Group();
+				group.setId(rs.getInt("groups_id"));
+			//ParentGroup with ID=0 is not supported
+			if(rs.getInt("groups_parent_group_id") != 0) group.setParentGroupId(rs.getInt("groups_parent_group_id"));
+			else group.setParentGroupId(null);
+			group.setName(rs.getString("groups_name"));
+			group.setShortName(group.getName().substring(group.getName().lastIndexOf(":") + 1));
+			group.setDescription(rs.getString("groups_dsc"));
+			group.setVoId(rs.getInt("groups_vo_id"));
+			group.setCreatedAt(rs.getString("groups_created_at"));
+			group.setCreatedBy(rs.getString("groups_created_by"));
+			group.setModifiedAt(rs.getString("groups_modified_at"));
+			group.setModifiedBy(rs.getString("groups_modified_by"));
+			if(rs.getInt("groups_modified_by_uid") == 0) group.setModifiedByUid(null);
+			else group.setModifiedByUid(rs.getInt("groups_modified_by_uid"));
+			if(rs.getInt("groups_created_by_uid") == 0) group.setCreatedByUid(null);
+			else group.setCreatedByUid(rs.getInt("groups_created_by_uid"));
+				groups.add(group);
+			}
+			contactGroup.setGroups(groups);
+
+			return contactGroup;
+		}
+	};
+
+	private static final RowMapper<String> FACILITY_CONTACT_NAMES_MAPPER = new RowMapper<String>() {
+		public String mapRow(ResultSet rs, int i) throws SQLException {
+
+			return rs.getString("contact_group_name");
 		}
 	};
 
@@ -535,5 +647,318 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
+	// FACILITY CONTACTS METHODS
 
+	@Override
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+		Utils.notNull(facility, "facility");
+		Utils.notNull(user, "user");
+		if(contactGroupName == null || contactGroupName.isEmpty()) {
+			throw new InternalErrorException("ContactGroupName can't be null or empty.");
+		}
+
+		ContactGroup contactGroup;
+		try {
+			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, user_id) " +
+					"values (?,?,?)", facility.getId(), contactGroupName, user.getId());
+			RichUser ru = new RichUser(user, null);
+			List<RichUser> rulist = new ArrayList<>();
+			rulist.add(ru);
+			contactGroup = new ContactGroup(contactGroupName, facility, new ArrayList<Group>(), new ArrayList<Owner>(), rulist);
+			log.info("Facility contact {} created", contactGroup);
+
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		return contactGroup;
+	}
+
+	@Override
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+		Utils.notNull(facility, "facility");
+		Utils.notNull(owner, "owner");
+		if(contactGroupName == null || contactGroupName.isEmpty()) {
+			throw new InternalErrorException("ContactGroupName can't be null or empty.");
+		}
+
+		ContactGroup contactGroup;
+		try {
+			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, owner_id) " +
+					"values (?,?,?)", facility.getId(), contactGroupName, owner.getId());
+			List<Owner> ownlist = new ArrayList<>();
+			ownlist.add(owner);
+			contactGroup = new ContactGroup(contactGroupName, facility, new ArrayList<Group>(), ownlist, new ArrayList<RichUser>());
+			log.info("Facility contact {} created", contactGroup);
+
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		return contactGroup;
+	}
+
+	@Override
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+		Utils.notNull(facility, "facility");
+		Utils.notNull(group, "group");
+		if(contactGroupName == null || contactGroupName.isEmpty()) {
+			throw new InternalErrorException("ContactGroupName can't be null or empty.");
+		}
+
+		ContactGroup contactGroup;
+		try {
+			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, group_id) " +
+					"values (?,?,?)", facility.getId(), contactGroupName, group.getId());
+			List<Group> grplist = new ArrayList<>();
+			grplist.add(group);
+			contactGroup = new ContactGroup(contactGroupName, facility, grplist, new ArrayList<Owner>(), new ArrayList<RichUser>());
+			log.info("Facility contact {} created", contactGroup);
+
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+
+		return contactGroup;
+	}
+
+	@Override
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException {
+		try {
+			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
+			  "left join facilities on facilities.id=facility_contacts.facility_id " +
+			  "left join owners on owners.id=facility_contacts.owner_id " +
+			  "left join users on users.id=facility_contacts.user_id " +
+			  "left join groups on groups.id=facility_contacts.group_id " +
+			  "where facility_contacts.owner_id=?", FACILITY_CONTACT_MAPPER, owner.getId()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
+			  "left join facilities on facilities.id=facility_contacts.facility_id " +
+			  "left join owners on owners.id=facility_contacts.owner_id " +
+			  "left join users on users.id=facility_contacts.user_id " +
+			  "left join groups on groups.id=facility_contacts.group_id " +
+			  "where facility_contacts.user_id=?", FACILITY_CONTACT_MAPPER, user.getId()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException {
+		try {
+			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
+			  "left join facilities on facilities.id=facility_contacts.facility_id " +
+			  "left join owners on owners.id=facility_contacts.owner_id " +
+			  "left join users on users.id=facility_contacts.user_id " +
+			  "left join groups on groups.id=facility_contacts.group_id " +
+			  "where facility_contacts.group_id=?", FACILITY_CONTACT_MAPPER, group.getId()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException {
+		try {
+			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
+			  "left join facilities on facilities.id=facility_contacts.facility_id " +
+			  "left join owners on owners.id=facility_contacts.owner_id " +
+			  "left join users on users.id=facility_contacts.user_id " +
+			  "left join groups on groups.id=facility_contacts.group_id " +
+			  "where facility_contacts.facility_id=?", FACILITY_CONTACT_MAPPER, facility.getId()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException {
+		try {
+			List<ContactGroup> contactGroups = jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
+			  "left join facilities on facilities.id=facility_contacts.facility_id " +
+			  "left join owners on owners.id=facility_contacts.owner_id " +
+			  "left join users on users.id=facility_contacts.user_id " +
+			  "left join groups on groups.id=facility_contacts.group_id " +
+			  "where facility_contacts.facility_id=? and facility_contacts.contact_group_name=?", FACILITY_CONTACT_MAPPER, facility.getId(), contactGroupName);
+			contactGroups = mergeContactGroups(contactGroups);
+			if(contactGroups.size() == 1) {
+				return contactGroups.get(0);
+			} else {
+				throw new InternalErrorException("Merging group contacts for facility " + facility + " and contact name " + contactGroupName + " failed, more than 1 object returned " + contactGroupName);
+			}
+		} catch (EmptyResultDataAccessException ex) {
+			throw new FacilityContactNotExistsException(facility, contactGroupName);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.query("select distinct contact_group_name from facility_contacts", FACILITY_CONTACT_NAMES_MAPPER);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, contactGroupName, owner)) throw new FacilityContactNotExistsException(facility, contactGroupName, owner);
+	}
+
+	@Override
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, contactGroupName, user)) throw new FacilityContactNotExistsException(facility, contactGroupName, user);
+	}
+
+	@Override
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, contactGroupName, group)) throw new FacilityContactNotExistsException(facility, contactGroupName, group);
+	}
+
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and owner_id=?", facility.getId(), contactGroupName, owner.getId());
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and user_id=?", facility.getId(), contactGroupName, user.getId());
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and group_id=?", facility.getId(), contactGroupName, group.getId());
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void removeAllOwnerContacts(PerunSession sess, Owner owner) throws InternalErrorException {
+		try {
+			jdbc.update("delete from facility_contacts where owner_id=?", owner.getId());
+			log.info("All owner's {} facilities contacts deleted.", owner);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void removeAllUserContacts(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			jdbc.update("delete from facility_contacts where user_id=?", user.getId());
+			log.info("All user's {} facilities contacts deleted.", user);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void removeAllGroupContacts(PerunSession sess, Group group) throws InternalErrorException {
+		try {
+			jdbc.update("delete from facility_contacts where group_id=?", group.getId());
+			log.info("All group's {} facilities contacts deleted.", group);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+		try {
+			jdbc.update("delete from facility_contacts where facility_id=? and owner_id=? and contact_group_name=?", facility.getId(), owner.getId(), contactGroupName);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Owner: " + owner, facility, contactGroupName);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+		try {
+			jdbc.update("delete from facility_contacts where facility_id=? and user_id=? and contact_group_name=?", facility.getId(), user.getId(), contactGroupName);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, User: " + user, facility, contactGroupName);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+		try {
+			jdbc.update("delete from facility_contacts where facility_id=? and group_id=? and contact_group_name=?", facility.getId(), group.getId(), contactGroupName);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Group: " + group, facility, contactGroupName);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	/**
+	 * Take list of contact groups and merged them.
+	 *
+	 * Merge means:
+	 * If two groups are from the same facility with the same contactName join
+	 * them to the one with groups, owners and users from both.
+	 *
+	 * @param notMergedContactGroups list of groups to merge
+	 * @return list of merged contact groups
+	 */
+	private List<ContactGroup> mergeContactGroups(List<ContactGroup> notMergedContactGroups) {
+		List<ContactGroup> mergedContactGroups = new ArrayList<>();
+		while(!notMergedContactGroups.isEmpty()) {
+			ContactGroup contactGroup = new ContactGroup();
+			Iterator<ContactGroup> contactGroupIter = notMergedContactGroups.iterator();
+			boolean first = true;
+			while(contactGroupIter.hasNext()) {
+				if(first) {
+					contactGroup = contactGroupIter.next();
+					if(contactGroup.getGroups() == null) contactGroup.setGroups(new ArrayList<Group>());
+					if(contactGroup.getOwners() == null) contactGroup.setOwners(new ArrayList<Owner>());
+					if(contactGroup.getUsers() == null) contactGroup.setUsers(new ArrayList<RichUser>());
+					first = false;
+				} else {
+					ContactGroup cp = contactGroupIter.next();
+					if(contactGroup.equalsGroup(cp)) {
+						contactGroup.getGroups().addAll(cp.getGroups());
+						contactGroup.getUsers().addAll(cp.getUsers());
+						contactGroup.getOwners().addAll(cp.getOwners());
+					}
+				}
+				contactGroupIter.remove();
+			}
+			mergedContactGroups.add(contactGroup);
+		}
+		return mergedContactGroups;
+	}
 }
