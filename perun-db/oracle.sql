@@ -1005,13 +1005,18 @@ create table pn_regex_object (
 );
 
 create table groups_groups (
-	group_id integer not null,
-	parent_group_id integer not null,
-	group_mode integer not null,
+	result_gid integer not null,
+	operand_gid integer not null,
+	operation_id integer not null,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
-	modified_by nvarchar2(1024) default user not null
+	modified_by nvarchar2(1024) default user not null,
+);
+
+create table groups_operations (
+	id integer not null,
+	name nvarchar2(64), not null
 );
 
 create table res_tags (
@@ -1136,6 +1141,7 @@ create sequence ACTION_TYPES_SEQ maxvalue 1.0000E+28 nocache;
 create sequence RES_TAGS_SEQ maxvalue 1.0000E+28 nocache;
 create sequence MAILCHANGE_ID_SEQ maxvalue 1.0000E+28 nocache;
 create sequence PWDRESET_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence GROUPS_OPERATIONS_ID_SEQ maxvalue 1.0000E+28 nocache;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1256,8 +1262,8 @@ create index IDX_FK_PN_RGXOBJ_RGX on pn_regex_object(regex_id);
 create index IDX_FK_PN_RGXOBJ_OBJ on pn_regex_object(object_id);
 create index IDX_FK_SERVU_U_UI on service_user_users(user_id);
 create index IDX_FK_SERVU_U_SUI on service_user_users(service_user_id);
-create index IDX_FK_GRP_GRP_GID on groups_groups(group_id);
-create index IDX_FK_GRP_GRP_PGID on groups_groups(parent_group_id);
+create index IDX_FK_GRP_GRP_RGID on groups_groups(result_gid);
+create index IDX_FK_GRP_GRP_OGID on groups_groups(operand_gid);
 create index IDX_FK_ATTRAUTHZ_ACTIONTYP on attributes_authz(action_type_id);
 create index IDX_FK_ATTRAUTHZ_ROLE on attributes_authz(role_id);
 create index IDX_FK_ATTRAUTHZ_ATTR on attributes_authz(attr_id);
@@ -1679,9 +1685,15 @@ constraint SERVU_U_STATUS_CHK check (status in ('0','1'))
 );
 
 alter table groups_groups add (
-constraint GRP_GRP_PK primary key (group_id,parent_group_id),
-constraint GRP_GRP_GID_FK foreign key (group_id) references groups(id),
-constraint GRP_GRP_PGID_FK foreign key (parent_group_id) references groups(id)
+constraint GRP_GRP_PK primary key (result_gid,operand_gid),
+constraint GRP_GRP_RGID_FK foreign key (result_gid) references groups(id),
+constraint GRP_GRP_OGID_FK foreign key (operand_gid) references groups(id),
+constraint GRP_OPERATION_ID_FK foreign key (operation_id) references groups_operations(id)
+);
+
+alter table groups_operations add (
+constraint GRP_OPERATION_PK primary key (id);
+constraint GRP_OPERATION_NAME_U unique (name);
 );
 
 alter table action_types add (

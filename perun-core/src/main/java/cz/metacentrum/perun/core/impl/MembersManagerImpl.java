@@ -51,6 +51,7 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 					rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
 			try{
 				member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
+				member.setSourceGroupId(rs.getInt("source_group_id"));
 			}catch(SQLException ex){/*member.setType(MembershipType.NOT_DEFINED); již provedeno v konstruktoru*/}
 			return member;
 		}

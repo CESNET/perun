@@ -115,6 +115,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				getPerunBl().getGroupsManagerBl().removeMember(sess, group, member);
 			} catch (NotGroupMemberException e) {
 				throw new ConsistencyErrorException("getMemberGroups return group where the member is not member", e);
+			} catch (GroupNotExistsException | AlreadyMemberException | WrongReferenceAttributeValueException | WrongAttributeValueException | NotMemberOfParentGroupException e) {
+				throw new ConsistencyErrorException(e);
 			}
 		}
 
@@ -125,7 +127,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				getPerunBl().getGroupsManagerBl().removeMemberFromMembersOrAdministratorsGroup(sess, g, member);
 			} catch (NotGroupMemberException e) {
 				throw new ConsistencyErrorException("Member is not in the \"members\" group." + member + "  " + g, e);
-			}
+			} catch (GroupNotExistsException | AlreadyMemberException | WrongReferenceAttributeValueException | WrongAttributeValueException | NotMemberOfParentGroupException e) {
+				throw new ConsistencyErrorException(e);
+		}
 		} catch (GroupNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
@@ -222,7 +226,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				try {
 					perunBl.getGroupsManagerBl().addMember(sess, group, member);
 				} catch (NotMemberOfParentGroupException ex) {
-					throw new InternalErrorException("Member " + member + " can't be add to the group " + group + " because he is not member of it's parent group.", ex);
+					throw new InternalErrorException("Member " + member + " can't be added to the group " + group + " because he is not member of it's parent group.", ex);
+				} catch (NotGroupMemberException | GroupNotExistsException e) {
+					throw new ConsistencyErrorException(e);
 				}
 			}
 		}
@@ -458,6 +464,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					perunBl.getGroupsManagerBl().addMember(sess, group, member);
 				} catch (NotMemberOfParentGroupException ex) {
 					throw new InternalErrorException("Member " + member + " can't be add to the group " + group + " because he is not member of it's parent group.", ex);
+				} catch (NotGroupMemberException | GroupNotExistsException e) {
+					throw new ConsistencyErrorException(e);
 				}
 			}
 		}
@@ -1157,6 +1165,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
 		} catch (WrongReferenceAttributeValueException e) {
 			throw new ConsistencyErrorException(e); //Member is not valid, so he couldn't have truly required atributes, neither he couldn't have influence on user attributes
+		} catch (NotGroupMemberException e) {
+			throw new ConsistencyErrorException(e);
 		}
 	}
 

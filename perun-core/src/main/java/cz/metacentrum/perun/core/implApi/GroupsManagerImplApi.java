@@ -14,16 +14,13 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
@@ -239,6 +236,17 @@ public interface GroupsManagerImplApi {
 	List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
 
 	/**
+	 * Return direct group members.
+	 *
+	 * @param sess perun session
+	 * @param group group to get direct members from
+	 * @return list of direct members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getDirectGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
 	 * Get all group members ignoring theirs status.
 	 *
 	 * @param sess
@@ -439,15 +447,13 @@ public interface GroupsManagerImplApi {
 	 */
 	boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException;
 
-
 	/**
-	 * Return true if Member is direct member of the Group
+	 * Returns true if Member is a direct member of the group
 	 *
-	 *
-	 * @param sess
-	 * @param group
-	 * @param member
-	 * @return true if Member is direct member of the Group
+	 * @param sess perun session
+	 * @param group group
+	 * @param member member
+	 * @return true if member is a direct member of the group
 	 *
 	 * @throws InternalErrorException
 	 */
@@ -493,4 +499,71 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
+
+	/**
+	 * Returns all result groups ids of the given operand group.
+	 *
+	 * @param sess perun session
+	 * @param groupId operand group id
+	 * @return related groups ids
+	 */
+	List<Integer> getRelatedGroupsIds(PerunSession sess, int groupId);
+
+	/**
+	 * Removes a relation between two groups.
+	 *
+	 * @param sess perun session
+	 * @param resultGroup result group
+	 * @param operandGroup operand group
+	 * @param relationType type of relation
+	 * @throws InternalErrorException if there is no relation of the given type between the groups
+	 */
+	void removeGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, int relationType) throws InternalErrorException;
+
+	/**
+	 * Removes all relations of this result group.
+	 *
+	 * @param sess perun session
+	 * @param resultGroup result group
+	 */
+	void removeResultGroupRelations(PerunSession sess, Group resultGroup);
+
+	/**
+	 * Saves union operation between result group and operand group.
+	 *
+	 * @param sess perun session
+	 * @param resultGroup group to which members are added
+	 * @param operandGroup group from which members are taken
+	 * @param operationId operation id
+	 */
+	void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, int operationId) throws InternalErrorException;
+
+	/**
+	 * Checks if relation between groups exists. It checks both ways.
+	 * Does not matter which one is result group and which one is operand group.
+	 *
+	 * @param group1 group
+	 * @param group2 group
+	 * @return true if there is a relation, false otherwise
+	 */
+	boolean isRelationBetweenGroups(Group group1, Group group2);
+
+	/**
+	 * Checks if relation exists between result group and operand group.
+	 * It matters which one is result group and which one is operand group.
+	 *
+	 * @param resultGroup result group
+	 * @param operandGroup operand group
+	 * @return true if there is a one-way relation, false otherwise
+	 */
+	boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup);
+
+	/**
+	 * Return all group relations.
+	 *
+	 * @param sess perun session
+	 * @param groupId group id
+	 * @return list of pairs where LEFT is group id and RIGHT is relation id.
+	 */
+	List<Pair<Integer, Integer>> getGroupRelations(PerunSession sess, int groupId);
 }

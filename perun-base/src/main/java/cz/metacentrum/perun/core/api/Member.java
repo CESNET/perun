@@ -11,26 +11,31 @@ public class Member extends Auditable {
 	private int voId;
 	private Status status;
 	private MembershipType membershipType;
+	private Integer sourceGroupId;
 
 	public Member() {
 		super();
 		membershipType = MembershipType.NOT_DEFINED;
+		sourceGroupId = null;
 	}
 
 	public Member(int id) {
 		super(id);
 		membershipType = MembershipType.NOT_DEFINED;
+		sourceGroupId = null;
 	}
 
 	public Member(int id, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		membershipType = MembershipType.NOT_DEFINED;
+		sourceGroupId = null;
 	}
 
 	public Member(int id, int userId) {
 		this(id);
 		this.userId = userId;
 		membershipType = MembershipType.NOT_DEFINED;
+		sourceGroupId = null;
 	}
 
 	public Member(int id, int userId, int voId, Status status) {
@@ -38,6 +43,7 @@ public class Member extends Auditable {
 		this.voId = voId;
 		this.status = status;
 		membershipType = MembershipType.NOT_DEFINED;
+		sourceGroupId = null;
 	}
 
 	public Member(int id, int userId, int voId, Status status, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
@@ -46,6 +52,7 @@ public class Member extends Auditable {
 		this.voId = voId;
 		this.status = status;
 		membershipType = MembershipType.NOT_DEFINED;
+		sourceGroupId = null;
 	}
 
 	public int getUserId() {
@@ -90,6 +97,14 @@ public class Member extends Auditable {
 		return membershipType;
 	}
 
+    public Integer getSourceGroupId() {
+        return sourceGroupId;
+    }
+
+    public void setSourceGroupId(Integer sourceGroupId) {
+        this.sourceGroupId = sourceGroupId;
+    }
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -126,7 +141,8 @@ public class Member extends Auditable {
 			", userId=<").append(getUserId()).append(">").append(
 			", voId=<").append(getVoId()).append(">").append(
 			", status=<").append(getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())).append(">").append(
-			", type=<").append(getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())).append(">").append(
+			", type=<").append(getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())).append(">").append(
+			", sourceGroupId=<").append(getSourceGroupId() == null ? "\\0" : BeansUtils.createEscaping(getSourceGroupId().toString())).append(">").append(
 			']').toString();
 	}
 
@@ -134,7 +150,7 @@ public class Member extends Auditable {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 
-		return str.append("Member:[id='").append(getId()).append("', userId='").append(userId).append("', voId='").append(voId).append("', status='").append(status).append("', type='").append(membershipType).append("']").toString();
+		return str.append("Member:[id='").append(getId()).append("', userId='").append(userId).append("', voId='").append(voId).append("', status='").append(status).append("', type='").append(membershipType).append("', sourceGroupId='").append(sourceGroupId).append("']").toString();
 	}
 
 
