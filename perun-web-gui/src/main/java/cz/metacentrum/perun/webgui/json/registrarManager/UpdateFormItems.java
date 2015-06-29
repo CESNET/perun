@@ -135,7 +135,9 @@ public class UpdateFormItems {
 			// recreate i18n
 			JSONObject i18n = new JSONObject();
 			i18n.put("en", new JSONObject(formItems.get(i).getItemTexts("en")));
-			i18n.put(Utils.getNativeLanguage().get(0), new JSONObject(formItems.get(i).getItemTexts(Utils.getNativeLanguage().get(0))));
+			if (!Utils.getNativeLanguage().isEmpty()) {
+				i18n.put(Utils.getNativeLanguage().get(0), new JSONObject(formItems.get(i).getItemTexts(Utils.getNativeLanguage().get(0))));
+			}
 			newItem.put("i18n", i18n);
 
 			data.set(i, newItem);

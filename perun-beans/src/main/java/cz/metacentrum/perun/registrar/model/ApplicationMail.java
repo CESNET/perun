@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
 
 /**
@@ -16,7 +17,25 @@ public class ApplicationMail {
 
 	// locale const
 	public static final Locale EN = new Locale("en");
-	public static final Locale CS = new Locale("cs");
+	public static final Locale CS = getNativeLanguage();
+
+	/**
+	 * Return code of native language defined in config file.
+	 * Return NULL if no native language set.
+	 *
+	 * @return String representation of native language
+	 */
+	public static Locale getNativeLanguage() {
+		try {
+			String loc = BeansUtils.getPropertyFromConfiguration("perun.native.language").split(",")[0];
+			if (loc != null && loc.trim().isEmpty()) {
+				return null;
+			}
+			return new Locale(loc);
+		} catch (Exception ex) {
+			return null;
+		}
+	}
 
 	/**
 	 * Available mail types
@@ -69,8 +88,10 @@ public class ApplicationMail {
 	private MailType mailType;     // to what "action" is notification related
 	private boolean send = true; // if sending email is enabled or disabled (enabled by default)
 	// localized mail text (EN and CS by default)
-	private Map<Locale, MailText> message = new HashMap<Locale, MailText>(3); {
-		message.put(CS,new MailText(CS));
+	private Map<Locale, MailText> message = new HashMap<Locale, MailText>(); {
+		if (CS != null) {
+			message.put(CS, new MailText(CS));
+		}
 		message.put(EN,new MailText(EN));
 	}
 

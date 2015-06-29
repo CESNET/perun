@@ -393,7 +393,9 @@ public class CreateMailTabItem implements TabItem {
 
 		// languages
 		ArrayList<String> languages = new ArrayList<String>();
-		languages.add(Utils.getNativeLanguage().get(0));
+		if (!Utils.getNativeLanguage().isEmpty()) {
+			languages.add(Utils.getNativeLanguage().get(0));
+		}
 		languages.add("en");
 
 		// vertical panel

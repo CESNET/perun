@@ -109,12 +109,14 @@ public class SetSendingEnabled {
 			JSONObject mailTexts = new JSONObject();
 
 			// update texts
-			String locales[] = {Utils.getNativeLanguage().get(0), "en"};
-			for(String locale : locales){
+			MailText mt = appMail.getMessage("en");
+			mailTexts.put("en", new JSONObject(mt));
 
-				MailText mt = appMail.getMessage(locale);
-				mailTexts.put(locale, new JSONObject(mt));
+			if (!Utils.getNativeLanguage().isEmpty()) {
+				MailText mt2 = appMail.getMessage(Utils.getNativeLanguage().get(0));
+				mailTexts.put(Utils.getNativeLanguage().get(0), new JSONObject(mt2));
 			}
+
 			mail.put("message", mailTexts);
 
 			// sending other values just for sure

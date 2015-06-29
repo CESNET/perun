@@ -556,7 +556,9 @@ public class EditFormItemTabItem implements TabItem {
 
 		// languages
 		ArrayList<String> languages = item.getLocales();
-		if (!languages.contains(Utils.getNativeLanguage().get(0))) languages.add(Utils.getNativeLanguage().get(0));
+		if (!Utils.getNativeLanguage().isEmpty()) {
+			if (!languages.contains(Utils.getNativeLanguage().get(0))) languages.add(Utils.getNativeLanguage().get(0));
+		}
 		if (!languages.contains("en")) languages.add("en");
 
 		// vertical panel

@@ -106,6 +106,13 @@ public class ApplicationFormPage extends ApplicationPage {
 
 		languageButton = new PushButton(new Image(SmallIcons.INSTANCE.locateIcon()));
 
+		// translation not supported
+		if (Utils.getNativeLanguage().isEmpty()) {
+			languageButton.setEnabled(false);
+			languageButton.setVisible(false);
+			return;
+		}
+
 		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0))) {
 			languageButton.setTitle(WidgetTranslation.INSTANCE.changeLanguageToCzech(Utils.getNativeLanguage().get(2)));
 		} else {

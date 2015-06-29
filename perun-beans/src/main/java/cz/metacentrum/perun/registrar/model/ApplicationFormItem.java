@@ -3,7 +3,6 @@ package cz.metacentrum.perun.registrar.model;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import java.util.*;
 
-//import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
 
 /**
@@ -12,7 +11,6 @@ import cz.metacentrum.perun.registrar.model.Application.AppType;
  * @author Martin Kuba makub@ics.muni.cz
  */
 public class ApplicationFormItem {
-	private static Object BeanUtils;
 
 	//data fields
 	private int id;
@@ -36,19 +34,23 @@ public class ApplicationFormItem {
 	private boolean forDelete = false;
 
 	public static final Locale EN = new Locale("en");
-	public static final Locale CS = new Locale(getNativeLanguage());
+	public static final Locale CS = getNativeLanguage();
 
 	/**
 	 * Return code of native language defined in config file.
-	 * Return "cs" for Czech language if no native language set.
+	 * Return NULL if no native language set.
 	 *
 	 * @return String representation of native language
 	 */
-	public static String getNativeLanguage() {
+	public static Locale getNativeLanguage() {
 		try {
-			return BeansUtils.getPropertyFromConfiguration("perun.native.language").split(",")[0];
+			String loc = BeansUtils.getPropertyFromConfiguration("perun.native.language").split(",")[0];
+			if (loc != null && loc.trim().isEmpty()) {
+				return null;
+			}
+			return new Locale(loc);
 		} catch (Exception ex) {
-			return "cs";
+			return null;
 		}
 	}
 
@@ -69,7 +71,6 @@ public class ApplicationFormItem {
 	                           String perunDestinationAttribute, String regex,
 	                           List<AppType> applicationTypes, Integer ordnum, boolean forDelete,
 	                           Map<Locale, ItemTexts> i18n) {
-		super();
 		this.id = id;
 		this.shortname = shortname;
 		this.required = required;
@@ -81,7 +82,6 @@ public class ApplicationFormItem {
 		this.ordnum = ordnum;
 		this.forDelete = forDelete;
 		this.i18n = i18n;
-
 	}
 
 	public String getPerunDestinationAttribute() {
@@ -272,10 +272,12 @@ public class ApplicationFormItem {
 		}
 	}
 
-	private Map<Locale,ItemTexts> i18n = new HashMap<Locale, ItemTexts>(3); {
+	private Map<Locale,ItemTexts> i18n = new HashMap<Locale, ItemTexts>(); {
 		// create with locale property set
-		i18n.put(CS,new ItemTexts(CS));
 		i18n.put(EN,new ItemTexts(EN));
+		if (CS != null) {
+			i18n.put(CS,new ItemTexts(CS));
+		}
 	}
 
 	public ApplicationFormItem() {
@@ -331,7 +333,6 @@ public class ApplicationFormItem {
 
 	public Map<Locale, ItemTexts> getI18n() {
 		return i18n;
-
 	}
 
 	public ItemTexts getTexts(Locale locale) {
