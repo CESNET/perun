@@ -9,7 +9,6 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.usersManager.UpdateNameTitles;
@@ -17,7 +16,6 @@ import cz.metacentrum.perun.webgui.json.usersManager.UpdateUser;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
@@ -75,23 +73,7 @@ public class EditUserDetailsTabItem implements TabItem {
 		final TextBox afterName = new TextBox();
 		final TextBox firstName = new TextBox();
 		final TextBox middleName = new TextBox();
-		final ExtendedTextBox lastName = new ExtendedTextBox();
-
-		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
-			@Override
-			public boolean validateTextBox() {
-
-				if (lastName.getTextBox().getText().trim().isEmpty()) {
-					lastName.setError("Last name can't be empty");
-					return false;
-				} else {
-					lastName.setOk();
-					return true;
-				}
-
-			}
-		};
-		lastName.setValidator(validator);
+		final TextBox lastName = new TextBox();
 
 		// prepares layout
 		FlexTable layout = new FlexTable();
@@ -102,7 +84,7 @@ public class EditUserDetailsTabItem implements TabItem {
 		beforeName.setText(user.getTitleBefore());
 		afterName.setText(user.getTitleAfter());
 		firstName.setText(user.getFirstName());
-		lastName.getTextBox().setText(user.getLastName());
+		lastName.setText(user.getLastName());
 		middleName.setText(user.getMiddleName());
 
 		// service users can have only first and last name (first is fixed as "(Service)"
@@ -125,16 +107,14 @@ public class EditUserDetailsTabItem implements TabItem {
 
 			saveButton.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					if (validator.validateTextBox()) {
-						User u = JsonUtils.clone(user).cast();
-						u.setFirstName(firstName.getText().trim());
-						u.setMiddleName(middleName.getText().trim());
-						u.setLastName(lastName.getTextBox().getText().trim());
-						u.setTitleBefore(beforeName.getText().trim());
-						u.setTitleAfter(afterName.getText().trim());
-						UpdateUser request = new UpdateUser(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
-						request.updateUser(u);
-					}
+					User u = JsonUtils.clone(user).cast();
+					u.setFirstName(firstName.getText().trim());
+					u.setMiddleName(middleName.getText().trim());
+					u.setLastName(lastName.getText().trim());
+					u.setTitleBefore(beforeName.getText().trim());
+					u.setTitleAfter(afterName.getText().trim());
+					UpdateUser request = new UpdateUser(JsonCallbackEvents.closeTabDisableButtonEvents(saveButton, tab, events));
+					request.updateUser(u);
 				}
 			});
 
