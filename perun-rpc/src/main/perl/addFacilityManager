@@ -34,7 +34,7 @@ my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName)
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
 	$facilityId = $facility->getId;
 }
 

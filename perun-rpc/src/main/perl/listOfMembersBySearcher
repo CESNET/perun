@@ -15,7 +15,7 @@ sub help {
 	Available options:
 	--voId        | -v  VO idetifier
 	--voShortName | -V  VO short name
-	--mapOfAttrs	| -m  Map with attr_names and values for searching
+	--mapOfAttrs  | -m  Map with attr_names and values for searching
 	--batch       | -b  batch
 	--help        | -h  prints this help
 
