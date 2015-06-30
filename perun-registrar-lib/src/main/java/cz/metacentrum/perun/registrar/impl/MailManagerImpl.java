@@ -800,7 +800,6 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		if (email == null || email.isEmpty()) throw new RegistrarException("You must provide non-empty email of person you are inviting.");
-		if (language != null && !language.equals("en") && !language.equals("cs")) throw new RegistrarException("You must specify language like: \"en\" or \"cs\".");
 
 		// get form
 		ApplicationForm form;
@@ -818,7 +817,6 @@ public class MailManagerImpl implements MailManager {
 			throw new RegistrarException("Sending of invitations is disabled.");
 		}
 
-		// if not null, valid input is checked at start of method
 		if (language == null) {
 
 			language = "en";
@@ -1142,7 +1140,7 @@ public class MailManagerImpl implements MailManager {
 					language = BeansUtils.attributeValueToString(a);
 				}
 			} catch (Exception ex) {
-				log.error("[MAIL MANAGER] Exception thrown when getting preferred language for User={}: {}", app.getUser(), ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting preferred language for {}: {}", app.getUser(), ex);
 			}
 		}
 

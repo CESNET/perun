@@ -1061,7 +1061,12 @@ public class UiElements {
 		// en = english strings
 		// cs = czech strings
 
-		// english is fallback in all cases
+		// translation not supported
+		if (Utils.getNativeLanguage().isEmpty()) {
+			languageButton.setVisible(false);
+			languageButton.setEnabled(false);
+			return languageButton;
+		}
 
 		languageButton.setVisible(true); // display for perun admin only in WebGui.class
 

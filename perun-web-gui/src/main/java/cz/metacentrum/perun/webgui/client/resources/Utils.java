@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.client.resources;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;

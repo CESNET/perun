@@ -290,10 +290,10 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
 		String locale;
 
-		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0))) {
-			locale = "en";
-		} else {
+		if (!Utils.getNativeLanguage().isEmpty() && LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0))) {
 			locale = Utils.getNativeLanguage().get(0);
+		} else {
+			locale = "en";
 		}
 
 		int i = 0;

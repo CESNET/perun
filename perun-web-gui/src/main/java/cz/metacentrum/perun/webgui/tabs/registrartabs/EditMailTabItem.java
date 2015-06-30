@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.registrartabs;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -336,8 +337,11 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
 		// languages
 		ArrayList<String> languages = appMail.getLocales();
-		if (!languages.contains(Utils.getNativeLanguage().get(0))) languages.add(Utils.getNativeLanguage().get(0));
+		if (!Utils.getNativeLanguage().isEmpty() && !languages.contains(Utils.getNativeLanguage().get(0))) {
+			languages.add(Utils.getNativeLanguage().get(0));
+		}
 		if (!languages.contains("en")) languages.add("en");
+
 
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();

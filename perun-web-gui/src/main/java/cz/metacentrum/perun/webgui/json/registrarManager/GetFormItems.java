@@ -233,9 +233,9 @@ public class GetFormItems implements JsonCallback {
 
 		String locale = "en";
 
-		if (LocaleInfo.getCurrentLocale().getLocaleName().equals("default") || LocaleInfo.getCurrentLocale().getLocaleName().equals("en")) {
-			locale = "en";
-		} else {
+		if (!Utils.getNativeLanguage().isEmpty() &&
+				!LocaleInfo.getCurrentLocale().getLocaleName().equals("default") &&
+				!LocaleInfo.getCurrentLocale().getLocaleName().equals("en")) {
 			locale = Utils.getNativeLanguage().get(0);
 		}
 
@@ -543,11 +543,11 @@ public class GetFormItems implements JsonCallback {
 
 		FlexTable ft = new FlexTable();
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
-		String locale;
+		String locale = "en";
 
-		if (LocaleInfo.getCurrentLocale().getLocaleName().equals("default")) {
-			locale = "en";
-		} else {
+		if (!Utils.getNativeLanguage().isEmpty() &&
+				!LocaleInfo.getCurrentLocale().getLocaleName().equals("default") &&
+				!LocaleInfo.getCurrentLocale().getLocaleName().equals("en")) {
 			locale = Utils.getNativeLanguage().get(0);
 		}
 
