@@ -31,7 +31,6 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;

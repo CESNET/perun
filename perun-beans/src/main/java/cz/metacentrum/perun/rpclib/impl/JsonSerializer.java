@@ -32,8 +32,8 @@ public final class JsonSerializer implements Serializer {
 	private interface AttributeDefinitionMixIn {}
 
 	@JsonIgnoreProperties({"commonName", "displayName"})
-		private interface UserMixIn {
-		}
+	private interface UserMixIn {
+	}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 

@@ -24,10 +24,10 @@ public class UrlDeserializer extends Deserializer {
 	/**
 	 * Create deserializer for URL data format.
 	 *
-	 * @param req HttpServletRequest this deserializer is about to process
+	 * @param request HttpServletRequest this deserializer is about to process
 	 */
-	public UrlDeserializer(HttpServletRequest req) {
-		this.req = req;
+	public UrlDeserializer(HttpServletRequest request) {
+		this.req = request;
 	}
 
 	/**

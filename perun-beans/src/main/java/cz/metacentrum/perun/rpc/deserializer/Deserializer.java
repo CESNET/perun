@@ -157,7 +157,7 @@ public abstract class Deserializer {
 	 * @throws UnsupportedOperationException if this deserializer does not implement this method
 	 */
 	public HttpServletRequest getServletRequest() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("readList(String name, Class<T> valueType)");
+		throw new UnsupportedOperationException("getServletRequest()");
 	}
 
 }

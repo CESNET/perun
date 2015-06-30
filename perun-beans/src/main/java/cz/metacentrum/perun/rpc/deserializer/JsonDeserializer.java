@@ -26,7 +26,6 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import java.io.InputStream;
 
