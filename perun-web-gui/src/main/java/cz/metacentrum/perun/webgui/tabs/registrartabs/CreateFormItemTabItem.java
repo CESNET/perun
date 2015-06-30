@@ -4,6 +4,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
@@ -14,6 +16,7 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
@@ -231,6 +234,12 @@ public class CreateFormItemTabItem implements TabItem {
 	protected void createItem(String shortname, String type, int positionToAdd) {
 
 		ApplicationFormItem item = RegistrarFormItemGenerator.generateFormItem(shortname, type);
+
+		// set both app types checked for new item
+		JSONArray array = new JSONArray();
+		array.set(0, new JSONString("INITIAL"));
+		array.set(1, new JSONString("EXTENSION"));
+		item.setApplicationTypes(array.getJavaScriptObject());
 
 		// set also position
 		item.setOrdnum(positionToAdd);
