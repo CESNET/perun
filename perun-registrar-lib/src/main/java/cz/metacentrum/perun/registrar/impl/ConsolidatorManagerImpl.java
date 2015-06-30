@@ -292,7 +292,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		value.put("user", user);
 
 		// create token from actual properties
-		String token = registrarManager.getMailManager().getMessageAuthenticationCode(System.currentTimeMillis()+actor+extSourceName+extSourceType+extSourceLoa);
+		String token = registrarManager.getMailManager().getMessageAuthenticationCode(System.currentTimeMillis() + actor + extSourceName + extSourceType + extSourceLoa);
 
 		requestCache.putIfAbsent(token, value);
 
@@ -341,55 +341,18 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 			throw new IdentityAlreadyInUseException("Your identity is already associated with a different user. If you are really the same person, please contact support to help you.", originalUser, currentUser);
 		}
 
-		if (originalUser == null && currentUser != null) {
-
-			// merge identity to current user
-			ExtSource extSource;
-
-			try {
-				extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, (String) originalIdentity.get("extSourceName"));
-			} catch (ExtSourceNotExistsException ex) {
-				// create ext source on the fly
-				extSource = new ExtSource();
-				extSource.setName((String)originalIdentity.get("extSourceName"));
-				extSource.setType((String)originalIdentity.get("extSourceType"));
-				extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource);
-			}
-
-			UserExtSource ues = new UserExtSource();
-			ues.setLogin((String)originalIdentity.get("actor"));
-			ues.setLoa((Integer)originalIdentity.get("extSourceLoa"));
-			ues.setExtSource(extSource);
-
-			perun.getUsersManager().addUserExtSource(registrarSession, currentUser, ues);
-
+		// merge original identity into current user
+		if (originalUser == null) {
+			createExtSourceAndUserExtSource(currentUser, (String) originalIdentity.get("actor"),
+					(String)originalIdentity.get("extSourceName"), (String)originalIdentity.get("extSourceType"),
+					(Integer) originalIdentity.get("extSourceLoa"));
 		}
 
-		if (originalUser != null && currentUser == null) {
-
-			// merge identity to originalUser
-			ExtSource extSource;
-
-			try {
-				extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, sess.getPerunPrincipal().getExtSourceName());
-			} catch (ExtSourceNotExistsException ex) {
-
-				// create ext source on the fly
-				extSource = new ExtSource();
-				extSource.setName(sess.getPerunPrincipal().getExtSourceName());
-				extSource.setType(sess.getPerunPrincipal().getExtSourceType());
-				extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource);
-
-			}
-
-			UserExtSource ues = new UserExtSource();
-			ues.setUserId(originalUser.getId());
-			ues.setLogin(sess.getPerunPrincipal().getActor());
-			ues.setLoa(sess.getPerunPrincipal().getExtSourceLoa());
-			ues.setExtSource(extSource);
-
-			perun.getUsersManager().addUserExtSource(registrarSession, originalUser, ues);
-
+		// merge current identity into original user
+		if (currentUser == null) {
+			createExtSourceAndUserExtSource(originalUser, sess.getPerunPrincipal().getActor(),
+					sess.getPerunPrincipal().getExtSourceName(), sess.getPerunPrincipal().getExtSourceType(),
+					sess.getPerunPrincipal().getExtSourceLoa());
 		}
 
 		AuthzResolverBlImpl.refreshSession(sess);
@@ -397,6 +360,34 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		requestCache.remove(token);
 
 		return perun.getUsersManager().getUserExtSources(sess, sess.getPerunPrincipal().getUser());
+
+	}
+
+	/**
+	 * Creates ExtSource and UserExtSource if necessary for the purpose of joining users identities.
+	 *
+	 * @param user User to add UES to
+	 * @param actor Actor to add
+	 * @param extSourceName ExtSource name to add
+	 * @param extSourceType ExtSource type to add
+	 * @param loa loa in ext source
+	 * @throws PerunException when anything fails
+	 */
+	private void createExtSourceAndUserExtSource(User user, String actor, String extSourceName, String extSourceType, int loa) throws PerunException {
+
+		ExtSource extSource = new ExtSource(extSourceName, extSourceType);
+		try {
+			extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, extSourceName);
+		} catch (ExtSourceNotExistsException ex) {
+			extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource);
+		}
+
+		UserExtSource ues = new UserExtSource();
+		ues.setLogin(actor);
+		ues.setLoa(loa);
+		ues.setExtSource(extSource);
+
+		perun.getUsersManager().addUserExtSource(registrarSession, user, ues);
 
 	}
 
