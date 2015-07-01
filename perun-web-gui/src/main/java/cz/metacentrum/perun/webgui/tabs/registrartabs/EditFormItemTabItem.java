@@ -436,7 +436,7 @@ public class EditFormItemTabItem implements TabItem {
 
 		Label inputLabel = new Label("Input widget:");
 		ft.setWidget(row, 0, inputLabel);
-		ft.setHTML(row, 1, item.getType());
+		ft.setHTML(row, 1, CreateFormItemTabItem.inputTypes.get(item.getType()));
 
 		row++;
 		ft.setHTML(row, 1, "Specify what input widget is used for this item.");

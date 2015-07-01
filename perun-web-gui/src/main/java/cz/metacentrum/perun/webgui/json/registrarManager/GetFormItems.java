@@ -21,6 +21,7 @@ import cz.metacentrum.perun.webgui.json.JsonClient;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
+import cz.metacentrum.perun.webgui.tabs.registrartabs.CreateFormItemTabItem;
 import cz.metacentrum.perun.webgui.tabs.registrartabs.EditFormItemTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
@@ -257,7 +258,9 @@ public class GetFormItems implements JsonCallback {
 			ft.setHTML(i, 0, label);
 
 			// 1 = type
-			ft.setHTML(i, 1, item.getType());
+			Label type_label = new Label(CreateFormItemTabItem.inputTypes.get(item.getType()));
+			type_label.setTitle(item.getType());
+			ft.setWidget(i, 1, type_label);
 
 			// 2 = preview
 			Widget w = gen.getWidget();
