@@ -283,6 +283,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		ServiceAttributes allResourcesServiceAttributes = new ServiceAttributes();
 		List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
+		facilityResources.retainAll(getAssignedResources(sess, service));
 		for(Resource resource : facilityResources) {
 			ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
 			resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
@@ -290,7 +291,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		}
 
 		ServiceAttributes allUsersServiceAttributes = new ServiceAttributes();
-		List<User> facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
+		List<User> facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
 		for (User user : facilityUsers) {
 			ServiceAttributes userServiceAttributes = new ServiceAttributes();
 			userServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, user));
