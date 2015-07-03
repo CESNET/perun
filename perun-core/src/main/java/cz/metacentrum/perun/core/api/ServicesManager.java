@@ -172,11 +172,12 @@ public interface ServicesManager {
 	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException, FacilityNotExistsException, ServiceNotExistsException, PrivilegeException;
 
 	/**
-	 * Generates the list of attributes per each user and per each resource. Never return member or member-resource attribute.
+	 * Generates the list of attributes per each user and per each resource. Resources are filtered by service. 
+	 * Never return member or member-resource attribute.
 	 *
 	 * @param perunSession
-	 * @param service attributes required by this service you will get
-	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
+	 * @param service you will get attributes required by this service
+	 * @param facility you will get attributes for this facility, resources associated with it and users assigned to the resources
 	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all users.
 	 <pre>
 	 Facility
