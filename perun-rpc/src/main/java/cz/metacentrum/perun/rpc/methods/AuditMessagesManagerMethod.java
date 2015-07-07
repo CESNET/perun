@@ -103,6 +103,23 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Set last processed ID of message in consumer with consumerName.
+	 *
+	 * @param consumerName String name of consumer
+	 * @param lastProcessedId int id of message to what consumer will be set
+	 * @throws InternalErrorException
+	 */
+	setLastProcessedId {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			ac.getAuditMessagesManager().setLastProcessedId(ac.getSession(), parms.readString("consumerName"),
+			  parms.readInt("lastProcessedId"));
+			return null;
+		}
+	},
+
+	/*#
 	 * Creates new auditer consumer with last processed id which equals auditer log max id.
 	 *
 	 * @param consumerName String New name for consumer

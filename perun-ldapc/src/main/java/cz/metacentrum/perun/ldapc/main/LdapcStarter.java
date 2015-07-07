@@ -9,6 +9,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.ldapc.service.LdapcManager;
+import cz.metacentrum.perun.rpclib.Rpc;
 import cz.metacentrum.perun.rpclib.api.RpcCaller;
 import cz.metacentrum.perun.rpclib.impl.RpcCallerImpl;
 import java.text.DateFormat;
@@ -29,10 +30,24 @@ public class LdapcStarter {
 	/**
 	 * Main method of ldapc
 	 *
-	 * @param args (no expecting args, everything is in spring)
+	 * @param args (the only argument can be id of message to set Consumer on)
 	 */
 	public static void main(String[] args) {
 		System.out.println("Starting Perun-Ldapc...");
+
+		int lastProcessedIdToSet = 0;
+
+		if(args.length == 0) {
+			//This is normal behavior, do nothing special, just start ldapc
+		} else if (args.length == 1) {
+			//This behavior is special, set lastProcessedId
+			String argument = args[0];
+			lastProcessedIdToSet = Integer.valueOf(argument);
+		} else {
+			System.out.println("Too much arguments, can't understand what to do, exit starting!");
+			return;
+		}
+
 
 		PerunPrincipal pp = new PerunPrincipal("perunLdapc", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 
@@ -46,6 +61,11 @@ public class LdapcStarter {
 
 			// Sets RPC Caller
 			ldapcStarter.ldapcManager.setRpcCaller(rpcCaller);
+
+			//Set lastProcessedIdToSet if bigger than 0
+			if(lastProcessedIdToSet > 0) {
+				Rpc.AuditMessagesManager.setLastProcessedId(rpcCaller, "ldapcConsumer", lastProcessedIdToSet);
+			}
 
 			// Start processing events (run method in EventProcessorImpl)
 			ldapcStarter.ldapcManager.startProcessingEvents();

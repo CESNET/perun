@@ -86,4 +86,9 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 
 		return perunBl.getAuditer().getLastMessageId();
 	}
+
+	public void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException {
+
+		perunBl.getAuditer().setLastProcessedId(consumerName, lastProcessedId);
+	}
 }
