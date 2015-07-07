@@ -570,9 +570,16 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				if(lastName == null || lastName.isEmpty()) lastName = "N/A";
 				replaceList.add(new Pair("sn",lastName));
 				replaceList.add(new Pair("cn", firstName + " " + lastName));
-				// IF firstName is null, remove it first, then continue with process of updating user
-				if(firstName.isEmpty()) updateUserAttribute("givenName", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
-				else replaceList.add(new Pair("givenName", firstName));
+				// IF firstName is empty, maybe need to be removed first
+				if(firstName.isEmpty()) {
+					//if first name exists and new one is empty, then remove it, else do nothing
+					if(ldapConnector.userAttributeExist(this.user, "givenName")) {
+						updateUserAttribute("givenName", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+				} else {
+					//if first name is not empty, replace it by new first name
+					replaceList.add(new Pair("givenName", firstName));
+				}
 				attributes.put(LdapOperation.REPLACE_ATTRIBUTE, replaceList);
 				updateUserAttributes(attributes, this.user);
 				// 11.4) REMOVE ALL USER ATTRIBUTES
