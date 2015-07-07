@@ -129,4 +129,15 @@ public interface AuditMessagesManager {
 	 * @throws PrivilegeException
 	 */
 	int getLastMessageId(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Set last processed ID of message in consumer with consumerName.
+	 *
+	 * @param perunSession 
+	 * @param consumerName name of consumer
+	 * @param lastProcessedId id of last processed message in consumer
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException;
 }

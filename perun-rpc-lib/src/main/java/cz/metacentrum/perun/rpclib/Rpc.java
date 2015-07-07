@@ -113,6 +113,20 @@ public class Rpc {
 				throw new ConsistencyErrorException(e);
 			}
 		}
+
+		public static void setLastProcessedId(RpcCaller rpcCaller, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
+			Map<String, Object> params = new HashMap<>();
+			params.put("consumerName", consumerName);
+			params.put("lastProcessedId", new Integer(lastProcessedId));
+
+			try {
+				rpcCaller.call("auditMessagesManager", "setLastProcessedId", params);
+			} catch (PrivilegeException | InternalErrorException e) {
+				throw e;
+			} catch (PerunException e) {
+				throw new ConsistencyErrorException(e);
+			}
+		}
 	}
 
 	// FacilitiesManager

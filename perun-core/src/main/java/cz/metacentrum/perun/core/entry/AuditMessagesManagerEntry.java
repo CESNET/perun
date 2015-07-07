@@ -110,6 +110,15 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		return getAuditMessagesManagerBl().getLastMessageId();
 	}
 
+	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "setLastProcessedId");
+		}
+
+		getAuditMessagesManagerBl().setLastProcessedId(consumerName, lastProcessedId);
+	}
+
 	/**
 	 * Gets the AuditMessagesManagerBl for this instance.
 	 *

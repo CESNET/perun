@@ -106,4 +106,13 @@ public interface AuditMessagesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	int getLastMessageId() throws InternalErrorException;
+
+	/**
+	 * Set last processed ID of message in consumer with consumerName.
+	 *
+	 * @param consumerName name of consumer
+	 * @param lastProcessedId id of last processed message in consumer
+	 * @throws InternalErrorException
+	 */
+	void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException;
 }
