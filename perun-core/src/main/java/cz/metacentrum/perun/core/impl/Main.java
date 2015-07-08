@@ -346,6 +346,7 @@ public class Main {
 			Attribute attrPreferredMail = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
 			Attribute attrOrganization = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_DEF + ":organization");
 			Attribute attrVirtCertDNs = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
+			Attribute attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
 			perunUserId+= String.valueOf(u.getId());
 			dn+= "perunUserId=" + u.getId() + ",ou=People,dc=perun,dc=cesnet,dc=cz";
 			String firstName = u.getFirstName();
@@ -390,6 +391,15 @@ public class Main {
 			if(certSubjects != null && !certSubjects.isEmpty()) {
 				for(String s: certSubjects) {
 					writer.write("userCertificateSubject: " + s + '\n');
+				}
+			}
+			List<String> libraryIDs = new ArrayList<>();
+			if(attrLibraryIDs.getValue() != null) {
+				libraryIDs = (ArrayList) attrLibraryIDs.getValue();
+			}
+			if(libraryIDs != null && !libraryIDs.isEmpty()) {
+				for(String id : libraryIDs) {
+					writer.write("libraryIDs: " + id + '\n');
 				}
 			}
 			//GET ALL USERS UIDs

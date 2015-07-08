@@ -335,6 +335,13 @@ public class LdapConnectorImpl implements LdapConnector {
 		log.debug("Entry modified in LDAP: UserId {}.", userId);
 	}
 
+	public void updateUsersLibraryIds(String userId, String[] libraryIDs) {
+		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
+		context.setAttributeValues("libraryIDs", libraryIDs);
+		ldapTemplate.modifyAttributes(context);
+		log.debug("Entry modified in LDAP: UserId {}.", userId);
+	}
+
 	public void updateUserWithUserId(String userId, ModificationItem[] modificationItems) {
 		ldapTemplate.modifyAttributes(getUserDN(userId), modificationItems);
 		log.debug("Entry modified in LDAP: UserId {}.", userId);

@@ -207,6 +207,14 @@ public interface LdapConnector {
 	public void updateUsersCertSubjects(String userId, String[] certSubjects);
 
 	/**
+	 * Update all values of user library IDs in ldap.
+	 *
+	 * @param userId user id
+	 * @param libraryIDs values of library IDs
+	 */
+	void updateUsersLibraryIds(String userId, String[] libraryIDs);
+
+	/**
 	 * Return true if user already exists in ldap.
 	 *
 	 * @param user user in perun
