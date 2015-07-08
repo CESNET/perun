@@ -19,6 +19,8 @@ sub help {
 	--memberId    | -m  Members identifier
 	--orderById   | -i  order by numeric ID
 	--orderByName | -n  order by name
+        --batch       | -b  batch
+        --help        | -h  prints this help
 	};
 }
 

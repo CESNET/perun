@@ -8,7 +8,7 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Adds a external source to the Vo. Vo id or short name and external source id or name are required fields.
+	Adds an external source to the Vo. Vo id or short name and external source id or name are required fields.
 	------------------------------------
 	Available options:
 	--voId          | -v vo id

@@ -13,7 +13,6 @@ sub help {
 	Available options:
 	--facilityId   | -f facility id
 	--facilityName | -F facility name
-	--facilityType | -t facility type
 	--userId       | -u user id
 	--attributeId  | -a attribute id
 	--batch        | -b batch

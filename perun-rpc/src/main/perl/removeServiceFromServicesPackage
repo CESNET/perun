@@ -8,7 +8,7 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Removes a service to service package. Package id or name and service id or name are required fields.
+	Removes a service from service package. Package id or name and service id or name are required fields.
 	-----------------------------------------------------
 	Available options:
 	--packageId   | -p package id

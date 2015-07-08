@@ -9,11 +9,12 @@ use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
 	return qq{
-	Tool prints list of Resources where the Group is assigned to. Group is required fields.
+	Tool prints list of Resources where the Group is assigned to. Group is required field.
 	------------------------------
 	Available options:
 	--groupId     | -g  Group identifier
 	--orderById   | -i  order by numeric Id (default)
+        --orderByName | -n  order by name 
 	--batch       | -b  batch
 	--help        | -h  prints this help
 	};
@@ -23,6 +24,7 @@ my ($groupId, $batch, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
 	"groupId|g=i" => \$groupId,
 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
+"orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) } ,
 "batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();

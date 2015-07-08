@@ -8,7 +8,7 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Creates a facility. Facility name and type are required fields.
+	Creates a facility. Facility name is required field.
 	--------------------------------------
 	Available options:
 	--facilityName  | -F facility name

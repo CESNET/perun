@@ -8,7 +8,8 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Load external source definitions.
+	Loads external source definitions. Tool can be used only by PERUNADMIN.
+        It is target for updating of external sources from perun configuration.
 	------------------------------------
 	Available options:
 	--help        | -h prints this help
