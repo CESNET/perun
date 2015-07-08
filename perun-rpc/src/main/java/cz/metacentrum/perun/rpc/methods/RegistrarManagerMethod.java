@@ -1134,6 +1134,13 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+	/*#
+	 * Get time-limited token proving user identity in external source (for now 3 minutes). It can be used
+	 * to join user identity with another by calling consolidateIdentityUsingToken() method
+	 * and passing the token. Please note, that different authz (identity) must be used to perform both calls.
+	 *
+	 * @return String Token to be used for joining identities.
+	 */
 	getConsolidatorToken {
 
 		@Override
@@ -1145,6 +1152,16 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 	},
 
+	/*#
+	 * Join current user identity (authz) with the one previously provided and referenced by the token.
+	 *
+	 * @param token String Token to be used for joining identities.
+	 * @return List<UserExtSource> List of user identities know to Perun after joining.
+	 * @throw IdentityUnknownException When neither current or previous identity is associated with a user in Perun.
+	 * @throw IdentityIsSameException User used same identity (authz) to get token and to request joining.
+	 * @throw IdentitiesAlreadyJoinedException Both identities used in a process belong to the same user in Perun (already joined).
+	 * @throw IdentityAlreadyInUseException Both identities used in a process are associated with different users. In order to join two user accounts contact support.
+	 */
 	consolidateIdentityUsingToken {
 
 		@Override
