@@ -464,7 +464,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute("o", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
-					//USER CERT DNS WILL BE SET (it is only attribute where for set is special method)
+					//USER CERT DNS WILL BE SET (special method for updating)
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
 					Map<String, String> certDNsMap = new HashMap<String, String>();
 					if(this.attribute.getValue() != null) certDNsMap = (Map) this.attribute.getValue();
@@ -478,6 +478,20 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 						Set<String> certSubjects =((Map) this.attribute.getValue()).keySet();
 						String[] subjectsArray = Arrays.copyOf(certSubjects.toArray(), certSubjects.toArray().length, String[].class);
 						ldapConnector.updateUsersCertSubjects(String.valueOf(this.user.getId()), subjectsArray);
+					}
+				//USER LIBRARY IDs WILL BE SET (special method for updating)
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs")) {
+					List<String> libraryIDsList = new ArrayList<>();
+					if(this.attribute.getValue() != null) libraryIDsList = (ArrayList) this.attribute.getValue();
+					else libraryIDsList = null;
+
+					if(libraryIDsList == null || libraryIDsList.isEmpty()) {
+						if(ldapConnector.userAttributeExist(this.user, "libraryIDs")) {
+							updateUserAttribute("libraryIDs", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						}
+					} else {
+						String[] subjectsArray = Arrays.copyOf(libraryIDsList.toArray(), libraryIDsList.toArray().length, String[].class);
+						ldapConnector.updateUsersLibraryIds(String.valueOf(this.user.getId()), subjectsArray);
 					}
 					//USER UID NUMBER WILL BE SET
 				} else if(uidMatcher.find()) {
@@ -532,6 +546,10 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
 					if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
 						updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs")) {
+					if(ldapConnector.userAttributeExist(this.user, "libraryIDs")) {
+						updateUserAttribute("libraryIDs", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 				} else if(uidMatcher.find()) {
 					if(ldapConnector.userAttributeExist(this.user, "uidNumber;x-ns-" + this.attributeDef.getFriendlyNameParameter())) {
@@ -630,6 +648,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		nonOptionalAttributes.add("preferredMail");
 		nonOptionalAttributes.add("o");
 		nonOptionalAttributes.add("userCertificateSubject");
+		nonOptionalAttributes.add("libraryIDs");
 		if(nonOptionalAttributes.contains(attributeName)) return true;
 
 		List<String> optionalAttributes = new ArrayList<String>();
