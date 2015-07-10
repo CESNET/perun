@@ -109,10 +109,9 @@ public class CreateMember {
 	 *
 	 * @param voId vo where member should be created
 	 * @param user user to be member
-	 *
 	 */
 	public void createMember(final int voId, final User user) {
-		createMember(voId, user);
+		createMember(voId, null, user);
 	}
 
 	/**
