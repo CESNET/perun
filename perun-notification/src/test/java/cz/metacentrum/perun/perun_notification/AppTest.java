@@ -1,16 +1,10 @@
 package cz.metacentrum.perun.perun_notification;
 
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.notif.entities.*;
 import cz.metacentrum.perun.notif.enums.PerunNotifNotifyTrigger;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
-import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
-import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
-import cz.metacentrum.perun.notif.exceptions.NotifTemplateMessageAlreadyExistsException;
-import cz.metacentrum.perun.notif.exceptions.PerunNotifRegexUsedException;
-import cz.metacentrum.perun.notif.exceptions.TemplateMessageSyntaxErrorException;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManagerImpl;
 import cz.metacentrum.perun.notif.managers.SchedulingManagerImpl;
@@ -167,6 +161,7 @@ public class AppTest extends AbstractTest {
 		receiver.setTarget("target");
 		receiver.setTemplateId(template.getId());
 		receiver.setTypeOfReceiver(PerunNotifTypeOfReceiver.EMAIL_USER);
+		receiver.setLocale("cs");
 
 		manager.createPerunNotifReceiver(sess, receiver);
 		PerunNotifReceiver receiverFromDb = manager.getPerunNotifReceiverById(sess, receiver.getId());

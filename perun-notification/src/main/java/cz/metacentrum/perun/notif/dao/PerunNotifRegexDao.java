@@ -33,7 +33,7 @@ public interface PerunNotifRegexDao {
 	 * PerunNotifObject
 	 *
 	 * @param id
-	 * @return
+	 * @return regex or null (when no regex with id is found)
 	 * @throws InternalErrorException
 	 */
 	public PerunNotifRegex getPerunNotifRegexById(int id) throws InternalErrorException;

@@ -27,7 +27,8 @@ CREATE TABLE pn_receiver (
     id bigint NOT NULL,
     target character varying(1000) NOT NULL,
     type_of_receiver character varying(256) NOT NULL,
-    template_id bigint NOT NULL
+    template_id bigint NOT NULL,
+    locale character varying(1000)
 );
 
 
@@ -39,9 +40,9 @@ CREATE TABLE pn_regex (
 
 
 CREATE TABLE pn_regex_object (
-    object_id bigint NOT NULL,
+    id bigint NOT NULL,
     regex_id bigint NOT NULL,
-    id bigint NOT NULL
+    object_id bigint NOT NULL
 );
 
 
