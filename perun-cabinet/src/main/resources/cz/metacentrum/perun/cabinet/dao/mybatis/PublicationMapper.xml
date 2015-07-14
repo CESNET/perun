@@ -665,6 +665,9 @@
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_PUBLICATIONS_ID_SEQ')
             </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_publications_id_seq
+            </if>
         </selectKey>
         insert into CABINET_PUBLICATIONS (id, externalId, publicationSystemId,
         title, year, main, isbn, categoryId, createdBy, created_by_uid,
@@ -682,6 +685,10 @@
         <if test="_databaseId == 'oracle'">
             #{locked, jdbcType=VARCHAR}
         </if>
+        <if test="_databaseId == 'hsql'">
+            <if test="locked == true">'1'</if>
+            <if test="locked == false">'0'</if>
+        </if>
         )
     </insert>
     <insert id="insertSelective" parameterType="cz.metacentrum.perun.cabinet.model.Publication">
@@ -694,6 +701,9 @@
             </if>
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_PUBLICATIONS_ID_SEQ')
+            </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_publications_id_seq
             </if>
         </selectKey>
         insert into CABINET_PUBLICATIONS
@@ -789,6 +799,10 @@
                 <if test="_databaseId == 'oracle'">
                     #{locked,jdbcType=VARCHAR}
                 </if>
+                <if test="_databaseId == 'hsql'">
+                    <if test="locked == true">'1'</if>
+                    <if test="locked == false">'0'</if>
+                </if>
             </if>
         </trim>
     </insert>
@@ -854,6 +868,10 @@
                     <if test="record.locked == true">'1'</if>
                     <if test="record.locked == false">'0'</if>
                 </if>
+                <if test="_databaseId == 'hsql'">
+                    <if test="record.locked == true">'1'</if>
+                    <if test="record.locked == false">'0'</if>
+                </if>
                 <if test="_databaseId == 'oracle'">
                     #{record.locked,jdbcType=VARCHAR}
                 </if>
@@ -888,6 +906,10 @@
         </if>
         <if test="_databaseId == 'oracle'">
             #{record.locked,jdbcType=VARCHAR}
+        </if>
+        <if test="_databaseId == 'hsql'">
+            <if test="record.locked == true">'1'</if>
+            <if test="record.locked == false">'0'</if>
         </if>
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause" />
@@ -944,6 +966,10 @@
                 <if test="_databaseId == 'oracle'">
                     #{locked,jdbcType=VARCHAR}
                 </if>
+                <if test="_databaseId == 'hsql'">
+                    <if test="locked == true">'1'</if>
+                    <if test="locked == false">'0'</if>
+                </if>
             </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
@@ -973,6 +999,10 @@
         <if test="_databaseId == 'oracle'">
             #{locked,jdbcType=VARCHAR}
         </if>
+        <if test="_databaseId == 'hsql'">
+            <if test="locked == true">'1'</if>
+            <if test="locked == false">'0'</if>
+        </if>
         where id = #{id,jdbcType=INTEGER}
     </update>
     <insert id="insertInternal" useGeneratedKeys="true"
@@ -984,6 +1014,9 @@
             </if>
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_PUBLICATIONS_ID_SEQ')
+            </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_publications_id_seq
             </if>
         </selectKey>
         insert into CABINET_PUBLICATIONS (id, externalId, publicationSystemId,
@@ -1006,6 +1039,10 @@
         <if test="_databaseId == 'oracle'">
             #{locked, jdbcType=VARCHAR}
         </if>
+        <if test="_databaseId == 'hsql'">
+            <if test="locked == true">'1'</if>
+            <if test="locked == false">'0'</if>
+        </if>
         )
     </insert>
 
@@ -1020,6 +1057,10 @@
                 </if>
                 <if test="_databaseId == 'oracle'">
                     #{lockState, jdbcType=VARCHAR}
+                </if>
+                <if test="_databaseId == 'hsql'">
+                    <if test="lockState == true">'1'</if>
+                    <if test="lockState == false">'0'</if>
                 </if>
             </if>
         </set>

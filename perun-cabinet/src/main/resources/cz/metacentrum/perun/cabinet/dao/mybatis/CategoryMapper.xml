@@ -150,6 +150,9 @@
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_CATEGORIES_ID_SEQ')
             </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_categories_id_seq
+            </if>
         </selectKey>
         insert into CABINET_CATEGORIES (id, name, rank
         )
@@ -171,6 +174,9 @@
             </if>
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_CATEGORIES_ID_SEQ')
+            </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_categories_id_seq
             </if>
         </selectKey>
         insert into CABINET_CATEGORIES

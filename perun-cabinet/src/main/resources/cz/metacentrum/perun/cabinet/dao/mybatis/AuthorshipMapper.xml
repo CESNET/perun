@@ -142,11 +142,26 @@
         from CABINET_AUTHORSHIPS
         where id = #{id,jdbcType=INTEGER, javaType=int}
     </select>
-    <select id="findByParams" resultMap="BaseResultMap"
-            parameterType="java.util.Map">
+    <select id="findByParams" resultMap="BaseResultMap" parameterType="java.util.Map">
         <if test="limit1 != null and limit2 != null">
             select * from (
             SELECT CABINET_AUTHORSHIPS.*, row_number() over (
+            <if test="_databaseId != 'hsql'">
+                <trim prefix="ORDER BY">
+                    <if test="orderProperty != null">
+                        ${orderProperty}
+                        <if test="order != null">
+                            ${order}
+                        </if>
+                    </if>
+                </trim>
+            </if>
+            ) as rn FROM (
+        </if>
+        select
+        CABINET_AUTHORSHIPS.id, CABINET_AUTHORSHIPS.publicationId, CABINET_AUTHORSHIPS.userId, CABINET_AUTHORSHIPS.createdBy, CABINET_AUTHORSHIPS.createdDate, CABINET_AUTHORSHIPS.created_by_uid,
+        row_number() over (
+        <if test="_databaseId != 'hsql'">
             <trim prefix="ORDER BY">
                 <if test="orderProperty != null">
                     ${orderProperty}
@@ -155,19 +170,7 @@
                     </if>
                 </if>
             </trim>
-            ) as rn FROM (
         </if>
-        select
-        CABINET_AUTHORSHIPS.id, CABINET_AUTHORSHIPS.publicationId, CABINET_AUTHORSHIPS.userId, CABINET_AUTHORSHIPS.createdBy, CABINET_AUTHORSHIPS.createdDate, CABINET_AUTHORSHIPS.created_by_uid,
-        row_number() over (
-        <trim prefix="ORDER BY">
-            <if test="orderProperty != null">
-                ${orderProperty}
-                <if test="order != null">
-                    ${order}
-                </if>
-            </if>
-        </trim>
         ) rownumber
         FROM CABINET_AUTHORSHIPS
         <!-- 		this code works with cabinet db -->
@@ -241,6 +244,9 @@
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_AUTHORSHIPS_ID_SEQ')
             </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_authorships_id_seq
+            </if>
         </selectKey>
         insert into CABINET_AUTHORSHIPS (id, publicationId, userId,
         createdBy, createdDate, created_by_uid)
@@ -262,6 +268,9 @@
             </if>
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_AUTHORSHIPS_ID_SEQ')
+            </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_authorships_id_seq
             </if>
         </selectKey>
         insert into CABINET_AUTHORSHIPS
