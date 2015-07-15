@@ -87,6 +87,8 @@ public interface AttributesManager {
 
 	public static final String LOGIN_NAMESPACE = "login-namespace";
 
+	public static final String ATTRIBUTES_REGEXP = "^[-a-zA-Z0-9.]+([:][-a-zA-Z0-9.]+)?$";
+
 	//public static final String NS_ATTR_DEF_FACILITY= NS_ATTR_DEF + ":facility";
 
 	/**
