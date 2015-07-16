@@ -49,9 +49,12 @@ function addGroupTab(group) {
     var content;
     content = '<div class="page-header"><h2>' + displayName + '</h2></div>';
     content += '<div class="btn-toolbar">';
-    content += '  <div class="btn-group">';
+    /*content += '  <div class="btn-group">';
     content += '    <button class="btn btn-primary" data-toggle="modal" data-target="#addMembers' + group.id + '">Add Members</button>';
-    content += '    <!--<button class="btn btn-danger" data-toggle="modal" data-target="#removeMembers' + group.id + '">Remove Members</button>-->';
+    content += '    <button class="btn btn-danger" data-toggle="modal" data-target="#removeMembers' + group.id + '">Remove Members</button>';
+    content += '  </div>';*/
+    content += '  <div class="btn-group">';
+    content += '    <button class="btn btn-primary" data-toggle="modal" data-target="#inviteUser'+group.id+'">Invite User</button>';
     content += '  </div>';
     content += '  <!--<div class="btn-group">';
     content += '    <button class="btn btn-primary" data-toggle="modal" data-target="#addManagers' + group.id + '">Add Managers</button>';
@@ -68,6 +71,7 @@ function addGroupTab(group) {
     var buttons = groupTab.place.find('.btn-toolbar');
     groupAuthz.addObject(buttons.find('button[data-target^=#createGroup]'), ["PERUNADMIN", "VOADMIN", "GROUPADMIN"]);
     groupAuthz.addObject(buttons.find('button[data-target^=#addMembers]'), ["PERUNADMIN", "VOADMIN", "GROUPADMIN"]);
+    groupAuthz.addObject(buttons.find('button[data-target^=#inviteUser]'), ["PERUNADMIN", "VOADMIN", "TOPGROUPCREATOR"]);
     groupAuthz.addObject(buttons.find('button[data-target^=#addManagers]'), ["PERUNADMIN", "VOADMIN", "GROUPADMIN"]);
     groupAuthz.addObject(buttons.find('button[data-target^=#removeMembers]'), ["PERUNADMIN", "VOADMIN", "GROUPADMIN"]);
     groupAuthz.addObject(buttons.find('button[data-target^=#removeManagers]'), ["PERUNADMIN", "VOADMIN", "GROUPADMIN"]);
@@ -93,6 +97,9 @@ function addGroupTab(group) {
     deleteGroupModal.setType("danger");
     deleteGroupModal.init();
     fillModalDeleteGroup(deleteGroupModal, group);
+    var inviteUserModal = new Modal("Invite user to group " + group.shortName, "inviteUser" + group.id, groupTab.place);
+    inviteUserModal.init();
+    fillModalInviteUser(inviteUserModal, vo, group);
 }
 
 var allVoGroups;
@@ -183,6 +190,10 @@ function getTableOfGroups(groups) {
 
 function createAttrTableName(groups) {
     for (var id in groups) {
+        if (groups[id].shortName == voConfiguration.TEMPLATE_NAME) {
+            groups.splice(id,1);
+            continue;
+        }
         if (groups[id].parentGroupId === null) {
             groups[id].tableName = groups[id].shortName;
         } else {
@@ -381,6 +392,16 @@ function deleteGroup(group) {
                     (flowMessager.newMessage("Internal error", "Can not delete group " + group.name, "danger")).draw();
                     break;
             }
+    });
+}
+
+function inviteUser(form, vo, group) {
+    var email = form.find("input#email");
+
+    callPerunPost("registrarManager", "sendInvitation", {voId: vo.id, groupId: group.id, email: email.val(), language: "en"}, function() {
+        innerTabs.place.find("#" + group.id + " .modal").modal('hide');
+        (flowMessager.newMessage("Invitation", "successfully sent to " + email.val(), "success")).draw();
+        email.val("");
     });
 }
 
@@ -654,6 +675,25 @@ function fillModalDeleteGroup(modal, group) {
     });
 }
 
+function fillModalInviteUser(modal, vo, group) {
+    modal.clear();
+
+    var html;
+    html = '          <form role="form">';
+    html += '            <div class="form-group">';
+    html += '              <label for="email">User\'s e-mail</label>';
+    html += '              <input type="email" class="form-control" id="email" placeholder="Users e-Mail" autofocus>';
+    html += '            </div>';
+    html += '            <button type="submit" class="btn btn-primary">Invite User</button>';
+    html += '          </form>';
+    modal.addBody(html);
+
+    var inviteUserForm = modal.self.find("form");
+    inviteUserForm.submit(function (event) {
+        event.preventDefault();
+        inviteUser(inviteUserForm, vo, group);
+    });
+}
 
 function findMemberAndDo(query, members, action) {
     if (!members) {

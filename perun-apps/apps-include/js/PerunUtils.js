@@ -94,7 +94,9 @@ function callPerunPost(manager, method, args, callBack, perunError, perunComplet
         success: function (data, textStatus, jqXHR)
         {
             if (!data) {
-                callBack();
+                if (callBack) {
+                    callBack();
+                }
             } else if (typeof data.errorId !== "undefined") {
                 if (perunError) {
                     perunError(data);
