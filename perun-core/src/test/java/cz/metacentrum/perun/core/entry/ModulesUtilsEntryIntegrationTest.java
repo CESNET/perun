@@ -643,7 +643,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user_facility:attribute-def:opt");
-		attr.setFriendlyName("user_facility_test_attribute");
+		attr.setFriendlyName("user-facility-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("UserFacilityAttribute");
 
@@ -662,7 +662,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:host:attribute-def:opt");
-		attr.setFriendlyName("host_test_attribute");
+		attr.setFriendlyName("host-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("HostAttribute");
 
@@ -681,7 +681,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:facility:attribute-def:opt");
-		attr.setFriendlyName("facility_test_attribute");
+		attr.setFriendlyName("facility-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("FacilityAttribute");
 		assertNotNull("unable to create facility attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -715,7 +715,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:vo:attribute-def:opt");
-		attr.setFriendlyName("vo_test_attribute");
+		attr.setFriendlyName("vo-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("VoAttribute");
 		assertNotNull("unable to create vo attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -733,7 +733,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:resource:attribute-def:opt");
-		attr.setFriendlyName("resource_test_attribute:" + namespace);
+		attr.setFriendlyName("resource-test-attribute:" + namespace);
 		attr.setType(String.class.getName());
 		attr.setValue("ResourceAttribute");
 		assertNotNull("unable to create resource attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -838,7 +838,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:member_resource:attribute-def:opt");
-		attr.setFriendlyName("member_resource_test_attribute");
+		attr.setFriendlyName("member-resource-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("MemberResourceAttribute");
 		assertNotNull("unable to create member-resource attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -856,7 +856,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_test_attribute");
+		attr.setFriendlyName("user-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("UserAttribute");
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -874,7 +874,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_large_test_attribute");
+		attr.setFriendlyName("user-large-test-attribute");
 		attr.setType(LinkedHashMap.class.getName());
 		Map<String, String> value = new LinkedHashMap<String, String>();
 		value.put("UserLargeAttribute", "test value");
@@ -914,7 +914,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:member:attribute-def:opt");
-		attr.setFriendlyName("member_test_attribute");
+		attr.setFriendlyName("member-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("MemberAttribute");
 
@@ -934,7 +934,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:group:attribute-def:opt");
-		attr.setFriendlyName("group_test_attribute:" + namespace);
+		attr.setFriendlyName("group-test-attribute:" + namespace);
 		attr.setType(String.class.getName());
 		attr.setValue("GroupAttribute");
 
@@ -952,7 +952,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private List<Attribute> setUpGroupAttributes() throws Exception {
 
 		Attribute attr = new Attribute();
-		String namespace = "group_test_uniqueattribute:specialNamespace";
+		String namespace = "group-test-uniqueattribute:specialNamespace";
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
 		attr.setFriendlyName(namespace + "1");
 		attr.setType(String.class.getName());
@@ -974,7 +974,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		//And one attribute with other name
 		Attribute attr4 = new Attribute(attr);
-		attr4.setFriendlyName("group_test_uniqueEattribute:specialNamespace");
+		attr4.setFriendlyName("group-test-uniqueEattribute:specialNamespace");
 		assertNotNull("unable to create group attribute", perun.getAttributesManagerBl().createAttribute(sess, attr4));
 
 		return attributes;
@@ -983,7 +983,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 	private List<Attribute> setUpResourceAttributes() throws Exception {
 
 		Attribute attr = new Attribute();
-		String namespace = "resource_test_uniqueattribute:specialNamespace";
+		String namespace = "resource-test-uniqueattribute:specialNamespace";
 		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_OPT);
 		attr.setFriendlyName(namespace + "1");
 		attr.setType(String.class.getName());
@@ -1005,7 +1005,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		//And one attribute with other name
 		Attribute attr4 = new Attribute(attr);
-		attr4.setFriendlyName("resource_test_uniqueEattribute:specialNamespace");
+		attr4.setFriendlyName("resource-test-uniqueEattribute:specialNamespace");
 		assertNotNull("unable to create resource attribute", perun.getAttributesManagerBl().createAttribute(sess, attr4));
 
 		return attributes;
@@ -1015,7 +1015,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:group_resource:attribute-def:opt");
-		attr.setFriendlyName("group_resource_test_attribute");
+		attr.setFriendlyName("group-resource-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("GroupResourceAttribute");
 

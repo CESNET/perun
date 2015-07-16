@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -1248,6 +1249,9 @@ public class AttributesManagerEntry implements AttributesManager {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attribute, "attributeDefinition");
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can create new Attribute.");
+		if (!attribute.getFriendlyName().matches(AttributesManager.ATTRIBUTES_REGEXP)) {
+			throw new InternalErrorException(new IllegalArgumentException("Wrong attribute name " + attribute.getFriendlyName() + ", attribute name must match " + AttributesManager.ATTRIBUTES_REGEXP));
+		}
 		return getAttributesManagerBl().createAttribute(sess, attribute);
 	}
 

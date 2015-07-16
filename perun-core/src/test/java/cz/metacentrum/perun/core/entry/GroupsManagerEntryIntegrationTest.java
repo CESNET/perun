@@ -1511,7 +1511,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// attribute1
 		Attribute attr = new Attribute();
-		String namespace = "group_test_uniqueattribute:specialNamespace";
+		String namespace = "group-test-uniqueattribute:specialNamespace";
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
 		attr.setFriendlyName(namespace + "1");
 		attr.setType(String.class.getName());
