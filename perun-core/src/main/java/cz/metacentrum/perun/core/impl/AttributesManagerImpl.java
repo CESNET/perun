@@ -4775,7 +4775,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @see AttributesManagerImpl#getAttributesModule(cz.metacentrum.perun.core.api.PerunSession, String)
 	 */
 	public Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
-		String moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());
+		String moduleName = null;
+		//first try to find specific module including parameter of attribute (full friendly name)
+		if(!attribute.getFriendlyName().equals(attribute.getBaseFriendlyName())) {
+			moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getFriendlyName());
+			Object attributeModule = getAttributesModule(sess, moduleName);
+			if(attributeModule != null) return attributeModule;
+		}
+		
+		//if specific module not exists or attribute has no parameter, find the common one
+		moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());
 		return getAttributesModule(sess, moduleName);
 	}
 
