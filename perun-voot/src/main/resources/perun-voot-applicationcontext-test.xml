@@ -11,8 +11,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 ">
 
-	<import resource="classpath:perun-datasources.xml"/>
-	<import resource="classpath:perun-beans.xml"/>
+	<import resource="classpath:perun-datasources-test.xml"/>
+	<import resource="classpath:perun-beans-test.xml"/>
 	<import resource="classpath:perun-transaction-manager.xml"/>
 
 	<!-- Enable @Transactional support -->

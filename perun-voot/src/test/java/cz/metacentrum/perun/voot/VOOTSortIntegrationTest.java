@@ -21,38 +21,16 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Martin Malik <374128@mail.muni.cz>
  */
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-voot-applicationcontext.xml","classpath:perun-beans.xml"})
-@TransactionConfiguration(defaultRollback=true)
-@Transactional
-
-public class VOOTSortIntegrationTest {
-
-	@Autowired
-	private PerunBl perun;
-
-	private PerunSession session;
-	private VOOT voot;
+public class VOOTSortIntegrationTest extends VOOTBaseTest {
 
 	private Vo vo1;
 	private Group group1;
 	private Group group2; //group 2 is subgroup of group1
 	private Group group3;
 
-	private User user1;
-
 	private Member member1;
 	private Member member2;
 	private Member member3;
-
-	@Before
-	public void setUpSession() throws Exception{
-		session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
-		user1 = setUpUser1();
-		setUpBackground();
-		session.getPerunPrincipal().setUser(user1);
-	}
 
 	@Test
 	public void isMemberOfSortIdTest() throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, VOOTException, GroupNotExistsException {
@@ -68,7 +46,7 @@ public class VOOTSortIntegrationTest {
 		assertArrayEquals(vootGroupsOfResponse, vootGroupsOfResponse2);
 
 		Response response3 = (Response) voot.process(session, "groups/@me", "sortBy=id,sortOrder=descending");
-		VOOTGroup[] vootGroupsOfResponse3 = (VOOTGroup[])response3.getEntry();
+		VOOTGroup[] vootGroupsOfResponse3 = (VOOTGroup[]) response3.getEntry();
 		ArrayUtils.reverse(vootGroupsOfResponse);
 		assertArrayEquals(vootGroupsOfResponse, vootGroupsOfResponse3);
 	}
@@ -133,7 +111,7 @@ public class VOOTSortIntegrationTest {
 		assertEquals("member", vootGroupsOfResponse[3].getVoot_membership_role());
 
 		Response response2 = (Response) voot.process(session, "groups/@me", "sortBy=voot_membership_role,sortOrder=descending");
-		VOOTGroup[] vootGroupsOfResponse2 = (VOOTGroup[])response2.getEntry();
+		VOOTGroup[] vootGroupsOfResponse2 = (VOOTGroup[]) response2.getEntry();
 
 		assertEquals("admin", vootGroupsOfResponse2[3].getVoot_membership_role());
 		assertEquals("admin", vootGroupsOfResponse2[2].getVoot_membership_role());
@@ -155,7 +133,7 @@ public class VOOTSortIntegrationTest {
 		assertArrayEquals(vootMembersOfResponse, vootMembersOfResponse2);
 
 		Response response3 = (Response) voot.process(session, "people/@me/vo1:group1", "sortBy=id,sortOrder=descending");
-		VOOTMember[] vootMembersOfResponse3 = (VOOTMember[])response3.getEntry();
+		VOOTMember[] vootMembersOfResponse3 = (VOOTMember[]) response3.getEntry();
 		ArrayUtils.reverse(vootMembersOfResponse);
 		assertArrayEquals(vootMembersOfResponse, vootMembersOfResponse3);
 	}
@@ -195,12 +173,13 @@ public class VOOTSortIntegrationTest {
 		assertEquals("member", vootMembersOfResponse[2].getVoot_membership_role());
 
 		Response response2 = (Response) voot.process(session, "people/@me/vo1:group1", "sortBy=voot_membership_role,sortOrder=descending");
-		VOOTMember[] vootMembersOfResponse2 = (VOOTMember[])response2.getEntry();
+		VOOTMember[] vootMembersOfResponse2 = (VOOTMember[]) response2.getEntry();
 		ArrayUtils.reverse(vootMembersOfResponse);
 		assertArrayEquals(vootMembersOfResponse, vootMembersOfResponse2);
 	}
 
-	private void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException {
+	@Override
+	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException {
 		vo1 = perun.getVosManagerBl().createVo(session, new Vo(1, "vo1", "vo1"));
 
 		group1 = perun.getGroupsManagerBl().createGroup(session, vo1, new Group("group1", "B group1 in vo1"));
@@ -233,14 +212,4 @@ public class VOOTSortIntegrationTest {
 
 	}
 
-	private User setUpUser1() throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		User user = new User();
-		user.setFirstName("James");
-		user.setMiddleName("");
-		user.setLastName("Bond");
-		user.setTitleBefore("");
-		user.setTitleAfter("");
-
-		return perun.getUsersManagerBl().createUser(session, user);
-	}
 }
