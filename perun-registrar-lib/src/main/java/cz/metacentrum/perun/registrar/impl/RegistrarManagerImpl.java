@@ -1630,6 +1630,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		} else {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())
 					&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, form.getVo())
+					&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, form.getVo())
 					&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
 				throw new PrivilegeException("getFormItems");
 			}
@@ -2058,7 +2059,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	@Override
 	public void copyFormFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
 
-		if ((!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)) ||
+		Vo fromVO = perun.getVosManagerBl().getVoById(registrarSession, fromGroup.getVoId());
+
+		if ((!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)
+				&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, fromVO)) ||
 				(!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup) && !AuthzResolver.isAuthorized(sess, Role.VOADMIN, toGroup))) {
 			throw new PrivilegeException(sess, "copyFormFromGroupToGroup");
 		}
