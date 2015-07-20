@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -33,6 +35,7 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
@@ -58,6 +61,7 @@ import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
+import java.util.Arrays;
 import java.util.TreeSet;
 
 /**
@@ -71,6 +75,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	private final FacilitiesManagerImplApi facilitiesManagerImpl;
 	private PerunBl perunBl;
 	private AtomicBoolean initialized = new AtomicBoolean(false);
+
+	private static final List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
+	  AttributesManager.NS_USER_ATTR_DEF + ":organization",
+	  AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
 
 	public FacilitiesManagerBlImpl(FacilitiesManagerImplApi facilitiesManagerImpl) {
 		this.facilitiesManagerImpl = facilitiesManagerImpl;
@@ -714,4 +722,201 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		getPerunBl().getAttributesManagerBl().setAttributes(sess, destinationFacility, sourceAttributes);
 	}
 
+	// FACILITY CONTACTS METHODS
+
+	@Override
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Owner owner) throws InternalErrorException {
+		//no users there, no need to set attributes for them
+		return this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, owner);
+	}
+
+	@Override
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException {
+		//need to get richUsers with attributes
+		List<AttributeDefinition> mandatoryAttributes = this.getListOfMandatoryAttributes(sess);
+		List<ContactGroup> cgs = this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, user);
+		return this.setAttributesForRichUsersInContactGroups(sess, cgs, mandatoryAttributes);
+	}
+
+	@Override
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException {
+		//no users there, no need to set attributes for them
+		return this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, group);
+	}
+
+	@Override
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException, FacilityContactNotExistsException {
+		//need to get richUsers with attributes
+		List<AttributeDefinition> mandatoryAttributes = this.getListOfMandatoryAttributes(sess);
+		List<ContactGroup> cgs = this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, facility);
+		return this.setAttributesForRichUsersInContactGroups(sess, cgs, mandatoryAttributes);
+	}
+
+	@Override
+	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException {
+		//need to get richUsers with attributes
+		List<AttributeDefinition> mandatoryAttributes = this.getListOfMandatoryAttributes(sess);
+		ContactGroup cg = this.getFacilitiesManagerImpl().getFacilityContactGroup(sess, facility, contactGroupName);
+		return this.setAttributesForRichUsersInContactGroup(sess, cg, mandatoryAttributes);
+	}
+
+	@Override
+	public List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException {
+		return this.getFacilitiesManagerImpl().getAllContactGroupNames(sess);
+	}
+
+	@Override
+	public void addFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToAdd) throws InternalErrorException {
+		if(contactGroupsToAdd != null) {
+			for(ContactGroup cg: contactGroupsToAdd) {
+				this.addFacilityContact(sess, cg);
+			}
+		}
+	}
+
+	@Override
+	public void addFacilityContact(PerunSession sess, ContactGroup contactGroupToAdd) throws InternalErrorException {
+		if(contactGroupToAdd != null) {
+			if(contactGroupToAdd.getUsers() != null) {
+				for(RichUser user: contactGroupToAdd.getUsers()) {
+					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getContactGroupName(), user);
+				}
+			}
+
+			if(contactGroupToAdd.getGroups()!= null) {
+				for(Group group: contactGroupToAdd.getGroups()) {
+					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getContactGroupName(), group);
+				}
+			}
+
+			if(contactGroupToAdd.getOwners() != null) {
+				for(Owner owner: contactGroupToAdd.getOwners()) {
+					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getContactGroupName(), owner);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void removeAllOwnerContacts(PerunSession sess, Owner owner) throws InternalErrorException {
+		this.facilitiesManagerImpl.removeAllOwnerContacts(sess, owner);
+	}
+
+	@Override
+	public void removeAllUserContacts(PerunSession sess, User user) throws InternalErrorException {
+		this.facilitiesManagerImpl.removeAllUserContacts(sess, user);
+	}
+
+	@Override
+	public void removeAllGroupContacts(PerunSession sess, Group group) throws InternalErrorException {
+		this.facilitiesManagerImpl.removeAllGroupContacts(sess, group);
+	}
+
+	@Override
+	public void removeFacilityContacts(PerunSession sess, List<ContactGroup> contactGroupsToRemove) throws InternalErrorException {
+		if(contactGroupsToRemove != null) {
+			for(ContactGroup cg: contactGroupsToRemove) {
+				this.removeFacilityContact(sess, cg);
+			}
+		}
+	}
+
+	@Override
+	public void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) throws InternalErrorException {
+		if(contactGroupToRemove != null) {
+			if(contactGroupToRemove.getUsers() != null) {
+				for(RichUser user: contactGroupToRemove.getUsers()) {
+					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getContactGroupName(), user);
+				}
+			}
+
+			if(contactGroupToRemove.getGroups()!= null) {
+				for(Group group: contactGroupToRemove.getGroups()) {
+					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getContactGroupName(), group);
+				}
+			}
+
+			if(contactGroupToRemove.getOwners() != null) {
+				for(Owner owner: contactGroupToRemove.getOwners()) {
+					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getContactGroupName(), owner);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException, FacilityContactNotExistsException {
+		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, contactGroupName, user);
+	}
+
+	@Override
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException, FacilityContactNotExistsException {
+		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, contactGroupName, group);
+	}
+
+	@Override
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
+		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
+	}
+
+	/**
+	 * Change all richUsers in contactGroup to richUsersWithAttributes.
+	 *
+	 * @param sess
+	 * @param contactGroup
+	 * @param attributesToSet
+	 * @return contactGroup with richUsers with attributes (if there is any contact, user or attribute to set)
+	 * @throws InternalErrorException
+	 */
+	private ContactGroup setAttributesForRichUsersInContactGroup(PerunSession sess, ContactGroup contactGroup, List<AttributeDefinition> attributesToSet) throws InternalErrorException {
+		if(contactGroup == null) return contactGroup;
+		if(contactGroup.getUsers() == null || contactGroup.getUsers().isEmpty()) return contactGroup;
+		if(attributesToSet == null || attributesToSet.isEmpty()) return contactGroup;
+
+		List<RichUser> richUsers = contactGroup.getUsers();
+		richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, richUsers, attributesToSet);
+		contactGroup.setUsers(richUsers);
+		return contactGroup;
+	}
+
+	/**
+	 * Change all richUsers in all contactGroups to richUsersWithAttributes.
+	 *
+	 * @param sess
+	 * @param contactGroups
+	 * @param attributesToSet
+	 * @return list of modified contactGroups with richUsers with attributes (if there is any not null contact, user for contact or attribute to set)
+	 * @throws InternalErrorException
+	 */
+	private List<ContactGroup> setAttributesForRichUsersInContactGroups(PerunSession sess, List<ContactGroup> contactGroups, List<AttributeDefinition> attributesToSet) throws InternalErrorException {
+		if(contactGroups == null || contactGroups.isEmpty()) return contactGroups;
+		if(attributesToSet == null || attributesToSet.isEmpty()) return contactGroups;
+
+		for(ContactGroup cg: contactGroups) {
+			cg = setAttributesForRichUsersInContactGroup(sess, cg, attributesToSet);
+		}
+
+		return contactGroups;
+	}
+
+	/**
+	 * Create list of attribute definitions from list of attribute names.
+	 * List is defined like a constant with name 'MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT'
+	 * These attributes will be returned like attribute definitions
+	 *
+	 * @param sess
+	 * @return list of attribute definitions from attrNames in constant
+	 * @throws InternalErrorException
+	 */
+	private List<AttributeDefinition> getListOfMandatoryAttributes(PerunSession sess) throws InternalErrorException {
+		List<AttributeDefinition> mandatoryAttrs = new ArrayList<>();
+		for(String attrName: MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT) {
+			try {
+				mandatoryAttrs.add(perunBl.getAttributesManagerBl().getAttributeDefinition(sess, attrName));
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("Some of mandatory attributes for users in facility contacts not exists.",ex);
+			}
+		}
+		return mandatoryAttrs;
+	}
 }

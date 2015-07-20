@@ -238,6 +238,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// delete all Groups reserved logins from DB
 		getGroupsManagerImpl().deleteGroupReservedLogins(sess, group);
 
+		//Remove all information about group on facilities (facilities contacts)
+		List<ContactGroup> groupContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, group);
+		if(!groupContactGroups.isEmpty()) {
+			if(forceDelete) {
+				getPerunBl().getFacilitiesManagerBl().removeAllGroupContacts(sess, group);
+			} else {
+				throw new RelationExistsException("Group has still some facilities contacts: " + groupContactGroups);
+			}
+		}
+
 		// Group applications, submitted data and app_form are deleted on cascade with "deleteGroup()"
 		List<Member> membersFromDeletedGroup = getGroupMembers(sess, group);
 		getGroupsManagerImpl().deleteGroup(sess, vo, group);

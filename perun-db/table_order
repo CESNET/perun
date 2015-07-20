@@ -11,6 +11,7 @@ resources
 destinations
 facility_owners
 groups
+facility_contacts
 members
 routing_rules
 dispatcher_settings

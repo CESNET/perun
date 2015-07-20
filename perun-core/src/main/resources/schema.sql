@@ -155,6 +155,14 @@ create table facility_owners (
 	modified_by_uid integer
 );
 
+create table facility_contacts (
+	contact_group_name varchar(128) not null,
+	facility_id integer not null,
+	owner_id integer,
+	user_id integer,
+	group_id integer
+);
+
 create table groups (
 	id integer not null,
 	name longvarchar not null,
@@ -1161,6 +1169,11 @@ create index idx_fk_authz_service on authz(service_id);
 create index idx_fk_authz_res on authz(resource_id);
 create index idx_fk_authz_ser_princ on authz(service_principal_id);
 create unique index idx_authz_u2 on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id);
+create index idx_fk_faccont_fac on facility_contacts(facility_id);
+create index idx_fk_faccont_usr on facility_contacts(user_id);
+create index idx_fk_faccont_own on facility_contacts(owner_id);
+create index idx_fk_faccont_grp on facility_contacts(group_id);
+create unique index idx_faccont_u2 ON facility_contacts (user_id, owner_id, group_id, facility_id, contact_group_name);
 create index idx_fk_grres_gr on groups_resources(group_id);
 create index idx_fk_grres_res on groups_resources(resource_id);
 create index idx_fk_grpmem_gr on groups_members(group_id);
@@ -1489,6 +1502,12 @@ alter table tasks_results add constraint taskres_task_fk foreign key (task_id) r
 alter table tasks_results add constraint taskres_dest_fk foreign key (destination_id) references destinations(id);
 alter table tasks_results add constraint taskres_eng_fk foreign key (engine_id) references engines (id);
 alter table tasks_results add constraint taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED'));
+
+alter table facility_contacts add constraint faccont_fac_fk foreign key (facility_id) references facilities(id);
+alter table facility_contacts add constraint faccont_usr_fk foreign key (user_id) references users(id);
+alter table facility_contacts add constraint faccont_own_fk foreign key (owner_id) references owners(id);
+alter table facility_contacts add constraint faccont_grp_fk foreign key (group_id) references groups(id);
+alter table facility_contacts add constraint faccont_usr_own_grp_chk check ((user_id is not null and owner_id is null and group_id is null) or (user_id is null and owner_id is not null and group_id is null) or (user_id is null and owner_id is null and group_id is not null));
 
 alter table authz add constraint authz_role_fk foreign key (role_id) references roles(id);
 alter table authz add constraint authz_user_fk foreign key (user_id) references users(id);

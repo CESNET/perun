@@ -164,6 +164,14 @@ create table facility_owners (
 	modified_by_uid integer
 );
 
+create table facility_contacts (
+	contact_group_name nvarchar2(128) not null,
+	facility_id integer not null,
+	owner_id integer,
+	user_id integer,
+	group_id integer
+);
+
 create table groups (
 	id integer not null,
 	name nvarchar2(4000) not null,
@@ -1102,6 +1110,10 @@ create index IDX_FK_USRCATT_USRC on ext_sources_attributes(ext_sources_id);
 create index IDX_FK_ATTNAM_ATTNAM on attr_names(default_attr_id);
 create index IDX_FK_RSRC_FAC on resources(facility_id);
 create index IDX_FK_RSRC_VO on resources(vo_id);
+create index IDX_FK_FACCONT_FAC on facility_contacts(facility_id);
+create index IDX_FK_FACCONT_USR on facility_contacts(user_id);
+create index IDX_FK_FACCONT_OWN on facility_contacts(owner_id);
+create index IDX_FK_FACCONT_GRP on facility_contacts(group_id);
 create index IDX_FK_RESATVAL_RES on resource_attr_values(resource_id);
 create index IDX_FK_RESATVAL_RESATNAM on resource_attr_values(attr_id);
 create index IDX_FK_USRAV_USR on user_attr_values(user_id);
@@ -1461,6 +1473,15 @@ constraint AUTHZ_USER_SERPRINC_AUTGRP_CHK check (decode(user_id,null,0,1)+decode
 constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id)
 );
 
+alter table facility_contacts add (
+constraint FACCONT_FAC_FK foreign key (facility_id) references facilities(id);
+constraint FACCONT_USR_FK foreign key (user_id) references users(id);
+constraint FACCONT_OWN_FK foreign key (owner_id) references owners(id);
+constraint FACCONT_GRP_FK foreign key (group_id) references groups(id);
+constraint FACCONT_USR_OWN_GRP_CHK check (decode(user_id,null,0,1)+decode(owner_id,null,0,1)+decode(group_id,null,0,1) = 1),
+constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,contact_group_name)
+);
+
 alter table groups_resources add (
 constraint GRRES_GRP_RES_U unique (group_id,resource_id),
 constraint GRRES_GR_FK foreign key (group_id) references groups(id),
@@ -1630,4 +1651,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.25');
+insert into configurations values ('DATABASE VERSION','3.1.26');
