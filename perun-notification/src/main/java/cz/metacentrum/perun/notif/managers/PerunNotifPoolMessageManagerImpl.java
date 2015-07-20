@@ -286,7 +286,6 @@ public class PerunNotifPoolMessageManagerImpl implements PerunNotifPoolMessageMa
 	}
 
 	private ParsedMethod parseMethod(String className, Integer startPosition) {
-		logger.debug("Parsing class name: " + className + " with start position: " + startPosition);
 		ParsedMethod result = new ParsedMethod();
 		String methodName = "";
 		for (int i = startPosition; i < className.length(); i++) {

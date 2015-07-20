@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.notif.StringTemplateLoader;
+import cz.metacentrum.perun.notif.dao.PerunNotifRegexDao;
 import cz.metacentrum.perun.notif.dao.PerunNotifTemplateDao;
 import cz.metacentrum.perun.notif.dto.PerunNotifMessageDto;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import javax.annotation.PostConstruct;
 import org.joda.time.DateTime;
@@ -50,6 +52,9 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 	@Autowired
 	private PerunNotifTemplateDao perunNotifTemplateDao;
+	
+	@Autowired
+	private PerunNotifRegexDao perunNotifRegexDao;
 
 	@Autowired
 	private PerunNotifPoolMessageManager perunNotifPoolMessageManager;
@@ -592,27 +597,69 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 	@Override
 	public PerunNotifTemplate createPerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
 
-		PerunNotifTemplate perunNotifTemplate = perunNotifTemplateDao.savePerunNotifTemplateInternals(template);
+		// save template internals
+		PerunNotifTemplate newTemplate = perunNotifTemplateDao.savePerunNotifTemplateInternals(template);
+		template.setId(newTemplate.getId());
 
+		// create rexeges if not exist
 		if (template.getMatchingRegexs() != null) {
-			for (PerunNotifRegex regex : template.getMatchingRegexs()) {
-				if (regex.getId() != null) {
-					//We update relation between template and regex
-					perunNotifTemplateDao.saveTemplateRegexRelation(template.getId(), regex.getId());
-					assignTemplateToRegex(regex.getId(), template);
+			for (PerunNotifRegex regex: template.getMatchingRegexs()) {
+				if ((regex.getId() == null) || (perunNotifRegexDao.getPerunNotifRegexById(regex.getId()) == null)) {
+					PerunNotifRegex newRegex = perunNotifRegexDao.saveInternals(regex);
+					regex.setId(newRegex.getId());
+				}
+				if (!(perunNotifRegexDao.isRegexRelation(template.getId(), regex.getId()))) {
+					perunNotifRegexDao.saveTemplateRegexRelation(template.getId(), regex.getId());
 				}
 			}
 		}
-
+		
+		// create receivers if not exist
+		if (template.getReceivers() != null) {
+			for (PerunNotifReceiver receiver : template.getReceivers()) {
+				receiver.setTemplateId(template.getId());
+				if ((receiver.getId() == null) || (perunNotifTemplateDao.getPerunNotifReceiverById(receiver.getId()) == null)) {
+					PerunNotifReceiver newReceiver = perunNotifTemplateDao.createPerunNotifReceiver(receiver);
+					receiver.setId(newReceiver.getId());
+				}
+			}
+		}
+		
+		// create template messages if not exist
+		if (template.getPerunNotifTemplateMessages() != null) {
+			for (PerunNotifTemplateMessage message : template.getPerunNotifTemplateMessages()) {
+				message.setTemplateId(template.getId());
+				PerunNotifTemplateMessage newMessage;
+				try {
+					newMessage = createPerunNotifTemplateMessage(message);
+					message.setId(newMessage.getId());
+				} catch (NotifTemplateMessageAlreadyExistsException ex) {
+					// template message already exists
+				} catch (TemplateMessageSyntaxErrorException ex) {
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
+		
+		// update cache allTemplatesById
 		allTemplatesById.put(template.getId(), template);
+		
+		// update cache allTemplatesByRegexId
 		if (template.getMatchingRegexs() != null) {
 			for (PerunNotifRegex regex : template.getMatchingRegexs()) {
 				List<PerunNotifTemplate> list = allTemplatesByRegexId.get(regex.getId());
-				list.add(template);
+				if (list == null) {
+					list = new ArrayList<>();
+					list.add(template);
+					allTemplatesByRegexId.put(regex.getId(), list);
+				} else {
+					list.add(template);
+				}
+				
 			}
 		}
 
-		return perunNotifTemplate;
+		return template;
 	}
 
 	@Override
@@ -620,6 +667,44 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 		PerunNotifTemplate oldTemplate = getPerunNotifTemplateById(template.getId());
 		perunNotifTemplateDao.updatePerunNotifTemplateData(template);
+		
+		// create rexeges if not exist
+		if (template.getMatchingRegexs() != null) {
+			for (PerunNotifRegex regex: template.getMatchingRegexs()) {
+				if ((regex.getId() == null) || (perunNotifRegexDao.getPerunNotifRegexById(regex.getId()) == null)) {
+					perunNotifRegexDao.saveInternals(regex);
+				}
+				if (!(perunNotifRegexDao.isRegexRelation(template.getId(), regex.getId()))) {
+					perunNotifRegexDao.saveTemplateRegexRelation(template.getId(), regex.getId());
+				}
+			}
+		}
+		
+		// create receivers if not exist
+		if (template.getReceivers() != null) {
+			for (PerunNotifReceiver receiver : template.getReceivers()) {
+				receiver.setTemplateId(template.getId());
+				if ((receiver.getId() == null) || (perunNotifTemplateDao.getPerunNotifReceiverById(receiver.getId()) == null)) {
+					perunNotifTemplateDao.createPerunNotifReceiver(receiver);
+				}
+			}
+		}
+		
+		// create template messages if not exist
+		if (template.getPerunNotifTemplateMessages() != null) {
+			for (PerunNotifTemplateMessage message : template.getPerunNotifTemplateMessages()) {
+				message.setTemplateId(template.getId());
+				PerunNotifTemplateMessage newMessage;
+				try {
+					newMessage = createPerunNotifTemplateMessage(message);
+					message.setId(newMessage.getId());
+				} catch (NotifTemplateMessageAlreadyExistsException ex) {
+					// template message already exists
+				} catch (TemplateMessageSyntaxErrorException ex) {
+					throw new InternalErrorException(ex);
+				}
+			}
+		}
 
 		PerunNotifTemplate updatedTemplate = getPerunNotifTemplateById(template.getId());
 
@@ -691,20 +776,24 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 
 		// if there is already template message with the same template id and locale -> throw exception
 		PerunNotifTemplate template = allTemplatesById.get(message.getTemplateId());
-		for (PerunNotifTemplateMessage item: template.getPerunNotifTemplateMessages()) {
-			if (item.getLocale().equals(message.getLocale())) {
-				throw new NotifTemplateMessageAlreadyExistsException(message);
+		if (template != null) {
+			for (PerunNotifTemplateMessage item: template.getPerunNotifTemplateMessages()) {
+				if (item.getLocale().equals(message.getLocale())) {
+					throw new NotifTemplateMessageAlreadyExistsException(message);
+				}
 			}
 		}
-
+		
 		StringTemplateLoader stringTemplateLoader = (StringTemplateLoader) configuration.getTemplateLoader();
 		insertPerunNotifTemplateMessageToLoader(stringTemplateLoader, message);
 		validateTemplateMessage(message);
 
 		PerunNotifTemplateMessage perunNotifTemplateMessage = perunNotifTemplateDao.createPerunNotifTemplateMessage(message);
-
-		template.addPerunNotifTemplateMessage(message);
-
+		
+		if (template != null) {
+			template.addPerunNotifTemplateMessage(perunNotifTemplateMessage);
+		}
+		
 		return perunNotifTemplateMessage;
 	}
 

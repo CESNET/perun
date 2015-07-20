@@ -10,8 +10,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 ">
     <context:annotation-config />
 
-    <import resource="classpath:perun-datasources.xml"/>
-    <import resource="classpath:perun-beans.xml"/>
+    <import resource="classpath:perun-datasources-test.xml"/>
+    <import resource="classpath:perun-beans-test.xml"/>
+    <import resource="classpath:perun-transaction-manager.xml"/>
 
     <context:component-scan base-package="cz.metacentrum.perun.notif" />
 
@@ -32,31 +33,27 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <!-- 	<tx:annotation-driven transaction-manager="transactionManagerPerunController" /> -->
 
     <!-- Scans for @Repository, @Service and @Component -->
-    <context:component-scan base-package="cz.metacentrum.perun.notif.listener" />
     <context:component-scan base-package="cz.metacentrum.perun.notif.managers" />
     <context:component-scan base-package="cz.metacentrum.perun.notif.dao" />
-
-    <bean id="notificationListener" class="cz.metacentrum.perun.notif.listener.NotificationListener" autowire="byName">
-    </bean>
-
+    
     <bean id="perunNotifAuditMessageDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifAuditMessageDaoImpl" autowire="byName">
-        <property name="dataSource" ref="dataSource2"/>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <bean id="perunNotifPoolMessageDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifPoolMessageDaoImpl" autowire="byName">
-        <property name="dataSource" ref="dataSource2"/>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <bean id="perunNotifRegexDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifRegexDaoImpl" autowire="byName">
-        <property name="dataSource" ref="dataSource2"/>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <bean id="perunNotifTemplateDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifTemplateDaoImpl" autowire="byName">
-        <property name="dataSource" ref="dataSource2"/>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <bean id="perunNotifObjectDao" class="cz.metacentrum.perun.notif.dao.jdbc.PerunNotifObjectDaoImpl" autowire="byName">
-        <property name="dataSource" ref="dataSource2"/>
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <bean id="perunNotifTemplateManager" class="cz.metacentrum.perun.notif.managers.PerunNotifTemplateManagerImpl" autowire="byName">

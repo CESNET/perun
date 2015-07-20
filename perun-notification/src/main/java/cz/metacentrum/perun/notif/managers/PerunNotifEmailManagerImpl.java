@@ -129,6 +129,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 				messagesContents.add(emailMessage.getContent());
 			} catch (Exception ex) {
 				failedEmailLogger.error(emailMessage.toString());
+				logger.error("Preparing message to send failed.", ex);
 			}
 		}
 
