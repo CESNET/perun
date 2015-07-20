@@ -150,7 +150,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 					}
 				}
 			}
-			throw ex;
+			logger.error("Sending of the email failed.", ex);
 		} catch (Exception ex) {
 			throw new EmailPreparationException(ex);
 		}
