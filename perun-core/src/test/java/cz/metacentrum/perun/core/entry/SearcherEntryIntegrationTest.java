@@ -300,7 +300,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_integer_test_attribute");
+		attr.setFriendlyName("user-integer-test-attribute");
 		attr.setType(Integer.class.getName());
 		attr.setValue(100);
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -313,7 +313,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_string_test_attribute");
+		attr.setFriendlyName("user-string-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("UserStringAttribute test value");
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -325,7 +325,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_list_test_attribute");
+		attr.setFriendlyName("user-list-test-attribute");
 		attr.setType(ArrayList.class.getName());
 		List<String> value = new ArrayList<String>();
 		value.add("UserStringAttribute test value");
@@ -341,7 +341,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_map_test_large_attribute");
+		attr.setFriendlyName("user-map-test-large-attribute");
 		attr.setType(LinkedHashMap.class.getName());
 		Map<String, String> value = new LinkedHashMap<String, String>();
 		value.put("UserLargeAttribute", "test value");

@@ -2925,7 +2925,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeExistsException {
-
+		if (!attribute.getFriendlyName().matches(AttributesManager.ATTRIBUTES_REGEXP)) {
+			throw new InternalErrorException(new IllegalArgumentException("Wrong attribute name " + attribute.getFriendlyName() + ", attribute name must match " + AttributesManager.ATTRIBUTES_REGEXP));
+		}
 		try {
 			int attributeId = Utils.getNewId(jdbc, "attr_names_id_seq");
 

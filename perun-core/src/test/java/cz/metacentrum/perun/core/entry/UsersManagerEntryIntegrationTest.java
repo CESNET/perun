@@ -727,7 +727,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 			// Attribute doesn't exist, so create it
 			attrDef = new AttributeDefinition();
 			attrDef.setNamespace("urn:perun:user:attribute-def:opt");
-			attrDef.setFriendlyName("user_test_attribute");
+			attrDef.setFriendlyName("user-test-attribute");
 			attrDef.setType(String.class.getName());
 
 			attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
