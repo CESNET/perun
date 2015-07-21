@@ -246,6 +246,18 @@ public interface ModulesUtilsBl {
 	Attribute getUnixGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Get value of attribute A_F_Def_googleGroupName-Namespace
+	 * If this value is null, throw WrongReferenceAttributeValueException
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return namespace if is not null
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException if value of googleGroupName-namespace attribute is null
+	 */
+	Attribute getGoogleGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException;
+
+	/**
 	 * Get value of attribute A_F_Def_unixGID-Namespace
 	 * If this value is null, throw WrongReferenceAttributeValueException
 	 *

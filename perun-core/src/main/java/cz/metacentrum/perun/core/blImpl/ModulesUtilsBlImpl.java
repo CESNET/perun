@@ -47,6 +47,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public static final String A_R_unixGroupName_namespace = AttributesManager.NS_RESOURCE_ATTR_DEF + ":unixGroupName-namespace";
 	public static final String A_F_unixGID_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGID-namespace";
 	public static final String A_F_unixGroupName_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":unixGroupName-namespace";
+	public static final String A_F_googleGroupName_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace";
 	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
 	public final static List<String> reservedNamesForUnixGroups = Arrays.asList("root", "daemon", "tty", "bin", "sys", "sudo", "nogroup",
@@ -488,6 +489,20 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException {
 		if(loginAttribute == null) return;
 		if(unpermittedNamesForUserLogins.contains(loginAttribute.getValue())) throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+	}
+
+	@Override
+	public Attribute getGoogleGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException {
+		Facility facility = sess.getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+		try {
+			Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, A_F_googleGroupName_namespace);
+			if(googleGroupNameNamespaceAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(googleGroupNameNamespaceAttribute);
+			return googleGroupNameNamespaceAttribute;
+		} catch(AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException(ex);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 	public Attribute getUnixGroupNameNamespaceAttributeWithNotNullValue(PerunSessionImpl sess, Resource resource) throws InternalErrorException, WrongReferenceAttributeValueException {
