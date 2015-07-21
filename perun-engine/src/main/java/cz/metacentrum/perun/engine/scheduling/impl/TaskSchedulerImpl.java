@@ -24,6 +24,7 @@ import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 import cz.metacentrum.perun.engine.scheduling.TaskStatusManager;
+import cz.metacentrum.perun.taskslib.dao.ExecServiceDenialDao;
 import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
@@ -40,8 +41,7 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 // @Transactional
 public class TaskSchedulerImpl implements TaskScheduler {
 
-	private final static Logger log = LoggerFactory
-			.getLogger(TaskSchedulerImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(TaskSchedulerImpl.class);
 
 	@Autowired
 	private SchedulingPool schedulingPool;
@@ -53,9 +53,9 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private Properties propertiesBean;
 	@Autowired
 	private Perun perun;
-
 	private PerunSession perunSession;
-
+	@Autowired
+	private ExecServiceDenialDao execServiceDenialDao;
 	/*
 	 * @Autowired private TaskManager taskManager;
 	 * 
@@ -67,7 +67,30 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	@Override
 	public void propagateService(Task task, Date time)
 			throws InternalErrorException {
-		// check if we have destinations for this task
+		 log.debug("   Is the execService ID:" + task.getExecServiceId() + " enabled globally?"); 
+		 if (!task.getExecService().isEnabled()) {
+			 schedulingPool.setTaskStatus(task, TaskStatus.DONE);
+			 log.info("Exec service for task {} is globally disabled, setting as done.",
+					 	task.getId());
+			 return;
+		 } else {
+			 log.debug("   Yes, it is globally enabled."); 
+		 }
+		 
+		 // Is the ExecService denied on this Facility? 
+		 // If it is, we drop it and do nothing. 
+		 log.debug("   Is the execService ID:" + task.getExecServiceId() + " denied on facility ID:" + task.getFacilityId() + "?"); 
+		 if(execServiceDenialDao.isExecServiceDeniedOnFacility(task.getExecServiceId(), task.getFacilityId())) { 
+			 schedulingPool.setTaskStatus(task, TaskStatus.DONE);
+			 log.info("Exec service " + task.getExecServiceId() + " for task " + task.getId() + 
+					 " is denied for facility " + task.getFacilityId() + 
+					 ", setting as done.");
+			 return;
+		 } else {
+			 log.debug("   No, it is not."); 
+		 }
+		 
+		 // check if we have destinations for this task
 		List<Destination> destinations = task.getDestinations();
 		if (destinations == null || destinations.isEmpty()) {
 			// refetch the destination list from central database
