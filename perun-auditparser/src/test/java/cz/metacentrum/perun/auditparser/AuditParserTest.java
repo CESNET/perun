@@ -71,6 +71,7 @@ public class AuditParserTest {
 	@Before
 	public void setUp() throws Exception {
 		member.setMembershipType(MembershipType.DIRECT);
+		facility.setDescription(textMismatch);
 		Map<String, String> attributesMap = new HashMap<String, String>();
 		attributesMap.put("test1", textMismatch);
 		attributesMap.put("test", textMismatch);
@@ -498,13 +499,16 @@ public class AuditParserTest {
 		assertEquals(richMember.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richMember.serializeToString())));
 		assertEquals(richUser.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richUser.serializeToString())));
 		assertEquals(richGroup.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richGroup.serializeToString())));
-		//assertEquals(richFacility.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richFacility.serializeToString())));
+		assertEquals(richFacility.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richFacility.serializeToString())));
 		assertEquals(richResource.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(richResource.serializeToString())));
 		assertEquals(service.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(service.serializeToString())));
 		assertEquals(vo.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(vo.serializeToString())));
 		assertEquals(userExtSource1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(userExtSource1.serializeToString())));
 		assertEquals(resourceTag1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(resourceTag1.serializeToString())));
 		assertEquals(exService1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(exService1.serializeToString())));
+		//test also some null serializing
+		Resource newResource = new Resource(20, null, null, 5);
+		assertEquals(newResource.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(newResource.serializeToString())));
 	}
 
 	@Test

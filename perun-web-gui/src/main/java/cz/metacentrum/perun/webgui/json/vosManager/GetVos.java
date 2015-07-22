@@ -51,7 +51,7 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// oracle
 	private ArrayList<VirtualOrganization> fullBackup = new ArrayList<VirtualOrganization>();
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .-");
 	private boolean forceAll = false;
 	private boolean checkable = true;
 
@@ -286,7 +286,7 @@ public class GetVos implements JsonCallback, JsonCallbackTable<VirtualOrganizati
 		} else {
 			for (VirtualOrganization vo : fullBackup){
 				// store facility by filter
-				if (vo.getName().toLowerCase().startsWith(filter.toLowerCase()) || vo.getShortName().toLowerCase().startsWith(filter.toLowerCase())) {
+				if (vo.getName().toLowerCase().contains(filter.toLowerCase()) || vo.getShortName().toLowerCase().contains(filter.toLowerCase())) {
 					list.add(vo);
 				}
 			}

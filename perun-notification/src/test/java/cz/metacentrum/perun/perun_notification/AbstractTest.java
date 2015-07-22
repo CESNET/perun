@@ -1,19 +1,22 @@
 package cz.metacentrum.perun.perun_notification;
 
 import com.dumbster.smtp.SimpleSmtpServer;
-import org.apache.commons.dbcp.BasicDataSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
+import cz.metacentrum.perun.notif.managers.SchedulingManagerImpl;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  * Setup local DB and smtp server to send test mail notifications
@@ -22,18 +25,24 @@ import java.sql.Statement;
  * @author Pavel Zlámal <256627@mail.muni.cz>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-notification-applicationcontext-test.xml", "classpath:perun-notification-applicationcontext-jdbc-test.xml", "classpath:perun-notification-applicationcontext-scheduling-test.xml"})
+@ContextConfiguration(locations = {"classpath:perun-notification-applicationcontext-test.xml", "classpath:perun-notification-applicationcontext-scheduling-test.xml"})
 public class AbstractTest {
 
-	protected static ApplicationContext springCtx;
-	protected static SimpleSmtpServer smtpServer;
-
 	@Autowired
-	public static BasicDataSource dataSource2;
+	protected PerunBl perun;
 
-	public void setDataSource2(BasicDataSource dataSource2) {
-		this.dataSource2 = dataSource2;
-	}
+	protected PerunSession sess;
+	
+	protected static SimpleSmtpServer smtpServer;
+	
+	@Autowired
+	protected PerunNotifNotificationManager manager;
+	
+	@Autowired
+	protected SchedulingManagerImpl schedulingManager;
+	
+	@Autowired
+	private ApplicationContext appContext;
 
 	public static String convertStreamToString(java.io.InputStream is) {
 		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
@@ -54,49 +63,12 @@ public class AbstractTest {
 		}
 	}
 
-	@BeforeClass
-	public static void beforeTest() {
-
-		try {
-
-			// FIXME - we must initialize manually without other notification beans, since they can't be
-			// FIXME - instantiated in @BeforeClass (they select from DB which is empty)
-			springCtx = new ClassPathXmlApplicationContext("classpath:perun-notification-applicationcontext-jdbc-test.xml");
-			dataSource2 = ((BasicDataSource) springCtx.getBean("dataSource2"));
-
-			Connection conn = dataSource2.getConnection();
-			Statement st = conn.createStatement();
-
-			String theString = "drop all objects;";
-			st.execute(theString);
-
-			conn.commit();
-			conn.close();
-		} catch (SQLException ex) {
-			System.err.println("Error during clear of db: " + ex.getMessage());
-			ex.printStackTrace();
-			throw new RuntimeException("Error in clearing of db.");
-		}
-
-		InputStream inputStream = AbstractTest.class.getClassLoader().getResourceAsStream("pn_data.sql");
-
-		try {
-
-			Connection conn = dataSource2.getConnection();
-			Statement st = conn.createStatement();
-
-			String theString = convertStreamToString(inputStream);
-			st.execute(theString);
-
-			conn.commit();
-			conn.close();
-		} catch (SQLException ex) {
-			System.err.println("Error during db setting: " + ex.getMessage());
-			ex.printStackTrace();
-			throw new RuntimeException("Error in prepare of db.");
-		}
+	@Before
+	public void setUpSess() throws Exception {
+		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		sess = perun.getPerunSession(pp);
 	}
-
+	
 	@After
 	public void stopSmtpServer() {
 		if (smtpServer != null) {
@@ -109,12 +81,9 @@ public class AbstractTest {
 	public void dummyTest() {
 		System.out.println("Dummy test to prevent: NoRunnableMethodsException");
 	}
-
-	public static ApplicationContext getSpringCtx() {
-		return springCtx;
-	}
-
-	public Connection getConnection() throws Exception {
-		return dataSource2.getConnection();
+	
+	public Connection getConnection() throws SQLException {
+		// classic Autowire dataSource does not work
+		return ((SimpleDriverDataSource) appContext.getBean("dataSource")).getConnection();
 	}
 }

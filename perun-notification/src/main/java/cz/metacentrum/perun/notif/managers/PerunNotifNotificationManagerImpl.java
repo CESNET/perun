@@ -1,7 +1,11 @@
 package cz.metacentrum.perun.notif.managers;
 
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.notif.entities.*;
 import cz.metacentrum.perun.notif.exceptions.NotifReceiverAlreadyExistsException;
 import cz.metacentrum.perun.notif.exceptions.NotifRegexAlreadyExistsException;
@@ -59,117 +63,167 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 		return perunNotifObjectManager.updatePerunNotifObject(object);
 	}
 
+	@Override
 	public void removePerunNotifObjectById(int id) throws InternalErrorException {
 
 		perunNotifObjectManager.removePerunNotifObjectById(id);
 	}
 
 	@Override
-	public PerunNotifReceiver getPerunNotifReceiverById(int id) throws InternalErrorException {
+	public PerunNotifReceiver getPerunNotifReceiverById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "getPerunNotifReceiverById");
+		}
 
 		return perunNotifTemplateManager.getPerunNotifReceiverById(id);
 	}
 
 	@Override
-	public List<PerunNotifReceiver> getAllPerunNotifReceivers() {
+	public List<PerunNotifReceiver> getAllPerunNotifReceivers(PerunSession sess) throws PrivilegeException, InternalErrorException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "getAllPerunNotifReceivers");
+		}
 		return perunNotifTemplateManager.getAllPerunNotifReceivers();
 	}
 
 	@Override
-	public PerunNotifReceiver createPerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
+	public PerunNotifReceiver createPerunNotifReceiver(PerunSession sess, PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException, PrivilegeException {
 
 		return perunNotifTemplateManager.createPerunNotifReceiver(receiver);
 	}
 
 	@Override
-	public PerunNotifReceiver updatePerunNotifReceiver(PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException {
+	public PerunNotifReceiver updatePerunNotifReceiver(PerunSession sess, PerunNotifReceiver receiver) throws InternalErrorException, NotifReceiverAlreadyExistsException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "updatePerunNotifReceiver");
+		}
 		return perunNotifTemplateManager.updatePerunNotifReceiver(receiver);
 	}
 
 	@Override
-	public void removePerunNotifReceiverById(int id) throws InternalErrorException {
-
+	public void removePerunNotifReceiverById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "removePerunNotifReceiverById");
+		}
 		perunNotifTemplateManager.removePerunNotifReceiverById(id);
 	}
 
 	@Override
-	public PerunNotifRegex getPerunNotifRegexById(int id) throws InternalErrorException {
-
+	public PerunNotifRegex getPerunNotifRegexById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "getPerunNotifRegexById");
+		}
 		return perunNotifRegexManager.getPerunNotifRegexById(id);
 	}
 
 	@Override
-	public List<PerunNotifRegex> getAllPerunNotifRegexes() {
+	public List<PerunNotifRegex> getAllPerunNotifRegexes(PerunSession sess) throws PrivilegeException, InternalErrorException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "getAllPerunNotifRegexes");
+		}
 		return perunNotifRegexManager.getAllPerunNotifRegexes();
 	}
 
 	@Override
-	public PerunNotifRegex createPerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException, NotifRegexAlreadyExistsException {
+	public PerunNotifRegex createPerunNotifRegex(PerunSession sess, PerunNotifRegex regex) throws InternalErrorException, NotifRegexAlreadyExistsException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "createPerunNotifRegex");
+		}
 		return perunNotifRegexManager.createPerunNotifRegex(regex);
 	}
 
 	@Override
-	public PerunNotifRegex updatePerunNotifRegex(PerunNotifRegex regex) throws InternalErrorException {
+	public PerunNotifRegex updatePerunNotifRegex(PerunSession sess, PerunNotifRegex regex) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "updatePerunNotifRegex");
+		}
 		return perunNotifRegexManager.updatePerunNotifRegex(regex);
 	}
 
 	@Override
-	public void removePerunNotifRegexById(int id) throws InternalErrorException, PerunNotifRegexUsedException {
+	public void removePerunNotifRegexById(PerunSession sess, int id) throws InternalErrorException, PerunNotifRegexUsedException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "removePerunNotifRegexById");
+		}
 
 		perunNotifRegexManager.removePerunNotifRegexById(id);
 	}
 
 	@Override
-	public PerunNotifTemplate getPerunNotifTemplateById(int id) throws InternalErrorException {
+	public PerunNotifTemplate getPerunNotifTemplateById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "getPerunNotifTemplateById");
+		}
 
 		return perunNotifTemplateManager.getPerunNotifTemplateByIdFromDb(id);
 	}
 
 	@Override
-	public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages() {
+	public List<PerunNotifTemplateMessage> getAllPerunNotifTemplateMessages(PerunSession sess) throws PrivilegeException, InternalErrorException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "getAllPerunNotifTemplateMessages");
+		}
 		return perunNotifTemplateManager.getAllPerunNotifTemplateMessages();
 	}
 
 	@Override
-	public PerunNotifTemplate createPerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+	public PerunNotifTemplate createPerunNotifTemplate(PerunSession sess, PerunNotifTemplate template) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "createPerunNotifTemplate");
+		}
 
 		return perunNotifTemplateManager.createPerunNotifTemplate(template);
 	}
 
 	@Override
-	public PerunNotifTemplate updatePerunNotifTemplate(PerunNotifTemplate template) throws InternalErrorException {
+	public PerunNotifTemplate updatePerunNotifTemplate(PerunSession sess, PerunNotifTemplate template) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "updatePerunNotifTemplate");
+		}
 
 		return perunNotifTemplateManager.updatePerunNotifTemplate(template);
 	}
 
 	@Override
-	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) throws InternalErrorException {
+	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(PerunSession sess, int id) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "removePerunNotifReceiverById");
+		}
 
 		return perunNotifTemplateManager.getPerunNotifTemplateMessageById(id);
 	}
 
 	@Override
-	public List<PerunNotifTemplate> getAllPerunNotifTemplates() throws InternalErrorException {
+	public List<PerunNotifTemplate> getAllPerunNotifTemplates(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "getAllPerunNotifTemplates");
+		}
 		return perunNotifTemplateManager.getAllPerunNotifTemplates();
 	}
 
 	@Override
-	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException {
+	public PerunNotifTemplateMessage createPerunNotifTemplateMessage(PerunSession sess, PerunNotifTemplateMessage message) throws InternalErrorException, NotifTemplateMessageAlreadyExistsException, TemplateMessageSyntaxErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "createPerunNotifTemplateMessage");
+		}
 		return perunNotifTemplateManager.createPerunNotifTemplateMessage(message);
 	}
 
 	@Override
-	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException {
+	public PerunNotifTemplateMessage updatePerunNotifTemplateMessage(PerunSession sess, PerunNotifTemplateMessage message) throws InternalErrorException, TemplateMessageSyntaxErrorException, PrivilegeException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "updatePerunNotifTemplateMessage");
+		}
 		return perunNotifTemplateManager.updatePerunNotifTemplateMessage(message);
 	}
 
 	@Override
-	public void removePerunNotifTemplateMessage(int id) throws InternalErrorException {
+	public void removePerunNotifTemplateMessage(PerunSession sess, int id) throws InternalErrorException {
 		perunNotifTemplateManager.removePerunNotifTemplateMessage(id);
 	}
 
 	@Override
-	public void removePerunNotifTemplateById(int id) throws InternalErrorException {
+	public void removePerunNotifTemplateById(PerunSession sess, int id) throws InternalErrorException {
 		perunNotifTemplateManager.removePerunNotifTemplateById(id);
 	}
 
@@ -180,17 +234,17 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public void saveTemplateRegexRelation(int templateId, Integer regexId) throws InternalErrorException {
+	public void saveTemplateRegexRelation(PerunSession sess, int templateId, Integer regexId) throws InternalErrorException {
 		perunNotifRegexManager.saveTemplateRegexRelation(templateId, regexId);
 	}
 
 	@Override
-	public List<PerunNotifRegex> getRelatedRegexesForTemplate(int templateId) throws InternalErrorException {
+	public List<PerunNotifRegex> getRelatedRegexesForTemplate(PerunSession sess, int templateId) throws InternalErrorException {
 		return perunNotifRegexManager.getRelatedRegexesForTemplate(templateId);
 	}
 
 	@Override
-	public void removePerunNotifTemplateRegexRelation(int templateId, int regexId) throws InternalErrorException {
+	public void removePerunNotifTemplateRegexRelation(PerunSession sess, int templateId, int regexId) throws InternalErrorException {
 		perunNotifRegexManager.removePerunNotifTemplateRegexRelation(templateId, regexId);
 	}
 
@@ -205,12 +259,18 @@ public class PerunNotifNotificationManagerImpl implements PerunNotifNotification
 	}
 
 	@Override
-	public void stopNotifications() {
+	public void stopNotifications(PerunSession sess) throws PrivilegeException, InternalErrorException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "stopNotifications");
+		}
 		schedulingManager.stopNotifications();
 	}
 
 	@Override
-	public void startNotifications() {
+	public void startNotifications(PerunSession sess) throws PrivilegeException, InternalErrorException {
+		if (!(AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))) {
+			throw new PrivilegeException(sess, "stopNotifications");
+		}
 		schedulingManager.startNotifications();
 	}
 

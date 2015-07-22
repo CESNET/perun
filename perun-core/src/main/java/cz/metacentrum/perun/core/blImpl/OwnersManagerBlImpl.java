@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.ContactGroup;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,6 +16,8 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.bl.OwnersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.OwnersManagerImplApi;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class OwnersManagerBlImpl implements OwnersManagerBl {
@@ -58,6 +61,17 @@ public class OwnersManagerBlImpl implements OwnersManagerBl {
 				}
 			}
 		}
+
+		//Remove all information about owner on facilities (facilities contacts)
+		List<ContactGroup> ownerContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, owner);
+		if(!ownerContactGroups.isEmpty()) {
+			if(forceDelete) {
+				getPerunBl().getFacilitiesManagerBl().removeAllOwnerContacts(sess, owner);
+			} else {
+				throw new RelationExistsException("Owner has still some facilities contacts : " + ownerContactGroups);
+			}
+		}
+
 		getOwnersManagerImpl().deleteOwner(sess, owner);
 		getPerunBl().getAuditer().log(sess, "{} deleted.", owner);
 	}

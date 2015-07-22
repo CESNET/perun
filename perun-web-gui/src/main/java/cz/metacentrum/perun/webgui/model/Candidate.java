@@ -153,6 +153,30 @@ public class Candidate extends JavaScriptObject {
 		return this.attributes[name];
 	}-*/;
 
+	/**
+	 * Gets all logins stored in user attributes
+	 *
+	 * @return users logins
+	 */
+	public final native String getLogins() /*-{
+		var logins = "";
+		for (var prop in this.attributes) {
+			if (this.attributes.hasOwnProperty(prop)) {
+				if (prop.indexOf("urn:perun:user:attribute-def:def:login-namespace:") != -1) {
+					if (this.attributes[prop] != null) {
+						if(logins.length > 0){
+							logins += ", ";
+						}
+						// parse login namespace
+						var parsedNamespace = prop.substring(49);
+						logins += parsedNamespace + ": " + this.attributes[prop];
+					}
+				}
+			}
+		}
+		return logins;
+	}-*/;
+
 
 	/**
 	 * Returns Perun specific type of object

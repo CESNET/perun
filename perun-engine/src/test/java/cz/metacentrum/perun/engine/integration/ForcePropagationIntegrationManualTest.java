@@ -25,18 +25,22 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
  * @author Michal Karm Babacek
- *
- *         Unfortunately, this test can not be transactional due to multi-threaded environment, hence it can not be rolled back. We have to clean up after ourselves...
- *
- *
- *  THIS IS A MANUAL TEST
- *  1) Has to be executed explicitly as -Dtest=ForcePropagationIntegrationManualTest
- *  2) Take a look in log and verify that there was a special TaskScheduler for the "forceit" message.
- *     (look for "SCHEDULING vie Force Service Propagation:" in Perun-Engine log...)
+ * 
+ *         Unfortunately, this test can not be transactional due to
+ *         multi-threaded environment, hence it can not be rolled back. We have
+ *         to clean up after ourselves...
+ * 
+ * 
+ *         THIS IS A MANUAL TEST 1) Has to be executed explicitly as
+ *         -Dtest=ForcePropagationIntegrationManualTest 2) Take a look in log
+ *         and verify that there was a special TaskScheduler for the "forceit"
+ *         message. (look for "SCHEDULING vie Force Service Propagation:" in
+ *         Perun-Engine log...)
  */
 public class ForcePropagationIntegrationManualTest extends BaseTest {
 
-	private final static Logger log = LoggerFactory.getLogger(ForcePropagationIntegrationManualTest.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(ForcePropagationIntegrationManualTest.class);
 	// Time out for threads to complete (milliseconds)
 	private final static int TIME_OUT = 20000;
 
@@ -67,39 +71,50 @@ public class ForcePropagationIntegrationManualTest extends BaseTest {
 
 	@Before
 	public void rememberState() {
-		tasks = new HashSet<Integer>(getJdbcTemplate().queryForList("select id from tasks", Integer.class));
+		tasks = new HashSet<Integer>(getJdbcTemplate().queryForList(
+				"select id from tasks", Integer.class));
 	}
 
 	@After
 	public void returnToRememberedState() {
-		Set<Integer> currentTasks = new HashSet<Integer>(getJdbcTemplate().queryForList("select id from tasks", Integer.class));
+		Set<Integer> currentTasks = new HashSet<Integer>(getJdbcTemplate()
+				.queryForList("select id from tasks", Integer.class));
 		// Difference
 		currentTasks.removeAll(tasks);
 		// Log
-		log.debug("We are gonna delete TasksResults for Tasks:" + currentTasks.toString());
+		log.debug("We are gonna delete TasksResults for Tasks:"
+				+ currentTasks.toString());
 		for (Integer id : currentTasks) {
-			getJdbcTemplate().update("delete from tasks_results where tasks_results.task_id = ?", id);
+			getJdbcTemplate()
+					.update("delete from tasks_results where tasks_results.task_id = ?",
+							id);
 		}
 		log.debug("We are gonna delete Tasks:" + currentTasks.toString());
 		for (Integer id : currentTasks) {
-			getJdbcTemplate().update("delete from tasks where tasks.id = ?", id);
+			getJdbcTemplate()
+					.update("delete from tasks where tasks.id = ?", id);
 		}
 	}
 
 	@Test
 	public void testSchedulingRealMessage() throws InterruptedException {
 		String message = "event|1|[Tue Aug 30 12:29:23 CEST 2011][clockworkorange][Member:[id='36712'] added to Group:[id='16326', name='falcon', description='null']. forceit]";
-		EventProcessorWorker eventProcessorWorker = new EventProcessorWorker(message);
+		EventProcessorWorker eventProcessorWorker = new EventProcessorWorker(
+				message);
 		taskExecutor.execute(eventProcessorWorker);
 		boolean itWentOk = false;
 		long started = System.currentTimeMillis();
 		while (System.currentTimeMillis() - started < TIME_OUT) {
 			if (taskScheduler.getPoolSize() >= 1) {
 				itWentOk = true;
-				log.debug("     #hashAH23 OK, we have " + taskScheduler.getPoolSize() + " ExecService-Facility pairs in the pool.");
+				log.debug("     #hashAH23 OK, we have "
+						+ taskScheduler.getPoolSize()
+						+ " ExecService-Facility pairs in the pool.");
 				break;
 			} else {
-				log.debug("     #hashAH23 There are only " + taskScheduler.getPoolSize() + " ExecService-Facility pairs in the pool.");
+				log.debug("     #hashAH23 There are only "
+						+ taskScheduler.getPoolSize()
+						+ " ExecService-Facility pairs in the pool.");
 			}
 			Thread.sleep(500);
 		}
@@ -114,20 +129,35 @@ public class ForcePropagationIntegrationManualTest extends BaseTest {
 		while (System.currentTimeMillis() - started < TIME_OUT) {
 			itWentOk = true;
 			/*
-				 No no no, PasswdSend can not be ready by this time, because we have PasswdGenerate in PLANNED.
-				 if (taskManager.getTask(getExecServicePasswdSend(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
-				 itWentOk = false;
-				 log.debug("###TASK for ExecServicePasswdSend ("+getExecServicePasswdSend().getId()+") and Facility1195 ("+getFacility1195().getId()+") has not been found.");
-				 }*/
-			if (taskManager.getTask(getExecServicePasswdGenerate(), getFacility1195(), Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))) == null) {
+			 * No no no, PasswdSend can not be ready by this time, because we
+			 * have PasswdGenerate in PLANNED. if
+			 * (taskManager.getTask(getExecServicePasswdSend(),
+			 * getFacility1195(),
+			 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))
+			 * == null) { itWentOk = false;
+			 * log.debug("###TASK for ExecServicePasswdSend ("
+			 * +getExecServicePasswdSend
+			 * ().getId()+") and Facility1195 ("+getFacility1195
+			 * ().getId()+") has not been found."); }
+			 */
+			if (taskManager.getTask(getExecServicePasswdGenerate(),
+					getFacility1195(), Integer.parseInt(propertiesBean
+							.getProperty("engine.unique.id"))) == null) {
 				itWentOk = false;
-				log.debug("###TASK for ExecServicePasswdGenerate ("+getExecServicePasswdGenerate().getId()+") and Facility1195 ("+getFacility1195().getId()+") has not been found.");
+				log.debug("###TASK for ExecServicePasswdGenerate ("
+						+ getExecServicePasswdGenerate().getId()
+						+ ") and Facility1195 (" + getFacility1195().getId()
+						+ ") has not been found.");
 			}
 			Thread.sleep(500);
 			if (itWentOk) {
 				break;
 			}
-			log.debug("###TASK TASKS were:" + taskManager.listAllTasks(Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))).toString());
+			log.debug("###TASK TASKS were:"
+					+ taskManager.listAllTasks(
+							Integer.parseInt(propertiesBean
+									.getProperty("engine.unique.id")))
+							.toString());
 		}
 		if (!itWentOk) {
 			fail("#hashAH23 Waiting for TaskScheduler has timed out.");

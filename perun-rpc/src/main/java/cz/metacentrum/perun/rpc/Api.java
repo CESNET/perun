@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -26,10 +27,10 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import cz.metacentrum.perun.rpc.deserializer.UrlDeserializer;
@@ -55,6 +56,7 @@ public class Api extends HttpServlet {
 	private final static String PERUNREQUESTS = "perunRequests";
 	private final static String PERUNREQUESTSURL = "getPendingRequests";
 	private final static String PERUNSTATUS = "getPerunStatus";
+	private final static String PERUNSTATISTICS = "getPerunStatistics";
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
@@ -200,7 +202,7 @@ public class Api extends HttpServlet {
 
 		// If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
 		if (des != null && extLogin != null) {
-			List<String> powerUsers = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.rpc.powerusers").split("[ \t]*,[ \t]*")));
+			List<String> powerUsers = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.rpc.powerusers").split("[ \t]*,[ \t]*")));
 			if (powerUsers.contains(extLogin) && des.contains("delegatedLogin")) {
 				// Rewrite the remoteUser and extSource
 				extLogin = (String) des.readString("delegatedLogin");
@@ -241,8 +243,6 @@ public class Api extends HttpServlet {
 				perunPrincipal = setupPerunPrincipal(req);
 				wrt.write("OK! Version: " + PerunBl.PERUNVERSION + ", User: " + perunPrincipal.getActor() + ", extSource: " + perunPrincipal.getExtSourceName());
 			} catch (InternalErrorException e) {
-				wrt.write("ERROR! Exception " + e.getMessage());
-			} catch (RpcException e) {
 				wrt.write("ERROR! Exception " + e.getMessage());
 			} catch (UserNotExistsException e) {
 				wrt.write("ERROR! Exception " + e.getMessage());
@@ -396,7 +396,7 @@ public class Api extends HttpServlet {
 
 			} else if ("utils".equals(manager) && "getGuiConfiguration".equals(method)) {
 
-				ser.write(Utils.getAllPropertiesFromCustomConfiguration("perun-web-gui.properties"));
+				ser.write(BeansUtils.getAllPropertiesFromCustomConfiguration("perun-web-gui.properties"));
 				// closes the request
 				out.close();
 				return;
@@ -422,6 +422,22 @@ public class Api extends HttpServlet {
 				perunStatus.add("Timestamp: " + timestamp);
 				ser.write(perunStatus);
 
+				out.close();
+				return;
+			} else if("utils".equals(manager) && PERUNSTATISTICS.equals(method)) {
+				Date date = new Date();
+				Timestamp timestamp = new Timestamp(date.getTime());
+
+				List<String> perunStatistics = new ArrayList<>();
+				perunStatistics.add("Timestamp: '" + timestamp + "'");
+				perunStatistics.add("USERS: '" + caller.call("usersManager", "getUsersCount", des) + "'");
+				perunStatistics.add("FACILITIES: '" + caller.call("facilitiesManager", "getFacilitiesCount", des) + "'");
+				perunStatistics.add("DESTINATIONS: '" + caller.call("servicesManager", "getDestinationsCount", des) + "'");
+				perunStatistics.add("VOS: '" + caller.call("vosManager", "getVosCount", des) + "'");
+				perunStatistics.add("RESOURCES: '" + caller.call("resourcesManager", "getResourcesCount", des) + "'");
+				perunStatistics.add("GROUPS: '" + caller.call("groupsManager", "getGroupsCount", des) + "'");
+				ser.write(perunStatistics);
+				
 				out.close();
 				return;
 			}

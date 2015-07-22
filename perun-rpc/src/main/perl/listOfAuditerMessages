@@ -12,7 +12,7 @@ sub help {
 	Prints list of auditer messages
 	---------------------------
 	Available options:
-	--limit n		 | -l n limit results to the n number of lines (20 by default)
+	--limit n     | -l n limit results to the n number of lines (20 by default)
 	--batch       | -b  batch
 	--help        | -h  prints this help
 	};

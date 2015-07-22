@@ -80,6 +80,12 @@
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-beans</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -152,6 +158,11 @@
 		</dependency>
 
 		<!-- OTHERS -->
+		<dependency>
+			<groupId>net.jodah</groupId>
+			<artifactId>expiringmap</artifactId>
+			<version>0.4.3</version>
+		</dependency>
 
 	</dependencies>
 

@@ -40,6 +40,8 @@
             classpath:perun-registrar-lib-applicationcontext.xml
             classpath:perun-notification-applicationcontext.xml
             classpath:perun-notification-applicationcontext-scheduling.xml
+            classpath:perun-dispatcher-applicationcontext-jdbc.xml
+            classpath:perun-dispatcher-applicationcontext.xml
         </param-value>
     </context-param>
 
@@ -52,5 +54,6 @@
         <servlet-name>api</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+
 
 </web-app>

@@ -22,14 +22,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 
+import cz.metacentrum.perun.taskslib.model.Task;
+
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
 @org.springframework.stereotype.Service(value = "jmsQueueManager")
 public class JMSQueueManager {
-	private final static Logger log = LoggerFactory.getLogger(JMSQueueManager.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(JMSQueueManager.class);
 
 	@Autowired
 	private Properties propertiesBean;
@@ -55,22 +58,34 @@ public class JMSQueueManager {
 				// The server port etc.
 				Map<String, Object> connectionParams = new HashMap<String, Object>();
 				if (log.isDebugEnabled()) {
-					log.debug("Gonna connect to the host[" + propertiesBean.getProperty("dispatcher.ip.address") + "] on port[" + propertiesBean.getProperty("dispatcher.port") + "]...");
+					log.debug("Gonna connect to the host["
+							+ propertiesBean
+									.getProperty("dispatcher.ip.address")
+							+ "] on port["
+							+ propertiesBean.getProperty("dispatcher.port")
+							+ "]...");
 				}
-				connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.parseInt(propertiesBean.getProperty("dispatcher.port")));
-				connectionParams.put(TransportConstants.HOST_PROP_NAME, propertiesBean.getProperty("dispatcher.ip.address"));
+				connectionParams.put(TransportConstants.PORT_PROP_NAME,
+						Integer.parseInt(propertiesBean
+								.getProperty("dispatcher.port")));
+				connectionParams.put(TransportConstants.HOST_PROP_NAME,
+						propertiesBean.getProperty("dispatcher.ip.address"));
 
-				TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams);
+				TransportConfiguration transportConfiguration = new TransportConfiguration(
+						NettyConnectorFactory.class.getName(), connectionParams);
 
 				// Step 3 Directly instantiate the JMS ConnectionFactory object
 				// using that TransportConfiguration
-				ConnectionFactory cf = (ConnectionFactory) HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+				ConnectionFactory cf = (ConnectionFactory) HornetQJMSClient
+						.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
+								transportConfiguration);
 
 				// Step 4.Create a JMS Connection
 				connection = cf.createConnection();
 
 				// Step 5. Create a JMS Session
-				session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+				session = connection.createSession(false,
+						Session.AUTO_ACKNOWLEDGE);
 
 				// Step 10. Start the Connection
 				connection.start();
@@ -81,7 +96,8 @@ public class JMSQueueManager {
 				// If unable to connect to the server...
 				needToConnect = true;
 				waitTime = waitTime + 10000;
-				log.error("Connection failed. We gonna wait " + (waitTime / 1000) + " s and try again...", e);
+				log.error("Connection failed. We gonna wait "
+						+ (waitTime / 1000) + " s and try again...", e);
 				try {
 					Thread.sleep(waitTime);
 				} catch (InterruptedException e1) {
@@ -99,30 +115,72 @@ public class JMSQueueManager {
 			// Step 6. Create a JMS Message Producer
 			producer = session.createProducer(queue);
 
-			TextMessage message = session.createTextMessage("register:" + propertiesBean.getProperty("engine.unique.id"));
+			TextMessage message = session.createTextMessage("register:"
+					+ propertiesBean.getProperty("engine.unique.id"));
 
 			// Step 8. Send the Message
 			producer.send(message);
-			log.debug("Registration message[" + message.getText() + "] has been sent...");
+			log.debug("Registration message[" + message.getText()
+					+ "] has been sent...");
 			Thread.sleep(1000);
 
 			// Execute receiver
-			messageReceiver.setUp("queue" + propertiesBean.getProperty("engine.unique.id"), session);
-			taskExecutorMessageProcess.execute(messageReceiver);
+			messageReceiver.setUp(
+					"queue" + propertiesBean.getProperty("engine.unique.id"),
+					session);
+			// taskExecutorMessageProcess.execute(messageReceiver);
+			messageReceiver.run();
 			receivingMessages = true;
-			// TODO: Put a while loop here? As same as in the "public void initiateConnection() {...}" ?
+			// TODO: Put a while loop here? As same as in the
+			// "public void initiateConnection() {...}" ?
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
 
 	}
 
+	public void start() {
+		taskExecutorMessageProcess.execute(new Runnable() {
+			public void run() {
+				while (!systemInitiated || receivingMessages) {
+					initiateConnection();
+					registerForReceivingMessages();
+					// tear down the session, connection etc.
+					try {
+						session.close();
+						connection.stop();
+						connection.close();
+					} catch (Exception e) {
+						log.error(e.toString(), e);
+					}
+					needToConnect = true;
+					receivingMessages = messageReceiver.isRunning();
+				}
+			}
+		});
+
+	}
+
+	public void reportFinishedTask(Task task, String destinations)
+			throws JMSException {
+		TextMessage message = session.createTextMessage("task:"
+				+ propertiesBean.getProperty("engine.unique.id") + ":"
+				+ task.getId() + ":" + task.getStatus().toString() + ":"
+				+ destinations);
+		// + ":" + task.getId() + ":DONE:Destinations []");
+		producer.send(message);
+		log.debug("Task result message [" + message.getText()
+				+ "] has been sent...");
+	}
+
 	public void sendGoodByeAndClose() {
 		try {
-			TextMessage message = session.createTextMessage("goodbye:" + propertiesBean.getProperty("engine.unique.id"));
+			TextMessage message = session.createTextMessage("goodbye:"
+					+ propertiesBean.getProperty("engine.unique.id"));
 			// Step 8. Send the Message
 			producer.send(message);
-			// TODO: Put a while loop here? As same as in the "public void initiateConnection() {...}" ?
+			// TODO: Put a while loop here? As same as in the
+			// "public void initiateConnection() {...}" ?
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
@@ -148,7 +206,8 @@ public class JMSQueueManager {
 		return taskExecutorMessageProcess;
 	}
 
-	public void setTaskExecutorMessageProcess(TaskExecutor taskExecutorMessageProcess) {
+	public void setTaskExecutorMessageProcess(
+			TaskExecutor taskExecutorMessageProcess) {
 		this.taskExecutorMessageProcess = taskExecutorMessageProcess;
 	}
 

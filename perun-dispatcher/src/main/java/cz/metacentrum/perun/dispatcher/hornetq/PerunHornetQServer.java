@@ -12,18 +12,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 @org.springframework.stereotype.Service(value = "perunHornetQServer")
 public class PerunHornetQServer {
 
-	private final static Logger log = LoggerFactory.getLogger(PerunHornetQServer.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(PerunHornetQServer.class);
 
 	@Autowired
-	private Properties propertiesBean;
+	private Properties dispatcherPropertiesBean;
 	private FileConfiguration configuration = null;
 	private HornetQServer server = null;
 	private JMSServerManager jmsServerManager = null;
@@ -32,15 +32,18 @@ public class PerunHornetQServer {
 	public void startServer() {
 		try {
 
-			System.setProperty("perun.dispatcher.hornetq.remoting.netty.host", propertiesBean.getProperty("dispatcher.ip.address"));
-			System.setProperty("perun.dispatcher.hornetq.remoting.netty.port", propertiesBean.getProperty("dispatcher.port"));
+			System.setProperty("perun.dispatcher.hornetq.remoting.netty.host",
+					dispatcherPropertiesBean.getProperty("dispatcher.ip.address"));
+			System.setProperty("perun.dispatcher.hornetq.remoting.netty.port",
+					dispatcherPropertiesBean.getProperty("dispatcher.port"));
 
 			configuration = new FileConfiguration();
 			configuration.setConfigurationUrl("hornetq-configuration.xml");
 			configuration.start();
 
 			server = HornetQServers.newHornetQServer(configuration);
-			jmsServerManager = new JMSServerManagerImpl(server, "hornetq-jms.xml");
+			jmsServerManager = new JMSServerManagerImpl(server,
+					"hornetq-jms.xml");
 			// if you want to use JNDI, simple inject a context here or don't
 			// call this method and make sure the JNDI parameters are set.
 			jmsServerManager.setContext(null);
@@ -56,6 +59,9 @@ public class PerunHornetQServer {
 		if (serverRunning && jmsServerManager != null) {
 			try {
 				jmsServerManager.stop();
+				server.stop();
+				configuration.stop();
+				serverRunning = false;
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 			}
@@ -70,11 +76,11 @@ public class PerunHornetQServer {
 		return serverRunning;
 	}
 
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
+	public void setDispatcherPropertiesBean(Properties propertiesBean) {
+		this.dispatcherPropertiesBean = propertiesBean;
 	}
 
-	public Properties getPropertiesBean() {
-		return propertiesBean;
+	public Properties getDispatcherPropertiesBean() {
+		return dispatcherPropertiesBean;
 	}
 }

@@ -20,51 +20,25 @@ import static org.junit.Assert.assertNotNull;
  *
  * @author Martin Malik <374128@mail.muni.cz>
  */
+public class VOOTMainAndFilterIntegrationTest extends VOOTBaseTest {
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-voot-applicationcontext.xml","classpath:perun-beans.xml"})
-@TransactionConfiguration(defaultRollback=true)
-@Transactional
-
-public class VOOTMainAndFilterIntegrationTest{
-	@Autowired
-	private PerunBl perun;
-
-	private PerunSession session;
 	private VOOT voot;
 
 	Vo vo1;
 	Vo vo2;
-	Vo vo3;
 
 	Group group1OfVo1;
 	Group group2OfVo1;
 
 	Group group1OfVo2;
-	Group group2OfVo2;
 
-	Group group1OfVo3;
-
-	User user1;
 	User user2;
-	User user3;
 
 	Member member1OfUser1;
 	Member member2OfUser1;
 
 	Member member1OfUser2;
 	Member member2OfUser2;
-
-	Member member1OfUser3;
-
-	@Before
-	public void setUpSession() throws Exception{
-		session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
-		user1 = setUpUser1();
-		setMail(user1,"james.bond@mi6.co.uk");
-		setUpBackground();
-		session.getPerunPrincipal().setUser(user1);
-	}
 
 	@Test
 	public void getPersonTest() throws VOOTException {
@@ -238,7 +212,11 @@ public class VOOTMainAndFilterIntegrationTest{
 		System.out.println(response);
 	}
 
-	private void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException {
+	@Override
+	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException {
+
+		setMail(user1,"james.bond@mi6.co.uk");
+
 		vo1 = perun.getVosManagerBl().createVo(session, new Vo(1, "vo1", "vo1"));
 		vo2 = perun.getVosManagerBl().createVo(session, new Vo(2, "vo2", "vo2"));
 
@@ -265,17 +243,6 @@ public class VOOTMainAndFilterIntegrationTest{
 		perun.getGroupsManagerBl().addMember(session, group2OfVo1, member1OfUser2);
 		member2OfUser2 = perun.getMembersManagerBl().createMember(session, vo2, user2);
 		perun.getGroupsManagerBl().addMember(session, group1OfVo2, member2OfUser2);
-	}
-
-	private User setUpUser1() throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		User user = new User();
-		user.setFirstName("James");
-		user.setMiddleName("");
-		user.setLastName("Bond");
-		user.setTitleBefore("");
-		user.setTitleAfter("");
-
-		return perun.getUsersManagerBl().createUser(session, user);
 	}
 
 	private void setMail(User user, String mailValue) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {

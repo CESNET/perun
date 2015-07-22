@@ -79,7 +79,7 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 		final ScrollPanel sp = new ScrollPanel();
 
 		final CustomButton switchType = new CustomButton(ButtonTranslation.INSTANCE.switchToExtensionButton(), ButtonTranslation.INSTANCE.switchBetweenInitialAndExtension(), SmallIcons.INSTANCE.applicationFormIcon());
-		switchType.addClickHandler(new ClickHandler(){
+		switchType.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				// switch type
 				if (appType.equalsIgnoreCase("EXTENSION")) {
@@ -95,22 +95,24 @@ public class PreviewFormTabItem implements TabItem, TabItemWithUrl {
 		});
 		menu.addWidget(switchType);
 
-		final CustomButton switchLocale = new CustomButton(ButtonTranslation.INSTANCE.switchToCzechButton(Utils.getNativeLanguage().get(1)), ButtonTranslation.INSTANCE.switchBetweenCzechAndEnglish(), SmallIcons.INSTANCE.locateIcon());
-		menu.addWidget(switchLocale);
-		switchLocale.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				// switch type
-				if (locale.equalsIgnoreCase("en")) {
-					locale = Utils.getNativeLanguage().get(0);
-					switchLocale.setText(ButtonTranslation.INSTANCE.switchToEnglishButton());
-				} else {
-					locale = "en";
-					switchLocale.setText(ButtonTranslation.INSTANCE.switchToCzechButton(Utils.getNativeLanguage().get(1)));
+		if (!Utils.getNativeLanguage().isEmpty()) {
+			final CustomButton switchLocale = new CustomButton(ButtonTranslation.INSTANCE.switchToCzechButton(Utils.getNativeLanguage().get(1)), ButtonTranslation.INSTANCE.switchBetweenCzechAndEnglish(), SmallIcons.INSTANCE.locateIcon());
+			menu.addWidget(switchLocale);
+			switchLocale.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					// switch type
+					if (locale.equalsIgnoreCase("en")) {
+						locale = Utils.getNativeLanguage().get(0);
+						switchLocale.setText(ButtonTranslation.INSTANCE.switchToEnglishButton());
+					} else {
+						locale = "en";
+						switchLocale.setText(ButtonTranslation.INSTANCE.switchToCzechButton(Utils.getNativeLanguage().get(1)));
+					}
+					// prepare new
+					prepareApplicationForm(sp);
 				}
-				// prepare new
-				prepareApplicationForm(sp);
-			}
-		});
+			});
+		}
 
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");

@@ -24,8 +24,6 @@
 		<module>perun-notification</module>
 		<module>perun-dispatcher</module>
 		<module>perun-engine</module>
-		<module>perun-dispatcher-new</module>
-		<module>perun-engine-new</module>
 		<module>perun-web-gui</module>
 		<module>perun-voot</module>
 		<module>perun-auditer-exporter</module>

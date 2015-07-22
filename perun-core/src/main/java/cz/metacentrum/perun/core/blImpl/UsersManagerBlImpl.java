@@ -32,6 +32,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttribute
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Slavek Licehammer glory@ics.muni.cz
+ * @author Sona Mastrakova
  */
 public class UsersManagerBlImpl implements UsersManagerBl {
 
@@ -289,6 +290,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				}
 			} else {
 				throw new RelationExistsException("Members exist");
+			}
+		}
+
+		//Remove all information about user on facilities (facilities contacts)
+		List<ContactGroup> userContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, user);
+		if(!userContactGroups.isEmpty()) {
+			if(forceDelete) {
+				getPerunBl().getFacilitiesManagerBl().removeAllUserContacts(sess, user);
+			} else {
+				throw new RelationExistsException("User has still some facilities contacts: " + userContactGroups);
 			}
 		}
 
@@ -611,6 +622,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
 	}
 
+	public List<RichUser> findRichUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException {
+		List<User> users = this.getUsersManagerImpl().findUsersByExactMatch(sess, searchString);
+		return this.convertRichUsersToRichUsersWithAttributes(sess, this.convertUsersToRichUsers(sess, users));
+	}
+
 	public List<User> findUsersByName(PerunSession sess, String searchString) throws InternalErrorException {
 		return this.getUsersManagerImpl().findUsersByName(sess, searchString);
 	}
@@ -624,6 +640,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		titleAfter = titleAfter.toLowerCase();
 
 		return this.getUsersManagerImpl().findUsersByName(sess, titleBefore, firstName, middleName, lastName, titleAfter);
+	}
+
+	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException {
+		return this.getUsersManagerImpl().findUsersByExactName(sess, searchString);
+	}
+
+	public List<User> findUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException {
+		return this.getUsersManagerImpl().findUsersByExactMatch(sess, searchString);
 	}
 
 	public List<User> getUsersByIds(PerunSession sess, List<Integer> usersIds) throws InternalErrorException {
@@ -1219,7 +1243,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		throws InternalErrorException {
 
 		// Check validity of original password
-		ProcessBuilder pb = new ProcessBuilder(Utils.getPropertyFromConfiguration("perun.passwordManager.program"),
+		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getPropertyFromConfiguration("perun.passwordManager.program"),
 				operation, loginNamespace, userLogin);
 
 		Process process;
@@ -1318,7 +1342,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if(passwordId == null) passwordId = Long.toString(System.currentTimeMillis());
 
 		//Prepare process builder
-		ProcessBuilder pb = new ProcessBuilder(Utils.getPropertyFromConfiguration("perun.alternativePasswordManager.program"), operation, loginNamespace, Integer.toString(user.getId()), passwordId);
+		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getPropertyFromConfiguration("perun.alternativePasswordManager.program"), operation, loginNamespace, Integer.toString(user.getId()), passwordId);
 
 		//Set password in Perun to attribute
 		if (operation.equals(PASSWORD_CREATE)) {
@@ -1459,6 +1483,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			return convertRichUsersToRichUsersWithAttributes(sess, findRichUsers(sess, searchString));
 		} else {
 			return convertUsersToRichUsersWithAttributesByNames(sess, findUsers(sess, searchString), attrsName);
+		}
+
+	}
+
+	public List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
+
+		if(attrsName == null || attrsName.isEmpty()) {
+			return convertRichUsersToRichUsersWithAttributes(sess, findRichUsersByExactMatch(sess, searchString));
+		} else {
+			return convertUsersToRichUsersWithAttributesByNames(sess, findUsersByExactMatch(sess, searchString), attrsName);
 		}
 
 	}
@@ -1681,4 +1715,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
+	public int getUsersCount(PerunSession sess) throws InternalErrorException {
+		return getUsersManagerImpl().getUsersCount(sess);
+	}
 }

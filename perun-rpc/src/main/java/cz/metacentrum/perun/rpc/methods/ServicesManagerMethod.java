@@ -894,6 +894,19 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Gets count of all destinations.
+
+	 * @return int destinations count
+	 */
+	getDestinationsCount {
+
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getServicesManager().getDestinationsCount(ac.getSession());
+		}
+	},
+
+	/*#
 	 * List all services associated with the facility (via resource).
 	 *
 	 * @param facility int Facility <code>id</code>

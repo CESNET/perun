@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -47,10 +47,10 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	final static Logger log = LoggerFactory.getLogger(ServicesManagerImpl.class);
 
 	// http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private static JdbcTemplate jdbc;
+	private static JdbcPerunTemplate jdbc;
 
 	public ServicesManagerImpl(DataSource perunPool) {
-		jdbc = new JdbcTemplate(perunPool);
+		jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
 	public final static String serviceMappingSelectQuery = " services.id as services_id, services.name as services_name, " +
@@ -625,6 +625,14 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 					"and facilities.id = resources.facility_id and resources.vo_id = ?", DESTINATION_MAPPER, vo.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
+		}
+	}
+
+	public int getDestinationsCount(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(*) from destinations");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 }

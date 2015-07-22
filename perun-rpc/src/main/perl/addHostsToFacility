@@ -25,7 +25,6 @@ GetOptions ("help|h" => sub { print help(); exit 0;} ,
 	"batch|b" => \$batch,
 "facilityId|f=i" => \$facilityId,
 "facilityName|F=s" => \$facilityName,
-"facilityType|t=s" => \$facilityType,
 'hosts|H=s@{1,}' => \@hosts) or die help();
 
 # Check options

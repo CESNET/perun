@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.*;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 
 import java.util.List;
 
@@ -159,6 +160,18 @@ public enum VosManagerMethod implements ManagerMethod {
 						ac.getVoById(parms.readInt("vo")),
 						parms.readString("searchString"));
 			}
+		}
+	},
+
+	/*#
+	 * Gets count of all vos.
+
+	 * @return int vos count
+	 */
+	getVosCount {
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getVosManager().getVosCount(ac.getSession());
 		}
 	},
 

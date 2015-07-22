@@ -184,6 +184,9 @@
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_PUB_SYS_ID_SEQ')
             </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_pub_sys_id_seq
+            </if>
         </selectKey>
         insert into CABINET_PUBLICATION_SYSTEMS (id, friendlyName, url,
         username, password, loginNamespace,
@@ -205,6 +208,9 @@
             </if>
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_PUB_SYS_ID_SEQ')
+            </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_pub_sys_id_seq
             </if>
         </selectKey>
 

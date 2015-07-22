@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
@@ -29,6 +28,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.bl.PerunBl;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -67,7 +67,7 @@ public class MailManagerImpl implements MailManager {
 	@Autowired RegistrarManager registrarManager;
 	@Autowired private Properties registrarProperties;
 	private PerunSession registrarSession;
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 	private MailSender mailSender;
 	private AttributesManager attrManager;
 	private MembersManager membersManager;
@@ -77,7 +77,7 @@ public class MailManagerImpl implements MailManager {
 	// Spring setters
 
 	public void setDataSource(DataSource dataSource) {
-		this.jdbc =  new JdbcTemplate(dataSource);
+		this.jdbc =  new JdbcPerunTemplate(dataSource);
 	}
 
 	public void setMailSender(MailSender mailSender) {
@@ -800,7 +800,6 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		if (email == null || email.isEmpty()) throw new RegistrarException("You must provide non-empty email of person you are inviting.");
-		if (language != null && !language.equals("en") && !language.equals("cs")) throw new RegistrarException("You must specify language like: \"en\" or \"cs\".");
 
 		// get form
 		ApplicationForm form;
@@ -818,7 +817,6 @@ public class MailManagerImpl implements MailManager {
 			throw new RegistrarException("Sending of invitations is disabled.");
 		}
 
-		// if not null, valid input is checked at start of method
 		if (language == null) {
 
 			language = "en";
@@ -1142,7 +1140,7 @@ public class MailManagerImpl implements MailManager {
 					language = BeansUtils.attributeValueToString(a);
 				}
 			} catch (Exception ex) {
-				log.error("[MAIL MANAGER] Exception thrown when getting preferred language for User={}: {}", app.getUser(), ex);
+				log.error("[MAIL MANAGER] Exception thrown when getting preferred language for {}: {}", app.getUser(), ex);
 			}
 		}
 

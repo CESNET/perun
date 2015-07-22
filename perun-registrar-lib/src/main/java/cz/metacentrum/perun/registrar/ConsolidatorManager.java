@@ -2,6 +2,7 @@ package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -60,6 +61,29 @@ public interface ConsolidatorManager {
 	 * @return List of found similar Identities
 	 * @throws PerunException
 	 */
-	public List<Identity> checkForSimilarUsers(PerunSession sess, Vo vo, Group group, Application.AppType type) throws PerunException;
+	List<Identity> checkForSimilarUsers(PerunSession sess, Vo vo, Group group, Application.AppType type) throws PerunException;
+
+	/**
+	 * Return unique token with information about current authz. It can be used to join this identity
+	 * with another, when user calls opposite method with different credentials.
+	 *
+	 * @param sess PerunSession for authz (identity)
+	 * @return Unique token for identity consolidation
+	 * @throws PerunException When error occurs.
+	 * @see #consolidateIdentityUsingToken(PerunSession, String)
+	 */
+	String getConsolidatorToken(PerunSession sess) throws PerunException;
+
+	/**
+	 * Join current user identity with another referenced by the passed token.
+	 * To get token for your authz see opposite method.
+	 *
+	 * @param sess PerunSession for authz (identity)
+	 * @param token Reference to identity to join with.
+	 * @return List of User identities (UserExtSources) known to Perun.
+	 * @throws PerunException When error occurs.
+	 * @see #getConsolidatorToken(PerunSession)
+	 */
+	List<UserExtSource> consolidateIdentityUsingToken(PerunSession sess, String token) throws PerunException;
 
 }

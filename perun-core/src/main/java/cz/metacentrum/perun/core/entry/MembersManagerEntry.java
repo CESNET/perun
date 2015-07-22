@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Status;
@@ -36,6 +37,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import java.util.Iterator;
 
 /**
  *
@@ -87,8 +89,20 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().deleteAllMembers(sess, vo);
 	}
 
-	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException {
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
+		return this.createServiceMember(sess, vo, candidate, serviceUserOwners, null);
+	}
+
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
+
+		// if any group is not from the vo, throw an exception
+		if(groups != null) {
+			for(Group group: groups) {
+				perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+				if(group.getVoId() != vo.getId()) throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
+			}
+		}
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
@@ -102,10 +116,40 @@ public class MembersManagerEntry implements MembersManager {
 			getPerunBl().getUsersManagerBl().checkUserExists(sess, u);
 		}
 
-		return getMembersManagerBl().createServiceMember(sess, vo, candidate, serviceUserOwners);
+		return getMembersManagerBl().createServiceMember(sess, vo, candidate, serviceUserOwners, groups);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException {
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		return this.createMember(sess, vo, candidate, null);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// if any group is not from the vo, throw an exception
+		if(groups != null) {
+			for(Group group: groups) {
+				perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+				if(group.getVoId() != vo.getId()) throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
+			}
+		}
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+			throw new PrivilegeException(sess, "createMember - from candidate");
+		}
+
+		Utils.notNull(candidate, "candidate");
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		return getMembersManagerBl().createMember(sess, vo, candidate, groups);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		return this.createMember(sess, vo, extSourceName, extSourceType, login, candidate, null);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -113,47 +157,73 @@ public class MembersManagerEntry implements MembersManager {
 			throw new PrivilegeException(sess, "createMember - from candidate");
 		}
 
-		Utils.notNull(candidate, "candiate");
+		// if any group is not from the vo, throw an exception
+		if(groups != null) {
+			for(Group group: groups) {
+				perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+				if(group.getVoId() != vo.getId()) throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
+			}
+		}
+
+		Utils.notNull(extSourceName, "extSourceName");
+		Utils.notNull(extSourceType, "extSourceType");
+		Utils.notNull(login, "login");
+
+		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, login, candidate, groups);
+	}
+
+
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		return this.createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate, null);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
+			throw new PrivilegeException(sess, "createMember - from candidate");
+		}
+
+		// if any group is not from the vo, throw an exception
+		if(groups != null) {
+			for(Group group: groups) {
+				perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+				if(group.getVoId() != vo.getId()) throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where candidate " + candidate + " should be added.");
+			}
+		}
+
+		Utils.notNull(extSourceName, "extSourceName");
+		Utils.notNull(extSourceType, "extSourceType");
+		Utils.notNull(login, "login");
+
+		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate, groups);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		return this.createMember(sess, vo, user, null);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-		return getMembersManagerBl().createMember(sess, vo, candidate);
-	}
-
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException {
-		Utils.checkPerunSession(sess);
-
-		//TODO Authorization
-
-		Utils.notNull(extSourceName, "extSourceName");
-		Utils.notNull(extSourceType, "extSourceType");
-		Utils.notNull(login, "login");
-
-		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, login, candidate);
-	}
-
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException {
-		Utils.checkPerunSession(sess);
-
-		//TODO Authorization
-
-		Utils.notNull(extSourceName, "extSourceName");
-		Utils.notNull(extSourceType, "extSourceType");
-		Utils.notNull(login, "login");
-
-		return getMembersManagerBl().createMember(sess, vo, extSourceName, extSourceType, extSourceLoa, login, candidate);
-	}
-
-	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException {
-		Utils.checkPerunSession(sess);
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
 			throw new PrivilegeException(sess, "createMember - from user");
 		}
 
-		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
-		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		// if any group is not from the vo, throw an exception
+		if(groups != null) {
+			for(Group group: groups) {
+				perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+				if(group.getVoId() != vo.getId()) throw new InternalErrorException("Group " + group + " is not from the vo " + vo + " where user " + user + " should be added.");
+			}
+		}
 
-		return getMembersManagerBl().createMember(sess, vo, user);
+		return getMembersManagerBl().createMember(sess, vo, user, groups);
 	}
 
 
@@ -308,6 +378,21 @@ public class MembersManagerEntry implements MembersManager {
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, vo, attrsDef), true);
 	}
 
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getRichMembersWithAttributes");
+				}
+
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getRichMembersWithAttributes(sess, allowedStatuses, group), true);
+	}
+
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrsNames) throws InternalErrorException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -411,6 +496,46 @@ public class MembersManagerEntry implements MembersManager {
 				}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().findCompleteRichMembers(sess, vo, attrsNames, allowedStatuses, searchString), true);
+	}
+
+	@Override
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, MemberNotExistsException, PrivilegeException, VoNotExistsException, AttributeNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+			throw new PrivilegeException(sess, "findCompleteRichMembers");
+		}
+
+		List<RichMember> richMembers = getMembersManagerBl().findCompleteRichMembers(sess, attrsNames, allowedStatuses, searchString);
+
+		Iterator<RichMember> richMemberIter = richMembers.iterator();
+		while(richMemberIter.hasNext()) {
+			RichMember rm = richMemberIter.next();
+			
+			//if voadmin or voobserver or groupadmin has right to this member, its ok
+			if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, rm) ||
+				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rm) ||
+				AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, rm)) continue;
+
+			//if not, then try facility admin rights
+			List<Resource> membersResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, rm);
+			boolean found = false;
+			for(Resource resource: membersResources) {
+				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+					found = true;
+					break;
+				}
+			}
+			if(found) continue;
+
+			richMemberIter.remove();
+		}
+
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, richMembers, false);
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ParentGroupNotExistsException, VoNotExistsException, AttributeNotExistsException {

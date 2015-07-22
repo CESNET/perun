@@ -4,6 +4,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
@@ -14,12 +16,16 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.model.Application;
 import cz.metacentrum.perun.webgui.model.ApplicationFormItem;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * View ApplicationFormItem
@@ -51,10 +57,26 @@ public class CreateFormItemTabItem implements TabItem {
 
 	private JsonCallbackEvents events;
 
-	/**
-	 * Input types
-	 */
-	static private final String[] INPUT_TYPES = {"TEXTFIELD", "TEXTAREA", "SELECTIONBOX", "COMBOBOX", "CHECKBOX", "USERNAME", "PASSWORD", "VALIDATED_EMAIL", "SUBMIT_BUTTON", "AUTO_SUBMIT_BUTTON", "HTML_COMMENT", "HEADING", "TIMEZONE", "FROM_FEDERATION_HIDDEN", "FROM_FEDERATION_SHOW"};
+	public static final Map<String, String> inputTypes;
+	static {
+		Map<String, String> aMap = new HashMap<>();
+		aMap.put("TEXTFIELD", "Input text field");
+		aMap.put("TEXTAREA", "Input text multi-line field");
+		aMap.put("SELECTIONBOX", "Single value selection from list");
+		aMap.put("COMBOBOX", "Single value selection with opt. custom value");
+		aMap.put("CHECKBOX", "Checkbox");
+		aMap.put("USERNAME", "Input text field for username");
+		aMap.put("PASSWORD", "Input text field for passowrd");
+		aMap.put("VALIDATED_EMAIL", "Input text field for email");
+		aMap.put("SUBMIT_BUTTON", "Custom submit button");
+		aMap.put("AUTO_SUBMIT_BUTTON", "Submit button with auto-submit");
+		aMap.put("HTML_COMMENT", "Custom HTML text");
+		aMap.put("HEADING", "Header");
+		aMap.put("TIMEZONE", "Selection of timezone");
+		aMap.put("FROM_FEDERATION_HIDDEN", "Hidden input text pre-filled from external source");
+		aMap.put("FROM_FEDERATION_SHOW", "Input text field pre-filled from external source");
+		inputTypes = Collections.unmodifiableMap(aMap);
+	}
 
 	/**
 	 * Cropping length in select box after which item to add item
@@ -77,7 +99,7 @@ public class CreateFormItemTabItem implements TabItem {
 
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("400px", "100%");
+		vp.setSize("425px", "100%");
 
 		// flex table
 		final FlexTable layout = new FlexTable();
@@ -104,9 +126,8 @@ public class CreateFormItemTabItem implements TabItem {
 
 		// select widget type
 		final ListBox typeListBox = new ListBox();
-		for (int i = 0; i < INPUT_TYPES.length; i++) {
-			String type = INPUT_TYPES[i];
-			typeListBox.addItem(type, type);
+		for (String type : inputTypes.keySet()) {
+			typeListBox.addItem(inputTypes.get(type), type);
 		}
 
 		// insert after
@@ -231,6 +252,12 @@ public class CreateFormItemTabItem implements TabItem {
 	protected void createItem(String shortname, String type, int positionToAdd) {
 
 		ApplicationFormItem item = RegistrarFormItemGenerator.generateFormItem(shortname, type);
+
+		// set both app types checked for new item
+		JSONArray array = new JSONArray();
+		array.set(0, new JSONString("INITIAL"));
+		array.set(1, new JSONString("EXTENSION"));
+		item.setApplicationTypes(array.getJavaScriptObject());
 
 		// set also position
 		item.setOrdnum(positionToAdd);

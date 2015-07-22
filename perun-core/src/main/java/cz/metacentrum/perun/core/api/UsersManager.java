@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.*;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
+ * @author Sona Mastrakova
  */
 public interface UsersManager {
 
@@ -521,6 +522,16 @@ public interface UsersManager {
 	 */
 	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException, PrivilegeException;
 
+        /**
+	 * Returns list of users who exactly matches the searchString
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException;
+        
 	/**
 	 * Checks if the login is available in the namespace.
 	 *
@@ -849,6 +860,21 @@ public interface UsersManager {
 		throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
 	/**
+	 * Returns list of RichUsers with attributes who matches the searchString, searching name, email, logins.
+	 * Name part is searched for exact match.
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @param attrNames
+	 * @return list of RichUsers with selected attributes
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrNames)
+		throws InternalErrorException, UserNotExistsException, PrivilegeException;
+
+	/**
 	 * Returns list of RichUsers which are not members of any VO and with selected attributes
 	 *
 	 * @param sess
@@ -954,5 +980,15 @@ public interface UsersManager {
 	 */
 	List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException;
 
-
+	/**
+	 * Get count of all users.
+	 *
+	 * @param sess PerunSession
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 *
+	 * @return count of all users
+	 */
+	int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
 }

@@ -4,6 +4,9 @@
 *.war
 *.ear
 
+# Ignore data folder of running perun-rpc | perun-dispatcher
+perun-rpc/data/
+
 # Ignore Maven target #
 
 **/target

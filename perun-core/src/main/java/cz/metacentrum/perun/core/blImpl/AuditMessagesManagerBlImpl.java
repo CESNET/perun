@@ -1,10 +1,7 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
@@ -15,14 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * AuditMessagesManager manages audit messages (logs). Implementation of
- * Business logic.
+ * AuditMessagesManager manages audit messages (logs). Implementation of Business Logic.
  *
  * @author Michal Stava
  */
 public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
-
-	private final static Logger log = LoggerFactory.getLogger(UsersManagerBlImpl.class);
+	
 	private Auditer auditer;
 	private PerunBl perunBl;
 
@@ -77,18 +72,23 @@ public class AuditMessagesManagerBlImpl implements AuditMessagesManagerBl {
 		createAuditerConsumer(consumerName);
 	}
 
-	public void log(PerunSession sess, String message) throws InternalErrorException {
+	public void log(PerunSession perunSession, String message) throws InternalErrorException {
 
-		perunBl.getAuditer().log(sess, message);
+		perunBl.getAuditer().log(perunSession, message);
 	}
 
-	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException {
+	public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException {
 
-		return perunBl.getAuditer().getAllAuditerConsumers(sess);
+		return perunBl.getAuditer().getAllAuditerConsumers(perunSession);
 	}
 
 	public int getLastMessageId() throws InternalErrorException {
 
 		return perunBl.getAuditer().getLastMessageId();
+	}
+
+	public void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException {
+
+		perunBl.getAuditer().setLastProcessedId(consumerName, lastProcessedId);
 	}
 }

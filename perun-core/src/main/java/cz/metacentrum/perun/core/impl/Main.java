@@ -46,7 +46,16 @@ public class Main {
 
 	private static BufferedWriter writer;
 
-	public Main(String fileName) throws Exception{
+	/**
+	 * Main method for generating LDIF
+	 *
+	 * GroupOfUniqueNames object class is not supported in new instances of perun LDAP
+	 *
+	 * @param fileName if not null, use file for generating. if null use stdout
+	 * @param newLDAPversion if true, then do not use GroupOfUniqueNames object class
+	 * @throws Exception
+	 */
+	public Main(String fileName, boolean newLDAPversion) throws Exception{
 		try {
 			this.springCtx = new ClassPathXmlApplicationContext("perun-beans.xml", "perun-datasources.xml", "perun-transaction-manager.xml");
 			this.perun = springCtx.getBean("perun", PerunBl.class);
@@ -60,8 +69,8 @@ public class Main {
 		int LastMessageBeforeInitializingData = perun.getAuditer().getLastMessageId();
 		System.err.println("Last message id before starting initializing: " + LastMessageBeforeInitializingData + '\n');
 		vosLdifToWriter();
-		groupsLdifToWriter();
-		resourcesLdifToWriter();
+		groupsLdifToWriter(newLDAPversion);
+		resourcesLdifToWriter(newLDAPversion);
 		usersLdifToWriter();
 		int LastMessageAfterInitializingData = perun.getAuditer().getLastMessageId();
 		System.err.println("Last message id after initializing: " + LastMessageAfterInitializingData + '\n');
@@ -79,9 +88,17 @@ public class Main {
 		} else if(args[0].equals("-g")) {
 			Main main;
 			if(args[1] != null && args[1].length() != 0) {
-				main = new Main(args[1]);
+				main = new Main(args[1], false);
 			} else {
-				main = new Main(null);
+				main = new Main(null, false);
+			}
+			writer.close();
+		} else if(args[0].equals("-gnew")) {
+			Main main;
+			if(args[1] != null && args[1].length() != 0) {
+				main = new Main(args[1], true);
+			} else {
+				main = new Main(null, true);
 			}
 			writer.close();
 		} else {
@@ -174,7 +191,7 @@ public class Main {
 		}
 	}
 
-	private void resourcesLdifToWriter() throws Exception {
+	private void resourcesLdifToWriter(boolean newLDAPversion) throws Exception {
 		List<Vo> vos = perun.getVosManagerBl().getVos(perunSession);
 
 		for(Vo v: vos) {
@@ -202,7 +219,10 @@ public class Main {
 				}
 				writer.write(dn + '\n');
 				writer.write(oc1 + '\n');
-				writer.write(oc2 + '\n');
+				//Use only if old version of ldap with groupOfUniqueNames is used
+				if(!newLDAPversion) {
+					writer.write(oc2 + '\n');
+				}
 				writer.write(oc3 + '\n');
 				writer.write(cn + '\n');
 				writer.write(perunResourceId + '\n');
@@ -220,7 +240,7 @@ public class Main {
 		}
 	}
 
-	private void groupsLdifToWriter() throws Exception {
+	private void groupsLdifToWriter(boolean newLDAPversion) throws Exception {
 		List<Vo> vos = perun.getVosManagerBl().getVos(perunSession);
 
 		for(Vo v: vos) {
@@ -254,7 +274,10 @@ public class Main {
 				List<Member> admins = new ArrayList<Member>();
 				writer.write(dn + '\n');
 				writer.write(oc1 + '\n');
-				writer.write(oc2 + '\n');
+				//Use only if old version of ldap with groupOfUniqueNames is used
+				if(!newLDAPversion) {
+					writer.write(oc2 + '\n');
+				}
 				writer.write(oc3 + '\n');
 				writer.write(cn + '\n');
 				writer.write(perunUniqueGroupName + '\n');
@@ -323,6 +346,7 @@ public class Main {
 			Attribute attrPreferredMail = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
 			Attribute attrOrganization = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_DEF + ":organization");
 			Attribute attrVirtCertDNs = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
+			Attribute attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, u, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
 			perunUserId+= String.valueOf(u.getId());
 			dn+= "perunUserId=" + u.getId() + ",ou=People,dc=perun,dc=cesnet,dc=cz";
 			String firstName = u.getFirstName();
@@ -367,6 +391,15 @@ public class Main {
 			if(certSubjects != null && !certSubjects.isEmpty()) {
 				for(String s: certSubjects) {
 					writer.write("userCertificateSubject: " + s + '\n');
+				}
+			}
+			List<String> libraryIDs = new ArrayList<>();
+			if(attrLibraryIDs.getValue() != null) {
+				libraryIDs = (ArrayList) attrLibraryIDs.getValue();
+			}
+			if(libraryIDs != null && !libraryIDs.isEmpty()) {
+				for(String id : libraryIDs) {
+					writer.write("libraryIDs: " + id + '\n');
 				}
 			}
 			//GET ALL USERS UIDs

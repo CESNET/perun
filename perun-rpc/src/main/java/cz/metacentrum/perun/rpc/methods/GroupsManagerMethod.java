@@ -15,7 +15,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.rpc.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 public enum GroupsManagerMethod implements ManagerMethod {
@@ -561,11 +561,20 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @param vo int VO <code>id</code>
 	 * @return int Groups count
 	 */
+	/*#
+	 * Gets count of all groups.
+
+	 * @return int groups count
+	 */
 	getGroupsCount {
 
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getGroupsCount(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			if(parms.contains("vo")) {
+				return ac.getGroupsManager().getGroupsCount(ac.getSession(), ac.getVoById(parms.readInt("vo")));
+			} else {
+				return ac.getGroupsManager().getGroupsCount(ac.getSession());
+			}
 		}
 	},
 

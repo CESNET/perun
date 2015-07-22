@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
@@ -49,6 +50,7 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -73,6 +75,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void setUp() throws Exception {
 
 		facility.setName("FacilitiesManagerTestFacility");
+		facility.setDescription("FacilityTestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, facility));
 		owner.setName("FacilityManagerTestOwner");
 		owner.setContact("testingContact");
@@ -435,7 +438,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		Facility facility = new Facility();
 		facility.setName("FacilitiesManagerTestSecondFacility");
-
+		facility.setDescription("TestSecondFacilityDescriptionText");
 		Facility returnedFacility = perun.getFacilitiesManager().createFacility(sess, facility);
 		assertNotNull("unable to create Facility",returnedFacility);
 		assertEquals("created and returned facility should be the same",returnedFacility,facility);
@@ -665,6 +668,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		}
 
 	@Test
+	public void getFacilitiesCount() throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".getFacilitiesCount()");
+
+		int count = facilitiesManagerEntry.getFacilitiesCount(sess);
+		assertTrue(count>0);
+	}
+
+	@Test
 	public void getHostsCount()throws Exception{
 		System.out.println(FACILITIES_MANAGER + ".getHostsCount()");
 
@@ -884,6 +895,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// set up second facility
 		Facility newFacility = new Facility();
 		newFacility.setName("FacilitiesManagerTestSecondFacility");
+		newFacility.setDescription("TestSecondFacilityDescriptionText");
 		Facility secondFacility = perun.getFacilitiesManager().createFacility(sess, newFacility);
 
 		// add first attribute to source
@@ -911,8 +923,203 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue(destinationAttributes.contains(thirdAttribute));
 	}
 
+	// FACILITY CONTACTS TEST METHODS
 
+	@Test
+	public void addFacilityContactForUser() throws Exception {
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
+		String contactGroupName = "testContactGroup01";
+		ContactGroup cg = new ContactGroup(contactGroupName, facility);
+		cg.setUsers(new ArrayList<>(Arrays.asList(new RichUser(user, null))));
+		facilitiesManagerEntry.addFacilityContact(sess, cg);
+		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, user);
+
+		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, user);
+		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertEquals(user.getId(), cgs.get(0).getUsers().get(0).getId());
+	}
+
+	@Test
+	public void addFacilityContactForGroup() throws Exception {
+		Member member = setUpMember(vo);
+		Group group = setUpGroup(vo, member);
+
+		String contactGroupName = "testContactGroup01";
+		ContactGroup cg = new ContactGroup(contactGroupName, facility);
+		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
+		facilitiesManagerEntry.addFacilityContact(sess, cg);
+		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, group);
+
+		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, group);
+		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertEquals(group.getId(), cgs.get(0).getGroups().get(0).getId());
+	}
+
+	@Test
+	public void addFacilityContactForOwner() throws Exception {
+		Member member = setUpMember(vo);
+
+		String contactGroupName = "testContactGroup01";
+		ContactGroup cg = new ContactGroup(contactGroupName, facility);
+		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		facilitiesManagerEntry.addFacilityContact(sess, cg);
+		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
+
+		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
+		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
+	}
+
+	@Test
+	public void addFacilityContactForAll1() throws Exception {
+		Member member = setUpMember(vo);
+		Group group = setUpGroup(vo, member);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		String contactGroupName = "testContactGroup01";
+		ContactGroup cg = new ContactGroup(contactGroupName, facility);
+		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
+		cg.setUsers(new ArrayList<>(Arrays.asList(new RichUser(user, null))));
+		facilitiesManagerEntry.addFacilityContact(sess, cg);
+
+		ContactGroup cgReturned = facilitiesManagerEntry.getFacilityContactGroup(sess, facility, contactGroupName);
+
+		assertTrue(cg.equalsGroup(cgReturned));
+
+		assertEquals(owner.getId(), cgReturned.getOwners().get(0).getId());
+		assertEquals(group.getId(), cgReturned.getGroups().get(0).getId());
+		assertEquals(user.getId(), cgReturned.getUsers().get(0).getId());
+	}
+
+	@Test
+	public void addFacilityContactForAll2() throws Exception {
+		Member member = setUpMember(vo);
+		Group group = setUpGroup(vo, member);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		String contactGroupName = "testContactGroup01";
+		ContactGroup cg = new ContactGroup(contactGroupName, facility);
+		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
+		cg.setUsers(new ArrayList<>(Arrays.asList(new RichUser(user, null))));
+		facilitiesManagerEntry.addFacilityContact(sess, cg);
+
+		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, facility);
+
+		assertTrue(cg.equalsGroup(cgs.get(0)));
+
+		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
+		assertEquals(group.getId(), cgs.get(0).getGroups().get(0).getId());
+		assertEquals(user.getId(), cgs.get(0).getUsers().get(0).getId());
+	}
+
+	@Test
+	public void getAllContactGroupNames() throws Exception {
+		String contactGroupName1 = "testContactGroup01";
+		String contactGroupName2 = "testContactGroup02";
+		String contactGroupName3 = "testContactGroup03";
+		ContactGroup cg1 = new ContactGroup(contactGroupName1, facility);
+		ContactGroup cg2 = new ContactGroup(contactGroupName2, facility);
+		ContactGroup cg3 = new ContactGroup(contactGroupName3, facility);
+		cg1.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg2.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg3.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		List<ContactGroup> cgs = new ArrayList<>(Arrays.asList(cg1, cg2, cg3));
+
+		facilitiesManagerEntry.addFacilityContacts(sess, cgs);
+
+		List<String> cgnames = facilitiesManagerEntry.getAllContactGroupNames(sess);
+		assertTrue(cgnames.contains(contactGroupName1));
+		assertTrue(cgnames.contains(contactGroupName2));
+		assertTrue(cgnames.contains(contactGroupName3));
+	}
+
+	@Test
+	public void removeFacilityContactForUser() throws Exception {
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		String contactGroupName = "testContactGroup01";
+		ContactGroup cg = new ContactGroup(contactGroupName, facility);
+		cg.setUsers(new ArrayList<>(Arrays.asList(new RichUser(user, null))));
+		facilitiesManagerEntry.addFacilityContact(sess, cg);
+		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, user);
+
+		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, user);
+		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertEquals(user.getId(), cgs.get(0).getUsers().get(0).getId());
+
+		facilitiesManagerEntry.removeFacilityContact(sess, cg);
+		cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, user);
+		assertTrue(cgs.isEmpty());
+	}
+
+	@Test
+	public void removeFacilityContactForGroup() throws Exception {
+		Member member = setUpMember(vo);
+		Group group = setUpGroup(vo, member);
+
+		String contactGroupName = "testContactGroup01";
+		ContactGroup cg = new ContactGroup(contactGroupName, facility);
+		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
+		facilitiesManagerEntry.addFacilityContact(sess, cg);
+		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, group);
+
+		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, group);
+		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertEquals(group.getId(), cgs.get(0).getGroups().get(0).getId());
+
+		facilitiesManagerEntry.removeFacilityContact(sess, cg);
+		cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, group);
+		assertTrue(cgs.isEmpty());
+	}
+
+	@Test
+	public void removeFacilityContactForOwner() throws Exception {
+		Member member = setUpMember(vo);
+
+		String contactGroupName = "testContactGroup01";
+		ContactGroup cg = new ContactGroup(contactGroupName, facility);
+		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		facilitiesManagerEntry.addFacilityContact(sess, cg);
+		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
+
+		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
+		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
+
+		facilitiesManagerEntry.removeFacilityContact(sess, cg);
+		cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
+		assertTrue(cgs.isEmpty());
+	}
+
+	@Test
+	public void removeAllFacilityContacts() throws Exception {
+		String contactGroupName1 = "testContactGroup01";
+		String contactGroupName2 = "testContactGroup02";
+		String contactGroupName3 = "testContactGroup03";
+		ContactGroup cg1 = new ContactGroup(contactGroupName1, facility);
+		ContactGroup cg2 = new ContactGroup(contactGroupName2, facility);
+		ContactGroup cg3 = new ContactGroup(contactGroupName3, facility);
+		cg1.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg2.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		cg3.setOwners(new ArrayList<>(Arrays.asList(owner)));
+		List<ContactGroup> cgs = new ArrayList<>(Arrays.asList(cg1, cg2, cg3));
+
+		facilitiesManagerEntry.addFacilityContacts(sess, cgs);
+
+		List<String> cgnames = facilitiesManagerEntry.getAllContactGroupNames(sess);
+		assertTrue(cgnames.contains(contactGroupName1));
+		assertTrue(cgnames.contains(contactGroupName2));
+		assertTrue(cgnames.contains(contactGroupName3));
+
+		facilitiesManagerEntry.removeFacilityContacts(sess, cgs);
+		cgnames = facilitiesManagerEntry.getAllContactGroupNames(sess);
+		assertTrue(cgnames.isEmpty());
+	}
 
 	// PRIVATE METHODS -------------------------------------------------------
 

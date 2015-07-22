@@ -27,6 +27,7 @@
     <databaseIdProvider type="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
         <property name="PostgreSQL" value="postgresql"/>
         <property name="Oracle" value="oracle" />
+        <property name="HSQL" value="hsql" />
     </databaseIdProvider>
 
     <mappers>

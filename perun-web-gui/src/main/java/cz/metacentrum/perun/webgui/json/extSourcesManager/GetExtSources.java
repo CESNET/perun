@@ -18,6 +18,7 @@ import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Ajax query to get external sources from Perun
@@ -45,7 +46,7 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	// display checkboxes
 	private boolean checkable = true;
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" ./-");
 	private ArrayList<ExtSource> fullBackup = new ArrayList<ExtSource>();
 
 	/**
@@ -100,8 +101,6 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 		// ID column
 		table.addIdColumn("Ext. source ID", null);
 
-		// Name column
-		table.addNameColumn(null);
 
 		// Type column
 		TextColumn<ExtSource> typeColumn = new TextColumn<ExtSource>() {
@@ -110,7 +109,19 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 				return String.valueOf(renameContent(extSource.getType()));
 			}
 		};
+
+		columnSortHandler.setComparator(typeColumn, new Comparator<ExtSource>() {
+			@Override
+			public int compare(ExtSource o1, ExtSource o2) {
+				return renameContent(o1.getType()).compareTo(renameContent(o2.getType()));
+			}
+		});
+		typeColumn.setSortable(true);
+
 		table.addColumn(typeColumn, "Type");
+		table.setColumnWidth(typeColumn, "100px");
+		// Name column
+		table.addNameColumn(null);
 
 		// return cellTable
 		return table;
@@ -286,10 +297,10 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 		} else {
 			for (ExtSource src : fullBackup){
 				// store ext source if name or type matches
-				if ((src.getName().toLowerCase().startsWith(filter.toLowerCase())) ||
-						renameContent(src.getType()).toLowerCase().startsWith(filter.toLowerCase())) {
+				if ((src.getName().toLowerCase().contains(filter.toLowerCase())) ||
+						renameContent(src.getType()).toLowerCase().contains(filter.toLowerCase())) {
 					list.add(src);
-						}
+				}
 			}
 		}
 

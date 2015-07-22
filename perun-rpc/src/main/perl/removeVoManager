@@ -8,7 +8,7 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Removes Vo Manager. User id and Vo id or vo short name are required fields.
+	Removes VO Manager. User id and VO id or VO short name are required fields.
 	------------------------------------
 	Available options:
 	--userId      | -u user id

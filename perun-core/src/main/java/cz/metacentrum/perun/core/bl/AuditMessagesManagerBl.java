@@ -1,17 +1,14 @@
 package cz.metacentrum.perun.core.bl;
 
 import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * UsersManager manages users.
+ * AuditMessagesManager manages audit messages (logs). BlImpl Logic interface.
  *
  * @author Michal Stava
  */
@@ -20,7 +17,7 @@ public interface AuditMessagesManagerBl {
 	/**
 	 * Returns countOfMessages messages from audit's logs.
 	 *
-	 * @param perunSession
+	 * @param perunSession perun session
 	 * @param count Count of returned messages.
 	 * @return list of audit's messages
 	 * @throws InternalErrorException
@@ -30,10 +27,10 @@ public interface AuditMessagesManagerBl {
 	/**
 	 * Return less than count or equals to count messages from audit's logs.
 	 *
-	 * Important: This variant do not guarantee returning just count of messages!
-	 *						Return messages by Id from max_id to max_id-count (can be less then count messages)
+	 * <b>IMPORTANT:</b> This variant do not guarantee returning just count of messages!
+	 * Return messages by Id from max_id to max_id-count (can be less then count messages).
 	 *
-	 * @param perunSession
+	 * @param perunSession perun session
 	 * @param count Count of returned messages
 	 * @return list of audit's messages
 	 * @throws InternalErrorException
@@ -50,7 +47,7 @@ public interface AuditMessagesManagerBl {
 	List<String> pollConsumerMessages(String consumerName) throws InternalErrorException;
 
 	/**
-	 * Returns list of full messages from audit's log which id is bigger than last processed id.
+	 * Returns list of <b>full</b> messages from audit's log which id is bigger than last processed id.
 	 *
 	 * @param consumerName consumer to get messages for
 	 * @return list of full messages
@@ -68,7 +65,7 @@ public interface AuditMessagesManagerBl {
 	List<String> pollConsumerMessagesForParserSimple(String consumerName) throws InternalErrorException;
 
 	/**
-	 * Returns list of auditMessages for parser from audit's log which id is bigger than last processed id.
+	 * Returns list of <b>auditMessages</b> for parser from audit's log which id is bigger than last processed id.
 	 *
 	 * @param consumerName consumer to get messages for
 	 * @return list of auditMessages for Ldap
@@ -85,29 +82,37 @@ public interface AuditMessagesManagerBl {
 	void createAuditerConsumer(String consumerName) throws InternalErrorException;
 
 	/**
-	 * Log auditer message
+	 * Log auditer message.
 	 *
-	 * @param sess
-	 * @param message
+	 * @param perunSession perunSession
+	 * @param message message to be logged
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException
 	 */
-	void log(PerunSession sess, String message) throws InternalErrorException;
+	void log(PerunSession perunSession, String message) throws InternalErrorException;
 
 	/**
-	 * Get all auditer consumers like name=last_processed_id (map) from database.
+	 * Get all auditer consumers from database. In map is String = name and Integer = lastProcessedId.
 	 *
-	 * @param sess
+	 * @param perunSession perunSession
 	 * @return map string to integer where string is name of consumer and int is last_processed_id of consumer
 	 * @throws InternalErrorException
 	 */
-	Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException;
+	Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException;
 
 	/**
-	 * Get last message id from auditer_log.
+	 * Get id of last message from auditer_log.
 	 *
 	 * @return last message id
 	 * @throws InternalErrorException
 	 */
 	int getLastMessageId() throws InternalErrorException;
+
+	/**
+	 * Set last processed ID of message in consumer with consumerName.
+	 *
+	 * @param consumerName name of consumer
+	 * @param lastProcessedId id of last processed message in consumer
+	 * @throws InternalErrorException
+	 */
+	void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException;
 }

@@ -53,7 +53,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/perun-beans.xml", "/perun-datasources.xml" })
+@ContextConfiguration(locations = { "classpath:/perun-beans-test.xml", "/perun-datasources-test.xml" })
 @TransactionConfiguration(transactionManager = "springTransactionManager", defaultRollback = true)
 @Transactional
 public abstract class AbstractPerunIntegrationTest {

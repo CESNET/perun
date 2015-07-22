@@ -99,6 +99,7 @@ public class PerunBlImpl implements PerunBl {
 				this.getUsersManagerBl() != null &&
 				!principal.getExtSourceType().equals(ExtSourcesManager.EXTSOURCE_INTERNAL) &&
 				!principal.getActor().equals("perunv3/rpc-lib@META") &&
+				!principal.getActor().equals("perunv3/admin@META") &&
 				!principal.getActor().equals("perunv3/engine@META")) {
 			// Get the user if we are completely initialized
 			try {

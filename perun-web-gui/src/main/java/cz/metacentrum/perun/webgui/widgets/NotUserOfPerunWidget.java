@@ -23,7 +23,7 @@ public class NotUserOfPerunWidget extends Composite {
 
 		String text = "";
 
-		if (!LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0))) {
+		if (Utils.getNativeLanguage().isEmpty() || (!Utils.getNativeLanguage().isEmpty() && !LocaleInfo.getCurrentLocale().getLocaleName().equals(Utils.getNativeLanguage().get(0)))) {
 			// english for all
 			text = "<h3>You are not user of Perun or you don't have registered identity you used to log in.</h3><h3>For joining your identities please go to:</h3>";
 

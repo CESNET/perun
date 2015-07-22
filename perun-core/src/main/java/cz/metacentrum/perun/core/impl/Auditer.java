@@ -10,14 +10,12 @@ import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.rt.EmptyPasswordRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.sql.PreparedStatement;
@@ -37,7 +35,6 @@ import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor;
 
 import cz.metacentrum.perun.core.implApi.AuditerListener;
@@ -67,7 +64,7 @@ public class Auditer {
 	public final static String engineForceKeyword = "forceit";
 
 	private final static Logger log = LoggerFactory.getLogger(Auditer.class);
-	private JdbcTemplate jdbc;
+	private JdbcPerunTemplate jdbc;
 
 	private Map<AuditerListener, ListenerThread> listenersMap = new HashMap<AuditerListener, ListenerThread>();
 
@@ -170,7 +167,7 @@ public class Auditer {
 	}
 
 	public void setPerunPool(DataSource perunPool) throws InternalErrorException {
-		this.jdbc = new JdbcTemplate(perunPool);
+		this.jdbc = new JdbcPerunTemplate(perunPool);
 		if(Compatibility.isOracle()) {
 			OracleLobHandler oracleLobHandler = new OracleLobHandler();
 			oracleLobHandler.setNativeJdbcExtractor(new CommonsDbcpNativeJdbcExtractor());
@@ -376,7 +373,7 @@ public class Auditer {
 
 	public List<AuditMessage> getMessages(int count) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + ",row_number() over (ORDER BY id DESC) as rownumber from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
+			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + Compatibility.getRowNumberOver() + " from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
 					AUDITMESSAGE_MAPPER, count);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<AuditMessage>();

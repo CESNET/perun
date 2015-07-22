@@ -1,4 +1,4 @@
--- database version 3.1.20 (don't forget to update insert statement at the end of file)
+-- database version 3.1.25 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -116,6 +116,7 @@ create table "cabinet_thanks" (
 create table "facilities" (
 	id integer not null,
 	name varchar(128) not null, --unique name of facility
+	dsc varchar(1024),
 	created_at timestamp default now() not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now() not null,
@@ -166,6 +167,15 @@ create table "facility_owners" (
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer
+);
+
+-- FACILITIES_CONTACTS - all optional contacts for facility (owners, users or groups)
+create table "facility_contacts" (
+	contact_group_name varchar(128) not null, -- similar to tag of group of contacts
+	facility_id integer not null, --facility identifier
+	owner_id integer, --owner identifier
+	user_id integer, --user identifier
+	group_id integer -- group identifier
 );
 
 -- GROUPS - groups of users
@@ -728,6 +738,22 @@ create table "member_attr_values" (
 	modified_by_uid integer
 );
 
+-- MEMBER_GROUP_ATTR_VALUES - values of attributes assigned to members in groups
+create table "member_group_attr_values" (
+	member_id integer not null,   --identifier of member (members.id)
+	group_id integer not null, --identifier of group (groups.id)
+	attr_id integer not null,     --identifier of attribute (attr_names.id)
+	attr_value varchar(4000),     --attribute value
+	created_at timestamp default now() not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now() not null,
+	modified_by varchar(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text text,         --attribute value in case it is very long text
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 -- MEMBER_RESOURCE_ATTR_VALUES - values of attributes assigned to members on resources
 create table "member_resource_attr_values" (
 	member_id integer not null,   --identifier of member (members.id)
@@ -1165,6 +1191,10 @@ create index idx_fk_usrcatt_usrc on ext_sources_attributes(ext_sources_id);
 create index idx_fk_attnam_attnam on attr_names(default_attr_id);
 create index idx_fk_rsrc_fac on resources(facility_id);
 create index idx_fk_rsrc_vo on resources(vo_id);
+create index idx_fk_faccont_fac on facility_contacts(facility_id);
+create index idx_fk_faccont_usr on facility_contacts(user_id);
+create index idx_fk_faccont_own on facility_contacts(owner_id);
+create index idx_fk_faccont_grp on facility_contacts(group_id);
 create index idx_fk_resatval_res on resource_attr_values(resource_id);
 create index idx_fk_resatval_resatnam on resource_attr_values(attr_id);
 create index idx_fk_usrav_usr on user_attr_values(user_id);
@@ -1182,6 +1212,9 @@ create index idx_fk_grp_grp on groups(parent_group_id);
 create index idx_fk_memrav_mem on member_resource_attr_values(member_id);
 create index idx_fk_memrav_rsrc on member_resource_attr_values(resource_id);
 create index idx_fk_memrav_accattnam on member_resource_attr_values(attr_id);
+create index idx_fk_memgav_mem on member_group_attr_values(member_id);
+create index idx_fk_memgav_grp on member_group_attr_values(group_id);
+create index idx_fk_memgav_accattnam on member_group_attr_values(attr_id);
 create index idx_fk_usrfacav_mem on user_facility_attr_values(user_id);
 create index idx_fk_usrfacav_fac on user_facility_attr_values(facility_id);
 create index idx_fk_usrfacav_accattnam on user_facility_attr_values(attr_id);
@@ -1217,6 +1250,7 @@ create index idx_fk_entlatval_attr on entityless_attr_values(attr_id);
 create index idx_fk_catpub_sys on cabinet_publications(publicationsystemid);
 create index idx_fk_cabpub_cat on cabinet_publications(categoryid);
 create unique index idx_authz_u2 ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'));
+create unique index idx_faccont_u2 ON facility_contacts (COALESCE(user_id, '0'), COALESCE(owner_id, '0'), COALESCE(group_id, '0'), facility_id, contact_group_name);
 create index idx_fk_authz_role on authz(role_id);
 create index idx_fk_authz_user on authz(user_id);
 create index idx_fk_authz_authz_group on authz(authorized_group_id);
@@ -1368,6 +1402,11 @@ alter table member_resource_attr_values add constraint memrav_rsrc_fk foreign ke
 alter table member_resource_attr_values add constraint memrav_accattnam_fk foreign key (attr_id) references attr_names(id);
 alter table member_resource_attr_values add constraint memrav_u unique(member_id,resource_id,attr_id);
 
+alter table member_group_attr_values add constraint memgav_mem_fk foreign key (member_id) references members(id);
+alter table member_group_attr_values add constraint memgav_grp_fk foreign key (group_id) references groups(id);
+alter table member_group_attr_values add constraint memgav_accattnam_fk foreign key (attr_id) references attr_names(id);
+alter table member_group_attr_values add constraint memgav_u unique(member_id,group_id,attr_id);
+
 alter table user_facility_attr_values add constraint usrfacav_mem_fk foreign key (user_id) references users(id);
 alter table user_facility_attr_values add constraint usrfacav_fac_fk foreign key (facility_id) references facilities(id);
 alter table user_facility_attr_values add constraint usrfacav_accattnam_fk foreign key (attr_id) references attr_names(id);
@@ -1377,10 +1416,12 @@ alter table service_denials add constraint srvden_pk primary key (id);
 alter table service_denials add constraint srvden_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table service_denials add constraint srvden_fac_fk foreign key (facility_id) references facilities(id);
 alter table service_denials add constraint srvden_dest_fk foreign key (destination_id) references destinations(id);
+alter table service_denials add constraint srvden_u unique(exec_service_id,facility_id,destination_id);
 
 alter table service_dependencies add constraint srvdep_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table service_dependencies add constraint srvdep_depexsrv_fk foreign key (dependency_id) references exec_services(id);
 alter table service_dependencies add constraint srvdep_type_chk check (type in ('SERVICE','DESTINATION'));
+alter table service_dependencies add constraint srvdep_u unique(exec_service_id,dependency_id);
 
 alter table engines add constraint eng_pk primary key (id);
 
@@ -1567,6 +1608,12 @@ alter table mailchange add constraint mailchange_u_fk foreign key (user_id) refe
 alter table pwdreset add constraint pwdreset_pk primary key (id);
 alter table pwdreset add constraint pwdreset_u_fk foreign key (user_id) references users(id);
 
+alter table facility_contacts add constraint faccont_fac_fk foreign key (facility_id) references facilities(id);
+alter table facility_contacts add constraint faccont_usr_fk foreign key (user_id) references users(id);
+alter table facility_contacts add constraint faccont_own_fk foreign key (owner_id) references owners(id);
+alter table facility_contacts add constraint faccont_grp_fk foreign key (group_id) references groups(id);
+alter table facility_contacts add constraint faccont_usr_own_grp_chk check ((user_id is not null and owner_id is null and group_id is null) or (user_id is null and owner_id is not null and group_id is null) or (user_id is null and owner_id is null and group_id is not null));
+
 grant all on users to perun;
 grant all on vos to perun;
 grant all on ext_sources to perun;
@@ -1584,6 +1631,7 @@ grant all on attr_names to perun;
 grant all on facilities to perun;
 grant all on resources to perun;
 grant all on resource_attr_values to perun;
+grant all on facility_contacts to perun;
 grant all on user_attr_values to perun;
 grant all on facility_owners to perun;
 grant all on facility_attr_values to perun;
@@ -1592,6 +1640,7 @@ grant all on service_packages to perun;
 grant all on service_service_packages to perun;
 grant all on groups to perun;
 grant all on member_resource_attr_values to perun;
+grant all on member_group_attr_values to perun;
 grant all on user_facility_attr_values to perun;
 grant all on tasks to perun;
 grant all on tasks_results to perun;
@@ -1652,4 +1701,4 @@ grant all on mailchange to perun;
 grant all on pwdreset to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.20');
+insert into configurations values ('DATABASE VERSION','3.1.26');

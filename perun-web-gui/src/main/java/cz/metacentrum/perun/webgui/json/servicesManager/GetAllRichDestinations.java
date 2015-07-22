@@ -49,7 +49,7 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 	private boolean showServ = true; // display service column by default
 	private boolean checkable = true;
 	// oracle support
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .-");
 	private ArrayList<Destination> fullBackup = new ArrayList<Destination>();
 
 	/**
@@ -414,11 +414,11 @@ public class GetAllRichDestinations implements JsonCallback, JsonCallbackTable<D
 			for (Destination dst : fullBackup){
 				// store facility by filter
 				if (service == null) {
-					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase()) || dst.getService().getName().toLowerCase().startsWith(text.toLowerCase())) {
+					if (dst.getDestination().toLowerCase().contains(text.toLowerCase()) || dst.getService().getName().toLowerCase().contains(text.toLowerCase())) {
 						list.add(dst);
 					}
 				} else {
-					if (dst.getDestination().toLowerCase().startsWith(text.toLowerCase()) || dst.getFacility().getName().toLowerCase().startsWith(text.toLowerCase())) {
+					if (dst.getDestination().toLowerCase().contains(text.toLowerCase()) || dst.getFacility().getName().toLowerCase().contains(text.toLowerCase())) {
 						list.add(dst);
 					}
 				}

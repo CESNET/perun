@@ -436,7 +436,7 @@ public class EditFormItemTabItem implements TabItem {
 
 		Label inputLabel = new Label("Input widget:");
 		ft.setWidget(row, 0, inputLabel);
-		ft.setHTML(row, 1, item.getType());
+		ft.setHTML(row, 1, CreateFormItemTabItem.inputTypes.get(item.getType()));
 
 		row++;
 		ft.setHTML(row, 1, "Specify what input widget is used for this item.");
@@ -556,7 +556,9 @@ public class EditFormItemTabItem implements TabItem {
 
 		// languages
 		ArrayList<String> languages = item.getLocales();
-		if (!languages.contains(Utils.getNativeLanguage().get(0))) languages.add(Utils.getNativeLanguage().get(0));
+		if (!Utils.getNativeLanguage().isEmpty()) {
+			if (!languages.contains(Utils.getNativeLanguage().get(0))) languages.add(Utils.getNativeLanguage().get(0));
+		}
 		if (!languages.contains("en")) languages.add("en");
 
 		// vertical panel

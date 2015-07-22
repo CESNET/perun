@@ -95,104 +95,6 @@ public class Utils {
 	}
 
 	/**
-	 * Gets particular property from perun.properties file.
-	 *
-	 * @param propertyName name of the property
-	 * @return value of the property
-	 */
-	public static String getPropertyFromConfiguration(String propertyName) throws InternalErrorException {
-		log.trace("Entering getPropertyFromConfiguration: propertyName='" +  propertyName + "'");
-		notNull(propertyName, "propertyName");
-
-		if(Utils.properties == null) {
-			// Load properties file with configuration
-			Properties properties = new Properties();
-			try {
-				// Get the path to the perun.properties file
-				BufferedInputStream is = new BufferedInputStream(new FileInputStream(Utils.configurationsLocations + "perun.properties"));
-				properties.load(is);
-				is.close();
-			} catch (FileNotFoundException e) {
-				throw new InternalErrorException("Cannot find perun.properties file", e);
-			} catch (IOException e) {
-				throw new InternalErrorException("Cannot read perun.properties file", e);
-			}
-			
-			Utils.properties = properties;
-		}
-		String property = Utils.properties.getProperty(propertyName);
-		if (property == null) {
-			throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file");
-		}
-		return property;
-	}
-
-	/**
-	 * Gets particular property from custom property file.
-	 *
-	 * @param propertyFile name of properties file
-	 * @param propertyName name of the property
-	 * @return value of the property
-	 */
-	public static String getPropertyFromCustomConfiguration(String propertyFile, String propertyName) throws InternalErrorException {
-		log.trace("Entering getPropertyFromCustomConfiguration: propertyFile='" +  propertyFile + "' propertyName='" +  propertyName + "'");
-		notNull(propertyName, "propertyName");
-		notNull(propertyFile, "propertyFile");
-
-		// Load properties file with configuration
-		Properties properties = new Properties();
-		try {
-			// Get the path to the perun.properties file
-			BufferedInputStream is = new BufferedInputStream(new FileInputStream(Utils.configurationsLocations + propertyFile));
-			properties.load(is);
-			is.close();
-
-			String property = properties.getProperty(propertyName);
-			if (property == null) {
-				throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file: "+propertyFile);
-			}
-			return property;
-		} catch (FileNotFoundException e) {
-			throw new InternalErrorException("Cannot find "+propertyFile+" file", e);
-		} catch (IOException e) {
-			throw new InternalErrorException("Cannot read "+propertyFile+" file", e);
-		}
-	}
-
-	/**
-	 * Gets all properties from custom property file.
-	 *
-	 * @param propertyFile name of properties file
-	 * @return all properties with values
-	 */
-	public static Map<String, String> getAllPropertiesFromCustomConfiguration(String propertyFile) throws InternalErrorException {
-		log.trace("Entering getAllPropertiesFromCustomConfiguration: propertyFile='" + propertyFile + "'");
-		notNull(propertyFile, "propertyFile");
-
-		// Load properties file with configuration
-		Properties properties = new Properties();
-		try {
-
-			// Get the path to the perun.properties file
-			BufferedInputStream is = new BufferedInputStream(new FileInputStream(Utils.configurationsLocations + propertyFile));
-			properties.load(is);
-			is.close();
-
-			Map<String, String> myMap = new HashMap<String, String>();
-			for (Object key : properties.keySet()) {
-				myMap.put(key.toString(), properties.get(key).toString());
-			}
-			return myMap;
-
-		} catch (FileNotFoundException e) {
-			throw new InternalErrorException("Cannot find "+propertyFile+" file", e);
-		} catch (IOException e) {
-			throw new InternalErrorException("Cannot read "+propertyFile+" file", e);
-		}
-
-	}
-
-	/**
 	 * Integer row mapper
 	 */
 	public static final RowMapper<Integer> ID_MAPPER = new RowMapper<Integer>() {
@@ -336,7 +238,7 @@ public class Utils {
 	 * @throws InternalErrorException
 	 */
 	public static int getNewId(Object jdbc, String sequenceName) throws InternalErrorException {
-		String dbType = getPropertyFromConfiguration("perun.db.type");
+		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 
 		String url = "";
 	
@@ -812,7 +714,7 @@ public class Utils {
 			throw new NullPointerException("input must not be null");
 		try {
 			Mac mac = Mac.getInstance("HmacSHA256");
-			mac.init(new SecretKeySpec(getPropertyFromConfiguration("perun.mailchange.secretKey").getBytes("UTF-8"),"HmacSHA256"));
+			mac.init(new SecretKeySpec(BeansUtils.getPropertyFromConfiguration("perun.mailchange.secretKey").getBytes("UTF-8"),"HmacSHA256"));
 			byte[] macbytes = mac.doFinal(input.getBytes("UTF-8"));
 			return new BigInteger(macbytes).toString(Character.MAX_RADIX);
 		} catch (Exception e) {
@@ -839,7 +741,7 @@ public class Utils {
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
-		message.setFrom(getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
 		message.setSubject("[Perun] New email address verification");
 
 		// get validation link params
@@ -915,7 +817,7 @@ public class Utils {
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
-		message.setFrom(getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
 		message.setSubject("[Perun] Password reset in namespace: "+namespace);
 
 		// get validation link params
@@ -974,7 +876,7 @@ public class Utils {
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
-		message.setFrom(getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
 		message.setSubject("[Perun] Password reset in namespace: "+namespace);
 
 		// get validation link params
@@ -984,7 +886,7 @@ public class Utils {
 			// Build message
 			String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
 					"\n\nThis message is automatically sent to all your email addresses registered in Perun in order to prevent malicious password reset without your knowledge.\n\n" +
-					"If you didn't request / perform password reset, please notify your VO administrator and support at "+getPropertyFromConfiguration("perun.mailchange.backupFrom")+" to resolve this security issue.\n\n" +
+					"If you didn't request / perform password reset, please notify your VO administrator and support at "+BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom")+" to resolve this security issue.\n\n" +
 					"Message is automatically generated." +
 					"\n----------------------------------------------------------------" +
 					"\nPerun - User and Resource Management System";
@@ -1009,8 +911,8 @@ public class Utils {
 
 		try {
 
-			String encryptionKey = getPropertyFromConfiguration("perun.pwdreset.secretKey");
-			String initVector = getPropertyFromConfiguration("perun.pwdreset.initVector");
+			String encryptionKey = BeansUtils.getPropertyFromConfiguration("perun.pwdreset.secretKey");
+			String initVector = BeansUtils.getPropertyFromConfiguration("perun.pwdreset.initVector");
 
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5PADDING");
 			SecretKeySpec k = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
@@ -1034,17 +936,6 @@ public class Utils {
 
 		}
 
-	}
-
-	/**
-	 * Set already filled-in properties (used by Spring container to inject properties bean)
-	 * 
-	 * @param properties
-	 * @return
-	 */
-	public static Properties setProperties(Properties properties) {
-		Utils.properties = properties;
-		return Utils.properties;
 	}
 
 }

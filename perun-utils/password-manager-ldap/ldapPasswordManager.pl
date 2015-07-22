@@ -286,6 +286,7 @@ sub ldap_connect{
 	# load configuration file
 	open FILE, "<" . $filename;
 	my @lines = <FILE>;
+	close FILE;
 
 	# remove new-line characters from the end of lines
 	chomp @lines;

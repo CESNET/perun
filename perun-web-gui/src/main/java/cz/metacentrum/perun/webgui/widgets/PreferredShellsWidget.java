@@ -30,7 +30,7 @@ public class PreferredShellsWidget extends Composite {
 	private ArrayList<String> possibleShells = new ArrayList<String>(Arrays.asList("/bin/bash", "/bin/csh", "/bin/ksh", "/bin/sh", "/bin/zsh"));
 
 	private ArrayList<ListBox> shellList = new ArrayList<ListBox>();
-	private Map<ListBox, TextBox> customMap = new HashMap<ListBox, TextBox>();
+	private Map<ListBox, ExtendedTextBox> customMap = new HashMap<ListBox, ExtendedTextBox>();
 
 	private final String CUSTOM_TEXT = "-- custom value --";
 
@@ -72,9 +72,17 @@ public class PreferredShellsWidget extends Composite {
 			for (int i=0; i<a.getValueAsJsArray().length(); i++) {
 
 				final ListBox list = new ListBox();
-				final TextBox customValue = new TextBox();
+				final ExtendedTextBox customValue = new ExtendedTextBox();
 				list.setEnabled(a.isWritable());
-				customValue.setEnabled((a.isWritable()));
+				customValue.getTextBox().setEnabled((a.isWritable()));
+				customValue.setValidator(new ExtendedTextBox.TextBoxValidator() {
+					@Override
+					public boolean validateTextBox() {
+						// on change calculate value
+						calculateAttrValue();
+						return true;
+					}
+				});
 
 				addRow(list, customValue, a.getValueAsJsArray().get(i));
 
@@ -106,7 +114,15 @@ public class PreferredShellsWidget extends Composite {
 			@Override
 			public void onClick(ClickEvent event) {
 				final ListBox list = new ListBox();
-				final TextBox customValue = new TextBox();
+				final ExtendedTextBox customValue = new ExtendedTextBox();
+				customValue.setValidator(new ExtendedTextBox.TextBoxValidator() {
+					@Override
+					public boolean validateTextBox() {
+						// on change calculate value
+						calculateAttrValue();
+						return true;
+					}
+				});
 				// add to values map
 				addRow(list, customValue, null);
 				// add to persistent storage
@@ -129,7 +145,7 @@ public class PreferredShellsWidget extends Composite {
 	 * @param customValue
 	 * @param value
 	 */
-	private void addRow(final ListBox list, final TextBox customValue, final String value) {
+	private void addRow(final ListBox list, final ExtendedTextBox customValue, final String value) {
 
 		customValue.setVisible(false);
 		shellList.add(list);
@@ -147,7 +163,7 @@ public class PreferredShellsWidget extends Composite {
 		if (!possibleShells.contains(value) && value != null) {
 			// select custom value
 			list.setSelectedIndex(list.getItemCount()-1);
-			customValue.setText(value);
+			customValue.getTextBox().setText(value);
 			customValue.setVisible(true);
 		}
 
@@ -155,6 +171,7 @@ public class PreferredShellsWidget extends Composite {
 			@Override
 			public void onChange(ChangeEvent event) {
 				customValue.setVisible(list.getValue(list.getSelectedIndex()).equals(CUSTOM_TEXT));
+				calculateAttrValue();
 			}
 		});
 
@@ -177,9 +194,9 @@ public class PreferredShellsWidget extends Composite {
 				String newValue = box.getValue(box.getSelectedIndex());
 				if (newValue.equals(CUSTOM_TEXT)) {
 					// process textbox
-					if (!customMap.get(box).getText().trim().isEmpty()) {
+					if (!customMap.get(box).getTextBox().getText().trim().isEmpty()) {
 						// store only non-empty values
-						array.push(customMap.get(box).getText().trim());
+						array.push(customMap.get(box).getTextBox().getText().trim());
 					}
 				} else {
 					array.push(newValue);

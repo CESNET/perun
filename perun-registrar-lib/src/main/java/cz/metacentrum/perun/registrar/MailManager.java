@@ -153,7 +153,7 @@ public interface MailManager {
 	 * @param group Group to link form to
 	 * @param name Name of invited User
 	 * @param email Email to send invitation to.
-	 * @param language "cs" or "en" as language used in notification (if not specified, VO settings is used, if not set, "en" is used).
+	 * @param language Language used in notification (if not specified, VO settings is used, if not set, "en" is used).
 	 *
 	 * @throws PerunException
 	 */

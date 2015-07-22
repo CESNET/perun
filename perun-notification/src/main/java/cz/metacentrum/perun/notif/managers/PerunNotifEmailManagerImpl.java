@@ -67,8 +67,10 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		this.emailFrom = (String) propertiesBean.get("notif.emailFrom");
 		this.fromText = (String) propertiesBean.get("notif.fromText");
 		this.emailFrom = (String) propertiesBean.get("notif.emailFrom");
-		this.sendMessages = ((String) propertiesBean.get("notif.sendMessages")).equals("true") ? true : false;
-		this.startTls = ((String) propertiesBean.get("notif.starttls")).equals("true") ? true : false;
+		String sendMessages_s = (String) propertiesBean.get("notif.sendMessages");
+		this.sendMessages = sendMessages_s == null ? false : (sendMessages_s.equals("true") ? true : false);
+		String startTls_s = (String) propertiesBean.get("notif.starttls");
+		this.startTls = startTls_s == null ? false : (startTls_s.equals("true") ? true : false);
 
 		createSession();
 	}
@@ -127,6 +129,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 				messagesContents.add(emailMessage.getContent());
 			} catch (Exception ex) {
 				failedEmailLogger.error(emailMessage.toString());
+				logger.error("Preparing message to send failed.", ex);
 			}
 		}
 
@@ -148,7 +151,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 					}
 				}
 			}
-			throw ex;
+			logger.error("Sending of the email failed.", ex);
 		} catch (Exception ex) {
 			throw new EmailPreparationException(ex);
 		}

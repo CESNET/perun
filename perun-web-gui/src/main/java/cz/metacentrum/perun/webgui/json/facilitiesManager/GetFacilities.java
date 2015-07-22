@@ -53,7 +53,7 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
 	private boolean checkable = true;
 	// oracle support
 	private ArrayList<Facility> fullBackup = new ArrayList<Facility>();
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .-");
 	// get Rich or Normal facilities (default normal)
 	private boolean provideRich = false;
 
@@ -145,7 +145,10 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
 
 		if (provideRich) {
 			table.addColumn(ownersColumn, "Technical owners");
+			table.setColumnWidth(ownersColumn, "25%");
 		}
+
+		table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
 	}
@@ -327,7 +330,7 @@ public class GetFacilities implements JsonCallback, JsonCallbackTable<Facility>,
 		} else {
 			for (Facility fac : fullBackup){
 				// store facility by filter
-				if (fac.getName().toLowerCase().startsWith(text.toLowerCase())) {
+				if (fac.getName().toLowerCase().contains(text.toLowerCase())) {
 					list.add(fac);
 				} else if (provideRich) {
 					// if name doesn't match, try to match owners

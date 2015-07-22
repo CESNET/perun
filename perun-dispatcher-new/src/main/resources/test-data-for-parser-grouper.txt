@@ -1,7 +1,0 @@
-sex,drugs,rock,gothic music,facility.id=1;add to group Fun Grouper TEST 1
-boring,common,folk music,pop,facility.id=2;add to group Trash Grouper TEST 2
-test,this,should,not,appear,facility.id=3;drop whole group Grouper TEST 3
-sex,drugs,rock,gothic music,facility.id=4;add to group Fun Grouper TEST 4
-boring,common,folk music,pop,facility.id=4;add to group Trash Grouper TEST 5
-test,this,should,not,appear,facility.id=2;drop whole group Grouper TEST 6
-music,hell,portishead,facility.id=2;drop whole to group PORTISHEAD TEST 7

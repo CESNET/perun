@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpclib;
 
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.*;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.rpclib.api.Deserializer;
 import cz.metacentrum.perun.rpclib.api.RpcCaller;
-import cz.metacentrum.perun.rpclib.impl.JsonDeserializer;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 public class Rpc {
@@ -108,6 +108,20 @@ public class Rpc {
 				if (deserializer == null) throw new RpcException(RpcException.Type.UNCATCHED_EXCEPTION, "Unable to create deserializer.");
 				return deserializer.readList(AuditMessage.class);
 			} catch (InternalErrorException e) {
+				throw e;
+			} catch (PerunException e) {
+				throw new ConsistencyErrorException(e);
+			}
+		}
+
+		public static void setLastProcessedId(RpcCaller rpcCaller, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
+			Map<String, Object> params = new HashMap<>();
+			params.put("consumerName", consumerName);
+			params.put("lastProcessedId", new Integer(lastProcessedId));
+
+			try {
+				rpcCaller.call("auditMessagesManager", "setLastProcessedId", params);
+			} catch (PrivilegeException | InternalErrorException e) {
 				throw e;
 			} catch (PerunException e) {
 				throw new ConsistencyErrorException(e);

@@ -77,7 +77,10 @@ function PerunTable() {
                         html += (new TableButton(this.values[row][column.btnId], column.btnName, column.btnText, column.btnType)).html();
                         break;
                     case "button2":
-                        html += this.values[row][column.button].html();
+                        var btn = this.values[row][column.button];
+                        if (btn) {
+                            html += btn.html();
+                        }
                         break;
                     case "number":
                         html += (1 + parseInt(row));
@@ -109,6 +112,13 @@ function PerunTable() {
                         break;
                     case "table":
                         html += this.values[row][column.name].draw();
+                        break;
+                    case "date":
+                        if (this.values[row][column.name] instanceof Date) {
+                            html += this.values[row][column.name].toLocaleDateString();
+                        } else {
+                            html += this.values[row][column.name];
+                        }
                         break;
                     default :
                         if (this.values.length == 0) {
@@ -151,17 +161,26 @@ function TableButton(id, name, title, type, action) {
     this.title = title;
     this.type = type;
     this.action = action;
+    this.disabled = false;
 
     this.html = function () {
         var onclick = "";
+        var disabled = "";
         if (this.action) {
-            onclick = 'onclick="' + this.action.fnc.name + '(' + this.action.params + ')"';
+            onclick = ' onclick="' + this.action.fnc.name + '(' + this.action.params + ')" ';
         }
-        var html = '<button ' + onclick + ' id="' + this.name + "-" + this.id + '" class="btn btn-' + this.type + '">' + this.title + '</button>';
+        if (this.disabled) {
+            disabled = ' disabled ';
+        }
+        var html = '<button ' + onclick + disabled + ' id="' + this.name + "-" + this.id + '" class="btn btn-' + this.type + '">' + this.title + '</button>';
         return html;
     };
 
     this.getAction = function () {
         return this.action;
     };
+
+    this.setDisabled = function(disabled) {
+        this.disabled = disabled;
+    }
 }

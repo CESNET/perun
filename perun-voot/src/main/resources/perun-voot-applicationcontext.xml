@@ -12,7 +12,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 ">
 
 	<import resource="classpath:perun-datasources.xml"/>
-
+	<import resource="classpath:perun-beans.xml"/>
 	<import resource="classpath:perun-transaction-manager.xml"/>
 
 	<!-- Enable @Transactional support -->

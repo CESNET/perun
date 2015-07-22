@@ -477,6 +477,10 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return getResourcesManagerImpl().getResourcesCount(sess, vo);
 	}
 
+	public int getResourcesCount(PerunSession sess) throws InternalErrorException {
+		return getResourcesManagerImpl().getResourcesCount(sess);
+	}
+
 	public List<Resource> getResourcesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_RESOURCE_ATTR);
 		if(!(getPerunBl().getAttributesManagerBl().isDefAttribute(sess, attribute) || getPerunBl().getAttributesManagerBl().isOptAttribute(sess, attribute))) throw new WrongAttributeAssignmentException("This method can process only def and opt attributes");

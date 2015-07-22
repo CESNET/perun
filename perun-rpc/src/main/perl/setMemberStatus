@@ -13,7 +13,7 @@ sub help {
 	--------------------------------------
 	Available options:
 	--memberId        | -m member id
-	--status					 | -s VALID/INVALID/SUSPENDED/EXPIRED/DISABLED
+	--status          | -s VALID/INVALID/SUSPENDED/EXPIRED/DISABLED
 	--batch           | -b batch
 	--help            | -h prints this help
 

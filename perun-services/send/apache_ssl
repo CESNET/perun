@@ -1,4 +1,0 @@
-#!/bin/bash
-SERVICE_NAME="apache_ssl"
-
-. generic_send

@@ -102,7 +102,9 @@ function callPerunPost(manager, method, args, callBack, perunError, perunComplet
                     (flowMessager.newMessage(data.name, data.message, "danger")).draw();
                 }
             } else {
-                callBack(data);
+                if (callBack) {
+                    callBack(data);
+                }
             }
         },
         statusCode: {
@@ -120,7 +122,7 @@ function callPerunPost(manager, method, args, callBack, perunError, perunComplet
         complete: function (jqXHR, textStatus) {
             if (perunComplete) {
                 perunComplete();
-        }
+            }
         }
     });
 }
@@ -179,10 +181,10 @@ function callBackAfter(after) {
                 debug("fatal error: cant call back method with more than 5 attrs");
             }
             callMeAfter.method(callMeAfter.args[0],
-                    callMeAfter.args[1],
-                    callMeAfter.args[2],
-                    callMeAfter.args[3],
-                    callMeAfter.args[4]);
+                callMeAfter.args[1],
+                callMeAfter.args[2],
+                callMeAfter.args[3],
+                callMeAfter.args[4]);
             callMeAfterList.splice(callMeAfterList.indexOf(callMeAfter), 1);
             //debug(callMeAfterList.length);
         }

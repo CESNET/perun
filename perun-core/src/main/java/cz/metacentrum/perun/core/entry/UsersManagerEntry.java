@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
  * UsersManager entry logic
  *
  * @author Slavek Licehammer glory@ics.muni.cz
+ * @author Sona Mastrakova
  */
 public class UsersManagerEntry implements UsersManager {
 
@@ -82,8 +83,19 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
 		if(user.isServiceUser()) throw new NotServiceUserExpectedException(user);
+
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
-			throw new PrivilegeException(sess, "getServiceUsersByUser");
+			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, user);
+			boolean found = false;
+			for (Vo vo : vos) {
+				if (found = AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) break;
+				if (found = AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) break;
+				if (found = AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) break;
+			}
+			// if not self or vo/group admin of any of users VOs
+			if (!found) {
+				throw new PrivilegeException(sess, "getServiceUsersByUser");
+			}
 		}
 		return getUsersManagerBl().getServiceUsersByUser(sess, user);
 	}
@@ -93,7 +105,17 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().checkUserExists(sess, serviceUser);
 		if(!serviceUser.isServiceUser()) throw new ServiceUserExpectedException(serviceUser);
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, serviceUser)) {
-			throw new PrivilegeException(sess, "getUsersByServiceUser");
+			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, serviceUser);
+			boolean found = false;
+			for (Vo vo : vos) {
+				if (found = AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) break;
+				if (found = AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) break;
+				if (found = AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) break;
+			}
+			// if not self or vo/group admin of any of users VOs
+			if (!found) {
+				throw new PrivilegeException(sess, "getUsersByServiceUser");
+			}
 		}
 		return getUsersManagerBl().getUsersByServiceUser(sess, serviceUser);
 	}
@@ -542,6 +564,13 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().findUsersByName(sess, titleBefore, firstName, middleName, lastName, titleAfter);
 	}
 
+	public List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Probably without authorization
+		return getUsersManagerBl().findUsersByExactName(sess, searchString);
+	}
+
 	public List<User> getUsersByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -919,6 +948,22 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	public List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF)) {
+			throw new PrivilegeException(sess, "findRichUsersWithAttributesByExactMatch");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().findRichUsersWithAttributesByExactMatch(sess, searchString, attrNames));
+
+	}
+
 	public List<RichUser> findRichUsersWithoutSpecificVoWithAttributes(PerunSession sess, Vo vo, String searchString, List<String> attrsName) throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException{
 		Utils.checkPerunSession(sess);
 
@@ -1024,4 +1069,15 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	@Override
+	public int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getUsersCount");
+		}
+
+		return getUsersManagerBl().getUsersCount(sess);
+	}
 }

@@ -5,6 +5,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -219,8 +220,14 @@ public class JsonClient {
 
 						} else if (resp.getStatusCode() == 0) {
 
-							error.setName("Aborted");
-							error.setErrorInfo("Can't contact remote server, connection was lost.");
+							error.setName("Can't contact remote server.");
+							error.setErrorInfo("You are either without network connection or your session has expired. Click \"OK\" to reload the page (all unsaved changes will be lost).");
+
+							// force reload page if it's first GUI call, otherwise keep it to alert box
+							if (!hidden && runningRequests.get(requestUrl).getManager().equals("authzResolver") &&
+									runningRequests.get(requestUrl).getMethod().equals("getPerunPrincipal")) {
+								Window.Location.reload();
+							}
 
 						}
 
@@ -251,12 +258,13 @@ public class JsonClient {
 	}
 
 	/**
-	 * Parses the responce to an object.
+	 * Parses the response to an object.
 	 *
 	 * @param resp JSON string
 	 * @return
 	 */
 	protected JavaScriptObject parseResponse(String callbackName, String resp) {
+
 		// trims the whitespace
 		resp = resp.trim();
 
@@ -300,7 +308,7 @@ public class JsonClient {
 	}
 
 	/**
-	 * Called when error occured.
+	 * Called when error occur.
 	 *
 	 * @param jso
 	 */

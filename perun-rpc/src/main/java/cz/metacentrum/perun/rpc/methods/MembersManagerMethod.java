@@ -6,6 +6,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Status;
@@ -14,7 +15,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.rpc.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 public enum MembersManagerMethod implements ManagerMethod {
@@ -45,15 +46,37 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param serviceUserOwners List<User> List of users who own serviceUser (can't be empty or contain serviceUser)
 	 * @return Member newly created member (of service User)
 	 */
+	/*#
+	 * Creates a new member from candidate which is prepared for creating serviceUser.
+	 *
+	 * This method also add user to all groups in list.
+	 * In list serviceUserOwners can't be serviceUser, only normal users are allowed.
+	 * Empty list of groups is ok, the behavior is then same like in the method without list of groups.
+	 * <strong>This method runs asynchronously</strong>
+	 *
+	 * @param vo int VO ID
+	 * @param candidate Candidate prepared future serviceUser
+	 * @param serviceUserOwners List<User> List of users who own serviceUser (can't be empty or contain serviceUser)
+	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
+	 * @return Member newly created member (of service User)
+	 */
 	createServiceMember {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			return ac.getMembersManager().createServiceMember(ac.getSession(),
-					ac.getVoById(parms.readInt("vo")),
-					parms.read("candidate", Candidate.class),
-					parms.readList("serviceUserOwners", User.class));
+			if (parms.contains("groups") ) {
+				return ac.getMembersManager().createServiceMember(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						parms.read("candidate", Candidate.class),
+						parms.readList("serviceUserOwners", User.class),
+						parms.readList("groups", Group.class));
+			} else {
+				return ac.getMembersManager().createServiceMember(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						parms.read("candidate", Candidate.class),
+						parms.readList("serviceUserOwners", User.class));
+			}
 		}
 	},
 
@@ -69,6 +92,20 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @return Member Created member
 	 */
 	/*#
+	 * Creates a new member and sets all member's attributes from the candidate.
+	 * Also stores the associated user if doesn't exist. This method is used by the registrar.
+	 * This method also add user to all groups in list.
+	 * Empty list of groups is ok, the behavior is then same like in the method without list of groups.
+	 *
+	 * @param vo int VO ID
+	 * @param extSourceName String Name of the extSource
+	 * @param extSourceType String Type of the extSource
+	 * @param login String User's login within extSource
+	 * @param candidate Candidate Candidate JSON object
+	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
+	 * @return Member Created member
+	 */
+	/*#
 	 * Creates a new member from user.
 	 *
 	 * @param vo int VO <code>id</code>
@@ -76,11 +113,32 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @return Member Created member
 	 */
 	/*#
+	 * Creates a new member from user.
+	 * This method also add user to all groups in list.
+	 * Empty list of groups is ok, the behavior is then same like in the method without list of groups.
+	 *
+	 * @param vo int VO ID
+	 * @param user int User ID
+	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
+	 * @return Member Created member
+	 */
+	/*#
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
+	 * <strong>This method runs asynchronously</strong>
+	 *
+	 * @param vo int VO ID
+	 * @param candidate Candidate Candidate JSON object
+	 * @return Member Created member
+	 */
+	/*#
+	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
+	 * This method also add user to all groups in list.
+	 * Empty list of groups is ok, the behavior is then same like in the method without list of groups.
 	 * <strong>This method runs asynchronously</strong>
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param candidate Candidate Candidate JSON object
+	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
 	 * @return Member Created member
 	 */
 	createMember {
@@ -89,20 +147,44 @@ public enum MembersManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			if (parms.contains("extSourceName") && parms.contains("extSourceType") && parms.contains("login")) {
-				return ac.getMembersManager().createMember(ac.getSession(),
-						ac.getVoById(parms.readInt("vo")),
-						parms.readString("extSourceName"),
-						parms.readString("extSourceType"),
-						parms.readString("login"),
-						parms.read("candidate", Candidate.class));
+				if (parms.contains("groups")) {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							parms.readString("extSourceName"),
+							parms.readString("extSourceType"),
+							parms.readString("login"),
+							parms.read("candidate", Candidate.class),
+							parms.readList("groups", Group.class));
+				} else {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							parms.readString("extSourceName"),
+							parms.readString("extSourceType"),
+							parms.readString("login"),
+							parms.read("candidate", Candidate.class));
+				}
 			} else if(parms.contains("user") && parms.contains("vo")) {
-				return ac.getMembersManager().createMember(ac.getSession(),
-						ac.getVoById(parms.readInt("vo")),
-						ac.getUserById(parms.readInt("user")));
+				if (parms.contains("groups")) {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getUserById(parms.readInt("user")),
+							parms.readList("groups", Group.class));
+				} else {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getUserById(parms.readInt("user")));
+				}
 			} else {
-				return ac.getMembersManager().createMember(ac.getSession(),
-						ac.getVoById(parms.readInt("vo")),
-						parms.read("candidate", Candidate.class));
+				if (parms.contains("groups")) {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							parms.read("candidate", Candidate.class),
+							parms.readList("groups", Group.class));
+				} else {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							parms.read("candidate", Candidate.class));
+				}
 			}
 		}
 	},
@@ -403,6 +485,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 							ac.getGroupById(parms.readInt("group")),
 							parms.readList("attrsDef", AttributeDefinition.class));
 				}
+			} else if (parms.contains("group")) {
+				return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
+						parms.readList("allowedStatuses", String.class),
+						ac.getGroupById(parms.readInt("group")));
 			} else {
 				return ac.getMembersManager().getRichMembersWithAttributes(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")));
@@ -644,6 +730,18 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @return List<RichMember> List of founded richMembers with specific attributes from Group for searchString
  	 */
 	/*#
+ 	 * Return list of richMembers from perun by the searchString with attributes specific for list of attrsNames
+ 	 * and who have only status which is contain in list of statuses.
+ 	 * If attrsNames is empty or null return all attributes for specific richMembers.
+ 	 * If listOfStatuses is empty or null, return all possible statuses.
+ 	 *
+ 	 * @param attrsNames List<String> Attribute names
+ 	 * @param allowedStatuses List<String> Allowed statuses
+ 	 * @param searchString String String to search by
+ 	 * @param lookingInParentGroup boolean If true, look up in a parent group
+ 	 * @return List<RichMember> List of founded richMembers with specific attributes from perun for searchString
+ 	 */
+	/*#
  	 * Return list of richMembers for specific group by the searchString with attrs specific for list of attrsNames.
  	 * If attrsNames is empty or null return all attributes for specific richMembers.
  	 *
@@ -674,12 +772,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 				}
 			} else {
 				if(parms.contains("allowedStatuses")) {
-					return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
-							ac.getGroupById(parms.readInt("group")),
-							parms.readList("attrsNames", String.class),
-							parms.readList("allowedStatuses", String.class),
-							parms.readString("searchString"),
-							parms.readBoolean("lookingInParentGroup"));
+					if(parms.contains("group")) {
+						return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
+								ac.getGroupById(parms.readInt("group")),
+								parms.readList("attrsNames", String.class),
+								parms.readList("allowedStatuses", String.class),
+								parms.readString("searchString"),
+								parms.readBoolean("lookingInParentGroup"));
+					} else {
+						return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
+								parms.readList("attrsNames", String.class),
+								parms.readList("allowedStatuses", String.class),
+								parms.readString("searchString"));
+					}
 				} else {
 					return ac.getMembersManager().findCompleteRichMembers(ac.getSession(),
 							ac.getGroupById(parms.readInt("group")),

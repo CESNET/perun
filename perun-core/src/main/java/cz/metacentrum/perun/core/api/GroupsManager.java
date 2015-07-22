@@ -658,6 +658,19 @@ public interface GroupsManager {
 	int getGroupsCount(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
 	/**
+	 * Get count of all groups
+	 *
+	 * @param sess
+	 * @param vo
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 *
+	 * @return count of all groups
+	 */
+	int getGroupsCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+
+	/**
 	 * Returns number of immediate subgroups of the parent group.
 	 *
 	 * @param sess

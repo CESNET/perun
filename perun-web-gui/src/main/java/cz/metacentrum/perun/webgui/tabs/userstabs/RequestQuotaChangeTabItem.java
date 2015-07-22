@@ -1,17 +1,21 @@
 package cz.metacentrum.perun.webgui.tabs.userstabs;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.rtMessagesManager.SendMessageToRt;
 import cz.metacentrum.perun.webgui.model.Resource;
 import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextArea;
@@ -38,6 +42,7 @@ public class RequestQuotaChangeTabItem implements TabItem {
 	private User user;
 	private String oldQuota;
 	private String defaultQuota;
+	private VirtualOrganization vo;
 
 	public enum QuotaType {
 		FILES, DATA
@@ -70,6 +75,13 @@ public class RequestQuotaChangeTabItem implements TabItem {
 
 	public Widget draw() {
 
+		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, resource.getVoId(), new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				vo = jso.cast();
+			}
+		}).retrieveData();
+
 		VerticalPanel vp = new VerticalPanel();
 
 		// set tab name
@@ -100,9 +112,10 @@ public class RequestQuotaChangeTabItem implements TabItem {
 		}
 
 		ft.setText(0, 1, resource.getName());
-		ft.setText(1, 1, oldQuota + " (default: "+defaultQuota +")");
+		ft.setText(1, 1, oldQuota + " (default: " + defaultQuota + ")");
 
 		ft.setWidget(2, 1, newQuota);
+		ft.getFlexCellFormatter().setColSpan(3, 1, 2);
 		ft.setWidget(3, 1, reason);
 
 		final CustomButton requestQuotaButton = new CustomButton("Send request", "Send quota change request", SmallIcons.INSTANCE.emailIcon());
@@ -142,6 +155,7 @@ public class RequestQuotaChangeTabItem implements TabItem {
 			}
 		};
 		reason.setValidator(reasonValidator);
+		reason.getTextArea().setSize("205px", "100px");
 
 		requestQuotaButton.addClickHandler(new ClickHandler() {
 			@Override
@@ -189,6 +203,9 @@ public class RequestQuotaChangeTabItem implements TabItem {
 
 		String text = "QUOTA CHANGE REQUEST\n\n";
 		text += "User: " + user.getFullNameWithTitles() + " (user ID: " + user.getId() +")\n";
+		if (vo != null) {
+			text += "VO: " + vo.getShortName() + " / "+ vo.getName() + " (vo ID: " + vo.getId() +")\n";
+		}
 		text += "Resource: " + resource.getName() + " (resource ID: " + resource.getId() +")\n";
 		text += getQuotaTypeAsString() + " quota\n";
 		text += "Requested quota: " + newQuota + "\n";

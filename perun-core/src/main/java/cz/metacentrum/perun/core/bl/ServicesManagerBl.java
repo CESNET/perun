@@ -135,12 +135,14 @@ public interface ServicesManagerBl {
 	ServiceAttributes getHierarchicalData(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
 
 	/**
-	 * Generates the list of attributes per each member associated with the resource.
+	 * Generates the list of attributes per each resource associated with the facility and filtered by service. Next it generates list of attributes
+	 * associated with the facility and service.
 	 *
 	 * @param perunSession
-	 * @param service attributes required by this service you will get
-	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
-	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. Facility second child is abstract node with no attribute and it's children are all members.
+	 * @param service you will get attributes required by this service
+	 * @param facility you will get attributes for this facility, resources associated with it and users assigned to the resources
+	 * @return attributes in special structure. The facility is in the root. Facility first children is abstract node which contains no attributes and it's children are all resources. 
+	 * 				Facility second child is abstract node with no attribute and it's children are all users.
 	 *
 	 * @throws InternalErrorException
 	 */
@@ -551,4 +553,15 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException;
+
+	/**
+	 * Get count of all destinations.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all destinations
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getDestinationsCount(PerunSession perunSession) throws InternalErrorException;
 }

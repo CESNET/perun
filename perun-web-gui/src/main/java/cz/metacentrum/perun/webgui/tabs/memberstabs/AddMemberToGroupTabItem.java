@@ -304,6 +304,18 @@ public class AddMemberToGroupTabItem implements TabItem, TabItemWithUrl {
 		}));
 
 		tabMenu.addWidget(disabled);
+
+		if (PerunWebSession.getInstance().isVoAdmin(group.getVoId())) {
+			CustomButton addNotMembers = new CustomButton("Switch to 'add to VO and Group'", SmallIcons.INSTANCE.userGreenIcon());
+			addNotMembers.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTabToCurrentTab(new AddMemberToVoAndGroupTabItem(group.getVoId(), group.getId()), true);
+				}
+			});
+			tabMenu.addWidget(addNotMembers);
+		}
+
 		rebuildAlreadyAddedWidget();
 		firstTabPanel.add(alreadyAdded);
 

@@ -17,15 +17,15 @@ import cz.metacentrum.perun.dispatcher.parser.Parser;
 import cz.metacentrum.perun.dispatcher.processing.EventQueue;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
-@org.springframework.stereotype.Service(value="parserGrouper")
+@org.springframework.stereotype.Service(value = "parserGrouper")
 public class ParserGrouper implements Parser {
 
-	private final static Logger log = LoggerFactory.getLogger(ParserGrouper.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(ParserGrouper.class);
 
 	@Autowired
 	private EventQueue eventQueue;
@@ -36,40 +36,37 @@ public class ParserGrouper implements Parser {
 
 	@Override
 	public void run() {/*
-		// BEGIN JUST A TEST DUMMY !!!
-		List<String> data = new ArrayList<String>();
-		//String file = Thread.currentThread().getContextClassLoader().getResource("test-data-for-parser-grouper.txt").getFile();
-		InputStream in = getClass().getClassLoader().getResourceAsStream("test-data-for-parser-grouper.txt");
-		BufferedReader input = null;
-
-		try {
-	//input = new BufferedReader(new FileReader(new File(file)));
-	input = new BufferedReader(new InputStreamReader(in));
-	String line = null;
-	while ((line = input.readLine()) != null) {
-	data.add(line);
-	}
-
-	while (running) {
-	for (String string : data) {
-	Event event = new Event();
-	event.setTimeStamp(System.currentTimeMillis());
-	String[] headerData = string.split(";");
-	event.setHeader(headerData[0]);
-	event.setData(headerData[1]);
-	eventQueue.add(event);
-		//Thread.yield();
-		Thread.sleep(1);
-	}
-	}
-	} catch (FileNotFoundException e) {
-	log.error(e.toString()+"\n"+e.getCause());
-	} catch (IOException e) {
-	log.error(e.toString()+"\n"+e.getCause());
-	} catch (Exception e) {
-	log.error(e.toString()+"\n"+e.getCause());
-	}
-	// END JUST A TEST DUMMY !!!*/
+						 * // BEGIN JUST A TEST DUMMY !!! List<String> data =
+						 * new ArrayList<String>(); //String file =
+						 * Thread.currentThread
+						 * ().getContextClassLoader().getResource
+						 * ("test-data-for-parser-grouper.txt").getFile();
+						 * InputStream in =
+						 * getClass().getClassLoader().getResourceAsStream
+						 * ("test-data-for-parser-grouper.txt"); BufferedReader
+						 * input = null;
+						 * 
+						 * try { //input = new BufferedReader(new FileReader(new
+						 * File(file))); input = new BufferedReader(new
+						 * InputStreamReader(in)); String line = null; while
+						 * ((line = input.readLine()) != null) { data.add(line);
+						 * }
+						 * 
+						 * while (running) { for (String string : data) { Event
+						 * event = new Event();
+						 * event.setTimeStamp(System.currentTimeMillis());
+						 * String[] headerData = string.split(";");
+						 * event.setHeader(headerData[0]);
+						 * event.setData(headerData[1]); eventQueue.add(event);
+						 * //Thread.yield(); Thread.sleep(1); } } } catch
+						 * (FileNotFoundException e) {
+						 * log.error(e.toString()+"\n"+e.getCause()); } catch
+						 * (IOException e) {
+						 * log.error(e.toString()+"\n"+e.getCause()); } catch
+						 * (Exception e) {
+						 * log.error(e.toString()+"\n"+e.getCause()); } // END
+						 * JUST A TEST DUMMY !!!
+						 */
 	}
 
 	@Override

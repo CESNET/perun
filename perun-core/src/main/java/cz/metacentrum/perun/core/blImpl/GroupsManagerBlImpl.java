@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,7 +103,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
 					}
 				}));
-		
+
 		for(Group group: groups) {
 			this.deleteGroup(perunSession, group, forceDelete);
 		}
@@ -237,6 +238,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// delete all Groups reserved logins from DB
 		getGroupsManagerImpl().deleteGroupReservedLogins(sess, group);
 
+		//Remove all information about group on facilities (facilities contacts)
+		List<ContactGroup> groupContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, group);
+		if(!groupContactGroups.isEmpty()) {
+			if(forceDelete) {
+				getPerunBl().getFacilitiesManagerBl().removeAllGroupContacts(sess, group);
+			} else {
+				throw new RelationExistsException("Group has still some facilities contacts: " + groupContactGroups);
+			}
+		}
+
 		// Group applications, submitted data and app_form are deleted on cascade with "deleteGroup()"
 		List<Member> membersFromDeletedGroup = getGroupMembers(sess, group);
 		getGroupsManagerImpl().deleteGroup(sess, vo, group);
@@ -293,11 +304,32 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public Group updateGroup(PerunSession sess, Group group) throws InternalErrorException {
+
+		// return group with correct updated name and shortName
 		group = getGroupsManagerImpl().updateGroup(sess, group);
 		getPerunBl().getAuditer().log(sess, "{} updated.", group);
 
 		List<Group> allSubgroups = this.getAllSubGroups(sess, group);
+		String[] groupNames = group.getName().split(":");
+
 		for(Group g: allSubgroups) {
+			String[] subGroupNames = g.getName().split(":");
+			for (int i=0; i<groupNames.length; i++) {
+				if (!subGroupNames[i].equals(groupNames[i])) {
+					// this part of name changed
+					subGroupNames[i] = groupNames[i];
+				}
+			}
+			// create new name
+			StringBuilder sb = new StringBuilder();
+			for (String sgName : subGroupNames) {
+				sb.append(sgName).append(":");
+			}
+			// set name without last ":"
+			g.setName(sb.toString().substring(0, sb.length()-1));
+			// for subgroups we must update whole name
+			getGroupsManagerImpl().updateGroupName(sess, g);
+			// create auditer message for every updated group
 			getPerunBl().getAuditer().log(sess, "{} updated.", g);
 		}
 
@@ -721,6 +753,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return getGroupsManagerImpl().getGroupsCount(sess, vo);
 	}
 
+	public int getGroupsCount(PerunSession sess) throws InternalErrorException {
+		return getGroupsManagerImpl().getGroupsCount(sess);
+	}
+
 	public int getSubGroupsCount(PerunSession sess, Group parentGroup) throws InternalErrorException {
 		return getGroupsManagerImpl().getSubGroupsCount(sess, parentGroup);
 	}
@@ -739,6 +775,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		List<Integer> groupsIds = new ArrayList<Integer>(new HashSet<Integer>(this.groupsManagerImpl.getMemberGroupsIds(sess, member, vo)));
 		List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByIds(sess, groupsIds);
+
+		//Remove members group
+		if(!groups.isEmpty()) {
+			Iterator<Group> iterator = groups.iterator();
+			while(iterator.hasNext()) {
+				Group g = iterator.next();
+				if(g.getName().equals(VosManager.MEMBERS_GROUP)) iterator.remove();
+			}
+		}
 
 		// Sort
 		Collections.sort(groups);
@@ -1368,8 +1413,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		// Get the default synchronization interval and synchronization timeout from the configuration file
-		int intervalMultiplier = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.group.synchronization.interval"));
-		int timeout = Integer.parseInt(Utils.getPropertyFromConfiguration("perun.group.synchronization.timeout"));
+		int intervalMultiplier = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.group.synchronization.interval"));
+		int timeout = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.group.synchronization.timeout"));
 
 		// Get the number of seconds from the epoch, so we can divide it by the synchronization interval value
 		long minutesFromEpoch = System.currentTimeMillis()/1000/60;

@@ -124,7 +124,7 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
 		}
-		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getDescription()+"</span>");
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getDescription()+"&nbsp;</span>");
 
 		if (session.isFacilityAdmin(resource.getFacilityId())) {
 

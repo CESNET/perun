@@ -703,6 +703,17 @@ public interface GroupsManagerBl {
 	int getGroupsCount(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
+	 * Get count of all groups.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all groups
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getGroupsCount(PerunSession perunSession) throws InternalErrorException;
+
+	/**
 	 * Returns number of immediate subgroups of the parent group.
 	 *
 	 * @param sess

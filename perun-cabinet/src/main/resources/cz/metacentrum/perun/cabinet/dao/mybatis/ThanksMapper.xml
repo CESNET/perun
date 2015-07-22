@@ -244,6 +244,9 @@
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_THANKS_ID_SEQ')
             </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_thanks_id_seq
+            </if>
         </selectKey>
         insert into CABINET_THANKS (id, publicationId, ownerId,
         createdBy, createdDate, created_by_uid)
@@ -262,6 +265,9 @@
             </if>
             <if test="_databaseId == 'postgresql'">
                 SELECT nextval('CABINET_THANKS_ID_SEQ')
+            </if>
+            <if test="_databaseId == 'hsql'">
+                call next value for cabinet_thanks_id_seq
             </if>
         </selectKey>
         insert into CABINET_THANKS

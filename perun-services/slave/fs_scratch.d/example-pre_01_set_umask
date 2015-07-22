@@ -1,5 +1,0 @@
-#!/bin/sh
-# By default UMASK is set to 0700, to change set next variable to something different
-#UMASK=0700
-
-

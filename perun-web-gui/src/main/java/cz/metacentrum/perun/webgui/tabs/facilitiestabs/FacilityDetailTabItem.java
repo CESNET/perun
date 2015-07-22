@@ -129,6 +129,10 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
 		}
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+facility.getDescription()+"&nbsp;</span>");
 
 		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
 			@Override

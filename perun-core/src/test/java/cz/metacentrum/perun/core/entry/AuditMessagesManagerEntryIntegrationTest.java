@@ -64,7 +64,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		int count = AuditMessagesManager.COUNTOFMESSAGES;
 
 		for (int i = 0; i < count; i++) {
-			perun.getAuditer().log(sess, "Test cislo: "+ i);
+			perun.getAuditer().logWithoutTransaction(sess, "Test cislo: "+ i, null);
 		}
 
 		List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess);
@@ -80,7 +80,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		int count = 33;
 
 		for (int i = 0; i < count; i++) {
-			perun.getAuditer().log(sess, "Test cislo: "+ i);
+			perun.getAuditer().logWithoutTransaction(sess, "Test cislo: "+ i, null);
 		}
 		List<AuditMessage> messages = perun.getAuditMessagesManager().getMessages(sess, count);
 		assertEquals("getMessage(sess, count) returns wrong count of messages", count , messages.size());

@@ -3,8 +3,6 @@ package cz.metacentrum.perun.webgui.tabs.memberstabs;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
@@ -18,8 +16,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.membersManager.CreateMember;
 import cz.metacentrum.perun.webgui.json.registrarManager.SendInvitation;
-import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
-import cz.metacentrum.perun.webgui.json.vosManager.FindCandidates;
+import cz.metacentrum.perun.webgui.json.vosManager.FindCandidatesOrUsersToAddToVo;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.MembersTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -61,11 +58,8 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 	 */
 	private Label titleWidget = new Label("Loading VO");
 
-	private boolean searchCandidates = false;
 	private String searchString = "";
 	private CustomButton addCandidatesButton;
-	private CustomButton addUsersButton;
-	private CustomButton inviteButton;
 	private CustomButton inviteCandidatesButton;
 	private ArrayList<GeneralObject> alreadyAddedList = new ArrayList<GeneralObject>();
 	private SimplePanel alreadyAdded = new SimplePanel();
@@ -114,75 +108,34 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		mainTab.setCellHeight(tabMenu, "30px");
 
 		addCandidatesButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedCandidateToVo());
-		addUsersButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedCandidateToVo());
-
-
-		inviteButton = new CustomButton("Invite user(s)", SmallIcons.INSTANCE.emailIcon());
 		inviteCandidatesButton = new CustomButton("Invite user(s)", SmallIcons.INSTANCE.emailIcon());
 
-		final CheckBox searchExternal = new CheckBox("Search in external sources");
-		searchExternal.setValue(searchCandidates);
-
-		// jsonCallback to get candidates
-		final FindCandidates candidates = new FindCandidates(voId, "");
-		final FindCompleteRichUsers users = new FindCompleteRichUsers("", null);
-		users.findWithoutVo(true, voId);
+		final FindCandidatesOrUsersToAddToVo findAll = new FindCandidatesOrUsersToAddToVo(voId, "");
 
 		final CustomButton searchButton = new CustomButton("Search", SmallIcons.INSTANCE.findIcon());
 
-		final CellTable<Candidate> candidatesTable = candidates.getEmptyTable();
-		final CellTable<User> usersTable = users.getEmptyTable();
+		final CellTable<Candidate> candidatesTable = findAll.getEmptyTable();
 		final ScrollPanel scrollPanel = new ScrollPanel();
 
 		final ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
 			@Override
 			public void searchFor(String text) {
-				if (searchExternal.getValue()) {
-					scrollPanel.setWidget(candidatesTable);
-					candidates.searchFor(text);
-				} else {
-					scrollPanel.setWidget(usersTable);
-					users.searchFor(text);
-				}
+				findAll.searchFor(text);
 			}
 		}, searchButton);
+
 		searchBox.getTextBox().setText(searchString);
 
-		searchExternal.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> booleanValueChangeEvent) {
-				searchCandidates = searchExternal.getValue();
-				searchString = searchBox.getTextBox().getText().trim();
-				if (searchExternal.getValue()) {
-					scrollPanel.setWidget(candidatesTable);
-					candidates.searchFor(searchString);
-				} else {
-					scrollPanel.setWidget(usersTable);
-					users.searchFor(searchString);
-				}
-			}
-		});
-
 		// search candidate - select if found one
-		JsonCallbackEvents selectOneEvent = JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(searchButton, JsonCallbackEvents.disableCheckboxEvents(searchExternal)),                new JsonCallbackEvents() {
+		JsonCallbackEvents selectOneEvent = JsonCallbackEvents.mergeEvents(JsonCallbackEvents.disableButtonEvents(searchButton), new JsonCallbackEvents() {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				searchBox.getTextBox().setEnabled(true);
-				if (searchCandidates) {
-					// check in candidates table
-					ArrayList<Candidate> array = JsonUtils.jsoAsList(jso);
-					if (array != null && array.size() == 1) {
-						candidates.setSelected(array.get(0));
-					}
-					tabMenu.addWidget(2, addCandidatesButton);
-				} else {
-					// check in users table
-					ArrayList<User> array = JsonUtils.jsoAsList(jso);
-					if (array != null && array.size() == 1) {
-						users.setSelected(array.get(0));
-					}
-					tabMenu.addWidget(2, addUsersButton);
+				// check in candidates table
+				if (findAll.getList().size() == 1) {
+					findAll.setSelected(findAll.getList().get(0));
 				}
+				tabMenu.addWidget(2, addCandidatesButton);
 			}
 			@Override
 			public void onLoadingStart() {
@@ -194,60 +147,42 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 		// set event for search
-		candidates.setEvents(selectOneEvent);
-		users.setEvents(selectOneEvent);
+		findAll.setEvents(selectOneEvent);
 
-		if (searchCandidates) {
-			tabMenu.addWidget(2, addCandidatesButton);
-		} else {
-			tabMenu.addWidget(2, addUsersButton);
-		}
-
-		if (searchCandidates) {
-			tabMenu.addWidget(3, inviteCandidatesButton);
-		} else {
-			tabMenu.addWidget(3, inviteButton);
-		}
+		tabMenu.addWidget(2, addCandidatesButton);
+		tabMenu.addWidget(3, inviteCandidatesButton);
 
 		inviteCandidatesButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				SendInvitation invite = new SendInvitation(voId, 0);
+
 				// we expect, that candidate is always single
-				for (Candidate candid : candidates.getTableSelectedList()) {
-					invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteCandidatesButton, new JsonCallbackEvents(){
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							candidates.clearTableSelectedSet();
-						}
-					}));
-					invite.inviteUser(candid);
-				}
-			}
-		});
+				Candidate candid = findAll.getSelected();
+				if (candid != null) {
 
-		inviteButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				SendInvitation invite = new SendInvitation(voId, 0);
-
-				ArrayList<User> usrs = users.getTableSelectedList();
-				for (int i=0; i<usrs.size(); i++) {
-					if (i == usrs.size()-1) {
-						invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteButton, new JsonCallbackEvents(){
+					if (candid.getObjectType().equalsIgnoreCase("Candidate")) {
+						SendInvitation invite = new SendInvitation(voId, 0);
+						invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteCandidatesButton, new JsonCallbackEvents() {
 							@Override
 							public void onFinished(JavaScriptObject jso) {
-								users.clearTableSelectedSet();
+								findAll.clearTableSelectedSet();
 							}
 						}));
+						invite.inviteUser(candid);
 					} else {
-						invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteButton));
+						SendInvitation invite = new SendInvitation(voId, 0);
+						invite.setEvents(JsonCallbackEvents.disableButtonEvents(inviteCandidatesButton, new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								findAll.clearTableSelectedSet();
+							}
+						}));
+						User user = candid.cast();
+						invite.inviteUser(user);
 					}
-					invite.inviteUser(usrs.get(i));
 				}
 			}
 		});
-
 
 		final TabItem tab = this;
 		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {
@@ -257,47 +192,41 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 			}
 		}));
 
-		tabMenu.addWidget(searchExternal);
-
 		// add candidate button
 		addCandidatesButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				Candidate candidateToBeAdded = candidates.getSelected();
+				Candidate candidateToBeAdded = findAll.getSelected();
 				if (candidateToBeAdded == null) {
 					UiElements.cantSaveEmptyListDialogBox(null);
 				} else {
-					CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addCandidatesButton, new JsonCallbackEvents(){
-						private Candidate saveSelected;
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							// put names to already added
-							if (saveSelected != null) {
-								GeneralObject go = saveSelected.cast();
-								alreadyAddedList.add(go);
-							}
-							candidates.clearTableSelectedSet();
-							rebuildAlreadyAddedWidget();
-							// clear search
-							searchBox.getTextBox().setText("");
-						}
-						@Override
-						public void onLoadingStart(){
-							saveSelected = candidates.getSelected();
-						}
-					}));
-					request.createMember(voId, candidateToBeAdded);
-				}
-			}});
+					if (candidateToBeAdded.getObjectType().equalsIgnoreCase("Candidate")) {
 
-		addUsersButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				final ArrayList<User> selected = users.getTableSelectedList();
-				if(UiElements.cantSaveEmptyListDialogBox(selected)){
-					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-					for (int i=0; i<selected.size(); i++) {
-						final int n = i;
-						CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addUsersButton, new JsonCallbackEvents(){
+						CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addCandidatesButton, new JsonCallbackEvents() {
+							private Candidate saveSelected;
+
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								// put names to already added
+								if (saveSelected != null) {
+									GeneralObject go = saveSelected.cast();
+									alreadyAddedList.add(go);
+								}
+								findAll.clearTableSelectedSet();
+								rebuildAlreadyAddedWidget();
+								// clear search
+								searchBox.getTextBox().setText("");
+							}
+
+							@Override
+							public void onLoadingStart() {
+								saveSelected = findAll.getSelected();
+							}
+						}));
+						request.createMember(voId, candidateToBeAdded);
+
+					} else {
+
+						CreateMember request = new CreateMember(JsonCallbackEvents.disableButtonEvents(addCandidatesButton, new JsonCallbackEvents(){
 							private User saveSelected;
 							@Override
 							public void onFinished(JavaScriptObject jso) {
@@ -305,7 +234,7 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 								if (saveSelected != null) {
 									GeneralObject go = saveSelected.cast();
 									alreadyAddedList.add(go);
-									users.getSelectionModel().setSelected(saveSelected, false);
+									findAll.clearTableSelectedSet();
 									rebuildAlreadyAddedWidget();
 									// clear search
 									searchBox.getTextBox().setText("");
@@ -313,36 +242,30 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 							}
 							@Override
 							public void onLoadingStart(){
-								saveSelected = selected.get(n);
+								Candidate cand = findAll.getSelected();
+								saveSelected = cand.cast();
 							}
 						}));
-						request.createMember(voId, selected.get(i));
-					}
-				}
-			}
-		});
+						User user = candidateToBeAdded.cast();
+						request.createMember(voId, user);
 
-		addUsersButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(users, usersTable, addUsersButton);
-		inviteButton.setEnabled(false);
-		JsonUtils.addTableManagedButton(users, usersTable, inviteButton);
+					}
+
+				}
+			}});
+
+		addCandidatesButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(findAll, candidatesTable, addCandidatesButton);
+		inviteCandidatesButton.setEnabled(false);
+		JsonUtils.addTableManagedButton(findAll, candidatesTable, inviteCandidatesButton);
 
 		// tables
 		candidatesTable.addStyleName("perun-table");
-		usersTable.addStyleName("perun-table");
-		if (searchCandidates) {
-			scrollPanel.add(candidatesTable);
-		} else {
-			scrollPanel.add(usersTable);
-		}
+		scrollPanel.add(candidatesTable);
 		scrollPanel.addStyleName("perun-tableScrollPanel");
 
 		// load if stored search string is not empty
-		if (searchCandidates) {
-			candidates.searchFor(searchString);
-		} else {
-			users.searchFor(searchString);
-		}
+		findAll.searchFor(searchString);
 
 		rebuildAlreadyAddedWidget();
 		mainTab.add(alreadyAdded);

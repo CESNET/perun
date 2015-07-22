@@ -47,7 +47,7 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
 	// checkable
 	private boolean checkable = true;
 	private ArrayList<Owner> backupList = new ArrayList<Owner>();
-	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" .@");
 
 	/**
 	 * New instance of get facility owners
@@ -303,8 +303,8 @@ public class GetFacilityOwners implements JsonCallback, JsonCallbackTable<Owner>
 		} else {
 			for (Owner o: backupList){
 				// store owner by filter
-				if (o.getName().toLowerCase().startsWith(filter.toLowerCase()) ||
-						o.getContact().toLowerCase().startsWith(filter.toLowerCase()) ||
+				if (o.getName().toLowerCase().contains(filter.toLowerCase()) ||
+						o.getContact().toLowerCase().contains(filter.toLowerCase()) ||
 						Owner.getTranslatedType(o.getType()).toLowerCase().startsWith(Owner.getTranslatedType(filter).toLowerCase())) {
 					list.add(o);
 						}

@@ -9,7 +9,7 @@ use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
 	return qq{
-	Prints list of Groups assigned to Resource. Group is required field.
+	Prints list of Groups assigned to Resource. Resource is required field.
 	------------------------------------------------
 	Available options:
 	--resourceId  | -r resource idetifier

@@ -70,8 +70,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 	public CreateServiceMemberInVoTabItem(int voId){
 		this.voId = voId;
 		JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso)
-			{
+			public void onFinished(JavaScriptObject jso){
 				vo = jso.cast();
 			}
 		};
@@ -110,6 +109,9 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		final ExtendedPasswordBox serviceUserPassword2 = new ExtendedPasswordBox();
 		final ListBox namespace = new ListBox();
 
+		final ExtendedTextBox certDN = new ExtendedTextBox();
+		final ExtendedTextBox cacertDN = new ExtendedTextBox();
+
 		serviceUserPassword.getTextBox().setWidth("200px");
 		serviceUserPassword2.getTextBox().setWidth("200px");
 
@@ -129,6 +131,12 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		final ExtendedTextBox.TextBoxValidator loginValidator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
 			public boolean validateTextBox() {
+				if (namespace.getSelectedIndex() == 0) {
+					// do not validate if namespace is not selected
+					serviceUserLogin.getTextBox().setValue(null);
+					serviceUserLogin.setOk();
+					return true;
+				}
 				if (serviceUserLogin.getTextBox().getValue().trim().isEmpty()) {
 					serviceUserLogin.setError("Login can't be empty!");
 					return false;
@@ -199,6 +207,33 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		};
 		serviceUserPassword2.setValidator(validator2);
 
+
+		final ExtendedTextBox.TextBoxValidator certDNValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+
+				if ((certDN.getTextBox().getValue().trim().isEmpty() && cacertDN.getTextBox().getValue().trim().isEmpty()) ||
+						(!certDN.getTextBox().getValue().trim().isEmpty() && !cacertDN.getTextBox().getValue().trim().isEmpty())) {
+					certDN.setOk();
+					cacertDN.setOk();
+					return true;
+				} else {
+					if (certDN.getTextBox().getValue().trim().isEmpty()) {
+						certDN.setError("Value can't be empty!");
+					}
+					if (cacertDN.getTextBox().getValue().trim().isEmpty()) {
+						cacertDN.setError("Value can't be empty!");
+					}
+				}
+				return false;
+			}
+		};
+
+		certDN.setValidator(certDNValidator);
+		cacertDN.setValidator(certDNValidator);
+
+		// make value empty
+		namespace.addItem("Not selected", "");
 		for (String name : Utils.getSupportedPasswordNamespaces()) {
 			namespace.addItem(name.toUpperCase(), name);
 		}
@@ -215,6 +250,10 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		layout.setWidget(3, 1, namespace);
 		layout.setHTML(4, 0, "<strong>Login: </strong>");
 		layout.setWidget(4, 1, serviceUserLogin);
+		layout.setHTML(5, 0, "<strong>User cert DN: </strong>");
+		layout.setWidget(5, 1, certDN);
+		layout.setHTML(6, 0, "<strong>CA cert DN: </strong>");
+		layout.setWidget(6, 1, cacertDN);
 
 		final FlexTable firstTabLayout = new FlexTable();
 		firstTabLayout.setSize("100%", "100%");
@@ -230,15 +269,17 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		mainTab.add(firstTabLayout);
 		mainTab.add(secondTabPanel);
 
-		layout.getFlexCellFormatter().setHorizontalAlignment(5, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+		// disable login by default (first option)
+		serviceUserLogin.getTextBox().setEnabled(false);
 
 		final CustomButton cb = new CustomButton("Continue", SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 			public void onClick(ClickEvent clickEvent) {
 
 				// check
-				if (!loginValidator.validateTextBox()) return;
+				if (namespace.getSelectedIndex() != 0 && !loginValidator.validateTextBox()) return;
 				if (!nameValidator.validateTextBox()) return;
 				if (!emailValidator.validateTextBox()) return;
+				if (!certDNValidator.validateTextBox()) return;
 
 				// change to lager tab
 				session.getTabManager().changeStyleOfInnerTab(true);
@@ -283,6 +324,11 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
 								final Member member = jso.cast();
 
+								if (namespace.getSelectedIndex() == 0) {
+									// we didn't set login, hence skip password setting
+									session.getTabManager().closeTab(tab, true);
+									return;
+								}
 								// change to small tab
 								session.getTabManager().changeStyleOfInnerTab(false);
 
@@ -347,7 +393,13 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 							};
 						}));
 
-						request.createMember(voId, serviceUserName.getTextBox().getValue().trim(), serviceUserEmail.getTextBox().getValue().trim(), itemsTable.getList(), namespace.getValue(namespace.getSelectedIndex()), serviceUserLogin.getTextBox().getValue().trim());
+						request.createMember(voId, serviceUserName.getTextBox().getValue().trim(),
+									serviceUserEmail.getTextBox().getValue().trim(),
+									itemsTable.getList(),
+									namespace.getValue(namespace.getSelectedIndex()),
+									serviceUserLogin.getTextBox().getValue().trim(),
+									certDN.getTextBox().getValue().trim(),
+									cacertDN.getTextBox().getValue().trim());
 
 					}
 				});
@@ -459,6 +511,15 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		namespace.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent changeEvent) {
+
+				if (namespace.getSelectedIndex() == 0) {
+					// do not set login
+					serviceUserLogin.getTextBox().setEnabled(false);
+					serviceUserLogin.getTextBox().setValue(null);
+				} else {
+					serviceUserLogin.getTextBox().setEnabled(true);
+				}
+
 				final String login = serviceUserLogin.getTextBox().getValue().trim();
 				final String loginNamespace = namespace.getValue(namespace.getSelectedIndex());
 				if ((!login.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(login)) || serviceUserLogin.isHardError()) {
@@ -497,9 +558,9 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-		layout.setWidget(5, 0, cb);
-		layout.getFlexCellFormatter().setColSpan(5, 0, 2);
-
+		layout.setWidget(7, 0, cb);
+		layout.getFlexCellFormatter().setHorizontalAlignment(7, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+		layout.getFlexCellFormatter().setColSpan(7, 0, 2);
 		this.contentWidget.setWidget(mainTab);
 
 		return getWidget();

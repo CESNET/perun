@@ -1,11 +1,27 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.PerunPrincipal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Host;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +32,6 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
@@ -28,7 +43,6 @@ import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
 import java.util.Map;
 import java.util.Set;
-
 
 /**
  * Authorization resolver. It decides if the perunPrincipal has rights to do the provided operation.
@@ -91,6 +105,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return authzRoles;
 	}
 
+	/**
+	 * Checks if the principal is authorized.
+	 *
+	 * @param sess perunSession
+	 * @param role required role
+	 * @param complementaryObject object which specifies particular action of the role (e.g. group)
+	 * @return true if the principal authorized, false otherwise
+	 * @throws InternalErrorException if something goes wrong
+	 */
 	public static boolean isAuthorized(PerunSession sess, Role role, PerunBean complementaryObject) throws InternalErrorException {
 		log.trace("Entering isAuthorized: sess='" +  sess + "', role='" +  role + "', complementaryObject='" +  complementaryObject + "'");
 		Utils.notNull(sess, "sess");
@@ -274,47 +297,61 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 			if(roles.contains(Role.SELF)); //Not Allowed
 		} else if(user != null && facility != null) {
-			if(roles.contains(Role.FACILITYADMIN)) if(isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
-			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
-			if(roles.contains(Role.VOADMIN)) {
+			if (roles.contains(Role.FACILITYADMIN)) if (isAuthorized(sess, Role.FACILITYADMIN, facility)) return true;
+			if (roles.contains(Role.SELF)) if (isAuthorized(sess, Role.SELF, user)) return true;
+			if (roles.contains(Role.VOADMIN)) {
 				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
 				HashSet<Resource> resourcesFromUser = new HashSet<Resource>();
-				for(Member memberElement: membersFromUser) {
+				for (Member memberElement : membersFromUser) {
 					resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
 				}
 				resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-				for(Resource resourceElement: resourcesFromUser) {
-					if(isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
+				for (Resource resourceElement : resourcesFromUser) {
+					if (isAuthorized(sess, Role.VOADMIN, resourceElement)) return true;
 				}
 			}
-			if(roles.contains(Role.VOOBSERVER)) {
+			if (roles.contains(Role.VOOBSERVER)) {
 				List<Member> membersFromUser = getPerunBlImpl().getMembersManagerBl().getMembersByUser(sess, user);
 				HashSet<Resource> resourcesFromUser = new HashSet<Resource>();
-				for(Member memberElement: membersFromUser) {
+				for (Member memberElement : membersFromUser) {
 					resourcesFromUser.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedResources(sess, memberElement));
 				}
 				resourcesFromUser.retainAll(getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility));
-				for(Resource resourceElement: resourcesFromUser) {
-					if(isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
+				for (Resource resourceElement : resourcesFromUser) {
+					if (isAuthorized(sess, Role.VOOBSERVER, resourceElement)) return true;
 				}
 			}
-			if(roles.contains(Role.GROUPADMIN)) {
+			if (roles.contains(Role.GROUPADMIN)) {
 				//If groupManager has rights on "any group which is assigned to any resource from the facility" and "the user has also member in vo where exists this group"
 				List<Vo> userVos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, user);
 				Set<Integer> userVosIds = new HashSet<>();
-				for(Vo voElement: userVos) {
+				for (Vo voElement : userVos) {
 					userVosIds.add(voElement.getId());
 				}
 
 				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 				Set<Group> groupsFromFacility = new HashSet<Group>();
-				for(Resource resourceElement: resourcesFromFacility) {
+				for (Resource resourceElement : resourcesFromFacility) {
 					groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
 				}
 
-				for(Group groupElement: groupsFromFacility) {
-					if(isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId())) return true;
+				for (Group groupElement : groupsFromFacility) {
+					if (isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId()))
+						return true;
 				}
+			}
+		} else if(member != null && group != null) {
+			if(roles.contains(Role.VOADMIN)) {
+				if(isAuthorized(sess, Role.VOADMIN, member)) return true;
+			}
+			if(roles.contains(Role.VOOBSERVER)) {
+				if(isAuthorized(sess, Role.VOOBSERVER, member)) return true;
+			}
+			if(roles.contains(Role.SELF)) {
+				if(isAuthorized(sess, Role.SELF, member)) return true;
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				if(isAuthorized(sess, Role.GROUPADMIN, group)) return true;
 			}
 		} else if(user != null) {
 			if(roles.contains(Role.SELF)) if(isAuthorized(sess, Role.SELF, user)) return true;
@@ -443,6 +480,17 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return false;
 	}
 
+	/**
+	 * Return list of roles which are authorized for doing "action" on "attribute".
+	 *
+	 * @param sess perun session
+	 * @param actionType type of action on attribute (ex.: write, read, etc...)
+	 * @param attrDef attribute what principal want to work with
+	 * @return list of roles
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws ActionTypeNotExistsException
+	 */
 	public static List<Role> getRolesWhichCanWorkWithAttribute(PerunSession sess, ActionType actionType, AttributeDefinition attrDef) throws InternalErrorException, AttributeNotExistsException, ActionTypeNotExistsException {
 		getPerunBlImpl().getAttributesManagerBl().checkAttributeExists(sess, attrDef);
 		getPerunBlImpl().getAttributesManagerBl().checkActionTypeExists(sess, actionType);
@@ -466,7 +514,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	/**
 	 * Returns true if the perunPrincipal has requested role.
 	 *
-	 * @param perunPrincipal
+	 * @param perunPrincipal acting person for whom the role is checked
 	 * @param role role to be checked
 	 */
 	public static boolean hasRole(PerunPrincipal perunPrincipal, Role role) {
@@ -474,14 +522,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Set role for user and all complementary objects
+	 * Set role for user and <b>all</b> complementary objects.
 	 *
 	 * If some complementary object is wrong for the role, throw an exception.
 	 * For role "perunadmin" ignore complementary objects.
 	 *
 	 * @param sess perun session
-	 * @param user user for setting role
-	 * @param role role
+	 * @param user the user for setting role
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
 	 * @param complementaryObjects objects for which role will be set
 	 *
 	 * @throws InternalErrorException
@@ -512,8 +560,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * @see #setRole(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.User, cz.metacentrum.perun.core.api.Role, java.util.List, boolean)
-	 * Only use 1 complementary object!
+	 * Set role for user and <b>one</b> complementary object.
+	 *
+	 * If complementary object is wrong for the role, throw an exception.
+	 * For role "perunadmin" ignore complementary object.
+	 *
+	 * @param sess perun session
+	 * @param user the user for setting role
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param complementaryObject object for which role will be set
+	 *
+	 * @throws InternalErrorException
+	 * @throws AlreadyAdminException
 	 */
 	public static void setRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
 		List<PerunBean> complementaryObjects = new ArrayList<>();
@@ -522,14 +580,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Set role for group and all complementary objects
+	 * Set role for auhtorizedGroup and <b>all</b> complementary objects.
 	 *
 	 * If some complementary object is wrong for the role, throw an exception.
 	 * For role "perunadmin" ignore complementary objects.
 	 *
 	 * @param sess perun session
-	 * @param authorizedGroup group for setting role
-	 * @param role role
+	 * @param authorizedGroup the group for setting role
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
 	 * @param complementaryObjects objects for which role will be set
 	 *
 	 * @throws InternalErrorException
@@ -560,8 +618,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * @see #setRole(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Role, java.util.List, boolean)
-	 * Only use 1 complementary object!
+	 * Set role for authorizedGroup and <b>one</b> complementary object.
+	 *
+	 * If complementary object is wrong for the role, throw an exception.
+	 * For role "perunadmin" ignore complementary object.
+	 *
+	 * @param sess perun session
+	 * @param authorizedGroup the group for setting role
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param complementaryObject object for which role will be set
+	 *
+	 * @throws InternalErrorException
+	 * @throws AlreadyAdminException
 	 */
 	public static void setRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, AlreadyAdminException {
 		List<PerunBean> complementaryObjects = new ArrayList<>();
@@ -570,15 +638,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Unset role for user and all complementary objects
+	 * Unset role for user and <b>all</b> complementary objects
 	 *
 	 * If some complementary object is wrong for the role, throw an exception.
 	 * For role "perunadmin" ignore complementary objects.
 	 *
 	 * @param sess perun session
-	 * @param user user for setting role
-	 * @param role role
-	 * @param complementaryObjects objects for which role will be set
+	 * @param user the user for unsetting role
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param complementaryObjects objects for which role will be unset
 	 *
 	 * @throws InternalErrorException
 	 * @throws UserNotAdminException
@@ -608,8 +676,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * @see #unsetRole(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.User, cz.metacentrum.perun.core.api.Role, java.util.List, boolean) 
-	 * Only use 1 complementary object!
+	 * Unset role for user and <b>one</b> complementary object.
+	 *
+	 * If complementary object is wrong for the role, throw an exception.
+	 * For role "perunadmin" ignore complementary object.
+	 *
+	 * @param sess perun session
+	 * @param user the user for unsetting role
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param complementaryObject object for which role will be unset
+	 *
+	 * @throws InternalErrorException
+	 * @throws UserNotAdminException
 	 */
 	public static void unsetRole(PerunSession sess, User user, PerunBean complementaryObject, Role role) throws InternalErrorException, UserNotAdminException {
 		List<PerunBean> complementaryObjects = new ArrayList<>();
@@ -618,15 +696,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Unset role for group and all complementary objects
+	 * Unset role for group and <b>all</b> complementary objects
 	 *
 	 * If some complementary object is wrong for the role, throw an exception.
 	 * For role "perunadmin" ignore complementary objects.
 	 *
 	 * @param sess perun session
-	 * @param authorizedGroup group for setting role
-	 * @param role role
-	 * @param complementaryObjects objects for which role will be set
+	 * @param authorizedGroup the group for unsetting role
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param complementaryObjects objects for which role will be unset
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotAdminException
@@ -656,8 +734,18 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * @see #unsetRole(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Group, cz.metacentrum.perun.core.api.Role, java.util.List, boolean) 
-	 * Only use 1 complementary object!
+	 * Unset role for group and <b>one</b> complementary object
+	 *
+	 * If some complementary object is wrong for the role, throw an exception.
+	 * For role "perunadmin" ignore complementary object.
+	 *
+	 * @param sess perun session
+	 * @param authorizedGroup the group for unsetting role
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param complementaryObject object for which role will be unset
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupNotAdminException
 	 */
 	public static void unsetRole(PerunSession sess, Group authorizedGroup, PerunBean complementaryObject, Role role) throws InternalErrorException, GroupNotAdminException {
 		List<PerunBean> complementaryObjects = new ArrayList<>();
@@ -671,9 +759,9 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * If user and authorizedGroup are null, throw exception. Only one can be filled at once, if both, throw exception.
 	 * If complementaryObject is null, throw an exception if the role is not PerunAdmin.
 	 *
-	 * IMPORTANT: refresh authz only if user in session is affected
+	 * <b>IMPORTANT:</b> refresh authz only if user in session is affected
 	 *
-	 * @param sess
+	 * @param sess perun session
 	 * @param user the user for set role
 	 * @param authorizedGroup the group for set role
 	 * @param operation 'SET' or 'UNSET'
@@ -816,32 +904,72 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return getClass().getSimpleName() + ":[]";
 	}
 
+	/**
+	 * Returns true if the perun principal inside the perun session is vo admin.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is vo admin
+	 */
 	public static boolean isVoAdmin(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN);
 	}
 
+	/**
+	 * Returns true if the perun principal inside the perun session is group admin.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is group admin.
+	 */
 	public static boolean isGroupAdmin(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.GROUPADMIN);
 	}
 
+	/**
+	 * Returns true if the perun principal inside the perun session is facility admin.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is facility admin.
+	 */
 	public static boolean isFacilityAdmin(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.FACILITYADMIN);
 	}
 
+	/**
+	 * Returns true if the perun principal inside the perun session is vo observer.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is vo observer
+	 */
 	public static boolean isVoObserver(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.VOOBSERVER);
 	}
 
+	/**
+	 * Returns true if the perun principal inside the perun session is top group creator.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is top group creator.
+	 */
 	public static boolean isTopGroupCreator(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.TOPGROUPCREATOR);
 	}
 
+	/**
+	 * Returns true if the perun principal inside the perun session is perun admin.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is perun admin.
+	 */
 	public static boolean isPerunAdmin(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN);
 	}
 
-	/*
-	 * Extracts only roles without complementary objects.
+	/**
+	 * Get all principal role names. Role is defined as a name, translation table is in Role class.
+	 *
+	 * @param sess perun session
+	 * @throws InternalErrorException
+	 * @return list of integers, which represents role from enum Role.
 	 */
 	public static List<String> getPrincipalRoleNames(PerunSession sess) throws InternalErrorException {
 		// We need to load the principals roles
@@ -852,6 +980,14 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return sess.getPerunPrincipal().getRoles().getRolesNames();
 	}
 
+	/**
+	 * Returns user which is associated with credentials used to log-in to Perun.
+	 *
+	 * @param sess perun session
+	 * @return currently logged user
+	 * @throws UserNotExistsException
+	 * @throws InternalErrorException
+	 */
 	public static User getLoggedUser(PerunSession sess) throws UserNotExistsException, InternalErrorException {
 		// We need to load additional information about the principal
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
@@ -860,11 +996,22 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		return sess.getPerunPrincipal().getUser();
 	}
 
+	/**
+	 * Returns PerunPrincipal object associated with current session. It contains necessary information,
+	 * including user identification, authorization and metadata. Each call of this method refresh the
+	 * session including authorization data.
+	 *
+	 * @param sess perun session
+	 * @return perunPrincipal object
+	 * @throws InternalErrorException if the PerunSession is not valid.
+	 */
 	public static PerunPrincipal getPerunPrincipal(PerunSession sess) throws InternalErrorException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		if (!sess.getPerunPrincipal().isAuthzInitialized()) {
 			init(sess);
+		} else {
+			refreshAuthz(sess);
 		}
 
 		return sess.getPerunPrincipal();
@@ -873,8 +1020,8 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	/**
 	 * Returns all complementary objects for defined role.
 	 *
-	 * @param sess
-	 * @param role
+	 * @param sess perun session
+	 * @param role to get object for
 	 * @return list of complementary objects
 	 * @throws InternalErrorException
 	 */
@@ -883,13 +1030,13 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Returns only complementary objects for defined role wich fits perunBeanClass class.
+	 * Returns only complementary objects for defined role which fits perunBeanClass class.
 	 *
-	 * @param sess
-	 * @param role
-	 * @param PerunBean particular class (e.g. Vo, Group, ...)
+	 * @param sess perun session
+	 * @param role to get object for
+	 * @param perunBeanClass particular class ( Vo | Group | ... )
 	 * @return list of complementary objects
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	public static List<PerunBean> getComplementaryObjectsForRole(PerunSession sess, Role role, Class perunBeanClass) throws InternalErrorException {
@@ -969,7 +1116,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * Fill in proper roles and their relative entities (vos, groups, ....).
 	 * User itself or ext source data is NOT updated.
 	 *
-	 * @param sess PerunSession to refresh authz for
+	 * @param sess perun session to refresh authz for
 	 * @throws InternalErrorException
 	 */
 	public static synchronized void refreshAuthz(PerunSession sess) throws InternalErrorException {
@@ -993,12 +1140,12 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	}
 
 	/**
-	 * Refresh all session data excluding ext source and additionalInformations.
+	 * Refresh all session data excluding Ext. Source and additional information.
 	 *
 	 * This method update user in session (try to find user by ext. source data).
 	 * Then it updates authorization data in session.
 	 *
-	 * @param sess PerunSession to refresh data for
+	 * @param sess Perun session to refresh data for
 	 * @throws InternalErrorException
 	 */
 	public static synchronized void refreshSession(PerunSession sess) throws InternalErrorException {
@@ -1021,7 +1168,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 * If authzRoles is null, return empty AuthzRoles.
 	 * If there is no GroupAdmin role or Group object for this role, return not changed authzRoles.
 	 *
-	 * @param sess
+	 * @param sess perun session
 	 * @param authzRoles authzRoles for some user
 	 * @return authzRoles also with subgroups of groups
 	 * @throws InternalErrorException
@@ -1187,7 +1334,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	private static void prepareServiceRoles(PerunSession sess) throws InternalErrorException {
 		// Load list of perunAdmins from the configuration, split the list by the comma
-		List<String> perunAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.admins").split("[ \t]*,[ \t]*")));
+		List<String> perunAdmins = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.admins").split("[ \t]*,[ \t]*")));
 
 		// Check if the PerunPrincipal is in a group of Perun Admins
 		if (perunAdmins.contains(sess.getPerunPrincipal().getActor())) {
@@ -1198,29 +1345,26 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			return;
 		}
 
-		String perunRpcAdmin = Utils.getPropertyFromConfiguration("perun.rpc.principal");
+		String perunRpcAdmin = BeansUtils.getPropertyFromConfiguration("perun.rpc.principal");
 		if (sess.getPerunPrincipal().getActor().equals(perunRpcAdmin)) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.RPC);
 			log.trace("AuthzResolver.init: Perun RPC {} loaded", perunRpcAdmin);
 		}
 
-		List<String> perunEngineAdmins = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.engine.principals").split("[ \t]*,[ \t]*")));
+		List<String> perunEngineAdmins = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.engine.principals").split("[ \t]*,[ \t]*")));
 		if (perunEngineAdmins.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.ENGINE);
 			log.trace("AuthzResolver.init: Perun Engine {} loaded", perunEngineAdmins);
 		}
 
-		List<String> perunNotifications = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.notification.principals").split("[ \t]*,[ \t]*")));
+		List<String> perunNotifications = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.notification.principals").split("[ \t]*,[ \t]*")));
 		if (perunNotifications.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.NOTIFICATIONS);
-
-			//FIXME ted pridame i roli plneho admina
-			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.PERUNADMIN);
 
 			log.trace("AuthzResolver.init: Perun Notifications {} loaded", perunNotifications);
 		}
 
-		List<String> perunRegistrars = new ArrayList<String>(Arrays.asList(Utils.getPropertyFromConfiguration("perun.registrar.principals").split("[ \t]*,[ \t]*")));
+		List<String> perunRegistrars = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.registrar.principals").split("[ \t]*,[ \t]*")));
 		if (perunRegistrars.contains(sess.getPerunPrincipal().getActor())) {
 			sess.getPerunPrincipal().getRoles().putAuthzRole(Role.REGISTRAR);
 

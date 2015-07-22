@@ -80,17 +80,35 @@ public interface GroupsManagerImplApi {
 	/**
 	 * Updates group by ID.
 	 *
-	 * Update shortName (use shortName) and description. Group.name is ignored.
-	 * Return Group with correctly set parameters (including group.name)
+	 * Update shortName and description.
+	 * Return Group with correctly set parameters
 	 *
 	 * @param perunSession
 	 * @param group to update (use only ID, shortName and description)
 	 *
-	 * @return updated group with correctly set parameters (including group.name)
+	 * @return updated group with correctly set parameters
 	 *
 	 * @throws InternalErrorException
 	 */
 	Group updateGroup(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
+	 * Updates group by ID.
+	 *
+	 * !! IMPORTANT This method allows to change group name the way it doesn't correspond with the groups hierarchy !!
+	 * Meant for updating subgroups after parent group name is updated !!
+	 *
+	 * Update name (with ":").
+	 * Return Group with correctly set parameters
+	 *
+	 * @param perunSession
+	 * @param group to update (use only ID and name)
+	 *
+	 * @return updated group with correctly set parameters
+	 *
+	 * @throws InternalErrorException
+	 */
+	Group updateGroupName(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * Search for the group with specified id in all VOs.
@@ -343,6 +361,17 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	int getGroupsCount(PerunSession perunSession, Vo vo) throws InternalErrorException;
+
+	/**
+	 * Get count of all groups.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all groups
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getGroupsCount(PerunSession perunSession) throws InternalErrorException;
 
 	/**
 	 * Returns number of immediate subgroups of the parent group.

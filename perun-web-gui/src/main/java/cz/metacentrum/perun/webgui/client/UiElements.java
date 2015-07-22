@@ -311,7 +311,9 @@ public class UiElements {
 
 		final ClickHandler okClickHandler = new ClickHandler() {
 			public void onClick(ClickEvent arg0) {
-				// do nothing
+				if (error != null && "0".equals(error.getErrorId())) {
+					Window.Location.reload();
+				}
 			}
 		};
 
@@ -332,10 +334,15 @@ public class UiElements {
 		layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
 
 		// build confirm
-		Confirm conf = new Confirm(header + ((!error.getErrorId().equals("")) ? " (" + error.getErrorId() + ")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
+		Confirm conf;
+		if (error != null && "0".equals(error.getErrorId())) {
+			conf = new Confirm(header + ((!error.getErrorId().equals("")) ? " (" + error.getErrorId() + ")" : ""), layout, okClickHandler, true);
+		} else {
+			conf = new Confirm(header + ((!error.getErrorId().equals("")) ? " (" + error.getErrorId() + ")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
+			conf.setCancelIcon(SmallIcons.INSTANCE.emailIcon());
+		}
 		conf.setNonScrollable(true);
 		conf.setAutoHide(false);
-		conf.setCancelIcon(SmallIcons.INSTANCE.emailIcon());
 
 		conf.show();
 
@@ -1054,7 +1061,12 @@ public class UiElements {
 		// en = english strings
 		// cs = czech strings
 
-		// english is fallback in all cases
+		// translation not supported
+		if (Utils.getNativeLanguage().isEmpty()) {
+			languageButton.setVisible(false);
+			languageButton.setEnabled(false);
+			return languageButton;
+		}
 
 		languageButton.setVisible(true); // display for perun admin only in WebGui.class
 

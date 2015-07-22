@@ -8,7 +8,7 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Removes a Facility manager. User id and Facility are required fields.
+	Removes selected manager from facility.  Facility id or name and manager's id are required fields.
 	------------------------------------
 	Available options:
 	--facilityId   | -f facility id

@@ -2,6 +2,8 @@ package cz.metacentrum.perun.taskslib.service;
 
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
+
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
@@ -32,6 +34,8 @@ public interface ResultManager {
 	int clearByTask(int taskId, int engineID);
 
 	int clearAll(int engineID);
+
+	int clearOld(int engineID, int numDays) throws InternalErrorException;
 
 	List<TaskResult> getTaskResultsByTask(int taskId, int engineID);
 

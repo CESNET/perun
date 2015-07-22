@@ -5,10 +5,9 @@ import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
- * @author Michal Karm Babacek
- * JavaDoc coming soon...
- *
+ * 
+ * @author Michal Karm Babacek JavaDoc coming soon...
+ * 
  */
 @org.springframework.stereotype.Service(value = "dispatcherQueuePool")
 public class DispatcherQueuePool {
@@ -31,7 +30,7 @@ public class DispatcherQueuePool {
 		dispatcherQueuePool.remove(dispatcherQueue.getClientID());
 	}
 
-	public int poolSize(){
+	public int poolSize() {
 		return dispatcherQueuePool.size();
 	}
 

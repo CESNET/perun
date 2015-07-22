@@ -2,17 +2,13 @@ package cz.metacentrum.perun.rpc.methods;
 
 import java.util.*;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.model.*;
 import cz.metacentrum.perun.registrar.model.Application.AppType;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.rpc.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
@@ -1071,7 +1067,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
 
-			reCaptcha.setPrivateKey(Utils.getPropertyFromConfiguration("perun.recaptcha.privatekey"));
+			reCaptcha.setPrivateKey(BeansUtils.getPropertyFromConfiguration("perun.recaptcha.privatekey"));
 			reCaptcha.setRecaptchaServer(ReCaptchaImpl.HTTPS_SERVER);
 
 			// we don't need caller's address since our key is global
@@ -1133,6 +1129,45 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 			} else {
 				return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession());
 			}
+
+		}
+
+	},
+
+	/*#
+	 * Get time-limited token proving user identity in external source (for now 3 minutes). It can be used
+	 * to join user identity with another by calling consolidateIdentityUsingToken() method
+	 * and passing the token. Please note, that different authz (identity) must be used to perform both calls.
+	 *
+	 * @return String Token to be used for joining identities.
+	 */
+	getConsolidatorToken {
+
+		@Override
+		public String call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getRegistrarManager().getConsolidatorManager().getConsolidatorToken(ac.getSession());
+
+		}
+
+	},
+
+	/*#
+	 * Join current user identity (authz) with the one previously provided and referenced by the token.
+	 *
+	 * @param token String Token to be used for joining identities.
+	 * @return List<UserExtSource> List of user identities know to Perun after joining.
+	 * @throw IdentityUnknownException When neither current or previous identity is associated with a user in Perun.
+	 * @throw IdentityIsSameException User used same identity (authz) to get token and to request joining.
+	 * @throw IdentitiesAlreadyJoinedException Both identities used in a process belong to the same user in Perun (already joined).
+	 * @throw IdentityAlreadyInUseException Both identities used in a process are associated with different users. In order to join two user accounts contact support.
+	 */
+	consolidateIdentityUsingToken {
+
+		@Override
+		public List<UserExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getRegistrarManager().getConsolidatorManager().consolidateIdentityUsingToken(ac.getSession(), parms.readString("token"));
 
 		}
 

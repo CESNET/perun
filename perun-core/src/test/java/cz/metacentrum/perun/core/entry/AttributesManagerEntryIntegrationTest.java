@@ -770,7 +770,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			attributesManager.setAttribute(sess, group, a);
 		}
 
-		List<Attribute> retAttr = attributesManager.getAllAttributesStartWithNameWithoutNullValue(sess, group, AttributesManager.NS_GROUP_ATTR_OPT + ":group_test_uniqueattribute");
+		List<Attribute> retAttr = attributesManager.getAllAttributesStartWithNameWithoutNullValue(sess, group, AttributesManager.NS_GROUP_ATTR_OPT + ":group-test-uniqueattribute");
 
 		assertNotNull("unable to get group attributes", retAttr);
 
@@ -792,7 +792,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			attributesManager.setAttribute(sess, resource, a);
 		}
 
-		List<Attribute> retAttr = attributesManager.getAllAttributesStartWithNameWithoutNullValue(sess, resource, AttributesManager.NS_RESOURCE_ATTR_OPT + ":resource_test_uniqueattribute:");
+		List<Attribute> retAttr = attributesManager.getAllAttributesStartWithNameWithoutNullValue(sess, resource, AttributesManager.NS_RESOURCE_ATTR_OPT + ":resource-test-uniqueattribute:");
 		assertNotNull("unable to get resource attributes", retAttr);
 
 		assertTrue("our atttributes not returned",attributes.containsAll(retAttr));
@@ -1027,7 +1027,7 @@ public void getResourceMemberAttributesForUser() throws Exception {
 	// return members and users attributes from resources members
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, resource, member, true);
 	assertNotNull("unable to get member-resource(work with user) attributes", retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1057,6 +1057,127 @@ public void getResourceMemberAttributesForUser() throws Exception {
 	}
 
 @Test
+public void getMemberGroupAttributes() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributes");
+
+	vo = setUpVo();
+	member = setUpMember();
+	group = setUpGroup();
+	attributes = setUpMemberGroupAttribute();
+	attributesManager.setAttribute(sess, member, group, attributes.get(0));
+
+	List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group);
+	assertNotNull("unable to get member-group attributes", retAttr);
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
+}
+
+@Test
+public void getMemberGroupAttributesForUser() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributesForUser");
+
+	vo = setUpVo();
+	member = setUpMember();
+	group = setUpGroup();
+	attributes = setUpUserAttribute();
+	User user = perun.getUsersManager().getUserByMember(sess, member);
+	attributesManager.setAttribute(sess, user, attributes.get(0));
+
+	Attribute attr = new Attribute();
+	attr.setNamespace("urn:perun:member_group:attribute-def:opt");
+	attr.setFriendlyName("member-group-test-for-list-of-names-attribute");
+	attr.setType(String.class.getName());
+	attr.setValue("MemberGroupAttributeForList");
+	attributesManager.createAttribute(sess, attr);
+	attributesManager.setAttribute(sess, member, group, attr);
+
+	List<String> attrNames = new ArrayList<>();
+	attrNames.add(attributes.get(0).getName());
+	attrNames.add(attr.getName());
+
+	// return members and users attributes from groups members
+	List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group, attrNames, true);
+	assertNotNull("unable to get member-group(work with user) attributes", retAttr);
+	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+}
+
+@Test (expected=GroupNotExistsException.class)
+public void getMemberGroupAttributesForUserWhenGroupNotExists() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributesForUserWhenGroupNotExists");
+
+	vo = setUpVo();
+	member = setUpMember();
+
+	attributesManager.getAttributes(sess, member, new Group(), new ArrayList<String>(), true);
+	// shouldn't find group
+}
+
+@Test (expected=MemberNotExistsException.class)
+public void getMemberGroupAttributesForUserWhenMemberNotExists() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributesForUserWhenMemberNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+
+	attributesManager.getAttributes(sess, new Member(), group, new ArrayList<String>(), true);
+	// shouldn't find member
+}
+
+@Test
+public void getMemberGroupAttributesByListOfNames1() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributesByListOfNames");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+	attributesManager.setAttribute(sess, member, group, attributes.get(0));
+
+	Attribute attr = new Attribute();
+	attr.setNamespace("urn:perun:member_group:attribute-def:opt");
+	attr.setFriendlyName("member-group-test-for-list-of-names-attribute");
+	attr.setType(String.class.getName());
+	attr.setValue("MemberGroupAttributeForList");
+	attributesManager.createAttribute(sess, attr);
+	attributesManager.setAttribute(sess, member, group, attr);
+
+	List<String> attrNames = new ArrayList<String>();
+	attrNames.add(attributes.get(0).getName());
+	attrNames.add(attr.getName());
+
+	List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group, attrNames);
+	assertNotNull("unable to get member-group attributes", retAttr);
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attr));
+}
+
+@Test
+public void getMemberGroupAttributesByListOfNames2() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributesByListOfNames");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+	attributesManager.setAttribute(sess, member, group, attributes.get(0));
+
+	Attribute attr = new Attribute();
+	attr.setNamespace("urn:perun:member_group:attribute-def:opt");
+	attr.setFriendlyName("member-group-test-for-list-of-names-attribute");
+	attr.setType(String.class.getName());
+	attr.setValue("MemberGroupAttributeForList");
+	attributesManager.createAttribute(sess, attr);
+	attributesManager.setAttribute(sess, member, group, attr);
+
+	List<String> attrNames = new ArrayList<String>();
+	attrNames.add(attr.getName());
+
+	List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group, attrNames);
+	assertNotNull("unable to get member attributes", retAttr);
+	assertFalse("our attribute was not returned", retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attr));
+}
+
+@Test
 public void getMemberAttributes() throws Exception {
 	System.out.println("attributesManager.getMemberAttributes");
 
@@ -1067,7 +1188,7 @@ public void getMemberAttributes() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, member);
 	assertNotNull("unable to get member attributes", retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1091,7 +1212,7 @@ public void getMemberAttributesByListOfNames1() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:member:attribute-def:opt");
-	attr.setFriendlyName("member_test_for_list_of_names_attribute");
+	attr.setFriendlyName("member-test-for-list-of-names-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("MemberAttributeForList");
 	attributesManager.createAttribute(sess, attr);
@@ -1103,7 +1224,7 @@ public void getMemberAttributesByListOfNames1() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, member, attrNames);
 	assertNotNull("unable to get member attributes", retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 	assertTrue("our attribute was not returned",retAttr.contains(attr));
 }
 
@@ -1118,7 +1239,7 @@ public void getMemberAttributesByListOfNames2() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:member:attribute-def:opt");
-	attr.setFriendlyName("member_test_for_list_of_names_attribute");
+	attr.setFriendlyName("member-test-for-list-of-names-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("MemberAttributeForList");
 	attributesManager.createAttribute(sess, attr);
@@ -1129,8 +1250,8 @@ public void getMemberAttributesByListOfNames2() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, member, attrNames);
 	assertNotNull("unable to get member attributes", retAttr);
-	assertFalse("our attribute was not returned",retAttr.contains(attributes.get(0)));
-	assertTrue("our attribute was not returned",retAttr.contains(attr));
+	assertFalse("our attribute was not returned", retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attr));
 }
 
 @Test
@@ -1149,7 +1270,7 @@ public void getFacilityUserAttributes() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, facility, user);
 	assertNotNull("unable to get facility-user attributes",retAttr);
-	assertTrue("returned incorrect facility-user",retAttr.contains(attributes.get(0)));
+	assertTrue("returned incorrect facility-user", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1189,8 +1310,8 @@ public void getUserAttributes() throws Exception {
 	attributesManager.setAttribute(sess, user, attributes.get(0));
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, user);
-	assertNotNull("unable to get user attributes",retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertNotNull("unable to get user attributes", retAttr);
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1214,8 +1335,8 @@ public void getUserLargeAttributes() throws Exception {
 	attributesManager.setAttribute(sess, user, attributes.get(0));
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, user);
-	assertNotNull("unable to get user attributes",retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertNotNull("unable to get user attributes", retAttr);
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 }
 
 @Test
@@ -1229,7 +1350,7 @@ public void getGroupAttributes() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, group);
 	assertNotNull("unable to get group attributes", retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1255,7 +1376,7 @@ public void getGroupResourceAttributes() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, resource, group);
 	assertNotNull("unable to get group-resource attributes", retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1294,7 +1415,7 @@ public void getHostAttributes() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, host);
 	assertNotNull("unable to get host attributes", retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1317,7 +1438,7 @@ public void getAttributesByAttributeDefinition() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributesByAttributeDefinition(sess, attributes.get(0));
 	assertNotNull("unable to get attributes", retAttr);
-	assertTrue("our attribute was not returned",retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1342,7 +1463,7 @@ public void setFacilityAttributes() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, facility);
 
-	assertTrue("unable to set/or return facility attribute we created",retAttr.contains(attributes.get(0)));
+	assertTrue("unable to set/or return facility attribute we created", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1405,7 +1526,7 @@ public void setVoAttributes() throws Exception {
 	attributesManager.setAttributes(sess, vo, attributes);
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, vo);
-	assertTrue("unable to set/or return vo attribute we created",retAttr.contains(attributes.get(0)));
+	assertTrue("unable to set/or return vo attribute we created", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1470,7 +1591,7 @@ public void setResourceAttributes() throws Exception {
 	attributesManager.setAttributes(sess, resource, attributes);
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, resource);
-	assertTrue("unable to set/or return resource attribute we created",retAttr.contains(attributes.get(0)));
+	assertTrue("unable to set/or return resource attribute we created", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1543,7 +1664,7 @@ public void setMemberResourceAttributes() throws Exception {
 
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, resource, member);
 	assertNotNull("unable to get member-resource attributes", retAttr);
-	assertTrue("unable to set/or return our member-resource attribute",retAttr.contains(attributes.get(0)));
+	assertTrue("unable to set/or return our member-resource attribute", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1640,7 +1761,7 @@ public void setUserAttributesForMemberResource() throws Exception {
 	// return users attributes from resource member
 	List<Attribute> retAttr = attributesManager.getAttributes(sess, resource, member, true);
 	assertNotNull("unable to set or get member-resource(work with user) attributes", attributes);
-	assertTrue("our attribute was not set/returned",retAttr.contains(attributes.get(0)));
+	assertTrue("our attribute was not set/returned", retAttr.contains(attributes.get(0)));
 
 }
 
@@ -1703,6 +1824,173 @@ public void setUserAttributesForMemberResource() throws Exception {
 		// shouldn't set wrong attribute
 
 	}
+
+@Test
+public void setMemberGroupAttributes() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributes");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttributes(sess, member, group, attributes);
+
+	List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group);
+	assertNotNull("unable to get member-group attributes", retAttr);
+	assertTrue("unable to set/or return our member-group attribute", retAttr.contains(attributes.get(0)));
+}
+
+@Test (expected=GroupNotExistsException.class)
+public void setMemberGroupAttributesWhenGroupNotExists() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributesWhenResourceNotExists");
+
+	vo = setUpVo();
+	member = setUpMember();
+
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttributes(sess, member, new Group(), attributes);
+	// shouldn't find group
+}
+
+@Test (expected=MemberNotExistsException.class)
+public void setMemberGroupAttributesWhenMemberNotExists() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributesWhenMemberNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttributes(sess, new Member(), group, attributes);
+	// shouldn't find member
+}
+
+@Test (expected=AttributeNotExistsException.class)
+public void setMemberGroupAttributesWhenAttributeNotExists() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributesWhenAttributeNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+
+	attributes = setUpMemberGroupAttribute();
+	attributes.get(0).setId(0);
+	// make valid attribute not existing in DB by setting ID=0
+	attributesManager.setAttributes(sess, member, group, attributes);
+	// shouldn't find attribute
+}
+
+@Test (expected=WrongAttributeAssignmentException.class)
+public void setMemberGroupAttributesWhenWrongAttrAssigment() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributesWhenAttributeNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+
+	attributes = setUpVoAttribute();
+	// set up wrong attribute - vo instead of member-group
+	attributesManager.setAttributes(sess, member, group, attributes);
+	// shouldn't set attribute
+}
+
+@Test (expected=InternalErrorException.class)
+public void setMemberGroupAttributesWhenTypeMismatch() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributesWhenTypeMismatch");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+	attributes.get(0).setValue(1);
+	// set wrong value - integer into string
+	attributesManager.setAttributes(sess, member, group, attributes);
+	// shouldn't set wrong attribute
+}
+
+@Test
+public void setUserAttributesForMemberGroup() throws Exception {
+	System.out.println("attributesManager.setUserAttributesForMemberGroup");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpUserAttribute();
+
+	Attribute attr = new Attribute();
+	attr.setNamespace("urn:perun:member_group:attribute-def:opt");
+	attr.setFriendlyName("member-group-test-for-list-of-names-attribute");
+	attr.setType(String.class.getName());
+	attr.setValue("MemberGroupAttributeForList");
+	attributesManager.createAttribute(sess, attr);
+	attributesManager.setAttribute(sess, member, group, attr);
+
+	List<String> attrNames = new ArrayList<String>();
+	attrNames.add(attributes.get(0).getName());
+	attrNames.add(attr.getName());
+
+	attributesManager.setAttributes(sess, member, group, attributes, true);
+
+	// return users attributes from member group
+	List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group, attrNames, true);
+	assertNotNull("unable to set or get member-group(work with user) attributes", attributes);
+	assertTrue("our attribute was not set/returned", retAttr.contains(attributes.get(0)));
+}
+
+@Test (expected=MemberNotExistsException.class)
+public void setUserAttributesForMemberGroupWhenMemberNotExists() throws Exception {
+	System.out.println("attributesManager.setUserAttributesForMemberGroupWhenMemberNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	attributes = setUpUserAttribute();
+
+	attributesManager.setAttributes(sess, new Member(), group, attributes, true);
+	// shouldn't find member
+}
+
+@Test (expected=GroupNotExistsException.class)
+public void setUserAttributesForMemberGroupWhenGroupNotExists() throws Exception {
+	System.out.println("attributesManager.setUserAttributesForMemberGroupWhenGroupNotExists");
+
+	vo = setUpVo();
+	member = setUpMember();
+	attributes = setUpUserAttribute();
+
+	attributesManager.setAttributes(sess, member, new Group(), attributes, true);
+	// shouldn't find group
+}
+
+@Test (expected=AttributeNotExistsException.class)
+public void setUserAttributesForMemberGroupWhenAttributeNotExists() throws Exception {
+	System.out.println("attributesManager.setUserAttributesForMemberGroupWhenAttributeNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpUserAttribute();
+	attributes.get(0).setId(0);
+	// make valid attribute object not existing in DB
+
+	attributesManager.setAttributes(sess, member, group, attributes, true);
+	// shouldn't find attribute
+}
+
+@Test (expected=InternalErrorException.class)
+public void setUserAttributesForMemberGroupWhenTypeMismatch() throws Exception {
+	System.out.println("attributesManager.setUserAttributesForMemberGroupWhenTypeMismatch");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpUserAttribute();
+	attributes.get(0).setValue(1);
+	// set wrong value - integer into string
+	attributesManager.setAttributes(sess, member, group, attributes, true);
+	// shouldn't set wrong attribute
+}
 
 @Test
 public void setMemberAttributes() throws Exception {
@@ -2032,7 +2320,7 @@ public void setGroupResourceAttributes() throws Exception {
 
 @Test (expected=InternalErrorException.class)
 	public void setGroupResourceAttributesWhenTypeMismatch() throws Exception {
-		System.out.println("attributesManager.setMemberResourceAttributesWhenTypeMismatch");
+		System.out.println("attributesManager.setGroupResourceAttributesWhenTypeMismatch");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -2041,7 +2329,7 @@ public void setGroupResourceAttributes() throws Exception {
 		attributes = setUpGroupResourceAttribute();
 		attributes.get(0).setValue(1);
 		// set wrong value - integer into string
-		attributesManager.setAttributes(sess, resource, member, attributes);
+		attributesManager.setAttributes(sess, resource, group, attributes);
 		// shouldn't set wrong attribute
 
 	}
@@ -2218,7 +2506,7 @@ public void getResourceAttribute() throws Exception {
 
 	Attribute retAttr = attributesManager.getAttribute(sess, resource, "urn:perun:resource:attribute-def:core:id");
 	assertNotNull("unable to get core attribute resource id", retAttr);
-	assertEquals("returned core attr value is not correct",retAttr.getValue(),resource.getId());
+	assertEquals("returned core attr value is not correct", retAttr.getValue(), resource.getId());
 
 }
 
@@ -2269,9 +2557,9 @@ public void getMemberResourceAttribute() throws Exception {
 
 	attributesManager.setAttributes(sess, resource, member, attributes);
 
-	Attribute retAttr = attributesManager.getAttribute(sess, resource, member,"urn:perun:member_resource:attribute-def:opt:member_resource_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, resource, member,"urn:perun:member_resource:attribute-def:opt:member-resource-test-attribute");
 	assertNotNull("unable to get opt member resource attribute ", retAttr);
-	assertEquals("returned opt attr value is not correct",retAttr.getValue(),attributes.get(0).getValue());
+	assertEquals("returned opt attr value is not correct", retAttr.getValue(), attributes.get(0).getValue());
 
 }
 
@@ -2287,7 +2575,7 @@ public void getMemberResourceAttribute() throws Exception {
 
 		attributesManager.setAttributes(sess, resource, member, attributes);
 
-		attributesManager.getAttribute(sess, new Resource(), member, "urn:perun:member_resource:attribute-def:opt:member_resource_test_attribute");
+		attributesManager.getAttribute(sess, new Resource(), member, "urn:perun:member_resource:attribute-def:opt:member-resource-test-attribute");
 		// shouldn't find resource
 
 	}
@@ -2304,7 +2592,7 @@ public void getMemberResourceAttribute() throws Exception {
 
 		attributesManager.setAttributes(sess, resource, member, attributes);
 
-		attributesManager.getAttribute(sess, resource, new Member(), "urn:perun:member_resource:attribute-def:opt:member_resource_test_attribute");
+		attributesManager.getAttribute(sess, resource, new Member(), "urn:perun:member_resource:attribute-def:opt:member-resource-test-attribute");
 		// shouldn't find member
 
 	}
@@ -2332,10 +2620,83 @@ public void getMemberResourceAttribute() throws Exception {
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		attributesManager.getAttribute(sess, resource, member, "urn:perun:resource:attribute-def:opt:member_resource_test_attribute");
+		attributesManager.getAttribute(sess, resource, member, "urn:perun:resource:attribute-def:opt:member-resource-test-attribute");
 		// shouldn't find resource attribute instead of member-resource
 
 	}
+
+@Test
+public void getMemberGroupAttribute() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttribute");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttributes(sess, member, group, attributes);
+
+	Attribute retAttr = attributesManager.getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:opt:member-group-test-attribute");
+	assertNotNull("unable to get opt member group attribute ", retAttr);
+	assertEquals("returned opt attr value is not correct",retAttr.getValue(),attributes.get(0).getValue());
+
+}
+
+@Test (expected=GroupNotExistsException.class)
+public void getMemberGroupAttributeWhenGroupNotExists() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeWhenGroupNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttributes(sess, member, group, attributes);
+
+	attributesManager.getAttribute(sess, member, new Group(), "urn:perun:member_group:attribute-def:opt:member-group-test-attribute");
+	// shouldn't find group
+}
+
+@Test (expected=MemberNotExistsException.class)
+public void getMemberGroupAttributeWhenMemberNotExists() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeWhenMemberNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttributes(sess, member, group, attributes);
+
+	attributesManager.getAttribute(sess, new Member(), group, "urn:perun:member_group:attribute-def:opt:member-group-test-attribute");
+	// shouldn't find member
+}
+
+@Test (expected=AttributeNotExistsException.class)
+public void getMemberGroupAttributeWhenAttributeNotExists() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeWhenAttributeNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+
+	attributesManager.getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:opt:nesmysl");
+	// shouldn't find member group attribute "nesmysl"
+
+}
+
+@Test (expected=WrongAttributeAssignmentException.class)
+public void getMemberGroupAttributeWhenWrongAttrAssignment() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeWhenWrongAttrAssignment");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+
+	attributesManager.getAttribute(sess, member, group, "urn:perun:group:attribute-def:opt:member-groupe-test-attribute");
+	// shouldn't find group attribute instead of member-group
+
+}
 
 @Test
 public void getMemberAttribute() throws Exception {
@@ -2395,9 +2756,9 @@ public void getFacilityUserAttribute() throws Exception {
 
 	attributesManager.setAttributes(sess, facility, user, attributes);
 
-	Attribute retAttr = attributesManager.getAttribute(sess, facility, user, "urn:perun:user_facility:attribute-def:opt:user_facility_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, facility, user, "urn:perun:user_facility:attribute-def:opt:user-facility-test-attribute");
 	assertNotNull("unable to get opt user_facility attribute ", retAttr);
-	assertEquals("returned opt attr value is not correct",retAttr.getValue(),attributes.get(0).getValue());
+	assertEquals("returned opt attr value is not correct", retAttr.getValue(), attributes.get(0).getValue());
 
 }
 
@@ -2413,7 +2774,7 @@ public void getFacilityUserAttribute() throws Exception {
 
 		attributesManager.setAttributes(sess, facility, user, attributes);
 
-		attributesManager.getAttribute(sess, new Facility(), user, "urn:perun:user_facility:attribute-def:opt:user_facility_test_attribute");
+		attributesManager.getAttribute(sess, new Facility(), user, "urn:perun:user_facility:attribute-def:opt:user-facility-test-attribute");
 		// shouldn't find facility
 
 	}
@@ -2430,7 +2791,7 @@ public void getFacilityUserAttribute() throws Exception {
 
 		attributesManager.setAttributes(sess, facility, user, attributes);
 
-		attributesManager.getAttribute(sess, facility, new User(), "urn:perun:user_facility:attribute-def:opt:user_facility_test_attribute");
+		attributesManager.getAttribute(sess, facility, new User(), "urn:perun:user_facility:attribute-def:opt:user-facility-test-attribute");
 		// shouldn't find user
 
 	}
@@ -2532,9 +2893,9 @@ public void getGroupAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, group, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, group, "urn:perun:group:attribute-def:opt:group_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, group, "urn:perun:group:attribute-def:opt:group-test-attribute");
 	assertNotNull("unable to get opt group attribute", retAttr);
-	assertEquals("returned opt attr value is not correct",retAttr.getValue(),attributes.get(0).getValue());
+	assertEquals("returned opt attr value is not correct", retAttr.getValue(), attributes.get(0).getValue());
 
 }
 
@@ -2561,7 +2922,7 @@ public void getGroupAttributesFromList() throws Exception {
 	public void getGroupAttributeWhenGroupNotExists() throws Exception {
 		System.out.println("attributesManager.getGroupAttributeWhenGroupNotExists");
 
-		attributesManager.getAttribute(sess, new Group(), "urn:perun:group:attribute-def:opt:group_test_attribute");
+		attributesManager.getAttribute(sess, new Group(), "urn:perun:group:attribute-def:opt:group-test-attribute");
 		// shouldn't find groups
 
 	}
@@ -2602,7 +2963,7 @@ public void getGroupResourceAttribute() throws Exception {
 
 	attributesManager.setAttributes(sess, resource, group, attributes);
 
-	Attribute retAttr = attributesManager.getAttribute(sess, resource, group,"urn:perun:group_resource:attribute-def:opt:group_resource_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, resource, group,"urn:perun:group_resource:attribute-def:opt:group-resource-test-attribute");
 	assertNotNull("unable to get opt group resource attribute ", retAttr);
 	assertEquals("returned opt attr value is not correct",retAttr.getValue(),attributes.get(0).getValue());
 
@@ -2620,7 +2981,7 @@ public void getGroupResourceAttribute() throws Exception {
 
 		attributesManager.setAttributes(sess, resource, group, attributes);
 
-		attributesManager.getAttribute(sess, new Resource(), group, "urn:perun:group_resource:attribute-def:opt:group_resource_test_attribute");
+		attributesManager.getAttribute(sess, new Resource(), group, "urn:perun:group_resource:attribute-def:opt:group-resource-test-attribute");
 		// shouldn't find resource
 
 	}
@@ -2637,7 +2998,7 @@ public void getGroupResourceAttribute() throws Exception {
 
 		attributesManager.setAttributes(sess, resource, group, attributes);
 
-		attributesManager.getAttribute(sess, resource, new Group(), "urn:perun:group_resource:attribute-def:opt:group_resource_test_attribute");
+		attributesManager.getAttribute(sess, resource, new Group(), "urn:perun:group_resource:attribute-def:opt:group-resource-test-attribute");
 		// shouldn't find group
 
 	}
@@ -2665,7 +3026,7 @@ public void getGroupResourceAttribute() throws Exception {
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		attributesManager.getAttribute(sess, resource, group, "urn:perun:resource:attribute-def:opt:group_resource_test_attribute");
+		attributesManager.getAttribute(sess, resource, group, "urn:perun:resource:attribute-def:opt:group-resource-test-attribute");
 		// shouldn't find resource attribute instead of member-resource
 
 	}
@@ -2679,7 +3040,7 @@ public void getHostAttribute() throws Exception {
 
 	attributesManager.setAttributes(sess, host, attributes);
 
-	Attribute retAttr = attributesManager.getAttribute(sess, host,"urn:perun:host:attribute-def:opt:host_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, host,"urn:perun:host:attribute-def:opt:host-test-attribute");
 	assertNotNull("unable to get opt host attribute ", retAttr);
 	assertEquals("returned opt attr value is not correct",retAttr.getValue(),attributes.get(0).getValue());
 
@@ -2694,7 +3055,7 @@ public void getHostAttribute() throws Exception {
 
 		attributesManager.setAttributes(sess, host, attributes);
 
-		attributesManager.getAttribute(sess, new Host(), "urn:perun:host:attribute-def:opt:host_test_attribute");
+		attributesManager.getAttribute(sess, new Host(), "urn:perun:host:attribute-def:opt:host-test-attribute");
 		// shouldn't find host
 
 	}
@@ -2716,7 +3077,7 @@ public void getHostAttribute() throws Exception {
 
 		host = setUpHost().get(0);
 
-		attributesManager.getAttribute(sess, host, "urn:perun:resource:attribute-def:opt:host_test_attribute");
+		attributesManager.getAttribute(sess, host, "urn:perun:resource:attribute-def:opt:host-test-attribute");
 		// shouldn't find resource attribute instead of host
 
 	}
@@ -2738,7 +3099,7 @@ public void getAttributeDefinition() throws Exception {
 
 	AttributeDefinition attrDef = attributesManager.getAttributeDefinition(sess, "urn:perun:vo:attribute-def:core:id");
 	assertNotNull("unable to get attribute definition by name",attrDef);
-	assertTrue("returned wrong attr def by name",attrDef.getName().equals("urn:perun:vo:attribute-def:core:id"));
+	assertTrue("returned wrong attr def by name", attrDef.getName().equals("urn:perun:vo:attribute-def:core:id"));
 
 }
 
@@ -2793,7 +3154,7 @@ public void getAttributesDefinition() throws Exception {
 
 	List<AttributeDefinition> attrDef = attributesManager.getAttributesDefinition(sess);
 	assertNotNull("unable to get attributes definition",attrDef);
-	assertTrue("there should be some attributes definition",attrDef.size() > 0);
+	assertTrue("there should be some attributes definition", attrDef.size() > 0);
 
 }
 
@@ -2812,7 +3173,7 @@ public void getAttributeDefinitionById() throws Exception {
 
 	AttributeDefinition retAttrDef = attributesManager.getAttributeDefinitionById(sess, attrDef.getId());
 	assertNotNull("unable to get attribute definition",retAttrDef);
-	assertTrue("returned wrong attr definition",retAttrDef.getName().equals(attrDef.getName()));
+	assertTrue("returned wrong attr definition", retAttrDef.getName().equals(attrDef.getName()));
 
 }
 
@@ -2860,8 +3221,8 @@ public void getFacilityAttributeById() throws Exception {
 	int id = attributes.get(0).getId();
 
 	Attribute retAttr = attributesManager.getAttributeById(sess, facility, id);
-	assertNotNull("unable to get facility attribute by id",retAttr);
-	assertEquals("returned attribute is not same as we stored",retAttr,attributes.get(0));
+	assertNotNull("unable to get facility attribute by id", retAttr);
+	assertEquals("returned attribute is not same as we stored", retAttr, attributes.get(0));
 
 }
 
@@ -2913,7 +3274,7 @@ public void getVoAttributeById() throws Exception {
 
 	Attribute retAttr = attributesManager.getAttributeById(sess, vo, id);
 	assertNotNull("unable to get vo attribute by id",retAttr);
-	assertEquals("returned attribute is not same as stored",retAttr,attributes.get(0));
+	assertEquals("returned attribute is not same as stored", retAttr, attributes.get(0));
 
 }
 
@@ -2967,7 +3328,7 @@ public void getResourceAttributeById() throws Exception {
 
 	Attribute retAttr = attributesManager.getAttributeById(sess, resource, id);
 	assertNotNull("unable to get resource attribute by id",retAttr);
-	assertEquals("returned attribute is not same as stored",retAttr,attributes.get(0));
+	assertEquals("returned attribute is not same as stored", retAttr, attributes.get(0));
 
 }
 
@@ -3026,7 +3387,7 @@ public void getMemberResourceAttributeById() throws Exception {
 
 	Attribute retAttr = attributesManager.getAttributeById(sess, resource, member, id);
 	assertNotNull("unable to get resource member attribute by id",retAttr);
-	assertEquals("returned attribute is not same as stored",retAttr,attributes.get(0));
+	assertEquals("returned attribute is not same as stored", retAttr, attributes.get(0));
 
 }
 
@@ -3088,6 +3449,75 @@ public void getMemberResourceAttributeById() throws Exception {
 		// shouldn't return member resource attribute when ID belong to different type of attribute
 
 	}
+
+@Test
+public void getMemberGroupAttributeById() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeById");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+	attributesManager.setAttributes(sess, member, group, attributes);
+
+	int id = attributes.get(0).getId();
+
+	Attribute retAttr = attributesManager.getAttributeById(sess, member, group, id);
+	assertNotNull("unable to get group member attribute by id", retAttr);
+	assertEquals("returned attribute is not same as stored", retAttr, attributes.get(0));
+}
+
+@Test (expected=GroupNotExistsException.class)
+public void getMemberGroupAttributeByIdWhenGroupNotExists() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeByIdWhenGroupNotExists");
+
+	vo = setUpVo();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+	int id = attributes.get(0).getId();
+
+	attributesManager.getAttributeById(sess, member, new Group(), id);
+	// shouldn't find group
+}
+
+@Test (expected=MemberNotExistsException.class)
+public void getMemberGroupAttributeByIdWhenMemberNotExists() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeByIdWhenMemberNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	attributes = setUpMemberGroupAttribute();
+	int id = attributes.get(0).getId();
+
+	attributesManager.getAttributeById(sess, new Member(), group, id);
+	// shouldn't find member
+}
+
+@Test (expected=AttributeNotExistsException.class)
+public void getMemberGroupAttributeByIdWhenAttributeNotExists() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeByIdWhenAttributeNotExists");
+
+	vo = setUpVo();
+	member = setUpMember();
+	group = setUpGroup();
+
+	attributesManager.getAttributeById(sess, member, group, 0);
+	// shouldn't find attribute
+}
+
+@Test (expected=WrongAttributeAssignmentException.class)
+public void getMemberGroupAttributeByIdWhenWrongAttrAssignment() throws Exception {
+	System.out.println("attributesManager.getMemberGroupAttributeByIdWhenWrongAttrAssignment");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpVoAttribute();
+	int id = attributes.get(0).getId();
+
+	attributesManager.getAttributeById(sess, member, group, id);
+	// shouldn't return member group attribute when ID belong to different type of attribute
+}
 
 @Test
 public void getMemberAttributeById() throws Exception {
@@ -3425,9 +3855,9 @@ public void setFacilityAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, facility, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, facility, "urn:perun:facility:attribute-def:opt:facility_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, facility, "urn:perun:facility:attribute-def:opt:facility-test-attribute");
 	assertNotNull("unable to get facility attribute by name",retAttr);
-	assertEquals("returned facility attribute is not same as stored",retAttr,attributes.get(0));
+	assertEquals("returned facility attribute is not same as stored", retAttr, attributes.get(0));
 
 }
 
@@ -3493,9 +3923,9 @@ public void setFacilityUserAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, facility, user, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, facility, user, "urn:perun:user_facility:attribute-def:opt:user_facility_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, facility, user, "urn:perun:user_facility:attribute-def:opt:user-facility-test-attribute");
 	assertNotNull("unable to get facility-user attribute by name",retAttr);
-	assertEquals("returned facility-user attribute is not same as stored",retAttr,attributes.get(0));
+	assertEquals("returned facility-user attribute is not same as stored", retAttr, attributes.get(0));
 
 }
 
@@ -3582,7 +4012,7 @@ public void setVoAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, vo, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, vo, "urn:perun:vo:attribute-def:opt:vo_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, vo, "urn:perun:vo:attribute-def:opt:vo-test-attribute");
 	assertNotNull("unable to get vo attribute by name",retAttr);
 	assertEquals("returned vo attribute is not same as stored",retAttr,attributes.get(0));
 
@@ -3649,9 +4079,9 @@ public void setResourceAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, resource, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, resource, "urn:perun:resource:attribute-def:opt:resource_test_attribute");
-	assertNotNull("unable to get resource attribute by name",retAttr);
-	assertEquals("returned resource attribute is not same as stored",retAttr,attributes.get(0));
+	Attribute retAttr = attributesManager.getAttribute(sess, resource, "urn:perun:resource:attribute-def:opt:resource-test-attribute");
+	assertNotNull("unable to get resource attribute by name", retAttr);
+	assertEquals("returned resource attribute is not same as stored", retAttr, attributes.get(0));
 
 }
 
@@ -3723,9 +4153,9 @@ public void setMemberResourceAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, resource, member, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, resource, member, "urn:perun:member_resource:attribute-def:opt:member_resource_test_attribute");
-	assertNotNull("unable to get member-resource attribute by name",retAttr);
-	assertEquals("returned member-resource attribute is not same as stored",retAttr,attributes.get(0));
+	Attribute retAttr = attributesManager.getAttribute(sess, resource, member, "urn:perun:member_resource:attribute-def:opt:member-resource-test-attribute");
+	assertNotNull("unable to get member-resource attribute by name", retAttr);
+	assertEquals("returned member-resource attribute is not same as stored", retAttr, attributes.get(0));
 
 }
 
@@ -3805,6 +4235,89 @@ public void setMemberResourceAttribute() throws Exception {
 	}
 
 @Test
+public void setMemberGroupAttribute() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttribute");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttribute(sess, member, group, attributes.get(0));
+
+	Attribute retAttr = attributesManager.getAttribute(sess, member, group, "urn:perun:member_group:attribute-def:opt:member-group-test-attribute");
+	assertNotNull("unable to get member-group attribute by name", retAttr);
+	assertEquals("returned member-group attribute is not same as stored", retAttr, attributes.get(0));
+}
+
+@Test (expected=GroupNotExistsException.class)
+public void setMemberGroupAttributeWhenGroupNotExists() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributeWhenResourceNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttribute(sess, member, new Group(), attributes.get(0));
+	// shouldn't find group
+}
+
+@Test (expected=MemberNotExistsException.class)
+public void setMemberGroupAttributeWhenMemberNotExists() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributeWhenMemberNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	attributes = setUpMemberGroupAttribute();
+
+	attributesManager.setAttribute(sess, new Member(), group, attributes.get(0));
+	// shouldn't find member
+}
+
+@Test (expected=AttributeNotExistsException.class)
+public void setMemberGroupAttributeWhenAttributeNotExists() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributeWhenAttributeNotExists");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+	attributes.get(0).setId(0);
+	// make valid attribute not existing in DB by setting ID = 0
+
+	attributesManager.setAttribute(sess, member, group, attributes.get(0));
+	// shouldn't find attribute
+}
+
+@Test (expected=WrongAttributeAssignmentException.class)
+public void setMemberGroupAttributeWhenWrongAttrAssignment() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributeWhenWrongAttrAssignment");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpVoAttribute();
+
+	attributesManager.setAttribute(sess, member, group, attributes.get(0));
+	// shouldn't add vo attribute into member-group
+}
+
+@Test (expected=InternalErrorException.class)
+public void setMemberGroupAttributeWhenTypeMismatch() throws Exception {
+	System.out.println("attributesManager.setMemberGroupAttributeWhenTypeMismatch");
+
+	vo = setUpVo();
+	group = setUpGroup();
+	member = setUpMember();
+	attributes = setUpMemberGroupAttribute();
+	attributes.get(0).setValue(1);
+
+	attributesManager.setAttribute(sess, member, group, attributes.get(0));
+	// shouldn't add attribute with String type and Integer value
+}
+
+@Test
 public void setMemberAttribute() throws Exception {
 	System.out.println("attributesManager.setMemberAttribute");
 
@@ -3814,7 +4327,7 @@ public void setMemberAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, member, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, member, "urn:perun:member:attribute-def:opt:member_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, member, "urn:perun:member:attribute-def:opt:member-test-attribute");
 	assertNotNull("unable to get member attribute by name",retAttr);
 	assertEquals("returned member attribute is not same as stored",retAttr,attributes.get(0));
 
@@ -3884,7 +4397,7 @@ public void setUserAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, user, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, user, "urn:perun:user:attribute-def:opt:user_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, user, "urn:perun:user:attribute-def:opt:user-test-attribute");
 	assertNotNull("unable to get user attribute by name",retAttr);
 	assertEquals("returned user attribute is not same as stored",retAttr,attributes.get(0));
 
@@ -3956,7 +4469,7 @@ public void setGroupAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, group, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, group, "urn:perun:group:attribute-def:opt:group_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, group, "urn:perun:group:attribute-def:opt:group-test-attribute");
 	assertNotNull("unable to get group attribute by name",retAttr);
 	assertEquals("returned group attribute is not same as stored",retAttr,attributes.get(0));
 
@@ -4027,7 +4540,7 @@ public void setGroupResourceAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, resource, group, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, resource, group, "urn:perun:group_resource:attribute-def:opt:group_resource_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, resource, group, "urn:perun:group_resource:attribute-def:opt:group-resource-test-attribute");
 	assertNotNull("unable to get group-resource attribute by name",retAttr);
 	assertEquals("returned group-resource attribute is not same as stored",retAttr,attributes.get(0));
 
@@ -4117,7 +4630,7 @@ public void setHostAttribute() throws Exception {
 
 	attributesManager.setAttribute(sess, host, attributes.get(0));
 
-	Attribute retAttr = attributesManager.getAttribute(sess, host, "urn:perun:host:attribute-def:opt:host_test_attribute");
+	Attribute retAttr = attributesManager.getAttribute(sess, host, "urn:perun:host:attribute-def:opt:host-test-attribute");
 	assertNotNull("unable to get host attribute by name",retAttr);
 	assertEquals("returned host attribute is not same as stored",retAttr,attributes.get(0));
 
@@ -4192,7 +4705,7 @@ public void createAttribute() throws Exception {
 	System.out.println("attributesManager.createAttribute");
 
 	AttributeDefinition attrDef = new AttributeDefinition();
-	attrDef.setFriendlyName("attr_def_facility_tests_attr");
+	attrDef.setFriendlyName("attr-def-facility-tests-attr");
 	attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 	attrDef.setDescription("poznamka");
 	attrDef.setType(String.class.getName());
@@ -4200,7 +4713,7 @@ public void createAttribute() throws Exception {
 	attributesManager.createAttribute(sess, attrDef);
 	// store attr def in DB acording namespace
 
-	AttributeDefinition retAttrDef = attributesManager.getAttributeDefinition(sess, "urn:perun:facility:attribute-def:opt:attr_def_facility_tests_attr");
+	AttributeDefinition retAttrDef = attributesManager.getAttributeDefinition(sess, "urn:perun:facility:attribute-def:opt:attr-def-facility-tests-attr");
 
 	assertNotNull("unable to get attr definition by name",retAttrDef);
 	assertEquals("returned attr definition is not same as stored",attrDef,retAttrDef);
@@ -4212,7 +4725,7 @@ public void createAttribute() throws Exception {
 		System.out.println("attributesManager.createAttributeWhenAttributeExists");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setFriendlyName("attr_def_facility_tests_attr");
+		attrDef.setFriendlyName("attr-def-facility-tests-attr");
 		attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 		attrDef.setDescription("poznamka");
 		attrDef.setType(String.class.getName());
@@ -4229,7 +4742,7 @@ public void createAttribute() throws Exception {
 		System.out.println("attributesManager.deleteAttribute");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setFriendlyName("attr_def_facility_tests_attr");
+		attrDef.setFriendlyName("attr-def-facility-tests-attr");
 		attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 		attrDef.setDescription("poznamka");
 		attrDef.setType(String.class.getName());
@@ -4237,7 +4750,7 @@ public void createAttribute() throws Exception {
 
 		attributesManager.deleteAttribute(sess, attrDef);
 
-		attributesManager.getAttributeDefinition(sess, "urn:perun:facility:attribute-def:opt:attr_def_facility_tests_attr");
+		attributesManager.getAttributeDefinition(sess, "urn:perun:facility:attribute-def:opt:attr-def-facility-tests-attr");
 		// shouldn't find attribute definition in db
 
 	}
@@ -4247,7 +4760,7 @@ public void createAttribute() throws Exception {
 		System.out.println("attributesManager.deleteAttributeWhenAttributeNotExists");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setFriendlyName("attr_def_facility_tests_attr");
+		attrDef.setFriendlyName("attr-def-facility-tests-attr");
 		attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 		attrDef.setDescription("poznamka");
 		attrDef.setType(String.class.getName());
@@ -4280,7 +4793,7 @@ public void createAttribute() throws Exception {
 		System.out.println("attributesManager.deleteAttributeForce");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setFriendlyName("attr_def_facility_tests_attr");
+		attrDef.setFriendlyName("attr-def-facility-tests-attr");
 		attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 		attrDef.setDescription("poznamka");
 		attrDef.setType(String.class.getName());
@@ -4290,7 +4803,7 @@ public void createAttribute() throws Exception {
 
 		attributesManager.deleteAttribute(sess, attrDef, true);
 
-		attributesManager.getAttributeDefinition(sess, "urn:perun:facility:attribute-def:opt:attr_def_facility_tests_attr");
+		attributesManager.getAttributeDefinition(sess, "urn:perun:facility:attribute-def:opt:attr-def-facility-tests-attr");
 		// shouldn't find attribute definition in db
 
 	}
@@ -4300,7 +4813,7 @@ public void createAttribute() throws Exception {
 		System.out.println("attributesManager.deleteAttributeForceWhenAttributeNotExists");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setFriendlyName("attr_def_facility_tests_attr");
+		attrDef.setFriendlyName("attr-def-facility-tests-attr");
 		attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 		attrDef.setDescription("poznamka");
 		attrDef.setType(String.class.getName());
@@ -4322,7 +4835,7 @@ public void createAttribute() throws Exception {
 		// setting particular attribute to facility to make relation
 		attributesManager.deleteAttribute(sess, attributes.get(0), true);
 		// delete assigned attribute
-		attributesManager.getAttribute(sess, facility, "urn:perun:facility:attribute-def:opt:facility_test_attribute");
+		attributesManager.getAttribute(sess, facility, "urn:perun:facility:attribute-def:opt:facility-test-attribute");
 		// shouldn't find attribute because force deleted
 
 	}
@@ -4663,6 +5176,171 @@ public void getResourceRequiredMemberResourceAttributesWorkWithUserWhenFakeResou
 		resource = setUpResource();
 
 		attributesManager.getResourceRequiredAttributes(sess, resource, resource, new Member(), true);
+		// shouldn't find member
+	}
+
+	@Test
+	public void getResourceRequiredMemberGroupAttributes() throws Exception {
+		System.out.println("attributesManager.getResourceRequiredMemberGroupAttributes");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member, group);
+		assertNotNull("unable to get required member group attributes for its services", reqAttr);
+		assertTrue("should have only 1 req member group attribute", reqAttr.size() == 1);
+	}
+
+	@Test (expected=ResourceNotExistsException.class)
+	public void getResourceRequiredMemberGroupAttributesWhenResourceNotExists() throws Exception {
+		System.out.println("attributesManager.getResourceRequiredMemberGroupAttributesWhenResourceNotExists");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		attributesManager.getResourceRequiredAttributes(sess, new Resource(), member, group);
+		// shouldn't find resource
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+	public void getResourceRequiredMemberGroupAttributesWhenGroupNotExists() throws Exception {
+		System.out.println("attributesManager.getResourceRequiredMemberGroupAttributesWhenGroupNotExists");
+
+		vo = setUpVo();
+		member = setUpMember();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		attributesManager.getResourceRequiredAttributes(sess, resource, member, new Group());
+		// shouldn't find group
+	}
+
+	@Test
+	public void getResourceRequiredMemberGroupAttributesWhenFakeResource() throws Exception {
+		System.out.println("attributesManager.getResourceRequiredMemberGroupAttributesWhenFakeResource");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		Resource fakeResource = new Resource();
+		fakeResource.setName("AttrManTestResource2");
+		fakeResource.setDescription("fake resource");
+
+		perun.getResourcesManager().createResource(sess, fakeResource, vo, facility);
+
+		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, group);
+		assertNotNull("unable to get required member group attributes for its services", reqAttr);
+		assertTrue("Shouldn't return attribute, when there is no service on resource", reqAttr.size() == 0);
+	}
+
+
+	@Test (expected=MemberNotExistsException.class)
+	public void getResourceRequiredMemberGroupAttributesWhenMemberNotExists() throws Exception {
+		System.out.println("attributesManager.getResourceRequiredMemberGroupAttributesWhenMemberNotExists");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		attributesManager.getResourceRequiredAttributes(sess, resource, new Member(), group);
+		// shouldn't find member
+	}
+
+	@Test
+	public void getResourceRequiredMemberGroupAttributesWorkWithUserAttributes() throws Exception {
+		System.out.println("attributesManager.getRequiredMemberGroupAttributesWorkWithUserAttributes");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member, group, true);
+		assertNotNull("unable to get required member group (work with user) attributes for its services", reqAttr);
+		assertTrue("should have more than 1 req attribute", reqAttr.size() >= 1);
+	}
+
+	@Test (expected=ResourceNotExistsException.class)
+	public void getResourceRequiredMemberGroupAttributesWorkWithUserWhenResourceNotExists() throws Exception {
+		System.out.println("attributesManager.getResourceRequiredMemberGroupAttributesWorkWithUserWhenResourceNotExists");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		attributesManager.getResourceRequiredAttributes(sess, new Resource(), member, group, true);
+		// shouldn't find resource
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+	public void getResourceRequiredMemberGroupAttributesWorkWithUserWhenGroupNotExists() throws Exception {
+		System.out.println("attributesManager.getResourceRequiredMemberGroupAttributesWorkWithUserWhenGroupNotExists");
+
+		vo = setUpVo();
+		member = setUpMember();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		attributesManager.getResourceRequiredAttributes(sess, resource, member, new Group(), true);
+		// shouldn't find group
+	}
+
+	@Test
+	public void getResourceRequiredMemberGroupAttributesWorkWithUserWhenFakeResource() throws Exception {
+		System.out.println("attributesManager.getResourceRequiredMemberGroupAttributesWorkWithUserWhenFakeResource");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		attributes = setUpRequiredAttributes();
+		perun.getResourcesManager().assignService(sess, resource, service);
+
+		Resource fakeResource = new Resource();
+		fakeResource.setName("AttrManTestResource2");
+		fakeResource.setDescription("fake resource");
+
+		perun.getResourcesManager().createResource(sess, fakeResource, vo, facility);
+
+		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, fakeResource, member, group, true);
+		assertNotNull("unable to get required member group attributes for its services", reqAttr);
+		assertTrue("Shouldn't return attribute, when there is no service on resource", reqAttr.size() == 0);
+	}
+
+	@Test (expected=MemberNotExistsException.class)
+	public void getResourceRequiredMemberGroupAttributesWorkWithUserWhenMemberNotExists() throws Exception {
+		System.out.println("attributesManager.getRequiredMemberGroupAttributesWorkWithUserWhenMemberNotExists");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		attributesManager.getResourceRequiredAttributes(sess, resource, new Member(), group, true);
 		// shouldn't find member
 	}
 
@@ -6300,6 +6978,170 @@ public void removeAllMemberResourceAttributes() throws Exception {
 
 	}
 
+	@Test
+	public void removeMemberGroupAttribute() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttribute");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		attributes = setUpMemberGroupAttribute();
+		attributesManager.setAttribute(sess, member, group, attributes.get(0));
+		// create member-group and set attribute with value
+		attributesManager.removeAttribute(sess, member, group, attributes.get(0));
+		// remove attribute from member-group (definition or attribute)
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group);
+		assertFalse("our member-group shouldn't have set our attribute", retAttr.contains(attributes.get(0)));
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+	public void removeMemberGroupAttributeWhenGroupNotExists() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributeWhenGroupNotExists");
+
+		attributes = setUpMemberGroupAttribute();
+		vo = setUpVo();
+		member = setUpMember();
+		attributesManager.removeAttribute(sess, member, new Group(), attributes.get(0));
+		// shouldn't find group
+	}
+
+	@Test (expected=MemberNotExistsException.class)
+	public void removeMemberGroupAttributeWhenMemberNotExists() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributeWhenMemberNotExists");
+
+		attributes = setUpMemberGroupAttribute();
+		vo = setUpVo();
+		group = setUpGroup();
+		attributesManager.removeAttribute(sess, new Member(), group, attributes.get(0));
+		// shouldn't find member
+	}
+
+	@Test (expected=AttributeNotExistsException.class)
+	public void removeMemberGroupAttributeWhenAttributeNotExists() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributeWhenAttributeNotExists");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		attributes = setUpMemberGroupAttribute();
+		attributes.get(0).setId(0);
+		attributesManager.removeAttribute(sess, member, group, attributes.get(0));
+		// shouldn't find attribute
+	}
+
+	@Test (expected=WrongAttributeAssignmentException.class)
+	public void removeMemberGroupAttributeWhenWrongAttrAssignment() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributeWhenWrongAttrAssignment");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		attributes = setUpFacilityAttribute();
+		attributesManager.removeAttribute(sess, member, group, attributes.get(0));
+		// shouldn't find facility attribute on member-group
+	}
+
+	@Test
+	public void removeMemberGroupAttributes() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributes");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		attributes = setUpMemberGroupAttribute();
+		attributesManager.setAttribute(sess, member, group, attributes.get(0));
+		// create member-group and set attribute with value
+		attributesManager.removeAttributes(sess, member, group, attributes);
+		// remove attributes from member-group (definition or attribute)
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group);
+		assertFalse("our member-group shouldn't have set our attribute", retAttr.contains(attributes.get(0)));
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+	public void removeMemberGroupAttributesWhenGroupNotExists() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributesWhenGroupNotExists");
+
+		attributes = setUpMemberGroupAttribute();
+		vo = setUpVo();
+		member = setUpMember();
+		attributesManager.removeAttributes(sess, member, new Group(), attributes);
+		// shouldn't find group
+	}
+
+	@Test (expected=MemberNotExistsException.class)
+	public void removeMemberGroupAttributesWhenMemberNotExists() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributesWhenMemberNotExists");
+
+		attributes = setUpMemberGroupAttribute();
+		vo = setUpVo();
+		group = setUpGroup();
+		attributesManager.removeAttributes(sess, new Member(), group, attributes);
+		// shouldn't find member
+	}
+
+	@Test (expected=AttributeNotExistsException.class)
+	public void removeMemberGroupAttributesWhenAttributeNotExists() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributesWhenAttributeNotExists");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		attributes = setUpResourceAttribute();
+		attributes.get(0).setId(0);
+		attributesManager.removeAttributes(sess, member, group, attributes);
+		// shouldn't find attribute
+	}
+
+	@Test (expected=WrongAttributeAssignmentException.class)
+	public void removeMemberGroupAttributesWhenWrongAttrAssignment() throws Exception {
+		System.out.println("attributesManager.removeMemberGroupAttributesWhenWrongAttrAssignment");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		attributes = setUpFacilityAttribute();
+		attributesManager.removeAttributes(sess, member, group, attributes);
+		// shouldn't find facility attribute on member-group
+	}
+
+	@Test
+	public void removeAllMemberGroupAttributes() throws Exception {
+		System.out.println("attributesManager.removeAllMemberGroupAttributes");
+
+		vo = setUpVo();
+		group = setUpGroup();
+		member = setUpMember();
+		attributes = setUpMemberGroupAttribute();
+		attributesManager.setAttribute(sess, member, group, attributes.get(0));
+		// create member-group and set attribute with value
+		attributesManager.removeAllAttributes(sess, member, group);
+		// remove all attributes from member-group (definition or attribute)
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, member, group);
+		assertFalse("our member-group shouldn't have set our attribute", retAttr.contains(attributes.get(0)));
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+	public void removeAllMemberGroupAttributesWhenGroupNotExists() throws Exception {
+		System.out.println("attributesManager.removeAllMemberGroupAttributesWhenGroupNotExists");
+
+		vo = setUpVo();
+		member = setUpMember();
+
+		attributesManager.removeAllAttributes(sess, member, new Group());
+		// shouldn't find group
+	}
+
+	@Test (expected=MemberNotExistsException.class)
+	public void removeAllMemberGroupAttributesWhenMemberNotExists() throws Exception {
+		System.out.println("attributesManager.removeAllMemberGroupAttributesWhenMemberNotExists");
+
+		vo = setUpVo();
+		group = setUpGroup();
+
+		attributesManager.removeAllAttributes(sess, new Member(), group);
+		// shouldn't find member
+	}
+
 @Test
 public void removeMemberAttribute() throws Exception {
 	System.out.println("attributesManager.removeMemberAttribute");
@@ -7244,7 +8086,7 @@ public void isCoreAttribute() throws Exception {
 	System.out.println("attributesManager.isCoreAttribute");
 
 	AttributeDefinition attrDef = new AttributeDefinition();
-	attrDef.setFriendlyName("attr_manager_test_attribute");
+	attrDef.setFriendlyName("attr-manager-test-attribute");
 	attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 	attrDef.setType(String.class.getName());
 	attrDef.setDescription("AttributesManagerTest");
@@ -7261,7 +8103,7 @@ public void isOptAttribute() throws Exception {
 	System.out.println("attributesManager.isOptAttribute");
 
 	AttributeDefinition attrDef = new AttributeDefinition();
-	attrDef.setFriendlyName("attr_manager_test_attribute");
+	attrDef.setFriendlyName("attr-manager-test-attribute");
 	attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 	attrDef.setType(String.class.getName());
 	attrDef.setDescription("AttributesManagerTest");
@@ -7279,7 +8121,7 @@ public void isCoreManagedAttribute() throws Exception {
 	// TODO co je míněno core managed attributem ??
 	/*
 		 AttributeDefinition attrDef = new AttributeDefinition();
-		 attrDef.setFriendlyName("attr_manager_test_attribute");
+		 attrDef.setFriendlyName("attr-manager-test-attribute");
 		 attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 		 attrDef.setType(String.class.getName());
 		 attrDef.setDescription("AttributesManagerTest");
@@ -7296,7 +8138,7 @@ public void isFromNamespace() throws Exception {
 	System.out.println("attributesManager.isFromNamespace");
 
 	AttributeDefinition attrDef = new AttributeDefinition();
-	attrDef.setFriendlyName("attr_manager_test_attribute");
+	attrDef.setFriendlyName("attr-manager-test-attribute");
 	attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 	attrDef.setType(String.class.getName());
 	attrDef.setDescription("AttributesManagerTest");
@@ -7313,7 +8155,7 @@ public void isFromNamespace() throws Exception {
 		System.out.println("attributesManager.checkNamespace");
 
 		AttributeDefinition attrDef = new AttributeDefinition();
-		attrDef.setFriendlyName("attr_manager_test_attribute");
+		attrDef.setFriendlyName("attr-manager-test-attribute");
 		attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 		attrDef.setType(String.class.getName());
 		attrDef.setDescription("AttributesManagerTest");
@@ -7328,7 +8170,7 @@ public void checkNamespaceList() throws Exception {
 	System.out.println("attributesManager.checkNamespaceList");
 
 	AttributeDefinition attrDef = new AttributeDefinition();
-	attrDef.setFriendlyName("attr_manager_test_attribute");
+	attrDef.setFriendlyName("attr-manager-test-attribute");
 	attrDef.setNamespace("urn:perun:facility:attribute-def:opt");
 	attrDef.setType(String.class.getName());
 	attrDef.setDescription("AttributesManagerTest");
@@ -7346,7 +8188,7 @@ public void checkNamespaceList() throws Exception {
 public void getNamespaceFromAttributeName() throws Exception {
 	System.out.println("attributesManager.getNamespaceFromAttributeName");
 
-	String nameSpace = attributesManager.getNamespaceFromAttributeName("urn:perun:facility:attribute-def:opt:attr_manager_test_attribute");
+	String nameSpace = attributesManager.getNamespaceFromAttributeName("urn:perun:facility:attribute-def:opt:attr-manager-test-attribute");
 	assertTrue("get wrong namespace from name",nameSpace.equals("urn:perun:facility:attribute-def:opt"));
 
 }
@@ -7355,8 +8197,8 @@ public void getNamespaceFromAttributeName() throws Exception {
 public void getFriendlyNameFromAttributeName() throws Exception {
 	System.out.println("attributesManager.getFriendlyNameFromAttributeName");
 
-	String nameSpace = attributesManager.getFriendlyNameFromAttributeName("urn:perun:facility:attribute-def:opt:attr_manager_test_attribute");
-	assertTrue("get wrong namespace from name",nameSpace.equals("attr_manager_test_attribute"));
+	String nameSpace = attributesManager.getFriendlyNameFromAttributeName("urn:perun:facility:attribute-def:opt:attr-manager-test-attribute");
+	assertTrue("get wrong namespace from name",nameSpace.equals("attr-manager-test-attribute"));
 
 }
 
@@ -7370,7 +8212,7 @@ public void getLogins() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:user:attribute-def:opt");
-	attr.setFriendlyName("login-namespace:META:login");
+	attr.setFriendlyName("login-namespace:META-login");
 	// je to správná syntaxe pro loginy ??
 	attr.setType(String.class.getName());
 	attr.setValue("UserLoginNamespaceAttribute");
@@ -7559,7 +8401,7 @@ private Service setUpService2() throws Exception {
 private Group setUpGroup() throws Exception {
 
 	Group group = perun.getGroupsManager().createGroup(sess, vo, new Group("AttrTestGroup","AttrTestGroupDescription"));
-	assertNotNull("unable to create a group",group);
+	assertNotNull("unable to create a group", group);
 	return group;
 
 }
@@ -7609,6 +8451,7 @@ private List<Attribute> setUpRequiredAttributes() throws Exception {
 	attrList.add(setUpResourceAttribute().get(0));
 	attrList.add(setUpMemberAttribute().get(0));
 	attrList.add(setUpMemberResourceAttribute().get(0));
+	attrList.add(setUpMemberGroupAttribute().get(0));
 	attrList.add(setUpUserAttribute().get(0));
 	attrList.add(setUpHostAttribute().get(0));
 	attrList.add(setUpGroupResourceAttribute().get(0));
@@ -7626,10 +8469,10 @@ private Attribute setUpResourceRequiredAttributeForService(Service service) thro
 	List<Attribute> listOfAttrs = new ArrayList<>();
 
 	attribute.setNamespace("urn:perun:resource:attribute-def:opt");
-	attribute.setFriendlyName("resource_test_attribute_2");
+	attribute.setFriendlyName("resource-test-attribute-2");
 	attribute.setType(String.class.getName());
 	attribute.setValue("ResourceAttribute");
-	assertNotNull("unable to create resource attribute",attributesManager.createAttribute(sess, attribute));
+	assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attribute));
 	
 	listOfAttrs.add(attribute);
 	
@@ -7642,7 +8485,7 @@ private List<Attribute> setUpFacilityUserAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:user_facility:attribute-def:opt");
-	attr.setFriendlyName("user_facility_test_attribute");
+	attr.setFriendlyName("user-facility-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("UserFacilityAttribute");
 
@@ -7661,7 +8504,7 @@ private List<Attribute> setUpFacilityAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:facility:attribute-def:opt");
-	attr.setFriendlyName("facility_test_attribute");
+	attr.setFriendlyName("facility-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("FacilityAttribute");
 	assertNotNull("unable to create facility attribute",attributesManager.createAttribute(sess, attr));
@@ -7679,7 +8522,7 @@ private List<Attribute> setUpEntitylessAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
-	attr.setFriendlyName("entityless_test_attribute");
+	attr.setFriendlyName("entityless-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("EntitylessAttribute");
 	assertNotNull("unable to create facility attribute",attributesManager.createAttribute(sess, attr));
@@ -7695,7 +8538,7 @@ private List<Attribute> setUpVoAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:vo:attribute-def:opt");
-	attr.setFriendlyName("vo_test_attribute");
+	attr.setFriendlyName("vo-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("VoAttribute");
 	assertNotNull("unable to create vo attribute",attributesManager.createAttribute(sess, attr));
@@ -7713,7 +8556,7 @@ private List<Attribute> setUpResourceAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:resource:attribute-def:opt");
-	attr.setFriendlyName("resource_test_attribute");
+	attr.setFriendlyName("resource-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("ResourceAttribute");
 	assertNotNull("unable to create resource attribute",attributesManager.createAttribute(sess, attr));
@@ -7731,7 +8574,7 @@ private List<Attribute> setUpMemberResourceAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:member_resource:attribute-def:opt");
-	attr.setFriendlyName("member_resource_test_attribute");
+	attr.setFriendlyName("member-resource-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("MemberResourceAttribute");
 	assertNotNull("unable to create member-resource attribute",attributesManager.createAttribute(sess, attr));
@@ -7745,11 +8588,28 @@ private List<Attribute> setUpMemberResourceAttribute() throws Exception {
 
 }
 
+	private List<Attribute> setUpMemberGroupAttribute() throws Exception {
+
+		Attribute attr = new Attribute();
+		attr.setNamespace("urn:perun:member_group:attribute-def:opt");
+		attr.setFriendlyName("member-group-test-attribute");
+		attr.setType(String.class.getName());
+		attr.setValue("MemberGroupAttribute");
+		assertNotNull("unable to create member-group attribute",attributesManager.createAttribute(sess, attr));
+		// create new member-group attribute
+
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		attributes.add(attr);
+		// put attribute into list because setAttributes requires it
+
+		return attributes;
+	}
+
 private List<Attribute> setUpUserAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:user:attribute-def:opt");
-	attr.setFriendlyName("user_test_attribute");
+	attr.setFriendlyName("user-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("UserAttribute");
 	assertNotNull("unable to create user attribute",attributesManager.createAttribute(sess, attr));
@@ -7767,7 +8627,7 @@ private List<Attribute> setUpUserLargeAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:user:attribute-def:opt");
-	attr.setFriendlyName("user_large_test_attribute");
+	attr.setFriendlyName("user-large-test-attribute");
 	attr.setType(LinkedHashMap.class.getName());
 	Map<String, String> value = new LinkedHashMap<String, String>();
 	value.put("UserLargeAttribute", "test value");
@@ -7787,7 +8647,7 @@ private List<Attribute> setUpResourceLargeAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:resource:attribute-def:opt");
-	attr.setFriendlyName("resource_large_test_attribute");
+	attr.setFriendlyName("resource-large-test-attribute");
 	attr.setType(LinkedHashMap.class.getName());
 	Map<String, String> value = new LinkedHashMap<String, String>();
 	value.put("ResourceLargeAttribute", "test value");
@@ -7807,7 +8667,7 @@ private List<Attribute> setUpMemberAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:member:attribute-def:opt");
-	attr.setFriendlyName("member_test_attribute");
+	attr.setFriendlyName("member-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("MemberAttribute");
 
@@ -7827,7 +8687,7 @@ private List<Attribute> setUpGroupAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:group:attribute-def:opt");
-	attr.setFriendlyName("group_test_attribute");
+	attr.setFriendlyName("group-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("GroupAttribute");
 
@@ -7845,7 +8705,7 @@ private List<Attribute> setUpGroupAttribute() throws Exception {
 private List<Attribute> setUpGroupAttributes() throws Exception {
 
 	Attribute attr = new Attribute();
-	String namespace = "group_test_uniqueattribute:specialNamespace";
+	String namespace = "group-test-uniqueattribute:specialNamespace";
 	attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
 	attr.setFriendlyName(namespace + "1");
 	attr.setType(String.class.getName());
@@ -7869,7 +8729,7 @@ private List<Attribute> setUpGroupAttributes() throws Exception {
 
 	//And one attribute with other name
 	Attribute attr4 = new Attribute(attr);
-	attr4.setFriendlyName("group_test_uniqueEattribute:specialNamespace");
+	attr4.setFriendlyName("group-test-uniqueEattribute:specialNamespace");
 	attr4.setValue("next4");
 	assertNotNull("unable to create group attribute", attributesManager.createAttribute(sess, attr4));
 
@@ -7886,7 +8746,7 @@ private List<Attribute> setUpGroupAttributes() throws Exception {
 private List<Attribute> setUpResourceAttributes() throws Exception {
 
 	Attribute attr = new Attribute();
-	String namespace = "resource_test_uniqueattribute:specialNamespace";
+	String namespace = "resource-test-uniqueattribute:specialNamespace";
 	attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_OPT);
 	attr.setFriendlyName(namespace + "1");
 	attr.setType(String.class.getName());
@@ -7910,7 +8770,7 @@ private List<Attribute> setUpResourceAttributes() throws Exception {
 
 	//And one attribute with other name
 	Attribute attr4 = new Attribute(attr);
-	attr4.setFriendlyName("resource_test_uniqueEattribute:specialNamespace");
+	attr4.setFriendlyName("resource-test-uniqueEattribute:specialNamespace");
 	attr4.setValue("next4");
 	assertNotNull("unable to create resource attribute", attributesManager.createAttribute(sess, attr4));
 
@@ -7927,7 +8787,7 @@ private List<Attribute> setUpHostAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:host:attribute-def:opt");
-	attr.setFriendlyName("host_test_attribute");
+	attr.setFriendlyName("host-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("HostAttribute");
 
@@ -7981,7 +8841,7 @@ private List<Attribute> setUpGroupResourceAttribute() throws Exception {
 
 	Attribute attr = new Attribute();
 	attr.setNamespace("urn:perun:group_resource:attribute-def:opt");
-	attr.setFriendlyName("group_resource_test_attribute");
+	attr.setFriendlyName("group-resource-test-attribute");
 	attr.setType(String.class.getName());
 	attr.setValue("GroupResourceAttribute");
 

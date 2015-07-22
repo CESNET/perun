@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.json.membersManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
@@ -8,10 +9,7 @@ import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
-import cz.metacentrum.perun.webgui.model.Candidate;
-import cz.metacentrum.perun.webgui.model.Member;
-import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.model.*;
 
 /**
  * Ajax query to create member in VO from candidate or User
@@ -30,6 +28,7 @@ public class CreateMember {
 	// params
 	private Candidate candidate = null;
 	private int voId = 0;
+	private Group group;
 
 	/**
 	 * Creates a new request
@@ -52,10 +51,23 @@ public class CreateMember {
 	 * @param candidate candidate to be member
 	 *
 	 */
-	public void createMember(final int voId, final Candidate candidate)
+	public void createMember(final int voId,final Candidate candidate) {
+		createMember(voId, null, candidate);
+	}
+
+	/**
+	 * Attempts to create member in VO from candidate
+	 *
+	 * @param voId vo where member should be created
+	 * @param group where member should be created
+	 * @param candidate candidate to be member
+	 *
+	 */
+	public void createMember(final int voId, Group group, final Candidate candidate)
 	{
 
 		this.voId = voId;
+		this.group = group;
 		this.candidate = candidate;
 
 		// test arguments
@@ -97,12 +109,23 @@ public class CreateMember {
 	 *
 	 * @param voId vo where member should be created
 	 * @param user user to be member
+	 */
+	public void createMember(final int voId, final User user) {
+		createMember(voId, null, user);
+	}
+
+	/**
+	 * Attempts to create member in VO from existing perun user
+	 *
+	 * @param voId vo where member should be created
+	 * @param group where member should be created
+	 * @param user user to be member
 	 *
 	 */
-	public void createMember(final int voId, final User user)
-	{
+	public void createMember(final int voId, final Group group, final User user) {
 
 		this.voId = voId;
+		this.group = group;
 
 		// test arguments
 		if(!this.testAdding()){
@@ -136,6 +159,24 @@ public class CreateMember {
 		JSONObject query = new JSONObject();
 		query.put("vo", new JSONNumber(voId));
 		query.put("user", new JSONNumber(user.getId()));
+		if (group != null) {
+			// GROUP OBJECT
+			JSONObject oldGroup = new JSONObject(group);
+			// RECONSTRUCT OBJECT
+			JSONObject newGroup = new JSONObject();
+			newGroup.put("id", oldGroup.get("id"));
+			// fake new group short name as name in order to update
+			newGroup.put("name", oldGroup.get("name"));
+			newGroup.put("shortName", oldGroup.get("shortName"));
+			newGroup.put("description", oldGroup.get("description"));
+			newGroup.put("voId", oldGroup.get("voId"));
+			newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
+			newGroup.put("beanName", oldGroup.get("beanName"));
+
+			JSONArray arr = new JSONArray();
+			arr.set(0, newGroup);
+			query.put("groups", arr);
+		}
 
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
@@ -204,6 +245,26 @@ public class CreateMember {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("vo", selectedVoId);
 		jsonQuery.put("candidate", newCandidate);
+
+		if (group != null) {
+			// GROUP OBJECT
+			JSONObject oldGroup = new JSONObject(group);
+			// RECONSTRUCT OBJECT
+			JSONObject newGroup = new JSONObject();
+			newGroup.put("id", oldGroup.get("id"));
+			// fake new group short name as name in order to update
+			newGroup.put("name", oldGroup.get("name"));
+			newGroup.put("shortName", oldGroup.get("shortName"));
+			newGroup.put("description", oldGroup.get("description"));
+			newGroup.put("voId", oldGroup.get("voId"));
+			newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
+			newGroup.put("beanName", oldGroup.get("beanName"));
+
+			JSONArray arr = new JSONArray();
+			arr.set(0, newGroup);
+			jsonQuery.put("groups", arr);
+		}
+
 		return jsonQuery;
 
 	}

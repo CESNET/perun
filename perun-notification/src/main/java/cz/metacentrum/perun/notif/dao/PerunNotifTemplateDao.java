@@ -42,7 +42,7 @@ public interface PerunNotifTemplateDao {
 	/**
 	 * Returns all PerunNotifReceivers from db.
 	 *
-	 * @return list of all PerunNotifReceivers
+	 * @return list of all PerunNotifReceivers or null (when no receiver with id was found)
 	 */
 	public List<PerunNotifReceiver> getAllPerunNotifReceivers();
 
@@ -94,7 +94,7 @@ public interface PerunNotifTemplateDao {
 	 * get perunNotifTemplateMessage from db by id
 	 *
 	 * @param id
-	 * @return
+	 * @return template message of null (when message with id was not found)
 	 */
 	public PerunNotifTemplateMessage getPerunNotifTemplateMessageById(int id) throws InternalErrorException;
 

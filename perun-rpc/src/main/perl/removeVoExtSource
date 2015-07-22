@@ -8,7 +8,7 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Removes external source from the vo. External source id or name and Vo id or vo short name are required fields.
+	Removes an external source from the VO. External source id or name and VO id or VO short name are required fields.
 	------------------------------------
 	Available options:
 	--extSourceId    | -e external source id

@@ -230,4 +230,14 @@ public interface VosManagerImplApi {
 	 */
 	public void createApplicationForm(PerunSession sess, Vo vo) throws InternalErrorException;
 
+	/**
+	 * Get count of all vos.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all vos
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getVosCount(PerunSession perunSession) throws InternalErrorException;
 }

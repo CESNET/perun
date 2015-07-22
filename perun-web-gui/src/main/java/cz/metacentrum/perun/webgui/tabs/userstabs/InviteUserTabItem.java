@@ -92,9 +92,11 @@ public class InviteUserTabItem implements TabItem {
 		final ListBox languages = new ListBox();
 		languages.setWidth("200px");
 		//languages.addItem("Czech", "cs");
-		languages.addItem(Utils.getNativeLanguage().get(2), Utils.getNativeLanguage().get(0));
 		languages.addItem("English", "en");
 		languages.setSelectedIndex(1);
+		if (!Utils.getNativeLanguage().isEmpty()) {
+			languages.addItem(Utils.getNativeLanguage().get(2), Utils.getNativeLanguage().get(0));
+		}
 
 		final ExtendedTextBox name = new ExtendedTextBox();
 		final ExtendedTextBox email = new ExtendedTextBox();

@@ -21,7 +21,7 @@ public class Utils {
 	public static final String GROUP_NAME_MATCHER = "^[- a-zA-Z.0-9_:]+$";
 	public static final String GROUP_SHORT_NAME_MATCHER = "^[- a-zA-Z.0-9_]+$";
 	public static final String VO_SHORT_NAME_MATCHER = "^[-a-zA-Z0-9_.]+$";
-	public static final String ATTRIBUTE_FRIENDLY_NAME_MATCHER = "^[-a-zA-Z:0-9]+$";
+	public static final String ATTRIBUTE_FRIENDLY_NAME_MATCHER = "^[-a-zA-Z0-9.]+([:][-a-zA-Z0-9.]+)?$";
 	public static final String LOGIN_VALUE_MATCHER = "^[a-zA-Z0-9][-A-z0-9_.@/]*$";
 
 	/**

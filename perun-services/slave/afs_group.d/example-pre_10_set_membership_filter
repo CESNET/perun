@@ -1,4 +1,0 @@
-#!/bin/sh
-# Only users who match following regexp can deleted from afs groups
-# If no regex is provided then no filter will be applied
-# AFS_MEMBERSHIP_FILTER=""

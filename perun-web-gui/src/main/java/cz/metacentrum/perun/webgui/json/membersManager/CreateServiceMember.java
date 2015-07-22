@@ -2,8 +2,8 @@ package cz.metacentrum.perun.webgui.json.membersManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.*;
-import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.Member;
@@ -33,6 +33,8 @@ public class CreateServiceMember {
 	private String login = "";
 	private String namespace = "";
 	private String email = "";
+	private String certDN = "";
+	private String caCertDN = "";
 
 	/**
 	 * Creates a new request
@@ -53,11 +55,14 @@ public class CreateServiceMember {
 	 *
 	 * @param voId vo where member should be created
 	 * @param name name of service member
+	 * @param email email of service member
 	 * @param users list of real users
-	 * @param login users login in einfra
+	 * @param namespace namespace to create login in
+	 * @param login users login in namespace
+	 * @param certDN users cert DN
+	 * @param caCertDN users CA cert DN
 	 */
-	public void createMember(final int voId, final String name, final String email, ArrayList<User> users, String namespace, String login)
-	{
+	public void createMember(final int voId, final String name, final String email, ArrayList<User> users, String namespace, String login, String certDN, String caCertDN)  {
 
 		this.voId = voId;
 		this.name = name;
@@ -65,6 +70,8 @@ public class CreateServiceMember {
 		this.users = users;
 		this.login = login;
 		this.namespace = namespace;
+		this.certDN = certDN;
+		this.caCertDN = caCertDN;
 
 		// test arguments
 		if(!this.testAdding()){
@@ -105,22 +112,33 @@ public class CreateServiceMember {
 	 *
 	 * @return true/false for continue/stop
 	 */
-	private boolean testAdding()
-	{
+	private boolean testAdding() {
 		boolean result = true;
 		String errorMsg = "";
 
 		if(voId == 0){
-			errorMsg += "Wrong 'Vo' parameter.\n";
+			errorMsg += "Wrong <strong>Vo</strong> parameter.<br />";
 			result = false;
 		}
-		if(namespace.isEmpty()){
-			errorMsg += "Wrong 'Namespace' parameter.\n";
+		if(name.isEmpty()){
+			errorMsg += "Wrong <strong>Name</strong> parameter.<br />";
+			result = false;
+		}
+		if(email.isEmpty()){
+			errorMsg += "Wrong <strong>Email</strong> parameter.<br />";
+			result = false;
+		}
+		if(!namespace.isEmpty() && login.isEmpty()){
+			errorMsg += "Wrong <strong>login-namespace</strong> parameter.<br />";
+			result = false;
+		}
+		if((certDN.isEmpty() && !caCertDN.isEmpty()) || (!certDN.isEmpty() && caCertDN.isEmpty())){
+			errorMsg += "Wrong <strong>Cert / CA Cert</strong> parameter.<br />";
 			result = false;
 		}
 
 		if(errorMsg.length()>0){
-			Window.alert(errorMsg);
+			UiElements.generateAlert("Error creating service member", errorMsg);
 		}
 
 		return result;
@@ -137,20 +155,45 @@ public class CreateServiceMember {
 
 		// attributes object !! login !!
 		JSONObject attrs = new JSONObject();
-		attrs.put("urn:perun:user:attribute-def:def:login-namespace:"+namespace, new JSONString(login));
+
+		if (!namespace.isEmpty()) {
+			attrs.put("urn:perun:user:attribute-def:def:login-namespace:"+namespace, new JSONString(login));
+		}
+
 		attrs.put("urn:perun:member:attribute-def:def:mail", new JSONString(email));
 
 		// create new form of candidate
 		JSONObject newCandidate = new JSONObject();
 		newCandidate.put("attributes", attrs);
 		newCandidate.put("additionalUserExtSources", null);
-		newCandidate.put("userExtSource", null);
 		newCandidate.put("id", null);
 		newCandidate.put("firstName", new JSONString(""));
 		newCandidate.put("lastName", new JSONString(name));
 		newCandidate.put("middleName", null);
 		newCandidate.put("titleAfter", null);
 		newCandidate.put("titleBefore", null);
+
+		if (!certDN.isEmpty() && !caCertDN.isEmpty()) {
+
+			JSONObject userExtSource = new JSONObject();
+			userExtSource.put("id", null);
+			userExtSource.put("login", new JSONString(certDN));
+			// we do not trust manually added certs
+			userExtSource.put("loa", new JSONNumber(0));
+
+			// create ext source
+			JSONObject extSource = new JSONObject();
+			extSource.put("id", null);
+			extSource.put("name", new JSONString(caCertDN));
+			extSource.put("type", new JSONString("cz.metacentrum.perun.core.impl.ExtSourceX509"));
+			extSource.put("attributes", null);
+
+			userExtSource.put("extSource", extSource);
+			newCandidate.put("userExtSource", userExtSource);
+
+		} else {
+			newCandidate.put("userExtSource", null);
+		}
 
 		JSONArray array = new JSONArray();
 

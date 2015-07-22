@@ -149,10 +149,10 @@ public class GetApplicationDataById implements JsonCallback{
 		ft.setWidth("100%");
 		ft.setCellPadding(10);
 		FlexCellFormatter fcf = ft.getFlexCellFormatter();
-		String locale;
-		if (LocaleInfo.getCurrentLocale().getLocaleName().equals("default") || LocaleInfo.getCurrentLocale().getLocaleName().equals("en")) {
-			locale = "en";
-		} else {
+		String locale = "en";
+		if (!Utils.getNativeLanguage().isEmpty() &&
+				!LocaleInfo.getCurrentLocale().getLocaleName().equals("default") &&
+				!LocaleInfo.getCurrentLocale().getLocaleName().equals("en")) {
 			locale = Utils.getNativeLanguage().get(0);
 		}
 

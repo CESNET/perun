@@ -10,15 +10,16 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.rpc.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
-	 * Returns list of role names caller has.
+	 * Returns list of caller's role names.
+	 * 
 	 * @exampleResponse [ "groupadmin" , "self" , "voadmin" ]
-	 * @return List<String> Roles
+	 * @return List<String> List of roles
 	 */
 	getPrincipalRoleNames {
 		@Override
@@ -27,14 +28,14 @@ public enum AuthzResolverMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Get all managers for complementaryObject and role with specify attributes.
+	 * Get all managers for complementaryObject and role with specified attributes.
 	 *
-	 * @param role String Expected Role to filter managers by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator).
-	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for.
-	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... ).
-	 * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with specific attributes.
-	 * @param allUserAttributes boolean When true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
-	 * @return List<RichUser> administrators for complementary object and role with specify attributes.
+	 * @param role String Expected Role to filter managers by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator)
+	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get managers for
+	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
+	 * @param onlyDirectAdmins boolean When true, return only direct users of the complementary object for role with specific attributes
+	 * @param allUserAttributes boolean When true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes
+	 * @return List<RichUser> Administrators for complementary object and role with specify attributes
 	 */
 	getRichAdmins {
 		@Override
@@ -60,9 +61,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	/*#
 	 * Get all groups of managers (authorizedGroups) for complementaryObject and role.
 	 *
-	 * @param role String Expected Role to filter authorizedGroups by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator).
-	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get groups of managers for.
-	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... ).
+	 * @param role String Expected Role to filter authorizedGroups by (perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator)
+	 * @param complementaryObjectId int Property <code>id</code> of complementaryObject to get groups of managers for
+	 * @param complementaryObjectName String Property <code>beanName</code> of complementaryObject, meaning object type (Vo | Group | Facility | ... )
 	 * @return List<Group> List of authorizedGroups for complementaryObject and role
 	 */
 	getAdminGroups {
@@ -92,9 +93,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: Refresh authz only if user in session is affected.
 	 *
-	 * @param role String perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator
+	 * @param role String Role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
 	 * @param user int <code>id</code> of User to set role for
-	 * @param complementaryObject Object Object to associate role and user with. It can be one of Vo, Group or Facility.
+	 * @param complementaryObject Object Object ( vo | group | facility ) to associate role and user with.
 	 * @exampleParam role "voadmin"
 	 * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName" : "Vo" }
 	 */
@@ -106,9 +107,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: Refresh authz only if user in session is affected.
 	 *
-	 * @param role String perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator
+	 * @param role String Role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
 	 * @param user int <code>id</code> of User to set role for
-	 * @param complementaryObjects List<Object> Objects to associate role and user with. It can be one of Vo, Group or Facility.
+	 * @param complementaryObjects List<Object> Objects ( vo | group | facility ) to associate role and user with
 	 * @exampleParam role "voadmin"
 	 * @exampleParam complementaryObjects [ { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName" : "Vo" } , {...} , {...} ]
 	 */
@@ -120,9 +121,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: Refresh authz only if user in session is affected.
 	 *
-	 * @param role String perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator
+	 * @param role String Role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
 	 * @param authorizedGroup int <code>id</code> of Group to set role for
-	 * @param complementaryObject Object Object to associate role and authorizedGroup with. It can be one of Vo, Group or Facility.
+	 * @param complementaryObject Object Object ( vo | group | facility ) to associate role and authorizedGroup with
 	 * @exampleParam role "voadmin"
 	 * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName" : "Vo" }
 	 */
@@ -134,9 +135,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: Refresh authz only if user in session is affected.
 	 *
-	 * @param role String perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator
+	 * @param role String Role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
 	 * @param authorizedGroup int <code>id</code> of Group to set role for
-	 * @param complementaryObjects List<Object> Objects to associate role and authorizedGroup with. It can be one of Vo, Group or Facility.
+	 * @param complementaryObjects List<Object> Objects ( vo | group | facility ) to associate role and authorizedGroup with
 	 * @exampleParam role "voadmin"
 	 * @exampleParam complementaryObjects [ { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName" : "Vo" } , {...} , {...} ]
 	 */
@@ -199,9 +200,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: Refresh authz only if user in session is affected.
 	 *
-	 * @param role String perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator
+	 * @param role String Role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
 	 * @param user int <code>id</code> of User to unset role for
-	 * @param complementaryObject Object Object to remove role for a user. It can be one of Vo, Group or Facility.
+	 * @param complementaryObject Object Object ( vo | group | facility ) to remove role for a user
 	 * @exampleParam role "voadmin"
 	 * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName" : "Vo" }
 	 */
@@ -213,9 +214,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: Refresh authz only if user in session is affected.
 	 *
-	 * @param role String perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator
-	 * @param user int <code>id</code> of User to set role for
-	 * @param complementaryObjects List<Object> Objects to remove role for a user. It can be one of Vo, Group or Facility.
+	 * @param role String Role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param user int <code>id</code> of User to unset role for
+	 * @param complementaryObjects List<Object> Objects ( vo | group | facility ) to remove role for a user
 	 * @exampleParam role "voadmin"
 	 * @exampleParam complementaryObjects [ { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName" : "Vo" } , {...} , {...} ]
 	 */
@@ -227,9 +228,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: Refresh authz only if user in session is affected.
 	 *
-	 * @param role String perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator
-	 * @param authorizedGroup int <code>id</code> of Group to set role for
-	 * @param complementaryObject Object Object to remove role for an authorizedGroup. It can be one of Vo, Group or Facility.
+	 * @param role String Role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param authorizedGroup int <code>id</code> of Group to unset role for
+	 * @param complementaryObject Object Object ( vo | group | facility ) to remove role for an authorizedGroup
 	 * @exampleParam role "voadmin"
 	 * @exampleParam complementaryObject { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName" : "Vo" }
 	 */
@@ -241,9 +242,9 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 *
 	 * IMPORTANT: Refresh authz only if user in session is affected.
 	 *
-	 * @param role String perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator
-	 * @param authorizedGroup int <code>id</code> of Group to set role for
-	 * @param complementaryObjects List<Object> Objects to remove role for an authorizedGroup. It can be one of Vo, Group or Facility.
+	 * @param role String Role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param authorizedGroup int <code>id</code> of Group to unset role for
+	 * @param complementaryObjects List<Object> Objects ( vo | group | facility ) to remove role for an authorizedGroup
 	 * @exampleParam role "voadmin"
 	 * @exampleParam complementaryObjects [ { "id" : 123 , "name" : "My testing VO" , "shortName" : "test_vo" , "beanName" : "Vo" } , {...} , {...} ]
 	 */
@@ -300,7 +301,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 if user has VO manager role (voadmin).
+	 * Returns 1 if User has VO manager role (voadmin).
+	 * 
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
@@ -314,7 +316,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 if user has Group manager role (groupadmin).
+	 * Returns 1 if User has Group manager role (groupadmin).
+	 * 
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
@@ -328,7 +331,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 if user has Facility manager role (facilityadmin).
+	 * Returns 1 if User has Facility manager role (facilityadmin).
+	 * 
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
@@ -342,7 +346,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns 1 if user has Perun admin role (perunadmin).
+	 * Returns 1 if User has Perun admin role (perunadmin).
+	 * 
 	 * @exampleResponse 1
 	 * @return int 1 == <code>true</code>, 0 == <code>false</code>
 	 */
@@ -357,7 +362,8 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns User which is associated with credentials used to log-in to Perun.
-	 * @return User Current user
+	 * 
+	 * @return User Currently logged user
 	 */
 	getLoggedUser {
 		@Override
@@ -371,7 +377,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 	 * including user identification, authorization and metadata. Each call of this method refresh the
 	 * session including authorization data.
 	 *
-	 * @return PerunPrincipal PerunPrincipal
+	 * @return PerunPrincipal PerunPrincipal object
 	 */
 	getPerunPrincipal {
 		@Override
@@ -382,6 +388,7 @@ public enum AuthzResolverMethod implements ManagerMethod {
 
 	/*#
 	 * Returns "OK" string. Helper method for GUI check if connection is alive.
+	 * 
 	 * @exampleResponse "OK"
 	 * @return String "OK"
 	 */

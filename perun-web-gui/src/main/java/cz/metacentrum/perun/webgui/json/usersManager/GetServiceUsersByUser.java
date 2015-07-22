@@ -46,6 +46,7 @@ public class GetServiceUsersByUser implements JsonCallback, JsonCallbackTable<Us
 	private FieldUpdater<User, String> tableFieldUpdater;
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+	private boolean checkable = true;
 
 	/**
 	 * Creates a new request
@@ -104,7 +105,9 @@ public class GetServiceUsersByUser implements JsonCallback, JsonCallbackTable<Us
 		loaderImage.setEmptyResultMessage("You have no service identities assigned.");
 
 		// columns
-		table.addCheckBoxColumn();
+		if (checkable) {
+			table.addCheckBoxColumn();
+		}
 		table.addIdColumn("User ID", tableFieldUpdater);
 
 		// NAME COLUMN
@@ -233,7 +236,7 @@ public class GetServiceUsersByUser implements JsonCallback, JsonCallbackTable<Us
 	}
 
 	public void setCheckable(boolean checkable) {
-		// TODO Auto-generated method stub
+		this.checkable = checkable;
 	}
 
 	public void setList(ArrayList<User> list) {

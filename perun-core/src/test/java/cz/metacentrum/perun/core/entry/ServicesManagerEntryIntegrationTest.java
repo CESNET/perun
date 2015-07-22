@@ -730,6 +730,19 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test
+	public void getDestinationsCount() throws Exception {
+		System.out.println("ServicesManager.getDestinationsCount()");
+
+		service = setUpService();
+		facility = setUpFacility();
+		destination = setUpDestination();
+		perun.getServicesManager().addDestination(sess, service, facility, destination);
+
+		int count = perun.getServicesManager().getDestinationsCount(sess);
+		assertTrue(count>0);
+	}
+
+	@Test
 	public void addDestinationForMoreThanOneService() throws Exception {
 		System.out.println("ServicesManager.addDestinationForMoreThanOneService");
 

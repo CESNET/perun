@@ -177,7 +177,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, ExtendMembershipException {
+	public Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyMemberException, ExtendMembershipException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		return this.createMember(sess, vo, user, null);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, AlreadyMemberException, ExtendMembershipException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		try {
 			Member member = getMemberByUser(sess, vo, user);
 			throw new AlreadyMemberException(member);
@@ -207,15 +211,58 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		insertToMemberGroup(sess, member, vo);
 
+		// add member also to all groups in list
+		if(groups != null && !groups.isEmpty()) {
+			for(Group group: groups) {
+				try {
+					perunBl.getGroupsManagerBl().addMember(sess, group, member);
+				} catch (NotMemberOfParentGroupException ex) {
+					throw new InternalErrorException("Member " + member + " can't be add to the group " + group + " because he is not member of it's parent group.", ex);
+				}
+			}
+		}
+
 		// Set default membership expiration
 
 		return member;
 	}
 
 	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createServiceMember(sess, vo, candidate, serviceUserOwners, null);
+	}
+
+	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		candidate.setFirstName("(Service)");
-		Member member = createMember(sess, vo, true, candidate);
-		member.getUserId();
+
+		//Set organization only if user in sessione exists (in tests there is no user in session)
+		if(sess.getPerunPrincipal().getUser() != null) {
+			String userOrganization = AttributesManager.NS_USER_ATTR_DEF + ":organization";
+			String memberOrganization = AttributesManager.NS_MEMBER_ATTR_DEF + ":organization";
+
+			Map<String, String> candidateAttributes =  new HashMap<>();
+			if(candidate.getAttributes() != null) candidateAttributes.putAll(candidate.getAttributes());
+
+			if(candidateAttributes.get(memberOrganization) == null) {
+				Attribute actorUserOrganization;
+				String actorUserOrganizationValue;
+				try {
+					actorUserOrganization = perunBl.getAttributesManagerBl().getAttribute(sess, sess.getPerunPrincipal().getUser(), userOrganization);
+					actorUserOrganizationValue = (String) actorUserOrganization.getValue();
+				} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
+					throw new InternalErrorException(ex);
+				}
+				
+				if(actorUserOrganizationValue != null) {
+					candidateAttributes.put(memberOrganization, actorUserOrganizationValue);
+					candidate.setAttributes(candidateAttributes);
+				}
+			}
+		}
+
+		//create member for service user from candidate
+		Member member = createMember(sess, vo, true, candidate, groups);
+
+		//set service owners
 		User serviceUser = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 		for(User u: serviceUserOwners) {
 			try {
@@ -228,12 +275,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createMemberSync(sess, vo, candidate, null);
+	}
 
-		Member member = createMember(sess, vo, false, candidate);
+	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+
+		Member member = createMember(sess, vo, false, candidate, groups);
 
 		//Validate synchronously
 		try {
-			member = validateMember(sess, member);
+			member = getPerunBl().getMembersManagerBl().validateMember(sess, member);
 		} catch (AttributeValueException ex) {
 			log.info("Member can't be validated. He stays in invalid state. Cause: " + ex);
 		}
@@ -242,8 +293,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createServiceMemberSync(sess, vo, candidate, serviceUserOwners, null);
+	}
 
-		Member member = createServiceMember(sess, vo, candidate, serviceUserOwners);
+	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+
+		Member member = createServiceMember(sess, vo, candidate, serviceUserOwners, groups);
 
 		//Validate synchronously
 		try {
@@ -256,11 +311,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return createMember(sess, vo, false, candidate);
+		return createMember(sess, vo, candidate, null);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return createMember(sess, vo, false, candidate, groups);
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+			return this.createMember(sess, vo, serviceUser, candidate, null);
+	}
 
+	//MAIN METHOD
+	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		log.debug("Creating member for VO {} from candidate {}", vo, candidate);
 
 		// Get the user
@@ -285,7 +348,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 			}
 		}
-
 
 		// If user hasn't been found, then create him
 		if (user == null) {
@@ -384,14 +446,29 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		insertToMemberGroup(sess, member, vo);
 
+		// add member also to all groups in list
+		if(groups != null && !groups.isEmpty()) {
+			for(Group group: groups) {
+				try {
+					perunBl.getGroupsManagerBl().addMember(sess, group, member);
+				} catch (NotMemberOfParentGroupException ex) {
+					throw new InternalErrorException("Member " + member + " can't be add to the group " + group + " because he is not member of it's parent group.", ex);
+				}
+			}
+		}
+
 		return member;
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createMember(sess, vo, extSourceName, extSourceType, loa, login, candidate, null);
 	}
 
 	/*
 	 * This method with support of LoA finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
 	 * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int loa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 
 		// Create ExtSource object
 		ExtSource extSource = new ExtSource();
@@ -407,14 +484,18 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Set all above data to the candidate's userExtSource
 		candidate.setUserExtSource(userExtSource);
 
-		return this.createMember(sess, vo, candidate);
+		return this.createMember(sess, vo, candidate, groups);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createMember(sess, vo, extSourceName, extSourceType, login, candidate, null);
 	}
 
 	/*
 	 * This method finally has to call this.createMember(PerunSession sess, Vo vo, UserExtSource userExtSource)
 	 * @see cz.metacentrum.perun.core.api.MembersManager#createMember(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, java.lang.String, java.lang.String, java.lang.String, cz.metacentrum.perun.core.api.Candidate)
 	 */
-	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 
 		// Create ExtSource object
 		ExtSource extSource = new ExtSource();
@@ -429,7 +510,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Set all above data to the candidate's userExtSource
 		candidate.setUserExtSource(userExtSource);
 
-		return this.createMember(sess, vo, candidate);
+		return this.createMember(sess, vo, candidate, groups);
 	}
 
 	public Member updateMember(PerunSession sess, Member member) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -566,8 +647,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.getRichMembersOnlyWithSpecificAttrNames(sess, richMembersWithAttributesFromVo, attrsNames);
 	}
 
+
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, String searchString) throws InternalErrorException, AttributeNotExistsException {
+		List<RichMember> richMembersWithAttributes = this.findRichMembersWithAttributes(sess, searchString);
+		return this.getRichMembersOnlyWithSpecificAttrNames(sess, richMembersWithAttributes, attrsNames);
+	}
+
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Vo vo, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, vo, attrsNames, searchString), allowedStatuses);
+	}
+
+	@Override
+	public List<RichMember> findCompleteRichMembers(PerunSession sess, List<String> attrsNames, List<String> allowedStatuses, String searchString) throws InternalErrorException, AttributeNotExistsException {
+		return getOnlyRichMembersWithAllowedStatuses(sess, this.findCompleteRichMembers(sess, attrsNames, searchString), allowedStatuses);
 	}
 
 	public List<RichMember> findCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, String searchString, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
@@ -681,6 +773,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Vo vo, Status status) throws InternalErrorException {
 		List<RichMember> richMembers = this.getRichMembers(sess, vo, status);
 		return this.convertMembersToRichMembersWithAttributes(sess, richMembers);
+	}
+
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, List<String> allowedStatuses, Group group) throws InternalErrorException {
+		List<RichMember> richMembers = this.getRichMembers(sess, group);
+		return getOnlyRichMembersWithAllowedStatuses(sess, this.convertMembersToRichMembersWithAttributes(sess, richMembers), allowedStatuses);
 	}
 
 
@@ -867,11 +964,30 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.convertMembersToRichMembers(sess, this.setAllMembersSameType(members, MembershipType.DIRECT));
 	}
 
+	@Override
+	public List<RichMember> findRichMembers(PerunSession sess, String searchString) throws InternalErrorException {
+
+		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
+
+		List<Member> members = new ArrayList<Member>();
+		for (User user: users) {
+			members.addAll(getMembersByUser(sess, user));
+		}
+
+		return this.convertMembersToRichMembers(sess, this.setAllMembersSameType(members, MembershipType.DIRECT));
+	}
+
 	public List<RichMember> findRichMembersWithAttributesInVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException {
 
 		List<RichMember> list = findRichMembersInVo(sess, vo, searchString);
 		return convertMembersToRichMembersWithAttributes(sess, list);
 
+	}
+
+	@Override
+	public List<RichMember> findRichMembersWithAttributes(PerunSession sess, String searchString) throws InternalErrorException {
+		List<RichMember> list = findRichMembers(sess, searchString);
+		return convertMembersToRichMembersWithAttributes(sess, list);
 	}
 
 	public void checkMemberExists(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException {

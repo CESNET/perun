@@ -1,4 +1,4 @@
--- database version 3.1.20 (don't forget to update insert statement at the end of file)
+-- database version 3.1.25 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -114,6 +114,7 @@ create table cabinet_thanks (
 create table facilities (
 	id integer not null,
 	name nvarchar2(128) not null,
+	dsc nvarchar2(1024),
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -161,6 +162,14 @@ create table facility_owners (
 	status char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer
+);
+
+create table facility_contacts (
+	contact_group_name nvarchar2(128) not null,
+	facility_id integer not null,
+	owner_id integer,
+	user_id integer,
+	group_id integer
 );
 
 create table groups (
@@ -681,6 +690,21 @@ create table member_attr_values (
 	modified_by_uid integer
 );
 
+create table member_group_attr_values (
+	member_id integer not null,
+	group_id integer not null,
+	attr_id integer not null,
+	attr_value nvarchar2(4000),
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create table member_resource_attr_values (
 	member_id integer not null,
 	resource_id integer not null,
@@ -1086,6 +1110,10 @@ create index IDX_FK_USRCATT_USRC on ext_sources_attributes(ext_sources_id);
 create index IDX_FK_ATTNAM_ATTNAM on attr_names(default_attr_id);
 create index IDX_FK_RSRC_FAC on resources(facility_id);
 create index IDX_FK_RSRC_VO on resources(vo_id);
+create index IDX_FK_FACCONT_FAC on facility_contacts(facility_id);
+create index IDX_FK_FACCONT_USR on facility_contacts(user_id);
+create index IDX_FK_FACCONT_OWN on facility_contacts(owner_id);
+create index IDX_FK_FACCONT_GRP on facility_contacts(group_id);
 create index IDX_FK_RESATVAL_RES on resource_attr_values(resource_id);
 create index IDX_FK_RESATVAL_RESATNAM on resource_attr_values(attr_id);
 create index IDX_FK_USRAV_USR on user_attr_values(user_id);
@@ -1103,6 +1131,9 @@ create index IDX_FK_GRP_GRP on groups(parent_group_id);
 create index IDX_FK_MEMRAV_MEM on member_resource_attr_values(member_id);
 create index IDX_FK_MEMRAV_RSRC on member_resource_attr_values(resource_id);
 create index IDX_FK_MEMRAV_ACCATTNAM on member_resource_attr_values(attr_id);
+create index IDX_FK_MEMGAV_MEM on member_group_attr_values(member_id);
+create index IDX_FK_MEMGAV_GRP on member_group_attr_values(group_id);
+create index IDX_FK_MEMGAV_ACCATTNAM on member_group_attr_values(attr_id);
 create index IDX_FK_USRFACAV_MEM on user_facility_attr_values(user_id);
 create index IDX_FK_USRFACAV_FAC on user_facility_attr_values(facility_id);
 create index IDX_FK_USRFACAV_ACCATTNAM on user_facility_attr_values(attr_id);
@@ -1303,6 +1334,12 @@ constraint MEMRAV_RSRC_FK foreign key (resource_id) references resources(id),
 constraint MEMRAV_ACCATTNAM_FK foreign key (attr_id) references attr_names(id),
 constraint MEMRAV_U unique(member_id,resource_id,attr_id)
 );
+alter table member_group_attr_values add (
+constraint MEMGAV_MEM_FK foreign key (member_id) references members(id),
+constraint MEMGAV_GRP_FK foreign key (group_id) references groups(id),
+constraint MEMGAV_ACCATTNAM_FK foreign key (attr_id) references attr_names(id),
+constraint MEMGAV_U unique(member_id,group_id,attr_id)
+);
 alter table user_facility_attr_values add (
 constraint USRFACAV_MEM_FK foreign key (user_id) references users(id),
 constraint USRFACAV_FAC_FK foreign key (facility_id) references facilities(id),
@@ -1329,12 +1366,14 @@ alter table service_denials add (
 constraint SRVDEN_PK primary key (id),
 constraint SRVDEN_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint SRVDEN_FAC_FK foreign key (facility_id) references facilities(id),
-constraint SRVDEN_DEST_FK foreign key (destination_id) references destinations(id)
+constraint SRVDEN_DEST_FK foreign key (destination_id) references destinations(id),
+constraint SRVDEN_U unique(exec_service_id,facility_id,destination_id)
 );
 alter table service_dependencies add (
 constraint SRVDEP_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint SRVDEP_DEPEXSRV_FK foreign key (dependency_id) references exec_services(id),
-constraint SRVDEP_TYPE_CHK check (type in ('SERVICE','DESTINATION'))
+constraint SRVDEP_TYPE_CHK check (type in ('SERVICE','DESTINATION')),
+constraint SRVDEP_U unique(exec_service_id,dependency_id)
 );
 alter table service_required_attrs add (
 constraint SRVREQATTR_PK primary key (service_id,attr_id),
@@ -1432,6 +1471,15 @@ constraint AUTHZ_RES_FK foreign key (resource_id) references resources(id),
 constraint AUTHZ_SER_PRINC_FK foreign key (service_principal_id) references service_principals(id),
 constraint AUTHZ_USER_SERPRINC_AUTGRP_CHK check (decode(user_id,null,0,1)+decode(service_principal_id,null,0,1)+decode(authorized_group_id,null,0,1) = 1),
 constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id)
+);
+
+alter table facility_contacts add (
+constraint FACCONT_FAC_FK foreign key (facility_id) references facilities(id);
+constraint FACCONT_USR_FK foreign key (user_id) references users(id);
+constraint FACCONT_OWN_FK foreign key (owner_id) references owners(id);
+constraint FACCONT_GRP_FK foreign key (group_id) references groups(id);
+constraint FACCONT_USR_OWN_GRP_CHK check (decode(user_id,null,0,1)+decode(owner_id,null,0,1)+decode(group_id,null,0,1) = 1),
+constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,contact_group_name)
 );
 
 alter table groups_resources add (
@@ -1603,4 +1651,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.20');
+insert into configurations values ('DATABASE VERSION','3.1.26');

@@ -8,14 +8,15 @@ import cz.metacentrum.perun.dispatcher.model.Event;
 import cz.metacentrum.perun.dispatcher.processing.EventLogger;
 
 /**
- *
+ * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * 
  */
-@org.springframework.stereotype.Service(value="eventLogger")
+@org.springframework.stereotype.Service(value = "eventLogger")
 public class EventLoggerDummy implements EventLogger {
 
-	private final static Logger log = LoggerFactory.getLogger(EventLogger.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(EventLogger.class);
 
 	/**
 	 * This method is to be called asynchronously.
@@ -23,10 +24,10 @@ public class EventLoggerDummy implements EventLogger {
 	@Override
 	@Async
 	public void logEvent(Event event, int clientID) {
-		if(clientID != -1) {
-			log.info("["+clientID+"]"+event.toString());
+		if (clientID != -1) {
+			log.info("[" + clientID + "]" + event.toString());
 		} else {
-			log.info("[orphan]"+event.toString());
+			log.info("[orphan]" + event.toString());
 		}
 	}
 

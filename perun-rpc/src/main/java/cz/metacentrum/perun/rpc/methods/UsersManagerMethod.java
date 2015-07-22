@@ -6,7 +6,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.rpc.RpcException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -1064,6 +1064,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 			return ac.getUsersManager().getPendingPreferredEmailChanges(ac.getSession(),
 					ac.getUserById(parms.readInt("user")));
 
+		}
+	},
+
+	/*#
+	 * Gets count of all users.
+
+	 * @return int Users count
+	 */
+	getUsersCount {
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getUsersManager().getUsersCount(ac.getSession());
 		}
 	},
 

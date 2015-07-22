@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.Member;
@@ -44,7 +44,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	final static Logger log = LoggerFactory.getLogger(FacilitiesManagerImpl.class);
 
 	//http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
-	private static JdbcTemplate jdbc;
+	private static JdbcPerunTemplate jdbc;
 
 	private final static Pattern patternForExtractingPerunBean = Pattern.compile("^pb_([a-z]+)_id$");
 
@@ -98,7 +98,7 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	};
 
 	public AuthzResolverImpl(DataSource perunPool) {
-		jdbc = new JdbcTemplate(perunPool);
+		jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
 	public AuthzRoles getRoles(User user) throws InternalErrorException {

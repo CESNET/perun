@@ -52,7 +52,10 @@ public class LdapConnectorImpl implements LdapConnector {
 		// Create the objectclass to add
 		Attribute objClasses = new BasicAttribute("objectClass");
 		objClasses.add("top");
-		objClasses.add("groupOfUniqueNames");
+		//use this object class only in old version of perun ldap
+		if(!ldapProperties.isThisNewVersionOfLdap()) {
+			objClasses.add("groupOfUniqueNames");
+		}
 		objClasses.add("perunResource");
 
 		// Add attributes
@@ -95,7 +98,10 @@ public class LdapConnectorImpl implements LdapConnector {
 		// Create the objectclass to add
 		Attribute objClasses = new BasicAttribute("objectClass");
 		objClasses.add("top");
-		objClasses.add("groupOfUniqueNames");
+		//use this object class only in old version of perun ldap
+		if(!ldapProperties.isThisNewVersionOfLdap()) {
+			objClasses.add("groupOfUniqueNames");
+		}
 		objClasses.add("perunGroup");
 
 		// Add attributes
@@ -325,6 +331,13 @@ public class LdapConnectorImpl implements LdapConnector {
 	public void updateUsersCertSubjects(String userId, String[] certSubjects) {
 		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
 		context.setAttributeValues("userCertificateSubject", certSubjects);
+		ldapTemplate.modifyAttributes(context);
+		log.debug("Entry modified in LDAP: UserId {}.", userId);
+	}
+
+	public void updateUsersLibraryIds(String userId, String[] libraryIDs) {
+		DirContextOperations context = ldapTemplate.lookupContext(getUserDN(userId));
+		context.setAttributeValues("libraryIDs", libraryIDs);
 		ldapTemplate.modifyAttributes(context);
 		log.debug("Entry modified in LDAP: UserId {}.", userId);
 	}

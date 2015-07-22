@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -187,6 +188,22 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 	}
 
 	@Override
+	public int clearOld(int engineID, int numDays) throws InternalErrorException {
+		return this.getJdbcTemplate().update("delete from tasks_results where engine_id = ? and " +
+				"id in (" +
+				"select otr.id from tasks_results otr " +
+				"         left join ( " +
+				"	select tr.destination_id, tr.task_id, max(tr.timestamp) as maxtimestamp " +
+				"	from tasks_results tr " + 
+				"		inner join tasks t on tr.task_id = t.id " +
+				"		group by tr.destination_id,tr.task_id " +
+				"   )  tmp on otr.task_id = tmp.task_id and otr.destination_id = tmp.destination_id " +
+				"where otr.timestamp < maxtimestamp and otr.timestamp < ( " +
+				Compatibility.getSysdate() + " - ?) ) ", 
+				new Object[] { engineID, numDays });
+	}
+
+	@Override
 	public List<TaskResult> getTaskResultsByTask(int taskId, int engineID) {
 		List<TaskResult> taskResults = this.getJdbcTemplate().query(
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
@@ -236,4 +253,5 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 			throw new InternalErrorException(e);
 		}
 	}
+
 }

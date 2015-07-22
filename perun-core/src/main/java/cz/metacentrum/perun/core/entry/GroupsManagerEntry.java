@@ -160,7 +160,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		//Test if all groups exists and user has right to delete all of them
 		for(Group group: groups) {
 			getGroupsManagerBl().checkGroupExists(perunSession, group);
-			//test of privilages on group
+			//test of privileges on group
 			if(!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 				throw new PrivilegeException(perunSession, "deleteGroups");
 			}
@@ -676,6 +676,18 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().getGroupsCount(sess, vo);
 	}
 
+	@Override
+	public int getGroupsCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getGroupsCount");
+		}
+
+		return getGroupsManagerBl().getGroupsCount(sess);
+	}
+
 	public int getSubGroupsCount(PerunSession sess, Group parentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, parentGroup);
@@ -822,17 +834,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getMemberGroups for " + member);
 				}
 
-		//Remove members and administrators groups
-		List<Group> groups = getGroupsManagerBl().getMemberGroups(sess, member);
-		if(!groups.isEmpty()) {
-			Iterator<Group> iterator = groups.iterator();
-			while(iterator.hasNext()) {
-				Group g = iterator.next();
-				if(g.getName().equals(VosManager.MEMBERS_GROUP)) iterator.remove();
-			}
-		}
-
-		return groups;
+		return getGroupsManagerBl().getMemberGroups(sess, member);
 	}
 
 		

@@ -14,11 +14,8 @@ import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import java.util.Map;
 
-
-
-
 /**
- * AuditMessagesManager manages audit messages (logs). Entry Logic
+ * AuditMessagesManager manages audit messages (logs). Implementation of Entry Logic.
  *
  * @author Michal Stava
  */
@@ -30,16 +27,16 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 	public AuditMessagesManagerEntry() {
 	}
 
-	public List<AuditMessage> getMessages(PerunSession perunSession) throws InternalErrorException, WrongRangeOfCountException {
+	public List<AuditMessage> getMessages(PerunSession perunSession) throws InternalErrorException {
 		return this.getMessages(perunSession, AuditMessagesManager.COUNTOFMESSAGES);
 	}
 
-	public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException, WrongRangeOfCountException {
+	public List<AuditMessage> getMessages(PerunSession perunSession, int count) throws InternalErrorException {
 		if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
 		return getAuditMessagesManagerBl().getMessages(perunSession, count);
 	}
 
-	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException, WrongRangeOfCountException {
+	public List<AuditMessage> getMessagesByCount(PerunSession perunSession, int count) throws InternalErrorException {
 		if(count<1) throw new WrongRangeOfCountException("Count of messages is less than 1. Can't be returned less than 1 message.");
 		return getAuditMessagesManagerBl().getMessagesByCount(perunSession, count);
 	}
@@ -94,23 +91,32 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		getAuditMessagesManagerBl().createAuditerConsumer(consumerName);
 	}
 
-	public void log(PerunSession sess, String message) throws InternalErrorException, PrivilegeException {
+	public void log(PerunSession perunSession, String message) throws InternalErrorException, PrivilegeException {
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
-			throw new PrivilegeException(sess, "log");
+		if (!AuthzResolver.isAuthorized(perunSession, Role.REGISTRAR)) {
+			throw new PrivilegeException(perunSession, "log");
 		}
 
-		getAuditMessagesManagerBl().log(sess, message);
+		getAuditMessagesManagerBl().log(perunSession, message);
 	}
 
-	public Map<String, Integer> getAllAuditerConsumers(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public Map<String, Integer> getAllAuditerConsumers(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
 		// anybody can call this method
-		return getAuditMessagesManagerBl().getAllAuditerConsumers(sess);
+		return getAuditMessagesManagerBl().getAllAuditerConsumers(perunSession);
 	}
 
-	public int getLastMessageId(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public int getLastMessageId(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
 		// anybody can call this method
 		return getAuditMessagesManagerBl().getLastMessageId();
+	}
+
+	public void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException {
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "setLastProcessedId");
+		}
+
+		getAuditMessagesManagerBl().setLastProcessedId(consumerName, lastProcessedId);
 	}
 
 	/**

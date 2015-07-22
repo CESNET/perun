@@ -27,6 +27,8 @@ import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToGroupTabItem;
+import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToVoAndGroupTabItem;
+import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToVoTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.InviteUserTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoMembersTabItem;

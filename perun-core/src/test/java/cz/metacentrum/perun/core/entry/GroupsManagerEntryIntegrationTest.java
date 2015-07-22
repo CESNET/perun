@@ -103,7 +103,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		String name1 = "";
 		String name2 = "";
 
-		for (int i=0; i<120; i++) {
+		for (int i=0; i<1999; i++) {
 			name1 += "a";
 			name2 += "b";
 		}
@@ -210,10 +210,12 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
 		newVo = perun.getVosManagerBl().createVo(sess, newVo);
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
-	
+
 		Group subgroup = new Group("Test", "test");
 		subgroup = this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
-		
+//		org.hsqldb.util.DatabaseManager.main(new String[] {
+//				"--url", "jdbc:hsqldb:mem:dataSource", "--noexit"
+//		});
 		this.groupsManager.deleteGroups(sess, groups, false);
 	}
 	
@@ -1121,14 +1123,26 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		}
 
 	@Test
-	public void getGroupsCount() throws Exception {
-		System.out.println("GroupsManager.getGroupsCount");
+	public void getVoGroupsCount() throws Exception {
+		System.out.println("GroupsManager.getVoGroupsCount");
 
 		vo = setUpVo();
 		setUpGroup(vo);
 
 		int count = groupsManager.getGroupsCount(sess, vo);
 		assertEquals(2, count);
+
+	}
+
+	@Test
+	public void getGroupsCount() throws Exception {
+		System.out.println("GroupsManager.getGroupsCount");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		int count = groupsManager.getGroupsCount(sess);
+		assertTrue(count>0);
 
 	}
 
@@ -1307,7 +1321,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void convertGroupToRichGroupWithAttributesTest() throws Exception {
-		System.out.println("groupsManagerBl.convertGroupToRichGroupWithAttributes");
+		System.out.println("GroupsManagerBl.convertGroupToRichGroupWithAttributes");
 
 		vo = setUpVo();
 		attributesList = setUpGroupAttributes();
@@ -1320,7 +1334,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void convertGroupToRichGroupWithAttributesByNameTest() throws Exception {
-		System.out.println("groupsManagerBl.convertGroupToRichGroupWithAttributesByName");
+		System.out.println("GroupsManagerBl.convertGroupToRichGroupWithAttributesByName");
 
 		vo = setUpVo();
 		attributesList = setUpGroupAttributes();
@@ -1358,7 +1372,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void convertGroupsToRichGroupsWithAttributesWithListOfNamesTest() throws Exception {
-		System.out.println("groupsManagerBl.convertGroupsToRichGroupsWithAttributesWithListOfNamesTest");
+		System.out.println("GroupsManagerBl.convertGroupsToRichGroupsWithAttributesWithListOfNamesTest");
 
 		vo = setUpVo();
 		attributesList = setUpGroupAttributes();
@@ -1451,13 +1465,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group groupE = new Group("E", "E");
 		Group groupF = new Group("F", "F");
 		Group groupG = new Group("G", "G");
-		
+
 		groupA = this.groupsManagerBl.createGroup(sess, vo, groupA);
 		groupD = this.groupsManagerBl.createGroup(sess, vo, groupD);
-		
+
 		groupB = this.groupsManagerBl.createGroup(sess, groupA, groupB);
 		groupG = this.groupsManagerBl.createGroup(sess, groupB, groupG);
-		
+
 		groupC = this.groupsManagerBl.createGroup(sess, groupD, groupC);
 		groupE = this.groupsManagerBl.createGroup(sess, groupC, groupE);
 		
@@ -1497,7 +1511,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// attribute1
 		Attribute attr = new Attribute();
-		String namespace = "group_test_uniqueattribute:specialNamespace";
+		String namespace = "group-test-uniqueattribute:specialNamespace";
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_OPT);
 		attr.setFriendlyName(namespace + "1");
 		attr.setType(String.class.getName());

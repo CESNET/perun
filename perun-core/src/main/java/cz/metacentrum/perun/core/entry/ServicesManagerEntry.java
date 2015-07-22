@@ -756,4 +756,16 @@ public class ServicesManagerEntry implements ServicesManager {
 
 		return getServicesManagerBl().addDestinationsDefinedByHostsOnFacility(perunSession, facility);
 	}
+
+	@Override
+	public int getDestinationsCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getDestinationsCount");
+		}
+
+		return getServicesManagerBl().getDestinationsCount(sess);
+	}
 }

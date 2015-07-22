@@ -1,0 +1,3 @@
+#content .list-group a:link, #content .list-group a:visited {
+    text-decoration: none;
+}

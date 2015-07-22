@@ -98,6 +98,13 @@
 									<resource>META-INF/spring.schemas</resource>
 								</transformer>
 							</transformers>
+							<artifactSet>
+								<excludes>
+									<!-- test artifacts are excluded by default -->
+									<!-- we don't need maven build plugins in our application -->
+									<exclude>org.apache.maven*</exclude>
+								</excludes>
+							</artifactSet>
 						</configuration>
 					</execution>
 				</executions>
@@ -165,6 +172,12 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<!--HSQL-->
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.3.2</version>
 		</dependency>
 
 		<dependency>
@@ -263,6 +276,7 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.8.5</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -339,6 +353,19 @@
 			<version>1.0.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+
+                <dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>3.3</version>
+                </dependency>
+                
 	</dependencies>
 
 	<profiles>

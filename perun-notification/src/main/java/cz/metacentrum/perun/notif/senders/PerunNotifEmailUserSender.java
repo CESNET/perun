@@ -10,6 +10,7 @@ import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifReceiver;
 import cz.metacentrum.perun.notif.enums.PerunNotifTypeOfReceiver;
 import cz.metacentrum.perun.notif.managers.PerunNotifEmailManager;
+import cz.metacentrum.perun.notif.utils.NotifUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 
 	@PostConstruct
 	public void init() throws Exception {
-		this.session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = NotifUtils.getPerunSession(perun);
 	}
 
 	@Override
@@ -86,7 +87,7 @@ public class PerunNotifEmailUserSender implements PerunNotifSender {
 				if (id != null) {
 					try {
 						User user = perun.getUsersManagerBl().getUserById(session, id);
-						Attribute emailAttribute = perun.getAttributesManager().getAttribute(session, user, "urn:perun:user:attribute-def:def:preferredMail");
+						Attribute emailAttribute = perun.getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:preferredMail");
 						if (emailAttribute != null && StringUtils.hasText(emailAttribute.toString())) {
 							emailDto.setReceiver((String) emailAttribute.getValue());
 						}

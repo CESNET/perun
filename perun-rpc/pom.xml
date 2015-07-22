@@ -165,6 +165,12 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-dispatcher</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 		<!-- SPRING -->
 
 		<dependency>
@@ -175,26 +181,16 @@
 		<!-- OTHERS -->
 
 		<dependency>
+			<groupId>net.tanesha.recaptcha4j</groupId>
+			<artifactId>recaptcha4j</artifactId>
+			<version>0.0.7</version>
+		</dependency>
+
+		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>net.tanesha.recaptcha4j</groupId>
-			<artifactId>recaptcha4j</artifactId>
-			<version>0.0.7</version>
 		</dependency>
 
 		<!--

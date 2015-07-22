@@ -9,7 +9,6 @@ import java.util.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
@@ -31,7 +30,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 	private Vo vo;
 	String extLogin = "aaa";              // his login in external source
 	String extLogin2 = "bbb";
-	String extSourceName = "LDAPMETA";        // real ext source with his login
+	String extSourceName = "SearcherEntryIntegrationTest";
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 	private SearcherBl searcherBl;
 	private Attribute integerAttr;
@@ -257,8 +256,8 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		// create test VO in database
 		assertNotNull("unable to create testing Vo",returnedVo);
 		assertEquals("both VOs should be the same",newVo,returnedVo);
-
-		ExtSource es = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
+		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
 		// get real external source from DB
 		perun.getExtSourcesManager().addExtSource(sess, returnedVo, es);
 		// add real ext source to our VO
@@ -301,7 +300,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_integer_test_attribute");
+		attr.setFriendlyName("user-integer-test-attribute");
 		attr.setType(Integer.class.getName());
 		attr.setValue(100);
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -314,7 +313,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_string_test_attribute");
+		attr.setFriendlyName("user-string-test-attribute");
 		attr.setType(String.class.getName());
 		attr.setValue("UserStringAttribute test value");
 		assertNotNull("unable to create user attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
@@ -326,7 +325,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_list_test_attribute");
+		attr.setFriendlyName("user-list-test-attribute");
 		attr.setType(ArrayList.class.getName());
 		List<String> value = new ArrayList<String>();
 		value.add("UserStringAttribute test value");
@@ -342,7 +341,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 		Attribute attr = new Attribute();
 		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("user_map_test_large_attribute");
+		attr.setFriendlyName("user-map-test-large-attribute");
 		attr.setType(LinkedHashMap.class.getName());
 		Map<String, String> value = new LinkedHashMap<String, String>();
 		value.put("UserLargeAttribute", "test value");

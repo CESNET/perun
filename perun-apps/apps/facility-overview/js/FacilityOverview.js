@@ -18,6 +18,7 @@ function loadFacilities() {
         for (var i in facilities) {
             var owners = getTechnicalOwners(facilities[i].facilityOwners);
             facilitiesFriendly.push({id:facilities[i].id, name:facilities[i].name, owners:owners ,
+                description:(facilities[i].description ? facilities[i].description : "-"),
                 monitored:"glyphicon glyphicon-chevron-down", managed:"glyphicon glyphicon-chevron-down" });
         }
         loadImage.hide();
@@ -47,6 +48,7 @@ function fillFacilities(facilities) {
     facilitiesTable.setClicableRows({isClicable: true, id: "id", prefix: "facility-", toggle: true});
     facilitiesTable.addColumn({type: "text", title: "Facility name", name: "name"});
     facilitiesTable.addColumn({type: "list", title: "Owners", name: "owners"});
+    facilitiesTable.addColumn({type: "text", title: "Description", name: "description"});
     facilitiesTable.addColumn({type: "icon", title: "Monitored", name: "monitored"});
     facilitiesTable.addColumn({type: "icon", title: "Managed", name: "managed"});
     facilitiesTable.setValues(facilities);
@@ -140,6 +142,6 @@ function getTechnicalOwners(owners) {
 function setProgressBar(value, bar) {
     var showProgress = Math.floor(value);
     if (bar.attr('aria-valuenow') != showProgress) {
-        bar.css('width', showProgress + '%').attr('aria-valuenow', showProgress).text(showProgress + '%');
+        bar.css('width', showProgress + '%').attr('aria-valuenow', showProgress).text("Loading " + showProgress + '%');
     }
 }

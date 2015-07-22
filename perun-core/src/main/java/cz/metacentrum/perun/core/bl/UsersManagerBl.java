@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.*;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  * @author Zora Sebestianova
+ * @author Sona Mastrakova
  */
 public interface UsersManagerBl {
 
@@ -541,6 +542,18 @@ public interface UsersManagerBl {
 	List<RichUser> findRichUsers(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException;
 
 	/**
+	 * Returns list of richusers with attributes who matches the searchString, searching name, email, logins.
+	 * Name part is searched for exact match.
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @return list of richusers
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> findRichUsersByExactMatch(PerunSession sess, String searchString) throws InternalErrorException, UserNotExistsException;
+
+	/**
 	 * Return list of users who matches the searchString, searching name, email and logins
 	 * and are not member in specific VO.
 	 *
@@ -553,7 +566,7 @@ public interface UsersManagerBl {
 	List<User> getUsersWithoutSpecificVo(PerunSession sess, Vo vo, String searchString) throws InternalErrorException;
 
 	/**
-	 * Returns list of users' who matches the searchString
+	 * Returns list of users who matches the searchString
 	 *
 	 * @param sess
 	 * @param searchString
@@ -575,6 +588,16 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException;
+        
+	/**
+	 * Returns list of users who exactly matches the searchString
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @return list of users
+	 * @throws InternalErrorException
+	 */
+	List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException;
 
 	/**
 	 * Checks if the login is available in the namespace.
@@ -923,6 +946,19 @@ public interface UsersManagerBl {
 	List<RichUser> findRichUsersWithAttributes(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException;
 
 	/**
+	 * Returns list of RichUsers with selected attributes who matches the searchString, searching name, email, logins.
+	 * Name part is searched for exact match.
+	 *
+	 * @param sess
+	 * @param searchString
+	 * @param attrNames
+	 * @return list of RichUsers
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<RichUser> findRichUsersWithAttributesByExactMatch(PerunSession sess, String searchString, List<String> attrNames) throws InternalErrorException, UserNotExistsException;
+
+	/**
 	 * Get User to RichUser with attributes.
 	 *
 	 * @param sess
@@ -1038,4 +1074,14 @@ public interface UsersManagerBl {
 	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password)
 			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException;
 
+	/**
+	 * Get count of all users.
+	 *
+	 * @param perunSession
+	 *
+	 * @return count of all users
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getUsersCount(PerunSession perunSession) throws InternalErrorException;
 }

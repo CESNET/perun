@@ -1,0 +1,15 @@
+##
+# CONFIG FILE FOR ACTIVE DIRECTORY PASSWORD MANAGER
+#
+# Replace "login-namespace" in filename with respective login/password namespace used by (AD) LDAP
+#
+# Replace whole file content like following and do not keep any whitespace / empty lines / comments etc.:
+#
+# While using LDAPs server must provide valid certificate or it must be imported between trusted
+# by directive in /etc/ldap/ldap.conf.
+#
+# 1st line - LDAP server location like: "ldaps://address:port" or "localhost:port" (port is optional)
+# 2nd line - login for AD admin access
+# 3rd line - pass for AD admin access
+# 4th line - base DN like: ou=authz,dc=perun,dc=domain,dc=com
+# 5th line - UAC for new accounts in a disabled state, eg. not 512 (NORMAL_ACCOUNT), but 514 (NORMAL_ACCOUNT+DISABLED)
