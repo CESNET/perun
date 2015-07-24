@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.engine.scheduling.DenialsResolver;
 import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
 import cz.metacentrum.perun.engine.scheduling.ExecutorEngineWorker;
 import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
@@ -62,7 +63,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	@Autowired
 	private SchedulingPool schedulingPool;
 	@Autowired
-	private ExecServiceDenialDao execServiceDenialDao;
+	private DenialsResolver denialsResolver;
 	
 	final int MAX_RUNNING_GEN = 20;
 	final int MAX_RUNNING = 1000;
@@ -169,7 +170,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		for (Destination destination : taskStatusManager.getTaskStatus(task)
 				.getWaitingDestinations()) {
 			// check if exec service is enabled for the destination
-			if(execServiceDenialDao.isExecServiceDeniedOnDestination(task.getExecServiceId(), destination.getId())) {
+			if(denialsResolver.isExecServiceDeniedOnDestination(task.getExecService(), destination.getId())) {
 				log.info("Not starting worker for disabled destination " + destination.toString());
 				continue;
 			}

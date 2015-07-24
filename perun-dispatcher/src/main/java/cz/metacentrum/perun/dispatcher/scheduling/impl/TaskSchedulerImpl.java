@@ -50,7 +50,9 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private Properties dispatcherPropertiesBean;
 	@Autowired
 	private DispatcherQueuePool dispatcherQueuePool;
-
+	@Autowired
+	private DenialsResolver denialsResolver;
+	
 	@Override
 	public void processPool() throws InternalErrorException {
 		initPerunSession();
@@ -95,6 +97,28 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		
 		log.debug("Task is assigned to queue " + dispatcherQueue.getClientID());
 		
+		log.debug("Is the execService ID:" + execService.getId() + " enabled globally?");
+		if (execService.isEnabled()) {
+			log.debug("   Yes, it is globally enabled.");
+		} else {
+			log.debug("   No, execService ID: "+ execService.getId() + " is not enabled globally. Task will not run.");
+			return;
+		}
+
+		log.debug("   Is the execService ID: " + execService.getId() + " denied on facility ID:" + facility.getId() + "?");
+		try {
+			if (!denialsResolver.isExecServiceDeniedOnFacility(execService, facility)) {
+				log.debug("   No, it is not.");
+			} else {
+				log.debug("   Yes, the execService ID: " + execService.getId() + " is denied on facility ID: "
+						+ facility.getId() + ". Task will not run.");
+				return;
+			}
+		} catch (InternalErrorException e) {
+			log.error("Error getting disabled status for execService, task will not run now.");
+			return;
+		}
+		
 		List<ExecService> dependantServices = null;
 		List<Pair<ExecService, DependencyScope>> dependencies = null;
 
@@ -122,14 +146,13 @@ public class TaskSchedulerImpl implements TaskScheduler {
 					break;
 				}
 				try {
-					if (dispatcherQueue == null
-							&& schedulingPool
-									.getQueueForTask(dependantServiceTask) != null) {
-						schedulingPool.setQueueForTask(task, schedulingPool
-								.getQueueForTask(dependantServiceTask));
+					if (dispatcherQueue == null &&
+							schedulingPool.getQueueForTask(dependantServiceTask) != null) {
+						schedulingPool.setQueueForTask(task, schedulingPool.getQueueForTask(dependantServiceTask));
 					}
 				} catch (InternalErrorException e) {
-					// XXX weird
+					log.debug("    Failed to set destination queue for task. This is weird, aborting.");
+					proceed = false;
 				}
 			}
 		}

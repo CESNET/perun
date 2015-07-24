@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.engine.model.Pair;
+import cz.metacentrum.perun.engine.scheduling.DenialsResolver;
 import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
 import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
@@ -55,7 +56,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private Perun perun;
 	private PerunSession perunSession;
 	@Autowired
-	private ExecServiceDenialDao execServiceDenialDao;
+	private DenialsResolver denialsResolver;
 	/*
 	 * @Autowired private TaskManager taskManager;
 	 * 
@@ -80,7 +81,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		 // Is the ExecService denied on this Facility? 
 		 // If it is, we drop it and do nothing. 
 		 log.debug("   Is the execService ID:" + task.getExecServiceId() + " denied on facility ID:" + task.getFacilityId() + "?"); 
-		 if(execServiceDenialDao.isExecServiceDeniedOnFacility(task.getExecServiceId(), task.getFacilityId())) { 
+		 if(denialsResolver.isExecServiceDeniedOnFacility(task.getExecService(), task.getFacility())) { 
 			 schedulingPool.setTaskStatus(task, TaskStatus.DONE);
 			 log.info("Exec service " + task.getExecServiceId() + " for task " + task.getId() + 
 					 " is denied for facility " + task.getFacilityId() + 
