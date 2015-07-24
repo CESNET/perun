@@ -122,25 +122,6 @@
 			<artifactId>perun-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--
-				<dependency>
-					<groupId>cz.metacentrum.perun</groupId>
-					<artifactId>perun-cabinet</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>cz.metacentrum.perun</groupId>
-					<artifactId>perun-rpc-lib</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-
-				<dependency>
-					<groupId>cz.metacentrum.perun</groupId>
-					<artifactId>perun-auditparser</artifactId>
-					<version>${project.version}</version>
-				</dependency>
-		-->
 
 		<!-- DB -->
 
@@ -195,20 +176,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 		</dependency>
-
-		<!--
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-			<version>${org.springframework.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		-->
 
 		<!-- TESTS -->
 

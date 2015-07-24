@@ -119,12 +119,6 @@
 				<directory>src/main/resources/</directory>
 				<filtering>true</filtering>
 			</resource>
-			<resource>
-				<!-- put build specific resources with others -->
-				<directory>src/main/resources/devel</directory>
-				<targetPath>./</targetPath>
-				<filtering>true</filtering>
-			</resource>
 		</resources>
 
 	</build>
@@ -137,7 +131,7 @@
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-beans</artifactId>
+			<artifactId>perun-base</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -360,12 +354,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-                <dependency>
+		<dependency>
 			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 			<version>3.3</version>
-                </dependency>
-                
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
@@ -396,12 +390,6 @@
 					<resource>
 						<!-- to set jdbc.properties path and logging folder -->
 						<directory>src/main/resources/</directory>
-						<filtering>true</filtering>
-					</resource>
-					<resource>
-						<!-- put build specific resources with others -->
-						<directory>src/main/resources/production</directory>
-						<targetPath>./</targetPath>
 						<filtering>true</filtering>
 					</resource>
 				</resources>

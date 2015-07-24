@@ -2,16 +2,8 @@ package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import org.apache.commons.lang.ArrayUtils;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -21,7 +13,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Martin Malik <374128@mail.muni.cz>
  */
-public class VOOTSortIntegrationTest extends VOOTBaseTest {
+public class VOOTSortIntegrationTest extends AbstractVOOTTest {
 
 	private Vo vo1;
 	private Group group1;
@@ -34,7 +26,7 @@ public class VOOTSortIntegrationTest extends VOOTBaseTest {
 
 	@Test
 	public void isMemberOfSortIdTest() throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, VOOTException, GroupNotExistsException {
-		System.out.println("isMemberOfSortIdTest");
+		System.out.println("VootManager.isMemberOfSortIdTest");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "groups/@me", "sortBy=id");
 		VOOTGroup[] vootGroupsOfResponse = (VOOTGroup[])response.getEntry();
@@ -53,7 +45,7 @@ public class VOOTSortIntegrationTest extends VOOTBaseTest {
 
 	@Test
 	public void isMemberOfTitleSortTest() throws VOOTException {
-		System.out.println("isMemberOfTitleSortTest");
+		System.out.println("VootManager.isMemberOfTitleSortTest");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "groups/@me", "sortBy=title");
 		VOOTGroup[] vootGroupsOfResponse = (VOOTGroup[])response.getEntry();
@@ -76,7 +68,7 @@ public class VOOTSortIntegrationTest extends VOOTBaseTest {
 
 	@Test
 	public void isMemberOfDescriptionSortTest() throws VOOTException {
-		System.out.println("isMemberOfDescriptionSortTest");
+		System.out.println("VootManager.isMemberOfDescriptionSortTest");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "groups/@me", "sortBy=description");
 		VOOTGroup[] vootGroupsOfResponse = (VOOTGroup[])response.getEntry();
@@ -99,7 +91,7 @@ public class VOOTSortIntegrationTest extends VOOTBaseTest {
 
 	@Test
 	public void isMemberOfMembershipRoleSortTest() throws VOOTException {
-		System.out.println("isMemberOfMembershipRoleSortTest");
+		System.out.println("VootManager.isMemberOfMembershipRoleSortTest");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "groups/@me", "sortBy=voot_membership_role");
 		//vo1:group1 member, vo1:group1:group2 admin, vo1:group3 admin, vo1:members member
@@ -121,7 +113,7 @@ public class VOOTSortIntegrationTest extends VOOTBaseTest {
 
 	@Test
 	public void getGroupMembersIdSortTest() throws VOOTException {
-		System.out.println("getGroupMembersIdSortTest");
+		System.out.println("VootManager.getGroupMembersIdSortTest");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "people/@me/vo1:group1", "sortBy=id");
 		VOOTMember[] vootMembersOfResponse = (VOOTMember[])response.getEntry();
@@ -140,7 +132,7 @@ public class VOOTSortIntegrationTest extends VOOTBaseTest {
 
 	@Test
 	public void getGroupMembersDisplayNameSortTest() throws VOOTException {
-		System.out.println("getGroupMembersDisplayNameSortTest");
+		System.out.println("VootManager.getGroupMembersDisplayNameSortTest");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "people/@me/vo1:group1", "sortBy=displayName");
 		VOOTMember[] vootMembersOfResponse = (VOOTMember[])response.getEntry();
@@ -158,12 +150,12 @@ public class VOOTSortIntegrationTest extends VOOTBaseTest {
 
 	@Test
 	public void getGroupMembersMembershipRoleSortTest() throws VOOTException {
-		System.out.println("getGroupMembersMembershipRoleSortTest");
+		System.out.println("VootManager.getGroupMembersMembershipRoleSortTest");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "people/@me/vo1:group1", "sortBy=voot_membership_role");
 		VOOTMember[] vootMembersOfResponse = (VOOTMember[])response.getEntry();
 
-		System.out.println(response);
+		//System.out.println(response);
 
 		//one admin, others memebers
 		//Jozef Treti is admin

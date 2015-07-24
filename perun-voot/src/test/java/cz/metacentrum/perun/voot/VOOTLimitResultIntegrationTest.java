@@ -2,15 +2,7 @@ package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.bl.PerunBl;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,7 +11,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Martin Malik <374128@mail.muni.cz>
  */
-public class VOOTLimitResultIntegrationTest extends VOOTBaseTest {
+public class VOOTLimitResultIntegrationTest extends AbstractVOOTTest {
 
 	private Vo vo1;
 	private Group group1;
@@ -29,7 +21,7 @@ public class VOOTLimitResultIntegrationTest extends VOOTBaseTest {
 
 	@Test
 	public void isMemberOfTestStartIndex() throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, VOOTException, GroupNotExistsException {
-		System.out.println("IsMemberOfTestStartIndex");
+		System.out.println("VootManager.isMemberOfTestStartIndex");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "groups/@me/", "startIndex=1");
 
@@ -37,12 +29,12 @@ public class VOOTLimitResultIntegrationTest extends VOOTBaseTest {
 		assertEquals(Integer.valueOf(1), response.getStartIndex());
 		assertEquals(Integer.valueOf(2), response.getItemsPerPage());
 		assertEquals(2, response.getEntry().length);
-		System.out.println(response);
+		//System.out.println(response);
 	}
 
 	@Test
 	public void isMemberOfTestWrongStartIndex() throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, VOOTException, GroupNotExistsException {
-		System.out.println("IsMemberOfTestWrongStartIndex");
+		System.out.println("VootManager.IsMemberOfTestWrongStartIndex");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "groups/@me/", "startIndex=10");
 
@@ -50,12 +42,12 @@ public class VOOTLimitResultIntegrationTest extends VOOTBaseTest {
 		assertEquals(Integer.valueOf(0), response.getStartIndex());
 		assertEquals(Integer.valueOf(3), response.getItemsPerPage());
 		assertEquals(3, response.getEntry().length);
-		System.out.println(response);
+		//System.out.println(response);
 	}
 
 	@Test
 	public void isMemberOfTestStartIndexCount() throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, VOOTException, GroupNotExistsException {
-		System.out.println("IsMemberOfTestStartIndexCount");
+		System.out.println("VootManager.IsMemberOfTestStartIndexCount");
 		VOOT voot = new VOOT();
 		Response response = (Response) voot.process(session, "groups/@me", "startIndex=1,count=1");
 
@@ -63,7 +55,7 @@ public class VOOTLimitResultIntegrationTest extends VOOTBaseTest {
 		assertEquals(Integer.valueOf(1), response.getStartIndex());
 		assertEquals(Integer.valueOf(1), response.getItemsPerPage());
 		assertEquals(1, response.getEntry().length);
-		System.out.println(response);
+		//System.out.println(response);
 	}
 
 	@Override

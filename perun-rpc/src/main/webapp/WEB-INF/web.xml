@@ -19,6 +19,11 @@
         <param-value>file://${perun.conf}log4j.xml</param-value>
     </context-param>
 
+    <context-param>
+        <param-name>spring.profiles.default</param-name>
+        <param-value>${spring.profiles.default}</param-value>
+    </context-param>
+
     <!-- !! MUST BE FIRST LISTENER IN THIS CONFIG FILE !! -->
     <listener>
         <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
@@ -32,16 +37,16 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            classpath:perun-controller-applicationcontext.xml
-            classpath:perun-beans.xml
-            classpath:perun-datasources.xml
-            classpath:perun-synchronizers.xml
-            classpath:perun-cabinet-applicationContext.xml
-            classpath:perun-registrar-lib-applicationcontext.xml
-            classpath:perun-notification-applicationcontext.xml
-            classpath:perun-notification-applicationcontext-scheduling.xml
-            classpath:perun-dispatcher-applicationcontext-jdbc.xml
-            classpath:perun-dispatcher-applicationcontext.xml
+            classpath:perun-controller.xml
+            classpath:perun-core.xml
+            classpath:perun-core-jdbc.xml
+            classpath:perun-core-synchronizers.xml
+            classpath:perun-cabinet.xml
+            classpath:perun-registrar-lib.xml
+            classpath:perun-notification.xml
+            classpath:perun-notification-scheduler.xml
+            classpath:perun-dispatcher.xml
+            classpath:perun-dispatcher-scheduler.xml
         </param-value>
     </context-param>
 

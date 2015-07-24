@@ -8,29 +8,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import cz.metacentrum.perun.engine.exceptions.DispatcherNotConfiguredException;
-import cz.metacentrum.perun.engine.exceptions.EngineNotConfiguredException;
 import cz.metacentrum.perun.engine.service.EngineManager;
 
 /**
- * 
- * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ * Starting class for perun-engine component.
+ *
+ * @author Michal Karm Babacek
  */
 public class EngineStarter {
-	private final static Logger log = LoggerFactory
-			.getLogger(EngineStarter.class);
+
+	private final static Logger log = LoggerFactory.getLogger(EngineStarter.class);
 
 	private EngineManager engineManager;
 	private AbstractApplicationContext springCtx;
 
 	public EngineStarter() {
 		try {
-			springCtx = new ClassPathXmlApplicationContext(
-					"classpath:perun-engine-applicationcontext.xml",
-					"classpath:perun-engine-applicationcontext-jdbc.xml");
-			this.engineManager = springCtx.getBean("engineManager",
-					EngineManager.class);
+			springCtx = new ClassPathXmlApplicationContext( "classpath:perun-engine.xml", "classpath:perun-engine-jdbc.xml");
+			this.engineManager = springCtx.getBean("engineManager", EngineManager.class);
 		} catch (Exception e) {
 			log.error("Application context loading error.", e);
 		}

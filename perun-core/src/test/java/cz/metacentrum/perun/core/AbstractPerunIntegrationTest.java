@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +18,6 @@ import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
 /**
@@ -53,7 +50,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/perun-beans-test.xml", "/perun-datasources-test.xml" })
+@ContextConfiguration(locations = { "classpath:/perun-core.xml", "/perun-core-jdbc.xml" })
 @TransactionConfiguration(transactionManager = "springTransactionManager", defaultRollback = true)
 @Transactional
 public abstract class AbstractPerunIntegrationTest {
@@ -75,4 +72,5 @@ public abstract class AbstractPerunIntegrationTest {
 		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		sess = perun.getPerunSession(pp);
 	}
+
 }

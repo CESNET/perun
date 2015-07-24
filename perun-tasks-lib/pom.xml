@@ -64,7 +64,7 @@
 		<!-- PERUN -->
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-beans</artifactId>
+			<artifactId>perun-base</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

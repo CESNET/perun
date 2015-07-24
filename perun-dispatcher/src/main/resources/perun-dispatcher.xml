@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+
+	<!-- Import shared PERUN components -->
+	<import resource="classpath:perun-core-jdbc.xml"/>
+	<import resource="classpath:perun-core.xml"/>
+	<import resource="classpath:perun-core-transaction-manager.xml"/>
+	<import resource="classpath:perun-tasks-lib.xml"/>
+
+	<!-- Scans for @Repository, @Service and @Component -->
+	<context:component-scan base-package="cz.metacentrum.perun.dispatcher"/>
+	<context:component-scan base-package="cz.metacentrum.perun.controller"/>
+
+	<!-- Enable @AspectJ support -->
+	<aop:aspectj-autoproxy/>
+
+	<!-- Enable @Transactional support -->
+	<tx:annotation-driven transaction-manager="springTransactionManager"/>
+
+	<!-- Transaction management using springTransactionManager -->
+	<tx:advice id="txAdvice" transaction-manager="springTransactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- THIS BEAN STARTS THE WHOLE DISPATCHER COMPONENT -->
+	<bean id="dispatcherStarter" class="cz.metacentrum.perun.dispatcher.main.DispatcherStarter" init-method="init" />
+
+	<!-- Beans -->
+	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="10" />
+		<property name="maxPoolSize" value="50" />
+		<property name="queueCapacity" value="100" />
+	</bean>
+
+	<!-- DAOs -->
+	<bean id="dispatcherDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.DispatcherDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<bean id="rulesDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.RulesDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<bean id="processingRuleDao" class="cz.metacentrum.perun.dispatcher.dao.jdbc.ProcessingRuleDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!-- BEGIN Quartz tasks -->
+	<bean id="perunScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!--<ref bean="maintenanceJobTrigger" />-->
+				<!-- <ref bean="checkInJobTrigger" /> -->
+				<ref bean="processPoolJobTrigger" />
+				<ref bean="propagationMaintainerJobTrigger" />
+				<ref bean="cleanTaskResultsJobTrigger" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="maintenanceJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="dispatcherManager" value-ref="dispatcherManager" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="maintenanceJob" />
+		<!-- Every 20 minutes -->
+		<!--<property name="cronExpression" value="0 0/20 * * * ?" /> -->
+		<!-- Every 5 seconds -->
+		<property name="cronExpression" value="0/5 * * * * ?" />
+	</bean>
+
+	<bean id="propagationMaintainerJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.PropagationMaintainerJob" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="propagationMaintainer" value-ref="propagationMaintainer" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="propagationMaintainerJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="propagationMaintainerJob" />
+		<property name="cronExpression" value="${dispatcher.cron.propagation}" />
+	</bean>
+
+	<bean id="processPoolJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.ProcessPoolJob" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="taskScheduler" value-ref="taskScheduler" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="processPoolJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="processPoolJob" />
+		<property name="cronExpression" value="${dispatcher.cron.processpool}" />
+	</bean>
+
+	<bean id="cleanTaskResultsJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.CleanTaskResultsJob" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="dispatcherManager" value-ref="dispatcherManager" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="cleanTaskResultsJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="cleanTaskResultsJob" />
+		<property name="cronExpression" value="${dispatcher.cron.cleantaskresults}" />
+	</bean>
+
+	<!--
+	<bean id="checkInJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.CheckInJob" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="dispatcherManager" value-ref="dispatcherManager" />
+			</map>
+		</property>
+	</bean>
+    -->
+
+	<!--
+	<bean id="checkInJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="checkInJob" /> -->
+	<!-- Every 3 minutes -->
+	<!-- <property name="cronExpression" value="0 0/5 * * * ?" />-->
+	<!-- Every 10 seconds -->
+	<!-- property name="cronExpression" value="0/10 * * * * ?" /-->
+	<!--
+	</bean>
+	-->
+
+	<!-- END Quartz tasks -->
+
+	<!-- Dispatcher properties per-profile -->
+
+	<!-- import properties -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="properties" ref="dispatcherPropertiesBean" />
+	</bean>
+
+	<beans profile="devel,production">
+		<bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<property name="locations">
+				<list>
+					<value>file:${perun.conf}perun-dispatcher.properties</value>
+					<value>file:${perun.conf.custom}perun-dispatcher.properties</value>
+				</list>
+			</property>
+			<property name="ignoreResourceNotFound">
+				<value>true</value>
+			</property>
+			<property name="properties">
+				<props>
+					<!-- we still want properties to have default (backup) in production -->
+					<prop key="perun.principal.name">perunDispatcher</prop>
+					<prop key="perun.principal.extSourceName">INTERNAL</prop>
+					<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+					<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
+					<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
+				</props>
+			</property>
+		</bean>
+	</beans>
+
+	<beans profile="default">
+		<bean id="dispatcherPropertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<property name="properties">
+				<props>
+					<prop key="perun.principal.name">perunDispatcher</prop>
+					<prop key="perun.principal.extSourceName">INTERNAL</prop>
+					<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+					<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
+					<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
+				</props>
+			</property>
+		</bean>
+	</beans>
+
+</beans>

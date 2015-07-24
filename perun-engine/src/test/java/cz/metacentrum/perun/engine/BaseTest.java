@@ -32,7 +32,7 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-		"classpath:perun-engine-applicationcontext.xml",
+		"classpath:perun-engine.xml",
 		"classpath:perun-datasources.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManagerPerunEngine")
 // @Transactional

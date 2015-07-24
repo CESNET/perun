@@ -23,7 +23,7 @@ public class LdapcStarter {
 	private AbstractApplicationContext springCtx;
 
 	public LdapcStarter() {
-		springCtx = new ClassPathXmlApplicationContext("/perun-ldapc-applicationcontext.xml");
+		springCtx = new ClassPathXmlApplicationContext("/perun-ldapc.xml");
 		this.ldapcManager = springCtx.getBean("ldapcManager", LdapcManager.class);
 	}
 

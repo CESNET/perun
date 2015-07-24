@@ -28,7 +28,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void createPublicationTest() throws CabinetException {
-		System.out.println("createPublicationTest()");
+		System.out.println("PublicationServiceImpl.createPublicationTest");
 
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());
@@ -54,7 +54,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void createInternalPublicationTest() throws CabinetException {
-		System.out.println("createInternalPublicationTest()");
+		System.out.println("PublicationServiceImpl.createInternalPublicationTest");
 
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());
@@ -91,7 +91,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findPublicationsByFilterTest() throws Exception {
-		System.out.println("findPublicationsByFilterTest()");
+		System.out.println("PublicationServiceImpl.findPublicationsByFilterTest");
 
 		// search base on publicationOne ID
 		Publication pub = new Publication();
@@ -114,7 +114,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void getPublicationsCountTest() throws Exception {
-		System.out.println("getPublicationsCountTest()");
+		System.out.println("PublicationServiceImpl.getPublicationsCountTest");
 
 		int result = publicationService.getPublicationsCount();
 		assertTrue("There should be at least 2 testing publications!", result >= 2);
@@ -124,7 +124,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void deletePublicationTest() throws CabinetException {
-		System.out.println("deletePublicationTest()");
+		System.out.println("PublicationServiceImpl.deletePublicationTest");
 
 		// publicationTwo can be deleted - doesn't have authors or thanks
 		int id = publicationService.deletePublicationById(sess, publicationTwo.getId());
@@ -138,7 +138,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void deletePublicationWhenNotExistsTest() throws CabinetException {
-		System.out.println("deletePublicationWhenNotExistsTest()");
+		System.out.println("PublicationServiceImpl.deletePublicationWhenNotExistsTest");
 
 		try {
 			publicationService.deletePublicationById(sess, 0);
@@ -153,7 +153,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void deletePublicationWhenHaveAuthorsOrThanksTest() throws CabinetException {
-		System.out.println("deletePublicationWhenHaveAuthorsOrThanksTest()");
+		System.out.println("PublicationServiceImpl.deletePublicationWhenHaveAuthorsOrThanksTest");
 
 		// publicationTwo can be deleted - doesn't have authors or thanks
 		try {
@@ -169,7 +169,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void updatePublicationTest() throws CabinetException {
-		System.out.println("updatePublicationTest()");
+		System.out.println("PublicationServiceImpl.updatePublicationTest");
 
 		publicationOne.setMain("NEW MAIN");
 		int result = publicationService.updatePublicationById(sess, publicationOne);
@@ -182,7 +182,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void updatePublicationWhenNotExistsTest() throws CabinetException {
-		System.out.println("updatePublicationWhenNotExistsTest()");
+		System.out.println("PublicationServiceImpl.updatePublicationWhenNotExistsTest");
 
 		Publication pub = new Publication();
 		try {
@@ -198,7 +198,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test (expected=CabinetException.class)
 		public void updatePublicationWhenCantUpdateTest() throws CabinetException {
-			System.out.println("updatePublicationWhenWhenCantUpdateTest()");
+			System.out.println("PublicationServiceImpl.updatePublicationWhenWhenCantUpdateTest");
 
 			// make pub2 same as pub 1
 			publicationTwo.setPublicationSystemId(publicationOne.getPublicationSystemId());
@@ -210,7 +210,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void lockPublicationsTest() throws CabinetException {
-		System.out.println("lockPublicationsTest()");
+		System.out.println("PublicationServiceImpl.lockPublicationsTest");
 
 		List<Publication> pubs = new ArrayList<Publication>();
 		pubs.add(publicationOne);
@@ -226,7 +226,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void stripPublicationParams() throws CabinetException {
-		System.out.println("stripPublicationParams()");
+		System.out.println("PublicationServiceImpl.stripPublicationParams");
 
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());

@@ -1,40 +1,28 @@
 package cz.metacentrum.perun.dispatcher.unit;
 
-import java.util.Collection;
-
+import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.Assert;
 
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.dispatcher.TestBase;
-import cz.metacentrum.perun.dispatcher.TestDataSourcePopulator;
 import cz.metacentrum.perun.dispatcher.jms.DispatcherQueue;
 import cz.metacentrum.perun.dispatcher.model.Event;
-import cz.metacentrum.perun.dispatcher.processing.EventLogger;
 import cz.metacentrum.perun.dispatcher.processing.EventQueue;
-import cz.metacentrum.perun.dispatcher.processing.SmartMatcher;
 import cz.metacentrum.perun.dispatcher.processing.impl.EventProcessorImpl;
 import cz.metacentrum.perun.dispatcher.scheduling.impl.SchedulingPoolImpl;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
-public class EventProcessorTest extends TestBase {
-	private final static Logger log = LoggerFactory
-			.getLogger(EventProcessorTest.class);
+/**
+ *
+ * @author Michal Voců
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
+public class EventProcessorTest extends AbstractDispatcherTest {
 
-	@Autowired
-	private TestDataSourcePopulator testDataPopulator;
-	@Autowired
-	private ExecService execservice1;
-	@Autowired
-	private ExecService execservice2;
-	@Autowired
-	private Facility facility1;
+	private final static Logger log = LoggerFactory.getLogger(EventProcessorTest.class);
 
 	@Autowired
 	private EventProcessorImpl eventProcessor;
@@ -43,6 +31,7 @@ public class EventProcessorTest extends TestBase {
 	private Task createdTask;
 
 	private class EventQueueMock implements EventQueue {
+
 		private boolean eventConsumed = false;
 
 		@Override
@@ -57,9 +46,7 @@ public class EventProcessorTest extends TestBase {
 			Event event = new Event();
 			event.setTimeStamp(System.currentTimeMillis());
 			event.setHeader("portishead");
-			event.setData(testDataPopulator.getMember1().serializeToString()
-					+ " added to "
-					+ testDataPopulator.getGroup1().serializeToString() + ".");
+			event.setData(member1.serializeToString() + " added to " + group1.serializeToString() + ".");
 			eventConsumed = true;
 			return event;
 		}
@@ -96,10 +83,10 @@ public class EventProcessorTest extends TestBase {
 
 	@Test(timeout = 1000)
 	public void eventProcessorTest() {
-		DispatcherQueue dispatcherQueue = new DispatcherQueueMock(1,
-				"testQueue");
-		eventProcessor.getDispatcherQueuePool().addDispatcherQueue(
-				dispatcherQueue);
+		System.out.println("EventProcessor.eventProcessorTest()");
+
+		DispatcherQueue dispatcherQueue = new DispatcherQueueMock(1, "testQueue");
+		eventProcessor.getDispatcherQueuePool().addDispatcherQueue(dispatcherQueue);
 		eventProcessor.setEventQueue(new EventQueueMock());
 		eventProcessor.getSmartMatcher().loadAllRulesFromDB();
 		eventProcessor.setSchedulingPool(new SchedulingPoolMock());
@@ -107,12 +94,11 @@ public class EventProcessorTest extends TestBase {
 		// runs inside this thread, should end when message is delivered
 		// this necessitates the use of test timeout
 		evProcessor.run();
-		log.debug("createdTask: " + createdTask);
-		Assert.isTrue(execservice2.equals(createdTask.getExecService()),
-				"task execService is different");
-		Assert.isTrue(facility1.equals(createdTask.getFacility()),
-				"task Facility is different");
+		log.debug("CreatedTask: " + createdTask);
+		Assert.isTrue(execservice2.equals(createdTask.getExecService()), "task execService is different");
+		Assert.isTrue(facility1.equals(createdTask.getFacility()), "task Facility is different");
 		Assert.isTrue(createdTask.getStatus().equals(TaskStatus.NONE));
 
 	}
+
 }

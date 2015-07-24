@@ -2239,3 +2239,8 @@ drop sequence roles_id_seq;
 create sequence roles_id_seq start with 102;
 drop sequence cabinet_authorships_id_seq;
 create sequence cabinet_authorships_id_seq start with 5884;
+
+insert into users (id, first_name, last_name) values (1, 'John', 'Doe');
+insert into ext_sources (id, name, type) values (1, 'BA', 'cz.metacentrum.perun.core.impl.ExtSourceKerberos');
+insert into user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) values (1, 1, 'perun@BA', 1, 2);
+insert into authz (user_id, role_id) values (1 , 21);

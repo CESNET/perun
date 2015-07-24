@@ -1,6 +1,5 @@
 set database sql syntax PGS true;
 
-
 create table tasks (
     id integer not null,
     exec_service_id  integer not null,
@@ -17,8 +16,8 @@ create table tasks (
     modified_at date default now not null,
     modified_by varchar(1024) default user not null,
     err_message varchar(4000),
-   created_by_uid integer,
-   modified_by_uid integer
+    created_by_uid integer,
+    modified_by_uid integer
 );
 
 create table tasks_results (
@@ -35,38 +34,38 @@ create table tasks_results (
     created_by varchar(1024) default user not null,
     modified_at date default now not null,
     modified_by varchar(1024) default user not null,
-   created_by_uid integer,
-   modified_by_uid integer
+    created_by_uid integer,
+    modified_by_uid integer
 );
 
 create table services (
-   id integer not null,
-   name varchar(128) not null,
-   owner_id integer not null,
-   created_at date  default now not null,
-   created_by varchar(1024) default user not null,
-   modified_at date default now not null,
-   modified_by varchar(1024) default user not null,
-   status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+    id integer not null,
+    name varchar(128) not null,
+    owner_id integer not null,
+    created_at date  default now not null,
+    created_by varchar(1024) default user not null,
+    modified_at date default now not null,
+    modified_by varchar(1024) default user not null,
+    status char(1) default '0' not null,
+    created_by_uid integer,
+    modified_by_uid integer
 );
 
 create table exec_services (
-   id integer not null,
-   service_id integer not null,
-   default_delay integer not null,
-   enabled char(1) not null,
-   default_recurrence integer not null,
-   script varchar(256) not null,
-   type varchar(10) not null,
-   created_at date  default now not null,
-   created_by varchar(1024) default user not null,
-   modified_at date default now not null,
-   modified_by varchar(1024) default user not null,
-   status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+    id integer not null,
+    service_id integer not null,
+    default_delay integer not null,
+    enabled char(1) not null,
+    default_recurrence integer not null,
+    script varchar(256) not null,
+    type varchar(10) not null,
+    created_at date  default now not null,
+    created_by varchar(1024) default user not null,
+    modified_at date default now not null,
+    modified_by varchar(1024) default user not null,
+    status char(1) default '0' not null,
+    created_by_uid integer,
+    modified_by_uid integer
 );
 
 create table facilities (
@@ -78,10 +77,9 @@ create table facilities (
     modified_at date default now not null,
     modified_by varchar(1024) default user not null,
     status char(1) default '0' not null,
-   created_by_uid integer,
-   modified_by_uid integer
+    created_by_uid integer,
+    modified_by_uid integer
 );
-
 
 create sequence TASKS_ID_SEQ start with 10 increment by 1;
 create sequence TASKS_RESULTS_ID_SEQ start with 10 increment by 1;
@@ -110,6 +108,5 @@ alter table services add constraint SERV_U unique(name);
 alter table exec_services add  constraint EXSRV_PK primary key(id);
 alter table exec_services add constraint EXSRV_SRV_FK foreign key (service_id) references services(id);
 alter table exec_services add constraint EXSRV_TYPE_CHK check (type IN ('SEND','GENERATE'));
-alter table facilities add constraint FAC_PK primary key(id); 
+alter table facilities add constraint FAC_PK primary key(id);
 alter table facilities add constraint FAC_U unique (name,type);
-

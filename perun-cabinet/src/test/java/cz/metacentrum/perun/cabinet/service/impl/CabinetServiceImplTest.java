@@ -27,12 +27,13 @@ public class CabinetServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findPublicationsInPubSysMUTest() throws Exception {
-		System.out.println("findPublicationsInPubSysMUTest()");
+		System.out.println("CabinetServiceImpl.findPublicationsInPubSysMUTest");
 
 		List<Publication> pubs = new ArrayList<Publication>();
 		try {
 			pubs = cabinetService.findPublicationsInPubSys("39700", 2010, 2011, pubSysMu);
 		} catch (CabinetException ex) {
+			System.out.println(ex);
 			if (!ex.getType().equals(ErrorCodes.HTTP_IO_EXCEPTION)) {
 				fail("Different exception code, was: "+ex.getType() +", but expected: HTTP_IO_EXCEPTION.");
 				// fail if different error
@@ -47,7 +48,7 @@ public class CabinetServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findPublicationsInPubSysZCUTest() throws Exception {
-		System.out.println("findPublicationsInPubSysZCUTest()");
+		System.out.println("CabinetServiceImpl.findPublicationsInPubSysZCUTest");
 
 		List<Publication> pubs = new ArrayList<Publication>();
 		try {

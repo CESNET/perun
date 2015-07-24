@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+">
+	<!-- Import standard app config -->
+	<import resource="classpath:perun-dispatcher.xml"/>
+
+	<!-- in case of integration testing run scheduler -->
+
+	<beans profile="integration">
+
+		<!-- BEGIN Quartz tasks -->
+		<bean id="maintenanceJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+			<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
+			<property name="jobDataAsMap">
+				<map>
+					<entry key="dispatcherManager" value-ref="dispatcherManager" />
+				</map>
+			</property>
+		</bean>
+
+		<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+			<property name="jobDetail" ref="maintenanceJob" />
+			<!-- Every 20 minutes -->
+			<!--<property name="cronExpression" value="0 0/20 * * * ?" /> -->
+			<!-- Every 5 seconds -->
+			<property name="cronExpression" value="0/5 * * * * ?" />
+		</bean>
+
+		<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+			<property name="triggers">
+				<list>
+					<!--<ref bean="maintenanceJobTrigger" />-->
+					<!--<ref bean="checkInJobTrigger" /> -->
+				</list>
+			</property>
+		</bean>
+		<!-- END Quartz tasks -->
+
+	</beans>
+
+</beans>
