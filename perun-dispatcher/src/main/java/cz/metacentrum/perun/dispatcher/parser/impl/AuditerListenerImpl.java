@@ -28,28 +28,33 @@ public class AuditerListenerImpl implements AuditerListener {
 	@Override
 	public void init() {
 		try {
-			this.auditerConsumer = new AuditerConsumer(dispatcherName,
-					dataSource);
-			while (running) {
-				for (String message : auditerConsumer.getMessagesForParser()) {
-					Event event = new Event();
-					event.setTimeStamp(System.currentTimeMillis());
-					if (whichOfTwoRules) {
-						event.setHeader("portishead");
-						whichOfTwoRules = false;
-					} else {
-						event.setHeader("clockworkorange");
-						whichOfTwoRules = true;
+			while(running) {
+				try {
+					this.auditerConsumer = new AuditerConsumer(dispatcherName, dataSource);
+					while (running) {
+						for (String message : auditerConsumer.getMessagesForParser()) {
+							Event event = new Event();
+							event.setTimeStamp(System.currentTimeMillis());
+							if (whichOfTwoRules) {
+								event.setHeader("portishead");
+								whichOfTwoRules = false;
+							} else {
+								event.setHeader("clockworkorange");
+								whichOfTwoRules = true;
+							}
+							event.setData(message);
+							eventQueue.add(event);
+							Thread.sleep(1000);
+						}
 					}
-					event.setData(message);
-					eventQueue.add(event);
+				} catch (InternalErrorException e) {
+					log.error("Error in AuditerConsumer: " + e.getMessage() + ", trying to recover by getting a new one.");
+					this.auditerConsumer = null;
 				}
-				Thread.sleep(1000);
+				Thread.sleep(10000);
 			}
-		} catch (InternalErrorException e) {
-			throw new RuntimeException("AuditerConsumer failed...");
 		} catch (InterruptedException e) {
-			throw new RuntimeException("Somebody has interrupted us...");
+			throw new RuntimeException("Somebody has interrupted us...", e);
 		}
 	}
 
