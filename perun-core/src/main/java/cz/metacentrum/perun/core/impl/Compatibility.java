@@ -133,9 +133,10 @@ public class Compatibility {
 		try {
 			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
-				return "convert("+columnName+", 'US7ASCII', 'UTF8')"; // DESTINATION / SOURCE
+				// convert column type to VARCHAR2 from (N)VARCHAR2 and modify encoding from UTF to US7ASCII
+				return "to_char(convert("+columnName+", 'US7ASCII', 'UTF8'))"; // DESTINATION / SOURCE
 			} else if (dbType.equals("postgresql")) {
-				return "unaccent("+columnName+")";   // SOURCE  / DESTINATION
+				return "unaccent("+columnName+")";
 			} else if (dbType.equals("hsqldb")){
 				return "translate("+columnName+", 'ÁÇÉÍÓÚÀÈÌÒÙÚÂÊÎÔÛÃÕËÜŮŘřáçéíóúàèìòùâêîôûãõëüů', 'ACEIOUUAEIOUAEIOUAOEUURraceiouaeiouaeiouaoeuu')";
 			} else {

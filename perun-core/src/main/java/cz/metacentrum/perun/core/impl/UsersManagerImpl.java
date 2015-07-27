@@ -778,8 +778,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		// the searchString is already lower cased
 		try {
 			return jdbc.query("select " + userMappingSelectQuery + " from users " +
-					" where coalesce(lower(users.title_before), '%') like ? and lower(users.first_name) like ? and coalesce(lower(users.middle_name),'%') like ? and " +
-					"lower(users.last_name) like ?  and coalesce(lower(users.title_after), '%') like ?",
+					" where coalesce(lower("+Compatibility.convertToAscii("users.title_before")+"), '%') like ? and lower("+Compatibility.convertToAscii("users.first_name")+") like ? and coalesce(lower("+Compatibility.convertToAscii("users.middle_name")+"),'%') like ? and " +
+					"lower("+Compatibility.convertToAscii("users.last_name")+") like ? and coalesce(lower("+Compatibility.convertToAscii("users.title_after")+"), '%') like ?",
 					USER_MAPPER, titleBefore, firstName, middleName, lastName, titleAfter);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<User>();
