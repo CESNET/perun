@@ -131,6 +131,9 @@ $objectExamples{"List<AuditMessage>"} = $objectExamples{"List&lt;AuditMessage&gt
 $objectExamples{"String"} = "\"text\"";
 $objectExamples{"boolean"} = "true";
 
+$objectExamples{"Candidate"} = "{ \"id\" : 0 , \"serviceUser\" : false , \"firstName\" : \"Random\" , \"lastName\" : \"Name\" , \"middleName\" : null , \"titleBefore\" : \"Dr.\" , \"titleAfter\" : null , userExtSource : " . $objectExamples{"UserExtSource"} . " , additionalUserExtSources : null , attributes : { \"urn:perun:member:attribute-def:def:organization\" : \"Masarykova univerzita\" , \"urn:perun:member:attribute-def:def:mail\" : \"random\@name.cz\" } }";
+$objectExamples{"List&lt;Candidate&gt;"} = $listPrepend . $objectExamples{"Candidate"} . $listAppend;
+$objectExamples{"List<Candidate>"} = $objectExamples{"List&lt;Candidate&gt;"};
 
 # SUB HELP
 # help info
