@@ -62,8 +62,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		"hosts.created_at as hosts_created_at, hosts.created_by as hosts_created_by, hosts.modified_by as hosts_modified_by, hosts.modified_at as hosts_modified_at, " +
 		"hosts.created_by_uid as hosts_created_by_uid, hosts.modified_by_uid as hosts_modified_by_uid";
 
-	protected final static String facilityContactsMappingSelectQuery = " facility_contacts.facility_id as facility_contacts_id, facility_contacts.contact_group_name as facility_contacts_contact_group_name, " +
-	    "facility_contacts.owner_id as facility_contacts_owner_id, facility_contacts.user_id as facility_contacts_user_id, facility_contacts.group_id as facility_contacts_group_id";
+	protected final static String facilityContactsMappingSelectQuery = " facility_contacts.facility_id as fc_id, facility_contacts.contact_group_name as fc_contact_group_name, " +
+	    "facility_contacts.owner_id as fc_owner_id, facility_contacts.user_id as fc_user_id, facility_contacts.group_id as fc_group_id";
 	
 	protected final static String facilityContactsMappingSelectQueryWithAllEntities = facilityContactsMappingSelectQuery + ", " + UsersManagerImpl.userMappingSelectQuery + ", " + 
 	  facilityMappingSelectQuery + ", " + OwnersManagerImpl.ownerMappingSelectQuery + ", " + GroupsManagerImpl.groupMappingSelectQuery;
@@ -126,7 +126,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			contactGroup.setFacility(facility);
 
 			//set Name
-			String contactGroupName = rs.getString("facility_contacts_contact_group_name");
+			String contactGroupName = rs.getString("fc_contact_group_name");
 			contactGroup.setContactGroupName(contactGroupName);
 
 			//if exists set owner
