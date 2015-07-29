@@ -104,7 +104,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 					errorMessage,
 					standardMessage,
 					taskResult.getReturnCode(),
-					TaskDaoJdbc.formatter.format(taskResult.getTimestamp()),
+					TaskDaoJdbc.getDateFormatter().format(taskResult.getTimestamp()),
 					engineID);
 		return newTaskResultId;
 	}

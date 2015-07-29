@@ -2,6 +2,7 @@ package cz.metacentrum.perun.taskslib.dao.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,9 +35,22 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 
 	private static final Logger log = LoggerFactory.getLogger(TaskDaoJdbc.class);
-	// It would be nice to have some comments here, wouldn't it? :-)
-	// public static final SimpleDateFormat dbFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-	public static final SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+	/**
+	 * Method create formatter with default settings for perun timestamps and set lenient on false
+	 * Timestamp format:  "yyyy-MM-dd HH:mm:ss" - "ex. 2014-01-01 10:10:10"
+	 *
+	 * Lenient on false means that formatter will be more strict to creating timestamp from string
+	 *
+	 * IMPORTANT: SimpleDateFormat is not thread safe !!!
+	 *
+	 * @return date formatter
+	 */
+	public static SimpleDateFormat getDateFormatter() {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		df.setLenient(false);
+		return df;
+	}
 
 	public final static String taskMappingSelectQuery = " tasks.id as tasks_id, tasks.schedule as tasks_schedule, tasks.recurrence as tasks_recurrence, " +
 		"tasks.delay as tasks_delay, tasks.status as tasks_status, tasks.start_time as tasks_start_time, tasks.end_time as tasks_end_time, tasks.engine_id as tasks_engine_id ";
@@ -102,11 +116,11 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 			newTaskId = Utils.getNewId(this.getJdbcTemplate(), "tasks_id_seq");
 			this.getJdbcTemplate().update(
 					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
-					newTaskId, task.getExecServiceId(), task.getFacilityId(), formatter.format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
+					newTaskId, task.getExecServiceId(), task.getFacilityId(), getDateFormatter().format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
 			log.error("Data: id, exec_service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getExecServiceId() + ", " + task.getFacilityId() + ", "
-					+ formatter.format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
+					+ getDateFormatter().format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
 		}
 		return 0;
 	}
@@ -118,11 +132,11 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 			newTaskId = task.getId();
 			this.getJdbcTemplate().update(
 					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
-					newTaskId, task.getExecServiceId(), task.getFacilityId(), formatter.format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
+					newTaskId, task.getExecServiceId(), task.getFacilityId(), getDateFormatter().format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
 			log.error("Data: id, exec_service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getExecServiceId() + ", " + task.getFacilityId() + ", "
-					+ formatter.format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
+					+ getDateFormatter().format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
 		}
 		return 0;
 	}
@@ -264,7 +278,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
 				+ "tasks.schedule >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.schedule < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
-				new Object[] { formatter.format(olderThen), formatter.format(youngerThen) }, TASK_ROWMAPPER);
+				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) }, TASK_ROWMAPPER);
 	}
 
 	@Override
@@ -274,7 +288,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
 				+ "tasks.schedule >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.schedule < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id = ? ",
-				new Object[] { formatter.format(olderThen), formatter.format(youngerThen), engineID }, TASK_ROWMAPPER);
+				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen), engineID }, TASK_ROWMAPPER);
 	}
 
 	@Override
@@ -284,7 +298,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
 				+ "tasks.start_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.start_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id = ?",
-				new Object[] { formatter.format(olderThen), formatter.format(youngerThen), engineID }, TASK_ROWMAPPER);
+				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen), engineID }, TASK_ROWMAPPER);
 	}
 
 	@Override
@@ -294,7 +308,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
 				+ "tasks.start_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.start_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
-				new Object[] { formatter.format(olderThen), formatter.format(youngerThen) }, TASK_ROWMAPPER);
+				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) }, TASK_ROWMAPPER);
 	}
 
 	@Override
@@ -304,7 +318,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
 				+ "tasks.end_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.end_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id = ?",
-				new Object[] { formatter.format(olderThen), formatter.format(youngerThen), engineID }, TASK_ROWMAPPER);
+				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen), engineID }, TASK_ROWMAPPER);
 	}
 
 	@Override
@@ -314,22 +328,22 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
 				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
 				+ "tasks.end_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.end_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
-				new Object[] { formatter.format(olderThen), formatter.format(youngerThen) }, TASK_ROWMAPPER);
+				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) }, TASK_ROWMAPPER);
 	}
 
 	@Override
 	public void updateTask(Task task, int engineID) {
 		String scheduled = null;
 		if (task.getSchedule() != null) {
-			scheduled = formatter.format(task.getSchedule());
+			scheduled = getDateFormatter().format(task.getSchedule());
 		}
 		String endTime = null;
 		if (task.getEndTime() != null) {
-			endTime = formatter.format(task.getEndTime());
+			endTime = getDateFormatter().format(task.getEndTime());
 		}
 		String startTime = null;
 		if (task.getStartTime() != null) {
-			startTime = formatter.format(task.getStartTime());
+			startTime = getDateFormatter().format(task.getStartTime());
 		}
 
 		this.getJdbcTemplate().update(
@@ -343,15 +357,15 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public void updateTask(Task task) {
 		String scheduled = null;
 		if (task.getSchedule() != null) {
-			scheduled = formatter.format(task.getSchedule());
+			scheduled = getDateFormatter().format(task.getSchedule());
 		}
 		String endTime = null;
 		if (task.getEndTime() != null) {
-			endTime = formatter.format(task.getEndTime());
+			endTime = getDateFormatter().format(task.getEndTime());
 		}
 		String startTime = null;
 		if (task.getStartTime() != null) {
-			startTime = formatter.format(task.getStartTime());
+			startTime = getDateFormatter().format(task.getStartTime());
 		}
 
 		this.getJdbcTemplate().update(
