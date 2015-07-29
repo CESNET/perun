@@ -194,6 +194,9 @@ function callBackAfter(after) {
 }
 
 
+function isNumber(obj) {
+    return !isNaN(parseFloat(obj))
+}
 
 
 function unAccent(str) {

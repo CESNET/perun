@@ -48,7 +48,7 @@ function loadVo() {
 //require loaded global vo variable
 function showVo() {
     if (!vo) {
-        (flowMessager.newMessage("Can not show data", "because there was an error with communication", "error")).draw();
+        (flowMessager.newMessage("Can not show data", "because there was an error with communication", "danger")).draw();
         return;
     }
     if (!innerTabs.containsTab("vo")) {

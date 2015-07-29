@@ -9,9 +9,17 @@ function showGroup(groupId) {
         callMeAfter(showGroup, [groupId], loadGroups);
         return;
     }
-    var group = getGroupById(allVoGroups, groupId);
+    var group;
+    if (isNumber(groupId)) {
+        group = getGroupById(allVoGroups, groupId);
+    } else {
+        group = getGroupByName(allVoGroups, groupId);
+        if (group) {
+            (flowMessager.newMessage("Welcome", "You have been successfully invited into a group "+group.name, "success")).draw();
+        }
+    }
     if (!group) {
-        (flowMessager.newMessage("Group", "with ID " + groupId + " can not be shown. It doesn't exist.", "warning")).draw();
+        (flowMessager.newMessage("Group "+groupId, "can not be shown. It doesn't exist.", "warning")).draw();
         showVo();
         return;
     }
@@ -212,6 +220,16 @@ function createAttrTableName(groups) {
 function getGroupById(groups, id) {
     for (var i in groups) {
         if (groups[i].id == id) {
+            return groups[i];
+        }
+    }
+    return null;
+}
+function getGroupByName(groups, shortName) {
+
+    for (var i in groups) {
+        console.log(groups[i].shortName +" / "+ shortName);
+        if (groups[i].shortName == shortName) {
             return groups[i];
         }
     }
