@@ -27,6 +27,7 @@
 		<module>perun-web-gui</module>
 		<module>perun-voot</module>
 		<module>perun-auditer-exporter</module>
+		<module>perun-ldapc-initializer</module>
 	</modules>
 
 	<!-- common environmental and version properties-->
