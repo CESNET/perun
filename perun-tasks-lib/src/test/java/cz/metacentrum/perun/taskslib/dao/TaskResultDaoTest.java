@@ -1,8 +1,254 @@
 package cz.metacentrum.perun.taskslib.dao;
 
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.taskslib.model.ExecService;
+import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-/*import static org.junit.Assert.assertEquals;
+import javax.sql.DataSource;
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:perun-tasks-lib-applicationcontext.xml", "classpath:perun-datasources-test.xml", "classpath:perun-beans-test.xml", "classpath:perun-transaction-manager.xml" })
+@TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
+@Transactional
+public class TaskResultDaoTest {
+
+	@Autowired PerunBl perun;
+	@Autowired private DataSource dataSource;
+	@Autowired private TaskDao taskDao;
+	@Autowired private TaskResultDao taskResultDao;
+	@Autowired private OwnersManager ownersManager;
+	@Autowired private ExecServiceDao execServiceDao;
+	@Autowired private ServicesManager servicesManager;
+	@Autowired private FacilitiesManager facilitiesManager;
+	private PerunSession perunSession;
+	private JdbcTemplate jdbcTemplate;
+	private int virtualEngineID = 1;
+
+	@Before
+	public void setUp() throws InternalErrorException {
+		if (perunSession == null || jdbcTemplate == null) {
+			perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+			jdbcTemplate = new JdbcTemplate(dataSource);
+		}
+	}
+
+	@Test
+	public void testCleanOldTaskResult() throws InternalErrorException, PrivilegeException, ServiceExistsException, OwnerNotExistsException, FacilityExistsException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+		Owner testOwner = new Owner();
+		testOwner.setContact("Call me");
+		testOwner.setName("Tester-" + Long.toHexString(System.currentTimeMillis()));
+		testOwner.setType(OwnerType.technical);
+		testOwner = ownersManager.createOwner(perunSession, testOwner);
+
+		Service testService = new Service();
+		testService.setName("Test service 1-" + Long.toHexString(System.currentTimeMillis()));
+		testService = servicesManager.createService(perunSession, testService, testOwner);
+
+		Service testService2 = new Service();
+		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
+		testService2 = servicesManager.createService(perunSession, testService2, testOwner);
+
+		Facility facility = new Facility();
+		facility.setName("Facility 1-" + Long.toHexString(System.currentTimeMillis()));
+		facility.setDescription("Description");
+		facility = facilitiesManager.createFacility(perunSession, facility);
+
+		Facility facility2 = new Facility();
+		facility2.setName("Facility 2-" + Long.toHexString(System.currentTimeMillis()));
+		facility2.setDescription("Description");
+		facility2 = facilitiesManager.createFacility(perunSession, facility2);
+
+		ExecService testExecService = new ExecService();
+		testExecService.setDefaultDelay(1);
+		testExecService.setDefaultRecurrence(1);
+		testExecService.setEnabled(true);
+		testExecService.setService(testService);
+		testExecService.setScript("serviceGenerate.bash");
+		testExecService.setExecServiceType(ExecService.ExecServiceType.GENERATE);
+		testExecService.setId(execServiceDao.insertExecService(testExecService));
+
+		ExecService testExecService2 = new ExecService();
+		testExecService2.setDefaultDelay(1);
+		testExecService2.setDefaultRecurrence(1);
+		testExecService2.setEnabled(true);
+		testExecService2.setService(testService2);
+		testExecService2.setScript("serviceGenerate.bash");
+		testExecService2.setExecServiceType(ExecService.ExecServiceType.GENERATE);
+		testExecService2.setId(execServiceDao.insertExecService(testExecService2));
+
+		Destination destination1 = new Destination();
+		destination1.setDestination("Destination-1-" + Long.toHexString(System.currentTimeMillis()));
+		destination1.setType(Destination.DESTINATIONEMAILTYPE);
+		destination1 = servicesManager.addDestination(perunSession, testService, facility, destination1);
+
+		Destination destination2 = new Destination();
+		destination2.setDestination("Destination-2-" + Long.toHexString(System.currentTimeMillis()));
+		destination2.setType(Destination.DESTINATIONEMAILTYPE);
+		destination2 = servicesManager.addDestination(perunSession, testService, facility, destination2);
+
+		Destination destination3 = new Destination();
+		destination3.setDestination("Destination-3-" + Long.toHexString(System.currentTimeMillis()));
+		destination3.setType(Destination.DESTINATIONEMAILTYPE);
+		destination3 = servicesManager.addDestination(perunSession, testService2, facility2, destination3);
+
+		Task testTask1 = new Task();
+		testTask1.setDelay(10);
+		testTask1.setExecService(testExecService);
+		testTask1.setFacility(facility);
+		testTask1.setRecurrence(10);
+		testTask1.setSchedule(new Date());
+		testTask1.setStatus(Task.TaskStatus.PROCESSING);
+		testTask1.setId(taskDao.scheduleNewTask(testTask1, virtualEngineID));
+
+		Task testTask2 = new Task();
+		testTask2.setDelay(10);
+		testTask2.setExecService(testExecService2);
+		testTask2.setFacility(facility2);
+		testTask2.setRecurrence(10);
+		testTask2.setSchedule(new Date());
+		testTask2.setStatus(Task.TaskStatus.PROCESSING);
+		testTask2.setId(taskDao.scheduleNewTask(testTask2, virtualEngineID));
+
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -2);
+
+		TaskResult taskResult = new TaskResult();
+		taskResult.setDestinationId(destination1.getId());
+		taskResult.setErrorMessage("error message");
+		taskResult.setReturnCode(0);
+		taskResult.setStandardMessage("std message");
+		taskResult.setStatus(TaskResult.TaskResultStatus.DONE);
+		taskResult.setTaskId(testTask1.getId());
+		taskResult.setTimestamp(cal.getTime());
+		taskResult.setService(testService);
+		taskResult.setId(taskResultDao.insertNewTaskResult(taskResult, virtualEngineID));
+
+		TaskResult taskResult2 = new TaskResult();
+		taskResult2.setDestinationId(destination3.getId());
+		taskResult2.setErrorMessage("error message");
+		taskResult2.setReturnCode(0);
+		taskResult2.setStandardMessage("std message");
+		taskResult2.setStatus(TaskResult.TaskResultStatus.DONE);
+		taskResult2.setTaskId(testTask2.getId());
+		taskResult2.setTimestamp(cal.getTime());
+		taskResult2.setService(testService2);
+		taskResult2.setId(taskResultDao.insertNewTaskResult(taskResult2, virtualEngineID));
+
+		cal.add(Calendar.DATE, -5);
+
+		TaskResult oldTaskResult = new TaskResult();
+		oldTaskResult.setDestinationId(destination1.getId());
+		oldTaskResult.setErrorMessage("error message");
+		oldTaskResult.setReturnCode(0);
+		oldTaskResult.setStandardMessage("std message");
+		oldTaskResult.setStatus(TaskResult.TaskResultStatus.DONE);
+		oldTaskResult.setTaskId(testTask1.getId());
+		oldTaskResult.setTimestamp(cal.getTime());
+		oldTaskResult.setService(testService);
+		oldTaskResult.setId(taskResultDao.insertNewTaskResult(oldTaskResult, virtualEngineID));
+
+		TaskResult oldTaskResult2 = new TaskResult();
+		oldTaskResult2.setDestinationId(destination3.getId());
+		oldTaskResult2.setErrorMessage("error message");
+		oldTaskResult2.setReturnCode(0);
+		oldTaskResult2.setStandardMessage("std message");
+		oldTaskResult2.setStatus(TaskResult.TaskResultStatus.DONE);
+		oldTaskResult2.setTaskId(testTask2.getId());
+		oldTaskResult2.setTimestamp(cal.getTime());
+		oldTaskResult2.setService(testService2);
+		oldTaskResult2.setId(taskResultDao.insertNewTaskResult(oldTaskResult2, virtualEngineID));
+
+		TaskResult uniqueTaskResult = new TaskResult();
+		uniqueTaskResult.setDestinationId(destination2.getId());
+		uniqueTaskResult.setErrorMessage("error message");
+		uniqueTaskResult.setReturnCode(0);
+		uniqueTaskResult.setStandardMessage("std message");
+		uniqueTaskResult.setStatus(TaskResult.TaskResultStatus.DONE);
+		uniqueTaskResult.setTaskId(testTask1.getId());
+		uniqueTaskResult.setTimestamp(cal.getTime());
+		uniqueTaskResult.setService(testService);
+		uniqueTaskResult.setId(taskResultDao.insertNewTaskResult(uniqueTaskResult, virtualEngineID));
+
+		TaskResult uniqueTaskResult2 = new TaskResult();
+		uniqueTaskResult2.setDestinationId(destination2.getId());
+		uniqueTaskResult2.setErrorMessage("error message");
+		uniqueTaskResult2.setReturnCode(0);
+		uniqueTaskResult2.setStandardMessage("std message");
+		uniqueTaskResult2.setStatus(TaskResult.TaskResultStatus.DONE);
+		uniqueTaskResult2.setTaskId(testTask2.getId());
+		uniqueTaskResult2.setTimestamp(cal.getTime());
+		uniqueTaskResult2.setService(testService2);
+		uniqueTaskResult2.setId(taskResultDao.insertNewTaskResult(uniqueTaskResult2, virtualEngineID));
+
+		TaskResult foundTaskResult1 = taskResultDao.getTaskResultById(taskResult.getId());
+		TaskResult foundTaskResult2 = taskResultDao.getTaskResultById(oldTaskResult.getId());
+		TaskResult foundTaskResult3 = taskResultDao.getTaskResultById(uniqueTaskResult.getId());
+		TaskResult foundTaskResult4 = taskResultDao.getTaskResultById(taskResult2.getId());
+		TaskResult foundTaskResult5 = taskResultDao.getTaskResultById(oldTaskResult2.getId());
+		TaskResult foundTaskResult6 = taskResultDao.getTaskResultById(uniqueTaskResult2.getId());
+
+		assertEquals(taskResult, foundTaskResult1);
+		assertEquals(oldTaskResult, foundTaskResult2);
+		assertEquals(uniqueTaskResult, foundTaskResult3);
+		assertEquals(taskResult2, foundTaskResult4);
+		assertEquals(oldTaskResult2, foundTaskResult5);
+		assertEquals(uniqueTaskResult2, foundTaskResult6);
+
+		taskResultDao.clearOld(virtualEngineID, 6);
+
+		foundTaskResult1 = taskResultDao.getTaskResultById(taskResult.getId());
+		foundTaskResult3 = taskResultDao.getTaskResultById(uniqueTaskResult.getId());
+		foundTaskResult4 = taskResultDao.getTaskResultById(taskResult2.getId());
+		foundTaskResult6 = taskResultDao.getTaskResultById(uniqueTaskResult2.getId());
+
+		assertEquals(taskResult, foundTaskResult1);
+		assertEquals(uniqueTaskResult, foundTaskResult3);
+		assertEquals(taskResult2, foundTaskResult4);
+		assertEquals(uniqueTaskResult2, foundTaskResult6);
+
+		try {
+			taskResultDao.getTaskResultById(oldTaskResult.getId());
+			fail("TaskResult " + taskResult + " should not have been found");
+		} catch (EmptyResultDataAccessException e) {}
+
+		try {
+			taskResultDao.getTaskResultById(oldTaskResult2.getId());
+			fail("TaskResult " + taskResult2 + " should not have been found");
+		} catch (EmptyResultDataAccessException e) {}
+
+
+		taskResultDao.clearOld(virtualEngineID, 1);
+
+		foundTaskResult1 = taskResultDao.getTaskResultById(taskResult.getId());
+		foundTaskResult3 = taskResultDao.getTaskResultById(uniqueTaskResult.getId());
+		foundTaskResult4 = taskResultDao.getTaskResultById(taskResult2.getId());
+		foundTaskResult6 = taskResultDao.getTaskResultById(uniqueTaskResult2.getId());
+
+		assertEquals(taskResult, foundTaskResult1);
+		assertEquals(uniqueTaskResult, foundTaskResult3);
+		assertEquals(taskResult2, foundTaskResult4);
+		assertEquals(uniqueTaskResult2, foundTaskResult6);
+
+	}
+		 /*import static org.junit.Assert.assertEquals;
 	import static org.junit.Assert.fail;
 
 	import java.util.Date;
@@ -52,20 +298,8 @@ import org.junit.Test;
 /**
  * @author Michal Karm Babacek
  **/
-/*
-	 @RunWith(SpringJUnit4ClassRunner.class)
-	 @ContextConfiguration(locations = { "classpath:perun-tasks-lib-applicationcontext.xml", "classpath:perun-datasources.xml", "classpath:perun-beans.xml", "classpath:perun-transaction-manager.xml" })
-	 @TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
-	 @Transactional
-	 */
-public class TaskResultDaoTest {
 
-	@Test
-	public void testDummy() {
-
-	}
-
-	/*
+	/*public class TaskResultDaoTest {
 		 private final static Logger log = LoggerFactory.getLogger(TaskResultDaoTest.class);
 		 private int virtualEngineID = 1;
 		 @Autowired

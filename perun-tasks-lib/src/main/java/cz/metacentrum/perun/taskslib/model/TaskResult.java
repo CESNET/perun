@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.taskslib.model;
 
 import java.util.Date;
+import java.util.Objects;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Service;
@@ -72,7 +73,7 @@ public class TaskResult {
 			return false;
 		if (taskId != other.taskId)
 			return false;
-		if (service != other.service)
+		if (!Objects.equals(service, other.service))
 			return false;
 		return true;
 	}
