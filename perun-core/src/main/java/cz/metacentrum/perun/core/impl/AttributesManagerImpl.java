@@ -4408,7 +4408,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return name of attribute module
 	 */
 	private String attributeNameToModuleName(String attributeName) {
-		return ATTRIBUTES_MODULES_PACKAGE + "." + attributeName.replaceAll(":|-", "_");
+		return ATTRIBUTES_MODULES_PACKAGE + "." + attributeName.replaceAll(":|-|[.]", "_");
 	}
 
 	/**
