@@ -90,7 +90,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 		}
 
 		try {
-			Attribute groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + googleGroupNameNamespaceAttribute.getValue());
+			Attribute groupNameAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + googleGroupNameNamespaceAttribute.getValue());
 			attribute = Utils.copyAttributeToVirtualAttributeWithValue(groupNameAttribute, attribute);
 			return attribute;
 		} catch(WrongAttributeAssignmentException ex) {
@@ -105,7 +105,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 		Attribute googleGroupNameNamespaceAttribute = sess.getPerunBl().getModulesUtilsBl().getGoogleGroupNameNamespaceAttributeWithNotNullValue(sess, resource);
 
 		try {
-			Attribute groupNameAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + googleGroupNameNamespaceAttribute.getValue()));
+			Attribute groupNameAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace:" + googleGroupNameNamespaceAttribute.getValue()));
 			groupNameAttribute.setValue(attribute.getValue());
 			return sess.getPerunBl().getAttributesManagerBl().setAttributeWithoutCheck(sess, group, groupNameAttribute);
 		} catch(AttributeNotExistsException ex) {
