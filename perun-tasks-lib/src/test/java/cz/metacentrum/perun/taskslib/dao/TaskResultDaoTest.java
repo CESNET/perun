@@ -24,12 +24,12 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-datasources.xml", "classpath:perun-beans.xml", "classpath:perun-transaction-manager.xml", "classpath:perun-controller-applicationcontext.xml" })
+@ContextConfiguration(locations = { "classpath:perun-tasks-lib-applicationcontext.xml", "classpath:perun-datasources-test.xml", "classpath:perun-beans-test.xml", "classpath:perun-transaction-manager.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
 @Transactional
 public class TaskResultDaoTest {
+
 	@Autowired PerunBl perun;
 	@Autowired private DataSource dataSource;
 	@Autowired private TaskDao taskDao;
@@ -41,7 +41,6 @@ public class TaskResultDaoTest {
 	private PerunSession perunSession;
 	private JdbcTemplate jdbcTemplate;
 	private int virtualEngineID = 1;
-
 
 	@Before
 	public void setUp() throws InternalErrorException {
@@ -75,7 +74,7 @@ public class TaskResultDaoTest {
 		Facility facility2 = new Facility();
 		facility2.setName("Facility 2-" + Long.toHexString(System.currentTimeMillis()));
 		facility2.setDescription("Description");
-		facility2 = facilitiesManager.createFacility(perunSession, facility2);		
+		facility2 = facilitiesManager.createFacility(perunSession, facility2);
 
 		ExecService testExecService = new ExecService();
 		testExecService.setDefaultDelay(1);
@@ -115,7 +114,7 @@ public class TaskResultDaoTest {
 		testTask1.setExecService(testExecService);
 		testTask1.setFacility(facility);
 		testTask1.setRecurrence(10);
-		testTask1.setSchedule(new Date(System.currentTimeMillis() + 120000));
+		testTask1.setSchedule(new Date());
 		testTask1.setStatus(Task.TaskStatus.PROCESSING);
 		testTask1.setId(taskDao.scheduleNewTask(testTask1, virtualEngineID));
 
@@ -124,10 +123,10 @@ public class TaskResultDaoTest {
 		testTask2.setExecService(testExecService2);
 		testTask2.setFacility(facility2);
 		testTask2.setRecurrence(10);
-		testTask2.setSchedule(new Date(System.currentTimeMillis() + 120000));
+		testTask2.setSchedule(new Date());
 		testTask2.setStatus(Task.TaskStatus.PROCESSING);
 		testTask2.setId(taskDao.scheduleNewTask(testTask2, virtualEngineID));
-		
+
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, -2);
 
@@ -139,6 +138,7 @@ public class TaskResultDaoTest {
 		taskResult.setStatus(TaskResult.TaskResultStatus.DONE);
 		taskResult.setTaskId(testTask1.getId());
 		taskResult.setTimestamp(cal.getTime());
+		taskResult.setService(testService);
 		taskResult.setId(taskResultDao.insertNewTaskResult(taskResult, virtualEngineID));
 
 		TaskResult taskResult2 = new TaskResult();
@@ -149,6 +149,7 @@ public class TaskResultDaoTest {
 		taskResult2.setStatus(TaskResult.TaskResultStatus.DONE);
 		taskResult2.setTaskId(testTask2.getId());
 		taskResult2.setTimestamp(cal.getTime());
+		taskResult2.setService(testService2);
 		taskResult2.setId(taskResultDao.insertNewTaskResult(taskResult2, virtualEngineID));
 
 		cal.add(Calendar.DATE, -5);
@@ -161,6 +162,7 @@ public class TaskResultDaoTest {
 		oldTaskResult.setStatus(TaskResult.TaskResultStatus.DONE);
 		oldTaskResult.setTaskId(testTask1.getId());
 		oldTaskResult.setTimestamp(cal.getTime());
+		oldTaskResult.setService(testService);
 		oldTaskResult.setId(taskResultDao.insertNewTaskResult(oldTaskResult, virtualEngineID));
 
 		TaskResult oldTaskResult2 = new TaskResult();
@@ -171,6 +173,7 @@ public class TaskResultDaoTest {
 		oldTaskResult2.setStatus(TaskResult.TaskResultStatus.DONE);
 		oldTaskResult2.setTaskId(testTask2.getId());
 		oldTaskResult2.setTimestamp(cal.getTime());
+		oldTaskResult2.setService(testService2);
 		oldTaskResult2.setId(taskResultDao.insertNewTaskResult(oldTaskResult2, virtualEngineID));
 
 		TaskResult uniqueTaskResult = new TaskResult();
@@ -181,6 +184,7 @@ public class TaskResultDaoTest {
 		uniqueTaskResult.setStatus(TaskResult.TaskResultStatus.DONE);
 		uniqueTaskResult.setTaskId(testTask1.getId());
 		uniqueTaskResult.setTimestamp(cal.getTime());
+		uniqueTaskResult.setService(testService);
 		uniqueTaskResult.setId(taskResultDao.insertNewTaskResult(uniqueTaskResult, virtualEngineID));
 
 		TaskResult uniqueTaskResult2 = new TaskResult();
@@ -191,6 +195,7 @@ public class TaskResultDaoTest {
 		uniqueTaskResult2.setStatus(TaskResult.TaskResultStatus.DONE);
 		uniqueTaskResult2.setTaskId(testTask2.getId());
 		uniqueTaskResult2.setTimestamp(cal.getTime());
+		uniqueTaskResult2.setService(testService2);
 		uniqueTaskResult2.setId(taskResultDao.insertNewTaskResult(uniqueTaskResult2, virtualEngineID));
 
 		TaskResult foundTaskResult1 = taskResultDao.getTaskResultById(taskResult.getId());
@@ -200,13 +205,12 @@ public class TaskResultDaoTest {
 		TaskResult foundTaskResult5 = taskResultDao.getTaskResultById(oldTaskResult2.getId());
 		TaskResult foundTaskResult6 = taskResultDao.getTaskResultById(uniqueTaskResult2.getId());
 
-
-		assertEqualTaskResult(taskResult, foundTaskResult1);
-		assertEqualTaskResult(oldTaskResult, foundTaskResult2);
-		assertEqualTaskResult(uniqueTaskResult, foundTaskResult3);
-		assertEqualTaskResult(taskResult2, foundTaskResult4);
-		assertEqualTaskResult(oldTaskResult2, foundTaskResult5);
-		assertEqualTaskResult(uniqueTaskResult2, foundTaskResult6);
+		assertEquals(taskResult, foundTaskResult1);
+		assertEquals(oldTaskResult, foundTaskResult2);
+		assertEquals(uniqueTaskResult, foundTaskResult3);
+		assertEquals(taskResult2, foundTaskResult4);
+		assertEquals(oldTaskResult2, foundTaskResult5);
+		assertEquals(uniqueTaskResult2, foundTaskResult6);
 
 		taskResultDao.clearOld(virtualEngineID, 6);
 
@@ -215,10 +219,10 @@ public class TaskResultDaoTest {
 		foundTaskResult4 = taskResultDao.getTaskResultById(taskResult2.getId());
 		foundTaskResult6 = taskResultDao.getTaskResultById(uniqueTaskResult2.getId());
 
-		assertEqualTaskResult(taskResult, foundTaskResult1);
-		assertEqualTaskResult(uniqueTaskResult, foundTaskResult3);
-		assertEqualTaskResult(taskResult2, foundTaskResult4);
-		assertEqualTaskResult(uniqueTaskResult2, foundTaskResult6);
+		assertEquals(taskResult, foundTaskResult1);
+		assertEquals(uniqueTaskResult, foundTaskResult3);
+		assertEquals(taskResult2, foundTaskResult4);
+		assertEquals(uniqueTaskResult2, foundTaskResult6);
 
 		try {
 			taskResultDao.getTaskResultById(oldTaskResult.getId());
@@ -238,25 +242,12 @@ public class TaskResultDaoTest {
 		foundTaskResult4 = taskResultDao.getTaskResultById(taskResult2.getId());
 		foundTaskResult6 = taskResultDao.getTaskResultById(uniqueTaskResult2.getId());
 
-		assertEqualTaskResult(taskResult, foundTaskResult1);
-		assertEqualTaskResult(uniqueTaskResult, foundTaskResult3);
-		assertEqualTaskResult(taskResult2, foundTaskResult4);
-		assertEqualTaskResult(uniqueTaskResult2, foundTaskResult6);
+		assertEquals(taskResult, foundTaskResult1);
+		assertEquals(uniqueTaskResult, foundTaskResult3);
+		assertEquals(taskResult2, foundTaskResult4);
+		assertEquals(uniqueTaskResult2, foundTaskResult6);
 
 	}
-
-
-	
-	private void assertEqualTaskResult(TaskResult tr1, TaskResult tr2) {
-		assertEquals(tr1.getDestinationId(), tr2.getDestinationId());
-		assertEquals(tr1.getErrorMessage(), tr2.getErrorMessage());
-		assertEquals(tr1.getId(), tr2.getId());
-		assertEquals(tr1.getReturnCode(), tr2.getReturnCode());
-		assertEquals(tr1.getStandardMessage(), tr2.getStandardMessage());
-		assertEquals(tr1.getStatus(), tr2.getStatus());
-		assertEquals(tr1.getTaskId(), tr2.getTaskId());
-	}
-
 		 /*import static org.junit.Assert.assertEquals;
 	import static org.junit.Assert.fail;
 

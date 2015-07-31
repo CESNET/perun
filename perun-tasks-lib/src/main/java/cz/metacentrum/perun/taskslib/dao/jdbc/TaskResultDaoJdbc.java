@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Transactional
@@ -187,7 +188,12 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 	@Override
 	public int clearOld(int engineID, int numDays) throws InternalErrorException {
-		final String stringDays = numDays + " days";
+
+		// create sql toDate() with numDay substracted from now
+		Calendar date = Calendar.getInstance();
+		date.add(Calendar.DAY_OF_MONTH, -numDays);
+		String compareDate = TaskDaoJdbc.formatter.format(date.getTime());
+
 		return this.getJdbcTemplate().update("delete from tasks_results where engine_id = ? and " +
 				"id in (" +
 				"select otr.id from tasks_results otr " +
@@ -197,9 +203,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				"		inner join tasks t on tr.task_id = t.id " +
 				"		group by tr.destination_id,tr.task_id " +
 				"   )  tmp on otr.task_id = tmp.task_id and otr.destination_id = tmp.destination_id " +
-				"where otr.timestamp < maxtimestamp and otr.timestamp < (TIMESTAMP " +
-				Compatibility.getSysdate() + " - CAST(? as INTERVAL)) ) ",
-				new Object[] { engineID, stringDays });
+				"where otr.timestamp < maxtimestamp and otr.timestamp < "+Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'")+" )",
+				engineID, compareDate);
 	}
 
 	@Override
