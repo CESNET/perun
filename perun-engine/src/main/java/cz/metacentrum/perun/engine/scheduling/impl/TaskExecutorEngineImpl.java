@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.engine.scheduling.DenialsResolver;
 import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
 import cz.metacentrum.perun.engine.scheduling.ExecutorEngineWorker;
 import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
@@ -21,6 +22,7 @@ import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
 import cz.metacentrum.perun.engine.scheduling.TaskResultListener;
 import cz.metacentrum.perun.engine.scheduling.TaskStatusManager;
 import cz.metacentrum.perun.engine.scheduling.TaskStatus.TaskDestinationStatus;
+import cz.metacentrum.perun.taskslib.dao.ExecServiceDenialDao;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
@@ -60,7 +62,9 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	private TaskStatusManager taskStatusManager;
 	@Autowired
 	private SchedulingPool schedulingPool;
-
+	@Autowired
+	private DenialsResolver denialsResolver;
+	
 	final int MAX_RUNNING_GEN = 20;
 	final int MAX_RUNNING = 1000;
 	
@@ -165,6 +169,11 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		boolean started = false;
 		for (Destination destination : taskStatusManager.getTaskStatus(task)
 				.getWaitingDestinations()) {
+			// check if exec service is enabled for the destination
+			if(denialsResolver.isExecServiceDeniedOnDestination(task.getExecService(), destination.getId())) {
+				log.info("Not starting worker for disabled destination " + destination.toString());
+				continue;
+			}
 			// check if all the dependency destinations are done
 			boolean proceed = true;
 			try {

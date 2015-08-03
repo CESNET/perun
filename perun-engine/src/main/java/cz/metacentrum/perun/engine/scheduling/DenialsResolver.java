@@ -16,8 +16,8 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 public interface DenialsResolver {
 
 	boolean isExecServiceDeniedOnFacility(ExecService execService,
-			Facility facility) throws InternalErrorException;
+			Facility facility);
 
 	boolean isExecServiceDeniedOnDestination(ExecService execService,
-			int destination) throws InternalErrorException;
+			int destination);
 }
