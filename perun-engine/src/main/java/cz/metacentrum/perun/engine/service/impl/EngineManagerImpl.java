@@ -1,32 +1,13 @@
 package cz.metacentrum.perun.engine.service.impl;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Date;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.engine.dao.EngineDao;
-import cz.metacentrum.perun.engine.exceptions.DispatcherNotConfiguredException;
-import cz.metacentrum.perun.engine.exceptions.EngineNotConfiguredException;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
-import cz.metacentrum.perun.engine.model.Pair;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.engine.service.EngineManager;
-import cz.metacentrum.perun.rpclib.Rpc;
-import cz.metacentrum.perun.rpclib.api.RpcCaller;
-import cz.metacentrum.perun.rpclib.impl.RpcCallerImpl;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
@@ -35,15 +16,14 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
- * 
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ * @author Michal Voců
+ * @authro Pavel Zlámal <zlamal@cesnet.cz>
  */
 @org.springframework.stereotype.Service(value = "engineManager")
 public class EngineManagerImpl implements EngineManager {
 
-	private final static Logger log = LoggerFactory
-			.getLogger(EngineManagerImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(EngineManagerImpl.class);
 
 	@Autowired
 	private JMSQueueManager jmsQueueManager;
@@ -79,30 +59,12 @@ public class EngineManagerImpl implements EngineManager {
 
 	@Override
 	public void loadSchedulingPool() {
-		log.info("I am going to load ExecService:Facility pairs from db");
-		schedulingPool.reloadTasks(Integer.parseInt(propertiesBean
-				.getProperty("engine.unique.id")));
 
-		/*
-		 * try { BufferedReader input = new BufferedReader(new
-		 * FileReader("SchedulingPool.txt")); String line = null; while ((line =
-		 * input.readLine()) != null) { //timestamp execserviceID facilityID
-		 * String[] data = line.split(" "); ExecService execService =
-		 * Rpc.GeneralServiceManager.getExecService(getRpcCaller(),
-		 * Integer.parseInt(data[1])); Facility facility =
-		 * Rpc.FacilitiesManager.getFacilityById(getRpcCaller(),
-		 * Integer.parseInt(data[2])); schedulingPool.addToPool(new
-		 * Pair<ExecService, Facility>(execService, facility)); } } catch
-		 * (IOException e) { log.error(e.toString(),
-		 * "loadSchedulingPool from file has failed. You might have lost some ExecService:facility pairs."
-		 * ); } catch (FacilityNotExistsException e) { log.error(e.toString());
-		 * } catch (NumberFormatException e) { log.error(e.toString()); } catch
-		 * (InternalErrorException e) { log.error(e.toString()); } catch
-		 * (PrivilegeException e) { log.error(e.toString()); } catch
-		 * (ServiceNotExistsException e) { log.error(e.toString()); }
-		 */
-		log.info("Loading ExecService:Facility pairs from db has completed. Pool contains "
-				+ schedulingPool.getSize() + " tasks.");
+		log.info("Loading last state of Tasks from local DB.");
+		// reload all tasks from local DB into pool
+		schedulingPool.reloadTasks(0);
+		log.info("Loading last state of Tasks from local DB is done. Pool contains " + schedulingPool.getSize() + " tasks.");
+
 	}
 
 	@Override
@@ -131,8 +93,7 @@ public class EngineManagerImpl implements EngineManager {
 		for (Task task : schedulingPool.getDoneTasks()) {
 			ExecService execService = task.getExecService();
 
-			if (execService.getExecServiceType().equals(
-					ExecServiceType.GENERATE)) {
+			if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
 				log.debug("Setting task " + task.toString() + " to ERROR");
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 			}
@@ -162,12 +123,6 @@ public class EngineManagerImpl implements EngineManager {
 
 	public void setTaskManager(TaskManager taskManager) {
 		this.taskManager = taskManager;
-	}
-
-	@Override
-	public RpcCaller getRpcCaller() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

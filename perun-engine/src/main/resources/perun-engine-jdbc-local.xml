@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+">
+
+	<!-- CONFIGURATION OF LOCAL HSQL DB FOR STORING RUNNING TASKS -->
+	<!-- used only on jar runtime, for tests, own appcontext is defined in /src/main/test/resources -->
+
+	<!-- DataSource implementation -->
+	<bean class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" destroy-method="close" id="dataSourceLocal">
+		<property name="driverClassName" value="org.hsqldb.jdbcDriver" />
+		<property name="url" value="jdbc:hsqldb:file:db/tasks" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+	</bean>
+
+	<!-- initialize the database, ignore errors if it exists -->
+	<jdbc:initialize-database data-source="dataSourceLocal" ignore-failures="ALL">
+		<jdbc:script location="classpath:schema-local.sql" />
+	</jdbc:initialize-database>
+
+	<!-- Transaction manager for Spring JDBC -->
+	<bean id="transactionManagerPerunEngineLocal" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceLocal"/>
+	</bean>
+
+</beans>

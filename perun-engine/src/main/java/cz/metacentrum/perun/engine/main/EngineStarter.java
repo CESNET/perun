@@ -14,6 +14,9 @@ import cz.metacentrum.perun.engine.service.EngineManager;
  * Starting class for perun-engine component.
  *
  * @author Michal Karm Babacek
+ * @author Michal Voců
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ * @author Slávek Licehammer <glory@ics.muni.cz>
  */
 public class EngineStarter {
 
@@ -24,7 +27,7 @@ public class EngineStarter {
 
 	public EngineStarter() {
 		try {
-			springCtx = new ClassPathXmlApplicationContext( "classpath:perun-engine.xml", "classpath:perun-engine-jdbc.xml");
+			springCtx = new ClassPathXmlApplicationContext( "classpath:perun-engine.xml", "classpath:perun-engine-scheduler.xml", "classpath:perun-engine-jdbc-local.xml");
 			this.engineManager = springCtx.getBean("engineManager", EngineManager.class);
 		} catch (Exception e) {
 			log.error("Application context loading error.", e);

@@ -2,7 +2,6 @@ package cz.metacentrum.perun.taskslib.dao.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,7 +37,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
-	 * Timestamp format:  "yyyy-MM-dd HH:mm:ss" - "ex. 2014-01-01 10:10:10"
+	 * Timestamp format:  "dd-MM-yyyy HH:mm:ss" - "ex. 01-01-2014 10:10:10"
 	 *
 	 * Lenient on false means that formatter will be more strict to creating timestamp from string
 	 *
@@ -47,7 +46,7 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	 * @return date formatter
 	 */
 	public static SimpleDateFormat getDateFormatter() {
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		df.setLenient(false);
 		return df;
 	}

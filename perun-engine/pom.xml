@@ -19,7 +19,6 @@
 
 	<properties>
 		<!-- module properties used by all profiles -->
-		<org.springframework.version>3.1.1.RELEASE</org.springframework.version>
 		<perun.test.groups>unit-tests</perun.test.groups>
 	</properties>
 
@@ -56,13 +55,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>**/Manual*.java</exclude>
-						<exclude>**/*ManualTest.java</exclude>
-						<exclude>**/*ManualTestCase.java</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 
 			<!-- Package JAR with Main class -->
@@ -118,12 +110,6 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 			</resource>
-			<resource>
-				<!-- put build specific resources with others -->
-				<directory>src/main/resources/devel</directory>
-				<filtering>true</filtering>
-				<targetPath>./</targetPath>
-			</resource>
 		</resources>
 
 		<!-- filter test resources too -->
@@ -158,14 +144,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- not needed anymore -->
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-rpc-lib</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<!--   -->
-
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-tasks-lib</artifactId>
@@ -185,7 +163,6 @@
 			<artifactId>tomcat-dbcp</artifactId>
 		</dependency>
 
-		<!-- commented oracle in favor of postgres -->
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc7</artifactId>
@@ -202,22 +179,7 @@
 			<version>2.2.8</version>
 		</dependency>
 
-
 		<!-- SPRING -->
-
-		<!--
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-			<version>${org.springframework.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		-->
 
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -273,29 +235,6 @@
 
 	</dependencies>
 
-	<!--
-	<repositories>
-		<repository>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>interval:10080</updatePolicy>
-			</releases>
-			<id>jboss.release</id>
-			<name>JBoss releases</name>
-			<url>http://repository.jboss.org/maven2</url>
-		</repository>
-		<repository>
-			<id>jboss.nexus.release</id>
-			<name>JBoss Nexus releases</name>
-			<url>https://repository.jboss.org/nexus/content/repositories/releases</url>
-		</repository>
-	</repositories>
-	-->
-
 	<profiles>
 
 		<profile>
@@ -310,8 +249,7 @@
 
 			<properties>
 				<perun.build.type>production</perun.build.type>
-				<!-- <maven.test.skip>true</maven.test.skip> -->
-				<perun.test.groups>unit-tests</perun.test.groups>
+				<maven.test.skip>true</maven.test.skip>
 			</properties>
 
 			<build>
@@ -321,12 +259,6 @@
 						<!-- get common resources -->
 						<directory>src/main/resources</directory>
 						<filtering>true</filtering>
-					</resource>
-					<resource>
-						<!-- put build specific resources with others -->
-						<directory>src/main/resources/production</directory>
-						<filtering>true</filtering>
-						<targetPath>./</targetPath>
 					</resource>
 				</resources>
 

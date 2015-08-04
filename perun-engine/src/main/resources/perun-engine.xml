@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+"
+       default-lazy-init="true"
+        >
+    <!-- we will rather do only component scan for service beans, we will (re)define DAOs later -->
+    <!--
+	<import resource="classpath:perun-tasks-lib.xml"/>
+	 -->
+    <!-- Importing Perun Core... -->
+    <import resource="classpath:perun-core.xml"/>
+    <import resource="classpath:perun-core-jdbc.xml"/>
+
+    <!-- Enable @Transactional support -->
+    <tx:annotation-driven transaction-manager="springTransactionManager"/>
+
+    <!-- Enable @AspectJ support -->
+    <aop:aspectj-autoproxy/>
+
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
+    <context:component-scan base-package="cz.metacentrum.perun.engine"/>
+
+
+    <bean id="callerRuns" class="java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy"/>
+
+    <!--<bean id="taskExecutorEventProcess" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+          <property name="corePoolSize" value="1" />
+          <property name="maxPoolSize" value="2" />
+          <property name="queueCapacity" value="200" />
+          <property name="rejectedExecutionHandler" ref="callerRuns" />
+    </bean>
+
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+          <property name="corePoolSize" value="7" />
+          <property name="maxPoolSize" value="7" />
+          <property name="queueCapacity" value="20000" />
+    </bean>-->
+
+
+    <!-- TODO documentation of taskExecutors -->
+
+    <bean id="taskExecutorMessageProcess" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="3" />
+        <property name="maxPoolSize" value="3" />
+        <property name="queueCapacity" value="100000" />
+
+        <!-- TODO
+		<property name="rejectedExecutionHandler" ref="callerRuns" />
+		-->
+    </bean>
+
+    <!-- for force propagation  now it is unused -->
+    <bean id="taskExecutorEventProcessor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1" />
+        <property name="maxPoolSize" value="1" />
+        <property name="queueCapacity" value="1" />
+    </bean>
+
+    <bean id="taskExecutorSchedulingPoolSerializer" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <!-- TODO put better values here -->
+        <property name="corePoolSize" value="5" />
+        <property name="maxPoolSize" value="5" />
+        <property name="queueCapacity" value="1000" />
+    </bean>
+
+    <bean id="taskExecutorGenWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="5" />
+        <property name="maxPoolSize" value="${engine.thread.gentasks.max}" />
+        <property name="queueCapacity" value="2000" />
+    </bean>
+
+    <bean id="taskExecutorSendWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="200" />
+        <property name="maxPoolSize" value="${engine.thread.sendtasks.max}" />
+        <property name="queueCapacity" value="200000" />
+    </bean>
+
+    <!-- DAOs -->
+
+    <bean id="engineDao" class="cz.metacentrum.perun.engine.dao.jdbc.EngineDaoJdbc" init-method="initialize">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- These DAOs come from taskslib -->
+    <!-- we (re)define them here to differentiate between our local and central database -->
+    <bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
+        <property name="dataSource" ref="dataSourceLocal"/>
+    </bean>
+
+    <!-- and where should these go? -->
+    <bean id="taskResult" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskResultDaoJdbc">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="execServiceDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDaoJdbc">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="execServiceDenialDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDenialDaoJdbc">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="execServiceDependencyDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDependencyDaoJdbc">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--
+    <bean id="processingRuleDao" class="cz.metacentrum.perun.engine.dao.jdbc.ProcessingRuleDaoJdbc">
+      <property name="dataSource" ref="dataSource"/>
+    </bean>
+    -->
+
+    <!-- PROPERTIES BEAN -->
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="properties" ref="propertiesBean" />
+    </bean>
+
+    <beans profile="devel,production">
+        <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="locations">
+                <list>
+                    <value>file:${perun.conf}perun-engine.properties</value>
+                    <value>file:${perun.conf.custom}perun-engine.properties</value>
+                </list>
+            </property>
+            <property name="ignoreResourceNotFound" value="true"/>
+            <!-- We still want to have backup values when config is missing in file -->
+            <property name="properties">
+                <props>
+                    <!-- set where perun-engine JSM runs -->
+                    <prop key="engine.unique.id">1</prop>
+                    <prop key="engine.ip.address">127.0.0.1</prop>
+                    <prop key="engine.port">6061</prop>
+                    <!-- set where perun-dispatcher JMS runs -->
+                    <prop key="dispatcher.ip.address">127.0.0.1</prop>
+                    <prop key="dispatcher.port">6071</prop>
+                    <!-- set internal config -->
+                    <prop key="perun.principal.name">perunEngine</prop>
+                    <prop key="perun.principal.extSourceName">INTERNAL</prop>
+                    <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+                    <prop key="engine.cron.propagation">45 0/4 * * * ?</prop>
+                    <prop key="engine.cron.processpool">0 0/2 * * * ?</prop>
+                    <prop key="engine.cron.taskexecutor">0 0/4 * * * ?</prop>
+                    <prop key="engine.thread.gentasks.max">10</prop>
+                    <prop key="engine.thread.sendtasks.max">1000</prop>
+                    <prop key="engine.genscript.path">gen</prop>
+                    <prop key="engine.sendscript.path">send</prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
+
+    <beans profile="default">
+        <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties">
+                <props>
+                    <!-- set where perun-engine JSM runs -->
+                    <prop key="engine.unique.id">1</prop>
+                    <prop key="engine.ip.address">127.0.0.1</prop>
+                    <prop key="engine.port">6061</prop>
+                    <!-- set where perun-dispatcher JMS runs -->
+                    <prop key="dispatcher.ip.address">127.0.0.1</prop>
+                    <prop key="dispatcher.port">6071</prop>
+                    <!-- set internal config -->
+                    <prop key="perun.principal.name">perunEngine</prop>
+                    <prop key="perun.principal.extSourceName">INTERNAL</prop>
+                    <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+                    <prop key="engine.cron.propagation">45 0/4 * * * ?</prop>
+                    <prop key="engine.cron.processpool">0 0/2 * * * ?</prop>
+                    <prop key="engine.cron.taskexecutor">0 0/4 * * * ?</prop>
+                    <prop key="engine.thread.gentasks.max">10</prop>
+                    <prop key="engine.thread.sendtasks.max">1000</prop>
+                    <prop key="engine.genscript.path">gen</prop>
+                    <prop key="engine.sendscript.path">send</prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
+
+</beans>

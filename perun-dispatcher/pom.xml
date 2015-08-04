@@ -180,7 +180,6 @@
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>2.2.8</version>
 		</dependency>
 
 		<!-- Commented for test on perun-dev.meta.zcu.cz  -->
@@ -272,29 +271,6 @@
 		</dependency>
 
 	</dependencies>
-
-	<!--
-	<repositories>
-		<repository>
-			<snapshots>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>interval:10080</updatePolicy>
-			</releases>
-			<id>jboss.release</id>
-			<name>JBoss releases</name>
-			<url>http://repository.jboss.org/maven2</url>
-		</repository>
-		<repository>
-			<id>jboss.nexus.release</id>
-			<name>JBoss Nexus releases</name>
-			<url>https://repository.jboss.org/nexus/content/repositories/releases</url>
-		</repository>
-	</repositories>
-	-->
 
 	<profiles>
 

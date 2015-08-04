@@ -109,4 +109,4 @@ alter table exec_services add  constraint EXSRV_PK primary key(id);
 alter table exec_services add constraint EXSRV_SRV_FK foreign key (service_id) references services(id);
 alter table exec_services add constraint EXSRV_TYPE_CHK check (type IN ('SEND','GENERATE'));
 alter table facilities add constraint FAC_PK primary key(id);
-alter table facilities add constraint FAC_U unique (name,type);
+alter table facilities add constraint FAC_NAME_U unique (name);
