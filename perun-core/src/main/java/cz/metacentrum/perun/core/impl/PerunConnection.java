@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.bl.PerunBl;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -21,44 +22,52 @@ import java.util.concurrent.Executor;
 
 /**
  * Implementation of connection used in Perun to catch connection events.
- * A connection from constructor is fully used. Some features are added.
+ * Methods of Connection object from constructor are fully used.
+ * Some methods are enriched by auditer transaction methods.
  * 
  * @author Jiri Mauritz <jirmauritz at gmail dot com>
  */
 public class PerunConnection implements Connection {
 	
+	private Auditer auditer;
 	private final Connection connectionImpl;
 	
 	// Constructor
-	public PerunConnection(Connection connectionImpl) {
+	public PerunConnection(Connection connectionImpl, Auditer auditer) {
 		this.connectionImpl = connectionImpl;
+		this.auditer = auditer;
 	}
 	
 	
-	// Methods with added features
+	// Methods enriched by auditer transaction methods
 		
 	@Override
 	public Savepoint setSavepoint() throws SQLException {
+		auditer.newTransaction();
 		return connectionImpl.setSavepoint();
 	}
 
 	@Override
 	public Savepoint setSavepoint(String string) throws SQLException {
+		auditer.newTransaction();
 		return connectionImpl.setSavepoint(string);
 	}
 		
 	@Override
 	public void rollback(Savepoint svpnt) throws SQLException {
+		auditer.cleanTransation();
 		connectionImpl.rollback(svpnt);
+		
 	}
 		
 	@Override
 	public void releaseSavepoint(Savepoint svpnt) throws SQLException {
+		auditer.flushTransaction();
 		connectionImpl.releaseSavepoint(svpnt);
 	}
 	
 	
-	// Other methods uses connectionImpl
+	// Other methods uses only connectionImpl
 	
 	@Override
 	public Statement createStatement() throws SQLException {

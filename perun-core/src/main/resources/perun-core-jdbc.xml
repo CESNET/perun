@@ -45,6 +45,7 @@
             <property name="logAbandoned" value="true" />
             <property name="removeAbandonedTimeout" value="300" />
             <property name="testOnBorrow" value="true" />
+            <property name="auditer" ref="auditer"/>
         </bean>
     </beans>
 

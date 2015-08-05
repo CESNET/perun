@@ -262,7 +262,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<constructor-arg ref="dataSource" />
 	</bean>
 
-	<bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" init-method="initialize" depends-on="utilsProperties">
+	<bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" depends-on="utilsProperties">
 		<property name="perunPool" ref="dataSource"/>
 	</bean>
 

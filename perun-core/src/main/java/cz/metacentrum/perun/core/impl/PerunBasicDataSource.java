@@ -11,9 +11,18 @@ import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
  */
 public class PerunBasicDataSource extends BasicDataSource {
 
+	private Auditer auditer;
+	
 	@Override
 	public Connection getConnection() throws SQLException {
-		return new PerunConnection(super.getConnection());
+		return new PerunConnection(super.getConnection(), auditer);
 	}
-	
+
+	public Auditer getAuditer() {
+		return auditer;
+	}
+
+	public void setAuditer(Auditer auditer) {
+		this.auditer = auditer;
+	}
 }
