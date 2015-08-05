@@ -157,6 +157,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testIsThereDependency() {
+		System.out.println("ExecServiceDependencyDao.isThereDependency");
+
 		try {
 
 			log.debug("testIsThereDependency: Testing...");
@@ -170,6 +172,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testCreateDependency() {
+		System.out.println("ExecServiceDependencyDao.createDependency");
+
 		try {
 
 			log.debug("testCreateDependency: Testing...");
@@ -184,6 +188,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testRemoveDependency() {
+		System.out.println("ExecServiceDependencyDao.removeDependency");
+
 		try {
 
 			log.debug("testRemoveDependency: Testing...");
@@ -201,6 +207,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testListExecServicesDependingOn() {
+		System.out.println("ExecServiceDependencyDao.listExecServicesDependingOn");
+
 		try {
 
 			log.debug("testListExecServicesDependingOn: Testing...");
@@ -230,6 +238,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testListExecServicesThisExecServiceDependsOn() {
+		System.out.println("ExecServiceDependencyDao.listExecServicesThisExecServiceDependsOn");
+
 		try {
 
 			log.debug("testListExecServicesThisExecServiceDependsOn: Testing...");
@@ -259,6 +269,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testListExecServicesThisExecServiceDependsOnWithType() {
+		System.out.println("ExecServiceDependencyDao.listExecServicesThisExecServiceDependsOnWithType");
+
 		try {
 
 			log.debug("testListExecServicesThisExecServiceDependsOn: Testing...");

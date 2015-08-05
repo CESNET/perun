@@ -197,8 +197,8 @@ public class VOOTMainAndFilterIntegrationTest extends AbstractVOOTTest {
 
 		setMail(user1,"james.bond@mi6.co.uk");
 
-		vo1 = perun.getVosManagerBl().createVo(session, new Vo(1, "vo1", "vo1"));
-		vo2 = perun.getVosManagerBl().createVo(session, new Vo(2, "vo2", "vo2"));
+		vo1 = perun.getVosManagerBl().createVo(session, new Vo(0, "vo1", "vo1"));
+		vo2 = perun.getVosManagerBl().createVo(session, new Vo(0, "vo2", "vo2"));
 
 		group1OfVo1 = perun.getGroupsManagerBl().createGroup(session, vo1, new Group("group1", "group1 in vo1"));
 		group2OfVo1 = perun.getGroupsManagerBl().createGroup(session, vo1, new Group("group2", "group2 in vo1"));

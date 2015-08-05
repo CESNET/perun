@@ -95,6 +95,7 @@ public class ExecServiceDaoTest {
 
 	@Test
 	public void testInsertExecService() {
+		System.out.println("ExecServiceDao.insertExecService");
 		try {
 			log.debug("testInsertExecService: Inserting a new ExecService...");
 
@@ -142,6 +143,8 @@ public class ExecServiceDaoTest {
 
 	@Test
 	public void testCountExecServices() {
+		System.out.println("ExecServiceDao.countExecServices");
+
 		try {
 			log.debug("testCountExecServices: Counting execExecServices...");
 
@@ -193,6 +196,8 @@ public class ExecServiceDaoTest {
 
 	@Test
 	public void testListExecServices() {
+		System.out.println("ExecServiceDao.listExecServices");
+
 		try {
 
 			log.debug("testListExecServices: Inserting execServices...");
@@ -254,6 +259,8 @@ public class ExecServiceDaoTest {
 
 	@Test
 	public void testGetExecService() {
+		System.out.println("ExecServiceDao.getExecService");
+
 		try {
 
 			log.debug("testGetExecService: Inserting execServices...");
@@ -300,6 +307,8 @@ public class ExecServiceDaoTest {
 
 	@Test
 	public void testUpdateExecService() {
+		System.out.println("ExecServiceDao.updateExecService");
+
 		try {
 
 			log.debug("testUpdateExecService: Inserting execExecService...");
@@ -339,6 +348,8 @@ public class ExecServiceDaoTest {
 
 	@Test
 	public void testRemoveExecService() {
+		System.out.println("ExecServiceDao.removeExecService");
+
 		try {
 
 			log.debug("testRemoveExecService: Inserting execServices...");

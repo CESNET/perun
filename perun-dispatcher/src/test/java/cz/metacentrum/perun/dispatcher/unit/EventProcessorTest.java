@@ -81,7 +81,7 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 
 	}
 
-	@Test(timeout = 1000)
+	@Test(timeout = 10000)
 	public void eventProcessorTest() {
 		System.out.println("EventProcessor.eventProcessorTest()");
 

@@ -51,7 +51,9 @@ public class TaskResultDaoTest {
 	}
 
 	@Test
-	public void testCleanOldTaskResult() throws InternalErrorException, PrivilegeException, ServiceExistsException, OwnerNotExistsException, FacilityExistsException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException {
+	public void testClearOldTaskResult() throws InternalErrorException, PrivilegeException, ServiceExistsException, OwnerNotExistsException, FacilityExistsException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException {
+		System.out.println("TaskResultDao.clearOld");
+
 		Owner testOwner = new Owner();
 		testOwner.setContact("Call me");
 		testOwner.setName("Tester-" + Long.toHexString(System.currentTimeMillis()));
@@ -233,7 +235,6 @@ public class TaskResultDaoTest {
 			taskResultDao.getTaskResultById(oldTaskResult2.getId());
 			fail("TaskResult " + taskResult2 + " should not have been found");
 		} catch (EmptyResultDataAccessException e) {}
-
 
 		taskResultDao.clearOld(virtualEngineID, 1);
 

@@ -53,7 +53,7 @@ public abstract class AbstractDispatcherTest {
 			vo1 = new Vo(0, "testVo", "testVo");
 			vo1 = perun.getVosManager().createVo(sess, vo1);
 			// create some group in there
-			group1 = new Group("falcon", "");
+			group1 = new Group("falcon", "desc");
 			group1 = perun.getGroupsManager().createGroup(sess, vo1, group1);
 			// create user in the VO
 			// skip the xEntry (authorization check),
@@ -66,7 +66,7 @@ public abstract class AbstractDispatcherTest {
 			member1.setStatus("VALID");
 			perun.getGroupsManager().addMember(sess, group1, member1);
 			// now create some facility
-			facility1 = new Facility(0, "testFacility", "");
+			facility1 = new Facility(0, "testFacility", "desc");
 			facility1 = perun.getFacilitiesManager().createFacility(sess, facility1);
 			// create a resource
 			resource1 = new Resource(0, "testResource", "test resource", facility1.getId(), vo1.getId());
@@ -84,7 +84,7 @@ public abstract class AbstractDispatcherTest {
 			// create execService
 			execservice1 = new ExecService();
 			execservice1.setDefaultDelay(1);
-			execservice1.setScript("");
+			execservice1.setScript("/bin/true");
 			execservice1.setEnabled(true);
 			execservice1.setExecServiceType(ExecService.ExecServiceType.SEND);
 			execservice1.setService(service1);
