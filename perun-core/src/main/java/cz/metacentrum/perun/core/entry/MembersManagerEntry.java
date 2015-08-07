@@ -289,7 +289,7 @@ public class MembersManagerEntry implements MembersManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
 			throw new PrivilegeException(sess, "getMembersByUser");
 		}
 
