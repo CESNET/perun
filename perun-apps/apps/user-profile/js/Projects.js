@@ -22,8 +22,8 @@ function loadProjects(user) {
             var loadVos = callPerun("vosManager", "getVoById", {id: members[i].voId});
             var loadExpiration = callPerun("attributesManager", "getAttribute",
                 {member: members[i].id, attributeName: "urn:perun:member:attribute-def:def:membershipExpiration"});
-            var loadRules = callPerun("attributesManager", "getAttribute",
-                {vo: members[i].voId, attributeName: "urn:perun:vo:attribute-def:def:membershipExpirationRules"});
+            //var loadRules = callPerun("attributesManager", "getAttribute",
+            //    {vo: members[i].voId, attributeName: "urn:perun:vo:attribute-def:def:membershipExpirationRules"});
             var loadExtend = callPerunPost("membersManager", "canExtendMembership", {member: members[i].id} )
             $.when(loadVos, loadExpiration, loadExtend).done(success(members[i]));
         }
