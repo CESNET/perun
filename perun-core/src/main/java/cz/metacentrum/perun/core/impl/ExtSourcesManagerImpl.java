@@ -377,22 +377,36 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	public void initialize(PerunSession sess) {
-		this.loadExtSourcesDefinitions(sess);
+		if(sess.getPerun().isPerunReadOnly()) log.debug("Loading extSource manager init in readOnly version.");
 
-		// Check if default extSource PERUN exists
-		try {
-			this.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
-		} catch (ExtSourceNotExistsException e) {
-			ExtSource es = new ExtSource(ExtSourcesManager.EXTSOURCE_NAME_PERUN, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		//In read only just test if extSource Perun exists
+		if(sess.getPerun().isPerunReadOnly()) {
 			try {
-				this.createExtSource(sess, es, null);
-			} catch (ExtSourceExistsException e1) {
-				log.error("Trying to create default PERUN extSource which already exists.");
-			} catch (InternalErrorException e1) {
-				log.error("Cannot create default PERUN extSource.");
+				this.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
+			} catch (ExtSourceNotExistsException ex) {
+				log.error("Default Perun extSource not exists.");
+			} catch (InternalErrorException ex) {
+				log.error("Cannot get default PERUN extSource.");
 			}
-		} catch (InternalErrorException e) {
-			log.error("Cannot get default PERUN extSource.");
+		//Load ExtSource only if this perun is not read only
+		} else {
+			this.loadExtSourcesDefinitions(sess);
+
+			// Check if default extSource PERUN exists
+			try {
+				this.getExtSourceByName(sess, ExtSourcesManager.EXTSOURCE_NAME_PERUN);
+			} catch (ExtSourceNotExistsException e) {
+				ExtSource es = new ExtSource(ExtSourcesManager.EXTSOURCE_NAME_PERUN, ExtSourcesManager.EXTSOURCE_INTERNAL);
+				try {
+					this.createExtSource(sess, es, null);
+				} catch (ExtSourceExistsException e1) {
+					log.error("Trying to create default PERUN extSource which already exists.");
+				} catch (InternalErrorException e1) {
+					log.error("Cannot create default PERUN extSource.");
+				}
+			} catch (InternalErrorException e) {
+				log.error("Cannot get default PERUN extSource.");
+			}
 		}
 	}
 

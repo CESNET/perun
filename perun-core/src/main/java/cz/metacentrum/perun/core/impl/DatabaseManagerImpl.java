@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,8 @@ import javax.sql.DataSource;
 import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -120,8 +123,9 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 
 		List<DBVersion> versions = new ArrayList<>();
 		boolean versionFound = false;
+		Resource resource = new ClassPathResource(fileName);
 
-		try(BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(fileName)))) {
+		try(BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
 
 			String line = br.readLine();
 			while (line != null){

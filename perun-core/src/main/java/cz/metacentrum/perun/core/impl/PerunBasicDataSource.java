@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
@@ -15,7 +16,16 @@ public class PerunBasicDataSource extends BasicDataSource {
 	
 	@Override
 	public Connection getConnection() throws SQLException {
-		return new PerunConnection(super.getConnection(), auditer);
+		
+		Connection con = super.getConnection();
+		//Set readOnly when working with any connection
+		if(BeansUtils.isPerunReadOnly()) {
+			con.setReadOnly(true);
+		} else {
+			con.setReadOnly(false);
+		}
+
+		return new PerunConnection(con, auditer);
 	}
 
 	public Auditer getAuditer() {
