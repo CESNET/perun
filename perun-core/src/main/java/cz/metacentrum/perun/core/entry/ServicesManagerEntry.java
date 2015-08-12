@@ -176,7 +176,8 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
+		    !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getHierarchicalData");
 		}
 
@@ -190,7 +191,8 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
+		    !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getFlatData");
 		}
 
@@ -204,7 +206,8 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
+		    !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getDataWithGroups");
 		}
 
@@ -218,7 +221,8 @@ public class ServicesManagerEntry implements ServicesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
+		    !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getDataWithVos");
 		}
 
