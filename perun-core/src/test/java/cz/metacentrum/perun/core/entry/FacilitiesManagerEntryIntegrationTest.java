@@ -1,20 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import java.lang.Class;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -28,12 +13,12 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -42,17 +27,31 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Pavel Zlamal <256627@mail.muni.cz>
@@ -136,7 +135,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println("FacilitiesManager.getFacilityByName");
 
 		Facility returnedFacility = perun.getFacilitiesManager().getFacilityByName(sess, facility.getName());
-		assertNotNull("unable to get Facility by Name",returnedFacility);
+		assertNotNull("unable to get Facility by Name", returnedFacility);
 		assertEquals("created and returned facility should be the same", returnedFacility, facility);
 
 	}
@@ -164,8 +163,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		dest.setDestination("TestovaciDestinace");
 		perun.getServicesManager().addDestination(sess, serv, facility, dest);
 
-		List<Facility> facilities = perun.getFacilitiesManager().getFacilitiesByDestination(sess,"TestovaciDestinace");
-		assertTrue("At least one facility with destinatnion " + dest.getDestination() + " should exists",facilities.size() > 0);
+		List<Facility> facilities = perun.getFacilitiesManager().getFacilitiesByDestination(sess, "TestovaciDestinace");
+		assertTrue("At least one facility with destinatnion " + dest.getDestination() + " should exists", facilities.size() > 0);
 		assertTrue("Created facility with destinantion " + dest.getDestination() + " should exist between others", facilities.contains(facility));
 	}
 
@@ -173,7 +172,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	public void getFacilitiesByDestinationWhenFacilityNotExist() throws Exception {
 		System.out.println("FacilitiesManager.getFacilitiesByDestinationWhenFacilityNotExist");
 		List<Facility> facilities = perun.getFacilitiesManager().getFacilitiesByDestination(sess,"TestovaciDestinace neexistujici.");
-		assertTrue("No facility with such destination exist.",facilities.isEmpty());
+		assertTrue("No facility with such destination exist.", facilities.isEmpty());
 	}
 
 	@Test
@@ -191,7 +190,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println("FacilitiesManager.getOwners");
 
 		List<Owner> owners = perun.getFacilitiesManager().getOwners(sess, facility);
-		assertTrue("there should be 1 owner",owners.size() == 1);
+		assertTrue("there should be 1 owner", owners.size() == 1);
 		assertTrue("facility should be owned by our owner", owners.contains(owner));
 
 	}
@@ -318,8 +317,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
 
 		List<User> users = perun.getFacilitiesManager().getAllowedUsers(sess, facility);
-		assertTrue("our facility should have 1 allowed user",users.size() == 1);
-		assertTrue("our user should be between allowed on facility",users.contains(user));
+		assertTrue("our facility should have 1 allowed user", users.size() == 1);
+		assertTrue("our user should be between allowed on facility", users.contains(user));
 
 	}
 
@@ -416,7 +415,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			assertTrue("RichResource must have VO value filled",rr.getVo() != null);
 			vos.add(rr.getVo());
 		}
-		assertTrue("Our VO must be between RichResources VOs",vos.contains(vo));
+		assertTrue("Our VO must be between RichResources VOs", vos.contains(vo));
 
 		assertTrue("our facility should have 1 assigned Resource", assignedResources.size() == 1);
 		assertTrue("our facility should have our Resource assigned", assignedResources.contains(rresource));
@@ -440,8 +439,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		facility.setName("FacilitiesManagerTestSecondFacility");
 		facility.setDescription("TestSecondFacilityDescriptionText");
 		Facility returnedFacility = perun.getFacilitiesManager().createFacility(sess, facility);
-		assertNotNull("unable to create Facility",returnedFacility);
-		assertEquals("created and returned facility should be the same",returnedFacility,facility);
+		assertNotNull("unable to create Facility", returnedFacility);
+		assertEquals("created and returned facility should be the same", returnedFacility, facility);
 
 	}
 
@@ -608,7 +607,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		hostsForDeletion.add(hosts.get(0));
 		final List<Host> expectedHosts = facilitiesManagerEntry.getHosts(sess, facility);
 		final Host expectedHost = expectedHosts.get(0);
-		assertEquals("Created and returned host should be the same",expectedHost, createdHost);
+		assertEquals("Created and returned host should be the same", expectedHost, createdHost);
 
 	}
 
@@ -629,7 +628,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		host3 = perun.getFacilitiesManagerBl().addHost(sess, host3, secondFacility);
 
 		List<Host> expectedHosts = facilitiesManagerEntry.getHostsByHostname(sess, hostname);
-		assertEquals("There should be 3 hosts",3, expectedHosts.size());
+		assertEquals("There should be 3 hosts", 3, expectedHosts.size());
 		assertTrue(expectedHosts.contains(host1));
 		assertTrue(expectedHosts.contains(host2));
 		assertTrue(expectedHosts.contains(host3));
@@ -655,7 +654,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// set this host for deletion - host is created after adding to facility !!
 		hostsForDeletion.add(hosts.get(0));
 		facilitiesManagerEntry.removeHosts(sess, hosts, facility);
-		assertEquals("Unable to remove host from facility",facilitiesManagerEntry.getHostsCount(sess, facility), 0);
+		assertEquals("Unable to remove host from facility", facilitiesManagerEntry.getHostsCount(sess, facility), 0);
 
 	}
 
@@ -672,7 +671,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(FACILITIES_MANAGER + ".getFacilitiesCount()");
 
 		int count = facilitiesManagerEntry.getFacilitiesCount(sess);
-		assertTrue(count>0);
+		assertTrue(count > 0);
 	}
 
 	@Test
@@ -1121,7 +1120,123 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue(cgnames.isEmpty());
 	}
 
-	// PRIVATE METHODS -------------------------------------------------------
+	@Test
+	public void getAssignedSecurityTeams() throws Exception {
+		List<SecurityTeam> expected = new ArrayList<>();
+		expected.add(setUpSecurityTeam0());
+		expected.add(setUpSecurityTeam1());
+		setUpAssignSecurityTeams(facility, expected);
+		setUpSecurityTeam2();
+		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
+
+		assertEquals(expected, actual);
+	}
+	@Test
+	public void getAssignedSecurityTeamsEmpty() throws Exception {
+		List<SecurityTeam> expected = new ArrayList<>();
+		setUpAssignSecurityTeams(facility, expected);
+		setUpSecurityTeam0();
+		setUpSecurityTeam1();
+		setUpSecurityTeam2();
+		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
+
+		assertEquals(expected, actual);
+	}
+	@Test(expected = FacilityNotExistsException.class)
+	public void getAssignedSecurityTeamsFacilityNotExists() throws Exception {
+		setUpSecurityTeam0();
+		setUpSecurityTeam1();
+		facilitiesManagerEntry.getAssignedSecurityTeams(sess, new Facility(11, "Name"));
+	}
+
+	@Test
+	public void assignSecurityTeam() throws Exception {
+		SecurityTeam st0 = setUpSecurityTeam0();
+		setUpSecurityTeam1();
+		facilitiesManagerEntry.assignSecurityTeam(sess, facility, st0);
+
+		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
+
+		if (actual.size() != 1) {
+			fail();
+		}
+		if (!actual.contains(st0)) {
+			fail();
+		}
+	}
+	@Test(expected = FacilityNotExistsException.class)
+	public void assignSecurityTeamFacilityNotExists() throws Exception {
+		SecurityTeam st0 = setUpSecurityTeam0();
+		setUpSecurityTeam1();
+		facilitiesManagerEntry.assignSecurityTeam(sess, new Facility(11, "Name"), st0);
+	}
+	@Test(expected = SecurityTeamNotExistsException.class)
+	public void assignSecurityTeamSecurityTeamNotExists() throws Exception {
+		facilitiesManagerEntry.assignSecurityTeam(sess, facility, new SecurityTeam(11, "name", "dsc"));
+	}
+	@Test(expected = SecurityTeamAlreadyAssignedException.class)
+	public void assignSecurityTeamAlreadyAssigned() throws Exception {
+		SecurityTeam st0 = setUpSecurityTeam0();
+		List<SecurityTeam> expected = new ArrayList<>();
+		expected.add(st0);
+		expected.add(setUpSecurityTeam1());
+		setUpAssignSecurityTeams(facility, expected);
+		setUpSecurityTeam2();
+
+		facilitiesManagerEntry.assignSecurityTeam(sess, facility, st0);
+	}
+
+	@Test
+	public void removeSecurityTeam() throws Exception {
+		SecurityTeam st0 = setUpSecurityTeam0();
+		SecurityTeam st1 = setUpSecurityTeam1();
+		List<SecurityTeam> expected = new ArrayList<>();
+		expected.add(st0);
+		expected.add(st1);
+		setUpAssignSecurityTeams(facility, expected);
+		setUpSecurityTeam2();
+		facilitiesManagerEntry.removeSecurityTeam(sess, facility, st0);
+		expected.remove(st0);
+
+		List<SecurityTeam> actual = facilitiesManagerEntry.getAssignedSecurityTeams(sess, facility);
+
+		if (actual.size() != 1) {
+			fail();
+		}
+		if (actual.contains(st0)) {
+			fail();
+		}
+		if (!actual.contains(st1)) {
+			fail();
+		}
+	}
+	@Test(expected = FacilityNotExistsException.class)
+	public void removeSecurityTeamFacilityNotExists() throws Exception {
+		SecurityTeam st0 = setUpSecurityTeam0();
+		setUpSecurityTeam1();
+		facilitiesManagerEntry.removeSecurityTeam(sess, new Facility(11, "Name"), st0);
+	}
+	@Test(expected = SecurityTeamNotExistsException.class)
+	public void removeSecurityTeamSecurityTeamNotExists() throws Exception {
+		List<SecurityTeam> expected = new ArrayList<>();
+		expected.add(setUpSecurityTeam0());
+		expected.add(setUpSecurityTeam1());
+		setUpAssignSecurityTeams(facility, expected);
+		setUpSecurityTeam2();
+		facilitiesManagerEntry.removeSecurityTeam(sess, facility, new SecurityTeam(11, "name", "dsc"));
+	}
+	@Test(expected = SecurityTeamNotAssignedException.class)
+	public void removeSecurityTeamNotAssigned() throws Exception {
+		List<SecurityTeam> expected = new ArrayList<>();
+		expected.add(setUpSecurityTeam0());
+		expected.add(setUpSecurityTeam1());
+		setUpAssignSecurityTeams(facility, expected);
+
+		facilitiesManagerEntry.removeSecurityTeam(sess, facility, setUpSecurityTeam2());
+	}
+
+
+// PRIVATE METHODS -------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
 
@@ -1185,7 +1300,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
 		UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
 		candidate.setUserExtSource(userExtSource);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<String, String>());
 		return candidate;
 
 	}
@@ -1244,4 +1359,25 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		return attribute;
 	}
 
+	private SecurityTeam setUpSecurityTeam0() throws Exception {
+		SecurityTeam st = new SecurityTeam("Security 0", "Description test 0");
+		perun.getSecurityTeamsManagerBl().createSecurityTeam(sess, st);
+		return st;
+	}
+	private SecurityTeam setUpSecurityTeam1() throws Exception {
+		SecurityTeam st = new SecurityTeam("Security 1", "Description test 1");
+		perun.getSecurityTeamsManagerBl().createSecurityTeam(sess, st);
+		return st;
+	}
+	private SecurityTeam setUpSecurityTeam2() throws Exception {
+		SecurityTeam st = new SecurityTeam("Security 2", "Description test 2");
+		perun.getSecurityTeamsManagerBl().createSecurityTeam(sess, st);
+		return st;
+	}
+
+	private void setUpAssignSecurityTeams(Facility facility, List<SecurityTeam> securityTeams) throws Exception {
+		for (SecurityTeam st : securityTeams) {
+			facilitiesManagerEntry.assignSecurityTeam(sess, facility, st);
+		}
+	}
 }

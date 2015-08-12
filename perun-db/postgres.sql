@@ -1,4 +1,4 @@
--- database version 3.1.26 (don't forget to update insert statement at the end of file)
+-- database version 3.1.28 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -337,7 +337,8 @@ create table "authz" (
 	service_principal_id integer,  --identifier service principal
 	created_by_uid integer,
 	modified_by_uid integer,
-	authorized_group_id integer --identifier of whole authorized group
+	authorized_group_id integer, --identifier of whole authorized group
+	security_team_id integer	--identifier of security team
 );
 
 -- HOSTS - detail information about hosts and cluster nodes
@@ -1135,6 +1136,28 @@ create table "pwdreset" (
 	created_by_uid integer
 );
 
+create table "security_teams" (
+	id integer not null,
+	name varchar(128) not null,
+	description varchar(1024),
+	created_at timestamp default now() not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now() not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table "security_teams_facilities" (
+	security_team_id integer not null,
+	facility_id integer not null
+);
+
+create table "blacklists" (
+	security_team_id integer not null,
+	user_id integer not null
+);
+
 create sequence "attr_names_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_consumers_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_log_id_seq" maxvalue 9223372036854775807;
@@ -1182,6 +1205,7 @@ create sequence "action_types_seq" maxvalue 9223372036854775807;
 create sequence "res_tags_seq" maxvalue 9223372036854775807;
 create sequence "mailchange_id_seq" maxvalue 9223372036854775807;
 create sequence "pwdreset_id_seq" maxvalue 9223372036854775807;
+create sequence "security_teams_id_seq" maxvalue 9223372036854775807;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1632,6 +1656,12 @@ alter table facility_contacts add constraint faccont_own_fk foreign key (owner_i
 alter table facility_contacts add constraint faccont_grp_fk foreign key (group_id) references groups(id);
 alter table facility_contacts add constraint faccont_usr_own_grp_chk check ((user_id is not null and owner_id is null and group_id is null) or (user_id is null and owner_id is not null and group_id is null) or (user_id is null and owner_id is null and group_id is not null));
 
+alter table security_teams add constraint security_teams_pk primary key (id);
+
+alter table security_teams_facilities add constraint security_teams_facilities_pk primary key (security_team_id, facility_id);
+alter table security_teams_facilities add constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id);
+alter table security_teams_facilities add constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id);
+
 grant all on users to perun;
 grant all on vos to perun;
 grant all on ext_sources to perun;
@@ -1718,6 +1748,9 @@ grant all on tags_resources to perun;
 grant all on configurations to perun;
 grant all on mailchange to perun;
 grant all on pwdreset to perun;
+grant all on security_teams to perun;
+grant all on security_teams_facilities to perun;
+grant all on blacklists to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.27');
+insert into configurations values ('DATABASE VERSION','3.1.28');
