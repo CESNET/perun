@@ -27,6 +27,7 @@ import cz.metacentrum.perun.core.api.RichFacility;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
@@ -50,6 +51,8 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -838,6 +841,22 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, user);
 	}
 
+	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException {
+		return facilitiesManagerImpl.getAssignedSecurityTeams(sess, facility);
+	}
+
+	@Override
+	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+		facilitiesManagerImpl.assignSecurityTeam(sess, facility, securityTeam);
+		getPerunBl().getAuditer().log(sess, "{} was assigned to {}.", securityTeam, facility);
+	}
+
+	@Override
+	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+		facilitiesManagerImpl.removeSecurityTeam(sess, facility, securityTeam);
+		getPerunBl().getAuditer().log(sess, "{} was removed from {}.", securityTeam, facility);
+	}
+
 	@Override
 	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException, FacilityContactNotExistsException {
 		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, group);
@@ -846,6 +865,16 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
 		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, owner);
+	}
+
+	@Override
+	public void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamAlreadyAssignedException, InternalErrorException {
+		getFacilitiesManagerImpl().checkSecurityTeamNotAssigned(sess, facility, securityTeam);
+	}
+
+	@Override
+	public void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamNotAssignedException, InternalErrorException {
+		getFacilitiesManagerImpl().checkSecurityTeamAssigned(sess, facility, securityTeam);
 	}
 
 	/**

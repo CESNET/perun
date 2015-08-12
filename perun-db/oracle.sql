@@ -1,4 +1,4 @@
--- database version 3.1.28 (don't forget to update insert statement at the end of file)
+-- database version 3.1.29 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -318,7 +318,8 @@ create table authz (
 	service_principal_id integer,
 	created_by_uid integer,
 	modified_by_uid integer,
-	authorized_group_id integer
+	authorized_group_id integer,
+	security_team_id integer
 );
 
 create table hosts (
@@ -1053,6 +1054,41 @@ create table pwdreset (
 	created_by_uid integer
 );
 
+create table security_teams (
+	id integer not null,
+	name varchar(128) not null,
+	description varchar(1024),
+	created_at timestamp default sysdate not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default sysdate not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table security_teams_facilities (
+	security_team_id integer not null,
+	facility_id integer not null,
+	created_at timestamp default sysdate not null,
+  created_by varchar(1024) default user not null,
+  modified_at timestamp default sysdate not null,
+  modified_by varchar(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
+create table blacklists (
+	security_team_id integer not null,
+	user_id integer not null,
+	description nvarchar2(1024),
+	created_at timestamp default sysdate not null,
+  created_by varchar(1024) default user not null,
+  modified_at timestamp default sysdate not null,
+  modified_by varchar(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28;
 create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28;
 create sequence AUDITER_LOG_ID_SEQ maxvalue 1.0000E+28;
@@ -1100,6 +1136,7 @@ create sequence ACTION_TYPES_SEQ maxvalue 1.0000E+28;
 create sequence RES_TAGS_SEQ maxvalue 1.0000E+28;
 create sequence MAILCHANGE_ID_SEQ maxvalue 1.0000E+28;
 create sequence PWDRESET_ID_SEQ maxvalue 1.0000E+28;
+create sequence SECURITY_TEAMS_ID_SEQ maxvalue 1.0000E+28;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1191,6 +1228,7 @@ create index IDX_FK_AUTHZ_GROUP on authz(group_id);
 create index IDX_FK_AUTHZ_SERVICE on authz(service_id);
 create index IDX_FK_AUTHZ_RES on authz(resource_id);
 create index IDX_FK_AUTHZ_SER_PRINC on authz(service_principal_id);
+create index IDX_FK_AUTHZ_SEC_TEAM on authz(security_team_id);
 create index IDX_FK_GRRES_GR on groups_resources(group_id);
 create index IDX_FK_GRRES_RES on groups_resources(resource_id);
 create index IDX_FK_GRPMEM_GR on groups_members(group_id);
@@ -1476,6 +1514,16 @@ alter table service_principals add (
 constraint SER_PRINC_PK primary key (id)
 );
 
+alter table security_teams add (
+constraint security_teams_pk primary key (id)
+);
+
+alter table security_teams_facilities add (
+constraint security_teams_facilities_pk primary key (security_team_id, facility_id),
+constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id),
+constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id)
+);
+
 alter table authz add (
 constraint AUTHZ_ROLE_FK foreign key (role_id) references roles(id),
 constraint AUTHZ_USER_FK foreign key (user_id) references users(id),
@@ -1487,8 +1535,9 @@ constraint AUTHZ_GROUP_FK foreign key (group_id) references groups(id),
 constraint AUTHZ_SERVICE_FK foreign key (service_id) references services(id),
 constraint AUTHZ_RES_FK foreign key (resource_id) references resources(id),
 constraint AUTHZ_SER_PRINC_FK foreign key (service_principal_id) references service_principals(id),
+constraint AUTHZ_SEC_TEAM_FK foreign key (security_team_id) references security_teams(id),
 constraint AUTHZ_USER_SERPRINC_AUTGRP_CHK check (decode(user_id,null,0,1)+decode(service_principal_id,null,0,1)+decode(authorized_group_id,null,0,1) = 1),
-constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id)
+constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id,security_team_id)
 );
 
 alter table facility_contacts add (
@@ -1668,5 +1717,6 @@ constraint pwdreset_pk primary key (id),
 constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
+
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.28');
+insert into configurations values ('DATABASE VERSION','3.1.29');

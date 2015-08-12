@@ -309,7 +309,8 @@ create table authz (
 	service_principal_id integer,
 	created_by_uid integer,
 	modified_by_uid integer,
-	authorized_group_id integer
+	authorized_group_id integer,
+	security_team_id integer
 );
 
 create table hosts (
@@ -1046,6 +1047,41 @@ create table pwdreset (
 	created_by_uid integer
 );
 
+create table security_teams (
+	id integer not null,
+	name varchar(128) not null,
+	description varchar(1024),
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table security_teams_facilities (
+	security_team_id integer not null,
+	facility_id integer not null,
+	created_at timestamp default now not null,
+  created_by varchar(1024) default user not null,
+  modified_at timestamp default now not null,
+  modified_by varchar(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
+create table blacklists (
+	security_team_id integer not null,
+	user_id integer not null,
+	description varchar(1024),
+	created_at timestamp default now not null,
+  created_by varchar(1024) default user not null,
+  modified_at timestamp default now not null,
+  modified_by varchar(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
 create sequence attr_names_id_seq;
 create sequence auditer_consumers_id_seq;
 create sequence auditer_log_id_seq;
@@ -1093,6 +1129,7 @@ create sequence action_types_seq;
 create sequence res_tags_seq;
 create sequence mailchange_id_seq;
 create sequence pwdreset_id_seq;
+create sequence security_teams_id_seq start with 10 increment by 1;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz(user_id,role_id);
@@ -1181,7 +1218,8 @@ create index idx_fk_authz_group on authz(group_id);
 create index idx_fk_authz_service on authz(service_id);
 create index idx_fk_authz_res on authz(resource_id);
 create index idx_fk_authz_ser_princ on authz(service_principal_id);
-create unique index idx_authz_u2 on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id);
+create index idx_fk_authz_sec_team on authz(security_team_id);
+create unique index idx_authz_u2 on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id, security_team_id);
 create index idx_fk_faccont_fac on facility_contacts(facility_id);
 create index idx_fk_faccont_usr on facility_contacts(user_id);
 create index idx_fk_faccont_own on facility_contacts(owner_id);
@@ -1526,6 +1564,11 @@ alter table facility_contacts add constraint faccont_own_fk foreign key (owner_i
 alter table facility_contacts add constraint faccont_grp_fk foreign key (group_id) references groups(id);
 alter table facility_contacts add constraint faccont_usr_own_grp_chk check ((user_id is not null and owner_id is null and group_id is null) or (user_id is null and owner_id is not null and group_id is null) or (user_id is null and owner_id is null and group_id is not null));
 
+alter table security_teams add constraint security_teams_pk primary key (id);
+alter table security_teams_facilities add constraint security_teams_facilities_pk primary key (security_team_id, facility_id);
+alter table security_teams_facilities add constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id);
+alter table security_teams_facilities add constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id);
+
 alter table authz add constraint authz_role_fk foreign key (role_id) references roles(id);
 alter table authz add constraint authz_user_fk foreign key (user_id) references users(id);
 alter table authz add constraint authz_authz_group_fk foreign key (authorized_group_id) references groups(id);
@@ -1536,6 +1579,7 @@ alter table authz add constraint authz_group_fk foreign key (group_id) reference
 alter table authz add constraint authz_service_fk foreign key (service_id) references services(id);
 alter table authz add constraint authz_res_fk foreign key (resource_id) references resources(id);
 alter table authz add constraint authz_ser_princ_fk foreign key (service_principal_id) references service_principals(id);
+alter table authz add constraint authz_sec_team_fk foreign key (security_team_id) references security_teams(id);
 alter table authz add constraint authz_user_serprinc_autgrp_chk check ((user_id is not null and service_principal_id is null and authorized_group_id is null) or (user_id is null and service_principal_id is not null and authorized_group_id is null) or (user_id is null and service_principal_id is null and authorized_group_id is not null));
 alter table configurations add constraint config_pk primary key (property);
 alter table configurations add constraint config_prop_chk check (property in ('DATABASE VERSION'));
@@ -1543,4 +1587,3 @@ alter table mailchange add constraint mailchange_pk primary key (id);
 alter table mailchange add constraint mailchange_u_fk foreign key (user_id) references users(id);
 alter table pwdreset add constraint pwdreset_pk primary key (id);
 alter table pwdreset add constraint pwdreset_u_fk foreign key (user_id) references users(id);
-

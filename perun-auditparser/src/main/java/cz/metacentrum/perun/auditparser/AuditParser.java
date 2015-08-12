@@ -66,6 +66,7 @@ public class AuditParser {
 				else if(p.getLeft().equals("Authorship")) perunBean = createAuthorship(p.getRight());
 				else if(p.getLeft().equals("ResourceTag")) perunBean = createResourceTag(p.getRight());
 				else if(p.getLeft().equals("ExecService")) perunBean = createExecService(p.getRight());
+				else if(p.getLeft().equals("SecurityTeam")) perunBean = createSecurityTeam(p.getRight());
 				else loger.debug("Object of this type can't be parsed cause there is no such object in parser's branches. ObjectName:" + p.getLeft());
 				if(perunBean != null) listPerunBeans.add(perunBean);
 			} catch (RuntimeException e) {
@@ -493,6 +494,15 @@ public class AuditParser {
 		}
 		execService.setExecServiceType(exType);
 		return execService;
+	}
+
+	private static SecurityTeam createSecurityTeam(Map<String, String> beanAttr) {
+		if(beanAttr==null) return null;
+		SecurityTeam securityTeam = new SecurityTeam();
+		securityTeam.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		securityTeam.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
+		securityTeam.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
+		return securityTeam;
 	}
 
 	//--------------------------------------------------------------------------
