@@ -4,27 +4,12 @@ import cz.metacentrum.perun.core.api.ActionType;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.sql.DataSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.jdbc.core.RowMapper;
-
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -34,10 +19,24 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.implApi.AuthzResolverImplApi;
-import java.util.HashSet;
-import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AuthzResolverImpl implements AuthzResolverImplApi {
 
@@ -46,12 +45,12 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	//http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/jdbc.html
 	private static JdbcPerunTemplate jdbc;
 
-	private final static Pattern patternForExtractingPerunBean = Pattern.compile("^pb_([a-z]+)_id$");
+	private final static Pattern patternForExtractingPerunBean = Pattern.compile("^pb_([a-z[_]]+)_id$");
 
 	public final static String authzRoleMappingSelectQuery = " authz.user_id as authz_user_id, authz.role_id as authz_role_id," +
 		"authz.authorized_group_id as authz_authorized_group_id, authz.vo_id as pb_vo_id, authz.group_id as pb_group_id, " +
 		"authz.facility_id as pb_facility_id, authz.member_id as pb_member_id, authz.resource_id as pb_resource_id, " +
-		"authz.service_id as pb_service_id, authz.service_principal_id as pb_user_id";
+		"authz.service_id as pb_service_id, authz.service_principal_id as pb_user_id, authz.security_team_id as pb_security_team_id";
 
 
 	protected static final RowMapper<Role> AUTHZROLE_MAPPER_FOR_ATTRIBUTES = new RowMapper<Role>() {
@@ -74,8 +73,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 						String perunBeanName = matcher.group(1);
 						int id = rs.getInt(j);
 						if (!rs.wasNull()) {
-							// We have to make first letter upercase
-							String className = perunBeanName.substring(0, 1).toUpperCase() + perunBeanName.substring(1);
+							// We have to make first letters o words uppercase
+							String className = convertUnderScoreCaseToCamelCase(perunBeanName);
 
 							if (perunBeans == null) {
 								perunBeans = new HashMap<String, Set<Integer>>();
@@ -96,6 +95,23 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 			}
 		}
 	};
+
+	private static String convertUnderScoreCaseToCamelCase(String name) {
+		boolean nextIsCapital = true;
+		StringBuilder nameBuilder = new StringBuilder();
+		for (char c : name.toCharArray()) {
+			if (c == '_') {
+				nextIsCapital = true;
+			} else {
+				if (nextIsCapital) {
+					c = Character.toUpperCase(c);
+					nextIsCapital = false;
+				}
+				nameBuilder.append(c);
+			}
+		}
+		return nameBuilder.toString();
+	}
 
 	public AuthzResolverImpl(DataSource perunPool) {
 		jdbc = new JdbcPerunTemplate(perunPool);
@@ -223,6 +239,15 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
+	@Override
+	public void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			jdbc.update("delete from authz where security_team_id=?", securityTeam.getId());
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
+	}
+
 	public void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id, facility_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.FACILITYADMIN.getRoleName(), facility.getId());
@@ -330,6 +355,30 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
+	@Override
+	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException {
+		try {
+			jdbc.update("insert into authz (user_id, role_id, security_team_id) values (?, (select id from roles where name=?), ?)", user.getId(),
+					Role.SECURITYADMIN.getRoleName(), securityTeam.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already admin in securityTeam " + securityTeam, e, user, securityTeam);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException, InternalErrorException {
+		try {
+			jdbc.update("insert into authz (authorized_group_id, role_id, security_team_id) values (?, (select id from roles where name=?), ?)", group.getId(),
+					Role.SECURITYADMIN.getRoleName(), securityTeam.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin in securityTeam " + securityTeam, e, group, securityTeam);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public void addObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id, vo_id) values (?, (select id from roles where name=?), ?)", user.getId(),
@@ -428,6 +477,28 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and vo_id=? and role_id=(select id from roles where name=?)", group.getId(), vo.getId(), Role.VOADMIN.getRoleName())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the vo " + vo);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException, InternalErrorException {
+		try {
+			if (0 == jdbc.update("delete from authz where user_id=? and security_team_id=? and role_id=(select id from roles where name=?)", user.getId(), securityTeam.getId(), Role.SECURITYADMIN.getRoleName())) {
+				throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the security team " + securityTeam);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws GroupNotAdminException, InternalErrorException {
+		try {
+			if (0 == jdbc.update("delete from authz where authorized_group_id=? and security_team_id=? and role_id=(select id from roles where name=?)", group.getId(), securityTeam.getId(), Role.SECURITYADMIN.getRoleName())) {
+				throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the security team " + securityTeam);
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);

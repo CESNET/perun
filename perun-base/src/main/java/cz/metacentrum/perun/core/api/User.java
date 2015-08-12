@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Auditable;
-import cz.metacentrum.perun.core.api.BeansUtils;
-
 /**
  * Represents user of some source.
  *

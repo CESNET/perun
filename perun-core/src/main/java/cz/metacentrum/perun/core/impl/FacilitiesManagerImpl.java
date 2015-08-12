@@ -1,20 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.jdbc.core.RowMapper;
-
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -25,6 +12,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
@@ -36,10 +24,23 @@ import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -599,7 +600,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities, authz where authz.user_id=? and " +
-					"authz.role_id=(select id from roles where name=?) and authz.facility_id=facilities.id",
+							"authz.role_id=(select id from roles where name=?) and authz.facility_id=facilities.id",
 					FACILITY_MAPPER, user.getId(), Role.FACILITYADMIN.getRoleName());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -742,11 +743,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
-			  "left join facilities on facilities.id=facility_contacts.facility_id " +
-			  "left join owners on owners.id=facility_contacts.owner_id " +
-			  "left join users on users.id=facility_contacts.user_id " +
-			  "left join groups on groups.id=facility_contacts.group_id " +
-			  "where facility_contacts.user_id=?", FACILITY_CONTACT_MAPPER, user.getId()));
+					"left join facilities on facilities.id=facility_contacts.facility_id " +
+					"left join owners on owners.id=facility_contacts.owner_id " +
+					"left join users on users.id=facility_contacts.user_id " +
+					"left join groups on groups.id=facility_contacts.group_id " +
+					"where facility_contacts.user_id=?", FACILITY_CONTACT_MAPPER, user.getId()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -758,11 +759,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return mergeContactGroups(jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
-			  "left join facilities on facilities.id=facility_contacts.facility_id " +
-			  "left join owners on owners.id=facility_contacts.owner_id " +
-			  "left join users on users.id=facility_contacts.user_id " +
-			  "left join groups on groups.id=facility_contacts.group_id " +
-			  "where facility_contacts.group_id=?", FACILITY_CONTACT_MAPPER, group.getId()));
+					"left join facilities on facilities.id=facility_contacts.facility_id " +
+					"left join owners on owners.id=facility_contacts.owner_id " +
+					"left join users on users.id=facility_contacts.user_id " +
+					"left join groups on groups.id=facility_contacts.group_id " +
+					"where facility_contacts.group_id=?", FACILITY_CONTACT_MAPPER, group.getId()));
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -921,6 +922,72 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Group: " + group, facility, contactGroupName);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery +
+							" from security_teams inner join (" +
+							"select security_teams_facilities.security_team_id from security_teams_facilities where facility_id=?" +
+							") as assigned_ids ON security_teams.id=assigned_ids.security_team_id",
+					SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER, facility.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			jdbc.update("insert into security_teams_facilities(security_team_id, facility_id) values (?,?)",
+					securityTeam.getId(), facility.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			jdbc.update("delete from security_teams_facilities where security_team_id=? and facility_id=?",
+					securityTeam.getId(), facility.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamAlreadyAssignedException {
+		if (isSecurityTeamAssigned(sess, facility, securityTeam)) {
+			throw new SecurityTeamAlreadyAssignedException(securityTeam);
+		}
+	}
+
+	@Override
+	public void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotAssignedException {
+		if (!isSecurityTeamAssigned(sess, facility, securityTeam)) {
+			throw new SecurityTeamNotAssignedException(securityTeam);
+		}
+	}
+
+
+	private boolean isSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			int number = jdbc.queryForInt("select 1 from security_teams_facilities where security_team_id=? and facility_id=?", securityTeam.getId(), facility.getId());
+			if (number == 1) {
+				return true;
+			} else if (number > 1) {
+				throw new ConsistencyErrorException("Security team " + securityTeam + " is assigned multiple to facility " + facility);
+			}
+			return false;
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException e) {
+			throw new InternalErrorException(e);
+		} catch (ConsistencyErrorException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 

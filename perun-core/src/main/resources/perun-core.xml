@@ -82,6 +82,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="ownersManagerBl" ref="ownersManagerBl"/>
 		<property name="auditMessagesManagerBl" ref="auditMessagesManagerBl"/>
 		<property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
+		<property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
 		<property name="searcherBl" ref="searcherBl"/>
 		<property name="modulesUtilsBl" ref="modulesUtilsBl"/>
 		<property name="databaseManagerBl" ref="databaseManagerBl"/>
@@ -98,6 +99,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="ownersManager" ref="ownersManager"/>
 		<property name="auditMessagesManager" ref="auditMessagesManager"/>
 		<property name="RTMessagesManager" ref="RTMessagesManager"/>
+		<property name="securityTeamsManager" ref="securityTeamsManager"/>
 		<property name="searcher" ref="searcher"/>
 		<property name="auditer" ref="auditer"/>
 		<property name="databaseManager" ref="databaseManager"/>
@@ -154,6 +156,10 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean id="RTMessagesManager" class="cz.metacentrum.perun.core.entry.RTMessagesManagerEntry" scope="singleton">
 		<property name="perunBl" ref="perun"/>
 		<property name="RTMessagesManagerBl" ref="RTMessagesManagerBl"/>
+	</bean>
+	<bean id="securityTeamsManager" class="cz.metacentrum.perun.core.entry.SecurityTeamsManagerEntry" scope="singleton">
+		<property name="perunBl" ref="perun"/>
+		<property name="securityTeamsManagerBl" ref="securityTeamsManagerBl"/>
 	</bean>
 	<bean id="searcher" class="cz.metacentrum.perun.core.entry.SearcherEntry" scope="singleton">
 		<property name="perunBl" ref="perun"/>
@@ -214,6 +220,10 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean id="RTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton">
 		<property name="perunBl" ref="perun"/>
 	</bean>
+	<bean id="securityTeamsManagerBl" class="cz.metacentrum.perun.core.blImpl.SecurityTeamsManagerBlImpl" scope="singleton">
+		<property name="perunBl" ref="perun"/>
+		<constructor-arg ref="securityTeamsManagerImpl" />
+	</bean>
 	<bean id="authzResolverBl" class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" scope="singleton">
 	</bean>
 	<bean id="searcherBl" class="cz.metacentrum.perun.core.blImpl.SearcherBlImpl" scope="singleton">
@@ -253,6 +263,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="ownersManagerImpl" class="cz.metacentrum.perun.core.impl.OwnersManagerImpl" scope="singleton">
+		<constructor-arg ref="dataSource" />
+	</bean>
+	<bean id="securityTeamsManagerImpl" class="cz.metacentrum.perun.core.impl.SecurityTeamsManagerImpl" scope="singleton">
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="authzResolverImpl" class="cz.metacentrum.perun.core.impl.AuthzResolverImpl" scope="singleton" init-method="initialize">

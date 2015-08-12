@@ -1,12 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
@@ -22,6 +15,7 @@ import cz.metacentrum.perun.core.api.RichFacility;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -45,6 +39,9 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -56,10 +53,14 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -619,7 +620,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().addAdmin(sess, facility, group);
 	}
 
-	public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException, UserNotAdminException{
+	public void removeAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, FacilityNotExistsException, UserNotExistsException, PrivilegeException, UserNotAdminException {
 		Utils.checkPerunSession(sess);
 
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -634,7 +635,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, FacilityNotExistsException, GroupNotExistsException, PrivilegeException, GroupNotAdminException{
+	public void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, FacilityNotExistsException, GroupNotExistsException, PrivilegeException, GroupNotAdminException {
 		Utils.checkPerunSession(sess);
 
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -1118,6 +1119,46 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		this.getFacilitiesManagerBl().removeFacilityContact(sess, contactGroupToRemove);
+	}
+
+	@Override
+	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getAssignedSecurityTeams");
+		}
+
+		return this.getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
+	}
+
+	@Override
+	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException, SecurityTeamAlreadyAssignedException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getFacilitiesManagerBl().checkSecurityTeamNotAssigned(sess, facility, securityTeam);
+
+		if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "assignSecurityTeam");
+		}
+
+		this.getFacilitiesManagerBl().assignSecurityTeam(sess, facility, securityTeam);
+	}
+
+	@Override
+	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException, SecurityTeamNotAssignedException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getFacilitiesManagerBl().checkSecurityTeamAssigned(sess, facility, securityTeam);
+
+		if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "removeSecurityTeam");
+		}
+
+		this.getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
 	}
 
 	/**
