@@ -126,7 +126,7 @@ public class urn_perun_group_resource_attribute_def_virt_googleGroupName extends
 	public List<String> getStrongDependencies() {
 		List<String> dependecies = new ArrayList<String>();
 		dependecies.add(AttributesManager.NS_GROUP_ATTR_DEF + ":googleGroupName-namespace" + ":*");
-		dependecies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupName-namespace");
+		dependecies.add(AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace");
 		return dependecies;
 	}
 
