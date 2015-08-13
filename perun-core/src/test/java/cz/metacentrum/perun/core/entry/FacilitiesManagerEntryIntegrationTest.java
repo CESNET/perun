@@ -160,7 +160,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getServicesManager().createService(sess, serv, owner);
 
 		Destination dest = new Destination();
-		dest.setType("TestovaciTyp");
+		dest.setType("service-specific");
 		dest.setDestination("TestovaciDestinace");
 		perun.getServicesManager().addDestination(sess, serv, facility, dest);
 

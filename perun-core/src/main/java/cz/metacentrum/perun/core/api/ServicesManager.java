@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 
 /**
  * @author Michal Prochazka <michalp@ics.muni.cz>
@@ -569,8 +570,9 @@ public interface ServicesManager {
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
 	 * @throws DestinationAlreadyAssignedException
+	 * @throws WrongPatternException
 	 */
-	Destination addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException;
+	Destination addDestination(PerunSession perunSession, Service service, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException;
 
 	/**
 	 * Adds an destination for the facility and all services. Destination id doesn't need to be filled. If destination doesn't exist it will be created.
@@ -585,8 +587,9 @@ public interface ServicesManager {
 	 * @throws ServiceNotExistsException
 	 * @throws FacilityNotExistsException
 	 * @throws DestinationAlreadyAssignedException
+	 * @throws WrongPatternException
 	 */
-	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException;
+	Destination addDestination(PerunSession perunSession, List<Service> services, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException;
 
 	/**
 	 * Adds destination for all services defined on the facility.
@@ -599,8 +602,9 @@ public interface ServicesManager {
 	 * @throws InternalErrorException
 	 * @throws FacilityNotExistsException
 	 * @throws DestinationAlreadyAssignedException
+	 * @throws WrongPatternException
 	 */
-	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, DestinationAlreadyAssignedException;
+	List<Destination> addDestinationsForAllServicesOnFacility(PerunSession perunSession, Facility facility, Destination destination) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException;
 
 	/**
 	 * Defines service destination for all hosts using theirs hostnames.

@@ -1599,7 +1599,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		Destination destination = new Destination();
 		destination.setDestination("testDestination");
-		destination.setType("TestType");
+		destination.setType("service-specific");
 		//destination = perun.getServicesManager().addDestination(sess, service, facility, destination);
 
 		return destination;
