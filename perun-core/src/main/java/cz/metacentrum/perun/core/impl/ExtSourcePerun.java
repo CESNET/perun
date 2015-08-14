@@ -31,14 +31,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
  * ExtSource for synchronization from another Perun instance
@@ -247,31 +248,49 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 	private Deserializer call(String managerName, String methodName, String query) throws PerunException {
 		//Prepare sending message
-		HttpResponse response;
-		HttpClient httpClient = new DefaultHttpClient();
-		httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, org.apache.http.client.params.CookiePolicy.IGNORE_COOKIES);
+		int response;
+		HttpClient httpClient = new HttpClient();
+		httpClient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
 
 		String commandUrl = perunUrl + format + "/" + managerName + "/" + methodName;
 		if(query != null) commandUrl+= "?" + query;
 
-		HttpGet get = new HttpGet(commandUrl);
-		get.setHeader("content-Type", "application/json");
-		get.setHeader("charset", "utf-8");
-		get.setHeader("Connection", "Close");
+		GetMethod get = new GetMethod(commandUrl);
+		
+		// Provide custom retry handler is necessary
+		get.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+			new DefaultHttpMethodRetryHandler(3, false));
+
+		get.addRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf8");
+		get.addRequestHeader("Connection", "Close");
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
 
-		get.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));
-		//post.setParams(params);
+		// get host from RT url
+		Matcher matcher = Utils.hostPattern.matcher(perunUrl);
+		String host = null;
+		if (matcher.find()) {
+			host = matcher.group(2);
+		} else {
+			String errMsg = "Perun URL is malformed, cannot recognize host to authenticate service.";
+			log.error(errMsg);
+			throw new InternalErrorException(errMsg);
+		}
+		
+		httpClient.getState().setCredentials(new AuthScope(host, 443), credentials);
+		
+		get.setDoAuthentication(true);
 
 		InputStream rpcServerAnswer = null;
-
+		
 		try {
-			 response = httpClient.execute(get);
-			 rpcServerAnswer = response.getEntity().getContent();
+			response = httpClient.executeMethod(get);
+			
+			// Read the response body.
+			rpcServerAnswer = get.getResponseBodyAsStream();
 		} catch(IOException ex) {
 			this.processIOException(ex);
 		}
-
+		
 		JsonDeserializer des = null;
 		try {
 			des = new JsonDeserializer(rpcServerAnswer);

@@ -7,19 +7,8 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -37,6 +26,13 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 
 /**
  * RTMessage manager can create a new message and send it to RT like predefined service user.
@@ -128,15 +124,34 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
 		}
 
 		//Prepare sending message
-		HttpResponse response;
-		HttpClient httpClient = new DefaultHttpClient();
-		httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, org.apache.http.client.params.CookiePolicy.IGNORE_COOKIES);
+		int responseCode;
+		HttpClient httpClient = new HttpClient();
+		httpClient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+		
+		//Prepare credentials
+		String username = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.username");
+		String password = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.password");
+		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
+		
+		// get host from RT url
+		Matcher matcher = Utils.hostPattern.matcher(rtURL);
+		String host = null;
+		if (matcher.find()) {
+			host = matcher.group(2);
+		} else {
+			String errMsg = "Perun RT URL is malformed, cannot recognize host to authenticate service.";
+			log.error(errMsg);
+			throw new InternalErrorException(errMsg);
+		}
+		
+		httpClient.getState().setCredentials(new AuthScope(host, 443), credentials);
 
 		StringBuilder responseMessage = new StringBuilder();
 		String ticketNumber = "0";
 		try {
-			response = httpClient.execute(this.prepareDataAndGetHttpRequest(sess, voId, queue, email, subject, text));
-			BufferedReader bw = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+			PostMethod post = this.prepareDataAndGetHttpRequest(sess, voId, queue, email, subject, text);
+			responseCode = httpClient.executeMethod(post);
+			BufferedReader bw = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream()));
 
 			//Reading response from RT
 			String line;
@@ -192,7 +207,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
 		return email;
 	}
 
-	private HttpUriRequest prepareDataAndGetHttpRequest(PerunSession sess, int voId, String queue, String requestor, String subject, String text) throws InternalErrorException {
+	private PostMethod prepareDataAndGetHttpRequest(PerunSession sess, int voId, String queue, String requestor, String subject, String text) throws InternalErrorException {
 		//Ticket from this part is already evidet like 'new'
 		String id = "ticket/new";
 		//If there is no requestor, it is uknown requestor
@@ -226,36 +241,23 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
 		//Text can be null so if it is, put empty string
 		if(text == null) text = "";
 
-		//Prepare credentials
-		String username = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.username");
-		String password = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.password");
-
-		//Prepare content of message
-		MultipartEntity entity = new MultipartEntity();
-		try {
-			entity.addPart("Content-Typ", new StringBody("application/x-www-form-urlencoded"));
-			entity.addPart("charset", new StringBody("utf-8"));
-			entity.addPart("Connection", new StringBody("Close"));
-			StringBody content = new StringBody("id: " + id + '\n' +
-					"Queue: " + queue + '\n' +
-					"Requestor: " + requestor + '\n' +
-					"Subject: " + subject + '\n' +
-					"Text: " + text,
-					Charset.forName("utf-8"));
-			entity.addPart("content", content);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
 		//Test rtURL for null
 		if(rtURL == null || rtURL.length() == 0) throw new InternalErrorException("rtURL is not prepared and is null in the moment of posting.");
 
 		// prepare post request
-		HttpPost post = new HttpPost(rtURL);
-		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
-
-		post.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));
-		post.setEntity(entity);
+		PostMethod post = new PostMethod(rtURL);
+		
+		post.addRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf8");
+		post.addRequestHeader("Connection", "Close");
+		NameValuePair[] data = 	{ 
+			new NameValuePair("content", "id: " + id + '\n' +
+					"Queue: " + queue + '\n' +
+					"Requestor: " + requestor + '\n' +
+					"Subject: " + subject + '\n' +
+					"Text: " + text)
+		};
+		post.setRequestBody(data);
+		post.setDoAuthentication(true);
 
 		return post;
 	}
