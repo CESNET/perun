@@ -298,7 +298,7 @@
 				<artifactId>ojdbc7</artifactId>
 				<version>12.1.0.2.0</version>
 			</dependency>
-			<!-- Oracle inernationalization -->
+			<!-- Oracle internationalization -->
 			<dependency>
 				<groupId>com.oracle</groupId>
 				<artifactId>orai18n</artifactId>
