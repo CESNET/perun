@@ -1,9 +1,6 @@
 package cz.metacentrum.perun.rpc.serializer;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
@@ -44,6 +41,9 @@ public final class JsonSerializerGWT implements Serializer {
 	private interface CandidateMixIn {
 	}
 
+	@JsonIgnoreProperties({"attributes"})
+	private interface ExtSourceMixIn {}
+
 	public static final String CONTENT_TYPE = "text/javascript; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -51,7 +51,8 @@ public final class JsonSerializerGWT implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();
