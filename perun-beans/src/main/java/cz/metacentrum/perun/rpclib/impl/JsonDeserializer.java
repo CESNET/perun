@@ -5,21 +5,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Group;
 
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
@@ -69,6 +60,9 @@ public class JsonDeserializer extends Deserializer {
 		public void setStatus(String status);
 	}
 
+	@JsonIgnoreProperties({"attributes"})
+	private interface ExtSourceMixIn {}
+
 	private static final ObjectMapper mapper = new ObjectMapper();
 	static {
 		mapper.getDeserializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
@@ -82,6 +76,7 @@ public class JsonDeserializer extends Deserializer {
 		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 	}
 
 	private JsonNode root;

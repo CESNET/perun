@@ -6,6 +6,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.cabinet.model.*;
 
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.model.*;
 import org.codehaus.jackson.JsonNode;
@@ -15,17 +16,6 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import java.io.InputStream;
 
@@ -74,6 +64,9 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"shortName", "beanName"})
 	private interface GroupMixIn {}
 
+	@JsonIgnoreProperties({"attributes"})
+	private interface ExtSourceMixIn {}
+
 	private interface MemberMixIn {
 		@JsonIgnore
 		void setStatus(String status);
@@ -100,6 +93,7 @@ public class JsonDeserializer extends Deserializer {
 		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
+		mapper.getDeserializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 
 		mapper.getDeserializationConfig().addMixInAnnotations(Application.class, PerunBeanMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationForm.class, PerunBeanMixIn.class);

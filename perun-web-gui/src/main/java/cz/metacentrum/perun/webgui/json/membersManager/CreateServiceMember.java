@@ -186,7 +186,6 @@ public class CreateServiceMember {
 			extSource.put("id", null);
 			extSource.put("name", new JSONString(caCertDN));
 			extSource.put("type", new JSONString("cz.metacentrum.perun.core.impl.ExtSourceX509"));
-			extSource.put("attributes", null);
 
 			userExtSource.put("extSource", extSource);
 			newCandidate.put("userExtSource", userExtSource);
