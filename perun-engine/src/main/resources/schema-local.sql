@@ -103,9 +103,9 @@ alter table tasks add constraint TASK_STAT_CHK check (status in ('NONE','OPEN','
 alter table tasks_results add constraint TASKS_RESULTS_PK primary key (id);
 alter table tasks_results add constraint TASKRES_TASK_FK foreign key (task_id) references tasks(id);
 alter table tasks_results add constraint TASKRES_STAT_CHK check (status in ('DONE','ERROR','FATAL_ERROR','DENIED'));
-alter table services add  constraint SERV_PK primary key(id);
+alter table services add constraint SERV_PK primary key(id);
 alter table services add constraint SERV_U unique(name);
-alter table exec_services add  constraint EXSRV_PK primary key(id);
+alter table exec_services add constraint EXSRV_PK primary key(id);
 alter table exec_services add constraint EXSRV_SRV_FK foreign key (service_id) references services(id);
 alter table exec_services add constraint EXSRV_TYPE_CHK check (type IN ('SEND','GENERATE'));
 alter table facilities add constraint FAC_PK primary key(id);

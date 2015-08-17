@@ -39,14 +39,17 @@ public class EngineStarter {
 			EngineStarter engineStarter = new EngineStarter();
 			// Just for the Spring IoC to exit gracefully...
 			engineStarter.springCtx.registerShutdownHook();
-			log.info("Gonna loadSchedulingPool from file.");
 			// Yes, we do this in the main thread because we do want to carry
 			// this initial steps out sequentially.
-			engineStarter.engineManager.loadSchedulingPool();
-			log.info("Gonna start Messaging...");
+			// FIXME - We can't reload pool from file since ExecService, Service and Facility are missing
+			// FIXME in local DB but are required by mapper when selecting Task.
+			// engineStarter.engineManager.loadSchedulingPool();
+			//log.info("Gonna loadSchedulingPool from file.");
 			engineStarter.engineManager.startMessaging();
-			log.info("Gonna switch all the unfinished Tasks to ERROR...");
-			engineStarter.engineManager.switchUnfinishedTasksToERROR();
+			log.info("Gonna start Messaging...");
+			// FIXME - There is not reason to switch Tasks in local pool because of above FIXME.
+			//log.info("Gonna switch all the unfinished Tasks to ERROR...");
+			//engineStarter.engineManager.switchUnfinishedTasksToERROR();
 			log.info("Done. Perun-Engine has started.");
 			System.out.println("Done. Perun-Engine has started.");
 			if (SplashScreen.getSplashScreen() != null) {
@@ -55,7 +58,7 @@ public class EngineStarter {
 		} catch (HeadlessException e) {
 			// Doesn't matter... (We can't show splash screen on a server :-))
 		} catch (Exception e) {
-			log.error(e.toString());
+			log.error("Error: {}" , e);
 		}
 	}
 
