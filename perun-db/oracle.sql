@@ -1,4 +1,4 @@
--- database version 3.1.25 (don't forget to update insert statement at the end of file)
+-- database version 3.1.26 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1474,10 +1474,10 @@ constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_i
 );
 
 alter table facility_contacts add (
-constraint FACCONT_FAC_FK foreign key (facility_id) references facilities(id);
-constraint FACCONT_USR_FK foreign key (user_id) references users(id);
-constraint FACCONT_OWN_FK foreign key (owner_id) references owners(id);
-constraint FACCONT_GRP_FK foreign key (group_id) references groups(id);
+constraint FACCONT_FAC_FK foreign key (facility_id) references facilities(id),
+constraint FACCONT_USR_FK foreign key (user_id) references users(id),
+constraint FACCONT_OWN_FK foreign key (owner_id) references owners(id),
+constraint FACCONT_GRP_FK foreign key (group_id) references groups(id),
 constraint FACCONT_USR_OWN_GRP_CHK check (decode(user_id,null,0,1)+decode(owner_id,null,0,1)+decode(group_id,null,0,1) = 1),
 constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,contact_group_name)
 );

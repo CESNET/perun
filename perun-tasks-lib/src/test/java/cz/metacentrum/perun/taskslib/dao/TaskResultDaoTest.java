@@ -51,7 +51,7 @@ public class TaskResultDaoTest {
 	}
 
 	@Test
-	public void testCleanOldTaskResult() throws InternalErrorException, PrivilegeException, ServiceExistsException, OwnerNotExistsException, FacilityExistsException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException {
+	public void testCleanOldTaskResult() throws InternalErrorException, PrivilegeException, ServiceExistsException, OwnerNotExistsException, FacilityExistsException, ServiceNotExistsException, FacilityNotExistsException, DestinationAlreadyAssignedException, WrongPatternException {
 		Owner testOwner = new Owner();
 		testOwner.setContact("Call me");
 		testOwner.setName("Tester-" + Long.toHexString(System.currentTimeMillis()));
