@@ -938,4 +938,26 @@ public class Utils {
 
 	}
 
+	/**
+	 * Checks whether the destination is not null and is of the right type.
+	 *
+	 * @param destination destination to check
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException if destination is null
+	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongPatternException if destination is not of the right type
+	 */
+	public static void checkDestinationType(Destination destination) throws InternalErrorException, WrongPatternException  {
+		if (destination == null) {
+			throw new InternalErrorException("Destination is null.");
+		}
+		String destinationType = destination.getType();
+		if ((!destinationType.equals(Destination.DESTINATIONHOSTTYPE)
+				&& (!destinationType.equals(Destination.DESTINATIONEMAILTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONSEMAILTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONURLTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONUSERHOSTTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONUSERHOSTPORTTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONSERVICESPECIFICTYPE)))) {
+			throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
+		}
+	}
 }

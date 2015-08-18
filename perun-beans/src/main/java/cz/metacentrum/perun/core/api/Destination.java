@@ -17,6 +17,7 @@ public class Destination extends Auditable implements Comparable<Destination> {
 	public final static String DESTINATIONURLTYPE = "url";
 	public final static String DESTINATIONUSERHOSTTYPE = "user@host";
 	public final static String DESTINATIONUSERHOSTPORTTYPE = "user@host:port";
+	public final static String DESTINATIONSERVICESPECIFICTYPE = "service-specific";
 
 	public static final String PROPAGATIONTYPE_PARALLEL = "PARALLEL";
 	public static final String PROPAGATIONTYPE_SERIAL = "SERIAL";
