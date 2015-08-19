@@ -104,7 +104,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 					errorMessage,
 					standardMessage,
 					taskResult.getReturnCode(),
-					TaskDaoJdbc.formatter.format(taskResult.getTimestamp()),
+					TaskDaoJdbc.getDateFormatter().format(taskResult.getTimestamp()),
 					engineID);
 		return newTaskResultId;
 	}
@@ -192,7 +192,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		// create sql toDate() with numDay substracted from now
 		Calendar date = Calendar.getInstance();
 		date.add(Calendar.DAY_OF_MONTH, -numDays);
-		String compareDate = TaskDaoJdbc.formatter.format(date.getTime());
+		String compareDate = TaskDaoJdbc.getDateFormatter().format(date.getTime());
 
 		return this.getJdbcTemplate().update("delete from tasks_results where engine_id = ? and " +
 				"id in (" +

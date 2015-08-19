@@ -2,11 +2,8 @@ package cz.metacentrum.perun.auditparser;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -14,14 +11,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AuditParserTest {

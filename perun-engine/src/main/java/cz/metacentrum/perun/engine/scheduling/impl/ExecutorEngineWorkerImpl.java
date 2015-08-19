@@ -1,20 +1,15 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.Properties;
-
-import cz.metacentrum.perun.engine.scheduling.impl.StreamGobbler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
@@ -27,13 +22,12 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 @Component("executorEngineWorker")
 @Scope(value = "prototype")
 public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
-	private final static Logger log = LoggerFactory
-			.getLogger(ExecutorEngineWorkerImpl.class);
+
+	private final static Logger log = LoggerFactory.getLogger(ExecutorEngineWorkerImpl.class);
 
 	private TaskResultListener resultListener;
 	@Autowired
@@ -46,8 +40,14 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 	private Properties propertiesBean;
 	private int engineId = -1;
 
+	// where gen scripts are located (relative to engine working directory = where you started the jar)
+	// value is taken from propertiesBean (see it's setter method)
+	File genDirectory;
+	File sendDirectory;
+
 	@Override
 	public void run() {
+
 		log.info("EXECUTING(worker:" + this.hashCode() + "): Task ID:"
 				+ task.getId() + ", Facility ID:" + task.getFacilityId()
 				+ ", ExecService ID:" + task.getExecServiceId()
@@ -57,25 +57,24 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 		String stderr = null;
 		int returnCode = -1;
 		if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
-			ProcessBuilder pb = new ProcessBuilder(execService.getScript(),
-					"-f", String.valueOf(task.getFacilityId()));
-			pb.directory(new File("gen")); // /FIXME
+			ProcessBuilder pb = new ProcessBuilder(execService.getScript(), "-f", String.valueOf(task.getFacilityId()));
+			if (genDirectory != null) {
+				// set path relative to current working dir
+				pb.directory(genDirectory);
+			}
 
 			try {
 				Process process = pb.start();
 
-				StreamGobbler errorGobbler = new StreamGobbler(
-						process.getErrorStream());
-				StreamGobbler outputGobbler = new StreamGobbler(
-						process.getInputStream());
+				StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
+				StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
 
 				errorGobbler.start();
 				outputGobbler.start();
 
 				returnCode = process.waitFor();
 
-				while (errorGobbler.isAlive() || outputGobbler.isAlive())
-					Thread.sleep(50);
+				while (errorGobbler.isAlive() || outputGobbler.isAlive()) Thread.sleep(50);
 
 				stderr = errorGobbler.getSb();
 				stdout = outputGobbler.getSb();
@@ -91,25 +90,21 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 					log.info("GEN task failed. Ret code " + returnCode
 							+ ". STDOUT: {}  STDERR: {}. Task: " + task.getId(),
 							stdout, stderr);
-					resultListener.onTaskDestinationError(task, destination,
-							null);
+					resultListener.onTaskDestinationError(task, destination, null);
 				} else {
-					resultListener.onTaskDestinationDone(task, destination,
-							null);
+					resultListener.onTaskDestinationDone(task, destination, null);
 				}
 
 			} catch (IOException e) {
 				log.error(e.toString(), e);
 				// task.setStatus(TaskStatus.ERROR);
 				task.setEndTime(new Date(System.currentTimeMillis()));
-				resultListener.onTaskDestinationError(task, destination,
-						null);
+				resultListener.onTaskDestinationError(task, destination, null);
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 				// task.setStatus(TaskStatus.ERROR);
 				task.setEndTime(new Date(System.currentTimeMillis()));
-				resultListener.onTaskDestinationError(task, destination,
-						null);
+				resultListener.onTaskDestinationError(task, destination, null);
 			} finally {
 				String ret = returnCode == -1 ? "unknown" : String
 						.valueOf(returnCode);
@@ -120,27 +115,25 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 			}
 		} else if (execService.getExecServiceType().equals(ExecServiceType.SEND)) {
 
-			ProcessBuilder pb = new ProcessBuilder(execService.getScript(),
-					facility.getName(), destination.getDestination(),
-					destination.getType());
-			pb.directory(new File("send")); // /FIXME get from config file
+			ProcessBuilder pb = new ProcessBuilder(execService.getScript(), facility.getName(), destination.getDestination(), destination.getType());
+			if (sendDirectory != null) {
+				// set path relative to current working dir
+				pb.directory(sendDirectory);
+			}
 
 			try {
 
 				Process process = pb.start();
 
-				StreamGobbler errorGobbler = new StreamGobbler(
-						process.getErrorStream());
-				StreamGobbler outputGobbler = new StreamGobbler(
-						process.getInputStream());
+				StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
+				StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
 
 				errorGobbler.start();
 				outputGobbler.start();
 
 				returnCode = process.waitFor();
 
-				while (errorGobbler.isAlive() || outputGobbler.isAlive())
-					Thread.sleep(50);
+				while (errorGobbler.isAlive() || outputGobbler.isAlive()) Thread.sleep(50);
 
 				stderr = errorGobbler.getSb();
 				stdout = outputGobbler.getSb();
@@ -153,16 +146,11 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				log.debug(stdout.toString());
 				taskResult.setStandardMessage("See debug log.");
 				taskResult.setReturnCode(returnCode);
-				taskResult.setStatus(returnCode == 0 ? TaskResultStatus.DONE
-						: TaskResultStatus.ERROR);
+				taskResult.setStatus(returnCode == 0 ? TaskResultStatus.DONE : TaskResultStatus.ERROR);
 				taskResult.setTimestamp(new Date(System.currentTimeMillis()));
 
 				task.setEndTime(new Date(System.currentTimeMillis()));
-
-				log.debug("inserting taskResult {} for engine {}",
-						taskResult.toString(), getEngineId());
 				taskResultDao.insertNewTaskResult(taskResult, getEngineId());
-
 				if (taskResult.getStatus().equals(TaskResultStatus.ERROR)) {
 					resultListener.onTaskDestinationError(task, destination,
 							taskResult);
@@ -192,8 +180,7 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				taskResult.setDestinationId(destination.getId());
 				taskResult.setStatus(TaskResultStatus.ERROR);
 				taskResult.setTimestamp(new Date(System.currentTimeMillis()));
-				resultListener.onTaskDestinationError(task, destination,
-						taskResult);
+				resultListener.onTaskDestinationError(task, destination, taskResult);
 				try {
 					taskResultDao.insertNewTaskResult(taskResult, getEngineId());
 				} catch (InternalErrorException e1) {
@@ -253,14 +240,19 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 		return propertiesBean;
 	}
 
+	@Autowired
 	public void setPropertiesBean(Properties propertiesBean) {
 		this.propertiesBean = propertiesBean;
+		if (propertiesBean != null) {
+			// here we can be sure, that properties bean is present
+			genDirectory = new File(propertiesBean.getProperty("engine.genscript.path"));
+			sendDirectory = new File(propertiesBean.getProperty("engine.sendscript.path"));
+		}
 	}
 
 	public int getEngineId() {
 		if (engineId == -1) {
-			this.engineId = Integer.parseInt(propertiesBean
-					.getProperty("engine.unique.id"));
+			this.engineId = Integer.parseInt(propertiesBean.getProperty("engine.unique.id"));
 		}
 		return engineId;
 	}
@@ -272,4 +264,21 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 	public void setResultListener(TaskResultListener resultListener) {
 		this.resultListener = resultListener;
 	}
+
+	public File getGenDirectory() {
+		return genDirectory;
+	}
+
+	public void setGenDirectory(File genDirectory) {
+		this.genDirectory = genDirectory;
+	}
+
+	public File getSendDirectory() {
+		return sendDirectory;
+	}
+
+	public void setSendDirectory(File sendDirectory) {
+		this.sendDirectory = sendDirectory;
+	}
+
 }

@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;

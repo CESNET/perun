@@ -31,7 +31,7 @@ public class PublicationSystemMapperTest extends BaseIntegrationTest {
 
 	@Test
 	public void findPublicationSystemByNamespace() throws Exception {
-		System.out.println("findPublicationSystemByNamespace()");
+		System.out.println("PublicationSystemMapper.findPublicationSystemByNamespace");
 
 		PublicationSystemExample example = new PublicationSystemExample();
 		String mu = "mu";
@@ -47,7 +47,7 @@ public class PublicationSystemMapperTest extends BaseIntegrationTest {
 
 	@Test
 	public void findPublicationsMUIntegrationTest() throws Exception {
-		System.out.println("findPublicationsMUIntegrationTest()");
+		System.out.println("PublicationSystemMapper.findPublicationsMUIntegrationTest");
 
 		PublicationSystemExample example = new PublicationSystemExample();
 		String mu = "mu";
@@ -71,7 +71,7 @@ public class PublicationSystemMapperTest extends BaseIntegrationTest {
 
 	@Test
 	public void findPublicationsOBDIntegrationTest() throws Exception {
-		System.out.println("findPublicationsOBDIntegrationTest()");
+		System.out.println("PublicationSystemMapper.findPublicationsOBDIntegrationTest");
 
 		PublicationSystemExample example = new PublicationSystemExample();
 		String mu = "zcu";

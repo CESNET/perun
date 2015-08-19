@@ -37,7 +37,7 @@ public class ExporterStarter
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	public ExporterStarter(OutputType outputType) {
-		springCtx = new ClassPathXmlApplicationContext("/exporter-applicationcontext.xml");
+		springCtx = new ClassPathXmlApplicationContext("/perun-auditer-exporter.xml");
 		this.dataSource = springCtx.getBean("dataSource", org.apache.tomcat.dbcp.dbcp.BasicDataSource.class);
 
 		this.outputType = outputType;

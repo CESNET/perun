@@ -1,11 +1,8 @@
 package cz.metacentrum.perun.cabinet.strategy.impl;
 
 import org.junit.Test
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import cz.metacentrum.perun.cabinet.model.Publication
-import org.springframework.test.context.ContextConfiguration;
 
 class OBD30StrategyTest extends GroovyTestCase {
 
@@ -13,11 +10,10 @@ class OBD30StrategyTest extends GroovyTestCase {
 
 	@Test
 	public void testParseResponse() {
-		println 'parseResponse_OBD_3.0()'
-		
+		println 'OBD30StrategyTest.parseResponse_OBD_3.0'
+
 		List<Publication> publications = obdStrategy.parseResponse(obd30Response)
-		
-		
+
 	}
 	
 	String obd30Response = '''<zaznamy><zaznam id="43884012"><autor_list><autor><typ>Autor</typ><poradi>1</poradi><prijmeni>Dostal</prijmeni><jmeno>Martin</jmeno><titul_pred>Ing.</titul_pred><titul_za/><mentalni_podil/><garant>Ano</garant><jr>Ne</jr><zahr>Ne</zahr><stat/><kodautora>14937</kodautora><autor_prac><kodprac>52150</kodprac><zkratka>KIV</zkratka><fakulta_zkratka>FAV</fakulta_zkratka><dom>1</dom><hodn>1</hodn><popis_prac>Katedra informatiky a výpočetní techniky</popis_prac><popis_fakulta>Katedra informatiky a výpočetní techniky</popis_fakulta></autor_prac></autor><autor><typ>Autor</typ><poradi>2</poradi><prijmeni>Krčmář</prijmeni><jmeno>Lubomír</jmeno><titul_pred>Ing.</titul_pred><titul_za/><mentalni_podil/><garant>Ne</garant><jr>Ne</jr><zahr>Ne</zahr><stat/><kodautora>14940</kodautora><autor_prac><kodprac>52150</kodprac><zkratka>KIV</zkratka><fakulta_zkratka>FAV</fakulta_zkratka><dom>1</dom><hodn>1</hodn><popis_prac>Katedra informatiky a výpočetní techniky</popis_prac><popis_fakulta>Katedra informatiky a výpočetní techniky</popis_fakulta></autor_prac></autor><autor><typ>Autor</typ><poradi>3</poradi><prijmeni>Ježek</prijmeni><jmeno>Karel</jmeno><titul_pred>Doc. Ing.</titul_pred><titul_za>CSc.</titul_za><mentalni_podil/><garant>Ne</garant><jr>Ne</jr><zahr>Ne</zahr><stat/><kodautora>10294</kodautora><autor_prac><kodprac>52150</kodprac><zkratka>KIV</zkratka><fakulta_zkratka>FAV</fakulta_zkratka><dom>1</dom><hodn>1</hodn><popis_prac>Katedra informatiky a výpočetní techniky</popis_prac><popis_fakulta>Katedra informatiky a výpočetní techniky</popis_fakulta></autor_prac></autor></autor_list><titul_list><titul><nazev>Extrakce informací z emailů typu Call for papers</nazev><jazyk>cze</jazyk><original>Ano</original><abstrakt>Každý den dostává většina akademických pracovníků množství emailů typu Call for papers (CFP), neboli oznámení o konferencích. Organizace těchto emailů zabírá stále více času a aktualizace údajů v kalendáři je často více než náročná. V rámci tohoto článku typu Work in progress bychom chtěli představit systém pro extrakci informací z těchto oznámení. Pro dolování informací využíváme sadu jednoduchých, ale efektivních technik v nevšedním pojetí. Jde např. o extrakci informací (EI) na základě n-gramů, nebo s využitím vlastní implementace webového rozhraní k populárnímu nástroji GATE.</abstrakt><klicova_slova>extrakce informací, klasfifikace, web 2.0</klicova_slova></titul><titul><nazev>Information extraction from call for papers emails</nazev><jazyk>eng</jazyk><original>Ne</original><abstrakt>There is a lot of Call for papers (CFP) emails received by academic workers every day. Ordering of these emails takes more

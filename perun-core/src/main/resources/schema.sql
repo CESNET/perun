@@ -1480,7 +1480,7 @@ alter table action_types add constraint actiontyp_u unique (action_type);
 alter table action_types add constraint actiontyp_at_chk check (action_type in ('read','write'));
 
 alter table attributes_authz add constraint attrauthz_pk primary key (attr_id,role_id,action_type_id);
-alter table attributes_authz add constraint attrauthz_attr_fk foreign key (attr_id) references attr_names (id);
+alter table attributes_authz add constraint attrauthz_attr_fk foreign key (attr_id) references attr_names(id);
 alter table attributes_authz add constraint attrauthz_role_fk foreign key (role_id) references roles(id);
 alter table attributes_authz add constraint attrauthz_actiontyp_fk foreign key (action_type_id) references action_types(id);
 
@@ -1495,12 +1495,12 @@ alter table tags_resources add constraint tags_res_res_fk foreign key (resource_
 alter table tasks add constraint task_pk primary key (id);
 alter table tasks add constraint task_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table tasks add constraint task_fac_fk foreign key (facility_id) references facilities(id);
-alter table tasks add constraint task_eng_fk foreign key (engine_id) references engines (id);
+alter table tasks add constraint task_eng_fk foreign key (engine_id) references engines(id);
 alter table tasks add constraint task_stat_chk check (status in ('NONE','OPEN','PLANNED','PROCESSING','DONE','ERROR'));
 
 alter table tasks_results add constraint taskres_task_fk foreign key (task_id) references tasks(id);
 alter table tasks_results add constraint taskres_dest_fk foreign key (destination_id) references destinations(id);
-alter table tasks_results add constraint taskres_eng_fk foreign key (engine_id) references engines (id);
+alter table tasks_results add constraint taskres_eng_fk foreign key (engine_id) references engines(id);
 alter table tasks_results add constraint taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED'));
 
 alter table facility_contacts add constraint faccont_fac_fk foreign key (facility_id) references facilities(id);

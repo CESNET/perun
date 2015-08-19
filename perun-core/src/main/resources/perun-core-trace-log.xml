@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+">
+
+	<!--
+
+		CONTENT IS IMPORTED TO PERUN-CORE.XML IF PROFILE "trace" IS ACTIVE !
+
+	-->
+
+	<!-- Log trace -->
+	<bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="proxyTargetClass" value="false"/>
+		<property name="beanNames">
+			<list>
+				<value>AttributesManager</value>
+				<value>AuditMessagesManager</value>
+				<value>DatabaseManager</value>
+				<value>ExtSourcesManager</value>
+				<value>FacilitiesManager</value>
+				<value>GroupsManager</value>
+				<value>MembersManager</value>
+				<value>OwnersManager</value>
+				<value>ResourcesManager</value>
+				<value>RTMessagesManager</value>
+				<value>Searcher</value>
+				<value>ServicesManager</value>
+				<value>UsersManager</value>
+				<value>VosManager</value>
+			</list>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>loggingAdviceEntry</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="proxyTargetClass" value="false"/>
+		<property name="beanNames">
+			<list>
+				<value>*ManagerBl</value>
+				<value>SearcherBl</value>
+			</list>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>loggingAdviceBl</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="proxyTargetClass" value="false"/>
+		<property name="beanNames">
+			<list>
+				<value>*ManagerImpl</value>
+				<value>SearcherImpl</value>
+				<value>Auditer</value>
+				<value>Synchronizer</value>
+				<value>Utils</value>
+				<value>ExtSource*</value>
+				<value>urn_perun_*</value>
+			</list>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>loggingAdviceImpl</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="loggingAdviceEntry" class="org.springframework.aop.interceptor.CustomizableTraceInterceptor">
+		<property name="useDynamicLogger" value="true"/>
+		<property name="hideProxyClassNames" value="true"/>
+		<property name="enterMessage" value="Entering method '$[methodName]' of class [$[targetClassShortName]], args: $[arguments]"/>
+		<property name="exitMessage" value="Exiting method '$[methodName]' of class [$[targetClassShortName]], returned: $[returnValue], execution
+time: $[invocationTime]"/>
+		<property name="exceptionMessage" value="Exception $[exception] thrown in method '$[methodName]' of class [$[targetClassShortName]]"/>
+	</bean>
+
+	<bean id="loggingAdviceBl" class="org.springframework.aop.interceptor.CustomizableTraceInterceptor">
+		<property name="useDynamicLogger" value="true"/>
+		<property name="hideProxyClassNames" value="true"/>
+		<property name="enterMessage" value="__ Entering method '$[methodName]' of class [$[targetClassShortName]], args: $[arguments]"/>
+		<property name="exitMessage" value="__ Exiting method '$[methodName]' of class [$[targetClassShortName]], returned: $[returnValue], execution
+time: $[invocationTime]"/>
+		<property name="exceptionMessage" value="++ Exception $[exception] thrown in method '$[methodName]' of class [$[targetClassShortName]]"/>
+	</bean>
+
+	<bean id="loggingAdviceImpl" class="org.springframework.aop.interceptor.CustomizableTraceInterceptor">
+		<property name="useDynamicLogger" value="true"/>
+		<property name="hideProxyClassNames" value="true"/>
+		<property name="enterMessage" value="____ Entering method '$[methodName]' of class [$[targetClassShortName]], args: $[arguments]"/>
+		<property name="exitMessage" value="____ Exiting method '$[methodName]' of class [$[targetClassShortName]], returned: $[returnValue], execution
+time: $[invocationTime]"/>
+		<property name="exceptionMessage" value="++++ Exception $[exception] thrown in method '$[methodName]' of class [$[targetClassShortName]]"/>
+	</bean>
+</beans>

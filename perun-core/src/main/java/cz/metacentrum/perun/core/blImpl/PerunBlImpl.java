@@ -398,11 +398,11 @@ public class PerunBlImpl implements PerunBl {
 	 * Creates a Perun instance.
 	 * <p/>
 	 * Uses {@link org.springframework.context.support.ClassPathXmlApplicationContext#ClassPathXmlApplicationContext(String...)}
-	 * to load files perun-beans.xml and  perun-datasources.xml from CLASSPATH.
+	 * to load files perun-core.xml and  perun-core-jdbc.xml from CLASSPATH.
 	 * <p/>
 	 * <h3>Web applications</h3>
 	 * <p>In web applications, use {@link org.springframework.web.context.WebApplicationContext} to either load
-	 * the same files, or load just  perun-beans.xml and provide your own definition of {@link javax.sql.DataSource}
+	 * the same files, or load just  perun-core.xml and provide your own definition of {@link javax.sql.DataSource}
 	 * with id dataSource.</p>
 	 * <p>The use {link org.springframework.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext}
 	 * to retrieve the context, i.e. add to web.xml the following:</p>
@@ -412,7 +412,7 @@ public class PerunBlImpl implements PerunBl {
 	 * &lt;/listener&gt;
 	 * &lt;context-param&gt;
 	 *   &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-	 *   &lt;param-value&gt;classpath:perun-beans.xml,classpath:perun-datasources.xml&lt;/param-value&gt;
+	 *   &lt;param-value&gt;classpath:perun-core.xml,classpath:perun-core-jdbc.xml&lt;/param-value&gt;
 	 * &lt;/context-param&gt;
 	 * </pre>
 	 * and in servlets use this code:
@@ -430,7 +430,7 @@ public class PerunBlImpl implements PerunBl {
 	 *
 	 * Put following code in your Spring Application Context xml file:
 	 *
-	 *     <import resource="classpath:perun-beans.xml"/>
+	 *     <import resource="classpath:perun-core.xml"/>
 	 *
 	 *
 	 * @return Perun instance

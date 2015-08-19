@@ -34,7 +34,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 	@Rollback(true)
 	@Test
 	public void createAuthorshipTest() throws CabinetException {
-		System.out.println("createAuthorshipTest()");
+		System.out.println("AuthorshipServiceImpl.createAuthorshipTest");
 
 		Authorship r = new Authorship();
 		r.setPublicationId(publicationTwo.getId()); // Because Pub 2 doesn't have authors yet
@@ -53,7 +53,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 	@Rollback(true)
 	@Test
 	public void createAuthorshipWhenAlreadyExistsTest() throws CabinetException {
-		System.out.println("createAuthorshipWhenAlreadyExistsTest()");
+		System.out.println("AuthorshipServiceImpl.createAuthorshipWhenAlreadyExistsTest");
 
 		Authorship r = new Authorship();
 		r.setPublicationId(publicationOne.getId());
@@ -76,7 +76,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 	@Rollback(true)
 	@Test
 	public void deleteAuthorshipByIdTest() throws CabinetException {
-		System.out.println("deleteAuthorshipByIdTest()");
+		System.out.println("AuthorshipServiceImpl.deleteAuthorshipByIdTest");
 
 		// delete AuthorshipOne by Michal Procházka for PublicationOne
 		int id = authorshipService.deleteAuthorshipById(sess, authorshipOne.getId());
@@ -92,7 +92,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 	@Rollback(true)
 	@Test
 	public void deleteAuthorshipByIdWhenNotExistsTest() throws CabinetException {
-		System.out.println("deleteAuthorshipByIdWhenNotExistsTest()");
+		System.out.println("AuthorshipServiceImpl.deleteAuthorshipByIdWhenNotExistsTest");
 
 		// delete not existing authorship
 		try {
@@ -110,7 +110,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 	@Rollback(true)
 	@Test
 	public void updateAuthorshipTest() throws CabinetException {
-		System.out.println("updateAuthorshipTest()");
+		System.out.println("AuthorshipServiceImpl.updateAuthorshipTest");
 
 		// transfer autohrshipOne from publicationOne to publicationTwo
 		authorshipOne.setPublicationId(publicationTwo.getId());
@@ -136,7 +136,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void findAuthorshipsByFilterSPSQLInjectionTest() {
-		System.out.println("findAuthorshipsByFilterSPSQLInjectionTest()");
+		System.out.println("AuthorshipServiceImpl.findAuthorshipsByFilterSPSQLInjectionTest");
 
 		String s1 = "a0aSQLinjection_I;d";// semicolon is not allowed
 		Authorship r = new Authorship();
@@ -147,7 +147,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findAuthorshipsByFilterSPTest() {
-		System.out.println("findAuthorshipsByFilterSPTest()");
+		System.out.println("AuthorshipServiceImpl.findAuthorshipsByFilterSPTest");
 
 		//do not use db
 		IAuthorshipDao authorshipDao = Mockito.mock(IAuthorshipDao.class);
@@ -171,7 +171,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 	@Test
 	@Rollback(true)
 	public void authorshipExistsTest() {
-		System.out.println("authorshipExistsTest()");
+		System.out.println("AuthorshipServiceImpl.authorshipExistsTest");
 
 		// authorshipOne always exists
 		boolean result = authorshipService.authorshipExists(authorshipOne);
@@ -200,7 +200,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findAuthorsByAuthorshipIdTest() throws Exception {
-		System.out.println("findAuthorsByAuthorshipIdTest()");
+		System.out.println("AuthorshipServiceImpl.findAuthorsByAuthorshipIdTest");
 
 		// store existing author of authorship one
 		Author a = authorService.findAuthorByUserId(USER_ID);
@@ -213,7 +213,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findAuthorsByAuthorshipIdWhenNotExistsTest() throws Exception {
-		System.out.println("findAuthorsByAuthorshipIdWhenNotExistsTest()");
+		System.out.println("AuthorshipServiceImpl.findAuthorsByAuthorshipIdWhenNotExistsTest");
 
 		try {
 			authorshipService.findAuthorsByAuthorshipId(sess, 0);
@@ -228,7 +228,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findAllAuthorshipsANDgetAuthorshipCountTest() throws Exception {
-		System.out.println("findAllAuthorshipsANDgetAuthorshipCountTest()");
+		System.out.println("AuthorshipServiceImpl.findAllAuthorshipsANDgetAuthorshipCountTest");
 
 		List<Authorship> list = authorshipService.findAllAuthorships();
 		assertTrue("Returned authorships shouldn't be null.", list != null);
@@ -238,7 +238,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findAuthorshipsByPublicationIdTest() throws Exception {
-		System.out.println("findAuthorshipsByPublicationIdTest()");
+		System.out.println("AuthorshipServiceImpl.findAuthorshipsByPublicationIdTest");
 
 		List<Authorship> list = authorshipService.findAuthorshipsByPublicationId(publicationOne.getId());
 		assertTrue("Returned authorships shouldn't be null.", list != null);
@@ -248,7 +248,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findAuthorshipsByUserIdTest() throws Exception {
-		System.out.println("findAuthorshipsByUserIdTest()");
+		System.out.println("AuthorshipServiceImpl.findAuthorshipsByUserIdTest");
 
 		List<Authorship> list = authorshipService.findAuthorshipsByUserId(USER_ID);
 		assertTrue("Returned authorships shouldn't be null.", list != null);
@@ -258,7 +258,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void calculateNewRankTest() throws Exception {
-		System.out.println("calculateNewRankTest()");
+		System.out.println("AuthorshipServiceImpl.calculateNewRankTest");
 
 		// calculate rank based on DB contant
 		Double rank = authorshipService.calculateNewRank(USER_ID);
@@ -267,13 +267,13 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 		value += publicationOne.getRank();
 		value += c1.getRank();
 
-		assertTrue("PriorityCoeficient is smaller than it should be!", rank >= value);
+		assertTrue("PriorityCoefficient is smaller than it should be!", rank >= value);
 
 	}
 
 	@Test
 	public void findUniqueAuthorsIds() {
-		System.out.println("findUniqueAuthorsIds()");
+		System.out.println("AuthorshipServiceImpl.findUniqueAuthorsIds");
 
 		List<Integer> list = authorService.findUniqueAuthorsIds();
 		assertTrue("There must be some unique authors",!list.isEmpty());

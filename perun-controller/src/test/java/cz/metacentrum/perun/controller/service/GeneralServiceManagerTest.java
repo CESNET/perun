@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Michal Karm Babacek
  *
  @RunWith(SpringJUnit4ClassRunner.class)
- * @ContextConfiguration(locations = { "classpath:perun-controller-applicationcontext.xml", "classpath:perun-beans.xml", "classpath:perun-datasources.xml" })
+ * @ContextConfiguration(locations = { "classpath:perun-controller.xml", "classpath:perun-core.xml", "classpath:perun-core-jdbc.xml" })
  * @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManagerPerunController")
  *                                           //@Transactional(readOnly = true)
  */

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+">
+
+    <!-- REDEFINE DATA SOURCES FOR TESTS OF ENGINE -->
+
+	<!-- special bean for unit tests to run, since we don't have dispatcher to create tasks in shared db for us -->
+	<bean id="taskDaoCore" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!-- Transaction manager for Spring JDBC -->
+	<bean id="transactionManagerPerunEngineLocal" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceLocal"/>
+	</bean>
+
+	<beans profile="default">
+
+		<!-- redefine data source of perun-core since we want only empty DB
+		<jdbc:embedded-database id="dataSource" type="HSQL">
+			<jdbc:script location="classpath:schema.sql"/>
+		</jdbc:embedded-database>
+		 -->
+
+		<!-- We want local DB also to run in memory, not in a file as engine does normally -->
+		<jdbc:embedded-database id="dataSourceLocal" type="HSQL">
+			<jdbc:script location="classpath:schema-local.sql"/>
+		</jdbc:embedded-database>
+
+	</beans>
+
+	<beans profile="devel,production">
+
+		<!-- We want local DB also to run in memory, not in a file as engine does normally -->
+		<jdbc:embedded-database id="dataSourceLocal" type="HSQL">
+			<jdbc:script location="classpath:schema-local.sql"/>
+		</jdbc:embedded-database>
+
+	</beans>
+    
+</beans>

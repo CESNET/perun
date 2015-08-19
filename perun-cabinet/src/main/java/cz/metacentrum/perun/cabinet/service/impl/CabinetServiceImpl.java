@@ -6,6 +6,7 @@ import java.util.List;
 import cz.metacentrum.perun.cabinet.service.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class CabinetServiceImpl implements ICabinetService {
 		// authorId must be an publication system internal id i.e. UCO! not memberId, userId etc.
 		IFindPublicationsStrategy prezentator = null;
 		try {
-			log.debug("Attemping to instantiate class [{}]...", ps.getType());
+			log.debug("Attempting to instantiate class [{}]...", ps.getType());
 			prezentator = (IFindPublicationsStrategy) Class.forName(ps.getType()).newInstance();
 			log.debug("Class [{}] successfully created.", ps.getType());
 		} catch (Exception e) {
@@ -67,6 +68,10 @@ public class CabinetServiceImpl implements ICabinetService {
 
 		HttpUriRequest request = prezentator.getHttpRequest(authorId, yearSince, yearTill, ps);
 		HttpResponse response = httpService.execute(request);
+
+		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+			throw new CabinetException("Can't contact publication system. HTTP error code: " + response.getStatusLine().getStatusCode(), ErrorCodes.HTTP_IO_EXCEPTION);
+		}
 
 		List<Publication> publications = prezentator.parseHttpResponse(response);
 

@@ -16,7 +16,7 @@ public class AuthorshipDaoImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void exampleSortParam() {
-		System.out.println("exampleSortParam()");
+		System.out.println("AuthorshipDaoImpl.exampleSortParam");
 
 		Authorship authorship = new Authorship();
 		authorship.setUserId(USER_ID);

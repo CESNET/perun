@@ -44,7 +44,7 @@ public class PerunInitializer {
 
 	public PerunInitializer(boolean newVersionOfLDAP, String outputFileName) throws InternalErrorException, FileNotFoundException {
 		this.perunPrincipal = new PerunPrincipal("perunLdapInitializer", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		this.springCtx = new ClassPathXmlApplicationContext("perun-beans.xml", "perun-datasources.xml", "perun-transaction-manager.xml");
+		this.springCtx = new ClassPathXmlApplicationContext("perun-core.xml", "perun-core-jdbc.xml", "perun-core-transaction-manager.xml");
 		this.perunBl = springCtx.getBean("perun", PerunBl.class);
 		this.perunSession = perunBl.getPerunSession(perunPrincipal);
 		this.outputWriter = new BufferedWriter(Utils.getWriterForOutput(outputFileName));

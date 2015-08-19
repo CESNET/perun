@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<import resource="classpath:perun-core-jdbc.xml"/>
+	<import resource="classpath:perun-core.xml"/>
+	<import resource="classpath:perun-core-transaction-manager.xml"/>
+
+	<!-- Enable @Transactional support -->
+	<tx:annotation-driven transaction-manager="perunTransactionManager"/>
+
+	<!-- Enable @AspectJ support -->
+	<aop:aspectj-autoproxy/>
+
+	<!-- Scans for @Repository, @Service and @Component -->
+	<context:component-scan base-package="cz.metacentrum.perun.registrar"/>
+
+	<!-- for sending emails -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="localhost"/>
+	</bean>
+
+	<bean id="registrarManager" class="cz.metacentrum.perun.registrar.impl.RegistrarManagerImpl" init-method="initialize">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="registrarManager" ref="registrarManager"/>
+	</bean>
+
+	<bean id="mailManager" class="cz.metacentrum.perun.registrar.impl.MailManagerImpl" init-method="initialize">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="mailSender" ref="mailSender" />
+	</bean>
+
+	<bean id="consolidatorManager" class="cz.metacentrum.perun.registrar.impl.ConsolidatorManagerImpl" init-method="initialize">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="registrarManager" ref="registrarManager"/>
+	</bean>
+
+	<!-- Properties Bean -->
+	<beans profile="devel,production">
+		<bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<property name="locations">
+				<list>
+					<value>file:${perun.conf}perun-registrar-lib.properties</value>
+					<value>file:${perun.conf.custom}perun-registrar-lib.properties</value>
+				</list>
+			</property>
+			<property name="ignoreResourceNotFound">
+				<value>true</value>
+			</property>
+		</bean>
+	</beans>
+
+	<beans profile="default">
+		<bean id="registrarProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<property name="properties">
+				<props>
+					<prop key="perunUrl">http://localhost/</prop>
+					<prop key="secretKey">mySecretKey</prop>
+					<prop key="backupFrom">perun@localhost</prop>
+					<prop key="backupTo">perun@localhost</prop>
+					<prop key="fedAuthz">fed</prop>
+				</props>
+			</property>
+		</bean>
+	</beans>
+
+</beans>
