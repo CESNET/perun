@@ -1027,6 +1027,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			type.addItem("URL","url");
 			type.addItem("MAIL","email");
 			type.addItem("SIGNED MAIL","semail");
+			type.addItem("SERVICE SPECIFIC","service-specific");
 
 			destination.getSuggestOracle().clear();
 			for (Host h : newFacilityHosts) {
@@ -1100,6 +1101,8 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 						destinationLabel.getElement().setInnerHTML("<strong>Mail:</strong>");
 					} else if (type.getSelectedIndex() == 5) {
 						destinationLabel.getElement().setInnerHTML("<strong>Signed mail:</strong>");
+					} else if (type.getSelectedIndex() == 6) {
+						destinationLabel.getElement().setInnerHTML("<strong>Service specific:</strong>");
 					}
 
 				}
