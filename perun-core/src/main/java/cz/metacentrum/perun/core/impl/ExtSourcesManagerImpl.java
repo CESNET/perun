@@ -29,6 +29,7 @@ import org.w3c.dom.NodeList;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
@@ -287,6 +288,19 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
+					" from group_ext_sources g_exts inner join ext_sources on g_exts.ext_source_id=ext_sources.id " +
+					"   left join ext_sources_attributes on ext_sources.id=ext_sources_attributes.ext_sources_id " +
+					" where g_exts.group_id=?", EXT_SOURCES_EXTRACTOR, group.getId());
+
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + extSourceMappingSelectQueryWithAttributes +
@@ -312,6 +326,22 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
+	@Override
+	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
+		try {
+			if(0 < jdbc.queryForInt("select count('x') from group_ext_sources where ext_source_id=? and group_id=?", source.getId(), group.getId())) {
+				throw new ExtSourceAlreadyAssignedException(source);
+			}
+
+			jdbc.update("insert into group_ext_sources (ext_source_id, group_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
+					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", source.getId(), group.getId(),
+					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
 		try {
 			if (jdbc.queryForInt("select count('x') from vo_ext_sources where ext_sources_id=? and vo_id=?", source.getId(), vo.getId()) == 0) {
@@ -321,6 +351,21 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 			int numAffected = jdbc.update("delete from vo_ext_sources where ext_sources_id=? and vo_id=?", source.getId(), vo.getId());
 			if(numAffected != 1) throw new ExtSourceAlreadyRemovedException("ExtSource: " + source + " , Vo: " + vo);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		try {
+			if (jdbc.queryForInt("select count('x') from group_ext_sources where ext_source_id=? and group_id=?", source.getId(), group.getId()) == 0) {
+				// Source isn't assigned
+				throw new ExtSourceNotAssignedException("ExtSource id='" + source.getId() + "'");
+			}
+
+			int numAffected = jdbc.update("delete from group_ext_sources where ext_source_id=? and group_id=?", source.getId(), group.getId());
+			if(numAffected != 1) throw new ExtSourceAlreadyRemovedException("ExtSource: " + source + " , Group: " + group);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

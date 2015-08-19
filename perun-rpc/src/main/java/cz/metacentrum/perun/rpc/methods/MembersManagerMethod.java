@@ -174,6 +174,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 							ac.getVoById(parms.readInt("vo")),
 							ac.getUserById(parms.readInt("user")));
 				}
+			} else if(parms.contains("extSource") && parms.contains("vo") && parms.contains("login")) {
+				if (parms.contains("groups")) {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getExtSourceById(parms.readInt("extSource")),
+							parms.readString("login"),
+							parms.readList("groups", Group.class));
+				} else {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getExtSourceById(parms.readInt("extSource")),
+							parms.readString("login"));
+				}
 			} else {
 				if (parms.contains("groups")) {
 					return ac.getMembersManager().createMember(ac.getSession(),

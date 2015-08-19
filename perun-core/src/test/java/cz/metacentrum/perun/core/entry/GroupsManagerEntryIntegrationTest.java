@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
@@ -71,6 +72,28 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		// setUpGroup(vo);
 		// moved to every method to save testing time
 
+	}
+
+	@Test
+	public void getGroupsWithAssignedExtSourceInVo() throws Exception {
+		System.out.println("GroupsManager.getGroupsWithAssignedExtSourceInVo()");
+
+		vo = setUpVo();
+		groupsManagerBl.createGroup(sess, vo, group);
+		groupsManagerBl.createGroup(sess, vo, group2);
+
+		ExtSource newExtSource = new ExtSource("ExtSourcesManagerEntryIntegrationTest1", ExtSourcesManager.EXTSOURCE_INTERNAL);
+		newExtSource = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
+		
+		perun.getExtSourcesManagerBl().addExtSource(sess, vo, newExtSource);
+
+		perun.getExtSourcesManagerBl().addExtSource(sess, group, newExtSource);
+		perun.getExtSourcesManagerBl().addExtSource(sess, group2, newExtSource);
+
+		final List<Group> groups = groupsManagerBl.getGroupsWithAssignedExtSourceInVo(sess, newExtSource, vo);
+
+		assertTrue(groups.contains(group));
+		assertTrue(groups.contains(group2));
 	}
 
 	@Test

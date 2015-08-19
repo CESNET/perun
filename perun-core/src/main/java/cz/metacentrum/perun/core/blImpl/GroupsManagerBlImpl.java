@@ -248,6 +248,17 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
+		//remove all assigned ExtSources to this group
+		List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
+		for(ExtSource source: assignedSources) {
+			try {
+				getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
+			} catch (ExtSourceNotAssignedException | ExtSourceAlreadyRemovedException ex) {
+				//Just log this, because if method can't remove it, it is probably not assigned now
+				log.error("Try to remove not existing extSource {} from group {} when deleting group.", source, group);
+			}
+		}
+
 		// Group applications, submitted data and app_form are deleted on cascade with "deleteGroup()"
 		List<Member> membersFromDeletedGroup = getGroupMembers(sess, group);
 		getGroupsManagerImpl().deleteGroup(sess, vo, group);
@@ -1854,5 +1865,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		attrsToSet.add(lastSynchronizationState);
 		attrsToSet.add(lastSynchronizationTimestamp);
 		((PerunBl) sess.getPerun()).getAttributesManagerBl().setAttributes(sess, group, attrsToSet);
+	}
+
+	@Override
+	public List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException {
+		return getGroupsManagerImpl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
 	}
 }

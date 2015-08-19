@@ -857,6 +857,18 @@ create table "vo_ext_sources" (
 	modified_by_uid integer
 );
 
+-- GROUP_EXT_SOURCES - external source assigned to GROUP
+create table "group_ext_sources" (
+  group_id integer not null,
+  ext_source_id integer not null,
+  created_at timestamp default now() not null,
+  created_by varchar(1024) default user not null,
+  modified_at timestamp default now() not null,
+  modified_by varchar(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
 -- USER_EXT_SOURCES - external source from which user come (identification of user in his home system)
 create table "user_ext_sources" (
 	id integer not null,
@@ -1187,6 +1199,8 @@ create index idx_fk_dest_fac on facility_service_destinations(facility_id);
 create index idx_fk_dest_destc on facility_service_destinations(destination_id);
 create index idx_fk_vousrsrc_usrsrc on vo_ext_sources(ext_sources_id);
 create index idx_fk_vousrsrc_vos on vo_ext_sources(vo_id);
+create index idx_fk_groupsrc_src on group_ext_sources(ext_source_id);
+create index idx_fk_groupsrc_group on group_ext_sources(group_id);
 create index idx_fk_usrcatt_usrc on ext_sources_attributes(ext_sources_id);
 create index idx_fk_attnam_attnam on attr_names(default_attr_id);
 create index idx_fk_rsrc_fac on resources(facility_id);
@@ -1396,6 +1410,10 @@ alter table groups add constraint grp_pk primary key (id);
 alter table groups add constraint grn_nam_vo_parentg_u unique (name,vo_id,parent_group_id);
 alter table groups add constraint grp_vos_fk foreign key (vo_id) references vos(id);
 alter table groups add constraint grp_grp_fk foreign key (parent_group_id) references groups(id);
+
+alter table group_ext_sources add constraint groupsrc_pk primary key (group_id,ext_source_id);
+alter table group_ext_sources add constraint groupsrc_src_fk foreign key(ext_source_id) references ext_sources(id);
+alter table group_ext_sources add constraint groupsrc_groups_fk foreign key(group_id) references groups(id);
 
 alter table member_resource_attr_values add constraint memrav_mem_fk foreign key (member_id) references members(id);
 alter table member_resource_attr_values add constraint memrav_rsrc_fk foreign key (resource_id) references resources(id);
@@ -1626,6 +1644,7 @@ grant all on exec_services to perun;
 grant all on destinations to perun;
 grant all on facility_service_destinations to perun;
 grant all on vo_ext_sources to perun;
+grant all on group_ext_sources to perun;
 grant all on ext_sources_attributes to perun;
 grant all on attr_names to perun;
 grant all on facilities to perun;
@@ -1701,4 +1720,4 @@ grant all on mailchange to perun;
 grant all on pwdreset to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.26');
+insert into configurations values ('DATABASE VERSION','3.1.27');

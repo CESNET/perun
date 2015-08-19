@@ -40,8 +40,10 @@ import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -52,6 +54,7 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.NotMemberOfParentGroupException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -64,6 +67,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 
 public class MembersManagerBlImpl implements MembersManagerBl {
@@ -509,6 +514,29 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		// Set all above data to the candidate's userExtSource
 		candidate.setUserExtSource(userExtSource);
+
+		return this.createMember(sess, vo, candidate, groups);
+	}
+
+	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		//First of all get candidate from extSource directly
+		Candidate candidate = null;
+		try {
+			if (extSource instanceof ExtSourceApi) {
+				//get first subject, then create candidate
+				Map<String, String> subject = ((ExtSourceSimpleApi) extSource).getSubjectByLogin(login);
+				candidate = (getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, extSource, login));
+			} else if (extSource instanceof ExtSourceSimpleApi) {
+				// get candidates from external source by login
+				candidate = (getPerunBl().getExtSourcesManagerBl().getCandidate(sess, extSource, login));
+			}
+		} catch (CandidateNotExistsException | SubjectNotExistsException ex) {
+			throw new InternalErrorException("Can't find candidate for login " + login + " in extSource " + extSource, ex);
+		} catch (ExtSourceUnsupportedOperationException ex) {
+			throw new InternalErrorException("Some operation is not allowed for extSource " + extSource, ex);
+		} catch (ExtSourceNotExistsException ex) {
+			throw new InternalErrorException("ExtSource " + extSource + " not exists.");
+		}
 
 		return this.createMember(sess, vo, candidate, groups);
 	}

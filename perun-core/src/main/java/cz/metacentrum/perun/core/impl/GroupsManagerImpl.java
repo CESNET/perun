@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
@@ -668,6 +669,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return jdbc.queryForInt("select count(*) from groups");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery +
+					" from group_ext_sources g_exts inner join groups on g_exts.group_id=groups.id " +
+					" where g_exts.ext_source_id=? and groups.vo_id=?", GROUP_MAPPER, source.getId(), vo.getId());
+
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 }
