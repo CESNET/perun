@@ -1,18 +1,10 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.Role;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.Role;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class AuthzRoles extends HashMap<Role, Map<String, Set<Integer>>> {
 	private static final long serialVersionUID = 1L;
@@ -29,7 +21,9 @@ public class AuthzRoles extends HashMap<Role, Map<String, Set<Integer>>> {
 	public AuthzRoles(Role role, PerunBean perunBean) {
 		super();
 		Map<String, Set<Integer>> perunBeans = new HashMap<String, Set<Integer>>();
-		perunBeans.put(perunBean.getBeanName(), new HashSet<Integer>(perunBean.getId()));
+		Set<Integer> ids = new HashSet<>();
+		ids.add(perunBean.getId());
+		perunBeans.put(perunBean.getBeanName(), ids);
 		this.put(role, perunBeans);
 	}
 
@@ -45,7 +39,7 @@ public class AuthzRoles extends HashMap<Role, Map<String, Set<Integer>>> {
 		this.put(role, perunBeans);
 	}
 
-	public AuthzRoles(Role role, List<PerunBean> perunBeans) {
+	public AuthzRoles(Role role, List<? extends PerunBean> perunBeans) {
 		super();
 		Map<String, Set<Integer>> complementaryObjects = new HashMap<String, Set<Integer>>();
 		if (perunBeans != null) {
