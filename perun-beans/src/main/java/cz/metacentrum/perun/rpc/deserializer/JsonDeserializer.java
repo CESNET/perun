@@ -64,7 +64,7 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"shortName", "beanName"})
 	private interface GroupMixIn {}
 
-	@JsonIgnoreProperties({"attributes"})
+	@JsonIgnoreProperties({"attributes", "beanName"})
 	private interface ExtSourceMixIn {}
 
 	private interface MemberMixIn {
