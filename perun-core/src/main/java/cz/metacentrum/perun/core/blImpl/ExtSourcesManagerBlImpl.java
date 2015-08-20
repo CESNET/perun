@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -27,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
@@ -76,12 +78,23 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		return getExtSourcesManagerImpl().getVoExtSources(sess, vo);
 	}
 
+	@Override
+	public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws InternalErrorException {
+		return getExtSourcesManagerImpl().getGroupExtSources(sess, group);
+	}
+
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
 		return getExtSourcesManagerImpl().getExtSources(sess);
 	}
 	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
 		getExtSourcesManagerImpl().addExtSource(sess, vo, source);
 		getPerunBl().getAuditer().log(sess, "{} added to {}.", source, vo);
+	}
+
+	@Override
+	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
+		getExtSourcesManagerImpl().addExtSource(sess, group, source);
+		getPerunBl().getAuditer().log(sess, "{} added to {}.", source, group);
 	}
 
 	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException {
@@ -102,8 +115,19 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		List<Group> groupsWithAssignedExtSource = getPerunBl().getGroupsManagerBl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
+		for(Group group: groupsWithAssignedExtSource) {
+			getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
+		}
+
 		getExtSourcesManagerImpl().removeExtSource(sess, vo, source);
 		getPerunBl().getAuditer().log(sess, "{} removed from {}.", source, vo);
+	}
+
+	@Override
+	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		getExtSourcesManagerImpl().removeExtSource(sess, group, source);
+		getPerunBl().getAuditer().log(sess, "{} removed from {}.", source, group);
 	}
 
 	public List<User> getInvalidUsers(PerunSession sess, ExtSource source) throws InternalErrorException {
@@ -380,6 +404,14 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		candidate.setAttributes(attributes);
 
 		return candidate;
+	}
+
+	@Override
+	public void checkExtSourceAssignedToVo(PerunSession sess, ExtSource extSource, int voId) throws InternalErrorException, ExtSourceNotAssignedException, VoNotExistsException {
+		Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, voId);
+		List<ExtSource> voExtSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
+
+		if(!voExtSources.contains(extSource)) throw new ExtSourceNotAssignedException("ExtSource " + extSource + " is not assigned to vo " + vo);
 	}
 
 	public void loadExtSourcesDefinitions(PerunSession sess) {

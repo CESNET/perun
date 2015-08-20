@@ -61,6 +61,7 @@ vo_attr_values
 ext_sources
 ext_sources_attributes
 vo_ext_sources
+group_ext_sources
 user_ext_sources
 service_packages
 service_service_packages

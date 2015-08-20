@@ -227,9 +227,25 @@ public class VosManagerEntry implements VosManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
 			throw new PrivilegeException(sess, "findCandidates");
-				}
+		}
 
 		return vosManagerBl.findCandidates(sess, vo, searchString);
+	}
+
+	@Override
+	public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
+		Utils.notNull(searchString, "searchString");
+		Utils.notNull(sess, "sess");
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization - Vo admin required
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "findCandidates");
+		}
+
+		return vosManagerBl.findCandidates(sess, group, searchString);
 	}
 
 	public void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException, AlreadyAdminException, VoNotExistsException, UserNotExistsException {

@@ -131,6 +131,17 @@ public interface VosManagerBl {
 	List<Candidate> findCandidates(PerunSession perunSession, Vo vo, String searchString) throws InternalErrorException;
 
 	/**
+	 * Finds users, who can join the group in Vo.
+	 *
+	 * @param sess
+	 * @param group group to be used
+	 * @param searchString depends on the extSource of the Group, could by part of the name, email or something like that.
+	 * @return list of candidates who match the searchString
+	 * @throws InternalErrorException
+	 */
+	List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) throws InternalErrorException;
+
+	/**
 	 * Add a user administrator to the VO.
 	 *
 	 * @param perunSession

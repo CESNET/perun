@@ -801,6 +801,17 @@ create table vo_ext_sources (
 	modified_by_uid integer
 );
 
+create table "group_ext_sources" (
+  group_id integer not null,
+  ext_source_id integer not null,
+  created_at date default sysdate not null,
+  created_by nvarchar2(1024) default user not null,
+  modified_at date default sysdate not null,
+  modified_by nvarchar2(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
 create table user_ext_sources (
 	id integer not null,
 	user_id integer not null,
@@ -1106,6 +1117,8 @@ create index IDX_FK_DEST_FAC on facility_service_destinations(facility_id);
 create index IDX_FK_DEST_DESTC on facility_service_destinations(destination_id);
 create index IDX_FK_VOUSRSRC_USRSRC on vo_ext_sources(ext_sources_id);
 create index IDX_FK_VOUSRSRC_VOS on vo_ext_sources(vo_id);
+create index IDX_FK_GROUPSRC_SRC on group_ext_sources(ext_source_id);
+create index IDX_FK_GROUPSRC_GROUP on group_ext_sources(group_id);
 create index IDX_FK_USRCATT_USRC on ext_sources_attributes(ext_sources_id);
 create index IDX_FK_ATTNAM_ATTNAM on attr_names(default_attr_id);
 create index IDX_FK_RSRC_FAC on resources(facility_id);
@@ -1327,6 +1340,11 @@ constraint GRP_PK primary key (id),
 constraint GRP_NAM_VO_PARENTG_U unique (name,vo_id,parent_group_id),
 constraint GRP_VOS_FK foreign key (vo_id) references vos(id),
 constraint GRP_GRP_FK foreign key (parent_group_id) references groups(id)
+);
+alter table group_ext_sources add (                                                              
+constraint GROUPSRC_PK primary key (group_id,ext_source_id),
+constraint GROUPSRC_SRC_FK foreign key(ext_source_id) references ext_sources(id),
+constraint GROUPSRC_GROUPS_FK foreign key(group_id) references groups(id)
 );
 alter table member_resource_attr_values add (
 constraint MEMRAV_MEM_FK foreign key (member_id) references members(id),
@@ -1651,4 +1669,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.26');
+insert into configurations values ('DATABASE VERSION','3.1.27');

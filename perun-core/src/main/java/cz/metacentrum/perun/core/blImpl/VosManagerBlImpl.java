@@ -320,6 +320,103 @@ public class VosManagerBlImpl implements VosManagerBl {
 		return this.findCandidates(sess, vo, searchString, 0);
 	}
 
+	public List<Candidate> findCandidates(PerunSession sess, Group group, String searchString) throws InternalErrorException {
+		List<Candidate> candidates = new ArrayList<>();
+
+		try {
+			// Iterate through all registered extSources in the group
+			for (ExtSource source : getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group)) {
+				// Info if this is only simple ext source, change behavior if not
+				boolean simpleExtSource = true;
+
+				// Get potential subjects from the extSource
+				List<Map<String, String>> subjects;
+				try {
+					if(source instanceof ExtSourceApi) {
+						// find subjects with all their properties
+						subjects = ((ExtSourceApi) source).findSubjects(searchString);
+						simpleExtSource = false;
+					} else {
+						// find subjects only with logins - they then must be retrieved by login
+						subjects = ((ExtSourceSimpleApi) source).findSubjectsLogins(searchString);
+					}
+				} catch (ExtSourceUnsupportedOperationException e1) {
+					log.warn("ExtSource {} doesn't support findSubjects", source.getName());
+					continue;
+				} catch (InternalErrorException e) {
+					log.error("Error occurred on ExtSource {},  Exception {}.", source.getName(), e);
+					continue;
+				} finally {
+					try {
+						((ExtSourceSimpleApi) source).close();
+					} catch (ExtSourceUnsupportedOperationException e) {
+						// ExtSource doesn't support that functionality, so silently skip it.
+					} catch (InternalErrorException e) {
+						log.error("Can't close extSource connection. Cause: {}", e);
+					}
+				}
+
+				Set<String> uniqueLogins = new HashSet<>();
+				for (Map<String, String> s : subjects) {
+					// Check if the user has unique identifier within extSource
+					if ((s.get("login") == null) || (s.get("login") != null && ((String) s.get("login")).isEmpty())) {
+						log.error("User '{}' cannot be added, because he/she doesn't have a unique identifier (login)", s);
+						// Skip to another user
+						continue;
+					}
+
+					String extLogin = (String) s.get("login");
+
+					// check uniqueness of every login in extSource
+					if(uniqueLogins.contains(extLogin)) {
+						throw new InternalErrorException("There are more than 1 login '" + extLogin + "' getting from extSource '" + source + "'");
+					} else {
+						uniqueLogins.add(extLogin);
+					}
+
+					// Get Candidate
+					Candidate candidate;
+					try {
+						if(simpleExtSource) {
+							// retrieve data about subjects from ext source based on ext. login
+							candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, source, extLogin);
+						} else {
+							// retrieve data about subjects from subjects we already have locally
+							candidate = getPerunBl().getExtSourcesManagerBl().getCandidate(sess, s, source, extLogin);
+						}
+					} catch (ExtSourceNotExistsException e) {
+						throw new ConsistencyErrorException("Getting candidate from non-existing extSource " + source, e);
+					} catch (CandidateNotExistsException e) {
+						throw new ConsistencyErrorException("findSubjects returned that candidate, but getCandidate cannot find him using login " + extLogin, e);
+					} catch (ExtSourceUnsupportedOperationException e) {
+						throw new InternalErrorException("extSource supports findSubjects but not getCandidate???", e);
+					}
+
+					try {
+						Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, group.getVoId());
+						getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, vo, candidate.getUserExtSources());
+						// Candidate is already a member of the VO, so do not add him to the list of candidates
+						continue;
+					} catch (VoNotExistsException e) {
+						throw new InternalErrorException(e);
+					} catch (MemberNotExistsException e) {
+						// This is OK
+					}
+
+					// Add candidate to the list of candidates
+					log.debug("findCandidates: returning candidate: {}", candidate);
+					candidates.add(candidate);
+
+				}
+			}
+
+			log.debug("Returning {} potential members for group {}", candidates.size(), group);
+			return candidates;
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {
 		List<User> adminsOfVo = this.getAdmins(sess, vo);
 		if(adminsOfVo.contains(user)) throw new AlreadyAdminException(user, vo);

@@ -16,6 +16,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
@@ -122,6 +123,26 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue(extSources.contains(extSource));
 	}
 
+	@Test
+	public void testGetGroupExtSources() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupExtSources()");
+
+		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
+		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
+		final GroupsManagerEntry groupsManagerEntry = new GroupsManagerEntry(perun);
+		final Group createdGroup = groupsManagerEntry.createGroup(sess, createdVo, new Group("sjk", "kljlk"));
+
+		final ExtSource extSource = newInstanceExtSource();
+		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
+		extSourcesManagerEntry.addExtSource(sess, createdGroup, extSource);
+
+		final List<ExtSource> extSources = extSourcesManagerEntry.getGroupExtSources(sess, createdGroup);
+
+		assertNotNull(extSources);
+		assertTrue(extSources.contains(extSource));
+	}
+
 	/**
 	 * Test method for {@link cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#getExtSources(cz.metacentrum.perun.core.api.PerunSession)}.
 	 */
@@ -139,7 +160,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 * Test method for {@link cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#addExtSource(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, cz.metacentrum.perun.core.api.ExtSource)}.
 	 */
 	@Test
-	public void testAddExtSource() throws Exception {
+	public void testAddExtSourceToVo() throws Exception {
 		System.out.println(CLASS_NAME + "addExtSource()");
 
 		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
@@ -150,6 +171,26 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
 
 		final List<ExtSource> extSources = extSourcesManagerEntry.getVoExtSources(sess, createdVo);
+
+		assertNotNull(extSources);
+		assertTrue(extSources.contains(extSource));
+	}
+
+	@Test
+	public void testAddExtSourceToGroup() throws Exception {
+		System.out.println(CLASS_NAME + "addExtSource()");
+
+		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
+		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
+		final GroupsManagerEntry groupsManagerEntry = new GroupsManagerEntry(perun);
+		final Group createdGroup = groupsManagerEntry.createGroup(sess, createdVo, new Group("sjk", "kljlk"));
+
+		final ExtSource extSource = newInstanceExtSource();
+		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
+		extSourcesManagerEntry.addExtSource(sess, createdGroup, extSource);
+
+		final List<ExtSource> extSources = extSourcesManagerEntry.getGroupExtSources(sess, createdGroup);
 
 		assertNotNull(extSources);
 		assertTrue(extSources.contains(extSource));
@@ -172,7 +213,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 * Test method for {@link cz.metacentrum.perun.core.blImpl.ExtSourcesManagerBlImpl#removeExtSource(cz.metacentrum.perun.core.api.PerunSession, cz.metacentrum.perun.core.api.Vo, cz.metacentrum.perun.core.api.ExtSource)}.
 	 */
 	@Test
-	public void testRemoveExtSource() throws Exception {
+	public void testRemoveExtSourceFromVo() throws Exception {
 		System.out.println(CLASS_NAME + "removeExtSource()");
 
 		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
@@ -188,6 +229,30 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		extSourcesManagerEntry.removeExtSource(sess, createdVo, extSource);
 
 		final List<ExtSource> extSourcesResult = extSourcesManagerEntry.getVoExtSources(sess, createdVo);
+		assertTrue( ! extSourcesResult.contains(extSource));
+
+	}
+
+	@Test
+	public void testRemoveExtSourceFromGroup() throws Exception {
+		System.out.println(CLASS_NAME + "removeExtSource()");
+
+		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
+		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
+		final GroupsManagerEntry groupsManagerEntry = new GroupsManagerEntry(perun);
+		final Group createdGroup = groupsManagerEntry.createGroup(sess, createdVo, new Group("sjk", "kljlk"));
+
+		final ExtSource extSource = newInstanceExtSource();
+		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
+		extSourcesManagerEntry.addExtSource(sess, createdGroup, extSource);
+
+		final List<ExtSource> extSources = extSourcesManagerEntry.getGroupExtSources(sess, createdGroup);
+		assertTrue(extSources.size() > 0);
+
+		extSourcesManagerEntry.removeExtSource(sess, createdGroup, extSource);
+
+		final List<ExtSource> extSourcesResult = extSourcesManagerEntry.getGroupExtSources(sess, createdGroup);
 		assertTrue( ! extSourcesResult.contains(extSource));
 
 	}

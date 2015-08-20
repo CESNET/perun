@@ -5,6 +5,7 @@ import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
@@ -1032,4 +1033,15 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException 
 	 */
 	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
+	 * Get all groups in specific vo with assigned extSource
+	 *
+	 * @param sess
+	 * @param source
+	 * @param vo
+	 * @return l
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
 }

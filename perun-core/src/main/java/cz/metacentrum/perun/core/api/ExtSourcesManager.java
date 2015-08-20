@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -117,6 +118,20 @@ public interface ExtSourcesManager {
 	List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
 	/**
+	 * Get list of external sources associated with the GROUP.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @return list of external sources associated with the VO
+	 *
+	 * @throws GroupNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
+	/**
 	 * Get list of all external sources.
 	 *
 	 * @param perunSession
@@ -143,6 +158,23 @@ public interface ExtSourcesManager {
 	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException;
 
 	/**
+	 * Associate external source definition with the GROUP.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param source
+	 *
+	 * @throws GroupNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ExtSourceNotExistsException
+	 * @throws ExtSourceAlreadyAssignedException
+	 * @throws ExtSourceNotAssignedException
+	 * @throws VoNotExistsException
+	 */
+	void addExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, PrivilegeException, VoNotExistsException, GroupNotExistsException, ExtSourceNotAssignedException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException;
+
+	/**
 	 * Remove association of the external source from the VO.
 	 *
 	 * @param perunSession
@@ -156,6 +188,22 @@ public interface ExtSourcesManager {
 	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
 	 */
 	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+
+	/**
+	 * Remove association of the external source from the GROUP.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param source
+	 *
+	 * @throws GroupNotExistsException
+	 * @throws InternalErrorException
+	 * @throws ExtSourceNotExistsException
+	 * @throws PrivilegeException
+	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
+	 * @throws ExtSourceNotAssignedException
+	 */
+	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Checks whether the ExtSource exists, if not, then the ExtSource is created.

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembershipType;
@@ -508,4 +509,14 @@ public interface GroupsManagerImplApi {
 	 */
 	public void deleteGroupReservedLogins(PerunSession sess, Group group);
 
+	/**
+	 * Get all groups in specific vo with assigned extSource
+	 *
+	 * @param sess
+	 * @param source
+	 * @param vo
+	 * @return l
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
 }

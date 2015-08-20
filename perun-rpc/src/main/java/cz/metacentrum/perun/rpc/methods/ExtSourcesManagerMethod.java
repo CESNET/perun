@@ -2,6 +2,7 @@ package cz.metacentrum.perun.rpc.methods;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.*;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.List;
@@ -64,6 +65,21 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns the list of external sources associated with a GROUP.
+	 *
+	 * @param group int GROUP <code>id</code>
+	 * @return List<ExtSource> GROUP external sources
+	 */
+	getGroupExtSources {
+
+		@Override
+		public List<ExtSource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getExtSourcesManager().getGroupExtSources(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")));
+		}
+	},
+
+	/*#
 	 * Returns the list of all external sources.
 	 *
 	 * @return List<ExtSource> all external sources
@@ -82,6 +98,12 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 	 * @param vo int VO <code>id</code>
 	 * @param source int ExtSource <code>id</code>
 	 */
+	/*#
+	 * Associate an external source definition with a GROUP.
+	 *
+	 * @param group int GROUP <code>id</code>
+	 * @param source int ExtSource <code>id</code>
+	 */
 	addExtSource {
 
 		@Override
@@ -89,9 +111,18 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 		throws PerunException {
 		ac.stateChangingCheck();
 
-		ac.getExtSourcesManager().addExtSource(ac.getSession(),
+		if(parms.contains("vo")) {
+			ac.getExtSourcesManager().addExtSource(ac.getSession(),
 				ac.getVoById(parms.readInt("vo")),
 				ac.getExtSourceById(parms.readInt("source")));
+		} else if(parms.contains("group")) {
+			ac.getExtSourcesManager().addExtSource(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getExtSourceById(parms.readInt("source")));
+		} else {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
+		}
+
 		return null;
 		}
 	},
@@ -102,6 +133,12 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 	 * @param vo int VO <code>id</code>
 	 * @param source int ExtSource <code>id</code>
 	 */
+	/*#
+	 * Remove an association of an external source from a GROUP.
+	 *
+	 * @param group int GROUP <code>id</code>
+	 * @param source int ExtSource <code>id</code>
+	 */
 	removeExtSource {
 
 		@Override
@@ -109,9 +146,19 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 		throws PerunException {
 		ac.stateChangingCheck();
 
-		ac.getExtSourcesManager().removeExtSource(ac.getSession(),
+		if(parms.contains("vo")) {
+			ac.getExtSourcesManager().removeExtSource(ac.getSession(),
 				ac.getVoById(parms.readInt("vo")),
 				ac.getExtSourceById(parms.readInt("source")));
+		} else if(parms.contains("group")) {
+			ac.getExtSourcesManager().removeExtSource(ac.getSession(),
+				ac.getGroupById(parms.readInt("group")),
+				ac.getExtSourceById(parms.readInt("source")));
+		} else {
+			throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or group");
+		}
+
+		
 		return null;
 		}
 	},
