@@ -194,6 +194,10 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 			// core groups can't have managers
 			tabPanel.add(new GroupManagersTabItem(group), "Managers");
 		}
+		if (!group.isCoreGroup()) {
+			// core groups can't have ext sources
+			tabPanel.add(new GroupExtSourcesTabItem(group), "External sources");
+		}
 
 		// Resize must be called after page fully displays
 		Scheduler.get().scheduleDeferred(new Command() {

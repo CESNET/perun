@@ -361,8 +361,8 @@ public class MainMenu {
 	/**
 	 * Rebuild whole GROUP ADMIN menu
 	 */
-	private void buildGroupAdminMenu()
-	{
+	private void buildGroupAdminMenu() {
+
 		MainMenuSection menu = sectionsMap.get(GROUP_ADMIN);
 		if(menu == null) return;
 		Group group = session.getActiveGroup();
@@ -376,6 +376,7 @@ public class MainMenu {
 		TabItemWithUrl settings = null;
 		TabItemWithUrl applications = null;
 		TabItemWithUrl applicationForm = null;
+		TabItemWithUrl extSources = null;
 		String groupName = "Group overview";
 
 		if(group != null){
@@ -390,6 +391,7 @@ public class MainMenu {
 				applicationForm = new GroupApplicationFormSettingsTabItem(group);
 				admins = new GroupManagersTabItem(group);
 				subgroups = new SubgroupsTabItem(group);
+				extSources = new GroupExtSourcesTabItem(group);
 			}
 		}
 
@@ -410,6 +412,7 @@ public class MainMenu {
 			menu.addItem(new MainMenuItem("Application form", applicationForm , SmallIcons.INSTANCE.applicationFormIcon()));
 			menu.addItem(new MainMenuItem("Settings", settings, SmallIcons.INSTANCE.settingToolsIcon()));
 			menu.addItem(new MainMenuItem("Managers", admins, SmallIcons.INSTANCE.administratorIcon()));
+			menu.addItem(new MainMenuItem("External sources", extSources, SmallIcons.INSTANCE.worldIcon()));
 			menu.addAdvancedLink(group != null);
 		} else {
 			menu.addAdvancedLink(group != null);

@@ -123,7 +123,13 @@ public class AddMemberToVoAndGroupTabItem implements TabItem, TabItemWithUrl {
 		addCandidatesButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedCandidateToVo());
 		inviteCandidatesButton = new CustomButton("Invite user(s)", SmallIcons.INSTANCE.emailIcon());
 
-		final FindCandidatesOrUsersToAddToVo findAll = new FindCandidatesOrUsersToAddToVo(voId, "");
+		final FindCandidatesOrUsersToAddToVo findAll;
+
+		if (session.isVoAdmin(voId)) {
+			findAll = new FindCandidatesOrUsersToAddToVo(voId, 0, "");
+		} else {
+			findAll = new FindCandidatesOrUsersToAddToVo(voId, groupId, "");
+		}
 
 		final CustomButton searchButton = new CustomButton("Search", SmallIcons.INSTANCE.findIcon());
 
@@ -364,17 +370,30 @@ public class AddMemberToVoAndGroupTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public void open() {
-		session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
-		if(vo != null){
-			session.setActiveVo(vo);
-			return;
+
+		if (!session.isVoAdmin(voId)) {
+			// view as group admin
+			session.getUiElements().getMenu().openMenu(MainMenu.GROUP_ADMIN);
+			if(group != null){
+				session.setActiveGroup(group);
+				return;
+			}
+			session.setActiveGroupId(groupId);
+		} else {
+			// view as vo admin
+			session.getUiElements().getMenu().openMenu(MainMenu.VO_ADMIN);
+			if(vo != null){
+				session.setActiveVo(vo);
+				return;
+			}
+			session.setActiveVoId(voId);
 		}
-		session.setActiveVoId(voId);
+
 	}
 
 	public boolean isAuthorized() {
 
-		if (session.isVoAdmin(voId)) {
+		if (session.isVoAdmin(voId) || session.isGroupAdmin(groupId)) {
 			return true;
 		} else {
 			return false;
