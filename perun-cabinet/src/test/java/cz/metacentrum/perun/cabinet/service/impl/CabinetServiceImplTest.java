@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,6 +27,7 @@ public class CabinetServiceImplTest extends BaseIntegrationTest {
 	// ------------- TESTS --------------------------------------------
 
 	@Test
+	@Ignore
 	public void findPublicationsInPubSysMUTest() throws Exception {
 		System.out.println("CabinetServiceImpl.findPublicationsInPubSysMUTest");
 
@@ -47,12 +49,12 @@ public class CabinetServiceImplTest extends BaseIntegrationTest {
 	}
 
 	@Test
+	@Ignore
 	public void findPublicationsInPubSysZCUTest() throws Exception {
 		System.out.println("CabinetServiceImpl.findPublicationsInPubSysZCUTest");
 
 		List<Publication> pubs = new ArrayList<Publication>();
 		try {
-
 			pubs = cabinetService.findPublicationsInPubSys("Sitera,Jiří", 2006, 2009, pubSysZcu);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.HTTP_IO_EXCEPTION)) {
