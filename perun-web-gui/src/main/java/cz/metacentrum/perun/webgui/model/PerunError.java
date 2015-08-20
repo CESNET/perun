@@ -315,6 +315,29 @@ public class PerunError extends JavaScriptObject {
         this.requestURL = requestURL;
     }-*/;
 
+    /**
+     * Get URL of original request which caused this error.
+     *
+     * @return URL of original request or empty string.
+     */
+    public final native PerunRequest getRequest() /*-{
+		if (!this.request) {
+			return "";
+		}
+		return this.request;
+	}-*/;
+
+    /**
+     * Set URL of original request, which caused this error.
+     * <p/>
+     * Should be set only inside JsonPostClient !!
+     *
+     * @param request original request
+     */
+    public final native void setRequest(PerunRequest request) /*-{
+		this.request = request;
+	}-*/;
+
 	/**
 	 * Returns Perun specific type of object
 	 *

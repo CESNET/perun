@@ -168,6 +168,7 @@ public class JsonClient {
 
 						// triggers onError
 						session.getUiElements().setLogText("Response ERROR.");
+						error.setRequest(perunRequest);
 						error.setRequestURL(requestUrl);
 						error.setPostData("");
 						onRequestError(error);
@@ -180,10 +181,11 @@ public class JsonClient {
 						PerunError error = new JSONObject().getJavaScriptObject().cast();
 						error.setErrorId(""+resp.getStatusCode());
 						error.setName(resp.getStatusText());
-						error.setErrorInfo("Server responded with HTTP error: "+resp.getStatusCode()+" - "+resp.getStatusText());
+						error.setErrorInfo("Server responded with HTTP error: " + resp.getStatusCode() + " - " + resp.getStatusText());
 						error.setObjectType("PerunError");
 						error.setPostData("");
 						error.setRequestURL(requestUrl);
+						error.setRequest(perunRequest);
 
 						if (resp.getStatusCode() == 401 || resp.getStatusCode() == 403) {
 

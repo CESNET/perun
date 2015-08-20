@@ -224,6 +224,7 @@ public class JsonPostClient {
 						// triggers onError
 						session.getUiElements().setLogText("Response ERROR.");
 						error.setRequestURL(requestUrl);
+						error.setRequest(perunRequest);
 						error.setPostData(payload);
 						runningRequests.remove(requestUrl);
 						onRequestError(error);
@@ -238,6 +239,7 @@ public class JsonPostClient {
 						error.setErrorInfo("Server responded with HTTP error: " + resp.getStatusCode() + " - " + resp.getStatusText());
 						error.setObjectType("PerunError");
 						error.setPostData(payload);
+						error.setRequest(perunRequest);
 						error.setRequestURL(requestUrl);
 
 						if (resp.getStatusCode() == 401 || resp.getStatusCode() == 403) {
@@ -300,6 +302,7 @@ public class JsonPostClient {
 															// triggers onError
 															session.getUiElements().setLogText("Response ERROR.");
 															error.setRequestURL(requestUrl);
+															error.setRequest(perunRequest);
 															error.setPostData(payload);
 															runningRequests.remove(requestUrl);
 															onRequestError(error);

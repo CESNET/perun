@@ -75,6 +75,10 @@ public class JsonErrorHandler {
 		}
 		final String status = s;
 
+		final TextBox boxSubject = new TextBox();
+		boxSubject.setValue("Reported error: " + error.getRequest().getManager() + "/" + error.getRequest().getMethod() + " (" +error.getErrorId() + ")");
+		boxSubject.setWidth("100%");
+
 		final TextArea messageTextBox = new TextArea();
 		messageTextBox.setSize("335px", "100px");
 
@@ -83,7 +87,10 @@ public class JsonErrorHandler {
 
 			public void onClick(ClickEvent event) {
 
-				String text = error.getErrorId() + " - " + error.getName() + "\n";
+				String text = messageTextBox.getText() + "\n\n";
+				text += "-------------------------------------\n";
+				text += "Technical details: \n\n";
+				text += error.getErrorId() + " - " + error.getName() + "\n";
 				text += error.getErrorInfo() + "\n\n";
 				text += "Perun instance: " + Utils.perunInstanceName()+ "\n";
 				text += "Request: " + error.getRequestURL() + "\n";
@@ -99,9 +106,7 @@ public class JsonErrorHandler {
 							PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
 
 				}
-
-				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion() + "\n\n";
-				text += "Message: " + messageTextBox.getText();
+				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion();
 
 				final String finalText = text;
 
@@ -135,7 +140,11 @@ public class JsonErrorHandler {
 					}
 				});
 
-				msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "ERROR " + error.getErrorId() + ": " + error.getRequestURL(), text);
+				if (boxSubject.getValue().isEmpty()) {
+					msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "Reported error: " + error.getRequest().getManager() + "/" + error.getRequest().getMethod() + " (" +error.getErrorId() + ")", text);
+				} else {
+					msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, boxSubject.getValue(), text);
+				}
 
 			}
 		};
@@ -144,8 +153,10 @@ public class JsonErrorHandler {
 		baseLayout.setStyleName("alert-box-table");
 		baseLayout.setWidth("350px");
 		baseLayout.setHTML(0, 0, "<p>You can provide any message for this error report (e.g. describing what you tried to do). When you are done, click on send button.");
-		baseLayout.setHTML(1, 0, "<strong>Message:</strong>");
-		baseLayout.setWidget(2, 0, messageTextBox);
+		baseLayout.setHTML(1, 0, "<strong>Subject:</strong>");
+		baseLayout.setWidget(2, 0, boxSubject);
+		baseLayout.setHTML(3, 0, "<strong>Message:</strong>");
+		baseLayout.setWidget(4, 0, messageTextBox);
 
 		// box definition
 		final Confirm conf = new Confirm(WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), baseLayout, sendReportHandler, WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), true);

@@ -28,7 +28,7 @@ public class SendMessageToRt {
 	// default queue
 	static public final String DEFAULT_QUEUE = Utils.defaultRtQueue();
 
-	static public final String SIGNATURE = "\n\n---------------------\nSent via Perun GUI";
+	static public final String SIGNATURE = "\n\n-------------------------------------\nSent from Perun GUI";
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
