@@ -50,6 +50,7 @@ public class FindCandidatesOrUsersToAddToVo implements JsonCallback, JsonCallbac
 	// Custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	private int voId;
+	private int groupId = 0;
 	private String searchString = "";
 
 	private int callCounter = 0;
@@ -58,10 +59,12 @@ public class FindCandidatesOrUsersToAddToVo implements JsonCallback, JsonCallbac
 	 * Creates a new instance of the request
 	 *
 	 * @param voId for which VO we search candidates for
+	 * @param groupId
 	 * @param searchString part of the user's login
 	 */
-	public FindCandidatesOrUsersToAddToVo(int voId, String searchString) {
+	public FindCandidatesOrUsersToAddToVo(int voId, int groupId, String searchString) {
 		this.voId = voId;
+		this.groupId = groupId;
 		this.searchString = searchString;
 	}
 
@@ -70,11 +73,13 @@ public class FindCandidatesOrUsersToAddToVo implements JsonCallback, JsonCallbac
 	 *
 	 * @param events Custom events
 	 * @param voId for which VO we search candidates for
+	 * @param groupId
 	 * @param searchString part of the user's login
 	 */
-	public FindCandidatesOrUsersToAddToVo(int voId, String searchString, JsonCallbackEvents events) {
+	public FindCandidatesOrUsersToAddToVo(int voId, int groupId, String searchString, JsonCallbackEvents events) {
 		this.events = events;
 		this.voId = voId;
+		this.groupId = groupId;
 		this.searchString = searchString;
 	}
 
@@ -92,25 +97,39 @@ public class FindCandidatesOrUsersToAddToVo implements JsonCallback, JsonCallbac
 	public void retrieveData() {
 
 		// the request itself
-		JsonClient js = new JsonClient(); // set 1 minute timeout for searching external sources
-		if (searchString != null && !searchString.isEmpty()) {
-			js.retrieveData(JSON_URL, "vo="+voId+"&searchString="+searchString, this);
-		}
+		if (groupId == 0) {
 
-		// the request itself
-		JsonClient js2 = new JsonClient(); // set 1 minute timeout for searching external sources
-		if (searchString != null && !searchString.isEmpty()) {
+			// search Whole VO as VO_ADMIN
 
-			String param = "vo="+voId+"&searchString="+searchString;
-
-			if (!attributes.isEmpty()) {
-				// parse lists
-				for (String attribute : attributes) {
-					param += "&attrsNames[]=" + attribute;
-				}
+			JsonClient js = new JsonClient(); // set 1 minute timeout for searching external sources
+			if (searchString != null && !searchString.isEmpty()) {
+				js.retrieveData(JSON_URL, "vo="+voId+"&searchString="+searchString, this);
 			}
 
-			js2.retrieveData(JSON_URL_WITHOUT_VO, param, this);
+			// the request itself
+			JsonClient js2 = new JsonClient(); // set 1 minute timeout for searching external sources
+			if (searchString != null && !searchString.isEmpty()) {
+
+				String param = "vo="+voId+"&searchString="+searchString;
+
+				if (!attributes.isEmpty()) {
+					// parse lists
+					for (String attribute : attributes) {
+						param += "&attrsNames[]=" + attribute;
+					}
+				}
+
+				js2.retrieveData(JSON_URL_WITHOUT_VO, param, this);
+			}
+
+		} else {
+
+			// Search only in group ext sources (GROUP_ADMIN)
+			JsonClient js = new JsonClient(); // set 1 minute timeout for searching external sources
+			if (searchString != null && !searchString.isEmpty()) {
+				js.retrieveData(JSON_URL, "group="+groupId+"&searchString="+searchString, this);
+			}
+
 		}
 
 	}

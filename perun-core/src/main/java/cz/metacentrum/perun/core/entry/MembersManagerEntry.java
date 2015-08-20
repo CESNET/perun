@@ -271,8 +271,10 @@ public class MembersManagerEntry implements MembersManager {
 				throw new PrivilegeException(sess, "createMember - from login and extSource");
 			}
 		}
-
-		return getMembersManagerBl().createMember(sess, vo, extSource, login, groups);
+		// we run async validation
+		Member member = getMembersManagerBl().createMember(sess, vo, extSource, login, groups);
+		getMembersManagerBl().validateMemberAsync(sess, member);
+		return member;
 	}
 
 	public Member getMemberByUserExtSource(PerunSession sess, Vo vo, UserExtSource uea) throws InternalErrorException, VoNotExistsException, MemberNotExistsException, PrivilegeException {

@@ -68,7 +68,44 @@ public class RemoveExtSource {
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("External source: "+ extSourceId +" sucessfully removed from Vo: "+ voId);
+				session.getUiElements().setLogSuccessText("External source: "+ extSourceId +" successfully removed from VO: "+ voId);
+				events.onFinished(jso);
+			};
+
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+
+		};
+
+		// create request
+		JsonPostClient request = new JsonPostClient(newEvents);
+		request.sendData(JSON_URL, jsonQuery);
+
+	}
+
+	/**
+	 * Attempts to remove external source from Group
+	 *
+	 * @param groupId ID of Group, where we should remove ext source
+	 * @param extSourceId ID of external source to be removed
+	 */
+	public void removeGroupExtSource(final int groupId,final int extSourceId){
+
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("source", new JSONNumber(extSourceId));
+		jsonQuery.put("group", new JSONNumber(groupId));
+
+		// local events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Removing external source: " + extSourceId + " from Group: " + groupId + " failed.");
+				events.onError(error);
+			};
+
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("External source: "+ extSourceId +" successfully removed from Group: "+ groupId);
 				events.onFinished(jso);
 			};
 

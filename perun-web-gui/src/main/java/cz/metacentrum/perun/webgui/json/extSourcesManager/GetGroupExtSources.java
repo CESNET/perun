@@ -21,16 +21,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * Ajax query to get all VO ext sources
+ * Ajax query to get all Group ext sources
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSource>, JsonCallbackOracle<ExtSource> {
+public class GetGroupExtSources implements JsonCallback, JsonCallbackTable<ExtSource>, JsonCallbackOracle<ExtSource> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// jsonCallback string
-	private final String JSON_URL = "extSourcesManager/getVoExtSources";
+	private final String JSON_URL = "extSourcesManager/getGroupExtSources";
 	// ext sources stored as cellTable widget
 	private PerunTable<ExtSource> table;
 	// ext sources list data provider (for easy filling from json call)
@@ -42,7 +42,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// vo Id
-	private int voId = 0;
+	private int groupId = 0;
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
@@ -52,20 +52,20 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 	/**
 	 * Creates a new callback
 	 *
-	 * @param voId ID of VO to get ext sources for
+	 * @param groupId ID of VO to get ext sources for
 	 */
-	public GetVoExtSources(int voId) {
-		this.voId = voId;
+	public GetGroupExtSources(int groupId) {
+		this.groupId = groupId;
 	}
 
 	/**
 	 * Creates a new callback
 	 *
-	 * @param voId ID of Vo we want ext sources for
+	 * @param groupId ID of Vo we want ext sources for
 	 * @param events external events
 	 */
-	public GetVoExtSources(int voId, JsonCallbackEvents events) {
-		this.voId = voId;
+	public GetGroupExtSources(int groupId, JsonCallbackEvents events) {
+		this.groupId = groupId;
 		this.events = events;
 	}
 
@@ -97,7 +97,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		loaderImage.setEmptyResultMessage("VO has no external source of members.");
+		loaderImage.setEmptyResultMessage("Group has no external source of members.");
 
 		// content
 		if(checkable){
@@ -135,7 +135,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 	 */
 	public void retrieveData() {
 		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, "vo="+voId, this);
+		js.retrieveData(JSON_URL, "group="+groupId, this);
 	}
 
 	/**
@@ -301,7 +301,7 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 		if (list.isEmpty() && !filter.isEmpty()) {
 			loaderImage.setEmptyResultMessage("No external source matching '"+filter+"' found.");
 		} else {
-			loaderImage.setEmptyResultMessage("VO has no external source of members.");
+			loaderImage.setEmptyResultMessage("Group has no external source of members.");
 		}
 
 		dataProvider.flush();
@@ -318,14 +318,6 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 	@Override
 	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
 		this.oracle = oracle;
-	}
-
-	public void setEvents(JsonCallbackEvents events) {
-		this.events = events;
-	}
-
-	public MultiSelectionModel<ExtSource> getSelectionModel() {
-		return this.selectionModel;
 	}
 
 }
