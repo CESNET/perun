@@ -3,12 +3,10 @@ package cz.metacentrum.perun.cabinet.service.impl;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import cz.metacentrum.perun.cabinet.service.IHttpService;
+import org.apache.commons.httpclient.methods.GetMethod;
 
 public class HttpServiceImplTest {
 
@@ -17,11 +15,11 @@ public class HttpServiceImplTest {
 		System.out.println("HttpServiceImpl.simpleHttpClientServiceImpl");
 
 		IHttpService hs = new HttpServiceImpl();
-		HttpGet get = new HttpGet("http://www.seznam.cz");
-		HttpResponse response = hs.execute(get);
+		GetMethod get = new GetMethod("http://www.seznam.cz");
+		String response = hs.execute(get, null);
 		assertNotNull(response);
 		System.out.println(response);
-		assertTrue(EntityUtils.toString(response.getEntity(),"utf-8").contains("Seznam"));
+		assertTrue(response.contains("Seznam"));
 	}
 
 }

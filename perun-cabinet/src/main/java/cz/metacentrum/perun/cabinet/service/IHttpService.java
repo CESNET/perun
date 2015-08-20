@@ -1,7 +1,7 @@
 package cz.metacentrum.perun.cabinet.service;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
+import cz.metacentrum.perun.cabinet.model.PublicationSystem;
+import org.apache.commons.httpclient.HttpMethod;
 
 /**
  * Interface for executing HTTP request to external PS to retrieve users publications
@@ -17,6 +17,6 @@ public interface IHttpService {
 	 * @return HTTP response we pass back to PSStrategy files to be parsed as publications
 	 * @throws CabinetException
 	 */
-	HttpResponse execute(HttpUriRequest request) throws CabinetException;
+	String execute(HttpMethod request, PublicationSystem ps) throws CabinetException;
 
 }

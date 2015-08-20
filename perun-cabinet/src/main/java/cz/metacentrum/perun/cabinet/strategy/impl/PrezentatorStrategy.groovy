@@ -1,15 +1,14 @@
 package cz.metacentrum.perun.cabinet.strategy.impl;
 
 import java.util.List;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 
-import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.mime.MultipartEntity
-import org.apache.http.entity.mime.content.ByteArrayBody
-import org.apache.http.entity.mime.content.StringBody
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
 
-import cz.metacentrum.perun.cabinet.model.Author
+import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.service.CabinetException;
@@ -79,7 +78,7 @@ public class PrezentatorStrategy extends AbstractPublicationSystemStrategy {
 	}
 
 	@Override
-	public HttpUriRequest getFindPublicationsRequest(int year1, int year2, int authorId) {
+	public HttpMethod getFindPublicationsRequest(int year1, int year2, int authorId) {
 		//prepare request body
 		MultipartEntity entity = new MultipartEntity();
 		try {
@@ -91,10 +90,8 @@ public class PrezentatorStrategy extends AbstractPublicationSystemStrategy {
 		}
 		
 		//prepare post request
-		HttpPost post = new HttpPost(configuration.getUrl())
-		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(configuration.getUsername(), configuration.getPassword())
-		post.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));//cred, enc, proxy
-		post.setEntity(entity)
+		PostMethod post = new PostMethod(configuration.getUrl())
+		post.setRequestEntity(entity)
 		return post
 	}
 

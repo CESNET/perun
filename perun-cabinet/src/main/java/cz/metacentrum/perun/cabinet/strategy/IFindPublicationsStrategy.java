@@ -2,11 +2,9 @@ package cz.metacentrum.perun.cabinet.strategy;
 
 import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
+import org.apache.commons.httpclient.HttpMethod;
 
 /**
  * This interface represents the general strategy used for searching publications
@@ -28,7 +26,7 @@ public interface IFindPublicationsStrategy {
 	 * @param ps PublicationSystem to be "asked" for publications
 	 * @return HTTP request
 	 */
-	HttpUriRequest getHttpRequest(String authorId, int yearSince, int yearTill, PublicationSystem ps);
+	HttpMethod getHttpRequest(String authorId, int yearSince, int yearTill, PublicationSystem ps);
 
 	/**
 	 * Parse XML response from external PS into list of user's publications.
@@ -36,6 +34,6 @@ public interface IFindPublicationsStrategy {
 	 * @param response HTTP response returned from external PS
 	 * @return List of user's publications. Empty list if nothing found.
 	 */
-	List<Publication> parseHttpResponse(HttpResponse response);
+	List<Publication> parseHttpResponse(String response);
 
 }
