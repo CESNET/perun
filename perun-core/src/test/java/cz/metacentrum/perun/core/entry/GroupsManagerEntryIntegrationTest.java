@@ -87,8 +87,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.createGroup(sess, vo, group2);
 
 		ExtSource newExtSource = new ExtSource("ExtSourcesManagerEntryIntegrationTest1", ExtSourcesManager.EXTSOURCE_INTERNAL);
-		newExtSource = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
-
+		newExtSource = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
+		
 		perun.getExtSourcesManagerBl().addExtSource(sess, vo, newExtSource);
 
 		perun.getExtSourcesManagerBl().addExtSource(sess, group, newExtSource);

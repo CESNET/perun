@@ -12,11 +12,9 @@ public class ExtSource extends Auditable {
 
 	private String name;
 	private String type;
-	private Map<String, String> attributes;
 
 	public ExtSource() {
 		super();
-		attributes = new HashMap<>();
 	}
 
 	public ExtSource(int id, String name, String type) {
@@ -55,18 +53,6 @@ public class ExtSource extends Auditable {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public Map<String, String> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(Map<String, String> attributes) {
-		this.attributes = attributes;
-	}
-
-	public void setAttribute(String attrName, String attrValue) {
-		this.attributes.put(attrName, attrValue);
 	}
 
 	@Override

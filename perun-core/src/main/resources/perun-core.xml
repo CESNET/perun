@@ -283,6 +283,25 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<constructor-arg ref="perun" />
 	</bean>
 
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourceCSV" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourceISMU" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourceLdap" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourcePerun" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourceSql" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourceXML" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
+
 	<!-- this bean is only for test -->
 	<bean id="auditerConsumer" class="cz.metacentrum.perun.core.impl.AuditerConsumer" scope="prototype">
 		<constructor-arg type="java.lang.String" value="consumerForTest" />

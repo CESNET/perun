@@ -22,6 +22,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -101,7 +102,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
-	public ExtSource createExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException {
+	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException {
 		Utils.notNull(extSource.getName(), "extSource.getName()");
 		Utils.notNull(extSource.getType(), "extSource.getType()");
 
@@ -138,10 +139,8 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 			es.setId(extSource.getId());
 			es.setName(extSource.getName());
 			es.setType(extSource.getType());
-			es.setAttributes(extSource.getAttributes());
 
 			// Now store the attributes
-			Map<String, String> attributes = extSource.getAttributes();
 			if (attributes != null) {
 				Iterator<String> i = attributes.keySet().iterator();
 				while (i.hasNext()) {
@@ -180,7 +179,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 	 * @param extSource
 	 * @throws InternalErrorException
 	 */
-	private void updateExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException {
+	private void updateExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException {
 		ExtSource extSourceDb;
 		try {
 			extSourceDb = this.getExtSourceById(sess, extSource.getId());
@@ -207,16 +206,16 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 
 		// Check the attributes
-		if (!extSourceDb.getAttributes().equals(extSource.getAttributes())) {
-			log.debug("There is a change in the extSource attributes");
+		if (!getAttributes(extSourceDb).equals(attributes)) {
+			log.debug("There is a change in attributes for {}", extSource);
 			try {
 				// Firstly delete all attributes, then store new ones
 				jdbc.update("delete from ext_sources_attributes where ext_sources_id=?", extSource.getId());
 
-				for (String attrName: extSource.getAttributes().keySet()) {
+				for (String attrName : attributes.keySet()) {
 					jdbc.update("insert into ext_sources_attributes (ext_sources_id, attr_name, attr_value, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
-							"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", extSource.getId(), attrName,
-							extSource.getAttributes().get(attrName), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
+									"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", extSource.getId(), attrName,
+							attributes.get(attrName), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(),
 							sess.getPerunPrincipal().getUserId());
 				}
 			} catch (RuntimeException e) {
@@ -240,13 +239,6 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 					// if not preset, put in map
 					myObject = EXTSOURCE_MAPPER.mapRow(rs, rs.getRow());
 					map.put(id, myObject);
-				}
-				// fetch each attribute for extSource and add it to extSource
-				Map<String, Object> attributes = EXT_SOURCE_ATTRIBUTES_MAPPER.mapRow(rs, rs.getRow());
-
-				if (attributes.get("name") != null) {
-					// add only if exists
-					myObject.setAttribute((String) attributes.get("name"), (String) attributes.get("value"));
 				}
 			}
 			return new ArrayList<ExtSource>(map.values());
@@ -393,7 +385,7 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		} catch (ExtSourceNotExistsException e) {
 			ExtSource es = new ExtSource(ExtSourcesManager.EXTSOURCE_NAME_PERUN, ExtSourcesManager.EXTSOURCE_INTERNAL);
 			try {
-				this.createExtSource(sess, es);
+				this.createExtSource(sess, es, null);
 			} catch (ExtSourceExistsException e1) {
 				log.error("Trying to create default PERUN extSource which already exists.");
 			} catch (InternalErrorException e1) {
@@ -474,18 +466,16 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 							extSource = this.getExtSourceByName(sess, extSourceName);
 							extSource.setName(extSourceName);
 							extSource.setType(extSourceType);
-							extSource.setAttributes(attributes);
 
 							// ExtSource exists, so check values and potentionally update it
-							this.updateExtSource(sess, extSource);
+							this.updateExtSource(sess, extSource, attributes);
 
 						} catch (ExtSourceNotExistsException e) {
 							// ExtSource doesn't exist, so create it
 							extSource = new ExtSource();
 							extSource.setName(extSourceName);
 							extSource.setType(extSourceType);
-							extSource.setAttributes(attributes);
-							extSource = this.createExtSource(sess, extSource);
+							extSource = this.createExtSource(sess, extSource, attributes);
 						}
 					} catch (RuntimeException e) {
 						throw new InternalErrorException(e);
@@ -513,5 +503,22 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public void checkExtSourceExists(PerunSession perunSession, ExtSource es) throws InternalErrorException, ExtSourceNotExistsException {
 		if(!extSourceExists(perunSession, es)) throw new ExtSourceNotExistsException("ExtSource: " + es);
+	}
+
+	/**
+	 * Result Set Extractor for Attributes map
+	 */
+	private class AttributesExtractor implements ResultSetExtractor<Map<String, String>> {
+		public Map<String, String> extractData(ResultSet rs) throws SQLException {
+			Map<String, String> attributes = new HashMap<>();
+			while (rs.next()) {
+				attributes.put(rs.getString("attr_name"), rs.getString("attr_value"));
+			}
+			return attributes;
+		}
+	}
+
+	public Map<String,String> getAttributes(ExtSource extSource) {
+		return jdbc.query("select attr_name, attr_value from ext_sources_attributes where ext_sources_id = " + extSource.getId(), new AttributesExtractor());
 	}
 }

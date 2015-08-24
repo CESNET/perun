@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.tomcat.dbcp.dbcp.DriverManagerConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,14 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	private static Map<String, String> attributeNameMapping;
 	private Connection con;
 	private boolean isOracle = false;
+
+	private static PerunBlImpl perunBl;
+
+	// filled by spring (perun-core.xml)
+	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+		perunBl = perun;
+		return perun;
+	}
 
 	public ExtSourceSql() {
 		attributeNameMapping = new HashMap<String, String>();
@@ -256,5 +265,9 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 				throw new InternalErrorException(e);
 			}
 		}
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

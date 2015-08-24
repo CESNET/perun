@@ -53,6 +53,7 @@ public interface ExtSourcesManager {
 	 *
 	 * @param perunSession
 	 * @param extSource
+	 * @param attributes
 	 *
 	 * @return ExtSource object with newly associated ID.
 	 *
@@ -60,7 +61,7 @@ public interface ExtSourcesManager {
 	 * @throws ExtSourceExistsException
 	 * @throws PrivilegeException
 	 */
-	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException, PrivilegeException;
+	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException, PrivilegeException;
 
 	/**
 	 * Deletes an external source.
@@ -215,8 +216,9 @@ public interface ExtSourcesManager {
 	 * @return existing or newly created extSource is returned
 	 *
 	 * @throws InternalErrorException
+	 * @throws PrivilegeException
 	 */
-	ExtSource checkOrCreateExtSource(PerunSession perunSession, String extSourceName, String extSourceType) throws InternalErrorException;
+	ExtSource checkOrCreateExtSource(PerunSession perunSession, String extSourceName, String extSourceType) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Returns list of users stored by this ExtSource, which are not valid.
@@ -273,4 +275,16 @@ public interface ExtSourcesManager {
 	 * @throws PrivilegeException
 	 */
 	void loadExtSourcesDefinitions(PerunSession sess) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Gets attributes for external source. Must be Perun Admin.
+	 *
+	 * @param sess		Current Session
+	 * @param extSource	External Source
+	 * @return			Map of attributes for external source
+	 * @throws ExtSourceNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	Map<String, String> getAttributes(PerunSession sess, ExtSource extSource) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException;
 }

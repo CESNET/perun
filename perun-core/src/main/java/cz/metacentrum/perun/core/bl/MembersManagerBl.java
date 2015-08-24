@@ -121,7 +121,7 @@ public interface MembersManagerBl {
 	 */
 	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
-/**
+	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
 	 * It can be called in synchronous or asynchronous mode
 	 * Also stores the associated user if doesn't exist. This method is used by the registrar.

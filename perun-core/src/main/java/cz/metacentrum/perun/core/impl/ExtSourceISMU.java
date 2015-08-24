@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpException;
 import org.slf4j.Logger;
@@ -36,6 +37,14 @@ import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceISMU.class);
+
+	private static PerunBlImpl perunBl;
+
+	// filled by spring (perun-core.xml)
+	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+		perunBl = perun;
+		return perun;
+	}
 
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
@@ -156,5 +165,9 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

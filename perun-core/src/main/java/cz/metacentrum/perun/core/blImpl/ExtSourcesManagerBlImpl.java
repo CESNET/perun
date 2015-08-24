@@ -56,9 +56,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		this.extSourcesManagerImpl.initialize(sess);
 	}
 
-	public ExtSource createExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException {
+	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException {
 		getPerunBl().getAuditer().log(sess, "{} created.", extSource);
-		return getExtSourcesManagerImpl().createExtSource(sess, extSource);
+		return getExtSourcesManagerImpl().createExtSource(sess, extSource, attributes);
 	}
 
 	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException {
@@ -107,7 +107,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			extSource.setName(extSourceName);
 			extSource.setType(extSourceType);
 			try {
-				return this.createExtSource(sess, extSource);
+				return this.createExtSource(sess, extSource, null);
 			} catch (ExtSourceExistsException e1) {
 				throw new ConsistencyErrorException("Creating existing extSource", e1);
 			}
@@ -187,7 +187,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException  {
+	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
 		// New Canddate
 		Candidate candidate = new Candidate();
 
@@ -281,7 +281,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 						try {
 							// Create new one if not exists
 							additionalExtSource = new ExtSource(additionalExtSourceName, additionalExtSourceType);
-							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, additionalExtSource);
+							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, additionalExtSource, null);
 						} catch (ExtSourceExistsException e1) {
 							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
 						}
@@ -301,7 +301,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		return candidate;
 	}
 
-	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException {
+	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
 		if(login == null || login.isEmpty()) throw new InternalErrorException("Login can't be empty or null.");
 		if(subjectData == null || subjectData.isEmpty()) throw new InternalErrorException("Subject data can't be null or empty, at least login there must exists.");
 
@@ -386,7 +386,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 						try {
 							// Create new one if not exists
 							additionalExtSource = new ExtSource(additionalExtSourceName, additionalExtSourceType);
-							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(perunSession, additionalExtSource);
+							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(perunSession, additionalExtSource, null);
 						} catch (ExtSourceExistsException e1) {
 							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
 						}
@@ -416,5 +416,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 	public void loadExtSourcesDefinitions(PerunSession sess) {
 		getExtSourcesManagerImpl().loadExtSourcesDefinitions(sess);
+	}
+
+	public Map<String, String> getAttributes(ExtSource extSource) {
+		return getExtSourcesManagerImpl().getAttributes(extSource);
 	}
 }

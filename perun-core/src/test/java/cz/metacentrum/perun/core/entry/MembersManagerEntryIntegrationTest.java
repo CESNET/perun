@@ -51,7 +51,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	@Before
 	public void setUp() throws Exception {
 
-		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource);
+		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource, null);
 
 		usersManagerEntry = perun.getUsersManager();
 		attributesManagerEntry = perun.getAttributesManager();
