@@ -86,11 +86,11 @@ public class Compatibility {
 		try {
 			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
-				return "";
+				return " "+aliasName;
 			} else if (dbType.equals("postgresql")) {
 				return "as "+aliasName;
 			} else {
-				return "";
+				return " "+aliasName;
 			}
 		} catch (InternalErrorException ex) {
 			return "";
