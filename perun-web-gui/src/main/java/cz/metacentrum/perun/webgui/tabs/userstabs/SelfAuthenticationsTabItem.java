@@ -153,6 +153,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 						if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
 							FlexTable fw = new FlexTable();
 							fw.addStyleName("padding-vertical");
+
 							CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 								public void onClick(ClickEvent event) {
 									session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
@@ -165,7 +166,12 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 								}
 							});
 							fw.setWidget(0, 0, cb);
-							fw.setWidget(0, 1, cb2);
+							if (!user.isServiceUser()) {
+								fw.setWidget(0, 1, cb2);
+							} else {
+								cb.setText("Reset password");
+							}
+
 							loginsTable.setWidget(row, 2, fw);
 						}
 						row++;
