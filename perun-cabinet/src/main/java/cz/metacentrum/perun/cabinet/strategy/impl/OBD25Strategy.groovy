@@ -1,12 +1,12 @@
 package cz.metacentrum.perun.cabinet.strategy.impl
 
 import java.util.List
+import org.apache.commons.httpclient.HttpMethod
+import org.apache.commons.httpclient.methods.GetMethod
 
 import groovy.xml.XmlUtil
 import org.apache.http.HttpResponse
 import org.apache.http.NameValuePair
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.http.message.BasicNameValuePair
 import org.apache.http.util.EntityUtils
@@ -32,11 +32,11 @@ class OBD25Strategy implements IFindPublicationsStrategy {
 	private Logger log = LoggerFactory.getLogger(OBD25Strategy.class);
 
 
-	public List<Publication> parseHttpResponse(HttpResponse response) {
-		return parseResponse(EntityUtils.toString(response.getEntity(), "utf-8"))
+	public List<Publication> parseHttpResponse(String response) {
+		return parseResponse(response)
 	}
 
-	public HttpUriRequest getHttpRequest(String kodOsoby, int yearSince, int yearTill, PublicationSystem ps) {
+	public HttpMethod getHttpRequest(String kodOsoby, int yearSince, int yearTill, PublicationSystem ps) {
 
 		// set params
 		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
@@ -52,13 +52,10 @@ class OBD25Strategy implements IFindPublicationsStrategy {
 		// search based on lastName
 		formparams.add(new BasicNameValuePair("_aup", kodOsoby));
 
-		// prepare valid uri
-		URI uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, "UTF-8"));
-
 		// log uri into alcor.ics.muni.cz:  /home/perun/.perunv3/logs/perun-cabinet.log
 		// log.debug(uri)
 
-		return new HttpGet(uri)
+		return new GetMethod(ps.getUrl() + URLEncodedUtils.format(formparams, "UTF-8"))
 	}
 
 	public List<Publication> parseResponse(String xmlResponse) {

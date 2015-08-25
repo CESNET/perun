@@ -1,14 +1,12 @@
 package cz.metacentrum.perun.cabinet.strategy.impl
 import groovy.xml.XmlUtil
 
-import org.apache.http.HttpResponse
-import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.client.methods.HttpUriRequest
+import org.apache.commons.httpclient.HttpMethod
+import org.apache.commons.httpclient.methods.PostMethod
+
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.entity.mime.content.ByteArrayBody
 import org.apache.http.entity.mime.content.StringBody
-import org.apache.http.impl.auth.BasicScheme
 import org.apache.http.util.EntityUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -34,11 +32,11 @@ class MUStrategy implements IFindPublicationsStrategy {
 
 	private Logger log = LoggerFactory.getLogger(MUStrategy.class);
 
-	public List<Publication> parseHttpResponse(HttpResponse response) {
-		return parseResponse(EntityUtils.toString(response.getEntity(), "utf-8"))
+	public List<Publication> parseHttpResponse(String response) {
+		return parseResponse(response)
 	}
 
-	public HttpUriRequest getHttpRequest(String uco, int yearSince, int yearTill, PublicationSystem ps) {
+	public HttpMethod getHttpRequest(String uco, int yearSince, int yearTill, PublicationSystem ps) {
 
 		//prepare request body
 		MultipartEntity entity = new MultipartEntity();
@@ -50,11 +48,9 @@ class MUStrategy implements IFindPublicationsStrategy {
 			throw new RuntimeException(e);
 		}
 
-        //prepare post request
-		HttpPost post = new HttpPost(ps.getUrl())
-		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(ps.getUsername(), ps.getPassword())
-		post.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));//cred, enc, proxy
-		post.setEntity(entity)
+                //prepare post request
+		PostMethod post = new PostMethod(ps.getUrl())
+		post.setRequestEntity(entity)
 		return post
 
 	}

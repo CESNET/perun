@@ -5,9 +5,6 @@ import java.util.List;
 
 import cz.metacentrum.perun.cabinet.service.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +14,7 @@ import cz.metacentrum.perun.cabinet.strategy.IFindPublicationsStrategy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import org.apache.commons.httpclient.HttpMethod;
 
 /**
  * Service class which provides Cabinet with ability to search through
@@ -66,12 +64,8 @@ public class CabinetServiceImpl implements ICabinetService {
 			throw new CabinetException(e);
 		}
 
-		HttpUriRequest request = prezentator.getHttpRequest(authorId, yearSince, yearTill, ps);
-		HttpResponse response = httpService.execute(request);
-
-		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-			throw new CabinetException("Can't contact publication system. HTTP error code: " + response.getStatusLine().getStatusCode(), ErrorCodes.HTTP_IO_EXCEPTION);
-		}
+		HttpMethod request = prezentator.getHttpRequest(authorId, yearSince, yearTill, ps);
+		String response = httpService.execute(request, ps);
 
 		List<Publication> publications = prezentator.parseHttpResponse(response);
 

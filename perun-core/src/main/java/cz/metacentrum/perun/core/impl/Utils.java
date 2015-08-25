@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,15 @@ import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.sql.DataSource;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.HttpStatus;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.StringBody;
 
 /**
  * Utilities.
@@ -42,7 +52,8 @@ public class Utils {
 	public final static String configurationsLocations = "/etc/perun/";
 	private static Properties properties;
 	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
-
+	public static final Pattern hostPattern = Pattern.compile("^[^/]*(//)?([^/]*).*");
+	
 	private static final Pattern titleBeforePattern = Pattern.compile("^([\\p{L}]+[.])|(et)$");
 	private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");
 	private static final Pattern lastNamePattern = Pattern.compile("^([\\p{L}-']+)|([\\p{L}][.])$");
@@ -959,5 +970,127 @@ public class Utils {
 				&& (!destinationType.equals(Destination.DESTINATIONSERVICESPECIFICTYPE)))) {
 			throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
 		}
+	}
+	
+	/**
+	 * Sends SMS to the phone number of a user with the given message.
+	 * The phone number is taken from the user attribute urn:perun:user:attribute-def:def:phone.
+	 * 
+	 * @param perun perun
+	 * @param sess session
+	 * @param user receiver of the message
+	 * @param message sms message to send
+	 * @throws InternalErrorException when 
+	 */
+	public static void sendSMS(PerunBl perun, PerunSession sess, User user, String message) throws InternalErrorException {
+		if (user == null) {
+			throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("sendSMS: user is null");
+		}
+		if (message == null) {
+			throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("sendSMS: message is null");
+		}
+		String phoneAttributeName = "urn:perun:user:attribute-def:def:phone";
+		String telNumber;
+	    try {
+		telNumber = (String) perun.getAttributesManagerBl().getAttribute(sess, user, phoneAttributeName).getValue();
+	    } catch (AttributeNotExistsException ex ) {
+		log.debug("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
+		throw new InternalErrorException("The attribute " + phoneAttributeName + " has not been found.", ex);
+	    } catch (WrongAttributeAssignmentException ex) {
+		log.debug("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
+		throw new InternalErrorException("The attribute " + phoneAttributeName + " has not been found in user attributes.", ex);
+	    }
+		sendSMS(telNumber, message);
+	}
+	
+	/**
+	 * Sends SMS to the phone number of a member with the given message.
+	 * The phone number is taken from the user attribute urn:perun:member:attribute-def:def:phone.
+	 * 
+	 * @param perun perun
+	 * @param sess session
+	 * @param member receiver of the message
+	 * @param message sms message to send
+	 * @throws InternalErrorException when 
+	 */
+	public static void sendSMS(PerunBl perun, PerunSession sess, Member member, String message) throws InternalErrorException {
+		String phoneAttributeName = "urn:perun:member:attribute-def:def:phone";
+		String telNumber;
+	    try {
+		telNumber = (String) perun.getAttributesManagerBl().getAttribute(sess, member, phoneAttributeName).getValue();
+	    } catch (WrongAttributeAssignmentException ex) {
+		log.debug("Sendig SMS with text \"" + message + "\" to member " + member + "failed: cannot get tel. number." );
+		throw new InternalErrorException("The attribute " + phoneAttributeName + " has not been found in user attributes.", ex);
+	    } catch (AttributeNotExistsException ex) {
+		log.debug("Sendig SMS with text \"" + message + "\" to member " + member + "failed: cannot get tel. number." );
+		throw new InternalErrorException("The attribute " + phoneAttributeName + " has not been found.", ex);
+	    }
+		sendSMS(telNumber, message);
+	}
+	
+	/**
+	 * Sends SMS to the phone number with the given message.
+	 * 
+	 * @param telNumber phone number of the receiver
+	 * @param message sms message to send
+	 * @throws InternalErrorException 
+	 */
+	public static void sendSMS(String telNumber, String message) throws InternalErrorException {
+		log.debug("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + ".");
+		
+		// URL identificator
+		String url = "https://sms.cesnet.cz/sendSMS";
+		
+		// Prepare post request
+		HttpClient httpClient = new HttpClient();
+		httpClient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+		
+		PostMethod post = new PostMethod(url);
+		post.addRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf8");
+		post.addRequestHeader("Connection", "Close");
+		
+		NameValuePair[] data = {
+			new NameValuePair("phoneNumber", telNumber),
+			new NameValuePair("message", message)
+		};
+		post.setRequestBody(data);
+		
+		try {
+			// Fire the post request
+			int statusCode = httpClient.executeMethod(post);
+			
+			// check http status code
+			if (statusCode != HttpStatus.SC_OK) {
+				log.debug("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + "failed: " + post.getStatusLine());
+				throw new InternalErrorException("Sending SMS failed: Communication error with server " + url + " error status line: " + post.getStatusLine());
+			}
+			
+			// check response code
+			String response = post.getResponseBodyAsString();
+			String[] responseArray = response.split("\n");
+			
+			int responseCode = Integer.parseInt(responseArray[0]);
+			String responseMsg = responseArray[1];
+			
+			if (responseCode == 0) {
+				// Successful
+				log.debug("SMS with text \"" + message + "\" succssesfully sent to tel. number " + telNumber + " .");
+			} else {
+				// Unsuccessful
+				log.debug("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + "failed: " + responseMsg);
+				if (statusCode > -4) {
+					// internal problems
+					throw new InternalErrorException("SMS was not sent. Error code " + statusCode + ": " + responseMsg);
+				} else {
+					// invalid user inputs
+					throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("SMS was not sent. Error code " + statusCode + ": " + responseMsg);
+					
+				}
+			}
+			
+		} catch (IOException ex) {
+			log.debug("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed: Communication error with server " + url);
+			throw new InternalErrorException("Sending SMS failed: Communication error with server " + url, ex);
+		}		
 	}
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.service.IHttpService;
 import cz.metacentrum.perun.cabinet.strategy.IFindPublicationsStrategy;
+import org.apache.commons.httpclient.HttpMethod;
 
 public class PublicationSystemMapperTest extends BaseIntegrationTest {
 
@@ -63,7 +64,7 @@ public class PublicationSystemMapperTest extends BaseIntegrationTest {
 		String authorId = "39700";
 		int yearSince = 2009;
 		int yearTill = 2010;
-		HttpResponse result = httpService.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, ps));
+		String result = httpService.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, ps), ps);
 
 		assertNotNull(result);
 
@@ -88,8 +89,8 @@ public class PublicationSystemMapperTest extends BaseIntegrationTest {
 		String authorId = "Sitera,Jiří";
 		int yearSince = 2006;
 		int yearTill = 2009;
-		HttpUriRequest request = obd.getHttpRequest(authorId, yearSince, yearTill, ps);
-		HttpResponse response = httpService.execute(request);
+		HttpMethod request = obd.getHttpRequest(authorId, yearSince, yearTill, ps);
+		String response = httpService.execute(request, ps);
 
 		assertNotNull(response);
 
