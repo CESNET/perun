@@ -323,8 +323,11 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	public void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
 
+		Vo fromVO = perun.getVosManagerBl().getVoById(registrarSession, fromGroup.getVoId());
+
 		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)) {
+				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup) &&
+				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, fromVO)) {
 			throw new PrivilegeException(sess, "copyMailsFromGroupToGroup");
 		}
 		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup) &&

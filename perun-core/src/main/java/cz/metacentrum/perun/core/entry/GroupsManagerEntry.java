@@ -217,6 +217,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
 				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+				&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)
 				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupByName");
 				}
