@@ -949,12 +949,24 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					first = false;
 				} else {
 					ContactGroup cp = contactGroupIter.next();
+					//if same facility and same name merge them
 					if(contactGroup.equalsGroup(cp)) {
-						contactGroup.getGroups().addAll(cp.getGroups());
-						contactGroup.getUsers().addAll(cp.getUsers());
-						contactGroup.getOwners().addAll(cp.getOwners());
-					}
+						List<Group> groups = new ArrayList<>();
+						groups.addAll(contactGroup.getGroups());
+						groups.addAll(cp.getGroups());
+						contactGroup.setGroups(groups);
+						List<Owner> owners = new ArrayList<>();
+						owners.addAll(contactGroup.getOwners());
+						owners.addAll(cp.getOwners());
+						contactGroup.setOwners(owners);
+						List<RichUser> users = new ArrayList<>();
+						users.addAll(contactGroup.getUsers());
+						users.addAll(cp.getUsers());
+						contactGroup.setUsers(users);
+					// if not, skip this one for another round
+					} else continue;
 				}
+				//remove used groups of contacts
 				contactGroupIter.remove();
 			}
 			mergedContactGroups.add(contactGroup);
