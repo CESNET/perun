@@ -31,7 +31,7 @@
         </bean>
 
         <!-- DataSource implementation -->
-        <bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp.BasicDataSource" destroy-method="close">
+        <bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
             <property name="driverClassName" value="${jdbc.driver}"/>
             <property name="url" value="${jdbc.url}"/>
             <property name="username" value="${jdbc.username}"/>
@@ -45,6 +45,7 @@
             <property name="logAbandoned" value="true" />
             <property name="removeAbandonedTimeout" value="300" />
             <property name="testOnBorrow" value="true" />
+            <property name="auditer" ref="auditer"/>
         </bean>
     </beans>
 
