@@ -1098,6 +1098,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test
 	public void removeAllFacilityContacts() throws Exception {
+
 		String contactGroupName1 = "testContactGroup01";
 		String contactGroupName2 = "testContactGroup02";
 		String contactGroupName3 = "testContactGroup03";
@@ -1111,13 +1112,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		facilitiesManagerEntry.addFacilityContacts(sess, cgs);
 
-		List<String> cgnames = facilitiesManagerEntry.getAllContactGroupNames(sess);
-		assertTrue(cgnames.contains(contactGroupName1));
-		assertTrue(cgnames.contains(contactGroupName2));
-		assertTrue(cgnames.contains(contactGroupName3));
+		List<ContactGroup> cgnames = facilitiesManagerEntry.getFacilityContactGroups(sess, facility);
+		assertTrue(cgnames.contains(cg1));
+		assertTrue(cgnames.contains(cg2));
+		assertTrue(cgnames.contains(cg3));
 
 		facilitiesManagerEntry.removeFacilityContacts(sess, cgs);
-		cgnames = facilitiesManagerEntry.getAllContactGroupNames(sess);
+
+		cgnames = facilitiesManagerEntry.getFacilityContactGroups(sess, facility);
 		assertTrue(cgnames.isEmpty());
 	}
 
