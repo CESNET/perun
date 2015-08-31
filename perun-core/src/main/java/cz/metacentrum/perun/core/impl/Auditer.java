@@ -188,11 +188,7 @@ public class Auditer {
 	public void log(PerunSession sess, String message) throws InternalErrorException {
 		if(TransactionSynchronizationManager.isActualTransactionActive()) {
 			log.trace("Auditer stores audit message to current transaction. Message: {}.", message);
-			List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
-			if (savepoints == null) {
-				transactionBegin();
-				savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
-			}
+			List<List<AuditerMessage>> savepoints = getSavepoints();
 			List<AuditerMessage> messages = savepoints.get(savepoints.size() - 1);
 			messages.add(new AuditerMessage(sess, message));
 		} else {
@@ -327,7 +323,7 @@ public class Auditer {
 	 * 
 	 */
 	public void newTransaction() {
-		List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
+		List<List<AuditerMessage>> savepoints = getSavepoints();
 		List<AuditerMessage> messages = new ArrayList<>();
 		savepoints.add(messages);
 	}
@@ -338,7 +334,7 @@ public class Auditer {
 	 * 
 	 */
 	public void flushTransaction() {
-		List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
+		List<List<AuditerMessage>> savepoints = getSavepoints();
 		if (savepoints.size() < 2) {
 			log.trace("No messages to flush");
 			return;
@@ -355,7 +351,11 @@ public class Auditer {
 	 * 
 	 */
 	public void cleanTransation() {
-		List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.isEmpty()) {
+			log.trace("No messages to clean");
+			return;
+		}
 		List<AuditerMessage> messages = savepoints.remove(savepoints.size() - 1);
 		log.trace("Erased auditer messages for the last transaction: " + messages);
 	}
@@ -365,8 +365,8 @@ public class Auditer {
 	 *
 	 */
 	public void flush() {
-		List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
-		if ((savepoints == null) || (savepoints.isEmpty())) {
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.isEmpty()) {
 			log.trace("No messages to flush");
 			return;
 		}
@@ -385,7 +385,6 @@ public class Auditer {
 			}
 		}
 
-		//TODO: Co kdyz se zpravy prohazi a prvne se vyresi zprava ktera prisla az jako druha?
 		for(AuditerMessage message: messages) {
 			for(VirtualAttributesModuleImplApi virtAttrModuleImplApi : registeredAttributesModules) {
 				List<String> resolvingMessages = new ArrayList<String>();
@@ -417,8 +416,8 @@ public class Auditer {
 	 * 
 	 */
 	public void clean() {
-		List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
-		if ((savepoints == null) || (savepoints.isEmpty())) {
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.isEmpty()) {
 			log.trace("No messages to flush");
 			return;
 		}
@@ -438,8 +437,8 @@ public class Auditer {
 	 * @return list of messages
 	 */
 	public List<AuditerMessage> getMessages() {
-		List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
-		if ((savepoints == null) || (savepoints.isEmpty())) return new ArrayList<AuditerMessage>();
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.isEmpty()) return new ArrayList<AuditerMessage>();
 		List<AuditerMessage> messages = savepoints.get(savepoints.size() - 1);
 		if(messages == null) return new ArrayList<AuditerMessage>();
 		return messages;
@@ -492,6 +491,15 @@ public class Auditer {
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
+	}
+	
+	private List<List<AuditerMessage>> getSavepoints() {
+		List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
+		if (savepoints == null) {
+			transactionBegin();
+			savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
+		}
+		return savepoints;
 	}
 
 	/**
