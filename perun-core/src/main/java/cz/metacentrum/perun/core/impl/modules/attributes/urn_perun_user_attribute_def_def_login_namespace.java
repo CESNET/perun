@@ -44,7 +44,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 
 		String userLogin = (String) attribute.getValue();
 		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be null");
-		if(!userLogin.matches("^[a-zA-Z0-9][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, user, "Wrong format. ^[A-z0-9][-A-z0-9_.@/]*$ expected.");
+		if(!userLogin.matches("^[a-zA-Z0-9_][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, user, "Wrong format. ^[A-z0-9_][-A-z0-9_.@/]*$ expected.");
 
 		//Check if user login is permitted or not permitted
 		sess.getPerunBl().getModulesUtilsBl().checkUnpermittedUserLogins(attribute);
