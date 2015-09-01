@@ -12,8 +12,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 ">
 
 	<!-- Import shared PERUN components -->
-	<import resource="classpath:perun-core-jdbc.xml"/>
 	<import resource="classpath:perun-core.xml"/>
+	<import resource="classpath:perun-core-jdbc.xml"/>
 	<import resource="classpath:perun-core-transaction-manager.xml"/>
 	<import resource="classpath:perun-tasks-lib.xml"/>
 

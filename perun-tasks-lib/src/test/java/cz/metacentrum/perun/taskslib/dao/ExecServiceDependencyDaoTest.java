@@ -42,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Michal Karm Babacek
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-tasks-lib.xml", "classpath:perun-core-jdbc.xml", "classpath:perun-core.xml", "classpath:perun-core-transaction-manager.xml" })
+@ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-core-jdbc.xml", "classpath:perun-core-transaction-manager.xml", "classpath:perun-tasks-lib.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
 @Transactional
 public class ExecServiceDependencyDaoTest {

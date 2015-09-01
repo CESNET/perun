@@ -10,8 +10,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 ">
 
 	<!-- import PERUN datasources -->
-	<import resource="classpath:perun-core-jdbc.xml" />
 	<import resource="classpath:perun-core.xml" />
+	<import resource="classpath:perun-core-jdbc.xml" />
 	<import resource="classpath:perun-core-transaction-manager.xml" />
 
 	<!-- Enable @Transactional support -->

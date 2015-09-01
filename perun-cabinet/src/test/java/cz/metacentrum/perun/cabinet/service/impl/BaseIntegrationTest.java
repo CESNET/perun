@@ -30,7 +30,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-cabinet.xml" })
 @Transactional
-@TransactionConfiguration(defaultRollback=true, transactionManager = "perunTransactionManager")
+@TransactionConfiguration(defaultRollback=true, transactionManager = "springTransactionManager")
 public class BaseIntegrationTest {
 
 	public Authorship authorshipOne = null;
