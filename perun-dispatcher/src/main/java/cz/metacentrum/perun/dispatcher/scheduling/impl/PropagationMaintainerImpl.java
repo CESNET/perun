@@ -134,13 +134,26 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			// }
 			// task.setRecurrence(recurrence);
 			// If DELAY time has passed, we reschedule...
-			if (howManyMinutesAgo >= task.getDelay()) {
+			int recurrence = task.getRecurrence() + 1;
+			if(recurrence > task.getExecService().getDefaultRecurrence() &&
+					howManyMinutesAgo < 60 * 12 &&
+					!task.isSourceUpdated()) {
+				log.info("TASK [ " + task + "] in ERROR state has no more retries, bailing out.");
+			} else if (howManyMinutesAgo >= recurrence * task.getDelay() ||
+					task.isSourceUpdated()) {
 				// check if service is still assigned on facility
 				try {
 					List<Service> assignedServices = perun.getServicesManager().getAssignedServices(perunSession, task.getFacility());
 					if (assignedServices.contains(task.getExecService().getService())) {
 						ExecService execService = task.getExecService();
 						Facility facility = task.getFacility();
+						if(recurrence > task.getExecService().getDefaultRecurrence()) {
+							// this ERROR task is rescheduled for being here too long
+							task.setRecurrence(0);
+							task.setDestinations(null);
+							log.info("TASK id " + task.getId() + " is in ERROR state long enough, ");
+						}
+						task.setRecurrence(recurrence);
 						log.info("TASK ["
 								+ task
 								+ "] in ERROR state is going to be rescheduled: taskScheduler.propagateService(execService:ID "
@@ -474,6 +487,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			// set destination list to null to refetch them later
 			completedTask.setDestinations(null);
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.DONE);
+			completedTask.setRecurrence(0);
 			log.debug("TASK {} reported as DONE", completedTask.toString());
 			// for GEN tasks, signal SENDs that source data are updated
 			if(completedTask.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
@@ -484,7 +498,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 						dependantTask.setSourceUpdated(false);
 					}
 				}
-			}
+			} 
 			
 		} else {
 			if (string.isEmpty()) {
