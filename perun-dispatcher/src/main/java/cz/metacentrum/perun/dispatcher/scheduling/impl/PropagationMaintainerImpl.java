@@ -120,6 +120,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			}
 			int howManyMinutesAgo = (int) (System.currentTimeMillis() - task
 					.getEndTime().getTime()) / 1000 / 60;
+			if(howManyMinutesAgo < 0) {
+				log.error("RECOVERY FROM INCOSISNTENT STATE: ERROR task appears to have ended in future.");
+				Date endTime = new Date(System.currentTimeMillis()
+						- ((task.getDelay() + 1) * 60000));
+				task.setEndTime(endTime);
+				howManyMinutesAgo = task.getDelay() + 1;
+			}
 			log.info("TASK [" + task + "] in ERROR state completed "
 					+ howManyMinutesAgo + " minutes ago.");
 			// XXX - apparently this is not what the authors had in mind,
