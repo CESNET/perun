@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+
+sub help {
+        return qq{
+        Prints list of Facilities Contacts
+        ----------------------------------
+        Available options:
+        --batch             | -b  batch
+        --help              | -h  prints this help
+        };
+}
+
+my ($batch, $sortingFunction);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+        "batch|b" => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+my $FacilitiesAgent = $agent->getFacilitiesAgent;
+
+my @contactGroupsNames = $FacilitiesAgent->getAllContactGroupNames;
+
+unless(@contactGroupsNames) { printMessage "No ContactGroups found",$batch; exit 0;}
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('ContactGroupName');
+
+foreach my $cgname (@contactGroupsNames) {
+        $table->addRow($cgname);
+}
+
+print tableToPrint($table,$batch); 
+

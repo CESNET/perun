@@ -42,6 +42,7 @@ use Perun::beans::NotifReceiver;
 use Perun::beans::NotifRegex;
 use Perun::beans::NotifTemplateMessage;
 use Perun::beans::NotifTemplate;
+use Perun::beans::ContactGroup;
 
 sub newEmptyBean
 {

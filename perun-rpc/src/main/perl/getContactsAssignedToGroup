@@ -1,0 +1,71 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+#use Data::Dumper;
+
+sub help {
+        return qq{
+        Lists contacts of group.
+        --------------------------
+        Available options:
+        --groupId     | -g group's Id
+        --groupName   | -G group name
+        --voId        | -v vo id
+        --voShortName | -V vo short name
+        --orderByName | -n  order by contact name
+        --batch       | -b batch
+        --help        | -h prints this help
+
+        };
+}
+
+my ($groupId,$groupName, $voId, $voShortName, $batch, $sortingFunction);
+
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+"batch|b" => \$batch,
+"orderByName|n" => sub { $sortingFunction = getSortingFunction("getContactGroupName", 1) },
+"groupName|G=s" => \$groupName,
+"voId|v=i" => \$voId,
+"voShortName|V=s" => \$voShortName,
+"groupId|g=s" => \$groupId) or die help();
+
+# Check options
+unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getContactGroupName", 1); }
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+
+if (!defined($groupId)) {
+        if (!defined($voId)) {
+                my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+                $voId = $vo->getId;
+        }
+
+        my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+        $groupId = $group->getId;
+}
+ 
+my @contactGroups;
+@contactGroups = $facilitiesAgent->getFacilityContactGroups(group => $groupId);
+unless (@contactGroups) { printMessage "No Contacts found", $batch; exit 0;} 
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('Name','Facility','facilityId');
+
+foreach my $contactGroup (sort $sortingFunction @contactGroups) {
+    my $facility=$contactGroup->getFacility;
+    #print Dumper($facility);
+    $table->addRow($contactGroup->getContactGroupName, $facility->getName, $facility->getId);
+}
+
+print tableToPrint($table, $batch);
+
