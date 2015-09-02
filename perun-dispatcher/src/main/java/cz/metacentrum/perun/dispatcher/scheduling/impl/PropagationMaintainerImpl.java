@@ -121,7 +121,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			int howManyMinutesAgo = (int) (System.currentTimeMillis() - task
 					.getEndTime().getTime()) / 1000 / 60;
 			if(howManyMinutesAgo < 0) {
-				log.error("RECOVERY FROM INCOSISNTENT STATE: ERROR task appears to have ended in future.");
+				log.error("RECOVERY FROM INCONSISTENT STATE: ERROR task appears to have ended in future.");
 				Date endTime = new Date(System.currentTimeMillis()
 						- ((task.getDelay() + 1) * 60000));
 				task.setEndTime(endTime);
@@ -154,7 +154,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					if (assignedServices.contains(task.getExecService().getService())) {
 						ExecService execService = task.getExecService();
 						Facility facility = task.getFacility();
-						if(recurrence > task.getExecService().getDefaultRecurrence()) {
+						if(recurrence > execService.getDefaultRecurrence()) {
 							// this ERROR task is rescheduled for being here too long
 							task.setRecurrence(0);
 							task.setDestinations(null);
