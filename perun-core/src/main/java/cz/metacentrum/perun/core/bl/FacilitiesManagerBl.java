@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.bl;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
@@ -15,6 +13,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichFacility;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -36,12 +35,16 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+
+import java.util.List;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
@@ -918,6 +921,36 @@ public interface FacilitiesManagerBl {
 	void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) throws InternalErrorException;
 
 	/**
+	 * Return all security teams which specific facility trusts
+	 *
+	 * @param sess
+	 * @param facility specific facility
+	 * @return list of assigned security teams
+	 * @throws InternalErrorException
+	 */
+	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 */
+	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 */
+	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
 	 * Check if facility contact for the user already exists.
 	 * Throw exception info not.
 	 *
@@ -955,4 +988,29 @@ public interface FacilitiesManagerBl {
 	 * @throws FacilityContactNotExistsException
 	 */
 	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException;
+
+	/**
+	 * Check if security team is <b>not</b> assigned to facility.
+	 * Throw exception info is.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws SecurityTeamAlreadyAssignedException
+	 */
+	void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamAlreadyAssignedException, InternalErrorException;
+
+	/**
+	 * Check if security team is assigned to facility.
+	 * Throw exception info not.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws SecurityTeamNotAssignedException
+	 */
+	void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamNotAssignedException, InternalErrorException;
+
 }

@@ -106,6 +106,12 @@ public interface Perun {
 	public RTMessagesManager getRTMessagesManager();
 
 	/**
+	 * Gets a Security teams manager.
+	 * @return Security teams manager
+	 */
+	public SecurityTeamsManager getSecurityTeamsManager();
+
+	/**
 	 * Gets a Searcher.
 	 * @return Searcher
 	 */

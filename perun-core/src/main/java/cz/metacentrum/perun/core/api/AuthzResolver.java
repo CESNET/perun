@@ -6,8 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunBeanNotSupportedException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -17,6 +15,8 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+
+import java.util.List;
 
 public class AuthzResolver {
 
@@ -112,6 +112,16 @@ public class AuthzResolver {
 	 */
 	public static boolean isFacilityAdmin(PerunSession sess) {
 		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.isFacilityAdmin(sess);
+	}
+
+	/**
+	 * Returns true if the perun principal inside the perun session is security admin.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is security admin.
+	 */
+	public static boolean isSecurityAdmin(PerunSession sess) {
+		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.isSecurityAdmin(sess);
 	}
 
 	/**
