@@ -75,7 +75,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "createExtSource");
+			throw new PrivilegeException(sess, "deleteExtSource");
 		}
 
 		getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
