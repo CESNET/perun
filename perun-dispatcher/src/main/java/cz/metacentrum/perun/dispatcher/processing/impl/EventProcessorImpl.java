@@ -192,6 +192,7 @@ public class EventProcessorImpl implements EventProcessor {
 						task.setDestinations(null);
 						// signal that task needs to regenerate data
 						task.setSourceUpdated(true);
+						task.setRecurrence(0);
 					} else {
 						// no such task yet, create one
 						task = new Task();
