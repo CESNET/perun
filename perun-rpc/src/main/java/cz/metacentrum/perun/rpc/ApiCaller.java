@@ -1,15 +1,5 @@
 package cz.metacentrum.perun.rpc;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-
-import cz.metacentrum.perun.registrar.model.Application;
-import cz.metacentrum.perun.voot.VOOT;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
 import cz.metacentrum.perun.cabinet.api.ICabinetApi;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.controller.service.PropagationStatsReader;
@@ -37,6 +27,8 @@ import cz.metacentrum.perun.core.api.RTMessagesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
+import cz.metacentrum.perun.core.api.SecurityTeam;
+import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
@@ -55,8 +47,16 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplate;
 import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
+import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.taskslib.model.ExecService;
+import cz.metacentrum.perun.voot.VOOT;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.servlet.ServletContext;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * ApiCaller calls Perun manager methods.
@@ -80,6 +80,7 @@ public class ApiCaller {
 	private OwnersManager ownersManager = null;
 	private GeneralServiceManager generalServiceManager;
 	private RTMessagesManager rtMessagesManager = null;
+	private SecurityTeamsManager securityTeamsManager = null;
 	private PropagationStatsReader propagationStatsReader;
 	private Searcher searcher = null;
 	private ICabinetApi cabinetManager;
@@ -104,6 +105,13 @@ public class ApiCaller {
 			rtMessagesManager = rpcSession.getPerun().getRTMessagesManager();
 		}
 		return rtMessagesManager;
+	}
+
+	public SecurityTeamsManager getSecurityTeamsManager() {
+		if (securityTeamsManager == null) {
+			securityTeamsManager = rpcSession.getPerun().getSecurityTeamsManager();
+		}
+		return securityTeamsManager;
 	}
 
 	public Searcher getSearcher() {
@@ -267,6 +275,10 @@ public class ApiCaller {
 
 	public Application getApplicationById(int id) throws PerunException {
 		return getRegistrarManager().getApplicationById(rpcSession, id);
+	}
+
+	public SecurityTeam getSecurityTeamById(int id) throws PerunException {
+		return getSecurityTeamsManager().getSecurityTeamById(rpcSession, id);
 	}
 
 	public AttributeDefinition getAttributeDefinitionById(int id) throws PerunException {

@@ -1,4 +1,4 @@
--- database version 3.1.26 (don't forget to update insert statement at the end of file)
+-- database version 3.1.28 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -318,7 +318,8 @@ create table authz (
 	service_principal_id integer,
 	created_by_uid integer,
 	modified_by_uid integer,
-	authorized_group_id integer
+	authorized_group_id integer,
+	security_team_id integer
 );
 
 create table hosts (
@@ -1053,6 +1054,28 @@ create table pwdreset (
 	created_by_uid integer
 );
 
+create table security_teams (
+	id integer not null,
+	name varchar(128) not null,
+	description varchar(1024),
+	created_at timestamp default sysdate not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default sysdate not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table security_teams_facilities (
+	security_team_id integer not null,
+	facility_id integer not null
+);
+
+create table blacklists (
+	security_team_id integer not null,
+	user_id integer not null
+);
+
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28;
 create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28;
 create sequence AUDITER_LOG_ID_SEQ maxvalue 1.0000E+28;
@@ -1100,6 +1123,7 @@ create sequence ACTION_TYPES_SEQ maxvalue 1.0000E+28;
 create sequence RES_TAGS_SEQ maxvalue 1.0000E+28;
 create sequence MAILCHANGE_ID_SEQ maxvalue 1.0000E+28;
 create sequence PWDRESET_ID_SEQ maxvalue 1.0000E+28;
+create sequence SECURITY_TEAMS_ID_SEQ maxvalue 1.0000E+28;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1668,5 +1692,16 @@ constraint pwdreset_pk primary key (id),
 constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
+alter table security_teams add (
+constraint security_teams_pk primary key (id)
+);
+
+alter table security_teams_facilities add (
+constraint security_teams_facilities_pk primary key (security_team_id, facility_id),
+constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id),
+constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id)
+);
+
+
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.27');
+insert into configurations values ('DATABASE VERSION','3.1.28');

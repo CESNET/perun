@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
@@ -12,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceE
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
@@ -20,16 +19,20 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+
+import java.util.List;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
@@ -651,7 +654,6 @@ public interface FacilitiesManager {
 	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
 	 *
 	 * @param perunSession
-	 * @param group
 	 *
 	 * @param specificAttributes list of specified attributes which are needed in object richUser
 	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
@@ -951,4 +953,45 @@ public interface FacilitiesManager {
 	 * @throws GroupNotExistsException 
 	 */
 	void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, OwnerNotExistsException, UserNotExistsException, GroupNotExistsException;
+
+	/**
+	 * return assigned security teams for specific facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return assigned security teams fot given facility
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
+	 * @throws FacilityNotExistsException
+	 */
+	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+
+	/**
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
+	 * @throws FacilityNotExistsException
+	 * @throws SecurityTeamNotExistsException
+	 * @throws SecurityTeamAlreadyAssignedException
+	 */
+	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException, SecurityTeamAlreadyAssignedException;
+
+	/**
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
+	 * @throws FacilityNotExistsException
+	 * @throws SecurityTeamNotExistsException
+	 * @throws SecurityTeamNotAssignedException
+	 */
+	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException, SecurityTeamNotAssignedException;
+
 }

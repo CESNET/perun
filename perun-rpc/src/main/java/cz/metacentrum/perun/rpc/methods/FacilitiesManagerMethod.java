@@ -1,15 +1,26 @@
 package cz.metacentrum.perun.rpc.methods;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Host;
+import cz.metacentrum.perun.core.api.Owner;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichFacility;
+import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.SecurityTeam;
+import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.rpc.ApiCaller;
+import cz.metacentrum.perun.rpc.ManagerMethod;
+import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.rpc.ApiCaller;
-import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.core.api.exceptions.RpcException;
-import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 public enum FacilitiesManagerMethod implements ManagerMethod {
 
@@ -221,7 +232,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			if (parms.contains("service")) {
 				service = ac.getServiceById(parms.readInt("service"));
 			}
-			return ac.getFacilitiesManager().getAllowedGroups(ac.getSession(),facility, vo, service);
+			return ac.getFacilitiesManager().getAllowedGroups(ac.getSession(), facility, vo, service);
 		}
 	},
 
@@ -916,7 +927,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public ContactGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("facility") && parms.contains("contactGroupName")) {
 				return ac.getFacilitiesManager().getFacilityContactGroup(ac.getSession(),
-				  ac.getFacilityById(parms.readInt("facility")), parms.readString("contactGroupName"));
+						ac.getFacilityById(parms.readInt("facility")), parms.readString("contactGroupName"));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and contactGroupName");
 			}
@@ -999,6 +1010,49 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			ac.getFacilitiesManager().removeFacilityContact(ac.getSession(),
 					parms.read("contactGroupToRemove", ContactGroup.class));
 
+			return null;
+		}
+	},
+
+	/*#
+	 * return assigned security teams for specific facility
+	 *
+	 * @param facility
+	 * @return assigned security teams fot given facility
+	 */
+	getAssignedSecurityTeams {
+		@Override
+		public List<SecurityTeam> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getAssignedSecurityTeams(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
+		}
+	},
+
+	/*#
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param facility
+	 * @param securityTeam
+	 */
+	assignSecurityTeam {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getFacilitiesManager().assignSecurityTeam(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+					ac.getSecurityTeamById(parms.readInt("securityTeam")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param facility
+	 * @param securityTeam
+	 */
+	removeSecurityTeam {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getFacilitiesManager().removeSecurityTeam(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+					ac.getSecurityTeamById(parms.readInt("securityTeam")));
 			return null;
 		}
 	};

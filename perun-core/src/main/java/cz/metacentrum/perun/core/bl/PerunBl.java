@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessagesManager;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
+import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.VosManager;
@@ -126,6 +127,12 @@ public interface PerunBl extends Perun {
 	public RTMessagesManager getRTMessagesManager();
 
 	/**
+	 * Gets a Security Teams manager.
+	 * @return Security Teams manager
+	 */
+	public SecurityTeamsManager getSecurityTeamsManager();
+
+	/**
 	 * Gets a Searcher.
 	 * @return Searcher
 	 */
@@ -208,6 +215,12 @@ public interface PerunBl extends Perun {
 	 * @return Messages manager
 	 */
 	public RTMessagesManagerBl getRTMessagesManagerBl();
+
+	/**
+	 * Gets a Security Teams manager.
+	 * @return Security Teams manager
+	 */
+	public SecurityTeamsManagerBl getSecurityTeamsManagerBl();
 
 	/**
 	 * Gets a AuthzResolver.

@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.implApi;
 
-import java.util.List;
-
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
@@ -11,19 +9,21 @@ import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+
+import java.util.List;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
@@ -622,4 +622,60 @@ public interface FacilitiesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException;
+
+
+	/**
+	 * Return all security teams which specific facility trusts
+	 *
+	 * @param sess
+	 * @param facility specific facility
+	 * @return list of assigned security teams
+	 * @throws InternalErrorException
+	 */
+	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 */
+	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 */
+	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
+	 * Check if security team is <b>not</b> assigned to facility.
+	 * Throw exception info is.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws SecurityTeamAlreadyAssignedException
+	 */
+	void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamAlreadyAssignedException;
+
+	/**
+	 * Check if security team is assigned to facility.
+	 * Throw exception info not.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws SecurityTeamNotAssignedException
+	 */
+	void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotAssignedException;
+
 }
