@@ -7,8 +7,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 
 	<context:annotation-config />
 
-	<import resource="classpath:perun-core-jdbc.xml"/>
 	<import resource="classpath:perun-core.xml"/>
+	<import resource="classpath:perun-core-jdbc.xml"/>
 	<import resource="classpath:perun-core-transaction-manager.xml"/>
 
 	<!-- Enable @Transactional support -->

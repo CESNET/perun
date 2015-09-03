@@ -177,6 +177,7 @@ public class Auditer {
 		}
 	}
 
+	
 	/**
 	 * Log message.
 	 * Message is stored in actual transaction. If no transaction is active message will be immediatelly flushed out.
@@ -187,11 +188,8 @@ public class Auditer {
 	public void log(PerunSession sess, String message) throws InternalErrorException {
 		if(TransactionSynchronizationManager.isActualTransactionActive()) {
 			log.trace("Auditer stores audit message to current transaction. Message: {}.", message);
-			List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.getResource(this);
-			if(messages == null) {
-				messages = new ArrayList<AuditerMessage>();
-				TransactionSynchronizationManager.bindResource(this, messages);
-			}
+			List<List<AuditerMessage>> savepoints = getSavepoints();
+			List<AuditerMessage> messages = savepoints.get(savepoints.size() - 1);
 			messages.add(new AuditerMessage(sess, message));
 		} else {
 			this.storeMessageToDb(sess, message);
@@ -310,17 +308,75 @@ public class Auditer {
 	}
 
 	/**
-	 * Imidiately flushes stored message for specified transaction into the log
+	 * Initialize lists for sotring Audit messages.
 	 *
-	 * @param transaction
 	 */
-	public void flush() {
-		List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.unbindResourceIfPossible(this);
-		if(messages == null) {
-			log.trace("No message to flush");
+	public void transactionBegin() {
+		List<List<AuditerMessage>> savepoints = new ArrayList<>();
+		List<AuditerMessage> messages = new ArrayList<>();
+		savepoints.add(messages);
+		TransactionSynchronizationManager.bindResource(this, savepoints);
+	}
+		
+	/**
+	 * Creates new list for saving auditer messages of a new transaction.
+	 * 
+	 */
+	public void newTransaction() {
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		List<AuditerMessage> messages = new ArrayList<>();
+		savepoints.add(messages);
+	}
+	
+	/**
+	 * Flush auditer messages of the last transaction to the store of the outer transaction.
+	 * There should be at least one nested transaction.
+	 * 
+	 */
+	public void flushTransaction() {
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.size() < 2) {
+			log.trace("No messages to flush");
 			return;
 		}
+		List<AuditerMessage> messagesToFlush = savepoints.get(savepoints.size() - 1);
+		
+		savepoints.get(savepoints.size() - 2).addAll(messagesToFlush);
+		List<AuditerMessage> messages = savepoints.remove(savepoints.size() - 1);
+		log.trace("Flushed auditer messages of the last transaction: " + messages);
+	}
+	
+	/**
+	 * Erases the auditer messages for the last transaction.
+	 * 
+	 */
+	public void cleanTransation() {
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.isEmpty()) {
+			log.trace("No messages to clean");
+			return;
+		}
+		List<AuditerMessage> messages = savepoints.remove(savepoints.size() - 1);
+		log.trace("Erased auditer messages for the last transaction: " + messages);
+	}
+	
+	/**
+	 * Imidiately flushes stored message for specified transaction into the log
+	 *
+	 */
+	public void flush() {
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.isEmpty()) {
+			log.trace("No messages to flush");
+			return;
+		}
+		
+		if (savepoints.size() != 1) {
+			log.error("There should be only one list of messages while flushing representing the most outer transaction.");
+		}
 
+		List<AuditerMessage> messages = savepoints.get(0);
+		TransactionSynchronizationManager.unbindResourceIfPossible(this);
 		log.trace("Audit messages was flushed for current transaction.");
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
 			for(AuditerMessage auditerMessage : messages) {
@@ -329,7 +385,6 @@ public class Auditer {
 			}
 		}
 
-		//TODO: Co kdyz se zpravy prohazi a prvne se vyresi zprava ktera prisla az jako druha?
 		for(AuditerMessage message: messages) {
 			for(VirtualAttributesModuleImplApi virtAttrModuleImplApi : registeredAttributesModules) {
 				List<String> resolvingMessages = new ArrayList<String>();
@@ -355,8 +410,24 @@ public class Auditer {
 		}
 	}
 
+	/**
+	 * All prepared auditer messages in transaction are erased without storing into db.
+	 * Mostly wanted while rollbacking.
+	 * 
+	 */
 	public void clean() {
-		List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.unbindResourceIfPossible(this);
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.isEmpty()) {
+			log.trace("No messages to flush");
+			return;
+		}
+		
+		if (savepoints.size() != 1) {
+			log.error("There should be only one list of messages while cleaning.");
+		}
+
+		List<AuditerMessage> messages = savepoints.get(0);
+		TransactionSynchronizationManager.unbindResourceIfPossible(this);
 		log.trace("Audit messages erased for current transaction. {}", messages);
 	}
 
@@ -366,7 +437,9 @@ public class Auditer {
 	 * @return list of messages
 	 */
 	public List<AuditerMessage> getMessages() {
-		List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.getResource(this);
+		List<List<AuditerMessage>> savepoints = getSavepoints();
+		if (savepoints.isEmpty()) return new ArrayList<AuditerMessage>();
+		List<AuditerMessage> messages = savepoints.get(savepoints.size() - 1);
 		if(messages == null) return new ArrayList<AuditerMessage>();
 		return messages;
 	}
@@ -418,6 +491,15 @@ public class Auditer {
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
+	}
+	
+	private List<List<AuditerMessage>> getSavepoints() {
+		List<List<AuditerMessage>> savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
+		if (savepoints == null) {
+			transactionBegin();
+			savepoints = (List<List<AuditerMessage>>) TransactionSynchronizationManager.getResource(this);
+		}
+		return savepoints;
 	}
 
 	/**
