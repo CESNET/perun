@@ -18,7 +18,21 @@ public enum ExtSourcesManagerMethod implements ManagerMethod {
 
 		@Override
 		public ExtSource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			return ac.getExtSourcesManager().createExtSource(ac.getSession(), parms.read("extSource", ExtSource.class));
+		}
+	},
+	/*#
+	 * Delete an external source.
+	 * @param id int ExtSource <code>id</code>
+	 */
+	deleteExtSource {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			ac.getExtSourcesManager().deleteExtSource(ac.getSession(), ac.getExtSourceById(parms.readInt("id")));
+			return null;
 		}
 	},
 	/*#
