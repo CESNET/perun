@@ -1,4 +1,4 @@
--- database version 3.1.26 (don't forget to update insert statement at the end of file)
+-- database version 3.1.28 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -171,7 +171,7 @@ create table "facility_owners" (
 
 -- FACILITIES_CONTACTS - all optional contacts for facility (owners, users or groups)
 create table "facility_contacts" (
-	contact_group_name varchar(128) not null, -- similar to tag of group of contacts
+	name varchar(128) not null, -- similar to tag of group of contacts
 	facility_id integer not null, --facility identifier
 	owner_id integer, --owner identifier
 	user_id integer, --user identifier
@@ -1264,7 +1264,7 @@ create index idx_fk_entlatval_attr on entityless_attr_values(attr_id);
 create index idx_fk_catpub_sys on cabinet_publications(publicationsystemid);
 create index idx_fk_cabpub_cat on cabinet_publications(categoryid);
 create unique index idx_authz_u2 ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'));
-create unique index idx_faccont_u2 ON facility_contacts (COALESCE(user_id, '0'), COALESCE(owner_id, '0'), COALESCE(group_id, '0'), facility_id, contact_group_name);
+create unique index idx_faccont_u2 ON facility_contacts (COALESCE(user_id, '0'), COALESCE(owner_id, '0'), COALESCE(group_id, '0'), facility_id, name);
 create index idx_fk_authz_role on authz(role_id);
 create index idx_fk_authz_user on authz(user_id);
 create index idx_fk_authz_authz_group on authz(authorized_group_id);
@@ -1720,4 +1720,4 @@ grant all on mailchange to perun;
 grant all on pwdreset to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.27');
+insert into configurations values ('DATABASE VERSION','3.1.28');

@@ -838,12 +838,12 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @return contactGroup for the facility and the contact group name
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException;
+	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException;
 
 	/**
 	 * Get all exist contact group names.
@@ -923,12 +923,12 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @param user
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException, FacilityContactNotExistsException;
 
 	/**
 	 * Check if facility contact for the group already exists.
@@ -936,12 +936,12 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @param group
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException, FacilityContactNotExistsException;
 
 	/**
 	 * Check if facility contact for the owner already exists.
@@ -949,10 +949,10 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @param owner
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException, FacilityContactNotExistsException;
 }

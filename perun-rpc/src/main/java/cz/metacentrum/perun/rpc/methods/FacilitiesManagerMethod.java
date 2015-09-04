@@ -908,17 +908,17 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Get contact group for the facility and the name.
 	 *
 	 * @param facility int Facility <code>id</code>
-	 * @param contactGroupName String name of the contact group
+	 * @param name String name of the contact group
 	 * @return ContactGroup contactGroup for the facility and the name
 	 */
 	getFacilityContactGroup {
 		@Override
 		public ContactGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("facility") && parms.contains("contactGroupName")) {
+			if(parms.contains("facility") && parms.contains("name")) {
 				return ac.getFacilitiesManager().getFacilityContactGroup(ac.getSession(),
-				  ac.getFacilityById(parms.readInt("facility")), parms.readString("contactGroupName"));
+				  ac.getFacilityById(parms.readInt("facility")), parms.readString("name"));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and contactGroupName");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and name");
 			}
 		}
 	},

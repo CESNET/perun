@@ -1041,16 +1041,16 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
-	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException {
+	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException {
 		Utils.checkPerunSession(sess);
-		Utils.notNull(contactGroupName, "contactGroupName");
+		Utils.notNull(name, "name");
 		this.getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getFacilityContactGroup");
 		}
 
-		return this.getFacilitiesManagerBl().getFacilityContactGroup(sess, facility, contactGroupName);
+		return this.getFacilitiesManagerBl().getFacilityContactGroup(sess, facility, name);
 	}
 
 	@Override
@@ -1134,7 +1134,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	private void checkFacilityContactEntitiesExists(PerunSession sess, ContactGroup contactGroup) throws FacilityNotExistsException, UserNotExistsException, OwnerNotExistsException, GroupNotExistsException, InternalErrorException {
 		Utils.notNull(contactGroup, "contactGroup");
 		Utils.notNull(contactGroup.getFacility(), "facility");
-		Utils.notNull(contactGroup.getContactGroupName(), "contactGroupName");
+		Utils.notNull(contactGroup.getName(), "name");
 
 		this.getFacilitiesManagerBl().checkFacilityExists(sess, contactGroup.getFacility());
 

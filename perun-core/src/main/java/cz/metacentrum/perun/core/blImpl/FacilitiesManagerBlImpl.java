@@ -742,10 +742,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException {
+	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException {
 		//need to get richUsers with attributes
 		List<AttributeDefinition> mandatoryAttributes = this.getListOfMandatoryAttributes(sess);
-		ContactGroup cg = this.getFacilitiesManagerImpl().getFacilityContactGroup(sess, facility, contactGroupName);
+		ContactGroup cg = this.getFacilitiesManagerImpl().getFacilityContactGroup(sess, facility, name);
 		return this.setAttributesForRichUsersInContactGroup(sess, cg, mandatoryAttributes);
 	}
 
@@ -768,19 +768,19 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		if(contactGroupToAdd != null) {
 			if(contactGroupToAdd.getUsers() != null) {
 				for(RichUser user: contactGroupToAdd.getUsers()) {
-					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getContactGroupName(), user);
+					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), user);
 				}
 			}
 
 			if(contactGroupToAdd.getGroups()!= null) {
 				for(Group group: contactGroupToAdd.getGroups()) {
-					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getContactGroupName(), group);
+					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), group);
 				}
 			}
 
 			if(contactGroupToAdd.getOwners() != null) {
 				for(Owner owner: contactGroupToAdd.getOwners()) {
-					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getContactGroupName(), owner);
+					this.facilitiesManagerImpl.addFacilityContact(sess, contactGroupToAdd.getFacility(), contactGroupToAdd.getName(), owner);
 				}
 			}
 		}
@@ -815,37 +815,37 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		if(contactGroupToRemove != null) {
 			if(contactGroupToRemove.getUsers() != null) {
 				for(RichUser user: contactGroupToRemove.getUsers()) {
-					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getContactGroupName(), user);
+					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), user);
 				}
 			}
 
 			if(contactGroupToRemove.getGroups()!= null) {
 				for(Group group: contactGroupToRemove.getGroups()) {
-					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getContactGroupName(), group);
+					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), group);
 				}
 			}
 
 			if(contactGroupToRemove.getOwners() != null) {
 				for(Owner owner: contactGroupToRemove.getOwners()) {
-					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getContactGroupName(), owner);
+					this.facilitiesManagerImpl.removeFacilityContact(sess, contactGroupToRemove.getFacility(), contactGroupToRemove.getName(), owner);
 				}
 			}
 		}
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException, FacilityContactNotExistsException {
-		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, contactGroupName, user);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException, FacilityContactNotExistsException {
+		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, user);
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException, FacilityContactNotExistsException {
-		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, contactGroupName, group);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException, FacilityContactNotExistsException {
+		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, group);
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
-		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
+		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, owner);
 	}
 
 	/**

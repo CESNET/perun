@@ -62,7 +62,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		"hosts.created_at as hosts_created_at, hosts.created_by as hosts_created_by, hosts.modified_by as hosts_modified_by, hosts.modified_at as hosts_modified_at, " +
 		"hosts.created_by_uid as hosts_created_by_uid, hosts.modified_by_uid as hosts_modified_by_uid";
 
-	protected final static String facilityContactsMappingSelectQuery = " facility_contacts.facility_id as fc_id, facility_contacts.contact_group_name as fc_contact_group_name, " +
+	protected final static String facilityContactsMappingSelectQuery = " facility_contacts.facility_id as fc_id, facility_contacts.name as fc_name, " +
 	    "facility_contacts.owner_id as fc_owner_id, facility_contacts.user_id as fc_user_id, facility_contacts.group_id as fc_group_id";
 	
 	protected final static String facilityContactsMappingSelectQueryWithAllEntities = facilityContactsMappingSelectQuery + ", " + UsersManagerImpl.userMappingSelectQuery + ", " + 
@@ -126,8 +126,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			contactGroup.setFacility(facility);
 
 			//set Name
-			String contactGroupName = rs.getString("fc_contact_group_name");
-			contactGroup.setContactGroupName(contactGroupName);
+			String name = rs.getString("fc_name");
+			contactGroup.setName(name);
 
 			//if exists set owner
 			List<Owner> owners = new ArrayList<>();
@@ -203,7 +203,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	private static final RowMapper<String> FACILITY_CONTACT_NAMES_MAPPER = new RowMapper<String>() {
 		public String mapRow(ResultSet rs, int i) throws SQLException {
 
-			return rs.getString("contact_group_name");
+			return rs.getString("name");
 		}
 	};
 
@@ -650,21 +650,21 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	// FACILITY CONTACTS METHODS
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(user, "user");
-		if(contactGroupName == null || contactGroupName.isEmpty()) {
+		if(name == null || name.isEmpty()) {
 			throw new InternalErrorException("ContactGroupName can't be null or empty.");
 		}
 
 		ContactGroup contactGroup;
 		try {
-			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, user_id) " +
-					"values (?,?,?)", facility.getId(), contactGroupName, user.getId());
+			jdbc.update("insert into facility_contacts(facility_id, name, user_id) " +
+					"values (?,?,?)", facility.getId(), name, user.getId());
 			RichUser ru = new RichUser(user, null);
 			List<RichUser> rulist = new ArrayList<>();
 			rulist.add(ru);
-			contactGroup = new ContactGroup(contactGroupName, facility, new ArrayList<Group>(), new ArrayList<Owner>(), rulist);
+			contactGroup = new ContactGroup(name, facility, new ArrayList<Group>(), new ArrayList<Owner>(), rulist);
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -675,20 +675,20 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(owner, "owner");
-		if(contactGroupName == null || contactGroupName.isEmpty()) {
+		if(name == null || name.isEmpty()) {
 			throw new InternalErrorException("ContactGroupName can't be null or empty.");
 		}
 
 		ContactGroup contactGroup;
 		try {
-			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, owner_id) " +
-					"values (?,?,?)", facility.getId(), contactGroupName, owner.getId());
+			jdbc.update("insert into facility_contacts(facility_id, name, owner_id) " +
+					"values (?,?,?)", facility.getId(), name, owner.getId());
 			List<Owner> ownlist = new ArrayList<>();
 			ownlist.add(owner);
-			contactGroup = new ContactGroup(contactGroupName, facility, new ArrayList<Group>(), ownlist, new ArrayList<RichUser>());
+			contactGroup = new ContactGroup(name, facility, new ArrayList<Group>(), ownlist, new ArrayList<RichUser>());
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -699,20 +699,20 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(group, "group");
-		if(contactGroupName == null || contactGroupName.isEmpty()) {
+		if(name == null || name.isEmpty()) {
 			throw new InternalErrorException("ContactGroupName can't be null or empty.");
 		}
 
 		ContactGroup contactGroup;
 		try {
-			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, group_id) " +
-					"values (?,?,?)", facility.getId(), contactGroupName, group.getId());
+			jdbc.update("insert into facility_contacts(facility_id, name, group_id) " +
+					"values (?,?,?)", facility.getId(), name, group.getId());
 			List<Group> grplist = new ArrayList<>();
 			grplist.add(group);
-			contactGroup = new ContactGroup(contactGroupName, facility, grplist, new ArrayList<Owner>(), new ArrayList<RichUser>());
+			contactGroup = new ContactGroup(name, facility, grplist, new ArrayList<Owner>(), new ArrayList<RichUser>());
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -787,22 +787,22 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException {
+	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException {
 		try {
 			List<ContactGroup> contactGroups = jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
 			  "left join facilities on facilities.id=facility_contacts.facility_id " +
 			  "left join owners on owners.id=facility_contacts.owner_id " +
 			  "left join users on users.id=facility_contacts.user_id " +
 			  "left join groups on groups.id=facility_contacts.group_id " +
-			  "where facility_contacts.facility_id=? and facility_contacts.contact_group_name=?", FACILITY_CONTACT_MAPPER, facility.getId(), contactGroupName);
+			  "where facility_contacts.facility_id=? and facility_contacts.name=?", FACILITY_CONTACT_MAPPER, facility.getId(), name);
 			contactGroups = mergeContactGroups(contactGroups);
 			if(contactGroups.size() == 1) {
 				return contactGroups.get(0);
 			} else {
-				throw new InternalErrorException("Merging group contacts for facility " + facility + " and contact name " + contactGroupName + " failed, more than 1 object returned " + contactGroupName);
+				throw new InternalErrorException("Merging group contacts for facility " + facility + " and contact name " + name + " failed, more than 1 object returned " + name);
 			}
 		} catch (EmptyResultDataAccessException ex) {
-			throw new FacilityContactNotExistsException(facility, contactGroupName);
+			throw new FacilityContactNotExistsException(facility, name);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -811,7 +811,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException {
 		try {
-			return jdbc.query("select distinct contact_group_name from facility_contacts", FACILITY_CONTACT_NAMES_MAPPER);
+			return jdbc.query("select distinct name from facility_contacts", FACILITY_CONTACT_NAMES_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -820,23 +820,23 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
-		if(!facilityContactExists(sess, facility, contactGroupName, owner)) throw new FacilityContactNotExistsException(facility, contactGroupName, owner);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, name, owner)) throw new FacilityContactNotExistsException(facility, name, owner);
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException, FacilityContactNotExistsException {
-		if(!facilityContactExists(sess, facility, contactGroupName, user)) throw new FacilityContactNotExistsException(facility, contactGroupName, user);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, name, user)) throw new FacilityContactNotExistsException(facility, name, user);
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException, FacilityContactNotExistsException {
-		if(!facilityContactExists(sess, facility, contactGroupName, group)) throw new FacilityContactNotExistsException(facility, contactGroupName, group);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, name, group)) throw new FacilityContactNotExistsException(facility, name, group);
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and owner_id=?", facility.getId(), contactGroupName, owner.getId());
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and owner_id=?", facility.getId(), name, owner.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -844,9 +844,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and user_id=?", facility.getId(), contactGroupName, user.getId());
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and user_id=?", facility.getId(), name, user.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -854,9 +854,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and group_id=?", facility.getId(), contactGroupName, group.getId());
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and group_id=?", facility.getId(), name, group.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -895,30 +895,30 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
 		try {
-			jdbc.update("delete from facility_contacts where facility_id=? and owner_id=? and contact_group_name=?", facility.getId(), owner.getId(), contactGroupName);
-			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Owner: " + owner, facility, contactGroupName);
+			jdbc.update("delete from facility_contacts where facility_id=? and owner_id=? and name=?", facility.getId(), owner.getId(), name);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Owner: " + owner, facility, name);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
 		try {
-			jdbc.update("delete from facility_contacts where facility_id=? and user_id=? and contact_group_name=?", facility.getId(), user.getId(), contactGroupName);
-			log.info("Facility contact deleted. Facility: {}, ContactName: {}, User: " + user, facility, contactGroupName);
+			jdbc.update("delete from facility_contacts where facility_id=? and user_id=? and name=?", facility.getId(), user.getId(), name);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, User: " + user, facility, name);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
 		try {
-			jdbc.update("delete from facility_contacts where facility_id=? and group_id=? and contact_group_name=?", facility.getId(), group.getId(), contactGroupName);
-			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Group: " + group, facility, contactGroupName);
+			jdbc.update("delete from facility_contacts where facility_id=? and group_id=? and name=?", facility.getId(), group.getId(), name);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Group: " + group, facility, name);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
