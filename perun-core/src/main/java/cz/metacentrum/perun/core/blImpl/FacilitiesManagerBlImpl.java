@@ -128,18 +128,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	public List<Owner> getOwners(PerunSession sess, Facility facility) throws InternalErrorException {
-		List<Integer> ownersIds = getFacilitiesManagerImpl().getOwnersIds(sess, facility);
-		List<Owner> owners = new ArrayList<Owner>();
-
-		for (Integer ownerId: ownersIds) {
-			try {
-				owners.add(getPerunBl().getOwnersManagerBl().getOwnerById(sess, ownerId));
-			} catch (OwnerNotExistsException e) {
-				throw new ConsistencyErrorException("Non-existent owner is assigned to the facility", e);
-			}
-		}
-
-		return owners;
+		return getFacilitiesManagerImpl().getOwners(sess, facility);
 	}
 
 	public void setOwners(PerunSession sess, Facility facility, List<Owner> owners) throws InternalErrorException {

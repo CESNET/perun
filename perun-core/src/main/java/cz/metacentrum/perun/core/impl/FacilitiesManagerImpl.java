@@ -338,9 +338,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	public List<Integer> getOwnersIds(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Owner> getOwners(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			return jdbc.query("select id from owners, facility_owners where owners.id=owner_id and facility_id=?", Utils.ID_MAPPER, facility.getId());
+			return jdbc.query("select "+OwnersManagerImpl.ownerMappingSelectQuery+" from owners left join facility_owners on owners.id = facility_owners.owner_id where facility_id=?", OwnersManagerImpl.OWNER_MAPPER, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
