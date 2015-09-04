@@ -103,16 +103,16 @@ public interface FacilitiesManagerImplApi {
 
 
 	/**
-	 * Returns owners' id of the facility.
+	 * Returns owners of the facility.
 	 *
 	 * @param perunSession
 	 * @param facility
 	 *
-	 * @return owners' id of specified facility
+	 * @return owners of specified facility
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Integer> getOwnersIds(PerunSession perunSession, Facility facility) throws InternalErrorException;
+	List<Owner> getOwners(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Updates owners of facility

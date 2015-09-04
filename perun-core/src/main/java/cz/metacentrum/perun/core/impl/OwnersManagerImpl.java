@@ -45,7 +45,7 @@ public class OwnersManagerImpl implements OwnersManagerImplApi {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
-	private static final RowMapper<Owner> OWNER_MAPPER = new RowMapper<Owner>() {
+	protected static final RowMapper<Owner> OWNER_MAPPER = new RowMapper<Owner>() {
 		public Owner mapRow(ResultSet rs, int i) throws SQLException {
 			Owner owner = new Owner();
 			owner.setId(rs.getInt("owners_id"));

@@ -136,7 +136,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println("FacilitiesManager.getFacilityByName");
 
 		Facility returnedFacility = perun.getFacilitiesManager().getFacilityByName(sess, facility.getName());
-		assertNotNull("unable to get Facility by Name",returnedFacility);
+		assertNotNull("unable to get Facility by Name", returnedFacility);
 		assertEquals("created and returned facility should be the same", returnedFacility, facility);
 
 	}
@@ -165,7 +165,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getServicesManager().addDestination(sess, serv, facility, dest);
 
 		List<Facility> facilities = perun.getFacilitiesManager().getFacilitiesByDestination(sess,"TestovaciDestinace");
-		assertTrue("At least one facility with destinatnion " + dest.getDestination() + " should exists",facilities.size() > 0);
+		assertTrue("At least one facility with destinatnion " + dest.getDestination() + " should exists", facilities.size() > 0);
 		assertTrue("Created facility with destinantion " + dest.getDestination() + " should exist between others", facilities.contains(facility));
 	}
 
@@ -193,6 +193,10 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		List<Owner> owners = perun.getFacilitiesManager().getOwners(sess, facility);
 		assertTrue("there should be 1 owner",owners.size() == 1);
 		assertTrue("facility should be owned by our owner", owners.contains(owner));
+
+		perun.getFacilitiesManager().removeOwner(sess, facility, owner);
+		List<Owner> empty_owners = perun.getFacilitiesManager().getOwners(sess, facility);
+		assertTrue("there shouldn't be any owner", empty_owners.isEmpty());
 
 	}
 
