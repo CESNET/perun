@@ -782,11 +782,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
-		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-
-		List<Integer> groupsIds = new ArrayList<Integer>(new HashSet<Integer>(this.groupsManagerImpl.getMemberGroupsIds(sess, member, vo)));
-		List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByIds(sess, groupsIds);
-
+		List<Group> groups = this.getAllMemberGroups(sess, member);
 		//Remove members group
 		if(!groups.isEmpty()) {
 			Iterator<Group> iterator = groups.iterator();
@@ -795,10 +791,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				if(g.getName().equals(VosManager.MEMBERS_GROUP)) iterator.remove();
 			}
 		}
-
 		// Sort
 		Collections.sort(groups);
-
 		return groups;
 	}
 
@@ -822,19 +816,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 		
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
-		return new ArrayList<Group>(new HashSet<Group>(getGroupsManagerImpl().getAllMemberGroups(sess, member)));
-	}
-
-	public List<Group> getMemberGroupsForResources(PerunSession sess, Member member) throws InternalErrorException {
-		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-		List<Integer> groupsIds = this.groupsManagerImpl.getMemberGroupsIdsForResources(sess, member, vo);
-
-		List<Group> groups = getPerunBl().getGroupsManagerBl().getGroupsByIds(sess, groupsIds);
-
-		// Sort
-		Collections.sort(groups);
-
-		return groups;
+		return getGroupsManagerImpl().getAllMemberGroups(sess, member);
 	}
 
 	public List<Member> getParentGroupMembers(PerunSession sess, Group group) throws InternalErrorException {

@@ -262,7 +262,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<User> getGroupUsers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from groups_members join members on members.id=member_id join " +
-					"users on members.user_id=users.id where group_id=? order by "+Compatibility.orderByBinary("users.last_name")+", " +
+					"users on members.user_id=users.id where group_id=? order by " + Compatibility.orderByBinary("users.last_name") + ", " +
 					Compatibility.orderByBinary("users.first_name"), UsersManagerImpl.USER_MAPPER, group.getId());
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -422,20 +422,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
-
-	public List<Integer> getMemberGroupsIds(PerunSession sess, Member member, Vo vo) throws InternalErrorException {
-		try {
-			return jdbc.query("select groups.id as id from groups_members join groups on groups_members.group_id = groups.id " +
-					"where groups.vo_id=? and groups_members.member_id=?",
-					Utils.ID_MAPPER, vo.getId(), member.getId());
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + groupMappingSelectQuery + " from groups_members join groups on groups_members.group_id = groups.id " +
+			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups_members join groups on groups_members.group_id = groups.id " +
 					" where groups_members.member_id=?",
 					GROUP_MAPPER, member.getId());
 		} catch (EmptyResultDataAccessException e) {
@@ -443,21 +432,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-	}
-
-	public List<Integer> getMemberGroupsIdsForResources(PerunSession sess, Member member, Vo vo) throws InternalErrorException {
-		/*XXX New DB implementation ...
-		//FIXME Where can I get the resource?
-		try {
-		jdbc.query("select groups_members.group_id as id from groups_members join groups_resources on groups_members.group_id = groups_resources.group_id " +
-		"where groups_members.member_id=? and groups_resources.resource_id=?",
-		Utils.ID_MAPPER, member.getId(), resource.getId());
-		} catch(RuntimeException ex) {
-		throw new InternalErrorException(ex);
-		}
-		*/
-		//FIXME delete this method after removing grouper
-		throw new InternalErrorException("Unsupported method");
 	}
 
 	public List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {

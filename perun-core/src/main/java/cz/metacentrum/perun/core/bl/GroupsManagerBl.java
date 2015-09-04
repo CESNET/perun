@@ -801,7 +801,7 @@ public interface GroupsManagerBl {
 	void synchronizeGroups(PerunSession sess) throws InternalErrorException;
 
 	/**
-	 * Returns all member's groups. Except members and administrators groups.
+	 * Returns all members groups. Except 'members' group.
 	 *
 	 * @param sess
 	 * @param member
@@ -844,16 +844,6 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
-
-	/**
-	 * Returns all member's groups which are assigned to at least one resource. Except members and administrators groups.
-	 *
-	 * @param sess
-	 * @param member
-	 * @return
-	 * @throws InternalErrorException
-	 */
-	List<Group> getMemberGroupsForResources(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
 	 * Returns all groups which have set the attribute with the value. Searching only def and opt attributes.
