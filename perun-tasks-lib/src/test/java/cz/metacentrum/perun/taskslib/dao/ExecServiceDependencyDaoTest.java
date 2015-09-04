@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -100,13 +99,11 @@ public class ExecServiceDependencyDaoTest {
 		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
 
 		try {
-			testService1.setId(servicesManager.createService(perunSession, testService1, testOwner).getId());
-			testService2.setId(servicesManager.createService(perunSession, testService2, testOwner).getId());
+			testService1.setId(servicesManager.createService(perunSession, testService1).getId());
+			testService2.setId(servicesManager.createService(perunSession, testService2).getId());
 		} catch (InternalErrorException e) {
 			log.error(e.toString());
 		} catch (PrivilegeException e) {
-			log.error(e.toString());
-		} catch (OwnerNotExistsException e) {
 			log.error(e.toString());
 		} catch (ServiceExistsException e) {
 			log.error(e.toString());

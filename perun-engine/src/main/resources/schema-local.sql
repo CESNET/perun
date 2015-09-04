@@ -41,7 +41,6 @@ create table tasks_results (
 create table services (
     id integer not null,
     name varchar(128) not null,
-    owner_id integer not null,
     created_at date  default now not null,
     created_by varchar(1024) default user not null,
     modified_at date default now not null,

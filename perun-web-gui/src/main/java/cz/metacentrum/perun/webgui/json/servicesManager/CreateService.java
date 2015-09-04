@@ -75,12 +75,10 @@ public class CreateService {
 	 * Attempts to create a new Service, it first tests the values and then submits them.
 	 *
 	 * @param name service Name
-	 * @param ownerId ID of owner
 	 */
-	public void createService(final String name, int ownerId)
+	public void createService(final String name)
 	{
 		this.serviceName = name;
-		this.ownerId = ownerId;
 
 		// test arguments
 		if(!this.testCreating()){

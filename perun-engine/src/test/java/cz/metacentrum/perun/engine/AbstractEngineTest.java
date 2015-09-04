@@ -43,7 +43,6 @@ public abstract class AbstractEngineTest {
 
 	// base objects needed as test environment
 	public Facility facility;
-	public Owner owner;
 	public Service service;
 	public Destination destination1;
 	public Destination destination2;
@@ -70,8 +69,7 @@ public abstract class AbstractEngineTest {
 		// create expected core objects
 
 		facility = perun.getFacilitiesManagerBl().createFacility(sess, new Facility(0, "EngineTestFacility"));
-		owner = perun.getOwnersManagerBl().createOwner(sess, new Owner(0, "test_owner", "test", OwnerType.technical));
-		service = perun.getServicesManagerBl().createService(sess, new Service(0, "test_service"), owner);
+		service = perun.getServicesManagerBl().createService(sess, new Service(0, "test_service"));
 
 		destination1 = perun.getServicesManagerBl().addDestination(sess, service, facility, new Destination(0, "par_dest1", "host", "PARALLEL"));
 		destination2 = perun.getServicesManagerBl().addDestination(sess, service, facility, new Destination(0, "par_dest2", "host", "PARALLEL"));
@@ -84,7 +82,7 @@ public abstract class AbstractEngineTest {
 		execService1.setEnabled(true);
 		execService1.setDefaultDelay(1);
 		execService1.setScript("/bin/true"); // this command always return true
-		execService1.setId(controller.insertExecService(sess, execService1, owner));
+		execService1.setId(controller.insertExecService(sess, execService1));
 
 		execService2 = new ExecService();
 		execService2.setService(service);
@@ -92,7 +90,7 @@ public abstract class AbstractEngineTest {
 		execService2.setEnabled(true);
 		execService2.setDefaultDelay(1);
 		execService2.setScript("/bin/true"); // this command always return true
-		execService2.setId(controller.insertExecService(sess, execService2, owner));
+		execService2.setId(controller.insertExecService(sess, execService2));
 
 		execService_gen = new ExecService();
 		execService_gen.setService(service);
@@ -100,7 +98,7 @@ public abstract class AbstractEngineTest {
 		execService_gen.setEnabled(true);
 		execService_gen.setDefaultDelay(1);
 		execService_gen.setScript("/bin/true"); // this command always return true
-		execService_gen.setId(controller.insertExecService(sess, execService_gen, owner));
+		execService_gen.setId(controller.insertExecService(sess, execService_gen));
 
 		List<Destination> destinations = new ArrayList<Destination>() {{
 			add(destination1);

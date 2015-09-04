@@ -108,15 +108,13 @@ public interface GeneralServiceManager {
 	 *
 	 * @param perunSession
 	 * @param execService execService to insert
-	 * @param owner if the parent service doesn't exist it will be created with this owner
 	 * @return a new execService id
 	 *
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
-	 * @throws OwnerNotExistsException
 	 * @throws ServiceExistsException
 	 */
-	public int insertExecService(PerunSession perunSession, ExecService execService, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException;
+	public int insertExecService(PerunSession perunSession, ExecService execService) throws InternalErrorException, PrivilegeException, ServiceExistsException;
 
 	/**
 	 * Updates the ExecService as well as the parent Service.

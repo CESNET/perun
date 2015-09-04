@@ -5,13 +5,11 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ClusterNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -44,10 +42,9 @@ public interface ServicesManager {
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
-	 * @throws OwnerNotExistsException
 	 * @throws ServiceExistsException
 	 */
-	Service createService(PerunSession perunSession, Service service, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException;
+	Service createService(PerunSession perunSession, Service service) throws InternalErrorException, PrivilegeException, ServiceExistsException;
 
 	/**
 	 * Deletes the service.
@@ -756,20 +753,6 @@ public interface ServicesManager {
 	 * @throws FacilityNotExistsException
 	 */
 	void removeAllDestinations(PerunSession perunSession, Service service, Facility facility) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, FacilityNotExistsException;
-
-	/**
-	 * Returns owner of the Service.
-	 *
-	 * @param perunSession
-	 * @param service
-	 *
-	 * @return owner of specified service
-	 *
-	 * @throws ServiceNotExistsException
-	 * @throws InternalErrorException
-	 * @throws PrivilegeException
-	 */
-	Owner getOwner(PerunSession perunSession, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException;
 
 	@Deprecated
 	int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException;

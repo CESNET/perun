@@ -1134,15 +1134,9 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 	private Service setUpService() throws Exception {
 
-		Owner owner = new Owner();
-		owner.setName("ResourcesManagerTestServiceOwner");
-		owner.setContact("testingServiceOwner");
-		owner.setType(OwnerType.technical);
-		perun.getOwnersManager().createOwner(sess, owner);
-
 		Service service = new Service();
 		service.setName("ResourcesManagerTestService");
-		service = perun.getServicesManager().createService(sess, service, owner);
+		service = perun.getServicesManager().createService(sess, service);
 
 		return service;
 

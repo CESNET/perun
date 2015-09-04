@@ -356,7 +356,6 @@ create table auditer_consumers (
 create table services (
 	id integer not null,
 	name varchar(128) not null,
-	owner_id integer,
 	created_at timestamp default now not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now not null,
@@ -1140,7 +1139,6 @@ create index idx_fk_usrex_usersrc on user_ext_sources(ext_sources_id);
 create index idx_fk_mem_user on members(user_id);
 create index idx_fk_mem_vo on members(vo_id);
 create index idx_fk_host_fac on hosts(facility_id);
-create index idx_fk_serv_ow on services(owner_id);
 create index idx_fk_exsrv_srv on exec_services(service_id);
 create index idx_fk_dest_srv on facility_service_destinations(service_id);
 create index idx_fk_dest_fac on facility_service_destinations(facility_id);
@@ -1301,7 +1299,6 @@ alter table hosts add constraint host_fac_fk foreign key(facility_id) references
 
 alter table services add constraint serv_pk primary key(id);
 alter table services add constraint serv_u unique(name);
-alter table services add constraint serv_ow_fk foreign key (owner_id) references owners(id);
 
 alter table exec_services add constraint exsrv_pk primary key(id);
 alter table exec_services add constraint exsrv_srv_fk foreign key (service_id) references services(id);

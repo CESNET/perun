@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichDestination;
@@ -23,13 +21,11 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ClusterNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
@@ -64,18 +60,16 @@ public class ServicesManagerEntry implements ServicesManager {
 	public ServicesManagerEntry() {
 	}
 
-	public Service createService(PerunSession sess, Service service, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException {
+	public Service createService(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceExistsException {
 		Utils.checkPerunSession(sess);
+		Utils.notNull(service, "service");
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "createService");
 		}
 
-		getPerunBl().getOwnersManagerBl().checkOwnerExists(sess, owner);
-		Utils.notNull(service, "service");
-
-		return getServicesManagerBl().createService(sess, service, owner);
+		return getServicesManagerBl().createService(sess, service);
 	}
 
 	public void deleteService(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException, RelationExistsException, ServiceAlreadyRemovedException {
@@ -633,16 +627,6 @@ public class ServicesManagerEntry implements ServicesManager {
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 
 		getServicesManagerBl().removeAllDestinations(sess, service, facility);
-	}
-
-	public Owner getOwner(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException {
-		Utils.checkPerunSession(sess);
-		//TODO Authorization
-
-		getServicesManagerBl().checkServiceExists(sess, service);
-
-		return getServicesManagerBl().getOwner(sess, service);
-
 	}
 
 	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException {

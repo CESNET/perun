@@ -94,8 +94,8 @@ public class ExecServiceDenialDaoTest {
 		testService2 = new Service();
 		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
 
-		testService1.setId(servicesManager.createService(perunSession, testService1, testOwner).getId());
-		testService2.setId(servicesManager.createService(perunSession, testService2, testOwner).getId());
+		testService1.setId(servicesManager.createService(perunSession, testService1).getId());
+		testService2.setId(servicesManager.createService(perunSession, testService2).getId());
 
 		// Testing Destination #1
 		testDestinationId1 = Utils.getNewId(jdbcTemplate, "destinations_id_seq");

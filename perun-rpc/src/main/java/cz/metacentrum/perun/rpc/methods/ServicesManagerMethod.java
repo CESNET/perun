@@ -3,9 +3,7 @@ package cz.metacentrum.perun.rpc.methods;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
@@ -22,7 +20,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Creates a new service.
 	 *
 	 * @param service Service JSON object
-	 * @param owner int Owner <code>id</code>
 	 * @return Service Created Service
 	 */
 	createService {
@@ -32,8 +29,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			return ac.getServicesManager().createService(ac.getSession(),
-					parms.read("service", Service.class),
-					ac.getOwnerById(parms.readInt("owner")));
+					parms.read("service", Service.class));
 		}
 	},
 
@@ -858,23 +854,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 					ac.getFacilityById(parms.readInt("facility")));
 
 			return null;
-		}
-	},
-
-	/*#
-	 * Returns owner of a Service.
-	 *
-	 * @param service int Service <code>id</code>
-	 * @return Owner Owner
-	 */
-	getOwner {
-
-		@Override
-		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
-			return ac.getServicesManager().getOwner(ac.getSession(),
-					ac.getServiceById(parms.readInt("service")));
 		}
 	},
 

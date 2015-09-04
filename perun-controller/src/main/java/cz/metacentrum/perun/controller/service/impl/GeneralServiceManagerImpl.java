@@ -73,12 +73,12 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public int insertExecService(PerunSession perunSession, ExecService execService, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException {
+	public int insertExecService(PerunSession perunSession, ExecService execService) throws InternalErrorException, PrivilegeException, ServiceExistsException {
 		Service service = null;
 		try {
 			service = servicesManager.getServiceByName(perunSession, execService.getService().getName());
 		} catch (ServiceNotExistsException e) {
-			service = servicesManager.createService(perunSession, execService.getService(), owner);
+			service = servicesManager.createService(perunSession, execService.getService());
 		}
 		execService.setService(service);
 		return execServiceDao.insertExecService(execService);

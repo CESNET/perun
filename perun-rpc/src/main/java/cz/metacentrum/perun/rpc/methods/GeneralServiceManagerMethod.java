@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.rpc.methods;
 
-
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -96,14 +95,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * Inserts an exec service.
 	 *
 	 * @param execService ExecService JSON object
-	 * @param owner int Owner <code>id</code>
 	 * @return int new ExecService <code>id</code>
 	 */
 	insertExecService {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getGeneralServiceManager().insertExecService(ac.getSession(),
-					parms.read("execService", ExecService.class),
-					ac.getOwnerById(parms.readInt("owner")));
+					parms.read("execService", ExecService.class));
 		}
 	},
 

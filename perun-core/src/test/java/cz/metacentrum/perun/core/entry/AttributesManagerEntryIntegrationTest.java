@@ -394,9 +394,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		//create new service and assigne it to resources
 		Service s1 = new Service(0, "testService01");
-		Owner o1 = new Owner(0,"testOwner01", "test@test.test", OwnerType.administrative);
-		o1 = perun.getOwnersManagerBl().createOwner(sess, o1);
-		s1 = perun.getServicesManagerBl().createService(sess, s1, o1);
+		s1 = perun.getServicesManagerBl().createService(sess, s1);
 		perun.getResourcesManagerBl().assignService(sess, r1, s1);
 		perun.getResourcesManagerBl().assignService(sess, r2, s1);
 
@@ -8370,30 +8368,17 @@ private Service setUpService() throws Exception {
 
 	Service service = new Service();
 	service.setName("AttributesManagerTestService");
-
-	Owner owner = new Owner();
-	owner.setName("AttrManagerTestServiceOwner");
-	owner.setContact("AttrManagTestContact");
-	owner.setType(OwnerType.technical);
-
-	perun.getOwnersManager().createOwner(sess, owner);
-	perun.getServicesManager().createService(sess, service, owner);
+	perun.getServicesManager().createService(sess, service);
 
 	return service;
 
 }
 
 private Service setUpService2() throws Exception {
+
 	Service service = new Service();
 	service.setName("AttributesManagerTestService2");
-
-	Owner owner = new Owner();
-	owner.setName("AttrManagerTestServiceOwner2");
-	owner.setContact("AttrManagTestContact2");
-	owner.setType(OwnerType.technical);
-
-	perun.getOwnersManager().createOwner(sess, owner);
-	perun.getServicesManager().createService(sess, service, owner);
+	perun.getServicesManager().createService(sess, service);
 
 	return service;
 }

@@ -2,12 +2,10 @@ package cz.metacentrum.perun.core.bl;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
@@ -49,7 +47,7 @@ public interface ServicesManagerBl {
 	 * @param service
 	 * @return new service
 	 */
-	Service createService(PerunSession perunSession, Service service, Owner owner) throws InternalErrorException, ServiceExistsException;
+	Service createService(PerunSession perunSession, Service service) throws InternalErrorException, ServiceExistsException;
 
 	/** Deletes the service.
 	 *
@@ -518,17 +516,6 @@ public interface ServicesManagerBl {
 	 */
 	void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException;
 
-	/**
-	 * Returns owner of the Service.
-	 *
-	 * @param perunSession
-	 * @param service
-	 *
-	 * @return owner of specified service
-	 *
-	 * @throws InternalErrorException
-	 */
-	Owner getOwner(PerunSession perunSession, Service service) throws InternalErrorException;
 	int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException;
 
 	/**
