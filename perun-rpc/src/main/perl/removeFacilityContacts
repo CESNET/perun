@@ -77,7 +77,7 @@ foreach(@owners) {
 
 my $contactGroup = Perun::beans::ContactGroup->new();
 $contactGroup->setFacility($facility);
-$contactGroup->setContactGroupName($contactName);
+$contactGroup->setName($contactName);
 $contactGroup->setGroups(\@objectGroups) if @objectGroups;
 $contactGroup->setOwners(\@objectOwners) if @objectOwners;
 $contactGroup->setUsers(\@richUsers) if @richUsers;

@@ -25,12 +25,12 @@ my ($userId, $batch, $sortingFunction);
 
 GetOptions ("help|h" => sub { print help(); exit 0;} ,
 "batch|b" => \$batch,
-"orderByName|n" => sub { $sortingFunction = getSortingFunction("getContactGroupName", 1) },
+"orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) },
 "userId|u=s" => \$userId) or die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getContactGroupName", 1); }
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
@@ -46,7 +46,7 @@ $table->setCols('Name','Facility','facilityId');
 foreach my $contactGroup (sort $sortingFunction @contactGroups) {
     my $facility=$contactGroup->getFacility;
     #print Dumper($facility);
-    $table->addRow($contactGroup->getContactGroupName, $facility->getName, $facility->getId);
+    $table->addRow($contactGroup->getName, $facility->getName, $facility->getId);
 }
 
 print tableToPrint($table, $batch);

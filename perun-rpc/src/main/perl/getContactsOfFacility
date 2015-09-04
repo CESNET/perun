@@ -27,14 +27,14 @@ my ($facilityId, $facilityName, $batch, $sortingFunction, $displayIds);
 
 GetOptions ("help|h" => sub { print help(); exit 0;} ,
 "batch|b" => \$batch,
-"orderByName|n" => sub { $sortingFunction = getSortingFunction("getContactGroupName", 1) },
+"orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) },
 "displayIds|i" => \$displayIds,
 "facilityId|f=i" => \$facilityId,
 "facilityName|F=s" => \$facilityName) or die help();
 
 # Check options
 unless (defined($facilityId) || (defined($facilityName))) { die "ERROR: facilityId or facilityName are required \n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getContactGroupName", 1); }
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
@@ -61,15 +61,15 @@ if (defined($displayIds)) {
         my @owners = $contactGroup->getOwners;
         foreach my $owner (@owners) {
             #print Dumper($owner);
-            $table->addRow($contactGroup->getContactGroupName(),$owner->getName,$owner->getId);
+            $table->addRow($contactGroup->getName(),$owner->getName,$owner->getId);
         }
         my @users = $contactGroup->getUsers;
         foreach my $user (@users) {
-            $table->addRow($contactGroup->getContactGroupName,'','', $user->getCommonName,$user->getId);
+            $table->addRow($contactGroup->getName,'','', $user->getCommonName,$user->getId);
         }
         my @groups = $contactGroup->getGroups;
         foreach my $group (@groups) {
-            $table->addRow($contactGroup->getContactGroupName,'','','','',$group->getName,$group->getId);
+            $table->addRow($contactGroup->getName,'','','','',$group->getName,$group->getId);
         }
     }
 } else {
@@ -79,15 +79,15 @@ if (defined($displayIds)) {
         my @owners = $contactGroup->getOwners;
         foreach my $owner (@owners) {
             #print Dumper($owner);
-            $table->addRow($contactGroup->getContactGroupName(),$owner->getName);
+            $table->addRow($contactGroup->getName(),$owner->getName);
         }
         my @users = $contactGroup->getUsers;
         foreach my $user (@users) {
-            $table->addRow($contactGroup->getContactGroupName,'', $user->getCommonName);
+            $table->addRow($contactGroup->getName,'', $user->getCommonName);
         }
         my @groups = $contactGroup->getGroups;
         foreach my $group (@groups) {
-            $table->addRow($contactGroup->getContactGroupName,'','',$group->getName);
+            $table->addRow($contactGroup->getName,'','',$group->getName);
         }
     }
 }

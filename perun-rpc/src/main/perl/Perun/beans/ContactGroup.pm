@@ -32,20 +32,20 @@ sub TO_JSON
 	my $self = shift;
 
 
-        return {contactGroupName => $self->{_contactGroupName}, facility => $self->{_facility}, groups => $self->{_groups}, owners => $self->{_owners}, users => $self->{_users}};
+        return {name => $self->{_name}, facility => $self->{_facility}, groups => $self->{_groups}, owners => $self->{_owners}, users => $self->{_users}};
 }
 
-sub getContactGroupName
+sub getName
 {
 	my $self = shift;
 
-	return $self->{_contactGroupName};
+	return $self->{_name};
 }
 
-sub setContactGroupName
+sub setName
 {
 	my $self = shift;
-	$self->{_contactGroupName} = shift;
+	$self->{_name} = shift;
 
 	return;
 }
@@ -108,6 +108,15 @@ sub setUsers
 	$self->{_users} = shift;
 
 	return;
+}
+
+sub getCommonArrayRepresentation {
+        my $self = shift;
+        return ($self->{_name}, $self->{_facility});
+}
+
+sub getCommonArrayRepresentationHeading {
+        return ('Name', 'Facility');
 }
 
 1;
