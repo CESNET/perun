@@ -273,7 +273,8 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpUsers();
 		List<User> expected = setUpAdmins(u0, u1, setUpGroup(u1, u2));
 		List<User> actual = securityTeamsManagerEntry.getAdmins(sess, st0);
-
+		Collections.sort(expected);
+		Collections.sort(actual);
 		assertEquals(expected, actual);
 	}
 	@Test
