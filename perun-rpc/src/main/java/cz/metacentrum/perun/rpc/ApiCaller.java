@@ -37,6 +37,8 @@ import cz.metacentrum.perun.core.api.RTMessagesManager;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
+import cz.metacentrum.perun.core.api.SecurityTeam;
+import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
@@ -80,6 +82,7 @@ public class ApiCaller {
 	private OwnersManager ownersManager = null;
 	private GeneralServiceManager generalServiceManager;
 	private RTMessagesManager rtMessagesManager = null;
+	private SecurityTeamsManager securityTeamsManager = null;
 	private PropagationStatsReader propagationStatsReader;
 	private Searcher searcher = null;
 	private ICabinetApi cabinetManager;
@@ -104,6 +107,13 @@ public class ApiCaller {
 			rtMessagesManager = rpcSession.getPerun().getRTMessagesManager();
 		}
 		return rtMessagesManager;
+	}
+
+	public SecurityTeamsManager getSecurityTeamsManager() {
+		if (securityTeamsManager == null) {
+			securityTeamsManager = rpcSession.getPerun().getSecurityTeamsManager();
+		}
+		return securityTeamsManager;
 	}
 
 	public Searcher getSearcher() {
@@ -267,6 +277,10 @@ public class ApiCaller {
 
 	public Application getApplicationById(int id) throws PerunException {
 		return getRegistrarManager().getApplicationById(rpcSession, id);
+	}
+
+	public SecurityTeam getSecurityTeamById(int id) throws PerunException {
+		return getSecurityTeamsManager().getSecurityTeamById(rpcSession, id);
 	}
 
 	public AttributeDefinition getAttributeDefinitionById(int id) throws PerunException {

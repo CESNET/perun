@@ -20,6 +20,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessagesManager;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
+import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
@@ -42,6 +43,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
+import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
@@ -67,6 +69,7 @@ public class PerunBlImpl implements PerunBl {
 	private OwnersManager ownersManager = null;
 	private AuditMessagesManager auditMessagesManager = null;
 	private RTMessagesManager rtMessagesManager = null;
+	private SecurityTeamsManager securityTeamsManager = null;
 	private Searcher searcher = null;
 
 	private ModulesUtilsBl modulesUtilsBl = null;
@@ -83,6 +86,7 @@ public class PerunBlImpl implements PerunBl {
 	private OwnersManagerBl ownersManagerBl = null;
 	private AuditMessagesManagerBl auditMessagesManagerBl = null;
 	private RTMessagesManagerBl rtMessagesManagerBl = null;
+	private SecurityTeamsManagerBl securityTeamsManagerBl = null;
 	private AuthzResolverBl authzResolverBl = null;
 	private SearcherBl searcherBl = null;
 
@@ -173,6 +177,14 @@ public class PerunBlImpl implements PerunBl {
 
 	public void setRTMessagesManager(RTMessagesManager rtMessagesManager) {
 		this.rtMessagesManager = rtMessagesManager;
+	}
+
+	public SecurityTeamsManager getSecurityTeamsManager() {
+		return securityTeamsManager;
+	}
+
+	public void setSecurityTeamsManager(SecurityTeamsManager securityTeamsManager) {
+		this.securityTeamsManager = securityTeamsManager;
 	}
 
 	public void setVosManager(VosManager vosManager) {
@@ -363,6 +375,14 @@ public class PerunBlImpl implements PerunBl {
 		this.ownersManagerBl = ownersManagerBl;
 	}
 
+	public SecurityTeamsManagerBl getSecurityTeamsManagerBl() {
+		return securityTeamsManagerBl;
+	}
+
+	public void setSecurityTeamsManagerBl(SecurityTeamsManagerBl securityTeamsManagerBl) {
+		this.securityTeamsManagerBl = securityTeamsManagerBl;
+	}
+
 	public Auditer getAuditer() {
 		return this.auditer;
 	}
@@ -455,6 +475,7 @@ public class PerunBlImpl implements PerunBl {
 			"extSourcesManager='" + extSourcesManager + "', " +
 			"attributesManager='" + attributesManager + "', " +
 			"rtMessagesManager='" + rtMessagesManager + "', " +
+			"securityTeamsManager='" + securityTeamsManager + "', " +
 			"searcher='" + searcher + "', " +
 			"servicesManager='" + servicesManager + "']";
 	}

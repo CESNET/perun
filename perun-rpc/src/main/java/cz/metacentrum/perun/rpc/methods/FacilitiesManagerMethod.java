@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.*;
 
 import java.util.ArrayList;
@@ -221,7 +222,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			if (parms.contains("service")) {
 				service = ac.getServiceById(parms.readInt("service"));
 			}
-			return ac.getFacilitiesManager().getAllowedGroups(ac.getSession(),facility, vo, service);
+			return ac.getFacilitiesManager().getAllowedGroups(ac.getSession(), facility, vo, service);
 		}
 	},
 
@@ -916,7 +917,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public ContactGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("facility") && parms.contains("name")) {
 				return ac.getFacilitiesManager().getFacilityContactGroup(ac.getSession(),
-				  ac.getFacilityById(parms.readInt("facility")), parms.readString("name"));
+					ac.getFacilityById(parms.readInt("facility")), parms.readString("name"));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and name");
 			}
@@ -999,6 +1000,49 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			ac.getFacilitiesManager().removeFacilityContact(ac.getSession(),
 					parms.read("contactGroupToRemove", ContactGroup.class));
 
+			return null;
+		}
+	},
+
+	/*#
+	 * return assigned security teams for specific facility
+	 *
+	 * @param facility
+	 * @return assigned security teams fot given facility
+	 */
+	getAssignedSecurityTeams {
+		@Override
+		public List<SecurityTeam> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getAssignedSecurityTeams(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
+		}
+	},
+
+	/*#
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param facility
+	 * @param securityTeam
+	 */
+	assignSecurityTeam {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getFacilitiesManager().assignSecurityTeam(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+					ac.getSecurityTeamById(parms.readInt("securityTeam")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param facility
+	 * @param securityTeam
+	 */
+	removeSecurityTeam {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getFacilitiesManager().removeSecurityTeam(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+					ac.getSecurityTeamById(parms.readInt("securityTeam")));
 			return null;
 		}
 	};

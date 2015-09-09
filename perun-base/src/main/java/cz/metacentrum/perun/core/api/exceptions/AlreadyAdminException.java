@@ -18,6 +18,7 @@ public class AlreadyAdminException extends PerunException {
 	private Vo vo;
 	private Group group;
 	private Group authorizedGroup;
+	private SecurityTeam securityTeam;
 
 	public AlreadyAdminException(AlreadyAdminRuntimeException rt) {
 		super(rt.getMessage(),rt);
@@ -100,6 +101,30 @@ public class AlreadyAdminException extends PerunException {
 		this.vo = vo;
 	}
 
+	public AlreadyAdminException(String message, Throwable cause, User user, SecurityTeam securityTeam) {
+		super(message, cause);
+		this.user = user;
+		this.securityTeam = securityTeam;
+	}
+
+	public AlreadyAdminException(String message, User user, SecurityTeam securityTeam) {
+		super(message);
+		this.user = user;
+		this.securityTeam = securityTeam;
+	}
+
+	public AlreadyAdminException(String message, Throwable cause, Group group, SecurityTeam securityTeam) {
+		super(message, cause);
+		this.authorizedGroup = group;
+		this.securityTeam = securityTeam;
+	}
+
+	public AlreadyAdminException(String message, Group group, SecurityTeam securityTeam) {
+		super(message);
+		this.authorizedGroup = group;
+		this.securityTeam = securityTeam;
+	}
+
 	// getters
 
 	public Member getMember() {
@@ -126,4 +151,7 @@ public class AlreadyAdminException extends PerunException {
 		return authorizedGroup;
 	}
 
+	public SecurityTeam getSecurityTeam() {
+		return securityTeam;
+	}
 }

@@ -1,4 +1,4 @@
--- database version 3.1.28 (don't forget to update insert statement at the end of file)
+-- database version 3.1.29 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -337,7 +337,8 @@ create table "authz" (
 	service_principal_id integer,  --identifier service principal
 	created_by_uid integer,
 	modified_by_uid integer,
-	authorized_group_id integer --identifier of whole authorized group
+	authorized_group_id integer, --identifier of whole authorized group
+	security_team_id integer	--identifier of security team
 );
 
 -- HOSTS - detail information about hosts and cluster nodes
@@ -1135,6 +1136,41 @@ create table "pwdreset" (
 	created_by_uid integer
 );
 
+create table "security_teams" (
+	id integer not null,
+	name varchar(128) not null,
+	description varchar(1024),
+	created_at timestamp default now() not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now() not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table "security_teams_facilities" (
+	security_team_id integer not null,
+	facility_id integer not null,
+	created_at timestamp default now() not null,
+  created_by varchar(1024) default user not null,
+  modified_at timestamp default now() not null,
+  modified_by varchar(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
+create table "blacklists" (
+	security_team_id integer not null,
+	user_id integer not null,
+	description varchar(1024),
+	created_at timestamp default now() not null,
+  created_by varchar(1024) default user not null,
+  modified_at timestamp default now() not null,
+  modified_by varchar(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
 create sequence "attr_names_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_consumers_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_log_id_seq" maxvalue 9223372036854775807;
@@ -1182,6 +1218,7 @@ create sequence "action_types_seq" maxvalue 9223372036854775807;
 create sequence "res_tags_seq" maxvalue 9223372036854775807;
 create sequence "mailchange_id_seq" maxvalue 9223372036854775807;
 create sequence "pwdreset_id_seq" maxvalue 9223372036854775807;
+create sequence "security_teams_id_seq" maxvalue 9223372036854775807;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1263,8 +1300,8 @@ create index idx_fk_hostav_attrt on host_attr_values(attr_id);
 create index idx_fk_entlatval_attr on entityless_attr_values(attr_id);
 create index idx_fk_catpub_sys on cabinet_publications(publicationsystemid);
 create index idx_fk_cabpub_cat on cabinet_publications(categoryid);
-create unique index idx_authz_u2 ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'));
 create unique index idx_faccont_u2 ON facility_contacts (COALESCE(user_id, '0'), COALESCE(owner_id, '0'), COALESCE(group_id, '0'), facility_id, name);
+create unique index idx_authz_u2 ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'), COALESCE(security_team_id, '0'));
 create index idx_fk_authz_role on authz(role_id);
 create index idx_fk_authz_user on authz(user_id);
 create index idx_fk_authz_authz_group on authz(authorized_group_id);
@@ -1275,6 +1312,7 @@ create index idx_fk_authz_group on authz(group_id);
 create index idx_fk_authz_service on authz(service_id);
 create index idx_fk_authz_res on authz(resource_id);
 create index idx_fk_authz_ser_princ on authz(service_principal_id);
+create index idx_fk_authz_sec_team on authz(security_team_id);
 create index idx_fk_grres_gr on groups_resources(group_id);
 create index idx_fk_grres_res on groups_resources(resource_id);
 create index idx_fk_grpmem_gr on groups_members(group_id);
@@ -1608,6 +1646,11 @@ alter table tasks_results add constraint taskres_dest_fk foreign key (destinatio
 alter table tasks_results add constraint taskres_eng_fk foreign key (engine_id) references engines (id);
 alter table tasks_results add constraint taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED'));
 
+alter table security_teams add constraint security_teams_pk primary key (id);
+alter table security_teams_facilities add constraint security_teams_facilities_pk primary key (security_team_id, facility_id);
+alter table security_teams_facilities add constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id);
+alter table security_teams_facilities add constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id);
+
 alter table authz add constraint authz_role_fk foreign key (role_id) references roles(id);
 alter table authz add constraint authz_user_fk foreign key (user_id) references users(id);
 alter table authz add constraint authz_authz_group_fk foreign key (authorized_group_id) references groups(id);
@@ -1618,6 +1661,7 @@ alter table authz add constraint authz_group_fk foreign key (group_id) reference
 alter table authz add constraint authz_service_fk foreign key (service_id) references services(id);
 alter table authz add constraint authz_res_fk foreign key (resource_id) references resources(id);
 alter table authz add constraint authz_ser_princ_fk foreign key (service_principal_id) references service_principals(id);
+alter table authz add constraint authz_sec_team_fk foreign key (security_team_id) references security_teams(id);
 alter table authz add constraint authz_user_serprinc_autgrp_chk check ((user_id is not null and service_principal_id is null and authorized_group_id is null) or (user_id is null and service_principal_id is not null and authorized_group_id is null) or (user_id is null and service_principal_id is null and authorized_group_id is not null));
 alter table configurations add constraint config_pk primary key (property);
 alter table configurations add constraint config_prop_chk check (property in ('DATABASE VERSION'));
@@ -1718,6 +1762,9 @@ grant all on tags_resources to perun;
 grant all on configurations to perun;
 grant all on mailchange to perun;
 grant all on pwdreset to perun;
+grant all on security_teams to perun;
+grant all on security_teams_facilities to perun;
+grant all on blacklists to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.28');
+insert into configurations values ('DATABASE VERSION','3.1.29');

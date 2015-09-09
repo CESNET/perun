@@ -57,7 +57,8 @@ public class AuditParserTest {
 	private RichFacility richFacility;
 	private ResourceTag resourceTag1 = new ResourceTag(5, "cosi" , 2);
 	private ResourceTag resourceTag2 = new ResourceTag(8, null, 5);
-
+	private SecurityTeam securityTeam1 = new SecurityTeam(1, "jmeno", "popis");
+	private SecurityTeam securityTeam2 = new SecurityTeam(2, null, null);
 	private ExecService exService1 = new ExecService();
 	private ExecService exService2 = new ExecService();
 
@@ -367,6 +368,13 @@ public class AuditParserTest {
 		assertEquals(candidate1.getAttributes(), ((Candidate) candidate1InList.get(0)).getAttributes());
 		assertEquals(candidate2.getAttributes(), ((Candidate) candidate2InList.get(0)).getAttributes());
 
+		//FOR SECURITY TEAM
+		SecurityTeam securityTeam = new SecurityTeam(18, textMismatch, textMismatch);
+		List<PerunBean> scsInList = AuditParser.parseLog(securityTeam.serializeToString());
+		assertEquals(securityTeam.toString(), ((SecurityTeam) scsInList.get(0)).toString());
+		assertEquals(securityTeam.getName(), ((SecurityTeam) scsInList.get(0)).getName());
+		assertEquals(securityTeam.getDescription(), ((SecurityTeam) scsInList.get(0)).getDescription());
+
 		//FOR RICHMEMBER
 		RichMember richMember1 = new RichMember(null, member, null);
 		//List<UserExtSource> userExtSources = new ArrayList<UserExtSource>();
@@ -499,6 +507,8 @@ public class AuditParserTest {
 		assertEquals(userExtSource1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(userExtSource1.serializeToString())));
 		assertEquals(resourceTag1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(resourceTag1.serializeToString())));
 		assertEquals(exService1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(exService1.serializeToString())));
+		assertEquals(securityTeam1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam1.serializeToString())));
+		assertEquals(securityTeam2.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam2.serializeToString())));
 		//test also some null serializing
 		Resource newResource = new Resource(20, null, null, 5);
 		assertEquals(newResource.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(newResource.serializeToString())));
@@ -515,11 +525,12 @@ public class AuditParserTest {
 			owner.serializeToString() + service.serializeToString() + attributeDefinition1.serializeToString() +
 			attribute1.serializeToString() + richMember.serializeToString() + richDestination.serializeToString() +
 			richResource.serializeToString() + richUser.serializeToString() + richGroup.serializeToString() +
-			richFacility.serializeToString() + resourceTag1.serializeToString() + exService1.serializeToString();
+			richFacility.serializeToString() + resourceTag1.serializeToString() + exService1.serializeToString() +
+			securityTeam1.serializeToString();
 
 		List<PerunBean> perunBeans = new ArrayList<PerunBean>();
 		perunBeans = AuditParser.parseLog(bigLog);
-		assertEquals(23, perunBeans.size());
+		assertEquals(24, perunBeans.size());
 		assertTrue(perunBeans.contains(user));
 		assertTrue(perunBeans.contains(attribute1));
 		assertTrue(perunBeans.contains(attributeDefinition1));
@@ -543,6 +554,7 @@ public class AuditParserTest {
 		assertTrue(perunBeans.contains(richFacility));
 		assertTrue(perunBeans.contains(resourceTag1));
 		assertTrue(perunBeans.contains(exService1));
+		assertTrue(perunBeans.contains(securityTeam1));
 	}
 
 	private AttributeDefinition getAttributeDefinition1() {

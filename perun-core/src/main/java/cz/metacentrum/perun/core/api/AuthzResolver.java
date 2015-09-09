@@ -115,6 +115,16 @@ public class AuthzResolver {
 	}
 
 	/**
+	 * Returns true if the perun principal inside the perun session is security admin.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is security admin.
+	 */
+	public static boolean isSecurityAdmin(PerunSession sess) {
+		return cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl.isSecurityAdmin(sess);
+	}
+
+	/**
 	 * Returns true if the perun principal inside the perun session is vo observer.
 	 *
 	 * @param sess perun session
