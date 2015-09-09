@@ -62,11 +62,11 @@ public class TaskResultDaoTest {
 
 		Service testService = new Service();
 		testService.setName("Test service 1-" + Long.toHexString(System.currentTimeMillis()));
-		testService = servicesManager.createService(perunSession, testService, testOwner);
+		testService = servicesManager.createService(perunSession, testService);
 
 		Service testService2 = new Service();
 		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
-		testService2 = servicesManager.createService(perunSession, testService2, testOwner);
+		testService2 = servicesManager.createService(perunSession, testService2);
 
 		Facility facility = new Facility();
 		facility.setName("Facility 1-" + Long.toHexString(System.currentTimeMillis()));

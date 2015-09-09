@@ -162,7 +162,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		Service serv = new Service();
 		serv.setName("TestovaciSluzba");
-		perun.getServicesManager().createService(sess, serv, owner);
+		perun.getServicesManager().createService(sess, serv);
 
 		Destination dest = new Destination();
 		dest.setType("service-specific");
@@ -363,7 +363,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		Service serv = new Service();
 		serv.setName("TestService");
-		perun.getServicesManager().createService(sess, serv, owner);
+		perun.getServicesManager().createService(sess, serv);
 		perun.getResourcesManager().assignService(sess, resource, serv);
 
 		Member member = setUpMember(vo);

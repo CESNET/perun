@@ -36,7 +36,6 @@ public abstract class AbstractDispatcherTest {
 	protected Facility facility1;
 	protected Resource resource1;
 	protected Service service1;
-	protected Owner owner1;
 	protected Member member1;
 	protected ExecService execservice1;
 	protected ExecService execservice2;
@@ -73,12 +72,9 @@ public abstract class AbstractDispatcherTest {
 			resource1 = perun.getResourcesManager().createResource(sess, resource1, vo1, facility1);
 			// assign the group to this resource
 			perun.getResourcesManager().assignGroupToResource(sess, group1, resource1);
-			// create owner
-			owner1 = new Owner(0, "testOwner", "do not contact me", OwnerType.technical);
-			perun.getOwnersManager().createOwner(sess, owner1);
 			// create service
 			service1 = new Service(0, "testService");
-			service1 = perun.getServicesManager().createService(sess, service1, owner1);
+			service1 = perun.getServicesManager().createService(sess, service1);
 			// assign service to the resource
 			perun.getResourcesManager().assignService(sess, resource1, service1);
 			// create execService
@@ -88,7 +84,7 @@ public abstract class AbstractDispatcherTest {
 			execservice1.setEnabled(true);
 			execservice1.setExecServiceType(ExecService.ExecServiceType.SEND);
 			execservice1.setService(service1);
-			int id = generalServiceManager.insertExecService(sess, execservice1, owner1);
+			int id = generalServiceManager.insertExecService(sess, execservice1);
 			// stash back the created id (this should be really done somewhere else)
 			execservice1.setId(id);
 			// create execService
@@ -98,7 +94,7 @@ public abstract class AbstractDispatcherTest {
 			execservice2.setEnabled(true);
 			execservice2.setExecServiceType(ExecService.ExecServiceType.SEND);
 			execservice2.setService(service1);
-			id = generalServiceManager.insertExecService(sess, execservice2, owner1);
+			id = generalServiceManager.insertExecService(sess, execservice2);
 			// stash back the created id (this should be really done somewhere else)
 			execservice2.setId(id);
 

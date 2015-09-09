@@ -24,8 +24,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembersManager;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
@@ -578,13 +576,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Service service = new Service();
 		service.setName("AttributesManagerTestService");
 
-		Owner owner = new Owner();
-		owner.setName("AttrManagerTestServiceOwner");
-		owner.setContact("AttrManagTestContact");
-		owner.setType(OwnerType.technical);
-
-		perun.getOwnersManager().createOwner(sess, owner);
-		perun.getServicesManager().createService(sess, service, owner);
+		perun.getServicesManager().createService(sess, service);
 
 		return service;
 

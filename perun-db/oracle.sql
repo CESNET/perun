@@ -1,4 +1,5 @@
--- database version 3.1.29 (don't forget to update insert statement at the end of file)
+-- database version 3.1.30 (don't forget to update insert statement at the end of file)
+
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -365,7 +366,6 @@ create table auditer_consumers (
 create table services (
 	id integer not null,
 	name nvarchar2(128) not null,
-	owner_id integer,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -1147,7 +1147,6 @@ create index IDX_FK_USREX_USERSRC on user_ext_sources(ext_sources_id);
 create index IDX_FK_MEM_USER on members(user_id);
 create index IDX_FK_MEM_VO on members(vo_id);
 create index IDX_FK_HOST_FAC on hosts(facility_id);
-create index IDX_FK_SERV_OW on services(owner_id);
 create index IDX_FK_EXSRV_SRV on exec_services(service_id);
 create index IDX_FK_DEST_SRV on facility_service_destinations(service_id);
 create index IDX_FK_DEST_FAC on facility_service_destinations(facility_id);
@@ -1304,8 +1303,7 @@ constraint HOST_FAC_FK foreign key(facility_id) references facilities(id)
 );
 alter table services add (
 constraint SERV_PK primary key(id),
-constraint SERV_U unique(name),
-constraint SERV_OW_FK foreign key (owner_id) references owners(id)
+constraint SERV_U unique(name)
 );
 alter table exec_services add (
 constraint EXSRV_PK primary key(id),
@@ -1719,4 +1717,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.29');
+insert into configurations values ('DATABASE VERSION','3.1.30');

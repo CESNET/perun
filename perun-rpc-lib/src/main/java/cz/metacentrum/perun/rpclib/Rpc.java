@@ -406,15 +406,12 @@ public class Rpc {
 						 }
 		}
 
-		public static Service createService(RpcCaller rpcCaller, Service service, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException {
+		public static Service createService(RpcCaller rpcCaller, Service service) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("service", service);
-			params.put("owner", owner.getId());
 
 			try {
 				return rpcCaller.call("servicesManager", "createService", params).read(Service.class);
-			} catch (OwnerNotExistsException e) {
-				throw e;
 			} catch (ServiceExistsException e) {
 				throw e;
 			} catch (PrivilegeException e) {

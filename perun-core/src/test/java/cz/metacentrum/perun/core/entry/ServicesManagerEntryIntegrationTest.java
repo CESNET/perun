@@ -18,17 +18,13 @@ import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
-import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -39,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -69,15 +64,9 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	public void createService() throws Exception {
 		System.out.println("ServicesManager.createService");
 
-		Owner owner = new Owner();
-		owner.setName("ServicesManagerTestServiceOwner");
-		owner.setContact("testingServiceOwner");
-		owner.setType(OwnerType.technical);
-		perun.getOwnersManager().createOwner(sess, owner);
-
 		Service service = new Service();
 		service.setName("ServicesManagerTestService");
-		service = perun.getServicesManager().createService(sess, service, owner);
+		service = perun.getServicesManager().createService(sess, service);
 		assertNotNull("unable to create Service",service);
 
 	}
@@ -86,26 +75,8 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		public void createServiceWhenServiceNotExists() throws Exception {
 			System.out.println("ServicesManager.createServiceWhenServiceNotExists");
 
-			Owner owner = new Owner();
-			owner.setName("ServicesManagerTestServiceOwner");
-			owner.setContact("testingServiceOwner");
-			owner.setType(OwnerType.technical);
-			perun.getOwnersManager().createOwner(sess, owner);
-
-			perun.getServicesManager().createService(sess, new Service(), owner);
+			perun.getServicesManager().createService(sess, new Service());
 			// shouldn't be able to create service in DB (InternalError) when it's not valid Service object
-
-		}
-
-	@Test (expected=OwnerNotExistsException.class)
-		public void createServiceWhenOwnerNotExists() throws Exception {
-			System.out.println("ServicesManager.createServiceWhenOwnerNotExists");
-
-			Service service = new Service();
-			service.setName("ServicesManagerTestService");
-
-			perun.getServicesManager().createService(sess, service, new Owner());
-			// shouldn't find owner in DB
 
 		}
 
@@ -113,16 +84,10 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		public void createServiceWhenServiceExists() throws Exception {
 			System.out.println("ServicesManager.createService");
 
-			Owner owner = new Owner();
-			owner.setName("ServicesManagerTestServiceOwner");
-			owner.setContact("testingServiceOwner");
-			owner.setType(OwnerType.technical);
-			perun.getOwnersManager().createOwner(sess, owner);
-
 			Service service = new Service();
 			service.setName("ServicesManagerTestService");
-			service = perun.getServicesManager().createService(sess, service, owner);
-			service = perun.getServicesManager().createService(sess, service, owner);
+			service = perun.getServicesManager().createService(sess, service);
+			service = perun.getServicesManager().createService(sess, service);
 			// shouldn't create same service twice
 
 		}
@@ -1065,35 +1030,6 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		}
 
 	@Test
-	public void getOwner() throws Exception {
-		System.out.println("ServicesManager.getOwner");
-
-		Owner owner = new Owner();
-		owner.setName("ServicesManagerTestServiceOwner");
-		owner.setContact("testingServiceOwner");
-		owner.setType(OwnerType.technical);
-		owner = perun.getOwnersManager().createOwner(sess, owner);
-
-		Service service = new Service();
-		service.setName("ServicesManagerTestService");
-		service = perun.getServicesManager().createService(sess, service, owner);
-		assertNotNull("unable to create Service",service);
-
-		Owner returnedOwner = perun.getServicesManager().getOwner(sess, service);
-		assertEquals("original and returned Owner should be the same",returnedOwner,owner);
-
-	}
-
-	@Test (expected=ServiceNotExistsException.class)
-		public void getOwnerWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.getOwnerWhenServiceNotExists");
-
-			perun.getServicesManager().getOwner(sess, new Service());
-			// shouldn't find service
-
-		}
-
-	@Test
 	public void getHierarchicalData() throws Exception {
 		System.out.println("ServicesManager.getHierarchicalData");
 
@@ -1446,15 +1382,9 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	private Service setUpService() throws Exception {
 
-		Owner owner = new Owner();
-		owner.setName("ServicesManagerTestServiceOwner");
-		owner.setContact("testingServiceOwner");
-		owner.setType(OwnerType.technical);
-		perun.getOwnersManager().createOwner(sess, owner);
-
 		Service service = new Service();
 		service.setName("ServicesManagerTestService");
-		service = perun.getServicesManager().createService(sess, service, owner);
+		service = perun.getServicesManager().createService(sess, service);
 		assertNotNull("unable to create service",service);
 
 		return service;
@@ -1463,20 +1393,14 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	private List<Service> setUpServices() throws Exception {
 
-		Owner owner = new Owner();
-		owner.setName("ServicesManagerTestServiceOwner01");
-		owner.setContact("ServicesManagerTestServiceOwner01");
-		owner.setType(OwnerType.technical);
-		perun.getOwnersManager().createOwner(sess, owner);
-
 		Service service1 = new Service();
 		service1.setName("ServicesManagerTestService01");
-		service1 = perun.getServicesManager().createService(sess, service1, owner);
+		service1 = perun.getServicesManager().createService(sess, service1);
 		assertNotNull("unable to create service",service1);
 
 		Service service2 = new Service();
 		service2.setName("ServicesManagerTestService02");
-		service2 = perun.getServicesManager().createService(sess, service2, owner);
+		service2 = perun.getServicesManager().createService(sess, service2);
 		assertNotNull("unable to create service",service2);
 
 		List<Service> services = new ArrayList<Service>();

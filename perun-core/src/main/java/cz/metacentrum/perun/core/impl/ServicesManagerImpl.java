@@ -17,7 +17,6 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
@@ -55,7 +54,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	public final static String serviceMappingSelectQuery = " services.id as services_id, services.name as services_name, " +
 		"services.created_at as services_created_at, services.created_by as services_created_by, " +
-		"services.modified_by as services_modified_by, services.modified_at as services_modified_at, services.owner_id as services_owner_id, " +
+		"services.modified_by as services_modified_by, services.modified_at as services_modified_at, " +
 		"services.created_by_uid as services_created_by_uid, services.modified_by_uid as services_modified_by_uid";
 
 	public final static String servicePackageMappingSelectQuery = " service_packages.id as service_packages_id, service_packages.description as service_packages_description, " +
@@ -79,7 +78,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		"facilities.modified_by_uid as facilities_modified_by_uid, facilities.created_by_uid as facilities_created_by_uid, " +
 		"services.id as services_id, services.name as services_name, " +
 		"services.created_at as services_created_at, services.created_by as services_created_by, " +
-		"services.modified_by as services_modified_by, services.modified_at as services_modified_at, services.owner_id as services_owner_id, " +
+		"services.modified_by as services_modified_by, services.modified_at as services_modified_at, " +
 		"services.created_by_uid as services_created_by_uid, services.modified_by_uid as services_modified_by_uid";
 
 	public static final RowMapper<Service> SERVICE_MAPPER = new RowMapper<Service>() {
@@ -192,14 +191,14 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		}
 	};
 
-	public Service createService(PerunSession sess, Service service, Owner owner) throws InternalErrorException {
+	public Service createService(PerunSession sess, Service service) throws InternalErrorException {
 		try {
 			int newId = Utils.getNewId(jdbc, "services_id_seq");
 
-			jdbc.update("insert into services(id, name, owner_id,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
-					"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
-					owner.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			log.info("Service created: {}, service owner: {}", service, owner);
+			jdbc.update("insert into services(id,name,created_by,created_at,modified_by,modified_at,created_by_uid, modified_by_uid) " +
+					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)", newId, service.getName(),
+					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			log.info("Service created: {}", service);
 
 			service.setId(newId);
 
@@ -555,14 +554,6 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 			jdbc.update("delete from facility_service_destinations where service_id=? and facility_id=?", service.getId(), facility.getId());
 			//TODO remove from table destinations?
 		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	public int getOwnerId(PerunSession perunSession, Service service) throws InternalErrorException {
-		try {
-			return jdbc.queryForInt("select owner_id from services where id=?", service.getId());
-		} catch(RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}

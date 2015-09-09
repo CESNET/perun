@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.tabs.servicestabs;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -10,21 +9,14 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.InsertExecService;
-import cz.metacentrum.perun.webgui.json.ownersManager.GetOwners;
-import cz.metacentrum.perun.webgui.model.Owner;
-import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Service;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
-import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
-
-import java.util.ArrayList;
 
 /**
  * Returns tab which contains addExecService form for specified service.
@@ -93,37 +85,6 @@ public class AddExecServiceTabItem implements TabItem {
 
 		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createExecService());
 
-		final ListBoxWithObjects<Owner> owner = new ListBoxWithObjects<Owner>();
-		final GetOwners owners = new GetOwners(new JsonCallbackEvents(){
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				ArrayList<Owner> own = JsonUtils.jsoAsList(jso);
-				if (own != null && !own.isEmpty()) {
-					own = new TableSorter<Owner>().sortByName(own);
-					owner.clear();
-					for (int i=0; i<own.size(); i++){
-						owner.addItem(own.get(i));
-					}
-					createButton.setEnabled(true);
-				} else {
-					owner.clear();
-					owner.addItem("No owners available");
-				}
-			}
-		@Override
-		public void onLoadingStart(){
-			owner.addItem("Loading...");
-			createButton.setEnabled(false);
-		}
-		@Override
-		public void onError(PerunError error){
-			owner.clear();
-			owner.addItem("Error while loading");
-			createButton.setEnabled(false);
-		}
-		});
-		owners.retrieveData();
-
 		Label serviceLabel = new Label();
 		serviceLabel.setText(service.getName()+" ("+serviceId+")");
 
@@ -187,14 +148,12 @@ public class AddExecServiceTabItem implements TabItem {
 		layout.setHTML(2, 0, "Status:");
 		layout.setHTML(3, 0, "Delay:");
 		layout.setHTML(4, 0, "Script path:");
-		layout.setHTML(5, 0, "Owner:");
 
 		layout.setWidget(0, 1, serviceLabel);
 		layout.setWidget(1, 1, fp);
 		layout.setWidget(2, 1, enabled);
 		layout.setWidget(3, 1, delay);
 		layout.setWidget(4, 1, scriptPath);
-		layout.setWidget(5, 1, owner);
 
 		// send button
 		createButton.addClickHandler(new ClickHandler() {
@@ -205,12 +164,12 @@ public class AddExecServiceTabItem implements TabItem {
 					int delayNum = Integer.parseInt(delay.getTextBox().getText().trim());
 					InsertExecService request = new InsertExecService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
 					if (radio1.getValue()) {
-						request.addExecService(service, owner.getSelectedObject(), "GENERATE", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
-						request.addExecService(service, owner.getSelectedObject(), "SEND", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+						request.addExecService(service, "GENERATE", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+						request.addExecService(service, "SEND", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
 					} else if (radio2.getValue()) {
-						request.addExecService(service, owner.getSelectedObject(), "GENERATE", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+						request.addExecService(service, "GENERATE", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
 					} else if (radio3.getValue()) {
-						request.addExecService(service, owner.getSelectedObject(), "SEND", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
+						request.addExecService(service, "SEND", enabled.getValue(), delayNum, scriptPath.getTextBox().getText().trim());
 					}
 				}
 			}

@@ -67,15 +67,15 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		this.servicesManagerImpl = servicesManagerImpl;
 	}
 
-	public Service createService(PerunSession sess, Service service, Owner owner) throws InternalErrorException, ServiceExistsException {
+	public Service createService(PerunSession sess, Service service) throws InternalErrorException, ServiceExistsException {
 		//check if service with same name exists in perun
 		try {
 			Service s = getServicesManagerImpl().getServiceByName(sess, service.getName());
 			throw new ServiceExistsException(s);
 		} catch(ServiceNotExistsException ex) { /* OK */ }
 
-		getPerunBl().getAuditer().log(sess, "{} created. {}.", service, owner);
-		return getServicesManagerImpl().createService(sess, service, owner);
+		getPerunBl().getAuditer().log(sess, "{} created.", service);
+		return getServicesManagerImpl().createService(sess, service);
 	}
 
 	public void deleteService(PerunSession sess, Service service) throws InternalErrorException, RelationExistsException, ServiceAlreadyRemovedException {
@@ -559,15 +559,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 	public void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException {
 		getServicesManagerImpl().checkServicesPackageExists(sess, servicesPackage);
-	}
-
-	public Owner getOwner(PerunSession sess, Service service) throws InternalErrorException {
-		int ownerId = getServicesManagerImpl().getOwnerId(sess, service);
-		try {
-			return getPerunBl().getOwnersManagerBl().getOwnerById(sess, ownerId);
-		} catch(OwnerNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
-		}
 	}
 
 	public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {
