@@ -45,6 +45,8 @@ unless (defined($ownerId)) {
         }
     }
 }
+unless (defined($ownerId)) {die "Owner not found \n";}
+
 my @contactGroups;
 @contactGroups = $facilitiesAgent->getFacilityContactGroups(owner => $ownerId);
 unless (@contactGroups) { printMessage "No Contacts found", $batch; exit 0;} 
