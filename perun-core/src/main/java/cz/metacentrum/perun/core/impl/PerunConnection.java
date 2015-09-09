@@ -43,26 +43,26 @@ public class PerunConnection implements Connection {
 		
 	@Override
 	public Savepoint setSavepoint() throws SQLException {
-		auditer.newTransaction();
+		auditer.newNestedTransaction();
 		return connectionImpl.setSavepoint();
 	}
 
 	@Override
 	public Savepoint setSavepoint(String string) throws SQLException {
-		auditer.newTransaction();
+		auditer.newNestedTransaction();
 		return connectionImpl.setSavepoint(string);
 	}
 		
 	@Override
 	public void rollback(Savepoint svpnt) throws SQLException {
-		auditer.cleanTransation();
+		auditer.cleanNestedTransation();
 		connectionImpl.rollback(svpnt);
 		
 	}
 		
 	@Override
 	public void releaseSavepoint(Savepoint svpnt) throws SQLException {
-		auditer.flushTransaction();
+		auditer.flushNestedTransaction();
 		connectionImpl.releaseSavepoint(svpnt);
 	}
 	

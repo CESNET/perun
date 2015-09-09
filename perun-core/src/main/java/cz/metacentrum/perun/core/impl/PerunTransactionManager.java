@@ -16,7 +16,7 @@ public class PerunTransactionManager extends DataSourceTransactionManager implem
 	
 	@Override
 	protected void doBegin(Object transaction, TransactionDefinition definition) {
-		this.getAuditer().transactionBegin();
+		this.getAuditer().newTopLevelTransaction();
 		super.doBegin(transaction, definition);
 	}
 
