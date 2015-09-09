@@ -156,7 +156,7 @@ create table facility_owners (
 );
 
 create table facility_contacts (
-	contact_group_name varchar(128) not null,
+	name varchar(128) not null,
 	facility_id integer not null,
 	owner_id integer,
 	user_id integer,
@@ -1186,7 +1186,7 @@ create index idx_fk_faccont_fac on facility_contacts(facility_id);
 create index idx_fk_faccont_usr on facility_contacts(user_id);
 create index idx_fk_faccont_own on facility_contacts(owner_id);
 create index idx_fk_faccont_grp on facility_contacts(group_id);
-create unique index idx_faccont_u2 ON facility_contacts (user_id, owner_id, group_id, facility_id, contact_group_name);
+create unique index idx_faccont_u2 ON facility_contacts (user_id, owner_id, group_id, facility_id, name);
 create index idx_fk_grres_gr on groups_resources(group_id);
 create index idx_fk_grres_res on groups_resources(resource_id);
 create index idx_fk_grpmem_gr on groups_members(group_id);

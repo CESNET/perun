@@ -880,12 +880,12 @@ public interface FacilitiesManager {
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @return contactGroup for the facility and the contact group name
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException;
+	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Get all exist contact group names.

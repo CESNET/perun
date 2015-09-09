@@ -1,4 +1,4 @@
--- database version 3.1.26 (don't forget to update insert statement at the end of file)
+-- database version 3.1.28 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -165,7 +165,7 @@ create table facility_owners (
 );
 
 create table facility_contacts (
-	contact_group_name nvarchar2(128) not null,
+	name nvarchar2(128) not null,
 	facility_id integer not null,
 	owner_id integer,
 	user_id integer,
@@ -1497,7 +1497,7 @@ constraint FACCONT_USR_FK foreign key (user_id) references users(id),
 constraint FACCONT_OWN_FK foreign key (owner_id) references owners(id),
 constraint FACCONT_GRP_FK foreign key (group_id) references groups(id),
 constraint FACCONT_USR_OWN_GRP_CHK check (decode(user_id,null,0,1)+decode(owner_id,null,0,1)+decode(group_id,null,0,1) = 1),
-constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,contact_group_name)
+constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,name)
 );
 
 alter table groups_resources add (
@@ -1669,4 +1669,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.27');
+insert into configurations values ('DATABASE VERSION','3.1.28');
