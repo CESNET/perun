@@ -1,4 +1,4 @@
--- database version 3.1.30 (don't forget to update insert statement at the end of file)
+-- database version 3.1.31 (don't forget to update insert statement at the end of file)
 
 
 create user perunv3 identified by password;
@@ -1267,6 +1267,10 @@ create index IDX_FK_TAGS_RES_TAGS on tags_resources(tag_id);
 create index IDX_FK_TAGS_RES_RES on tags_resources(resource_id);
 create index IDX_FK_MAILCHANGE_USER_ID on mailchange(user_id);
 create index IDX_FK_PWDRESET_USER_ID on pwdreset(user_id);
+create index IDX_FK_SEC_TEAM_FACS_SEC on security_teams_facilities (security_team_id);
+create index IDX_FK_SEC_TEAM_FACS_FAC on security_teams_facilities (facility_id);
+create index IDX_FK_BLLIST_USER on blacklists (user_id);
+create index IDX_FK_BLLIST_SECTEAM on blacklists (security_team_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
@@ -1522,6 +1526,12 @@ constraint SEC_TEAM_FACS_SEC_FK foreign key (security_team_id) references securi
 constraint SEC_TEAM_FACS_FAC_FK foreign key (facility_id) references facilities(id)
 );
 
+alter table blacklists add (
+constraint BLLIST_PK primary key (security_team_id,user_id),
+constraint BLLIST_SECTEAM_FK foreign key (security_team_id) references security_teams (id),
+constraint BLLIST_USER_FK foreign key (user_id) references users(id)
+);
+
 alter table authz add (
 constraint AUTHZ_ROLE_FK foreign key (role_id) references roles(id),
 constraint AUTHZ_USER_FK foreign key (user_id) references users(id),
@@ -1717,4 +1727,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.30');
+insert into configurations values ('DATABASE VERSION','3.1.31');
