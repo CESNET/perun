@@ -36,7 +36,9 @@ public class PerunHornetQServer {
 					dispatcherPropertiesBean.getProperty("dispatcher.ip.address"));
 			System.setProperty("perun.dispatcher.hornetq.remoting.netty.port",
 					dispatcherPropertiesBean.getProperty("dispatcher.port"));
-
+			System.setProperty("perun.dispatcher.hornetq.datadir",
+					dispatcherPropertiesBean.getProperty("dispatcher.datadir"));
+			
 			configuration = new FileConfiguration();
 			configuration.setConfigurationUrl("hornetq-configuration.xml");
 			configuration.start();
