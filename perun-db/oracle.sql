@@ -1513,13 +1513,13 @@ constraint SER_PRINC_PK primary key (id)
 );
 
 alter table security_teams add (
-constraint security_teams_pk primary key (id)
+constraint SEC_TEAM_PK primary key (id)
 );
 
 alter table security_teams_facilities add (
-constraint security_teams_facilities_pk primary key (security_team_id, facility_id),
-constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id),
-constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id)
+constraint SEC_TEAM_FACS_PK primary key (security_team_id, facility_id),
+constraint SEC_TEAM_FACS_SEC_FK foreign key (security_team_id) references security_teams(id),
+constraint SEC_TEAM_FACS_FAC_FK foreign key (facility_id) references facilities(id)
 );
 
 alter table authz add (
