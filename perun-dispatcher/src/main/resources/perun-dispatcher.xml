@@ -182,6 +182,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 					<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
 					<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
 					<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
+					<prop key="perun.dispatcher.hornetq.datadir">/tmp/perun-dispatcher-data</prop>
 				</props>
 			</property>
 		</bean>
@@ -197,6 +198,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 					<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
 					<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
 					<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
+					<prop key="perun.dispatcher.hornetq.datadir">/tmp/perun-dispatcher-data</prop>
 				</props>
 			</property>
 		</bean>
