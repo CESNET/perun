@@ -25,10 +25,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<aop:aspectj-autoproxy/>
 
 	<!-- Enable @Transactional support -->
-	<tx:annotation-driven transaction-manager="springTransactionManager"/>
+	<tx:annotation-driven transaction-manager="perunTransactionManager"/>
 
 	<!-- Transaction management using springTransactionManager -->
-	<tx:advice id="txAdvice" transaction-manager="springTransactionManager">
+	<tx:advice id="txAdvice" transaction-manager="perunTransactionManager">
 		<tx:attributes>
 			<tx:method name="get*" read-only="true"/>
 			<tx:method name="*"/>
