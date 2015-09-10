@@ -1264,6 +1264,10 @@ create index idx_fk_tags_res_tags on tags_resources(tag_id);
 create index idx_fk_tags_res_res on tags_resources(resource_id);
 create index idx_fk_mailchange_user_id on mailchange(user_id);
 create index idx_fk_pwdreset_user_id on pwdreset(user_id);
+create index idx_fk_security_teams_facilities_security_team on security_teams_facilities (security_team_id);
+create index idx_fk_security_teams_facilities_facilities on security_teams_facilities (facility_id);
+create index idx_fk_bllist_user on blacklists (user_id);
+create index idx_fk_bllist_secteam on blacklists (security_team_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1565,6 +1569,10 @@ alter table security_teams add constraint security_teams_pk primary key (id);
 alter table security_teams_facilities add constraint security_teams_facilities_pk primary key (security_team_id, facility_id);
 alter table security_teams_facilities add constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id);
 alter table security_teams_facilities add constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id);
+
+alter table blacklists add constraint bllist_pk primary key (security_team_id,user_id);
+alter table blacklists add constraint bllist_secteam_fk foreign key (security_team_id) references security_teams (id);
+alter table blacklists add constraint bllist_user_fk foreign key (user_id) references users(id);
 
 alter table authz add constraint authz_role_fk foreign key (role_id) references roles(id);
 alter table authz add constraint authz_user_fk foreign key (user_id) references users(id);
