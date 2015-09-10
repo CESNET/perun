@@ -21,9 +21,9 @@
 	</acceptors>
 
 	<security-enabled>false</security-enabled>
-	<bindings-directory>"${perun.dispatcher.hornetq.datadir:.}"/bindings</bindings-directory>
-	<journal-directory>"${perun.dispatcher.hornetq.datadir:.}"/journal</journal-directory>
-	<large-messages-directory>"${perun.dispatcher.hornetq.datadir:.}"/largemessages</large-messages-directory>
-	<paging-directory>"${perun.dispatcher.hornetq.datadir:.}"/paging</paging-directory>
+	<bindings-directory>${perun.dispatcher.hornetq.datadir:data}/bindings</bindings-directory>
+	<journal-directory>${perun.dispatcher.hornetq.datadir:data}/journal</journal-directory>
+	<large-messages-directory>${perun.dispatcher.hornetq.datadir:data}/largemessages</large-messages-directory>
+	<paging-directory>${perun.dispatcher.hornetq.datadir:data}/paging</paging-directory>
 
 </configuration>
