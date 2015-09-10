@@ -933,7 +933,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery +
 							" from security_teams inner join (" +
 							"select security_teams_facilities.security_team_id from security_teams_facilities where facility_id=?" +
-							") as assigned_ids ON security_teams.id=assigned_ids.security_team_id",
+							") " + Compatibility.getAsAlias("assigned_ids") + " ON security_teams.id=assigned_ids.security_team_id",
 					SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);

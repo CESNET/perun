@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
@@ -44,8 +43,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
@@ -127,14 +124,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getFacilityByIdWhenFacilityNotExists() throws Exception {
-			System.out.println("FacilitiesManager.getFacilityByIdWhenFacilityNotExists");
+	public void getFacilityByIdWhenFacilityNotExists() throws Exception {
+		System.out.println("FacilitiesManager.getFacilityByIdWhenFacilityNotExists");
 
-			facility.setId(0);
-			perun.getFacilitiesManager().getFacilityById(sess, facility.getId());
-			// shouldn't find facility
+		facility.setId(0);
+		perun.getFacilitiesManager().getFacilityById(sess, facility.getId());
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test
 	public void getFacilityByName() throws Exception {
@@ -147,14 +144,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getFacilityByNameWhenFacilityNotExists() throws Exception {
-			System.out.println("FacilitiesManager.getFacilityByNameWhenFacilityNotExists");
+	public void getFacilityByNameWhenFacilityNotExists() throws Exception {
+		System.out.println("FacilitiesManager.getFacilityByNameWhenFacilityNotExists");
 
-			facility.setName("");
-			perun.getFacilitiesManager().getFacilityByName(sess, facility.getName());
-			// shouldn't find facility
+		facility.setName("");
+		perun.getFacilitiesManager().getFacilityByName(sess, facility.getName());
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test
 	public void getFacilitiesByDestination() throws Exception {
@@ -206,13 +203,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getOwnersWhenFacilityNotExists() throws Exception {
-			System.out.println("FacilitiesManager.getOwnersWhenFacilityNotExists");
+	public void getOwnersWhenFacilityNotExists() throws Exception {
+		System.out.println("FacilitiesManager.getOwnersWhenFacilityNotExists");
 
-			perun.getFacilitiesManager().getOwners(sess, new Facility());
-			// shouldn't find facility
+		perun.getFacilitiesManager().getOwners(sess, new Facility());
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test
 	public void addOwner() throws Exception {
@@ -232,34 +229,34 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=OwnerNotExistsException.class)
-		public void addOwnerWhenOwnerNotExists() throws Exception {
-			System.out.println("FacilitiesManager.addOwnerWhenOwnerNotExists");
+	public void addOwnerWhenOwnerNotExists() throws Exception {
+		System.out.println("FacilitiesManager.addOwnerWhenOwnerNotExists");
 
-			perun.getFacilitiesManager().addOwner(sess, facility, new Owner());
-			// shouldn't be able to add not existing owner
-		}
+		perun.getFacilitiesManager().addOwner(sess, facility, new Owner());
+		// shouldn't be able to add not existing owner
+	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void addOwnerWhenFacilityNotExists() throws Exception {
-			System.out.println("FacilitiesManager.addOwnerWhenFacilityNotExists");
+	public void addOwnerWhenFacilityNotExists() throws Exception {
+		System.out.println("FacilitiesManager.addOwnerWhenFacilityNotExists");
 
-			Owner secondOwner = new Owner();
-			secondOwner.setName("SecondTestOwner");
-			secondOwner.setContact("testingSecondOwner");
-			secondOwner.setType(OwnerType.technical);
-			perun.getFacilitiesManager().addOwner(sess, new Facility(), secondOwner);
-			// shouldn't facility
+		Owner secondOwner = new Owner();
+		secondOwner.setName("SecondTestOwner");
+		secondOwner.setContact("testingSecondOwner");
+		secondOwner.setType(OwnerType.technical);
+		perun.getFacilitiesManager().addOwner(sess, new Facility(), secondOwner);
+		// shouldn't facility
 
-		}
+	}
 
 	@Test (expected=OwnerAlreadyAssignedException.class)
-		public void addOwnerWhenOwnerAlreadyAssigned() throws Exception {
-			System.out.println("FacilitiesManager.addOwnerWhenOwnerAlreadyAssigned");
+	public void addOwnerWhenOwnerAlreadyAssigned() throws Exception {
+		System.out.println("FacilitiesManager.addOwnerWhenOwnerAlreadyAssigned");
 
-			perun.getFacilitiesManager().addOwner(sess, facility, owner);
-			// shouldn't be able to add same owner
+		perun.getFacilitiesManager().addOwner(sess, facility, owner);
+		// shouldn't be able to add same owner
 
-		}
+	}
 
 	@Test
 	public void removeOwner() throws Exception {
@@ -273,32 +270,32 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=OwnerAlreadyRemovedException.class)
-		public void removeOwnerWhenOwnerAlreadyRemoved() throws Exception {
-			System.out.println("FacilitiesManager.removeOwnerWhenOwnerAlreadyRemoved");
+	public void removeOwnerWhenOwnerAlreadyRemoved() throws Exception {
+		System.out.println("FacilitiesManager.removeOwnerWhenOwnerAlreadyRemoved");
 
-			perun.getFacilitiesManager().removeOwner(sess, facility, owner);
-			perun.getFacilitiesManager().removeOwner(sess, facility, owner);
-			// shouldn't be able to remove owner twice
+		perun.getFacilitiesManager().removeOwner(sess, facility, owner);
+		perun.getFacilitiesManager().removeOwner(sess, facility, owner);
+		// shouldn't be able to remove owner twice
 
-		}
+	}
 
 	@Test (expected=OwnerNotExistsException.class)
-		public void removeOwnerWhenOwnerNotExists() throws Exception {
-			System.out.println("FacilitiesManager.removeOwnerWhenOwnerNotExists");
+	public void removeOwnerWhenOwnerNotExists() throws Exception {
+		System.out.println("FacilitiesManager.removeOwnerWhenOwnerNotExists");
 
-			perun.getFacilitiesManager().removeOwner(sess, facility, new Owner());
-			// shouldn't be able to remove not existing owner
+		perun.getFacilitiesManager().removeOwner(sess, facility, new Owner());
+		// shouldn't be able to remove not existing owner
 
-		}
+	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void removeOwnerWhenFacilityNotExists() throws Exception {
-			System.out.println("FacilitiesManager.removeOwnerWhenFacilityNotExists");
+	public void removeOwnerWhenFacilityNotExists() throws Exception {
+		System.out.println("FacilitiesManager.removeOwnerWhenFacilityNotExists");
 
-			perun.getFacilitiesManager().removeOwner(sess, new Facility(), owner);
-			// shouldn't find facility
+		perun.getFacilitiesManager().removeOwner(sess, new Facility(), owner);
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test
 	public void getAllowedVos() throws Exception {
@@ -379,12 +376,12 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getAllowedVosWhenFacilityNotExists() throws Exception {
-			System.out.println("FacilitiesManager.getAllowedVosWhenFacilityNotExists");
+	public void getAllowedVosWhenFacilityNotExists() throws Exception {
+		System.out.println("FacilitiesManager.getAllowedVosWhenFacilityNotExists");
 
-			perun.getFacilitiesManager().getAllowedVos(sess, new Facility());
-			//shouldn't find facility
-		}
+		perun.getFacilitiesManager().getAllowedVos(sess, new Facility());
+		//shouldn't find facility
+	}
 
 	@Test
 	public void getAssignedResources() throws Exception {
@@ -401,13 +398,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getAssignedResourcesWhenFacilityNotExists() throws Exception {
-			System.out.println("FacilitiesManager.getAssignedResourcesWhenFacilityNotExists");
+	public void getAssignedResourcesWhenFacilityNotExists() throws Exception {
+		System.out.println("FacilitiesManager.getAssignedResourcesWhenFacilityNotExists");
 
-			perun.getFacilitiesManager().getAssignedResources(sess, new Facility());
-			// shouldn't find facility
+		perun.getFacilitiesManager().getAssignedResources(sess, new Facility());
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test
 	public void getAssignedRichResources() throws Exception {
@@ -433,13 +430,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getAssignedRichResourcesWhenFacilityNotExists() throws Exception {
-			System.out.println("FacilitiesManager.getAssignedRichResourcesWhenFacilityNotExists");
+	public void getAssignedRichResourcesWhenFacilityNotExists() throws Exception {
+		System.out.println("FacilitiesManager.getAssignedRichResourcesWhenFacilityNotExists");
 
-			perun.getFacilitiesManager().getAssignedRichResources(sess, new Facility());
-			// shouldn't find facility
+		perun.getFacilitiesManager().getAssignedRichResources(sess, new Facility());
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test
 	public void createFacility() throws Exception {
@@ -455,41 +452,41 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityExistsException.class)
-		public void createFacilityWhenFacilityExists() throws Exception {
-			System.out.println("FacilitiesManager.createFacilityWhenFacilityExists");
+	public void createFacilityWhenFacilityExists() throws Exception {
+		System.out.println("FacilitiesManager.createFacilityWhenFacilityExists");
 
-			Facility facility = new Facility();
-			facility.setName("FacilitiesManagerTestFacility");
+		Facility facility = new Facility();
+		facility.setName("FacilitiesManagerTestFacility");
 
-			perun.getFacilitiesManager().createFacility(sess, facility);
-			// shouldn't create same facility twice
+		perun.getFacilitiesManager().createFacility(sess, facility);
+		// shouldn't create same facility twice
 
-		}
+	}
 
 
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void deleteFacility() throws Exception {
-			System.out.println("FacilitiesManager.deleteFacility");
+	public void deleteFacility() throws Exception {
+		System.out.println("FacilitiesManager.deleteFacility");
 
-			perun.getFacilitiesManager().deleteFacility(sess, facility);
-			perun.getFacilitiesManager().deleteFacility(sess, facility);
-			// shouldn't find and delete "deleted facility"
+		perun.getFacilitiesManager().deleteFacility(sess, facility);
+		perun.getFacilitiesManager().deleteFacility(sess, facility);
+		// shouldn't find and delete "deleted facility"
 
-		}
+	}
 
 	@Test (expected=RelationExistsException.class)
-		public void deleteFacilityWhenRelationExist() throws Exception {
-			System.out.println("FacilitiesManager.deleteFacilityWhenRelationExist");
+	public void deleteFacilityWhenRelationExist() throws Exception {
+		System.out.println("FacilitiesManager.deleteFacilityWhenRelationExist");
 
-			Vo vo = setUpVo();
-			// create VO
-			setUpResource(vo);
-			// create Resource for our facility
-			perun.getFacilitiesManager().deleteFacility(sess, facility);
-			// shouldn't delete facility with resource
+		Vo vo = setUpVo();
+		// create VO
+		setUpResource(vo);
+		// create Resource for our facility
+		perun.getFacilitiesManager().deleteFacility(sess, facility);
+		// shouldn't delete facility with resource
 
-		}
+	}
 
 	@Test
 	public void getOwnerFacilities() throws Exception {
@@ -502,13 +499,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=OwnerNotExistsException.class)
-		public void getOwnerFacilitiesWhenOwnerNotExists() throws Exception {
-			System.out.println("FacilitiesManager.getOwnerFacilitiesWhenOwnerNotExists");
+	public void getOwnerFacilitiesWhenOwnerNotExists() throws Exception {
+		System.out.println("FacilitiesManager.getOwnerFacilitiesWhenOwnerNotExists");
 
-			perun.getFacilitiesManager().getOwnerFacilities(sess, new Owner());
-			// shouldn't find owner
+		perun.getFacilitiesManager().getOwnerFacilities(sess, new Owner());
+		// shouldn't find owner
 
-		}
+	}
 
 	@Test
 	public void addHosts()throws Exception {
@@ -539,13 +536,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void addHostsWhenFacilityNotExists()throws Exception {
-			System.out.println(FACILITIES_MANAGER + ".addHostsWhenFacilityNotExists()");
+	public void addHostsWhenFacilityNotExists()throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".addHostsWhenFacilityNotExists()");
 
-			facilitiesManagerEntry.addHosts(sess, hosts, emptyFac);
-			// shouldn't find facility
+		facilitiesManagerEntry.addHosts(sess, hosts, emptyFac);
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test
 	public void addHostsWithPattern()throws Exception {
@@ -573,40 +570,40 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test(expected = WrongPatternException.class)
-		public void addHostsWithWrongPattern()throws Exception {
-			System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern()");
+	public void addHostsWithWrongPattern()throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern()");
 
-			String hostname = "name[00]-01]surname[99-100]cz";
-			List<String> listOfHosts = new ArrayList<String>();
-			listOfHosts.add(hostname);
-			hostname = "local";
-			listOfHosts.add(hostname);
-			hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
-		}
-
-	@Test(expected = WrongPatternException.class)
-		public void addHostsWithWrongPattern2()throws Exception {
-			System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern2()");
-
-			String hostname = "name[00-a01]surname[99-100]cz";
-			List<String> listOfHosts = new ArrayList<String>();
-			listOfHosts.add(hostname);
-			hostname = "local";
-			listOfHosts.add(hostname);
-			hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
-		}
+		String hostname = "name[00]-01]surname[99-100]cz";
+		List<String> listOfHosts = new ArrayList<String>();
+		listOfHosts.add(hostname);
+		hostname = "local";
+		listOfHosts.add(hostname);
+		hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
+	}
 
 	@Test(expected = WrongPatternException.class)
-		public void addHostsWithWrongPattern3()throws Exception {
-			System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern3()");
+	public void addHostsWithWrongPattern2()throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern2()");
 
-			String hostname = "name[01-00]surname[99-100]cz";
-			List<String> listOfHosts = new ArrayList<String>();
-			listOfHosts.add(hostname);
-			hostname = "local";
-			listOfHosts.add(hostname);
-			hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
-		}
+		String hostname = "name[00-a01]surname[99-100]cz";
+		List<String> listOfHosts = new ArrayList<String>();
+		listOfHosts.add(hostname);
+		hostname = "local";
+		listOfHosts.add(hostname);
+		hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
+	}
+
+	@Test(expected = WrongPatternException.class)
+	public void addHostsWithWrongPattern3()throws Exception {
+		System.out.println(FACILITIES_MANAGER + ".addHostsWithWrongPattern3()");
+
+		String hostname = "name[01-00]surname[99-100]cz";
+		List<String> listOfHosts = new ArrayList<String>();
+		listOfHosts.add(hostname);
+		hostname = "local";
+		listOfHosts.add(hostname);
+		hosts = facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
+	}
 
 	@Test
 	public void getHosts()throws Exception{
@@ -647,13 +644,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getHostsWhenFacilityNotExists()throws Exception{
-			System.out.println(FACILITIES_MANAGER + ".getHostsFacilityNotExists()");
+	public void getHostsWhenFacilityNotExists()throws Exception{
+		System.out.println(FACILITIES_MANAGER + ".getHostsFacilityNotExists()");
 
-			facilitiesManagerEntry.getHosts(sess, emptyFac);
-			// shouldn't find facility (facility)
+		facilitiesManagerEntry.getHosts(sess, emptyFac);
+		// shouldn't find facility (facility)
 
-		}
+	}
 
 	@Test
 	public void removeHosts()throws Exception{
@@ -669,12 +666,12 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void removeHostsWhenFacilityNotExists()throws Exception{
-			System.out.println(FACILITIES_MANAGER + ".removeHostsWhenFacilityNotExists()");
+	public void removeHostsWhenFacilityNotExists()throws Exception{
+		System.out.println(FACILITIES_MANAGER + ".removeHostsWhenFacilityNotExists()");
 
-			facilitiesManagerEntry.removeHosts(sess, hosts, emptyFac);
-			// shouldn't find facility
-		}
+		facilitiesManagerEntry.removeHosts(sess, hosts, emptyFac);
+		// shouldn't find facility
+	}
 
 	@Test
 	public void getFacilitiesCount() throws Exception {
@@ -696,13 +693,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getHostsCountWhenFacilityNotExists()throws Exception{
-			System.out.println(FACILITIES_MANAGER + ".getHostsCountWhenFacilityNotExists()");
+	public void getHostsCountWhenFacilityNotExists()throws Exception{
+		System.out.println(FACILITIES_MANAGER + ".getHostsCountWhenFacilityNotExists()");
 
-			assertEquals(facilitiesManagerEntry.getHostsCount(sess, emptyFac), 1);
-			// shouldn't find facility
+		assertEquals(facilitiesManagerEntry.getHostsCount(sess, emptyFac), 1);
+		// shouldn't find facility
 
-		}
+	}
 
 
 	@Test
@@ -757,7 +754,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		candidate.setTitleBefore("");
 		candidate.setTitleAfter("");
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
-					"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
+				"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
 		candidate.setAttributes(new HashMap<String,String>());
 

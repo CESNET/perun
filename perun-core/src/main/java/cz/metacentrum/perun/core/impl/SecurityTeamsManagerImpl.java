@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by ondrej on 13.8.15.
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
@@ -168,8 +168,8 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 							"select gm.member_id, gm.group_id from groups_members " + Compatibility.getAsAlias("gm") +
 							" inner join " +
 							"authz on authz.authorized_group_id=gm.group_id where authz.security_team_id=? " +
-							") as member_group_ids on members.id=member_group_ids.member_id)" +
-							") as user_ids ON users.id=user_ids.user_id",
+							") " + Compatibility.getAsAlias("member_group_ids") + " on members.id=member_group_ids.member_id)" +
+							") " + Compatibility.getAsAlias("user_ids") + " on users.id=user_ids.user_id",
 					UsersManagerImpl.USER_MAPPER, securityTeam.getId(), securityTeam.getId());
 
 			return list;
@@ -180,6 +180,9 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
 	@Override
 	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
+		if (description != null && description.trim().isEmpty()) {
+			description = null;
+		}
 		try {
 			jdbc.update("insert into blacklists(security_team_id, user_id, description, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
 					"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
@@ -210,7 +213,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 				list = jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery +
 								" from users inner join (" +
 								"select blacklists.user_id from blacklists where security_team_id=?" +
-								") as blacklisted_ids ON users.id=blacklisted_ids.user_id",
+								") " + Compatibility.getAsAlias("blacklisted_ids") + " ON users.id=blacklisted_ids.user_id",
 						UsersManagerImpl.USER_MAPPER, st.getId());
 
 				blacklisted.addAll(list);

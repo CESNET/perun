@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import java.util.List;
 
 /**
- * Created by ondrej on 12.8.15.
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public interface SecurityTeamsManagerImplApi {
 

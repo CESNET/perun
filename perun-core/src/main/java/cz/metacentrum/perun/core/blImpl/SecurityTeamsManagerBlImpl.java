@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by ondrej on 12.8.15.
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 
@@ -126,13 +126,13 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	@Override
 	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
 		getSecurityTeamsManagerImpl().addUserToBlacklist(sess, securityTeam, user, description);
-		getPerunBl().getAuditer().log(sess, "{} add to blaclist of {} with description '{}'.", user, securityTeam, description);
+		getPerunBl().getAuditer().log(sess, "{} add to blacklist of {} with description '{}'.", user, securityTeam, description);
 	}
 
 	@Override
 	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException {
 		getSecurityTeamsManagerImpl().removeUserFromBlacklist(sess, securityTeam, user);
-		getPerunBl().getAuditer().log(sess, "{} remove from blaclist of {}.", user, securityTeam);
+		getPerunBl().getAuditer().log(sess, "{} remove from blacklist of {}.", user, securityTeam);
 	}
 
 	@Override

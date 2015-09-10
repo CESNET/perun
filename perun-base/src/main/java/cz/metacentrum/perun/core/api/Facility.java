@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-
 /**
  * Class represents facility.
  *
@@ -104,7 +102,10 @@ public class Facility extends Auditable implements Comparable<Facility> {
 
 	@Override
 	public int compareTo(Facility facility) {
-		if (facility == null || this.name == null) throw new InternalErrorRuntimeException(new NullPointerException("Facility facility or name"));
+		if (facility == null) new NullPointerException("Facility to compare with is null.");
+		if (this.name == null && facility.getName() != null) return -1;
+		if (facility.getName() == null && this.name != null) return 1;
+		if (this.name == null && facility.getName() == null) return 0;
 		return this.name.compareTo(facility.getName());
 	}
 
