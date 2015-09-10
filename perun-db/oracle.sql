@@ -803,14 +803,14 @@ create table vo_ext_sources (
 );
 
 create table "group_ext_sources" (
-  group_id integer not null,
-  ext_source_id integer not null,
-  created_at date default sysdate not null,
-  created_by nvarchar2(1024) default user not null,
-  modified_at date default sysdate not null,
-  modified_by nvarchar2(1024) default user not null,
-  created_by_uid integer,
-  modified_by_uid integer
+	group_id integer not null,
+	ext_source_id integer not null,
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table user_ext_sources (
@@ -1056,12 +1056,12 @@ create table pwdreset (
 
 create table security_teams (
 	id integer not null,
-	name varchar(128) not null,
-	description varchar(1024),
+	name nvarchar2(128) not null,
+	description nvarchar2(1024),
 	created_at timestamp default sysdate not null,
-	created_by varchar(1024) default user not null,
+	created_by nvarchar2(1024) default user not null,
 	modified_at timestamp default sysdate not null,
-	modified_by varchar(1024) default user not null,
+	modified_by nvarchar2(1024) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -1070,11 +1070,11 @@ create table security_teams_facilities (
 	security_team_id integer not null,
 	facility_id integer not null,
 	created_at timestamp default sysdate not null,
-  created_by varchar(1024) default user not null,
-  modified_at timestamp default sysdate not null,
-  modified_by varchar(1024) default user not null,
-  created_by_uid integer,
-  modified_by_uid integer
+	created_by nvarchar2(1024) default user not null,
+	modified_at timestamp default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table blacklists (
@@ -1082,11 +1082,11 @@ create table blacklists (
 	user_id integer not null,
 	description nvarchar2(1024),
 	created_at timestamp default sysdate not null,
-  created_by varchar(1024) default user not null,
-  modified_at timestamp default sysdate not null,
-  modified_by varchar(1024) default user not null,
-  created_by_uid integer,
-  modified_by_uid integer
+	created_by nvarchar2(1024) default user not null,
+	modified_at timestamp default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28;
@@ -1377,7 +1377,7 @@ constraint GRP_NAM_VO_PARENTG_U unique (name,vo_id,parent_group_id),
 constraint GRP_VOS_FK foreign key (vo_id) references vos(id),
 constraint GRP_GRP_FK foreign key (parent_group_id) references groups(id)
 );
-alter table group_ext_sources add (                                                              
+alter table group_ext_sources add (
 constraint GROUPSRC_PK primary key (group_id,ext_source_id),
 constraint GROUPSRC_SRC_FK foreign key(ext_source_id) references ext_sources(id),
 constraint GROUPSRC_GROUPS_FK foreign key(group_id) references groups(id)
@@ -1513,13 +1513,13 @@ constraint SER_PRINC_PK primary key (id)
 );
 
 alter table security_teams add (
-constraint security_teams_pk primary key (id)
+constraint SEC_TEAM_PK primary key (id)
 );
 
 alter table security_teams_facilities add (
-constraint security_teams_facilities_pk primary key (security_team_id, facility_id),
-constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id),
-constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id)
+constraint SEC_TEAM_FACS_PK primary key (security_team_id, facility_id),
+constraint SEC_TEAM_FACS_SEC_FK foreign key (security_team_id) references security_teams(id),
+constraint SEC_TEAM_FACS_FAC_FK foreign key (facility_id) references facilities(id)
 );
 
 alter table authz add (

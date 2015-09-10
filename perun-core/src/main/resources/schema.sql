@@ -793,14 +793,14 @@ create table vo_ext_sources (
 );
 
 create table group_ext_sources (
-  group_id integer not null,
-  ext_source_id integer not null,
-  created_at timestamp default now() not null,
-  created_by varchar(1024) default user not null,
-  modified_at timestamp default now() not null,
-  modified_by varchar(1024) default user not null,
-  created_by_uid integer,
-  modified_by_uid integer
+	group_id integer not null,
+	ext_source_id integer not null,
+	created_at timestamp default now() not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now() not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table user_ext_sources (
@@ -1062,11 +1062,11 @@ create table security_teams_facilities (
 	security_team_id integer not null,
 	facility_id integer not null,
 	created_at timestamp default now not null,
-  created_by varchar(1024) default user not null,
-  modified_at timestamp default now not null,
-  modified_by varchar(1024) default user not null,
-  created_by_uid integer,
-  modified_by_uid integer
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table blacklists (
@@ -1074,11 +1074,11 @@ create table blacklists (
 	user_id integer not null,
 	description varchar(1024),
 	created_at timestamp default now not null,
-  created_by varchar(1024) default user not null,
-  modified_at timestamp default now not null,
-  modified_by varchar(1024) default user not null,
-  created_by_uid integer,
-  modified_by_uid integer
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create sequence attr_names_id_seq;
