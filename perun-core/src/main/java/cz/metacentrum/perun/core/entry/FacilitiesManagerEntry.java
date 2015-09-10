@@ -447,6 +447,18 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		return getFacilitiesManagerBl().getAssignedFacilities(sess, service);
 	}
 
+	public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
+			throw new PrivilegeException(sess, "getAssignedFacilities");
+		}
+
+		return getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
+	}
+
 	/**
 	 * Gets the facilitiesManagerBl for this instance.
 	 *

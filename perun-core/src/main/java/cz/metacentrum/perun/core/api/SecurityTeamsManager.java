@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -76,8 +77,23 @@ public interface SecurityTeamsManager {
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotExistsException
+	 * @throws RelationExistsException if team is assigned to any facility or has blacklisted users.
 	 */
-	void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+	void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
+
+	/**
+	 * Delete SecurityTeam.
+	 *
+	 * @param perunSession
+	 * @param securityTeam
+	 * @param forceDelete TRUE if Team should be forcefully deleted.
+	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+	 * @throws InternalErrorException
+	 * @throws SecurityTeamNotExistsException
+	 * @throws RelationExistsException if forceDelete == FALSE and team is assigned to any facility or has blacklisted users.
+	 */
+	void deleteSecurityTeam(PerunSession perunSession, SecurityTeam securityTeam, boolean forceDelete) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, RelationExistsException;
+
 
 	/**
 	 * Find existing SecurityTeam by ID.

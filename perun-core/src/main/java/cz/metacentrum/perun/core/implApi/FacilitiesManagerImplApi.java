@@ -681,4 +681,15 @@ public interface FacilitiesManagerImplApi {
 	 */
 	void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotAssignedException;
 
+	/**
+	 * Get facilities where security team is assigned.
+	 *
+	 * @param sess
+	 * @param securityTeam
+	 * @return
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+
 }

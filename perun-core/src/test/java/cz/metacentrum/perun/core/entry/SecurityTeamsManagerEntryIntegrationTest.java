@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotMemberOfParentGroupException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
@@ -36,20 +37,13 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
-
 public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private SecurityTeamsManager securityTeamsManagerEntry;
@@ -253,7 +247,18 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 	public void testDeleteSecurityTeamWithNullSecurityTeam() throws Exception {
 		securityTeamsManagerEntry.deleteSecurityTeam(sess, null);
 	}
-
+	@Test(expected = RelationExistsException.class)
+	public void testDeleteSecurityTeamWithRelationExists() throws Exception {
+		setUpSecurityTeams();
+		setUpFacilities();
+		securityTeamsManagerEntry.deleteSecurityTeam(sess, st0);
+	}
+	@Test
+	public void testForceDeleteSecurityTeamWithRelationExists() throws Exception {
+		setUpSecurityTeams();
+		setUpFacilities();
+		securityTeamsManagerEntry.deleteSecurityTeam(sess, st0, true);
+	}
 
 	@Test
 	public void testGetSecurityTeamById() throws Exception {
@@ -515,7 +520,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpUsers();
 		setUpFacilities();
 		SecurityTeam st = new SecurityTeam(11, "Security0", "Description test 0");
-		securityTeamsManagerEntry.addUserToBlacklist(sess, st, u0,"reason");
+		securityTeamsManagerEntry.addUserToBlacklist(sess, st, u0, "reason");
 	}
 	@Test(expected = UserNotExistsException.class)
 	public void testAddUserToBlacklistUserNotExists() throws Exception {
@@ -532,6 +537,28 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpFacilities();
 		setUpBlacklists();
 		securityTeamsManagerEntry.addUserToBlacklist(sess, st0, u1, null);
+	}
+
+	@Test
+	public void testGetAssignedFacilitiesForSecurityTeam() throws Exception {
+		setUpSecurityTeams();
+		setUpFacilities();
+
+		List<Facility> facilities0 = perun.getFacilitiesManager().getAssignedFacilities(sess, st0);
+		List<Facility> facilities1 = perun.getFacilitiesManager().getAssignedFacilities(sess, st1);
+		List<Facility> facilities2 = perun.getFacilitiesManager().getAssignedFacilities(sess, st2);
+
+		assertTrue("SecurityTeam 0 is not assigned to facility 0", facilities0.contains(f0));
+		assertTrue("SecurityTeam 1 is not assigned to facility 0", facilities0.contains(f1));
+		assertTrue("SecurityTeam 0 is not assigned to facility 1", facilities1.contains(f0));
+
+		assertTrue("SecurityTeam 2 is assigned to facility 0", !facilities0.contains(f2));
+		assertTrue("SecurityTeam 1 is assigned to facility 1", !facilities1.contains(f1));
+		assertTrue("SecurityTeam 2 is assigned to facility 1", !facilities1.contains(f2));
+		assertTrue("SecurityTeam 0 is assigned to facility 2", !facilities2.contains(f0));
+		assertTrue("SecurityTeam 1 is assigned to facility 2", !facilities2.contains(f1));
+		assertTrue("SecurityTeam 2 is assigned to facility 2", !facilities2.contains(f2));
+
 	}
 
 
@@ -634,9 +661,6 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		securityTeamsManagerEntry.getBlacklist(sess, facility);
 	}
-
-
-
 
 
 

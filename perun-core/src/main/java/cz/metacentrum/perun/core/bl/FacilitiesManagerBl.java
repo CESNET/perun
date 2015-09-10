@@ -376,6 +376,17 @@ public interface FacilitiesManagerBl {
 	List<Facility> getAssignedFacilities(PerunSession sess, Service service) throws InternalErrorException;
 
 	/**
+	 * Get facilities where the security team is assigned
+	 *
+	 * @param sess
+	 * @param securityTeam
+	 * @return
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
 	 * Returns all facilities which have set the attribute with the value. Searching only def and opt attributes.
 	 *
 	 * @param sess
@@ -832,9 +843,8 @@ public interface FacilitiesManagerBl {
 	 * @param facility
 	 * @return list of ContactGroups for the facility
 	 * @throws InternalErrorException
-	 * @throws FacilityContactNotExistsException
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException, FacilityContactNotExistsException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Get contact group for the facility and the contact group name

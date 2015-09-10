@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
@@ -13,6 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -21,8 +23,10 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,11 +62,18 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 	public List<SecurityTeam> getSecurityTeams(PerunSession sess) throws PrivilegeException, InternalErrorException {
 		Utils.checkPerunSession(sess);
 
-		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)) {
-			throw new PrivilegeException(sess, "getSecurityTeams");
+		if (AuthzResolverBlImpl.isAuthorized(sess, Role.PERUNADMIN)) {
+			return getSecurityTeamsManagerBl().getAllSecurityTeams(sess);
+		} else if (AuthzResolverBlImpl.isAuthorized(sess, Role.SECURITYADMIN)) {
+			List<SecurityTeam> securityTeams = new ArrayList<>();
+			// Get SecurityTeams where user is Admin
+			for (PerunBean st: AuthzResolver.getComplementaryObjectsForRole(sess, Role.SECURITYADMIN, SecurityTeam.class)) {
+				securityTeams.add((SecurityTeam) st);
+			}
+			return securityTeams;
+		} else {
+			throw new PrivilegeException("getSecurityTeams");
 		}
-
-		return getSecurityTeamsManagerBl().getSecurityTeams(sess);
 	}
 
 	@Override
@@ -135,7 +146,12 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 	}
 
 	@Override
-	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException {
+	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, RelationExistsException {
+		deleteSecurityTeam(sess, securityTeam, false);
+	}
+
+	@Override
+	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
 
@@ -143,7 +159,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 			throw new PrivilegeException(sess, "deleteSecurityTeam");
 		}
 
-		getSecurityTeamsManagerBl().deleteSecurityTeam(sess, securityTeam);
+		getSecurityTeamsManagerBl().deleteSecurityTeam(sess, securityTeam, forceDelete);
 	}
 
 	@Override

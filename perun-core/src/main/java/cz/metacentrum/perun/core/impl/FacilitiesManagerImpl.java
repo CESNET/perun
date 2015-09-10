@@ -933,7 +933,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery +
 							" from security_teams inner join (" +
 							"select security_teams_facilities.security_team_id from security_teams_facilities where facility_id=?" +
-							") " + Compatibility.getAsAlias("assigned_ids") + " ON security_teams.id=assigned_ids.security_team_id",
+							") " + Compatibility.getAsAlias("assigned_ids")+ " ON security_teams.id=assigned_ids.security_team_id",
 					SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -975,6 +975,17 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
+	public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + facilityMappingSelectQuery +
+							" from facilities inner join (" +
+							"select security_teams_facilities.facility_id from security_teams_facilities where security_team_id=?" +
+							") " + Compatibility.getAsAlias("assigned_ids")+ " ON facilities.id=assigned_ids.facility_id",
+					FACILITY_MAPPER, securityTeam.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 
 	private boolean isSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
 		try {

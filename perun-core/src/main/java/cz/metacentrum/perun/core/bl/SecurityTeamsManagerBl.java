@@ -5,19 +5,12 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
-import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
-import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 
 import java.util.List;
 
 /**
- * Created by ondrej on 12.8.15.
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public interface SecurityTeamsManagerBl {
 
@@ -68,10 +61,12 @@ public interface SecurityTeamsManagerBl {
 	 *
 	 * @param sess
 	 * @param securityTeam
+	 * @param forceDelete TRUE if Team should be forcefully deleted.
 	 * @throws InternalErrorException
 	 * @throws SecurityTeamNotExistsException
+	 * @throws RelationExistsException if forceDelete == FALSE and team is assigned to any facility or has blacklisted users.
 	 */
-	void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException;
+	void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws InternalErrorException, SecurityTeamNotExistsException, RelationExistsException;
 
 	/**
 	 * get security team by its id
@@ -171,6 +166,15 @@ public interface SecurityTeamsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException;
+
+	/**
+	 * Remove user from all blacklists
+	 *
+	 * @param sess
+	 * @param user
+	 * @throws InternalErrorException
+	 */
+	void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
 	 * get blacklist of security team
@@ -308,5 +312,15 @@ public interface SecurityTeamsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	boolean isUserBlacklisted(PerunSession sess, SecurityTeam st, User user) throws InternalErrorException;
+
+	/**
+	 * Check if user is blacklisted by any security team
+	 *
+	 * @param sess
+	 * @param user
+	 * @return true if given user is blacklisted by any security team
+	 * @throws InternalErrorException
+	 */
+	boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException;
 
 }

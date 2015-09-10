@@ -78,6 +78,11 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	@Override
 	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
 
+		// we do not store empty string in description
+		if (securityTeam != null && securityTeam.getDescription() != null && securityTeam.getDescription().trim().isEmpty()) {
+			securityTeam.setDescription(null);
+		}
+
 		// Get SecurityTeam ID
 		int securityTeamId;
 		try {
@@ -97,6 +102,12 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
 	@Override
 	public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException {
+
+		// we do not store empty string in description
+		if (securityTeam != null && securityTeam.getDescription() != null && securityTeam.getDescription().trim().isEmpty()) {
+			securityTeam.setDescription(null);
+		}
+
 		try {
 			Map<String, Object> map = jdbc.queryForMap("select name, description from security_teams where id=?", securityTeam.getId());
 
@@ -204,6 +215,15 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
+	public void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			jdbc.update("delete from blacklists where and user_id=?", user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<User> getBlacklist(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException {
 		try {
 			Set<User> blacklisted = new HashSet<>();
@@ -305,6 +325,18 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 		}
 	}
 
+	@Override
+	public boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			int number = jdbc.queryForInt("select 1 from blacklists where user_id=?", user.getId());
+			if (number >= 1) return true;
+			return false;
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 
 	private boolean securityTeamExists(SecurityTeam securityTeam) throws InternalErrorException {
 		try {
