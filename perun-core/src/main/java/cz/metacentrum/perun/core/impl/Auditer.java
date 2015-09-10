@@ -216,7 +216,7 @@ public class Auditer {
 
 	/**
 	 * Log mesage. Substitute first {} with arg1.toString().
-	 *
+	 * 
 	 * IMPORTANT: This method stores the message aside from DB transaction.
 	 *
 	 * @param message
@@ -229,7 +229,7 @@ public class Auditer {
 
 	/**
 	 * Log mesage. Substitute first two {} with arg1.toString() and arg2.toString().
-	 *
+	 * 
 	 * IMPORTANT: This method stores the message aside from DB transaction.
 	 *
 	 * @param message
