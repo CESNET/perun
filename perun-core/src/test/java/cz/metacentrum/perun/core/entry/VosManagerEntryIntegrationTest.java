@@ -28,9 +28,10 @@ import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 /**
+ * Integration tests of VosManager.
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
-
 public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private VosManager vosManagerEntry;
@@ -41,7 +42,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	private final String voShortName = "TestShortN-" + someNumber;
 	private final String voName = "Test Vo Name " + someNumber;
 	private final static String extSourceName = "VosManagerEntryIntegrationTest";
-	private final static String VOS_MANAGER_ENTRY = "VosManagerEntry.";
+	private final static String CLASS_NAME = "VosManager.";
 
 	@Before
 	public void setUp() throws Exception {
@@ -54,40 +55,40 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void createVo() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "createVo()");
+		System.out.println(CLASS_NAME + "createVo");
 
 		final Vo newVo = vosManagerEntry.createVo(sess, myVo);
 
 		assertTrue("id must be greater than zero", newVo.getId() > 0);
 	}
-	
+
 	@Test
 	public void createAndUpdateVoWithLongShortName() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "createAndUpdateVoWithLongShortName()");
+		System.out.println(CLASS_NAME + "createAndUpdateVoWithLongShortName");
 		String longName = "1234567890123456789";
 		String longerName = "12345678901234567890123456789012";
 		Vo voWithLongShortname = new Vo(0, longName, longName);
-		
+
 		Vo newVo = vosManagerEntry.createVo(sess, voWithLongShortname);
 		assertTrue("id must be greater than zero", newVo.getId() > 0);
-		
+
 		newVo.setShortName(longerName);
 		newVo = vosManagerEntry.updateVo(sess, newVo);
 		assertTrue("newVo shortName has 32 characters length", newVo.getShortName().length() == 32);
 	}
-	
-	@Test(expected = VoExistsException.class)
-		public void createVoWhichAlreadyExists() throws Exception {
-			System.out.println(VOS_MANAGER_ENTRY + "createVoWhichAlreadyExists()");
 
-			vosManagerEntry.createVo(sess, myVo);
-			// this should throw exception
-			vosManagerEntry.createVo(sess, myVo);
-		}
+	@Test(expected = VoExistsException.class)
+	public void createVoWhichAlreadyExists() throws Exception {
+		System.out.println(CLASS_NAME + "createVoWhichAlreadyExists");
+
+		vosManagerEntry.createVo(sess, myVo);
+		// this should throw exception
+		vosManagerEntry.createVo(sess, myVo);
+	}
 
 	@Test
 	public void getVoById() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "getVoById()");
+		System.out.println(CLASS_NAME + "getVoById");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 		final Vo returnedVo = vosManagerEntry.getVoById(sess, myVo.getId());
@@ -106,7 +107,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void getVoByShortName() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "getVoByShortName()");
+		System.out.println(CLASS_NAME + "getVoByShortName");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 		final Vo returnedVo = vosManagerEntry.getVoByShortName(sess, voShortName);
@@ -115,16 +116,16 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoNotExistsException.class)
-		public void getVoWhichNotExists() throws Exception {
-			System.out.println(VOS_MANAGER_ENTRY + "getVoWhichNotExists()");
+	public void getVoWhichNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getVoWhichNotExists");
 
-			final String nonExistingShortName = "_i_am_not_in_db_";
-			vosManagerEntry.getVoByShortName(sess, nonExistingShortName);
-		}
+		final String nonExistingShortName = "_i_am_not_in_db_";
+		vosManagerEntry.getVoByShortName(sess, nonExistingShortName);
+	}
 
 	@Test
 	public void getVos() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "getVos()");
+		System.out.println(CLASS_NAME + "getVos");
 
 		final Vo vo = vosManagerEntry.createVo(sess, myVo);
 		final List<Vo> vos = vosManagerEntry.getVos(sess);
@@ -134,7 +135,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void getVosNotNull() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "getVosNotNull()");
+		System.out.println(CLASS_NAME + "getVosNotNull");
 
 		// should not never return null or throw exception, even if no result
 		// found
@@ -143,7 +144,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void updateVo() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "updateVo()");
+		System.out.println(CLASS_NAME + "updateVo");
 
 		Vo voToUpdate = vosManagerEntry.createVo(sess, myVo);
 		voToUpdate.setName("Cosa");
@@ -154,16 +155,16 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoNotExistsException.class)
-		public void updateVoWhichNotExists() throws Exception {
-			System.out.println(VOS_MANAGER_ENTRY + "updateVoWhichNotExists()");
+	public void updateVoWhichNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "updateVoWhichNotExists");
 
-			vosManagerEntry.updateVo(sess, new Vo());
-		}
+		vosManagerEntry.updateVo(sess, new Vo());
+	}
 
 	@Test
 	@Ignore
 	public void findCandidates() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "findCandidates()");
+		System.out.println(CLASS_NAME + "findCandidates");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -180,19 +181,19 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoNotExistsException.class)
-		@Ignore
-		public void findCandidatesForNonExistingVo() throws Exception {
-			System.out.println(VOS_MANAGER_ENTRY + "findCandidatesForNonExistingVo()");
+	@Ignore
+	public void findCandidatesForNonExistingVo() throws Exception {
+		System.out.println(CLASS_NAME + "findCandidatesForNonExistingVo");
 
-			addExtSourceDelegate(new Vo());
+		addExtSourceDelegate(new Vo());
 
-			vosManagerEntry.findCandidates(sess, new Vo(), "kouril");
-		}
+		vosManagerEntry.findCandidates(sess, new Vo(), "kouril");
+	}
 
 	@Test
 	@Ignore
 	public void findCandidatesWithOneResult() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "findCandidatesWithOneResult()");
+		System.out.println(CLASS_NAME + "findCandidatesWithOneResult");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -208,7 +209,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void addAdmin() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "addAdmin()");
+		System.out.println(CLASS_NAME + "addAdmin");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -223,7 +224,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test(expected=VoNotExistsException.class)
 	public void addAdminIntoNonExistingVo() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "addAdminIntoNonExistingVo()");
+		System.out.println(CLASS_NAME + "addAdminIntoNonExistingVo");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 		final Member member = createMemberFromExtSource(createdVo);
@@ -234,7 +235,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test(expected=UserNotExistsException.class)
 	public void addAdminAsNonExistingUser() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "addAdminAsNonExistingMember()");
+		System.out.println(CLASS_NAME + "addAdminAsNonExistingMember");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -243,7 +244,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void addAdminWithGroup() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "addAdminWithGroup()");
+		System.out.println(CLASS_NAME + "addAdminWithGroup");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -261,7 +262,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void getAdmins() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "getAdmins()");
+		System.out.println(CLASS_NAME + "getAdmins");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -284,7 +285,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		candidate.setTitleBefore("");
 		candidate.setTitleAfter("");
 		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
-					"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
+				"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
 		candidate.setUserExtSource(userExtSource);
 		candidate.setAttributes(new HashMap<String,String>());
 
@@ -294,14 +295,14 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		// test
 		List<User> admins = vosManagerEntry.getAdmins(sess, createdVo);
-		assertTrue("group shoud have 2 admins",admins.size() == 2);
+		assertTrue("group should have 2 admins",admins.size() == 2);
 		assertTrue("our member as direct user should be admin",admins.contains(user));
 		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
 	}
 
 	@Test
 	public void getDirectAdmins() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "getDirectAdmins()");
+		System.out.println(CLASS_NAME + "getDirectAdmins");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -314,7 +315,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void getAdminGroups() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "getAdminGroups()");
+		System.out.println(CLASS_NAME + "getAdminGroups");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -327,7 +328,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test(expected=UserNotExistsException.class)
 	public void removeAdminWhichNotExists() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "removeAdminWhichNotExists()");
+		System.out.println(CLASS_NAME + "removeAdminWhichNotExists");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -336,7 +337,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void removeAdmin() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "removeAdmin()");
+		System.out.println(CLASS_NAME + "removeAdmin");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 		final Member member = createMemberFromExtSource(createdVo);
@@ -351,7 +352,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void removeAdminWithGroup() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + "removeAdminWithGroup()");
+		System.out.println(CLASS_NAME + "removeAdminWithGroup");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
@@ -365,29 +366,28 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 	}
 
 	@Test(expected = VoNotExistsException.class)
-		public void deleteVo() throws Exception {
-			System.out.println(VOS_MANAGER_ENTRY + "deleteVo()");
+	public void deleteVo() throws Exception {
+		System.out.println(CLASS_NAME + "deleteVo");
 
-			final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
-			vosManagerEntry.deleteVo(sess, createdVo);
-			vosManagerEntry.getVoById(sess, createdVo.getId());
-		}
+		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
+		vosManagerEntry.deleteVo(sess, createdVo);
+		vosManagerEntry.getVoById(sess, createdVo.getId());
+	}
 
 	@Test(expected = VoNotExistsException.class)
-		public void deleteVoWhichNotExists() throws Exception {
-			System.out.println(VOS_MANAGER_ENTRY + "deleteVoWhichNotExists()");
+	public void deleteVoWhichNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "deleteVoWhichNotExists");
 
-			vosManagerEntry.deleteVo(sess, new Vo());
-		}
+		vosManagerEntry.deleteVo(sess, new Vo());
+	}
 
 	// private methods ------------------------------------------------------------------
 
-	private Member createMemberFromExtSource(final Vo createdVo)
-		throws Exception {
+	private Member createMemberFromExtSource(final Vo createdVo) throws Exception {
 
 		//This is obsolete approach which is dependent on extSource, remove these lines in future...
-	//addExtSourceDelegate(createdVo);
-//final List<Candidate> candidates = vosManagerEntry.findCandidates(sess,
+		//addExtSourceDelegate(createdVo);
+		//final List<Candidate> candidates = vosManagerEntry.findCandidates(sess,
 		//		createdVo, "kouril", 1);
 
 		final Candidate candidate = prepareCandidate();
@@ -433,11 +433,12 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 	@Test
 	public void getVosCount() throws Exception {
-		System.out.println(VOS_MANAGER_ENTRY + ".getVosCount()");
+		System.out.println(CLASS_NAME + "getVosCount");
 
 		final Vo createdVo = vosManagerEntry.createVo(sess, myVo);
 
 		int count = vosManagerEntry.getVosCount(sess);
 		assertTrue(count>0);
 	}
+
 }

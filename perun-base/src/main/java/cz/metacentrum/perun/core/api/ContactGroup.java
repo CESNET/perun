@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- *
  * Represents group of contacts for Facility (users, owners and groups)
  *
  * @author Michal Stava <stavamichal@gmail.com>
@@ -106,6 +105,14 @@ public class ContactGroup {
 		return true;
 	}
 
+	/**
+	 * Check if ContactGroup is equals in base params like name and facility.
+	 * It is used when merging ContactGroups selected from DB together
+	 * and filling connected owners, groups and users.
+	 *
+	 * @param other Other ContactGroup to compare with
+	 * @return TRUE if both equals in name and facility
+	 */
 	public boolean equalsGroup(ContactGroup other) {
 		if (other == null) {
 			return false;

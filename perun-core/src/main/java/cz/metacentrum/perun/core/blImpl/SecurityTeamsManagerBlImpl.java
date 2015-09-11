@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyBlacklistedException;
@@ -23,10 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by ondrej on 12.8.15.
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 
@@ -78,10 +80,30 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException, InternalErrorException {
+	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam, boolean forceDelete) throws SecurityTeamNotExistsException, InternalErrorException, RelationExistsException {
+
+		// remove all users from blacklist, which were blacklisted by this security team.
+		List<User> blacklist = getSecurityTeamsManagerImpl().getBlacklist(sess, Arrays.asList(securityTeam));
+		if (blacklist != null && !blacklist.isEmpty() && !forceDelete) {
+			throw new RelationExistsException("SecurityTeam has blacklisted users.");
+		}
+		for (User blacklistedUser : blacklist) {
+			// calling BL will make auditer message about user to appear.
+			getPerunBl().getSecurityTeamsManagerBl().removeUserFromBlacklist(sess, securityTeam, blacklistedUser);
+		}
+
+		// remove security team from all facilities
+		List<Facility> facilities = getPerunBl().getFacilitiesManagerBl().getAssignedFacilities(sess, securityTeam);
+		if (facilities != null && !facilities.isEmpty() && !forceDelete) {
+			throw new RelationExistsException("SecurityTeam is assigned to some facilities.");
+		}
+		for (Facility facility : facilities) {
+			// calling BL will make auditer message about facility to appear.
+			getPerunBl().getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
+		}
+
 		getSecurityTeamsManagerImpl().deleteSecurityTeam(sess, securityTeam);
 		getPerunBl().getAuditer().log(sess, "{} was deleted.", securityTeam);
-
 	}
 
 	@Override
@@ -126,13 +148,19 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	@Override
 	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
 		getSecurityTeamsManagerImpl().addUserToBlacklist(sess, securityTeam, user, description);
-		getPerunBl().getAuditer().log(sess, "{} add to blaclist of {} with description '{}'.", user, securityTeam, description);
+		getPerunBl().getAuditer().log(sess, "{} add to blacklist of {} with description '{}'.", user, securityTeam, description);
 	}
 
 	@Override
 	public void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException {
 		getSecurityTeamsManagerImpl().removeUserFromBlacklist(sess, securityTeam, user);
-		getPerunBl().getAuditer().log(sess, "{} remove from blaclist of {}.", user, securityTeam);
+		getPerunBl().getAuditer().log(sess, "{} remove from blacklist of {}.", user, securityTeam);
+	}
+
+	@Override
+	public void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException {
+		getSecurityTeamsManagerImpl().removeUserFromAllBlacklists(sess, user);
+		getPerunBl().getAuditer().log(sess, "{} remove from all blacklists.", user);
 	}
 
 	@Override
@@ -203,6 +231,10 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 		return getSecurityTeamsManagerImpl().isUserBlacklisted(sess, securityTeam, user);
 	}
 
+	@Override
+	public boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException {
+		return getSecurityTeamsManagerImpl().isUserBlacklisted(sess, user);
+	}
 
 	/**
 	 * Gets the securityTeamsManagerImpl.

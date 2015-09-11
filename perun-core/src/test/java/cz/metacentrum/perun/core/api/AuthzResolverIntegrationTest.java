@@ -15,15 +15,14 @@ import org.junit.Test;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
+ * Integration tests of AuthzResolver
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
-
 public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private static final String CLASS_NAME = "AuthzResolver.";
@@ -31,14 +30,14 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isAuthorizedInvalidPrincipal() throws Exception {
-		System.out.println(CLASS_NAME + "isAuthorizedInvalidPrincipal()");
+		System.out.println(CLASS_NAME + "isAuthorizedInvalidPrincipal");
 
 		assertTrue(! AuthzResolver.isAuthorized(new PerunSessionImpl(perun, new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL)), Role.PERUNADMIN));
 	}
 
 	@Test
 	public void setRoleVoAdmin() throws Exception {
-		System.out.println(CLASS_NAME + "setRole()");
+		System.out.println(CLASS_NAME + "setRole");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
 		final Member createdMember = createSomeMember(createdVo);
 		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -53,7 +52,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void setRoleVoObserver() throws Exception {
-		System.out.println(CLASS_NAME + "setRole()");
+		System.out.println(CLASS_NAME + "setRole");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
 		final Member createdMember = createSomeMember(createdVo);
 		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -68,7 +67,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void unsetRoleVoAdmin() throws Exception {
-		System.out.println(CLASS_NAME + "unsetRole()");
+		System.out.println(CLASS_NAME + "unsetRole");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
 		final Member createdMember = createSomeMember(createdVo);
 		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -88,7 +87,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test (expected = UserNotAdminException.class)
 	public void unsetRoleWhichNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "unsetRole()");
+		System.out.println(CLASS_NAME + "unsetRole");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
 		final Member createdMember = createSomeMember(createdVo);
 		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -98,7 +97,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test (expected = UserNotAdminException.class)
 	public void setUnsuportedRole() throws Exception {
-		System.out.println(CLASS_NAME + "setRole()");
+		System.out.println(CLASS_NAME + "setRole");
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"test123test123","test123test123"));
 		final Member createdMember = createSomeMember(createdVo);
 		final User createdUser = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -108,7 +107,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isVoAdmin() throws Exception {
-		System.out.println(CLASS_NAME + "isVoAdmin()");
+		System.out.println(CLASS_NAME + "isVoAdmin");
 
 		assertTrue(! AuthzResolver.isVoAdmin(sess));
 
@@ -127,7 +126,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isGroupAdmin() throws Exception {
-		System.out.println(CLASS_NAME + "isGroupAdmin()");
+		System.out.println(CLASS_NAME + "isGroupAdmin");
 
 		sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);
 		when(sess.getPerunPrincipal().getRoles().hasRole(Role.GROUPADMIN)).thenReturn(true);
@@ -137,7 +136,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isFacilityAdmin() {
-		System.out.println(CLASS_NAME + "isFacilityAdmin()");
+		System.out.println(CLASS_NAME + "isFacilityAdmin");
 
 		sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);
 		when(sess.getPerunPrincipal().getRoles().hasRole(Role.FACILITYADMIN)).thenReturn(true);
@@ -147,7 +146,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isVoAdminUnit() {
-		System.out.println(CLASS_NAME + "isVoAdminUnit()");
+		System.out.println(CLASS_NAME + "isVoAdminUnit");
 
 		sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);
 		when(sess.getPerunPrincipal().getRoles().hasRole(Role.VOADMIN)).thenReturn(true);
@@ -157,7 +156,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isPerunAdmin() {
-		System.out.println(CLASS_NAME + "isPerunAdmin()");
+		System.out.println(CLASS_NAME + "isPerunAdmin");
 
 		sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);
 		when(sess.getPerunPrincipal().getRoles().hasRole(Role.PERUNADMIN)).thenReturn(true);
@@ -167,7 +166,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isAuthorized() throws Exception {
-		System.out.println(CLASS_NAME + "isAuthorized()");
+		System.out.println(CLASS_NAME + "isAuthorized");
 
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"sdf","sdfh"));
 		final Member createdMember = createSomeMember(createdVo);
@@ -182,7 +181,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void addAllSubgroupsToAuthzRoles() throws Exception {
-		System.out.println(CLASS_NAME + "addAllSubgroupsToAuthzRoles()");
+		System.out.println(CLASS_NAME + "addAllSubgroupsToAuthzRoles");
 
 		Vo testVo = new Vo(1000, "AuthzResolver-testVo", "AuthzResolver-testVo");
 		testVo = perun.getVosManagerBl().createVo(sess, testVo);
@@ -217,7 +216,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isAuthorizedInOtherVo() throws Exception {
-		System.out.println(CLASS_NAME + "isAuthorizedInOtherVo()");
+		System.out.println(CLASS_NAME + "isAuthorizedInOtherVo");
 
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"som3Vo","VoSom3Nam3"));
 		final Member createdMemberKouril = createSomeMember(createdVo);
@@ -235,7 +234,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void isAuthorizedWrongRole() throws Exception {
-		System.out.println(CLASS_NAME + "isAuthorizedWrongRole()");
+		System.out.println(CLASS_NAME + "isAuthorizedWrongRole");
 
 		final Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0,"sdf","sdfh"));
 		final Member createdMember = createSomeMember(createdVo);
@@ -253,7 +252,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getPrincipalRoleNames() throws Exception {
-		System.out.println(CLASS_NAME + "getPrincipalRoleNames()");
+		System.out.println(CLASS_NAME + "getPrincipalRoleNames");
 
 		// Principal perunTests is PERUNADMIN
 		PerunPrincipal pp =  new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);

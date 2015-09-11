@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by ondrej on 13.8.15.
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
@@ -78,6 +78,11 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	@Override
 	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
 
+		// we do not store empty string in description
+		if (securityTeam != null && securityTeam.getDescription() != null && securityTeam.getDescription().trim().isEmpty()) {
+			securityTeam.setDescription(null);
+		}
+
 		// Get SecurityTeam ID
 		int securityTeamId;
 		try {
@@ -97,6 +102,12 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
 	@Override
 	public SecurityTeam updateSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException {
+
+		// we do not store empty string in description
+		if (securityTeam != null && securityTeam.getDescription() != null && securityTeam.getDescription().trim().isEmpty()) {
+			securityTeam.setDescription(null);
+		}
+
 		try {
 			Map<String, Object> map = jdbc.queryForMap("select name, description from security_teams where id=?", securityTeam.getId());
 
@@ -168,8 +179,8 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 							"select gm.member_id, gm.group_id from groups_members " + Compatibility.getAsAlias("gm") +
 							" inner join " +
 							"authz on authz.authorized_group_id=gm.group_id where authz.security_team_id=? " +
-							") as member_group_ids on members.id=member_group_ids.member_id)" +
-							") as user_ids ON users.id=user_ids.user_id",
+							") " + Compatibility.getAsAlias("member_group_ids") + " on members.id=member_group_ids.member_id)" +
+							") " + Compatibility.getAsAlias("user_ids") + " on users.id=user_ids.user_id",
 					UsersManagerImpl.USER_MAPPER, securityTeam.getId(), securityTeam.getId());
 
 			return list;
@@ -180,6 +191,9 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 
 	@Override
 	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
+		if (description != null && description.trim().isEmpty()) {
+			description = null;
+		}
 		try {
 			jdbc.update("insert into blacklists(security_team_id, user_id, description, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
 					"values (?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
@@ -201,6 +215,15 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
 	@Override
+	public void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			jdbc.update("delete from blacklists where and user_id=?", user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public List<User> getBlacklist(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException {
 		try {
 			Set<User> blacklisted = new HashSet<>();
@@ -210,7 +233,7 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 				list = jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery +
 								" from users inner join (" +
 								"select blacklists.user_id from blacklists where security_team_id=?" +
-								") as blacklisted_ids ON users.id=blacklisted_ids.user_id",
+								") " + Compatibility.getAsAlias("blacklisted_ids") + " ON users.id=blacklisted_ids.user_id",
 						UsersManagerImpl.USER_MAPPER, st.getId());
 
 				blacklisted.addAll(list);
@@ -302,6 +325,18 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 		}
 	}
 
+	@Override
+	public boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			int number = jdbc.queryForInt("select 1 from blacklists where user_id=?", user.getId());
+			if (number >= 1) return true;
+			return false;
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 
 	private boolean securityTeamExists(SecurityTeam securityTeam) throws InternalErrorException {
 		try {

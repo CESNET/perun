@@ -13,7 +13,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
@@ -23,18 +22,18 @@ import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 /**
+ * Integration tests of ExtSourcesManager
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private static final String EXT_SOURCE_NAME = "ExtSourcesManagerEntryIntegrationTest";
-	private static final String CLASS_NAME = "ExtSourcesManagerEntry.";
+	private static final String CLASS_NAME = "ExtSourcesManager.";
 	private ExtSourcesManager extSourcesManagerEntry;
 	private static ExtSource extSource;
 
@@ -50,7 +49,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test
 	public void testCreateExtSource() throws Exception {
-		System.out.println(CLASS_NAME + "createExtSource()");
+		System.out.println(CLASS_NAME + "createExtSource");
 
 		final ExtSource es = newInstanceExtSource();
 
@@ -65,7 +64,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test(expected=ExtSourceNotExistsException.class)
 	public void testDeleteExtSource() throws Exception {
-		System.out.println(CLASS_NAME + "deleteExtSource()");
+		System.out.println(CLASS_NAME + "deleteExtSource");
 
 		final ExtSource es = newInstanceExtSource();
 		final ExtSource createdExtSource = extSourcesManagerEntry.createExtSource(sess, es);
@@ -81,7 +80,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test
 	public void testGetExtSourceById() throws Exception {
-		System.out.println(CLASS_NAME + "getExtSourceById()");
+		System.out.println(CLASS_NAME + "getExtSourceById");
 
 		final ExtSource es = newInstanceExtSource();
 		final ExtSource createdExtSource = extSourcesManagerEntry.createExtSource(sess, es);
@@ -95,7 +94,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test
 	public void testGetExtSourceByName() throws Exception {
-		System.out.println(CLASS_NAME + "getExtSourceByName()");
+		System.out.println(CLASS_NAME + "getExtSourceByName");
 
 		final ExtSource es = extSourcesManagerEntry.getExtSourceByName(sess, EXT_SOURCE_NAME);
 
@@ -108,7 +107,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test
 	public void testGetVoExtSources() throws Exception {
-		System.out.println(CLASS_NAME + "getVoExtSources()");
+		System.out.println(CLASS_NAME + "getVoExtSources");
 
 		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
@@ -125,7 +124,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test
 	public void testGetGroupExtSources() throws Exception {
-		System.out.println(CLASS_NAME + "getGroupExtSources()");
+		System.out.println(CLASS_NAME + "getGroupExtSources");
 
 		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
@@ -148,7 +147,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test
 	public void testGetExtSources() throws Exception {
-		System.out.println(CLASS_NAME + "testGetExtSources()");
+		System.out.println(CLASS_NAME + "testGetExtSources");
 
 		final List<ExtSource> extSources;
 		extSources = extSourcesManagerEntry.getExtSources(sess);
@@ -161,7 +160,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test
 	public void testAddExtSourceToVo() throws Exception {
-		System.out.println(CLASS_NAME + "addExtSource()");
+		System.out.println(CLASS_NAME + "addExtSource");
 
 		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
@@ -178,7 +177,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test
 	public void testAddExtSourceToGroup() throws Exception {
-		System.out.println(CLASS_NAME + "addExtSource()");
+		System.out.println(CLASS_NAME + "addExtSource");
 
 		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
@@ -201,7 +200,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test
 	public void testCheckOrCreateExtSource() throws Exception {
-		System.out.println(CLASS_NAME + "getVoExtSources()");
+		System.out.println(CLASS_NAME + "getVoExtSources");
 
 		final ExtSource extSource = extSourcesManagerEntry.checkOrCreateExtSource(sess, EXT_SOURCE_NAME, "cz.metacentrum.perun.core.impl.ExtSourceSql");
 		final ExtSource extSource2 = extSourcesManagerEntry.checkOrCreateExtSource(sess, EXT_SOURCE_NAME, "cz.metacentrum.perun.core.impl.ExtSourceSql");
@@ -214,7 +213,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	 */
 	@Test
 	public void testRemoveExtSourceFromVo() throws Exception {
-		System.out.println(CLASS_NAME + "removeExtSource()");
+		System.out.println(CLASS_NAME + "removeExtSource");
 
 		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
@@ -235,7 +234,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test
 	public void testRemoveExtSourceFromGroup() throws Exception {
-		System.out.println(CLASS_NAME + "removeExtSource()");
+		System.out.println(CLASS_NAME + "removeExtSource");
 
 		final VosManagerEntry vosManagerEntry = new VosManagerEntry(perun);
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
@@ -280,7 +279,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	@Ignore
 	@Test (expected=CandidateNotExistsException.class)
 	public void getCandidateWhenCandidateNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "getCandidateWhenCandidateNotExists()");
+		System.out.println(CLASS_NAME + "getCandidateWhenCandidateNotExists");
 
 		// TODO create searchable ExtSource (mock ?)
 		// search for specific Candidate which doesn't exists in ExtSource.
@@ -290,7 +289,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test (expected=ExtSourceNotExistsException.class)
 	public void getExtSourceByNameWhenExtSourceNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "getExtSourceByNameWhenExtSourceNotExists()");
+		System.out.println(CLASS_NAME + "getExtSourceByNameWhenExtSourceNotExists");
 
 		extSourcesManagerEntry.getExtSourceByName(sess, "nonsense");
 		// shouldn't find ext source
@@ -299,7 +298,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test (expected=ExtSourceNotExistsException.class)
 	public void getExtSourceByIdWhenExtSourceNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "getExtSourceByIdWhenExtSourceNotExists()");
+		System.out.println(CLASS_NAME + "getExtSourceByIdWhenExtSourceNotExists");
 
 		extSourcesManagerEntry.getExtSourceById(sess, 0);
 		// shouldn't find ext source
@@ -308,7 +307,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test (expected=VoNotExistsException.class)
 	public void addExtSourceWhenVoNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "addExtSourceWhenVoNotExists()");
+		System.out.println(CLASS_NAME + "addExtSourceWhenVoNotExists");
 
 		extSourcesManagerEntry.addExtSource(sess, new Vo(), extSource);
 		// shouldn't find VO
@@ -317,7 +316,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test (expected=ExtSourceNotExistsException.class)
 	public void addExtSourceWhenExtSourceNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "addExtSourceWhenExtSourceNotExists()");
+		System.out.println(CLASS_NAME + "addExtSourceWhenExtSourceNotExists");
 
 		ExtSource source = new ExtSource(0, "Fake", ExtSourcesManager.EXTSOURCE_INTERNAL);
 		Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "sjk", "kljlk"));
@@ -328,7 +327,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test (expected=ExtSourceAlreadyAssignedException.class)
 	public void addExtSourceWhenExtSourceAlreadyAssigned() throws Exception {
-		System.out.println(CLASS_NAME + "addExtSourceWhenExtSourceAlreadyAssigned()");
+		System.out.println(CLASS_NAME + "addExtSourceWhenExtSourceAlreadyAssigned");
 
 		VosManager vosManager = perun.getVosManager();
 		Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
@@ -341,7 +340,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test (expected=ExtSourceNotAssignedException.class)
 	public void removeExtSourceWhenExtSourceNotAssigned() throws Exception {
-		System.out.println(CLASS_NAME + "removeExtSourceWhenExtSourceNotAssigned()");
+		System.out.println(CLASS_NAME + "removeExtSourceWhenExtSourceNotAssigned");
 
 		VosManager vosManager = perun.getVosManager();
 		Vo createdVo = vosManager.createVo(sess, new Vo(0,"sjk","kljlk"));
@@ -353,7 +352,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test (expected=ExtSourceNotExistsException.class)
 	public void removeExtSourceWhenExtSourceNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "removeExtSourceWhenExtSourceNotExist()");
+		System.out.println(CLASS_NAME + "removeExtSourceWhenExtSourceNotExist");
 
 		VosManager vosManager = perun.getVosManager();
 		Vo createdVo = vosManager.createVo(sess, new Vo(0, "sjk", "kljlk"));
@@ -366,7 +365,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	@Test (expected=VoNotExistsException.class)
 	public void getVoExtSourcesWhenVoNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "getVoExtSourcesWhenVoNotExists()");
+		System.out.println(CLASS_NAME + "getVoExtSourcesWhenVoNotExists");
 
 		extSourcesManagerEntry.getVoExtSources(sess, new Vo());
 

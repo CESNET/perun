@@ -1,13 +1,8 @@
 package cz.metacentrum.perun.core.entry;
 
 import cz.metacentrum.perun.core.api.AuditMessage;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,22 +10,17 @@ import org.junit.Test;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
-import cz.metacentrum.perun.core.blImpl.AuditMessagesManagerBlImpl;
-import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.junit.Ignore;
 
 /**
+ * Integration tests of AuditMessagesManager.
+ *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-
 public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private final String textMismatch = "!@#$%^<<&*()_+<\\><:{[}][]{>} sd";
-	private final String CLASS_NAME = "AuditMessagesManagerEntry";
+	private final String CLASS_NAME = "AuditMessagesManager.";
 	private AuditMessage createdAuditMessage = new AuditMessage();
 
 	public AuditMessagesManagerEntryIntegrationTest(){
@@ -42,10 +32,10 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 	 */
 	@Before
 	public void setUp() throws Exception {
-
 		createdAuditMessage.setMsg("Tested Message");
 	}
-/*
+
+	/*
 	@Test
 	public void testPollConsumerMessages() throws Exception {
 
@@ -60,7 +50,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 	 */
 	@Test
 	public void testGetFixedNumberOfMessages() throws Exception {
-		System.out.println(CLASS_NAME + ":testGetFixedNumberOfMessages()");
+		System.out.println(CLASS_NAME + "testGetFixedNumberOfMessages");
 		int count = AuditMessagesManager.COUNTOFMESSAGES;
 
 		for (int i = 0; i < count; i++) {
@@ -76,7 +66,7 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 	 */
 	@Test
 	public void testGetVariableNumberOfMessages() throws Exception {
-		System.out.println(CLASS_NAME + ":testGetVariableNumberOfMessages()");
+		System.out.println(CLASS_NAME + "testGetVariableNumberOfMessages");
 		int count = 33;
 
 		for (int i = 0; i < count; i++) {
@@ -108,12 +98,14 @@ public class AuditMessagesManagerEntryIntegrationTest extends AbstractPerunInteg
 		 }
 		 fail("One of messages need to contain specific message.");
 		 }*/
+
 	/*
 	 * Wrong Range of count exception if count is less than 1 message
 	 */
 	@Test (expected=WrongRangeOfCountException.class)
-		public void testLessThanZeroCountOfMessages() throws Exception {
-			System.out.println(CLASS_NAME + ":testLessThanZeroCountOfMessages()");
-			perun.getAuditMessagesManager().getMessages(sess, -1);
-		}
+	public void testLessThanZeroCountOfMessages() throws Exception {
+		System.out.println(CLASS_NAME + "testLessThanZeroCountOfMessages");
+		perun.getAuditMessagesManager().getMessages(sess, -1);
+	}
+
 }

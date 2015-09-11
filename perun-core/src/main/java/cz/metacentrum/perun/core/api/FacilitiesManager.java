@@ -410,6 +410,19 @@ public interface FacilitiesManager {
 	List<Facility> getAssignedFacilities(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException;
 
 	/**
+	 * Get facilities where security team is assigned.
+	 *
+	 * @param sess
+	 * @param securityTeam
+	 * @return
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws SecurityTeamNotExistsException
+	 */
+	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+
+	/**
 	 * List hosts of Facility.
 	 *
 	 * @param sess

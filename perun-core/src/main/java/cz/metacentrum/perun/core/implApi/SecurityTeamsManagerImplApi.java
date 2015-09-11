@@ -14,7 +14,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import java.util.List;
 
 /**
- * Created by ondrej on 12.8.15.
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
 public interface SecurityTeamsManagerImplApi {
 
@@ -115,6 +115,15 @@ public interface SecurityTeamsManagerImplApi {
 	void removeUserFromBlacklist(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException;
 
 	/**
+	 * Remove user from all blacklists
+	 *
+	 * @param sess
+	 * @param user
+	 * @throws InternalErrorException
+	 */
+	void removeUserFromAllBlacklists(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
 	 * get union of blacklists of security teams
 	 *
 	 * @param sess
@@ -208,8 +217,7 @@ public interface SecurityTeamsManagerImplApi {
 	void checkGroupIsSecurityAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, GroupNotAdminException;
 
 	/**
-	 * check if user is not blacklisted by given security team
-	 * throw exception if is
+	 * Check if user is blacklisted by given security team
 	 *
 	 * @param sess
 	 * @param securityTeam
@@ -217,5 +225,14 @@ public interface SecurityTeamsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	boolean isUserBlacklisted(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException;
+
+	/**
+	 * Check if user is blacklisted by any security team
+	 *
+	 * @param sess
+	 * @param user
+	 * @throws InternalErrorException
+	 */
+	boolean isUserBlacklisted(PerunSession sess, User user) throws InternalErrorException;
 
 }

@@ -275,13 +275,26 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	public void deleteFacility(PerunSession sess, Facility facility) throws InternalErrorException, RelationExistsException, FacilityAlreadyRemovedException, HostAlreadyRemovedException, GroupAlreadyRemovedException, ResourceAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+
+		if (getFacilitiesManagerImpl().getAssignedResources(sess, facility).size() > 0) {
+			throw new RelationExistsException("Facility is still used as a resource");
+		}
+
 		List<Host> hosts = this.getHosts(sess, facility);
 		for (Host host: hosts) {
 			this.removeHost(sess, host);
 		}
 
-		if (getFacilitiesManagerImpl().getAssignedResources(sess, facility).size() > 0) {
-			throw new RelationExistsException("Facility is still used as a resource");
+		// remove assigned security teams
+		List<SecurityTeam> teams = getAssignedSecurityTeams(sess, facility);
+		for (SecurityTeam team : teams) {
+			removeSecurityTeam(sess, facility, team);
+		}
+
+		// remove assigned facility contacts
+		List<ContactGroup> contacts = getFacilityContactGroups(sess, facility);
+		if (contacts != null && !contacts.isEmpty()) {
+			removeFacilityContacts(sess, contacts);
 		}
 
 		// remove associated attributes
@@ -381,6 +394,10 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		}
 
 		return new ArrayList<Facility>(assignedFacilities);
+	}
+
+	public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+		return getFacilitiesManagerImpl().getAssignedFacilities(sess, securityTeam);
 	}
 
 	public List<Facility> getFacilitiesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
@@ -737,7 +754,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
-	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException, FacilityContactNotExistsException {
+	public List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException {
 		//need to get richUsers with attributes
 		List<AttributeDefinition> mandatoryAttributes = this.getListOfMandatoryAttributes(sess);
 		List<ContactGroup> cgs = this.getFacilitiesManagerImpl().getFacilityContactGroups(sess, facility);
@@ -841,6 +858,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		this.getFacilitiesManagerImpl().checkFacilityContactExists(sess, facility, name, user);
 	}
 
+	@Override
 	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException {
 		return facilitiesManagerImpl.getAssignedSecurityTeams(sess, facility);
 	}

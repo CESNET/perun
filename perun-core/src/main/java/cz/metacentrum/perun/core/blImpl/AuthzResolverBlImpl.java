@@ -1154,7 +1154,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 		}
 
-			return complementaryObjects;
+		return complementaryObjects;
 	}
 
 	/**

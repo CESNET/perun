@@ -303,6 +303,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		}
 
+		if (getPerunBl().getSecurityTeamsManagerBl().isUserBlacklisted(sess, user) && forceDelete) {
+			getPerunBl().getSecurityTeamsManagerBl().removeUserFromAllBlacklists(sess, user);
+		} else if (getPerunBl().getSecurityTeamsManagerBl().isUserBlacklisted(sess, user) && !forceDelete) {
+			throw new RelationExistsException("User is blacklisted by some security team. Deletion would cause loss of this information.");
+		}
+
 		// First delete all associated external sources to the user
 		getUsersManagerImpl().removeAllUserExtSources(sess, user);
 		getPerunBl().getAuditer().log(sess, "All user ext sources removed for {}.", user);
@@ -661,8 +667,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Create Attribute
 		try {
-			AttributeDefinition attributeDefinitition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
-			Attribute attribute = new Attribute(attributeDefinitition);
+			AttributeDefinition attributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
+			Attribute attribute = new Attribute(attributeDefinition);
 
 			attribute.setValue(login);
 

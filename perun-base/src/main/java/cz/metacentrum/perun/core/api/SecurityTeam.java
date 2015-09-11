@@ -74,10 +74,12 @@ public class SecurityTeam extends Auditable implements Comparable<SecurityTeam> 
 				']').toString();
 	}
 
+	@Override
 	public int compareTo(SecurityTeam securityTeam) {
-		if (securityTeam == null) {
-			throw new NullPointerException();
-		}
+		if (securityTeam == null) throw new NullPointerException("SecurityTeam to compare with is null.");
+		if (this.name == null && securityTeam.getName() != null) return -1;
+		if (securityTeam.getName() == null && this.name != null) return 1;
+		if (this.name == null && securityTeam.getName() == null) return 0;
 		return this.getName().compareTo(securityTeam.getName());
 	}
 

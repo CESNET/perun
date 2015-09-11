@@ -18,6 +18,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class SynchronizerIntegrationTest extends AbstractPerunIntegrationTest {
 
+	private final static String CLASS_NAME = "Synchronizer.";
+
 	private final static String EXPIRATION_URN = "urn:perun:member:attribute-def:def:membershipExpiration";
 	private ExtSource extSource = new ExtSource(0, "testExtSource", ExtSourcesManager.EXTSOURCE_INTERNAL);
 	private Vo vo = new Vo(0, "SynchronizerTestVo", "SyncTestVo");
@@ -38,7 +40,7 @@ public class SynchronizerIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void checkMembersState() throws Exception {
-		System.out.println("SynchronizerIntegrationTest.checkMembersState");
+		System.out.println(CLASS_NAME + "checkMembersState");
 
 		// setup expiration date
 		Calendar calendar = Calendar.getInstance();
