@@ -43,9 +43,13 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 
 /**
+ * Integration tests of GroupsManager
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
+
+	private final static String CLASS_NAME = "GroupsManager.";
 
 	// these must be setUp"type" before every method to be in DB
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
@@ -76,7 +80,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getGroupsWithAssignedExtSourceInVo() throws Exception {
-		System.out.println("GroupsManager.getGroupsWithAssignedExtSourceInVo()");
+		System.out.println(CLASS_NAME + "getGroupsWithAssignedExtSourceInVo");
 
 		vo = setUpVo();
 		groupsManagerBl.createGroup(sess, vo, group);
@@ -84,7 +88,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		ExtSource newExtSource = new ExtSource("ExtSourcesManagerEntryIntegrationTest1", ExtSourcesManager.EXTSOURCE_INTERNAL);
 		newExtSource = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
-		
+
 		perun.getExtSourcesManagerBl().addExtSource(sess, vo, newExtSource);
 
 		perun.getExtSourcesManagerBl().addExtSource(sess, group, newExtSource);
@@ -98,7 +102,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getGroupsUsers() throws Exception {
-		System.out.println("GroupsManager.getGroupsUsers");
+		System.out.println(CLASS_NAME + "getGroupsUsers");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -116,7 +120,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void testGroupNameLength() throws Exception {
-		System.out.println("GroupsManager.testGroupNameLength");
+		System.out.println(CLASS_NAME + "testGroupNameLength");
 
 		Vo vo = setUpVo();
 
@@ -152,7 +156,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void createGroup() throws Exception {
-		System.out.println("GroupsManager.createGroup");
+		System.out.println(CLASS_NAME + "createGroup");
 
 		vo = setUpVo();
 
@@ -163,73 +167,73 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void createGroupWhenParentNotExist() throws Exception {
-			System.out.println("GroupsManager.createGroupWhenParentNotExists");
+	public void createGroupWhenParentNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupWhenParentNotExists");
 
-			groupsManager.createGroup(sess, new Group(), new Group("GroupsManagerTestGroup2","testovaci2"));
+		groupsManager.createGroup(sess, new Group(), new Group("GroupsManagerTestGroup2","testovaci2"));
 
-		}
-	
+	}
+
 	@Test (expected=GroupExistsException.class)
-		public void createGroupWhenTheSameWithTheSameParentGroupExists() throws Exception {
-			System.out.println("GroupsManager.createGroupWhenTheSameWithTheSameParentGroupExists");
+	public void createGroupWhenTheSameWithTheSameParentGroupExists() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupWhenTheSameWithTheSameParentGroupExists");
 
-			vo = setUpVo();
-			Group parentG = new Group("TestingParentGroup01", "testingParentGroup01");
-			groupsManager.createGroup(sess, vo, parentG);
-			Group g1 = new Group("TestingChildGroup01","TestingChildGroup01");
-			Group g2 = new Group("TestingChildGroup01","TestingChildGroup02");
-			groupsManager.createGroup(sess, parentG, g1);
-			groupsManager.createGroup(sess, parentG, g2);
-		}
+		vo = setUpVo();
+		Group parentG = new Group("TestingParentGroup01", "testingParentGroup01");
+		groupsManager.createGroup(sess, vo, parentG);
+		Group g1 = new Group("TestingChildGroup01","TestingChildGroup01");
+		Group g2 = new Group("TestingChildGroup01","TestingChildGroup02");
+		groupsManager.createGroup(sess, parentG, g1);
+		groupsManager.createGroup(sess, parentG, g2);
+	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void createGroupWhenVoNotExist() throws Exception {
-			System.out.println("GroupsManager.createGroupWhenVoNotExists");
+	public void createGroupWhenVoNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupWhenVoNotExists");
 
-			groupsManager.createGroup(sess, new Vo(), new Group("GroupsManagerTestGroup2","testovaci2"));
+		groupsManager.createGroup(sess, new Vo(), new Group("GroupsManagerTestGroup2","testovaci2"));
 
-		}
+	}
 
 	@Test (expected=GroupExistsException.class)
-		public void createGroupWhenSameGroupExist() throws Exception {
-			System.out.println("GroupsManager.createGroupWhenSameGroupExists");
+	public void createGroupWhenSameGroupExist() throws Exception {
+		System.out.println(CLASS_NAME + "createGroupWhenSameGroupExists");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			groupsManager.createGroup(sess, vo, group);
-			// shouldn't be able to create group with same name
-		}
+		groupsManager.createGroup(sess, vo, group);
+		// shouldn't be able to create group with same name
+	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void deleteGroup() throws Exception {
-			System.out.println("GroupsManager.deleteGroup");
+	public void deleteGroup() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroup");
 
-			vo = setUpVo();
-			setUpGroup(vo);
-			// assertNotNull(groupsManager.createGroup(sess, group, group2));
-			// create sub-group
-			groupsManager.deleteGroup(sess, group);
-			// delete group including sub-group
-			groupsManager.getGroupById(sess, group.getId());
-			// shouldn't find group
+		vo = setUpVo();
+		setUpGroup(vo);
+		// assertNotNull(groupsManager.createGroup(sess, group, group2));
+		// create sub-group
+		groupsManager.deleteGroup(sess, group);
+		// delete group including sub-group
+		groupsManager.getGroupById(sess, group.getId());
+		// shouldn't find group
 
-		}
-	
+	}
+
 	@Test
 	public void deletesGroups() throws Exception {
-		System.out.println("GroupsManager.deletesGroups");
+		System.out.println(CLASS_NAME + "deletesGroups");
 		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
 		newVo = perun.getVosManagerBl().createVo(sess, newVo);
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
-		
+
 		this.groupsManager.deleteGroups(sess, groups, false);
 	}
 
 	@Test (expected=RelationExistsException.class)
 	public void deleteGroupsWithSubgroupAndNoForceDelete() throws Exception {
-		System.out.println("GroupsManager.deleteGroupsWithSubgroupAndNoForceDelete");
+		System.out.println(CLASS_NAME + "deleteGroupsWithSubgroupAndNoForceDelete");
 		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
 		newVo = perun.getVosManagerBl().createVo(sess, newVo);
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
@@ -241,27 +245,27 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 //		});
 		this.groupsManager.deleteGroups(sess, groups, false);
 	}
-	
+
 	@Test
 	public void deleteGroupsWithSubgroupAndForceDelete() throws Exception {
-		System.out.println("GroupsManager.deleteGroupsWithSubgroupAndForceDelete");
+		System.out.println(CLASS_NAME + "deleteGroupsWithSubgroupAndForceDelete");
 		Vo newVo = new Vo(0, "voForDeletingGroups", "voForDeletingGroups");
 		newVo = perun.getVosManagerBl().createVo(sess, newVo);
 		List<Group> groups = setUpGroupsWithSubgroups(newVo);
-	
+
 		Group subgroup = new Group("Test", "test");
 		subgroup = this.groupsManagerBl.createGroup(sess, groups.get(0), subgroup);
-		
+
 		this.groupsManager.deleteGroups(sess, groups, true);
 	}
-	
+
 	@Test (expected=GroupNotExistsException.class)
-		public void deleteGroupWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.deleteGroupWhenGroupNotExists");
+	public void deleteGroupWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroupWhenGroupNotExists");
 
-			groupsManager.deleteGroup(sess, new Group());
+		groupsManager.deleteGroup(sess, new Group());
 
-		}
+	}
 
 	@Test
 	public void trywhat(){
@@ -269,45 +273,45 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=RelationExistsException.class)
-		public void deleteGroupWhenContainsMember() throws Exception {
-			System.out.println("GroupsManager.deleteGroupWhenContainsMember");
+	public void deleteGroupWhenContainsMember() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroupWhenContainsMember");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			Member member = setUpMember(vo);
-			groupsManager.addMember(sess, group, member);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
 
-			groupsManager.deleteGroup(sess, group);
+		groupsManager.deleteGroup(sess, group);
 
-		}
-
-	@Test (expected=GroupNotExistsException.class)
-		public void deleteGroupForce() throws Exception {
-			System.out.println("GroupsManager.deleteGroupForce");
-
-			vo = setUpVo();
-			setUpGroup(vo);
-
-			Member member = setUpMember(vo);
-			groupsManager.addMember(sess, group, member);
-			assertNotNull(groupsManager.createGroup(sess, group, group2)); // create sub-group
-			groupsManager.deleteGroup(sess, group, true); // force delete
-			groupsManager.getGroupById(sess, group2.getId()); // shouldn't find our sub-group even when parent had member
-
-		}
+	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void deleteGroupForceWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.deleteGroupForceWhenGroupNotExists");
+	public void deleteGroupForce() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroupForce");
 
-			groupsManager.deleteGroup(sess, new Group(), true);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-		}
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+		assertNotNull(groupsManager.createGroup(sess, group, group2)); // create sub-group
+		groupsManager.deleteGroup(sess, group, true); // force delete
+		groupsManager.getGroupById(sess, group2.getId()); // shouldn't find our sub-group even when parent had member
+
+	}
+
+	@Test (expected=GroupNotExistsException.class)
+	public void deleteGroupForceWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroupForceWhenGroupNotExists");
+
+		groupsManager.deleteGroup(sess, new Group(), true);
+
+	}
 
 	@Test
 	public void deleteAllGroups() throws Exception {
-		System.out.println("GroupsManager.deleteAllGroups");
+		System.out.println(CLASS_NAME + "deleteAllGroups");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -321,7 +325,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test(expected=VoNotExistsException.class)
 	public void deleteAllGroupsWhenVoNotExists() throws Exception {
-		System.out.println("GroupsManager.deleteAllGroupsWhenVoNotExists");
+		System.out.println(CLASS_NAME + "deleteAllGroupsWhenVoNotExists");
 
 		groupsManager.deleteAllGroups(sess, new Vo());
 
@@ -329,7 +333,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void updateGroup() throws Exception {
-		System.out.println("GroupsManager.updateGroup");
+		System.out.println(CLASS_NAME + "updateGroup");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -342,17 +346,17 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void updateGroupWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.updateGroupWhenGroupNotExists");
+	public void updateGroupWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "updateGroupWhenGroupNotExists");
 
-			groupsManager.updateGroup(sess, new Group());
-			// shouldn't be able to update
+		groupsManager.updateGroup(sess, new Group());
+		// shouldn't be able to update
 
-		}
+	}
 
 	@Test
 	public void getGroupById() throws Exception {
-		System.out.println("GroupsManager.getGroupById");
+		System.out.println(CLASS_NAME + "getGroupById");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -365,7 +369,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getAssignedGroupsToResourceWithSubgroups() throws Exception {
-		System.out.println("GroupsManager.getAssignedGroupsToResourceWithSubgroups");
+		System.out.println(CLASS_NAME + "getAssignedGroupsToResourceWithSubgroups");
 		Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123", "testik123"));
 		Group parentGroup = new Group("TestGroupParent", "ParentGroup");
 		Group subgroup1 = new Group("TestGroup1", "Test1");
@@ -395,18 +399,18 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue("Expected this group is contained in list.",groupsList.remove(subgroupOfSubgroup1));
 		assertTrue(groupsList.isEmpty());
 	}
-	
+
 	@Test
 	public void getMemberGroupsByAttribute() throws Exception {
-		System.out.println("GroupsManager.getMemberGroupsByAttribute");
+		System.out.println(CLASS_NAME + "getMemberGroupsByAttribute");
 		Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123456", "testik123456"));
 		Member member = setUpMember(createdVo);
-		
+
 		Group group1 = new Group("Group1Test", "Group1Test");
 		Group group2 = new Group("Group2Test", "Group2Test");
 		Group group3 = new Group("Group3Test", "Group3Test");
 		Group group4 = new Group("Group4Test", "Group4Test");
-		
+
 		group1 = groupsManagerBl.createGroup(sess, createdVo, group1);
 		group2 = groupsManagerBl.createGroup(sess, createdVo, group2);
 		group3 = groupsManagerBl.createGroup(sess, createdVo, group3);
@@ -415,7 +419,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManagerBl.addMember(sess, group2, member);
 		groupsManagerBl.addMember(sess, group3, member);
 		groupsManagerBl.addMember(sess, group4, member);
-		
+
 		AttributeDefinition attrDef = new AttributeDefinition();
 		attrDef.setNamespace(AttributesManagerEntry.NS_GROUP_ATTR_DEF);
 		attrDef.setDescription("Test attribute description");
@@ -424,10 +428,10 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
 		Attribute attribute = new Attribute(attrDef);
 		attribute.setValue("Testing value");
-		
+
 		perun.getAttributesManagerBl().setAttribute(sess, group1, attribute);
 		perun.getAttributesManagerBl().setAttribute(sess, group3, attribute);
-		
+
 		AttributeDefinition attrDefBad = new AttributeDefinition();
 		attrDefBad.setNamespace(AttributesManagerEntry.NS_GROUP_ATTR_DEF);
 		attrDefBad.setDescription("Test attribute description 2");
@@ -436,13 +440,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		attrDefBad = perun.getAttributesManagerBl().createAttribute(sess, attrDefBad);
 		Attribute attributeBad = new Attribute(attrDefBad);
 		attributeBad.setValue("Testing value");
-		
+
 		perun.getAttributesManagerBl().setAttribute(sess, group2, attributeBad);
 		perun.getAttributesManagerBl().setAttribute(sess, group4, attributeBad);
-		
+
 		List<Group> groups1 = perun.getGroupsManager().getMemberGroupsByAttribute(sess, member, attribute);
 		List<Group> groups2 = perun.getGroupsManager().getMemberGroupsByAttribute(sess, member, attributeBad);
-		
+
 		assertEquals("groups must have only 2 mambers", 2, groups1.size());
 		assertEquals("groups must have only 2 mambers", 2, groups2.size());
 		assertTrue("list of groups must containt this group", groups1.contains(group1));
@@ -453,7 +457,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getAssignedGroupsToResourceWithoutSubgroups() throws Exception {
-		System.out.println("GroupsManager.getAssignedGroupsToResourceWithoutSubgroups");
+		System.out.println(CLASS_NAME + "getAssignedGroupsToResourceWithoutSubgroups");
 		Vo createdVo = perun.getVosManager().createVo(sess, new Vo(0, "testik123", "testik123"));
 		Group parentGroup = new Group("TestGroupParent", "ParentGroup");
 		Group subgroup1 = new Group("TestGroup1", "Test1");
@@ -482,7 +486,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getGroupToSynchronize() throws Exception {
-		System.out.println("GroupsManager.getGroupToSynchronize");
+		System.out.println(CLASS_NAME + "getGroupToSynchronize");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -509,20 +513,20 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getGroupByIdWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.getGroupByIdWhenGroupNotExists");
+	public void getGroupByIdWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupByIdWhenGroupNotExists");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			group.setId(0);
-			groupsManager.getGroupById(sess, group.getId());
+		group.setId(0);
+		groupsManager.getGroupById(sess, group.getId());
 
-		}
+	}
 
 	@Test
 	public void getGroupByName() throws Exception {
-		System.out.println("GroupsManager.getGroupByName");
+		System.out.println(CLASS_NAME + "getGroupByName");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -535,7 +539,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getSubGroupByName() throws Exception {
-		System.out.println("GroupsManager.getSubGroupByName");
+		System.out.println(CLASS_NAME + "getSubGroupByName");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -554,7 +558,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test (expected=VoNotExistsException.class)
 	public void getGroupByNameWhenVoNotExists() throws Exception {
-		System.out.println("GroupsManager.getGroupByNameWhenVoNotExists");
+		System.out.println(CLASS_NAME + "getGroupByNameWhenVoNotExists");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -574,7 +578,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void addMember() throws Exception {
-		System.out.println("GroupsManager.addMember");
+		System.out.println(CLASS_NAME + "addMember");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -591,67 +595,67 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	// FIXME - vymyslet lepší výjímku
 
 	@Test (expected=InternalErrorException.class)
-		public void addMemberWhenMemberFromDifferentVo() throws Exception {
-			System.out.println("GroupsManager.addMemberWhenMemberFromDifferentVo");
+	public void addMemberWhenMemberFromDifferentVo() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberWhenMemberFromDifferentVo");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			Vo vo = new Vo();
-			vo.setName("GroupManagerTestVo2");
-			vo.setShortName("GrpManTest2");
-			vo = perun.getVosManager().createVo(sess, vo);
+		Vo vo = new Vo();
+		vo.setName("GroupManagerTestVo2");
+		vo.setShortName("GrpManTest2");
+		vo = perun.getVosManager().createVo(sess, vo);
 
-			Member member = setUpMember(vo); // put member in different VO
+		Member member = setUpMember(vo); // put member in different VO
 
-			groupsManager.addMember(sess, group, member);
-			// shouldn't add member
+		groupsManager.addMember(sess, group, member);
+		// shouldn't add member
 
-		}
+	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void addMemberWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.addMemberWhenGroupNotExists");
+	public void addMemberWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberWhenGroupNotExists");
 
-			vo = setUpVo();
-			setUpGroup(vo);
-			Member member = setUpMember(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
+		Member member = setUpMember(vo);
 
-			groupsManager.addMember(sess, new Group(), member);
-			// shouldn't find group
+		groupsManager.addMember(sess, new Group(), member);
+		// shouldn't find group
 
-		}
+	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void addMemberWhenMemberNotExists() throws Exception {
-			System.out.println("GroupsManager.addMemberWhenGroupNotExists");
+	public void addMemberWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberWhenGroupNotExists");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			groupsManager.addMember(sess, group, new Member());
-			// shouldn't find member
+		groupsManager.addMember(sess, group, new Member());
+		// shouldn't find member
 
-		}
+	}
 
 	@Test (expected=AlreadyMemberException.class)
-		public void addMemberWhenAlreadyMember() throws Exception {
-			System.out.println("GroupsManager.addMemberWhenAlreadyMember");
+	public void addMemberWhenAlreadyMember() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberWhenAlreadyMember");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			Member member = setUpMember(vo);
+		Member member = setUpMember(vo);
 
-			groupsManager.addMember(sess, group, member);
-			groupsManager.addMember(sess, group, member);
-			// shouldn't be able to add same member twice
+		groupsManager.addMember(sess, group, member);
+		groupsManager.addMember(sess, group, member);
+		// shouldn't be able to add same member twice
 
-		}
+	}
 
 	@Test
 	public void removeMember() throws Exception {
-		System.out.println("GroupsManager.removeMember");
+		System.out.println(CLASS_NAME + "removeMember");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -666,43 +670,43 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void removeMemberWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.removeMemberWhenGroupNotExists");
+	public void removeMemberWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberWhenGroupNotExists");
 
-			vo = setUpVo();
-			Member member = setUpMember(vo);
-			groupsManager.removeMember(sess, new Group(), member);
+		vo = setUpVo();
+		Member member = setUpMember(vo);
+		groupsManager.removeMember(sess, new Group(), member);
 
-		}
+	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void removeMemberWhenMemberNotExists() throws Exception {
-			System.out.println("GroupsManager.removeMemberWhenMemberNotExists");
+	public void removeMemberWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberWhenMemberNotExists");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			groupsManager.removeMember(sess, group, new Member());
+		groupsManager.removeMember(sess, group, new Member());
 
-		}
+	}
 
 	@Test (expected=NotGroupMemberException.class)
-		public void removeMemberWhenNotGroupMember() throws Exception {
-			System.out.println("GroupsManager.removeMemberWhenNotGroupMember");
+	public void removeMemberWhenNotGroupMember() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberWhenNotGroupMember");
 
-			vo = setUpVo();
-			setUpGroup(vo);
-			Member member = setUpMember(vo);
-			groupsManager.addMember(sess, group, member);
-			groupsManager.removeMember(sess, group, member);
-			groupsManager.removeMember(sess, group, member);
-			// shouldn't be able to remove member twice
+		vo = setUpVo();
+		setUpGroup(vo);
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+		groupsManager.removeMember(sess, group, member);
+		groupsManager.removeMember(sess, group, member);
+		// shouldn't be able to remove member twice
 
-		}
+	}
 
 	@Test
 	public void getGroupMembers() throws Exception {
-		System.out.println("GroupsManager.getGroupMembers");
+		System.out.println(CLASS_NAME + "getGroupMembers");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -718,7 +722,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getMemberGroups() throws Exception {
-		System.out.println("GroupsManager.getMemberGroups");
+		System.out.println(CLASS_NAME + "getMemberGroups");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -737,24 +741,24 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getGroupMembersWhenGroupNotExist() throws Exception {
-			System.out.println("GroupsManager.getGroupMembersWhenGroupNotExist");
+	public void getGroupMembersWhenGroupNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersWhenGroupNotExist");
 
-			groupsManager.getGroupMembers(sess, new Group());
+		groupsManager.getGroupMembers(sess, new Group());
 
-		}
+	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getGroupMembersPageWhenGroupNotExist() throws Exception {
-			System.out.println("GroupsManager.getGroupMembersPageWhenGroupNotExist");
+	public void getGroupMembersPageWhenGroupNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersPageWhenGroupNotExist");
 
-			groupsManager.getGroupMembers(sess, new Group());
+		groupsManager.getGroupMembers(sess, new Group());
 
-		}
+	}
 
 	@Test
 	public void getGroupMembersCount() throws Exception {
-		System.out.println("GroupsManager.getGroupMembersCount");
+		System.out.println(CLASS_NAME + "getGroupMembersCount");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -768,16 +772,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getGroupMembersCountWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.getGroupMembersCountWhenGroupNotExists");
+	public void getGroupMembersCountWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembersCountWhenGroupNotExists");
 
-			groupsManager.getGroupMembersCount(sess, new Group());
+		groupsManager.getGroupMembersCount(sess, new Group());
 
-		}
+	}
 
 	@Test
 	public void getAllGroups() throws Exception {
-		System.out.println("GroupsManager.getAllGroups");
+		System.out.println(CLASS_NAME + "getAllGroups");
 
 		vo = setUpVo();
 
@@ -796,16 +800,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getAllGroupsWhenVoNotExists() throws Exception {
-			System.out.println("GroupsManager.getAllGroupsWhenVoNotExists");
+	public void getAllGroupsWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getAllGroupsWhenVoNotExists");
 
-			groupsManager.getAllGroups(sess, new Vo());
+		groupsManager.getAllGroups(sess, new Vo());
 
-		}
+	}
 
 	@Test
 	public void getParentGroup() throws Exception {
-		System.out.println("GroupsManager.getParentGroup");
+		System.out.println(CLASS_NAME + "getParentGroup");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -820,7 +824,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getParentGroupWhenParentGroupNotExists() throws Exception {
-		System.out.println("GroupsManager.getParentGroupWhenParentGroupNotExists");
+		System.out.println(CLASS_NAME + "getParentGroupWhenParentGroupNotExists");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -833,7 +837,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getSubGroups() throws Exception {
-		System.out.println("GroupsManager.getSubGroups");
+		System.out.println(CLASS_NAME + "getSubGroups");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -847,12 +851,12 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		assertTrue(groups.size() == 1);
 		assertTrue(groups.contains(createdGroup21));
-		
+
 	}
 
 	@Test
 	public void getAllSubGroups() throws Exception {
-		System.out.println("GroupsManager.getAllSubGroups");
+		System.out.println(CLASS_NAME + "getAllSubGroups");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -873,24 +877,24 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getSubGroupsWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.getSubGroupsWhenGroupNotExists");
+	public void getSubGroupsWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getSubGroupsWhenGroupNotExists");
 
-			groupsManager.getSubGroups(sess, new Group());
+		groupsManager.getSubGroups(sess, new Group());
 
-		}
+	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getSubGroupsPageWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.getSubGroupsPageWhenGroupNotExists");
+	public void getSubGroupsPageWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getSubGroupsPageWhenGroupNotExists");
 
-			groupsManager.getSubGroups(sess, new Group());
+		groupsManager.getSubGroups(sess, new Group());
 
-		}
+	}
 
 	@Test
 	public void addAdmin() throws Exception {
-		System.out.println("GroupsManager.addAdmin");
+		System.out.println(CLASS_NAME + "addAdmin");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -906,47 +910,47 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void addAdminWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.addAdminWhenGroupNotExists");
+	public void addAdminWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addAdminWhenGroupNotExists");
 
-			vo = setUpVo();
+		vo = setUpVo();
 
-			Member member = setUpMember(vo);
-			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-			groupsManager.addAdmin(sess, new Group(), user);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		groupsManager.addAdmin(sess, new Group(), user);
 
-		}
+	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void addAdminWhenUserNotExists() throws Exception {
-			System.out.println("GroupsManager.addAdminWhenGroupNotExists");
+	public void addAdminWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addAdminWhenGroupNotExists");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			groupsManager.addAdmin(sess, group, new User());
+		groupsManager.addAdmin(sess, group, new User());
 
-		}
+	}
 
 	@Test (expected=AlreadyAdminException.class)
-		public void addAdminWhenAlreadyAdmin() throws Exception {
-			System.out.println("GroupsManager.addAdminWhenAlreadyAdmin");
-			
-			vo = setUpVo();
-			setUpGroup(vo);
+	public void addAdminWhenAlreadyAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addAdminWhenAlreadyAdmin");
 
-			Member member = setUpMember(vo);
-			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			groupsManager.addAdmin(sess, group, user);
-			groupsManager.addAdmin(sess, group, user);
-			// shouldn't add admin twice !!
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 
-		}
+		groupsManager.addAdmin(sess, group, user);
+		groupsManager.addAdmin(sess, group, user);
+		// shouldn't add admin twice !!
+
+	}
 
 	@Test
 	public void addAdminWithGroup() throws Exception {
-		System.out.println("GroupsManager.addAdminWithGroup");
+		System.out.println(CLASS_NAME + "addAdminWithGroup");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -965,7 +969,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void removeAdmin() throws Exception {
-		System.out.println("GroupsManager.removeAdmins");
+		System.out.println(CLASS_NAME + "removeAdmins");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -981,44 +985,44 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void removeAdminWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.removeAdminsWhenGroupNotExists");
+	public void removeAdminWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeAdminsWhenGroupNotExists");
 
-			vo = setUpVo();
+		vo = setUpVo();
 
-			Member member = setUpMember(vo);
-			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-			groupsManager.removeAdmin(sess, new Group(), user);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		groupsManager.removeAdmin(sess, new Group(), user);
 
-		}
+	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void removeAdminWhenUserNotExist() throws Exception {
-			System.out.println("GroupsManager.removeAdminsWhenMemberNotExists");
+	public void removeAdminWhenUserNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "removeAdminsWhenMemberNotExists");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			groupsManager.removeAdmin(sess, group, new User());
+		groupsManager.removeAdmin(sess, group, new User());
 
-		}
+	}
 
 	@Test (expected=UserNotAdminException.class)
-		public void removeAdminWhenNotAdminException() throws Exception {
-			System.out.println("GroupsManager.removeAdminsWhenMemberNotAdmin");
+	public void removeAdminWhenNotAdminException() throws Exception {
+		System.out.println(CLASS_NAME + "removeAdminsWhenMemberNotAdmin");
 
-			vo = setUpVo();
-			setUpGroup(vo);
+		vo = setUpVo();
+		setUpGroup(vo);
 
-			Member member = setUpMember(vo);
-			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-			groupsManager.removeAdmin(sess, group, user);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		groupsManager.removeAdmin(sess, group, user);
 
-		}
+	}
 
 	@Test
 	public void removeAdminWithGroup() throws Exception {
-		System.out.println("GroupsManager.removeAdminWithGroup");
+		System.out.println(CLASS_NAME + "removeAdminWithGroup");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1037,7 +1041,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getAdmins() throws Exception {
-		System.out.println("GroupsManager.getAdmins");
+		System.out.println(CLASS_NAME + "getAdmins");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1070,14 +1074,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		// test
 		List<User> admins = groupsManager.getAdmins(sess, group);
-		assertTrue("group shoud have 2 admins",admins.size() == 2);
+		assertTrue("group should have 2 admins",admins.size() == 2);
 		assertTrue("our member as direct user should be admin",admins.contains(user));
 		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
 	}
 
 	@Test
 	public void getDirectAdmins() throws Exception {
-		System.out.println("GroupsManager.getDirectAdmins");
+		System.out.println(CLASS_NAME + "getDirectAdmins");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1087,14 +1091,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addAdmin(sess, group, user);
 
 		List<User> admins = groupsManager.getDirectAdmins(sess, group);
-		assertTrue("group shoud have 1 admin",admins.size() == 1);
+		assertTrue("group should have 1 admin",admins.size() == 1);
 		assertTrue("our member should be admin",admins.contains(user));
 
 	}
 
 	@Test
 	public void getAdminGroups() throws Exception {
-		System.out.println("GroupsManager.getAdminGroups");
+		System.out.println(CLASS_NAME + "getAdminGroups");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1109,16 +1113,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getAdminsWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.getAdminsWhenGroupNotExists");
+	public void getAdminsWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getAdminsWhenGroupNotExists");
 
-			groupsManager.getAdmins(sess, new Group());
+		groupsManager.getAdmins(sess, new Group());
 
-		}
+	}
 
 	@Test
 	public void getGroups() throws Exception {
-		System.out.println("GroupsManager.getGroups");
+		System.out.println(CLASS_NAME + "getGroups");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1130,24 +1134,24 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getGroupsWhenVoNotExists() throws Exception {
-			System.out.println("GroupsManager.getGroupsWhenVoNotExists");
+	public void getGroupsWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhenVoNotExists");
 
-			groupsManager.getGroups(sess, new Vo());
+		groupsManager.getGroups(sess, new Vo());
 
-		}
+	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getGroupsPageWhenVoNotExists() throws Exception {
-			System.out.println("GroupsManager.getGroupsPageWhenVoNotExists");
+	public void getGroupsPageWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsPageWhenVoNotExists");
 
-			groupsManager.getGroups(sess, new Vo());
+		groupsManager.getGroups(sess, new Vo());
 
-		}
+	}
 
 	@Test
 	public void getVoGroupsCount() throws Exception {
-		System.out.println("GroupsManager.getVoGroupsCount");
+		System.out.println(CLASS_NAME + "getVoGroupsCount");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1159,7 +1163,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getGroupsCount() throws Exception {
-		System.out.println("GroupsManager.getGroupsCount");
+		System.out.println(CLASS_NAME + "getGroupsCount");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1171,7 +1175,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getParentGroupMembersCount() throws Exception{
-		System.out.println("GroupsManager.getParentGroupMembersCount");
+		System.out.println(CLASS_NAME + "getParentGroupMembersCount");
 		vo = setUpVo();
 		this.groupsManager.createGroup(sess, vo, group2);
 		this.groupsManager.createGroup(sess, group2, group);
@@ -1202,7 +1206,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getGroupCountInBiggerGroupStructure() throws Exception{
-		System.out.println("GroupsManager.getGroupCountInBiggerGroupStructure");
+		System.out.println(CLASS_NAME + "getGroupCountInBiggerGroupStructure");
 
 		vo = setUpVo();
 		this.groupsManager.createGroup(sess, vo, group);
@@ -1278,16 +1282,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getGroupsCountWhenVoNotExists() throws Exception {
-			System.out.println("GroupsManager.getGroupsCountWhenVoNotExists");
+	public void getGroupsCountWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsCountWhenVoNotExists");
 
-			groupsManager.getGroupsCount(sess, new Vo());
+		groupsManager.getGroupsCount(sess, new Vo());
 
-		}
+	}
 
 	@Test
 	public void getSubGroupsCount() throws Exception {
-		System.out.println("GroupsManager.getSubGroupsCount");
+		System.out.println(CLASS_NAME + "getSubGroupsCount");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1300,16 +1304,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getSubGroupsCountWhenGroupNotExists() throws Exception {
-			System.out.println("GroupsManager.getSubGroupsCountWhenGroupNotExists");
+	public void getSubGroupsCountWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getSubGroupsCountWhenGroupNotExists");
 
-			groupsManager.getSubGroupsCount(sess, new Group());
+		groupsManager.getSubGroupsCount(sess, new Group());
 
-		}
+	}
 
 	@Test
 	public void getVo() throws Exception {
-		System.out.println("GroupsManager.getVo");
+		System.out.println(CLASS_NAME + "getVo");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1321,26 +1325,26 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-		public void getVoWhenGroupNotExist() throws Exception {
-			System.out.println("GroupsManager.getVoWhenGroupNotExists");
+	public void getVoWhenGroupNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getVoWhenGroupNotExists");
 
-			groupsManager.getVo(sess, new Group());
+		groupsManager.getVo(sess, new Group());
 
-		}
+	}
 
 
 	@Test ()
-		public void getMembersMembershipType() throws Exception{
-			System.out.println("GroupsManager.getMembersMembershipType");
-			vo = setUpVo();
-			Member member = this.setUpMember(vo);
-			this.groupsManager.createGroup(sess, vo, group);
-			this.groupsManager.createGroup(sess, group, group2);
-			this.groupsManager.addMember(sess, group2, member);
-			assertTrue(this.groupsManager.getGroupMembers(sess, group).size()==1);
-			assertEquals(this.groupsManager.getGroupMembers(sess, group).get(0).getMembershipType(), MembershipType.INDIRECT);
-			assertEquals(this.groupsManager.getGroupMembers(sess, group2).get(0).getMembershipType(), MembershipType.DIRECT);
-		}
+	public void getMembersMembershipType() throws Exception{
+		System.out.println(CLASS_NAME + "getMembersMembershipType");
+		vo = setUpVo();
+		Member member = this.setUpMember(vo);
+		this.groupsManager.createGroup(sess, vo, group);
+		this.groupsManager.createGroup(sess, group, group2);
+		this.groupsManager.addMember(sess, group2, member);
+		assertTrue(this.groupsManager.getGroupMembers(sess, group).size()==1);
+		assertEquals(this.groupsManager.getGroupMembers(sess, group).get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(this.groupsManager.getGroupMembers(sess, group2).get(0).getMembershipType(), MembershipType.DIRECT);
+	}
 
 	@Test
 	public void convertGroupToRichGroupWithAttributesTest() throws Exception {
@@ -1479,7 +1483,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("created group should be same as returned group",group,returnedGroup);
 
 	}
-	
+
 	private List<Group> setUpGroupsWithSubgroups(Vo vo) throws Exception {
 		Group groupA = new Group("A", "A");
 		Group groupB = new Group("B", "B");
@@ -1497,9 +1501,9 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupC = this.groupsManagerBl.createGroup(sess, groupD, groupC);
 		groupE = this.groupsManagerBl.createGroup(sess, groupC, groupE);
-		
+
 		groupF = this.groupsManagerBl.createGroup(sess, groupE, groupF);
-		
+
 		List<Group> groups = new ArrayList<>();
 		groups.add(groupC);
 		groups.add(groupA);
@@ -1508,7 +1512,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groups.add(groupB);
 		groups.add(groupD);
 		groups.add(groupE);
-		
+
 		return groups;
 	}
 
@@ -1553,4 +1557,5 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		return attributes;
 	}
+
 }

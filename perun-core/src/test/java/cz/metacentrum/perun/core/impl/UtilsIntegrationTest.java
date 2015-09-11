@@ -8,7 +8,11 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-
+/**
+ * Tests of methods from Utils class.
+ *
+ * @author Michal Stava <stavamichal@gmail.com>
+ */
 public class UtilsIntegrationTest {
 
 	@Before
@@ -125,4 +129,5 @@ public class UtilsIntegrationTest {
 		assertEquals("Kurka mladsi", parsedRawName.get(lastNameString));
 		assertEquals("CSc.", parsedRawName.get(titleAfterString));
 	}
+
 }

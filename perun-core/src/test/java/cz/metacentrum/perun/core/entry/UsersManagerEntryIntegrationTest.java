@@ -4,13 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
@@ -23,14 +21,12 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -40,21 +36,24 @@ import cz.metacentrum.perun.core.api.exceptions.RelationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import java.util.ArrayList;
 
 /**
+ * Integration tests of UsersManager.
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-	private User user;                             // our User
+	private final static String CLASS_NAME = "UsersManager.";
+
+	private User user;           // our User
 	private User serviceUser1;
 	private User serviceUser2;
 	private Vo vo;
 	String userFirstName = "";
 	String userLastName = "";
-	String extLogin = "";              // his login in external source
+	String extLogin = "";        // his login in external source
 	String extLogin2 = "";
 	String extSourceName = "UserManagerEntryIntegrationTest";
 	final ExtSource extSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
@@ -69,7 +68,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// set random name and logins during every setUp method
 		userFirstName = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		userLastName = Long.toHexString(Double.doubleToLongBits(Math.random()));
-		extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));              // his login in external source
+		extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));   // his login in external source
 		extLogin2 = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		vo = setUpVo();
 		setUpUser();
@@ -81,7 +80,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void createUser() throws Exception {
-		System.out.println("UsersManager.createUser");
+		System.out.println(CLASS_NAME + "createUser");
 
 		user = new User();
 		user.setFirstName(userFirstName);
@@ -98,7 +97,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getUserById() throws Exception {
-		System.out.println("UsersManager.getUserById");
+		System.out.println(CLASS_NAME + "getUserById");
 
 		User secondUser = usersManager.getUserById(sess, user.getId());
 		assertNotNull(secondUser);
@@ -108,7 +107,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getAllRichUsersWithAllNonVirutalAttributes() throws Exception {
-		System.out.println("UsersManager.getAllUsersWithAllNonVirutalAttributes");
+		System.out.println(CLASS_NAME + "getAllUsersWithAllNonVirutalAttributes");
 
 		List<RichUser> richUsers = new ArrayList<RichUser>();
 		richUsers.addAll(perun.getUsersManagerBl().getAllRichUsersWithAllNonVirutalAttributes(sess));
@@ -118,17 +117,17 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 
 	@Test (expected=UserNotExistsException.class)
-		public void getUserByIdWhenUserNotExist() throws Exception {
-			System.out.println("UsersManager.getUserByIdWhenUserNotExist");
+	public void getUserByIdWhenUserNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getUserByIdWhenUserNotExist");
 
-			usersManager.getUserById(sess, 0);
-			// shouldn't find user
+		usersManager.getUserById(sess, 0);
+		// shouldn't find user
 
-		}
+	}
 
 	@Test
 	public void getUsers() throws Exception {
-		System.out.println("UsersManager.getUsers");
+		System.out.println(CLASS_NAME + "getUsers");
 
 		List<User> users = usersManager.getUsers(sess);
 		assertNotNull(users);
@@ -139,7 +138,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getServiceUsers() throws Exception {
-		System.out.println("UsersManager.getServiceUsers");
+		System.out.println(CLASS_NAME + "getServiceUsers");
 
 		List<User> users = usersManager.getServiceUsers(sess);
 		assertTrue(users.contains(serviceUser1));
@@ -148,7 +147,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getUsersByServiceUser1() throws Exception {
-		System.out.println("UsersManager.getUsersByServiceUser1");
+		System.out.println(CLASS_NAME + "getUsersByServiceUser1");
 
 		List<User> users = usersManager.getUsersByServiceUser(sess, serviceUser1);
 		assertTrue(users.contains(user));
@@ -157,7 +156,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getUsersByServiceUser2() throws Exception {
-		System.out.println("UsersManager.getUsersByServiceUser2");
+		System.out.println(CLASS_NAME + "getUsersByServiceUser2");
 
 		List<User> users = usersManager.getUsersByServiceUser(sess, serviceUser2);
 		assertTrue(users.contains(user));
@@ -166,7 +165,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getServiceUsersByUser() throws Exception {
-		System.out.println("UsersManager.getServiceUsersByUser");
+		System.out.println(CLASS_NAME + "getServiceUsersByUser");
 
 		List<User> users = usersManager.getServiceUsersByUser(sess, user);
 		assertTrue(users.contains(serviceUser1));
@@ -176,7 +175,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void modifyOwnership() throws Exception {
-		System.out.println("UsersManager.modifyOwnership");
+		System.out.println(CLASS_NAME + "modifyOwnership");
 
 		usersManager.removeServiceUserOwner(sess, user, serviceUser1);
 
@@ -201,45 +200,45 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test (expected= RelationNotExistsException.class)
-		public void removeNotExistingOwnership() throws Exception {
-			System.out.println("UsersManager.removeNotExistingOwnership");
+	public void removeNotExistingOwnership() throws Exception {
+		System.out.println(CLASS_NAME + "removeNotExistingOwnership");
 
-			Member member = setUpMember(vo);
-			User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
+		Member member = setUpMember(vo);
+		User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
 
-			usersManager.removeServiceUserOwner(sess, userOfMember, serviceUser1);
-		}
+		usersManager.removeServiceUserOwner(sess, userOfMember, serviceUser1);
+	}
 
 	@Test (expected= RelationNotExistsException.class)
-		public void removeOwnershipTwiceInRow() throws Exception {
-			System.out.println("UsersManager.removeOwnershipTwiceInRow");
+	public void removeOwnershipTwiceInRow() throws Exception {
+		System.out.println(CLASS_NAME + "removeOwnershipTwiceInRow");
 
-			usersManager.removeServiceUserOwner(sess, user, serviceUser1);
-			usersManager.removeServiceUserOwner(sess, user, serviceUser1);
-		}
-
-	@Test (expected= RelationExistsException.class)
-		public void addExistingOwnership() throws Exception {
-			System.out.println("UsersManager.addExistingOwnership");
-
-			usersManager.addServiceUserOwner(sess, user, serviceUser1);
-
-		}
+		usersManager.removeServiceUserOwner(sess, user, serviceUser1);
+		usersManager.removeServiceUserOwner(sess, user, serviceUser1);
+	}
 
 	@Test (expected= RelationExistsException.class)
-		public void addOwnershipTwiceInRow() throws Exception {
-			System.out.println("UsersManager.addOwnershipTwiceInRow");
+	public void addExistingOwnership() throws Exception {
+		System.out.println(CLASS_NAME + "addExistingOwnership");
 
-			Member member = setUpMember(vo);
-			User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
+		usersManager.addServiceUserOwner(sess, user, serviceUser1);
 
-			usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
-			usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
-		}
+	}
+
+	@Test (expected= RelationExistsException.class)
+	public void addOwnershipTwiceInRow() throws Exception {
+		System.out.println(CLASS_NAME + "addOwnershipTwiceInRow");
+
+		Member member = setUpMember(vo);
+		User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
+		usersManager.addServiceUserOwner(sess, userOfMember, serviceUser1);
+	}
 
 	@Test
 	public void disableExistingOwnership() throws Exception {
-		System.out.println("UsersManager.disableExistingOwnership");
+		System.out.println(CLASS_NAME + "disableExistingOwnership");
 
 		Member member = setUpMember(vo);
 		User userOfMember = perun.getUsersManagerBl().getUserByMember(sess, member);
@@ -273,7 +272,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void updateUser() throws Exception {
-		System.out.println("UsersManager.updateUser");
+		System.out.println(CLASS_NAME + "updateUser");
 
 		user.setFirstName(Long.toHexString(Double.doubleToLongBits(Math.random())));
 		user.setMiddleName("");
@@ -284,65 +283,65 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		User updatedUser = usersManager.updateUser(sess, user);
 		assertNotNull(updatedUser);
 		assertEquals("users should be the same after update in DB",user,updatedUser);
-		
+
 		User gettingUser = usersManager.getUserById(sess, updatedUser.getId());
 		assertEquals("users should be the same after updated in DB and getting from DB",gettingUser,updatedUser);
 
 	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void updateWhenUserNotExists() throws Exception {
-			System.out.println("UsersManager.updateWhenUserNotExists");
+	public void updateWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "updateWhenUserNotExists");
 
-			usersManager.updateUser(sess, new User());
+		usersManager.updateUser(sess, new User());
 
-		}
-	
-	@Test
-		public void updateUserWithNullValues() throws Exception {
-			System.out.println("UsersManager.updateUserWithNullValues");
-		
-			user.setFirstName(null);
-			user.setLastName(Long.toHexString(Double.doubleToLongBits(Math.random())));
-			user.setMiddleName(null);
-			user.setTitleBefore(null);
-			user.setTitleAfter(null);
-			User updatedUser = usersManager.updateUser(sess, user);
-			User gettingUser = usersManager.getUserById(sess, updatedUser.getId());
-			assertNotNull(updatedUser);
-			assertEquals("users should be the same after update in DB", gettingUser, updatedUser);
-		}
-	
-	@Test (expected=cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException.class)
-		public void updateUserWithNullValueInLastName() throws Exception {
-			System.out.println("UsersManager.updateUserWithNullValueInLastName");
-			
-			user.setFirstName(null);
-			user.setLastName(null);
-			User updateUser = usersManager.updateUser(sess, user);
 	}
-	
+
+	@Test
+	public void updateUserWithNullValues() throws Exception {
+		System.out.println(CLASS_NAME + "updateUserWithNullValues");
+
+		user.setFirstName(null);
+		user.setLastName(Long.toHexString(Double.doubleToLongBits(Math.random())));
+		user.setMiddleName(null);
+		user.setTitleBefore(null);
+		user.setTitleAfter(null);
+		User updatedUser = usersManager.updateUser(sess, user);
+		User gettingUser = usersManager.getUserById(sess, updatedUser.getId());
+		assertNotNull(updatedUser);
+		assertEquals("users should be the same after update in DB", gettingUser, updatedUser);
+	}
+
+	@Test (expected=cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException.class)
+	public void updateUserWithNullValueInLastName() throws Exception {
+		System.out.println(CLASS_NAME + "updateUserWithNullValueInLastName");
+
+		user.setFirstName(null);
+		user.setLastName(null);
+		User updateUser = usersManager.updateUser(sess, user);
+	}
+
 	@Test (expected=UserNotExistsException.class)
-		public void deleteUser() throws Exception {
-			System.out.println("UsersManager.deleteUser");
+	public void deleteUser() throws Exception {
+		System.out.println(CLASS_NAME + "deleteUser");
 
-			usersManager.deleteUser(sess, user, true);  // force delete
-			usersManager.getUserById(sess, user.getId());
-			// should be unable to get deleted user by his id
+		usersManager.deleteUser(sess, user, true);  // force delete
+		usersManager.getUserById(sess, user.getId());
+		// should be unable to get deleted user by his id
 
-		}
+	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void deleteUserWhenUserNotExists() throws Exception {
-			System.out.println("UsersManager.deleteUserWhenUserNotExists");
+	public void deleteUserWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "deleteUserWhenUserNotExists");
 
-			usersManager.deleteUser(sess, new User(), true);  // force delete
-			// shouldn't find user
-		}
+		usersManager.deleteUser(sess, new User(), true);  // force delete
+		// shouldn't find user
+	}
 
 	@Test (expected=InternalErrorException.class)
 	public void addIDPExtSourcesWithSameLogin() throws Exception {
-		System.out.println("UsersManager.addIDPExtSourcesWithSameLogin");
+		System.out.println(CLASS_NAME + "addIDPExtSourcesWithSameLogin");
 
 		ExtSource ext1 = new ExtSource("test1", ExtSourcesManagerEntry.EXTSOURCE_IDP);
 		ExtSource ext2 = new ExtSource("test2", ExtSourcesManagerEntry.EXTSOURCE_IDP);
@@ -360,7 +359,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void addUserExtSource() throws Exception {
-		System.out.println("UsersManager.addUserExtSource");
+		System.out.println(CLASS_NAME + "addUserExtSource");
 
 		ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
 
@@ -376,24 +375,24 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test (expected=UserExtSourceExistsException.class)
-		public void addUserExtSourceWhenUserExtSourceAlreadyExists() throws Exception {
-			System.out.println("UsersManager.addUserExtSourceWhenUserExtSourceAlreadyExists");
+	public void addUserExtSourceWhenUserExtSourceAlreadyExists() throws Exception {
+		System.out.println(CLASS_NAME + "addUserExtSourceWhenUserExtSourceAlreadyExists");
 
-			usersManager.addUserExtSource(sess, user, userExtSource);
-		}
+		usersManager.addUserExtSource(sess, user, userExtSource);
+	}
 
 
 	@Test (expected=UserNotExistsException.class)
-		public void addUserExtSourceWhenUserNotExists() throws Exception {
-			System.out.println("UsersManager.addUserExtSourceWhenUserNotExists");
+	public void addUserExtSourceWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addUserExtSourceWhenUserNotExists");
 
-			usersManager.addUserExtSource(sess, new User(), userExtSource);
-			// shouldn't find user
-		}
+		usersManager.addUserExtSource(sess, new User(), userExtSource);
+		// shouldn't find user
+	}
 
 	@Test
 	public void getUserByUserExtSource() throws Exception {
-		System.out.println("UsersManager.getUserByUserExtSource");
+		System.out.println(CLASS_NAME + "getUserByUserExtSource");
 
 		User secondUser = usersManager.getUserByUserExtSource(sess, userExtSource);
 		assertEquals("users should be the same from both ext sources",user, secondUser);
@@ -402,7 +401,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getUserByExtSourceNameAndExtLogin() throws Exception {
-		System.out.println("UsersManager.getUserByExtSourceNameAndExtLogin");
+		System.out.println(CLASS_NAME + "getUserByExtSourceNameAndExtLogin");
 
 		String extSourceName = userExtSource.getExtSource().getName();
 		String extLogin = userExtSource.getLogin();
@@ -413,7 +412,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getUserExtSourceByExtLogin() throws Exception {
-		System.out.println("UsersManager.getUserExtSourceByExtLogin");
+		System.out.println(CLASS_NAME + "getUserExtSourceByExtLogin");
 
 		ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
 		UserExtSource returnedUserExtSource = usersManager.getUserExtSourceByExtLogin(sess, externalSource, extLogin);
@@ -426,7 +425,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	/*
 		 @Test (expected=AlreadyReservedLoginException.class)
 		 public void isAlreadyReservedLogin() throws Exception {
-		 System.out.println("UsersManager.isAlreadyReservedLogin");
+		 System.out.println(CLASS_NAME + "isAlreadyReservedLogin");
 
 		 String namespace = "einfra";
 		 String login = "martin_svehla";
@@ -435,25 +434,25 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		 */
 
 	@Test (expected=UserExtSourceNotExistsException.class)
-		public void getUserExtSourceByExtLoginWhenExtLoginNotExists() throws Exception {
-			System.out.println("UsersManager.getUserExtSourceByExtLoginWhenExtLoginNotExists");
+	public void getUserExtSourceByExtLoginWhenExtLoginNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByExtLoginWhenExtLoginNotExists");
 
-			ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
-			usersManager.getUserExtSourceByExtLogin(sess, externalSource, "");
-			// shouldn't find UserExtSource (based on valid ext source and invalid login)
-		}
+		ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
+		usersManager.getUserExtSourceByExtLogin(sess, externalSource, "");
+		// shouldn't find UserExtSource (based on valid ext source and invalid login)
+	}
 
 	@Test (expected=ExtSourceNotExistsException.class)
-		public void getUserExtSourceByExtLoginWhenExtSourceNotExists() throws Exception {
-			System.out.println("UsersManager.getUserExtSourceByExtLoginWhenExtSourceNotExists");
+	public void getUserExtSourceByExtLoginWhenExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByExtLoginWhenExtSourceNotExists");
 
-			usersManager.getUserExtSourceByExtLogin(sess, new ExtSource(), "");
+		usersManager.getUserExtSourceByExtLogin(sess, new ExtSource(), "");
 
-		}
+	}
 
 	@Test
 	public void getUserExtSources() throws Exception {
-		System.out.println("UsersManager.getUserExtSources");
+		System.out.println(CLASS_NAME + "getUserExtSources");
 
 		List<UserExtSource> userExtSources = usersManager.getUserExtSources(sess, user);
 		assertNotNull(userExtSources);
@@ -463,17 +462,17 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void getUserExtSourcesWhenUserNotExists() throws Exception {
-			System.out.println("UsersManager.getUserExtSourcesWhenUserNotExists");
+	public void getUserExtSourcesWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourcesWhenUserNotExists");
 
-			usersManager.getUserExtSources(sess, new User());
-			// shouldn't find user
+		usersManager.getUserExtSources(sess, new User());
+		// shouldn't find user
 
-		}
+	}
 
 	@Test
 	public void getUserExtSourceById() throws Exception {
-		System.out.println("UsersManager.getUserExtSourceById");
+		System.out.println(CLASS_NAME + "getUserExtSourceById");
 
 		int id = userExtSource.getId();
 		UserExtSource retUserExtSource = usersManager.getUserExtSourceById(sess, id);
@@ -484,37 +483,37 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test (expected=UserExtSourceNotExistsException.class)
-		public void getUserExtSourceByIdWhenExtSourceNotExists() throws Exception {
-			System.out.println("UsersManager.getUserExtSourceByIdWhenExtSourceNotExists");
+	public void getUserExtSourceByIdWhenExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceByIdWhenExtSourceNotExists");
 
-			usersManager.getUserExtSourceById(sess, 0);
-			// shouldn't find ext source
+		usersManager.getUserExtSourceById(sess, 0);
+		// shouldn't find ext source
 
-		}
+	}
 
 	@Test (expected=UserExtSourceNotExistsException.class)
-		public void removeUserExtSource() throws Exception {
-			System.out.println("UsersManager.removeUserExtSource");
+	public void removeUserExtSource() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSource");
 
-			usersManager.removeUserExtSource(sess, user, userExtSource);
+		usersManager.removeUserExtSource(sess, user, userExtSource);
 
-			usersManager.getUserExtSourceById(sess, userExtSource.getId());
-			// shloudn't get removed user ext source from DB
+		usersManager.getUserExtSourceById(sess, userExtSource.getId());
+		// shloudn't get removed user ext source from DB
 
-		}
+	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void removeUserExtSourceWhenUserNotExist() throws Exception {
-			System.out.println("UsersManager.removeUserExtSourceWhenUserNotExist");
+	public void removeUserExtSourceWhenUserNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceWhenUserNotExist");
 
-			usersManager.removeUserExtSource(sess, new User(), userExtSource);
-			// shouldn't find user
+		usersManager.removeUserExtSource(sess, new User(), userExtSource);
+		// shouldn't find user
 
-		}
+	}
 
 	@Test
 	public void getUserByMember() throws Exception {
-		System.out.println("UsersManager.getUserByMember");
+		System.out.println(CLASS_NAME + "getUserByMember");
 
 		Member member = setUpMember(vo);
 
@@ -526,80 +525,80 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void getUserByMemberWhenMemberNotExist() throws Exception {
-			System.out.println("UsersManager.getUserByMemberWhenMemberNotExist");
+	public void getUserByMemberWhenMemberNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getUserByMemberWhenMemberNotExist");
 
-			usersManager.getUserByMember(sess, new Member());
-			// shouldn't find member
+		usersManager.getUserByMember(sess, new Member());
+		// shouldn't find member
 
-		}
-
-	@ Test
-		public void getVosWhereUserIsAdmin() throws Exception {
-			System.out.println("UsersManager.getVosWhereUserIsAdmin");
-
-			Member member = setUpMember(vo);
-			User user = perun.getUsersManagerBl().getUserByMember(sess, member);
-			perun.getVosManager().addAdmin(sess, vo, user);
-
-			List<Vo> vos = usersManager.getVosWhereUserIsAdmin(sess, user);
-			assertTrue("our user should be admin in one VO", vos.size() >= 1);
-
-		}
-
-	@Test (expected=UserNotExistsException.class)
-		public void getVosWhereUserIsAdminWhenUserNotExist() throws Exception {
-			System.out.println("UsersManager.getVosWhereUserIsAdminWhenUserNotExist");
-
-			usersManager.getVosWhereUserIsAdmin(sess, new User());
-			// shouldn't find user
-		}
+	}
 
 	@ Test
-		public void getGroupsWhereUserIsAdmin() throws Exception {
-			System.out.println("UsersManager.getGroupsWhereUserIsAdmin");
+	public void getVosWhereUserIsAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "getVosWhereUserIsAdmin");
 
-			Member member = setUpMember(vo);
-			Group group = setUpGroup(vo, member);
-			User returnedUser = usersManager.getUserByMember(sess, member);
+		Member member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		perun.getVosManager().addAdmin(sess, vo, user);
 
-			List<Group> groups = usersManager.getGroupsWhereUserIsAdmin(sess, returnedUser);
-			assertTrue("our user should be admin in one group", groups.size() >= 1);
-			assertTrue("created group is not between them", groups.contains(group));
+		List<Vo> vos = usersManager.getVosWhereUserIsAdmin(sess, user);
+		assertTrue("our user should be admin in one VO", vos.size() >= 1);
 
-		}
+	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void getGroupsWhereUserIsAdminWhenUserNotExist() throws Exception {
-			System.out.println("UsersManager.getGroupsWhereUserIsAdminWhenUserNotExist");
+	public void getVosWhereUserIsAdminWhenUserNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getVosWhereUserIsAdminWhenUserNotExist");
 
-			usersManager.getGroupsWhereUserIsAdmin(sess, new User());
-			// shouldn't find user
-		}
+		usersManager.getVosWhereUserIsAdmin(sess, new User());
+		// shouldn't find user
+	}
 
 	@ Test
-		public void getVosWhereUserIsMember() throws Exception {
-			System.out.println("UsersManager.getVosWhereUserIsMember");
+	public void getGroupsWhereUserIsAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereUserIsAdmin");
 
-			Member member = setUpMember(vo);
+		Member member = setUpMember(vo);
+		Group group = setUpGroup(vo, member);
+		User returnedUser = usersManager.getUserByMember(sess, member);
 
-			User returnedUser = usersManager.getUserByMember(sess, member);
-			List<Vo> vos = usersManager.getVosWhereUserIsMember(sess, returnedUser);
-			assertTrue("our user should be member of one VO", vos.size() >= 1);
+		List<Group> groups = usersManager.getGroupsWhereUserIsAdmin(sess, returnedUser);
+		assertTrue("our user should be admin in one group", groups.size() >= 1);
+		assertTrue("created group is not between them", groups.contains(group));
 
-		}
+	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void getVosWhereUserIsMemberWhenUserNotExist() throws Exception {
-			System.out.println("UsersManager.getVosWhereUserIsMemberWhenUserNotExist");
+	public void getGroupsWhereUserIsAdminWhenUserNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereUserIsAdminWhenUserNotExist");
 
-			usersManager.getVosWhereUserIsMember(sess, new User());
-			// shouldn't find user
-		}
+		usersManager.getGroupsWhereUserIsAdmin(sess, new User());
+		// shouldn't find user
+	}
+
+	@ Test
+	public void getVosWhereUserIsMember() throws Exception {
+		System.out.println(CLASS_NAME + "getVosWhereUserIsMember");
+
+		Member member = setUpMember(vo);
+
+		User returnedUser = usersManager.getUserByMember(sess, member);
+		List<Vo> vos = usersManager.getVosWhereUserIsMember(sess, returnedUser);
+		assertTrue("our user should be member of one VO", vos.size() >= 1);
+
+	}
+
+	@Test (expected=UserNotExistsException.class)
+	public void getVosWhereUserIsMemberWhenUserNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getVosWhereUserIsMemberWhenUserNotExist");
+
+		usersManager.getVosWhereUserIsMember(sess, new User());
+		// shouldn't find user
+	}
 
 	@Test
 	public void getAllowedResources() throws Exception {
-		System.out.println("UsersManager.getAllowedResources");
+		System.out.println(CLASS_NAME + "getAllowedResources");
 
 		Member member = setUpMember(vo);
 		Group group = setUpGroup(vo, member);
@@ -632,7 +631,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void findUsers() throws Exception {
-		System.out.println("UsersManager.findUsers");
+		System.out.println(CLASS_NAME + "findUsers");
 
 		// Create second user
 		User user2 = new User();
@@ -660,7 +659,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void findUsersByNameFullText() throws Exception {
-		System.out.println("UsersManager.findUsersByNameFullText");
+		System.out.println(CLASS_NAME + "findUsersByNameFullText");
 
 		// Create second user
 		User user2 = new User();
@@ -688,7 +687,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void findUsersByNameUsingExactFields() throws Exception {
-		System.out.println("UsersManager.findUsersByNameUsingExactFields");
+		System.out.println(CLASS_NAME + "findUsersByNameUsingExactFields");
 
 		// Create second user
 		User user2 = new User();
@@ -716,7 +715,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getUsersByAttribute() throws Exception {
-		System.out.println("UsersManager.getUsersByAttribute");
+		System.out.println(CLASS_NAME + "getUsersByAttribute");
 
 		// Check if the attribute already exists
 		Attribute attr;
@@ -744,7 +743,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void findUsersByExactName() throws Exception {
-		System.out.println("UsersManager.findUsersByExactName");
+		System.out.println(CLASS_NAME + "findUsersByExactName");
 
 		String searchString = user.getFirstName()+user.getLastName();
 		List<User> users = perun.getUsersManager().findUsersByExactName(sess, searchString);
@@ -761,7 +760,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void findRichUsersWithAttributesByExactMatch() throws Exception {
-		System.out.println("UsersManager.findRichUsersWithAttributesByExactMatch");
+		System.out.println(CLASS_NAME + "findRichUsersWithAttributesByExactMatch");
 
 		ArrayList<String> attrNames = new ArrayList<>();
 		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
@@ -774,7 +773,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getUsersCount() throws Exception {
-		System.out.println("UsersManager.getUsersCount()");
+		System.out.println(CLASS_NAME + "getUsersCount");
 
 		setUpUser();
 		int count = perun.getUsersManager().getUsersCount(sess);
@@ -925,4 +924,5 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setAttributes(new HashMap<String,String>());
 		return candidate;
 	}
+
 }

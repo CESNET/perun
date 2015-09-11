@@ -48,7 +48,7 @@ import static org.junit.Assert.*;
  */
 public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-	private static final String SECURITY_TEAMS_MANAGER = "SecurityTeamsManager";
+	private static final String CLASS_NAME = "SecurityTeamsManager.";
 
 	private SecurityTeamsManager securityTeamsManagerEntry;
 
@@ -72,21 +72,22 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testGetSecurityTeamsPerunAdmin() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetSecurityTeamsPerunAdmin");
+		System.out.println(CLASS_NAME + "testGetSecurityTeamsPerunAdmin");
 
 		AuthzRoles roles = sess.getPerunPrincipal().getRoles();
 		try {
 			List<SecurityTeam> expected = setUpSecurityTeams();
 			sess.getPerunPrincipal().setRoles(new AuthzRoles(Role.PERUNADMIN));
 			List<SecurityTeam> actual = securityTeamsManagerEntry.getSecurityTeams(sess);
-			assertTrue("Security teams should contain all created.", expected.containsAll(actual));
+			assertTrue("Security teams should contain all created.", actual.containsAll(expected));
 		} finally {
 			sess.getPerunPrincipal().setRoles(roles);
 		}
 	}
+
 	@Test
 	public void testGetSecurityTeamsSecurityAdmin() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetSecurityTeamsSecurityAdmin");
+		System.out.println(CLASS_NAME + "testGetSecurityTeamsSecurityAdmin");
 
 		AuthzRoles roles = sess.getPerunPrincipal().getRoles();
 		try {
@@ -104,9 +105,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 			sess.getPerunPrincipal().setRoles(roles);
 		}
 	}
+
 	@Test
 	public void testGetSecurityTeamsSecurityAdmin1() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetSecurityTeamsSecurityAdmin1");
+		System.out.println(CLASS_NAME + "testGetSecurityTeamsSecurityAdmin1");
 
 		AuthzRoles roles = sess.getPerunPrincipal().getRoles();
 		try {
@@ -131,7 +133,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testGetAllSecurityTeams() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetAllSecurityTeams");
+		System.out.println(CLASS_NAME + "testGetAllSecurityTeams");
 
 		List<SecurityTeam> expected = setUpSecurityTeams();
 		List<SecurityTeam> actual = securityTeamsManagerEntry.getAllSecurityTeams(sess);
@@ -140,7 +142,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testCreateSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testCreateSecurityTeam");
+		System.out.println(CLASS_NAME + "testCreateSecurityTeam");
 
 		SecurityTeam expected = new SecurityTeam("Name", "Desc");
 		SecurityTeam actual = securityTeamsManagerEntry.createSecurityTeam(sess, expected);
@@ -151,25 +153,28 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		assertNotNull(actual);
 		assertEquals(expected, actual);
 	}
+
 	@Test
 	public void testCreateSecurityTeamWithoutDsc() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testCreateSecurityTeamWithoutDsc");
+		System.out.println(CLASS_NAME + "testCreateSecurityTeamWithoutDsc");
 
 		SecurityTeam expected = new SecurityTeam("Name", null);
 		SecurityTeam actual = securityTeamsManagerEntry.createSecurityTeam(sess, expected);
 		assertNotNull(actual);
 		assertEquals(expected, actual);
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testCreateSecurityTeamWithoutName() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testCreateSecurityTeamWithoutName");
+		System.out.println(CLASS_NAME + "testCreateSecurityTeamWithoutName");
 
 		SecurityTeam expected = new SecurityTeam(null, "Desc");
 		securityTeamsManagerEntry.createSecurityTeam(sess, expected);
 	}
+
 	@Test(expected = SecurityTeamExistsException.class)
 	public void testCreateSecurityTeamAlreadyExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testCreateSecurityTeamAlreadyExists");
+		System.out.println(CLASS_NAME + "testCreateSecurityTeamAlreadyExists");
 
 		SecurityTeam expected = new SecurityTeam("Name", "Desc");
 		securityTeamsManagerEntry.createSecurityTeam(sess, expected);
@@ -178,16 +183,18 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		assertEquals(expected, actual);
 		securityTeamsManagerEntry.createSecurityTeam(sess, actual);
 	}
+
 	@Test(expected = SecurityTeamExistsException.class)
 	public void testCreateSecurityTeamUniqueName() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testCreateSecurityTeamUniqueName");
+		System.out.println(CLASS_NAME + "testCreateSecurityTeamUniqueName");
 
 		securityTeamsManagerEntry.createSecurityTeam(sess, new SecurityTeam("UniqueName", "Desc 1"));
 		securityTeamsManagerEntry.createSecurityTeam(sess, new SecurityTeam("UniqueName", "Desc 2"));
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testCreateSecurityTeamNameLength() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testCreateSecurityTeamNameLength");
+		System.out.println(CLASS_NAME + "testCreateSecurityTeamNameLength");
 
 		securityTeamsManagerEntry.createSecurityTeam(sess, new SecurityTeam(
 				"1---------2---------3---------4---------5---------6---------7---------8---------9---------10--------11--------12--------13--------",
@@ -197,7 +204,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testUpdateSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testUpdateSecurityTeam");
+		System.out.println(CLASS_NAME + "testUpdateSecurityTeam");
 
 		List<SecurityTeam> teams = setUpSecurityTeams();
 		SecurityTeam expected = teams.get(0);
@@ -211,16 +218,18 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		assertNotNull(actual);
 		assertEquals(expected, actual);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testUpdateSecurityTeamWithNoName() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testUpdateSecurityTeamWithNoName");
+		System.out.println(CLASS_NAME + "testUpdateSecurityTeamWithNoName");
 
 		SecurityTeam expected = new SecurityTeam("ToUpdate", "Desc");
 		securityTeamsManagerEntry.updateSecurityTeam(sess, expected);
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testUpdateSecurityTeamWithoutName() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testUpdateSecurityTeamWithoutName");
+		System.out.println(CLASS_NAME + "testUpdateSecurityTeamWithoutName");
 
 		List<SecurityTeam> teams = setUpSecurityTeams();
 		SecurityTeam expected = teams.get(0);
@@ -231,7 +240,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testDeleteSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testDeleteSecurityTeam");
+		System.out.println(CLASS_NAME + "testDeleteSecurityTeam");
 
 		List<SecurityTeam> expected = setUpSecurityTeams();
 		expected.remove(st0);
@@ -239,9 +248,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		List<SecurityTeam> actual = securityTeamsManagerEntry.getAllSecurityTeams(sess);
 		assertTrue("SecurityTeam was not deleted.", !actual.contains(st0));
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testDeleteSecurityTeamShouldNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testDeleteSecurityTeamShouldNotExists");
+		System.out.println(CLASS_NAME + "testDeleteSecurityTeamShouldNotExists");
 
 		setUpSecurityTeams();
 		SecurityTeam actual = securityTeamsManagerEntry.getSecurityTeamById(sess, st0.getId());
@@ -250,39 +260,44 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		securityTeamsManagerEntry.deleteSecurityTeam(sess, st0);
 		securityTeamsManagerEntry.getSecurityTeamById(sess, st0.getId());
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testDeleteSecurityTeamBeanNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testDeleteSecurityTeamBeanNotExists");
+		System.out.println(CLASS_NAME + "testDeleteSecurityTeamBeanNotExists");
 
 		st0 = new SecurityTeam("Name", "Desc");
 		st0.setId(10);
 		securityTeamsManagerEntry.deleteSecurityTeam(sess, st0);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testDeleteSecurityTeamAlreadyDeleted() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testDeleteSecurityTeamAlreadyDeleted");
+		System.out.println(CLASS_NAME + "testDeleteSecurityTeamAlreadyDeleted");
 
 		setUpSecurityTeams();
 		securityTeamsManagerEntry.deleteSecurityTeam(sess, st0);
 		securityTeamsManagerEntry.deleteSecurityTeam(sess, st0);
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testDeleteSecurityTeamWithNullSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testDeleteSecurityTeamWithNullSecurityTeam");
+		System.out.println(CLASS_NAME + "testDeleteSecurityTeamWithNullSecurityTeam");
 
 		securityTeamsManagerEntry.deleteSecurityTeam(sess, null);
 	}
+
 	@Test(expected = RelationExistsException.class)
 	public void testDeleteSecurityTeamWithRelationExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testDeleteSecurityTeamWithRelationExists");
+		System.out.println(CLASS_NAME + "testDeleteSecurityTeamWithRelationExists");
 
 		setUpSecurityTeams();
 		setUpFacilities();
 		securityTeamsManagerEntry.deleteSecurityTeam(sess, st0);
 	}
+
 	@Test
 	public void testForceDeleteSecurityTeamWithRelationExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testForceDeleteSecurityTeamWithRelationExists");
+		System.out.println(CLASS_NAME + "testForceDeleteSecurityTeamWithRelationExists");
 
 		setUpSecurityTeams();
 		setUpFacilities();
@@ -291,15 +306,16 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testGetSecurityTeamById() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetSecurityTeamById");
+		System.out.println(CLASS_NAME + "testGetSecurityTeamById");
 
 		SecurityTeam expected = setUpSecurityTeams().get(0);
 		SecurityTeam actual = securityTeamsManagerEntry.getSecurityTeamById(sess, expected.getId());
 		assertEquals(expected, actual);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testGetSecurityTeamByIdNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetSecurityTeamByIdNotExists");
+		System.out.println(CLASS_NAME + "testGetSecurityTeamByIdNotExists");
 
 		securityTeamsManagerEntry.getSecurityTeamById(sess, 0);
 	}
@@ -307,7 +323,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testGetAdmins() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetAdmins");
+		System.out.println(CLASS_NAME + "testGetAdmins");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -317,9 +333,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Collections.sort(actual);
 		assertEquals(expected, actual);
 	}
+
 	@Test
 	public void testGetAdminsEmpty() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetAdminsEmpty");
+		System.out.println(CLASS_NAME + "testGetAdminsEmpty");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -330,14 +347,16 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Collections.sort(actual);
 		assertEquals(expected, actual);
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testGetAdminsWithNullSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetAdminsWithNullSecurityTeam");
+		System.out.println(CLASS_NAME + "testGetAdminsWithNullSecurityTeam");
 		securityTeamsManagerEntry.getAdmins(sess, null);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testGetAdminsWithoutSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetAdminsWithoutSecurityTeam");
+		System.out.println(CLASS_NAME + "testGetAdminsWithoutSecurityTeam");
 		SecurityTeam st = new SecurityTeam(0, "Name", "Desc");
 		securityTeamsManagerEntry.getAdmins(sess, st);
 	}
@@ -345,7 +364,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testAddAdmin() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddAdmin");
+		System.out.println(CLASS_NAME + "testAddAdmin");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -360,9 +379,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		if (admins.size() != 1) fail();
 		if (!admins.contains(u0)) fail();
 	}
+
 	@Test(expected = AlreadyAdminException.class)
 	public void testAddAdminAlreadyAdmin() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddAdminAlreadyAdmin");
+		System.out.println(CLASS_NAME + "testAddAdminAlreadyAdmin");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -370,32 +390,36 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		securityTeamsManagerEntry.addAdmin(sess, st0, u0);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testAddAdminSecurityTeamNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddAdminSecurityTeamNotExists");
+		System.out.println(CLASS_NAME + "testAddAdminSecurityTeamNotExists");
 
 		setUpUsers();
 		SecurityTeam st = new SecurityTeam(0, "Name", "Desc");
 		securityTeamsManagerEntry.addAdmin(sess, st, u0);
 	}
+
 	@Test(expected = UserNotExistsException.class)
 	public void testAddAdminUserNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddAdminUserNotExists");
+		System.out.println(CLASS_NAME + "testAddAdminUserNotExists");
 
 		setUpSecurityTeams();
 		User user = new User(0, "firstName", "lastName", "middleName", "titleBefore", "titleAfter");
 		securityTeamsManagerEntry.addAdmin(sess, st0, user);
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testAddAdminNullSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddAdminNullSecurityTeam");
+		System.out.println(CLASS_NAME + "testAddAdminNullSecurityTeam");
 
 		setUpUsers();
 		securityTeamsManagerEntry.addAdmin(sess, null, u0);
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testAddAdminNullUser() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddAdminNullUser");
+		System.out.println(CLASS_NAME + "testAddAdminNullUser");
 
 		setUpSecurityTeams();
 		securityTeamsManagerEntry.addAdmin(sess, st0, (User) null);
@@ -404,7 +428,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testAddGroupAsAdmin() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddGroupAsAdmin");
+		System.out.println(CLASS_NAME + "testAddGroupAsAdmin");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -423,9 +447,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		if (admins.contains(u3)) fail();
 		if (admins.contains(u4)) fail();
 	}
+
 	@Test(expected = AlreadyAdminException.class)
 	public void testAddGroupAsAdminAlreadyAdmin() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddGroupAsAdminAlreadyAdmin");
+		System.out.println(CLASS_NAME + "testAddGroupAsAdminAlreadyAdmin");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -434,34 +459,38 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		securityTeamsManagerEntry.addAdmin(sess, st0, group);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testAddGroupAsAdminSecurityTeamNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddGroupAsAdminSecurityTeamNotExists");
+		System.out.println(CLASS_NAME + "testAddGroupAsAdminSecurityTeamNotExists");
 
 		setUpUsers();
 		Group group = setUpGroup(u0, u1);
 		SecurityTeam st = new SecurityTeam(0, "Name", "Desc");
 		securityTeamsManagerEntry.addAdmin(sess, st, group);
 	}
+
 	@Test(expected = GroupNotExistsException.class)
 	public void testAddGroupAsAdminGroupNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddGroupAsAdminGroupNotExists");
+		System.out.println(CLASS_NAME + "testAddGroupAsAdminGroupNotExists");
 
 		setUpSecurityTeams();
 		Group group = new Group("firstName", "lastName");
 		group.setId(0);
 		securityTeamsManagerEntry.addAdmin(sess, st0, group);
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testAddGroupAsAdminNullSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddGroupAsAdminNullSecurityTeam");
+		System.out.println(CLASS_NAME + "testAddGroupAsAdminNullSecurityTeam");
 
 		setUpUsers();
 		securityTeamsManagerEntry.addAdmin(sess, null, u0);
 	}
+
 	@Test(expected = InternalErrorException.class)
 	public void testAddGroupAsAdminNullGroup() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddGroupAsAdminNullGroup");
+		System.out.println(CLASS_NAME + "testAddGroupAsAdminNullGroup");
 
 		setUpSecurityTeams();
 		securityTeamsManagerEntry.addAdmin(sess, st0, (Group) null);
@@ -470,7 +499,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testRemoveAdmin() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveAdmin");
+		System.out.println(CLASS_NAME + "testRemoveAdmin");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -484,9 +513,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		admins = securityTeamsManagerEntry.getAdmins(sess, st0);
 		if (admins.contains(u0)) fail();
 	}
+
 	@Test
 	public void testRemoveAdminAlsoInGroup() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveAdminAlsoInGroup");
+		System.out.println(CLASS_NAME + "testRemoveAdminAlsoInGroup");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -501,9 +531,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		admins = securityTeamsManagerEntry.getAdmins(sess, st0);
 		if (!admins.contains(u1)) fail();
 	}
+
 	@Test(expected = UserNotAdminException.class)
 	public void testRemoveAdminAlreadyRemoved() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveAdminAlreadyRemoved");
+		System.out.println(CLASS_NAME + "testRemoveAdminAlreadyRemoved");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -511,17 +542,19 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		securityTeamsManagerEntry.removeAdmin(sess, st0, u3);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testRemoveAdminSecurityTeamNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveAdminSecurityTeamNotExists");
+		System.out.println(CLASS_NAME + "testRemoveAdminSecurityTeamNotExists");
 
 		setUpUsers();
 		SecurityTeam st = new SecurityTeam(0, "Name", "Desc");
 		securityTeamsManagerEntry.removeAdmin(sess, st, u1);
 	}
+
 	@Test(expected = UserNotExistsException.class)
 	public void testRemoveAdminUserNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveAdminUserNotExists");
+		System.out.println(CLASS_NAME + "testRemoveAdminUserNotExists");
 
 		setUpSecurityTeams();
 		User user = new User(0, "firstName", "lastName", "middleName", "titleBefore", "titleAfter");
@@ -531,7 +564,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testRemoveGroupAsAdmin() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveGroupAsAdmin");
+		System.out.println(CLASS_NAME + "testRemoveGroupAsAdmin");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -548,18 +581,20 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		if (!admins.contains(u1)) fail(); // Shouldn't be removed because is also admin as user
 		if (admins.contains(u2)) fail();
 	}
+
 	@Test(expected = GroupNotAdminException.class)
 	public void testRemoveGroupAsAdminAlreadyRemoved() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveGroupAsAdminAlreadyRemoved");
+		System.out.println(CLASS_NAME + "testRemoveGroupAsAdminAlreadyRemoved");
 
 		setUpSecurityTeams();
 		setUpUsers();
 		Group group = setUpGroup(u1, u2);
 		securityTeamsManagerEntry.removeAdmin(sess, st0, group);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testRemoveGroupAsAdminSecurityTeamNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveGroupAsAdminSecurityTeamNotExists");
+		System.out.println(CLASS_NAME + "testRemoveGroupAsAdminSecurityTeamNotExists");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -568,9 +603,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		SecurityTeam st = new SecurityTeam(0, "Name", "Desc");
 		securityTeamsManagerEntry.removeAdmin(sess, st, group);
 	}
+
 	@Test(expected = GroupNotExistsException.class)
 	public void testRemoveGroupAsAdminGroupNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveGroupAsAdminGroupNotExists");
+		System.out.println(CLASS_NAME + "testRemoveGroupAsAdminGroupNotExists");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -583,7 +619,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testAddUserToBlacklist() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddUserToBlacklist");
+		System.out.println(CLASS_NAME + "testAddUserToBlacklist");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -600,9 +636,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		assertTrue("User 0 is not blacklisted by security team 0.", perun.getSecurityTeamsManagerBl().isUserBlacklisted(sess, st0, u0));
 
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testAddUserToBlacklistSecurityTeamNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddUserToBlacklistSecurityTeamNotExists");
+		System.out.println(CLASS_NAME + "testAddUserToBlacklistSecurityTeamNotExists");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -610,9 +647,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		SecurityTeam st = new SecurityTeam(0, "Security0", "Description test 0");
 		securityTeamsManagerEntry.addUserToBlacklist(sess, st, u0, "reason");
 	}
+
 	@Test(expected = UserNotExistsException.class)
 	public void testAddUserToBlacklistUserNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddUserToBlacklistUserNotExists");
+		System.out.println(CLASS_NAME + "testAddUserToBlacklistUserNotExists");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -620,9 +658,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		User user = new User(0, "firstName", "lastName", "middleName", "titleBefore", "titleAfter");
 		securityTeamsManagerEntry.addUserToBlacklist(sess, st0, user, null);
 	}
+
 	@Test(expected = UserAlreadyBlacklistedException.class)
 	public void testAddUserToBlacklistAlreadyBlacklisted() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testAddUserToBlacklistAlreadyBlacklisted");
+		System.out.println(CLASS_NAME + "testAddUserToBlacklistAlreadyBlacklisted");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -633,7 +672,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testGetAssignedFacilitiesForSecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetAssignedFacilitiesForSecurityTeam");
+		System.out.println(CLASS_NAME + "testGetAssignedFacilitiesForSecurityTeam");
 
 		setUpSecurityTeams();
 		setUpFacilities();
@@ -657,7 +696,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testRemoveUserFromBlacklist() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveUserFromBlacklist");
+		System.out.println(CLASS_NAME + "testRemoveUserFromBlacklist");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -665,12 +704,13 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpBlacklists();
 
 		securityTeamsManagerEntry.removeUserFromBlacklist(sess, st0, u1);
-		assertTrue("User "+u1+" is blacklisted by "+st0, !perun.getSecurityTeamsManagerBl().isUserBlacklisted(sess, st0, u1));
+		assertTrue("User " + u1 + " is blacklisted by " + st0, !perun.getSecurityTeamsManagerBl().isUserBlacklisted(sess, st0, u1));
 
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testRemoveUserFromBlacklistSecurityTeamNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveUserFromBlacklistSecurityTeamNotExists");
+		System.out.println(CLASS_NAME + "testRemoveUserFromBlacklistSecurityTeamNotExists");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -679,9 +719,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		SecurityTeam st = new SecurityTeam(0, "Security0", "Description test 0");
 		securityTeamsManagerEntry.removeUserFromBlacklist(sess, st, u1);
 	}
+
 	@Test(expected = UserNotExistsException.class)
 	public void testRemoveUserFromBlacklistUserNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveUserFromBlacklistUserNotExists");
+		System.out.println(CLASS_NAME + "testRemoveUserFromBlacklistUserNotExists");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -690,9 +731,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		User user = new User(0, "firstName", "lastName", "middleName", "titleBefore", "titleAfter");
 		securityTeamsManagerEntry.removeUserFromBlacklist(sess, st0, user);
 	}
+
 	@Test(expected = UserAlreadyRemovedException.class)
 	public void testRemoveUserFromBlacklistUserNotInBlacklist() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testRemoveUserFromBlacklistUserNotInBlacklist");
+		System.out.println(CLASS_NAME + "testRemoveUserFromBlacklistUserNotInBlacklist");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -704,7 +746,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testGetBlacklistBySecurityTeam() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetBlacklistBySecurityTeam");
+		System.out.println(CLASS_NAME + "testGetBlacklistBySecurityTeam");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -720,9 +762,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Collections.sort(actual);
 		assertEquals(expected, actual);
 	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testGetBlacklistBySecurityTeamSecurityTeamNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetBlacklistBySecurityTeamSecurityTeamNotExists");
+		System.out.println(CLASS_NAME + "testGetBlacklistBySecurityTeamSecurityTeamNotExists");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -736,7 +779,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 	@Test
 	public void testGetBlacklistByFacility() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetBlacklistByFacility");
+		System.out.println(CLASS_NAME + "testGetBlacklistByFacility");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -755,9 +798,10 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Collections.sort(actual);
 		assertEquals(expected, actual);
 	}
+
 	@Test(expected = FacilityNotExistsException.class)
 	public void testGetBlacklistByFacilityNotExists() throws Exception {
-		System.out.println(SECURITY_TEAMS_MANAGER + ".testGetBlacklistByFacilityNotExists");
+		System.out.println(CLASS_NAME + "testGetBlacklistByFacilityNotExists");
 
 		setUpSecurityTeams();
 		setUpUsers();
@@ -768,7 +812,6 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		securityTeamsManagerEntry.getBlacklist(sess, facility);
 	}
-
 
 
 	private List<SecurityTeam> setUpSecurityTeams() throws PrivilegeException, InternalErrorException, SecurityTeamExistsException {
@@ -874,4 +917,5 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Collections.sort(expected);
 		return expected;
 	}
+
 }

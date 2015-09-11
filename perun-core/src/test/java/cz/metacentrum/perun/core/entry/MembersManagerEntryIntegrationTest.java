@@ -26,12 +26,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
+ * Integration tests for MembersManager
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-	private static final String MEMBERS_MANAGER_ENTRY = "MembersManagerEntry";
+	private static final String CLASS_NAME = "MembersManager.";
 	private static final String EXT_SOURCE_NAME = "MembersManagerEntryExtSource";
 	private Vo createdVo = null;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
@@ -92,7 +93,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMember() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMemberSync()");
+		System.out.println(CLASS_NAME + "createMemberSync");
 
 		final Member m;
 		//createdMember should be initialized in setUp method. if not, do it on my own
@@ -107,10 +108,10 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMemberFromCandidateInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+		System.out.println(CLASS_NAME + "createMember");
 
 		//Create vo and groups
-		
+
 		//g3in1 - direct, g1 indirect
 		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
 
@@ -134,7 +135,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		//test if member is in vo and also in defined groups
 		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));
 		List<Group> returnedGroups = perun.getGroupsManagerBl().getMemberGroups(sess, member);
-		
+
 		assertTrue(returnedGroups.contains(g1));
 		assertTrue(!returnedGroups.contains(g2));
 		assertTrue(returnedGroups.contains(g3ing1));
@@ -145,7 +146,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void findCompleteRichMembers() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".findCompleteRichMembers()");
+		System.out.println(CLASS_NAME + "findCompleteRichMembers");
 
 		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
 
@@ -161,7 +162,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMemberFromUserInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+		System.out.println(CLASS_NAME + "createMember");
 
 		//get user of existing member
 		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -182,7 +183,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMemberFromCandidateWithExtSourceInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+		System.out.println(CLASS_NAME + "createMember");
 
 		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
 
@@ -216,7 +217,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMemberFromCandidateWithExtSourceAndLoaInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+		System.out.println(CLASS_NAME + "createMember");
 
 		//g3in1 - direct, g1 indirect
 		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
@@ -251,7 +252,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createServiceMemberFromCandidateInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createServiceMember()");
+		System.out.println(CLASS_NAME + "createServiceMember");
 
 		//g3in1 - direct, g1 indirect
 		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
@@ -289,25 +290,25 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void createMemeberWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".createMemberSyncWhenVoNotExists()");
+	public void createMemeberWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "createMemberSyncWhenVoNotExists");
 
-			membersManagerEntry.createMember(sess, new Vo(), candidate);
+		membersManagerEntry.createMember(sess, new Vo(), candidate);
 
-		}
+	}
 
 	@Test (expected=AlreadyMemberException.class)
-		public void createMemeberWhenAlreadyMember() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".createMemberSyncWhenAlreadyMember()");
+	public void createMemeberWhenAlreadyMember() throws Exception {
+		System.out.println(CLASS_NAME + "createMemberSyncWhenAlreadyMember");
 
-			membersManagerEntry.createMember(sess, createdVo, candidate);
-			// shouldn't add member twice
+		membersManagerEntry.createMember(sess, createdVo, candidate);
+		// shouldn't add member twice
 
-		}
+	}
 
 	@Test
 	public void getMemberById() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberById()");
+		System.out.println(CLASS_NAME + "getMemberById");
 
 
 		final Member m = membersManagerEntry.getMemberById(sess,
@@ -319,17 +320,17 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void getMemberByIdWhenMemberNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByIdWhenMemberNotExists()");
+	public void getMemberByIdWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByIdWhenMemberNotExists");
 
-			membersManagerEntry.getMemberById(sess, 0);
-			// shouldn't find member with ID 0
+		membersManagerEntry.getMemberById(sess, 0);
+		// shouldn't find member with ID 0
 
-		}
+	}
 
 	@Test
 	public void getMemberByExtAuth() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByExtAuth()");
+		System.out.println(CLASS_NAME + "getMemberByExtAuth");
 
 		final Member expectedMember = membersManagerEntry.getMemberByUserExtSource(sess, createdVo, ues);
 		assertNotNull("unable to return member by Ext auth",expectedMember);
@@ -338,28 +339,28 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getMemberByExtAuthWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByExtAuthWhenVoNotExists()");
+	public void getMemberByExtAuthWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByExtAuthWhenVoNotExists");
 
-			membersManagerEntry.getMemberByUserExtSource(sess, new Vo(), ues);
-			// shouldn't find VO
+		membersManagerEntry.getMemberByUserExtSource(sess, new Vo(), ues);
+		// shouldn't find VO
 
-		}
+	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void getMemberByExtAuthWhenMemberNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByExtAuthWhenMemberNotExists()");
+	public void getMemberByExtAuthWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByExtAuthWhenMemberNotExists");
 
-			final UserExtSource ues2 = ues;
-			ues2.setLogin("neexistuje");
-			membersManagerEntry.getMemberByUserExtSource(sess, createdVo, ues2);
-			// shouldn't find Member
+		final UserExtSource ues2 = ues;
+		ues2.setLogin("neexistuje");
+		membersManagerEntry.getMemberByUserExtSource(sess, createdVo, ues2);
+		// shouldn't find Member
 
-		}
+	}
 
 	@Test
 	public void getMemberByUser() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUser()");
+		System.out.println(CLASS_NAME + "getMemberByUser");
 
 		final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
 
@@ -370,41 +371,41 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getMemberByUserWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUserWhenVoNotExists()");
+	public void getMemberByUserWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByUserWhenVoNotExists");
 
-			final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
+		final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
 
-			membersManagerEntry.getMemberByUser(sess, new Vo(), u);
-			// shouldn't find VO
+		membersManagerEntry.getMemberByUser(sess, new Vo(), u);
+		// shouldn't find VO
 
-		}
+	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void getMemberByUserWhenMemberNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUserWhenMemberNotExists()");
+	public void getMemberByUserWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByUserWhenMemberNotExists");
 
-			final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
-			membersManagerEntry.deleteMember(sess, createdMember);
-			membersManagerEntry.getMemberByUser(sess, createdVo, u);
-			// shouldn't find member
+		final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
+		membersManagerEntry.deleteMember(sess, createdMember);
+		membersManagerEntry.getMemberByUser(sess, createdVo, u);
+		// shouldn't find member
 
-		}
+	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void getMemberByUserWhenUserNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUserWhenUserNotExists()");
+	public void getMemberByUserWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByUserWhenUserNotExists");
 
-			final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
-			u.setId(0);
-			membersManagerEntry.getMemberByUser(sess, createdVo, u);
-			// shouldn't find user
+		final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
+		u.setId(0);
+		membersManagerEntry.getMemberByUser(sess, createdVo, u);
+		// shouldn't find user
 
-		}
+	}
 
 	@Test
 	public void getMemberVo() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberVo()");
+		System.out.println(CLASS_NAME + "getMemberVo");
 
 		Vo vo = membersManagerEntry.getMemberVo(sess, createdMember);
 		assertNotNull("unable to get VO by member",vo);
@@ -413,17 +414,17 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void getMemberVoWhenMemberNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberVoWhenMemberNotExists()");
+	public void getMemberVoWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberVoWhenMemberNotExists");
 
-			membersManagerEntry.getMemberVo(sess, new Member());
-			// shouldn't find Member
+		membersManagerEntry.getMemberVo(sess, new Member());
+		// shouldn't find Member
 
-		}
+	}
 
 	@Test
 	public void getMembersCount() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersCount()");
+		System.out.println(CLASS_NAME + "getMembersCount");
 
 		final int count = membersManagerEntry.getMembersCount(sess, createdVo);
 		assertTrue("testing VO should have only 1 member", count == 1);
@@ -431,17 +432,17 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getMembersCountWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersCountWhenVoNotExists()");
+	public void getMembersCountWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersCountWhenVoNotExists");
 
-			membersManagerEntry.getMembersCount(sess, new Vo());
-			// shouldn't find VO
+		membersManagerEntry.getMembersCount(sess, new Vo());
+		// shouldn't find VO
 
-		}
+	}
 
 	@Test
 	public void getMembersCountByStatus() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersCountByStatus()");
+		System.out.println(CLASS_NAME + "getMembersCountByStatus");
 
 		final int count = membersManagerEntry.getMembersCount(sess, createdVo, Status.SUSPENDED);
 		assertTrue("testing VO should have 0 members with SUSPENDED status", count == 0);
@@ -452,7 +453,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void getMembers() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembers()");
+		System.out.println(CLASS_NAME + "getMembers");
 
 		List<Member> members = membersManagerEntry.getMembers(sess, createdVo);
 		assertTrue("should return only 1 member",members.size() == 1);
@@ -461,17 +462,17 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getMembersWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersWhenVoNotExists()");
+	public void getMembersWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersWhenVoNotExists");
 
-			membersManagerEntry.getMembers(sess, new Vo());
-			// shouldn't find VO
+		membersManagerEntry.getMembers(sess, new Vo());
+		// shouldn't find VO
 
-		}
+	}
 
 	@Test
 	public void getMembersByUser() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersByUser()");
+		System.out.println(CLASS_NAME + "getMembersByUser");
 
 		final User u = perun.getUsersManager().getUserByMember(sess, createdMember);
 		List<Member> members = membersManagerEntry.getMembersByUser(sess, u);
@@ -481,19 +482,19 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void getMembersByUserWhenUserNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersByUserWhenUserNotExists()");
+	public void getMembersByUserWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersByUserWhenUserNotExists");
 
-			final User u = perun.getUsersManager().getUserByMember(sess, createdMember);
-			u.setId(0);
-			membersManagerEntry.getMembersByUser(sess, u);
-			// shouldn't find user
+		final User u = perun.getUsersManager().getUserByMember(sess, createdMember);
+		u.setId(0);
+		membersManagerEntry.getMembersByUser(sess, u);
+		// shouldn't find user
 
-		}
+	}
 
 	@Test(expected=MemberNotExistsException.class)
 	public void deleteMember() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".deleteMember()");
+		System.out.println(CLASS_NAME + "deleteMember");
 
 		//ensure that the test-member already exists..
 		assertNotNull(membersManagerEntry.getMemberById(sess, createdMember.getId()));
@@ -505,7 +506,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test(expected=MemberNotExistsException.class)
 	public void deleteMemberWhenMemberNotExists() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".deleteMemberWhenMemberNotExists()");
+		System.out.println(CLASS_NAME + "deleteMemberWhenMemberNotExists");
 
 		membersManagerEntry.deleteMember(sess, new Member());
 
@@ -513,7 +514,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test(expected=MemberNotExistsException.class)
 	public void deleteAllMembers() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".deleteAllMembers()");
+		System.out.println(CLASS_NAME + "deleteAllMembers");
 
 		//ensure that the test-member already exists..
 		assertNotNull(membersManagerEntry.getMemberById(sess, createdMember.getId()));
@@ -524,7 +525,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test(expected=VoNotExistsException.class)
 	public void deleteAllMembersWhenVoNotExists() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".deleteAllMembersWhenVoNotExists()");
+		System.out.println(CLASS_NAME + "deleteAllMembersWhenVoNotExists");
 
 		membersManagerEntry.deleteAllMembers(sess, new Vo());
 
@@ -532,7 +533,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipToParticularDate() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipToParticularDate()");
+		System.out.println(CLASS_NAME + "extendMembershipToParticularDate");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -567,7 +568,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipBy10Days() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipBy10Days()");
+		System.out.println(CLASS_NAME + "extendMembershipBy10Days");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -599,7 +600,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipInGracePeriod() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipInGracePeriod()");
+		System.out.println(CLASS_NAME + "extendMembershipInGracePeriod");
 
 		// Period will be set to the next day
 		Calendar calendar = Calendar.getInstance();
@@ -640,7 +641,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipOutsideGracePeriod() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipOutsideGracePeriod()");
+		System.out.println(CLASS_NAME + "extendMembershipOutsideGracePeriod");
 
 		// Set period to three months later
 		Calendar calendar = Calendar.getInstance();
@@ -681,7 +682,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForMemberWithSufficientLoa() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForMemberWithSufficientLoa()");
+		System.out.println(CLASS_NAME + "extendMembershipForMemberWithSufficientLoa");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -725,7 +726,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForMemberWithInsufficientLoa() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForMemberWithInsufficientLoa()");
+		System.out.println(CLASS_NAME + "extendMembershipForMemberWithInsufficientLoa");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -766,7 +767,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForDefinedLoaAllowed() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForDefinedLoaAllowed()");
+		System.out.println(CLASS_NAME + "extendMembershipForDefinedLoaAllowed");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -816,7 +817,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void canExtendMembershipForDefinedLoaNotAllowed() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForDefinedLoaNotAllowed()");
+		System.out.println(CLASS_NAME + "extendMembershipForDefinedLoaNotAllowed");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -852,7 +853,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	@Test
 	// It extend membership and try to extend it again, it must decline another expiration
 	public void canExtendMembershipInGracePeriod() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".canExtendMembershipInGracePeriod()");
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriod");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -888,7 +889,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	@Test
 	// It checks if user with insufficient LoA won't be allowed in to the VO
 	public void canBeMemberLoaNotAllowed() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".canBeMemberLoaNotAllowed()");
+		System.out.println(CLASS_NAME + "canBeMemberLoaNotAllowed");
 
 		String loa = "1";
 
@@ -910,7 +911,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	@Test
 	// It checks if user with sufficient LoA will be allowed in to the VO
 	public void canBeMemberLoaAllowed() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".canBeMemberLoaAllowed()");
+		System.out.println(CLASS_NAME + "canBeMemberLoaAllowed");
 
 		String loa = "1";
 
@@ -932,7 +933,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void findMembersInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".findMembersInGroup()");
+		System.out.println(CLASS_NAME + "findMembersInGroup");
 		Member member = setUpMember(createdVo);
 		Member member2 = setUpMember2(createdVo);
 		groupsManagerEntry.addMember(sess, createdGroup, member);
@@ -960,7 +961,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	@Ignore
 	@Test
 	public void findMembersByName() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".findMembersByName()");
+		System.out.println(CLASS_NAME + "findMembersByName");
 
 		List<Member> members = membersManagerEntry.findMembersByName(sess, "Pepa Z Depa");
 
