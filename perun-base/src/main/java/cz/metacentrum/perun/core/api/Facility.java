@@ -102,7 +102,7 @@ public class Facility extends Auditable implements Comparable<Facility> {
 
 	@Override
 	public int compareTo(Facility facility) {
-		if (facility == null) new NullPointerException("Facility to compare with is null.");
+		if (facility == null) throw new NullPointerException("Facility to compare with is null.");
 		if (this.name == null && facility.getName() != null) return -1;
 		if (facility.getName() == null && this.name != null) return 1;
 		if (this.name == null && facility.getName() == null) return 0;
