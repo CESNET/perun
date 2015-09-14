@@ -216,22 +216,28 @@ public interface ModulesUtilsBl {
 	 * If not, its ok.
 	 * If yes, throw WrongAttributeValueException.
 	 * If attribute is null, then it's ok.
+	 * For reserved unix group names this method firstly tries to read perun-namespaces.properties file.
+	 * If there is no property in this file, it reads the default hardcoded values.
 	 *
-	 * @param groupName attribute unixGroupName-namespace
+	 * @param groupNameAttribute unixGroupName-namespace
+	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException
 	 */
-	void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws WrongAttributeValueException;
+	void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
 	 * Check if value of login attribute is unpermitted.
 	 * If not, its ok.
 	 * If yes, throw WrongAttributeValueException.
 	 * If attribute is null, then it's ok.
+	 * For unpermitted user logins this method firstly tries to read perun-namespaces.properties file.
+	 * If there is no property in this file, it reads the default hardcoded values.
 	 * 
-	 * @param login attribute login-namespace
+	 * @param loginAttribute login-namespace
+	 * @throws InternalErrorException
 	 * @throws WrongAttributeValueException 
 	 */
-	void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException;
+	void checkUnpermittedUserLogins(Attribute loginAttribute) throws InternalErrorException, WrongAttributeValueException;
 
 	/**
 	 * Get value of attribute A_F_Def_unixGroupName-Namespace
@@ -305,4 +311,17 @@ public interface ModulesUtilsBl {
 	 * @return true if the name of email is valid
 	 */
 	boolean isNameOfEmailValid(PerunSessionImpl sess, String email);
+
+	/**
+	 * Check if value of attribute (friendlyName) suits regex in perun-namespaces.properties file.
+	 * If yes, nothing happens.
+	 * If no, WrongAttributeValueException is thrown.
+	 * If there is no property record in the properties file, defaultRegex is used instead (if not null).
+	 *
+	 * @param attribute
+	 * @param defaultRegex Default regex to be used if regex is not found in the configuration file.
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException
+	 */
+	void checkAttributeRegex(Attribute attribute, String defaultRegex) throws InternalErrorException, WrongAttributeValueException;
 }
