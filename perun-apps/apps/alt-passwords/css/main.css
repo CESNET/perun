@@ -17,3 +17,36 @@ and open the template in the editor.
 #showPassword .password span:not(:first-child) {
     margin-left: 5px;
 }
+
+html {
+    position: relative;
+    height: auto;
+    min-height: 100%;
+}
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 305px;
+    height: auto;
+}
+#footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* footer height */
+    height: 305px;
+}
+@media (max-width: 991px) {
+    #footer {
+        height: auto;
+        position: relative;
+    }
+    body {
+        margin-bottom: 0px;
+    }
+}
+
+#wrap {
+    min-height: 0px;
+    height: auto;
+    margin: 0px auto;
+}
