@@ -143,7 +143,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		synchronized (pool) {
 			pool.get(task.getStatus()).remove(task);
 			val = tasksById.remove(task.getId());
-			tasksByServiceAndFacility.remove(new Pair(task.getExecService(),
+			tasksByServiceAndFacility.remove(new Pair<ExecService, Facility>(task.getExecService(),
 					task.getFacility()));
 		}
 		taskManager.removeTask(task.getId(), val.getRight().getClientID());
@@ -280,6 +280,75 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public void setQueueForTask(Task task, DispatcherQueue queueForTask) {
 		tasksById.get(task.getId()).put(task, queueForTask);
+	}
+
+	@Override
+	public void checkTasksDb() {
+		log.debug("Going to cross-check tasks in database...");
+		for (Pair<Task, Integer> pair : taskManager.listAllTasksAndClients()) {
+			Task task = pair.getLeft();
+			TaskStatus status = task.getStatus();
+			if (status == null) {
+				task.setStatus(TaskStatus.NONE);
+			}
+			Task local_task = null;
+			TaskStatus local_status = null;
+			log.debug("  checking task " + task.toString());
+			synchronized (tasksById) {
+				Pair<Task, DispatcherQueue> local_pair = tasksById.get(task.getId());
+				if(local_pair != null) {
+					local_task = local_pair.getLeft();
+				}
+				if(local_task == null) {
+					local_task = tasksByServiceAndFacility.get(new Pair<ExecService,Facility>(
+							task.getExecService(),
+							task.getFacility()));						
+				}
+				if(local_task == null) {
+					for (TaskStatus sts : TaskStatus.class.getEnumConstants()) {
+						local_task = pool.get(sts).get(task.getId());
+						if(local_task != null) {
+							local_status = sts;
+							break;
+						}
+					}
+				}
+			}
+			if(local_task == null) {
+				try {
+					log.debug("  task not found in any of local structures, adding fresh");
+					addToPool(task, dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight()));
+				} catch(InternalErrorException e) {
+					
+				}
+			} else {
+				synchronized(tasksById) {
+					if(!tasksById.containsKey(local_task.getId())) {
+						log.debug("  task not known by id, adding");
+						tasksById.put(local_task.getId(), new Pair<Task, DispatcherQueue>(local_task, 
+								dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight())));
+					}
+					if(!tasksByServiceAndFacility.containsKey(new Pair<ExecService, Facility>(
+							local_task.getExecService(), local_task.getFacility()))) {
+						log.debug("  task not known by ExecService and Facility, adding");
+						tasksByServiceAndFacility.put(
+								new Pair<ExecService, Facility>(
+										local_task.getExecService(), 
+										local_task.getFacility()), 
+								task);
+						
+					}
+					if(local_status != null && local_status != local_task.getStatus()) {
+						log.debug("  task listed with wrong status, removing");
+						pool.get(local_status).remove(local_task.getId());
+					}
+					if(!pool.get(local_task.getStatus()).contains(local_task)) {
+						log.debug("  task not listed with its status, adding");
+						pool.get(local_task.getStatus()).add(local_task);
+					}
+				}
+			}
+		}
 	}
 
 }

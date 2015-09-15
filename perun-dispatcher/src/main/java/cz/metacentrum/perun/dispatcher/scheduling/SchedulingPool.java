@@ -66,4 +66,6 @@ public interface SchedulingPool {
 
 	void reloadTasks();
 
+	void checkTasksDb();
+
 }
