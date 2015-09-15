@@ -142,9 +142,7 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				taskResult.setTaskId(task.getId());
 				taskResult.setDestinationId(destination.getId());
 				taskResult.setErrorMessage(stderr);
-				// According to RT 30609, STDOUT should be only logged now.
-				log.debug(stdout.toString());
-				taskResult.setStandardMessage("See debug log.");
+				taskResult.setStandardMessage(stdout);
 				taskResult.setReturnCode(returnCode);
 				taskResult.setStatus(returnCode == 0 ? TaskResultStatus.DONE : TaskResultStatus.ERROR);
 				taskResult.setTimestamp(new Date(System.currentTimeMillis()));
