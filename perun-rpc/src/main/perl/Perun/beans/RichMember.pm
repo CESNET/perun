@@ -13,7 +13,14 @@ sub new
 
 sub fromHash
 {
-	return Perun::Common::fromHash(@_);
+        my $richMember = Perun::Common::fromHash(@_);
+        for my $memberAttribute (@{$richMember->{_memberAttributes}}) {
+            $memberAttribute = Perun::beans::Attribute::fromHash("Perun::beans::Attribute", $memberAttribute);
+        }
+        for my $userAttribute (@{$richMember->{_userAttributes}}) {
+            $userAttribute = Perun::beans::Attribute::fromHash("Perun::beans::Attribute", $userAttribute);
+        }
+	return $richMember;
 }
 
 sub TO_JSON
@@ -32,11 +39,21 @@ sub getMemberId {
 }
 
 sub getUserAttributes {
-	return shift->{_userAttributes};
+        my $self = shift;
+	return @{$self->{_userAttributes}};
 }
 
 sub getMemberAttributes {
-	return shift->{_memberAttributes};
+        my $self = shift;
+	return @{$self->{_memberAttributes}};
+}
+
+sub getLastName {
+       my $user = shift->{_user};
+       my $str = "";
+       $str .= $user->{lastName}          if defined $user->{lastName};
+
+       return $str;
 }
 
 sub getCommonName {

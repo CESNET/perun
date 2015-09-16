@@ -1,0 +1,94 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction tableToPrint);
+
+sub help {
+	return qq{
+	Prints list of expired V OMembers. Vo and number of years are required field.
+	------------------------------
+	Available options:
+	--voId         | -v  VO idetifier
+	--voShortName  | -V  VO short name (default meta)
+        --expiredYears | -y  numer of years (how long is expired)
+        --expired      | -e  expired members only (default)
+        --expAndDis    | -d  expired and disabled members
+	--orderById    | -i  order by Member's identifier
+        --orderByName  | -n  order by Member's last name
+        --lognamesOnly | -l  only lognames are printed
+	--batch        | -b  batch
+	--help         | -h  prints this help
+	};
+}
+
+my ($voId, $voShortName, $sortingFunction, $years, $exp, $expdis, @status, @attrs,$lo);
+our $batch;
+GetOptions("help|h" => sub { print help; exit 0;} ,
+"voId|v=i" => \$voId,
+"voShortName|V=s" => \$voShortName,
+"expiredYears|y=i" => \$years,
+"expired|e" => \$exp,
+"expAndDis|d" => \$expdis,
+"orderById|i" => sub { $sortingFunction = getSortingFunction("getMemberId") } ,
+"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
+"lognamesOnly|l" => \$lo,
+"batch|b" => \$batch) || die help;
+
+$attrs[0]='urn:perun:member:attribute-def:def:membershipExpiration';
+$attrs[1]='urn:perun:user:attribute-def:def:login-namespace:einfra';
+
+my @actualtime=localtime(time);
+my $actualyear=$actualtime[5]+1900;
+
+my $defaultVo='meta';
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+
+#options check
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getMemberId"); }
+unless(defined $voId) {
+    unless(defined $voShortName) { $voShortName=$defaultVo; printMessage "Default VO='meta' used", $batch; }
+    my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+    $voId = $vo->getId;
+}
+unless(defined($years)) { die "ERROR: number of years of expiration required.\n"; }
+if (defined($exp) and defined($expdis)) { die "ERROR: both 'expired' and 'expired and disabled' cannot be entered\n";}
+if (defined($exp)) {$status[0]='EXPIRED';}
+if (defined($expdis)) {@status=('EXPIRED','DISABLED');}
+unless(defined($exp) || defined($expdis)) {$exp=1; $status[0]='EXPIRED'}
+
+my $membersAgent = $agent->getMembersAgent;
+my @richMembers = $membersAgent->getCompleteRichMembers(vo => $voId, allowedStatuses => \@status, attrsNames => \@attrs);
+unless(@richMembers) { printMessage "No such member found", $batch; exit 0; }
+
+# output
+my $table = Text::ASCIITable->new();
+$table->setCols('Logname','Name','Expiration');
+my @lognames;
+
+foreach my $member (sort $sortingFunction @richMembers) {
+    my @mattributes = $member->getMemberAttributes;
+    my $val=$mattributes[0]->getValue;
+    my @uattributes = $member->getUserAttributes;
+    my $login=$uattributes[0]->getValue;
+    unless(defined $login) {$login=' ';}
+    my $eyear=substr($val,0,4);
+    if ($actualyear - $eyear >= $years) {
+        $table->addRow($login, $member->getCommonName, $val);
+        push (@lognames,$login); 
+    }
+}
+
+#output
+unless (defined $lo) {
+    print tableToPrint($table, $batch);
+} else {
+    while (@lognames) {
+        printMessage(shift(@lognames), $batch);
+    }
+}

@@ -63,6 +63,11 @@ sub getRichMembersWithAttributes
 	return Perun::Common::callManagerMethod('getRichMembersWithAttributes', '[]RichMember', @_);
 }
 
+sub getCompleteRichMembers
+{
+	return Perun::Common::callManagerMethod('getCompleteRichMembers', '[]RichMember', @_);
+}
+
 sub getMembersCount
 {
 	return Perun::Common::callManagerMethod('getMembersCount', '', @_);
@@ -77,8 +82,15 @@ sub setStatus
 {
 	return Perun::Common::callManagerMethod('setStatus', 'Member', @_);
 }
+
+sub validateMember
+{
+	return Perun::Common::callManagerMethod('validateMember','Member',@_);
+}
+
 sub validateMemberAsync
 {
 	return Perun::Common::callManagerMethod('validateMemberAsync','Member',@_);
 }
+
 1;
