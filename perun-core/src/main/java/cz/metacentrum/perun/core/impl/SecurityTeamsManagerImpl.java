@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -111,11 +112,12 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 		try {
 			Map<String, Object> map = jdbc.queryForMap("select name, description from security_teams where id=?", securityTeam.getId());
 
-			if (!securityTeam.getName().equals(map.get("name"))) {
+			if (!Objects.equals(securityTeam.getName(), map.get("name"))) {
 				jdbc.update("update security_teams set name=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?",
 						securityTeam.getName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), securityTeam.getId());
 			}
-			if (!securityTeam.getDescription().equals(map.get("description"))) {
+
+			if (!Objects.equals(securityTeam.getDescription(), map.get("description"))) {
 				jdbc.update("update security_teams set description=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + "  where id=?",
 						securityTeam.getDescription(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), securityTeam.getId());
 			}

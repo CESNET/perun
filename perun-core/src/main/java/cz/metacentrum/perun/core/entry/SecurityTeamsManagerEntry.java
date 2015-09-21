@@ -135,7 +135,15 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		}
 
 		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
-		getSecurityTeamsManagerBl().checkSecurityTeamUniqueName(sess, securityTeam);
+
+		try {
+			SecurityTeam existingTeam = getSecurityTeamsManagerBl().getSecurityTeamByName(sess, securityTeam.getName());
+			if (existingTeam != null && existingTeam.getId() != securityTeam.getId()) {
+				throw new SecurityTeamExistsException("SecurityTeam with name='" + securityTeam.getName() + "' already exists.");
+			}
+		} catch (SecurityTeamNotExistsException ex) {
+			// OK since we are renaming security team to non-taken value
+		}
 
 		// don't store empty description
 		if (securityTeam.getDescription() != null && securityTeam.getDescription().trim().isEmpty()) {
