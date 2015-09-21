@@ -188,7 +188,6 @@ public class AddExecServiceTabItem implements TabItem {
 			cellFormatter.addStyleName(i, 0, "itemName");
 		}
 
-		createButton.setEnabled(false);
 		menu.addWidget(createButton);
 		menu.addWidget(cancelButton);
 
