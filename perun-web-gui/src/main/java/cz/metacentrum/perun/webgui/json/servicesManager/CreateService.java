@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.webgui.json.servicesManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
@@ -22,8 +21,6 @@ public class CreateService {
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// service name
 	private String serviceName = "";
-	// service owner
-	private int ownerId = 0;
 	// URL to call
 	final String JSON_URL = "servicesManager/createService";
 	// custom events
@@ -56,11 +53,6 @@ public class CreateService {
 
 		if(serviceName.length() == 0){
 			errorMsg += "You must fill in the parameter 'Name'.</br>";
-			result = false;
-		}
-
-		if(ownerId == 0){
-			errorMsg += "You must pick the parameter 'Owner'.";
 			result = false;
 		}
 
@@ -118,13 +110,9 @@ public class CreateService {
 		JSONObject service = new JSONObject();
 		service.put("name", new JSONString(serviceName));      // service name as object
 
-		// owner
-		JSONNumber owner = new JSONNumber(ownerId); // object json number
-
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("service", service);           // service object
-		jsonQuery.put("owner", owner);               // owner ID
 		return jsonQuery;
 	}
 
