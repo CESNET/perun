@@ -14,9 +14,12 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetLogins;
+import cz.metacentrum.perun.webgui.json.usersManager.GetUserExtSources;
+import cz.metacentrum.perun.webgui.json.usersManager.RemoveUserExtSource;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.model.UserExtSource;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
@@ -202,23 +205,42 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 		certTable .getFlexCellFormatter().setWidth(0, 0, "150px");
 		layout.setWidget(5, 0, certTable);
 
-		final GetListOfAttributes attrs = new GetListOfAttributes(new JsonCallbackEvents(){
+		final GetUserExtSources ueses = new GetUserExtSources(userId);
+		ueses.setEvents(new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
-				ArrayList<Attribute> list = JsonUtils.jsoAsList(jso);
+				ArrayList<UserExtSource> list = JsonUtils.jsoAsList(jso);
 				if (list != null && !list.isEmpty()) {
-					for (Attribute a : list) {
-						if (a.getValueAsMap().keySet() != null && !a.getValueAsMap().keySet().isEmpty()) {
-							String result = "";
-							for (String s : a.getValueAsMap().keySet()) {
-								result += "<p><strong>";
-								result += s+"</strong><br/>";
-								result += "<i>Issuer: "+a.getValueAsMap().get(s)+"</i></p>";
-							}
-							certTable.setHTML(0, 1, result);
-						} else {
-							certTable.setHTML(0, 1, notSet);
+					boolean found = false;
+					FlexTable tab = new FlexTable();
+					int i = 0; // rowcounter
+					for (final UserExtSource a : list) {
+						if (a.getExtSource().getType().equals("cz.metacentrum.perun.core.impl.ExtSourceX509")) {
+							found = true;
+							tab.setHTML(i++, 0, "<strong>"+a.getLogin()+"</strong>");
+							tab.setHTML(i++, 0, "Issuer: " + a.getExtSource().getName());
+							CustomButton removeButton = new CustomButton("Remove", SmallIcons.INSTANCE.deleteIcon(), new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent event) {
+									RemoveUserExtSource remove = new RemoveUserExtSource(new JsonCallbackEvents(){
+										@Override
+										public void onFinished(JavaScriptObject jso) {
+											// reload whole tab
+											ueses.retrieveData();
+										}
+									});
+									remove.removeUserExtSource(userId, a.getId());
+								}
+							});
+							// add button to table
+							tab.getFlexCellFormatter().setRowSpan(i-2, 1, 2);
+							tab.setWidget(i-2, 1, removeButton);
 						}
+					}
+					if (found) {
+						certTable.setWidget(0, 1, tab);
+					} else {
+						certTable.setHTML(0, 1, notSet);
 					}
 				} else {
 					certTable.setHTML(0, 1, notSet);
@@ -234,13 +256,12 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 			certTable.setWidget(0, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
 		}
 		});
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("urn:perun:user:attribute-def:virt:userCertDNs");
-		Map<String,Integer> ids = new HashMap<String,Integer>();
-		ids.put("user", userId);
-		attrs.getListOfAttributes(ids, list);
+		ueses.retrieveData();
 
 		// Kerberos and SSH table
+
+		Map<String, Integer> ids = new HashMap<>();
+		ids.put("user", userId);
 
 		final PerunAttributeTableWidget table = new PerunAttributeTableWidget(ids);
 		table.setDark(true);
