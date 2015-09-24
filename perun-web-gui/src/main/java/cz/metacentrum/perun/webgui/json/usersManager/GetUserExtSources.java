@@ -279,4 +279,8 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 		return this.list;
 	}
 
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
+
 }
