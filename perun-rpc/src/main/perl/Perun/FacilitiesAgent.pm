@@ -199,4 +199,19 @@ sub getFacilityContactGroups
         return Perun::Common::callManagerMethod('getFacilityContactGroups','[]ContactGroup',@_);
 }
 
+sub assignSecurityTeam
+{
+        return Perun::Common::callManagerMethod('assignSecurityTeam','SecurityTeam',@_);
+}
+
+sub removeSecurityTeam
+{
+        return Perun::Common::callManagerMethod('removeSecurityTeam','',@_);
+}
+
+sub getAssignedSecurityTeams
+{
+        return Perun::Common::callManagerMethod('getAssignedSecurityTeams','[]SecurityTeam',@_);
+}
+
 1;

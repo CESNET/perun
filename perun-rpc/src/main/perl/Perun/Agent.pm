@@ -33,11 +33,12 @@ use Perun::CabinetAgent;
 use Perun::NotificationsAgent;
 use Perun::SearcherAgent;
 use Perun::RegistrarAgent;
+use Perun::SecurityTeamsAgent;
 
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent _contactGroupsAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent _contactGroupsAgent _securityTeamsAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
@@ -365,6 +366,16 @@ sub getRegistrarAgent {
 
         return $self->{_registrarAgent};
         }
+}
+
+sub getSecurityTeamsAgent {
+	my $self = shift;
+
+	if (!$self->{_securityTeamsAgent}) {
+		$self->{_securityTeamsAgent} = Perun::SecurityTeamsAgent->new($self);
+
+	return $self->{_securityTeamsAgent};
+	}
 }
 
 1;
