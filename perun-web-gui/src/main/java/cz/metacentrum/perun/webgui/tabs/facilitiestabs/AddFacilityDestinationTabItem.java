@@ -183,7 +183,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 					return false;
 				}
 				// check as email
-				if (type.getSelectedIndex() > 3) {
+				if (type.getSelectedIndex() > 3 && type.getSelectedIndex() < 6) {
 					if (!JsonUtils.isValidEmail(destination.getSuggestBox().getText().trim())) {
 						destination.setError("Not valid email address.");
 						return false;
