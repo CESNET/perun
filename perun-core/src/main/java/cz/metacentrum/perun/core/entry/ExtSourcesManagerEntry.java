@@ -57,7 +57,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		throw new InternalErrorRuntimeException("Unsupported method!");
 	}
 
-	public ExtSource createExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException, PrivilegeException {
+	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -67,7 +67,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 
 		Utils.notNull(extSource, "extSource");
 
-		return getExtSourcesManagerBl().createExtSource(sess, extSource);
+		return getExtSourcesManagerBl().createExtSource(sess, extSource, attributes);
 	}
 
 	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException {
@@ -177,7 +177,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().addExtSource(sess, group, source);
 	}
 
-	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException {
+	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		//TODO Authorization
@@ -302,5 +302,16 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(perunSession, source);
 
 		return getExtSourcesManagerBl().getCandidate(perunSession, subjectData, source, subjectData.get("login"));
+	}
+
+	public Map<String, String> getAttributes(PerunSession sess, ExtSource extSource) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getAttributes");
+		}
+		getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
+		return getExtSourcesManagerBl().getAttributes(extSource);
 	}
 }

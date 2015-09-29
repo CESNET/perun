@@ -19,6 +19,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,14 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			initContext();
 		}
 		return dirContext;
+	}
+
+	private static PerunBlImpl perunBl;
+
+	// filled by spring (perun-core.xml)
+	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+		perunBl = perun;
+		return perun;
 	}
 
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
@@ -390,6 +399,10 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		// We can call original implementation, since LDAP always return whole entry and not just login
 		return findSubjectsLogins(searchString, maxResults);
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 
 }

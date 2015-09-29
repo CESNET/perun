@@ -64,9 +64,6 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"shortName", "beanName"})
 	private interface GroupMixIn {}
 
-	@JsonIgnoreProperties({"attributes", "beanName"})
-	private interface ExtSourceMixIn {}
-
 	private interface MemberMixIn {
 		@JsonIgnore
 		void setStatus(String status);
@@ -93,7 +90,6 @@ public class JsonDeserializer extends Deserializer {
 		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 
 		mapper.getDeserializationConfig().addMixInAnnotations(Application.class, PerunBeanMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(ApplicationForm.class, PerunBeanMixIn.class);

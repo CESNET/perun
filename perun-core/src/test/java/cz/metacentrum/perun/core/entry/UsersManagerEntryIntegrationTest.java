@@ -346,8 +346,8 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		ExtSource ext1 = new ExtSource("test1", ExtSourcesManagerEntry.EXTSOURCE_IDP);
 		ExtSource ext2 = new ExtSource("test2", ExtSourcesManagerEntry.EXTSOURCE_IDP);
 
-		ext1 = perun.getExtSourcesManagerBl().createExtSource(sess, ext1);
-		ext2 = perun.getExtSourcesManagerBl().createExtSource(sess, ext2);
+		ext1 = perun.getExtSourcesManagerBl().createExtSource(sess, ext1, null);
+		ext2 = perun.getExtSourcesManagerBl().createExtSource(sess, ext2, null);
 
 		UserExtSource ues1 = new UserExtSource(ext1, 1, "testExtLogin@test");
 		UserExtSource ues2 = new UserExtSource(ext2, 1, "testExtLogin@test");
@@ -845,7 +845,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertNotNull("unable to create testing Vo",returnedVo);
 		assertEquals("both VOs should be the same",newVo,returnedVo);
 		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
+		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
 		// get and create real external source from DB
 		perun.getExtSourcesManager().addExtSource(sess, returnedVo, es);
 		// add real ext source to our VO

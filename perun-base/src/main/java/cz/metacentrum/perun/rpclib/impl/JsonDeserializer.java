@@ -60,9 +60,6 @@ public class JsonDeserializer extends Deserializer {
 		public void setStatus(String status);
 	}
 
-	@JsonIgnoreProperties({"attributes"})
-	private interface ExtSourceMixIn {}
-
 	private static final ObjectMapper mapper = new ObjectMapper();
 	static {
 		mapper.getDeserializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
@@ -76,7 +73,6 @@ public class JsonDeserializer extends Deserializer {
 		mapper.getDeserializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Destination.class, DestinationMixIn.class);
 		mapper.getDeserializationConfig().addMixInAnnotations(Group.class, GroupMixIn.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 	}
 
 	private JsonNode root;

@@ -41,9 +41,6 @@ public final class JsonSerializerGWT implements Serializer {
 	private interface CandidateMixIn {
 	}
 
-	@JsonIgnoreProperties({"attributes"})
-	private interface ExtSourceMixIn {}
-
 	public static final String CONTENT_TYPE = "text/javascript; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -52,7 +49,6 @@ public final class JsonSerializerGWT implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();

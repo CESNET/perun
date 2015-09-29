@@ -40,7 +40,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	@Before
 	public void setUp() throws Exception {
 		ExtSource newExtSource = new ExtSource(EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		extSource = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
+		extSource = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
 		this.extSourcesManagerEntry = perun.getExtSourcesManager();
 	}
 
@@ -53,7 +53,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		final ExtSource es = newInstanceExtSource();
 
-		final ExtSource createdExtSource = extSourcesManagerEntry.createExtSource(sess, es);
+		final ExtSource createdExtSource = extSourcesManagerEntry.createExtSource(sess, es, null);
 
 		assertNotNull(createdExtSource);
 		assertTrue(createdExtSource.getId() > 0);
@@ -67,7 +67,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "deleteExtSource");
 
 		final ExtSource es = newInstanceExtSource();
-		final ExtSource createdExtSource = extSourcesManagerEntry.createExtSource(sess, es);
+		final ExtSource createdExtSource = extSourcesManagerEntry.createExtSource(sess, es, null);
 		assertTrue(createdExtSource.getId() > 0);
 
 		extSourcesManagerEntry.deleteExtSource(sess, createdExtSource);
@@ -83,7 +83,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "getExtSourceById");
 
 		final ExtSource es = newInstanceExtSource();
-		final ExtSource createdExtSource = extSourcesManagerEntry.createExtSource(sess, es);
+		final ExtSource createdExtSource = extSourcesManagerEntry.createExtSource(sess, es, null);
 		assertTrue(createdExtSource.getId() > 0);
 
 		assertEquals(createdExtSource, extSourcesManagerEntry.getExtSourceById(sess, createdExtSource.getId()));
@@ -113,7 +113,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
 
 		final ExtSource extSource = newInstanceExtSource();
-		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.createExtSource(sess, extSource, null);
 		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
 
 		final List<ExtSource> extSources = extSourcesManagerEntry.getVoExtSources(sess, createdVo);
@@ -132,7 +132,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		final Group createdGroup = groupsManagerEntry.createGroup(sess, createdVo, new Group("sjk", "kljlk"));
 
 		final ExtSource extSource = newInstanceExtSource();
-		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.createExtSource(sess, extSource, null);
 		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
 		extSourcesManagerEntry.addExtSource(sess, createdGroup, extSource);
 
@@ -166,7 +166,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
 
 		final ExtSource extSource = newInstanceExtSource();
-		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.createExtSource(sess, extSource, null);
 		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
 
 		final List<ExtSource> extSources = extSourcesManagerEntry.getVoExtSources(sess, createdVo);
@@ -185,7 +185,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		final Group createdGroup = groupsManagerEntry.createGroup(sess, createdVo, new Group("sjk", "kljlk"));
 
 		final ExtSource extSource = newInstanceExtSource();
-		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.createExtSource(sess, extSource, null);
 		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
 		extSourcesManagerEntry.addExtSource(sess, createdGroup, extSource);
 
@@ -219,7 +219,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		final Vo createdVo = vosManagerEntry.createVo(sess, new Vo(0,"sjk","kljlk"));
 
 		final ExtSource extSource = newInstanceExtSource();
-		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.createExtSource(sess, extSource, null);
 		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
 
 		final List<ExtSource> extSources = extSourcesManagerEntry.getVoExtSources(sess, createdVo);
@@ -242,7 +242,7 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		final Group createdGroup = groupsManagerEntry.createGroup(sess, createdVo, new Group("sjk", "kljlk"));
 
 		final ExtSource extSource = newInstanceExtSource();
-		extSourcesManagerEntry.createExtSource(sess, extSource);
+		extSourcesManagerEntry.createExtSource(sess, extSource, null);
 		extSourcesManagerEntry.addExtSource(sess, createdVo, extSource);
 		extSourcesManagerEntry.addExtSource(sess, createdGroup, extSource);
 
@@ -379,7 +379,6 @@ public class ExtSourcesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		es = new ExtSource();
 		es.setName("SomeExtSource");
 		es.setType(ExtSourcesManager.EXTSOURCE_SQL);
-		es.setAttributes(new HashMap<String,String>());
 		return es;
 	}
 

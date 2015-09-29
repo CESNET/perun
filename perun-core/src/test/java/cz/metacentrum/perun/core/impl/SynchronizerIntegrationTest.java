@@ -189,7 +189,7 @@ public class SynchronizerIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	private void setUpExtSource() throws Exception {
-		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource);
+		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource, null);
 	}
 
 	private void setUpVo() throws Exception {

@@ -36,16 +36,12 @@ public final class JsonSerializer implements Serializer {
 	private interface UserMixIn {
 	}
 
-	@JsonIgnoreProperties({"attributes"})
-	private interface ExtSourceMixIn {}
-
 	private static final ObjectMapper mapper = new ObjectMapper();
 
 	static {
 		mapper.getSerializationConfig().addMixInAnnotations(Attribute.class, AttributeMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(AttributeDefinition.class, AttributeDefinitionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(User.class, UserMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 	}
 	private static final JsonFactory jsonFactory = new JsonFactory();
 

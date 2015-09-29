@@ -379,7 +379,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		try {
 			extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, extSourceName);
 		} catch (ExtSourceNotExistsException ex) {
-			extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource);
+			extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource, null);
 		}
 
 		UserExtSource ues = new UserExtSource();

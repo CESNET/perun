@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,14 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private String loginQuery = null;
 	private String file = null;
 	private String uri = null;
+
+	private static PerunBlImpl perunBl;
+
+	// filled by spring (perun-core.xml)
+	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+		perunBl = perun;
+		return perun;
+	}
 	
 	//URL connection
 	private HttpURLConnection con = null;
@@ -470,5 +479,9 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	
 	public void close() throws InternalErrorException {
 		if(con != null) con.disconnect();
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

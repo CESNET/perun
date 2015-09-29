@@ -49,7 +49,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 		vosManagerEntry = perun.getVosManager();
 		myVo = new Vo(0, voName, voShortName);
 		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		es = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
+		es = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
 
 	}
 

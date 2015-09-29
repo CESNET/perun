@@ -69,9 +69,6 @@ public final class JsonSerializerJSONP implements Serializer {
 	private interface AuthorshipMixIn {
 	}
 
-	@JsonIgnoreProperties({"attributes","createdAt", "createdBy", "modifiedAt", "modifiedBy", "createdByUid", "modifiedByUid"})
-	private interface ExtSourceMixIn {}
-
 	public static final String CONTENT_TYPE = "text/javascript; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -85,7 +82,6 @@ public final class JsonSerializerJSONP implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(Authorship.class, AuthorshipMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRequest.class, PerunRequestMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();

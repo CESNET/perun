@@ -42,9 +42,6 @@ public final class JsonSerializer implements Serializer {
 	private interface PerunExceptionMixIn {
 	}
 
-	@JsonIgnoreProperties({"attributes"})
-	private interface ExtSourceMixIn {}
-
 	public static final String CONTENT_TYPE = "application/json; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -55,7 +52,6 @@ public final class JsonSerializer implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(Candidate.class, CandidateMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, PerunExceptionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, PerunExceptionMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(ExtSource.class, ExtSourceMixIn.class);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();

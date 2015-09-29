@@ -38,13 +38,14 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @param perunSession
 	 * @param extSource
+	 * @param attributes
 	 *
 	 * @return ExtSource object with newly associated ID.
 	 *
 	 * @throws InternalErrorException
 	 * @throws ExtSourceExistsException
 	 */
-	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException;
+	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException;
 
 	/**
 	 * Deletes an external source.
@@ -202,7 +203,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws CandidateNotExistsException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException;
+	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
 
 	/**
 	 * Get the candidate from subjectData where at least login must exists.
@@ -220,7 +221,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws CandidateNotExistsException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException;
+	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
 
 	void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException;
 
@@ -243,4 +244,12 @@ public interface ExtSourcesManagerBl {
 	 * @param sess
 	 */
 	void loadExtSourcesDefinitions(PerunSession sess);
+
+	/**
+	 * Gets attributes for external source.
+	 *
+	 * @param extSource	External Source
+	 * @return			Map of attributes for external source
+	 */
+	Map<String, String> getAttributes(ExtSource extSource);
 }
