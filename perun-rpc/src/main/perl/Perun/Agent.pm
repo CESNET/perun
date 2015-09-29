@@ -37,7 +37,7 @@ use Perun::RegistrarAgent;
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent _contactGroupsAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",

@@ -1,0 +1,88 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+        return qq{
+        Adds contacts to facility.
+        --------------------------
+        Available options:
+        --facilityId   | -f facility id
+        --facilityName | -F facility name
+        --contactName  | -n contact group names
+        --owners       | -o list of owner's Id
+        --groups       | -g list of group's Id
+        --users        | -u list of user's Id
+        --batch        | -b batch
+        --help         | -h prints this help
+
+        };
+}
+
+my ($facilityId, $facilityName, @owners, @groups, @users, $contactName, $batch);
+
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+"batch|b" => \$batch,
+"facilityId|f=i" => \$facilityId,
+"facilityName|F=s" => \$facilityName,
+"contactName|n=s" => \$contactName,
+'owners|o=n@{1,}' => \@owners,
+'groups|g=n@{1,}' => \@groups,
+'users|u=n@{1,}' => \@users) or die help();
+
+# Check options
+unless (defined($facilityId) || (defined($facilityName))) { die "ERROR: facilityId or facilityName are required \n";}
+unless (defined($contactName)) {die "ERROR: contactName is required \n";}
+unless (@owners || @groups || @users) {die "ERROR: owners or groups or users are required \n";}
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+ 
+my $facility;
+if ($facilityId) {
+    $facility = $facilitiesAgent->getFacilityById(id => $facilityId);
+}
+if ($facilityName) {
+    $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
+    $facilityId=$facility->getId;
+}
+
+#convert userIds to richUser objects
+my @richUsers;
+foreach(@users) {
+	my $richUser = Perun::beans::RichUser->new();
+	$richUser->setId($_);
+	push @richUsers, $richUser;
+}
+
+#convert groupIds to group objects
+my @objectGroups;
+foreach(@groups) {
+	my $groupObject = Perun::beans::Group->new();
+	$groupObject->setId($_);
+	push @objectGroups, $groupObject;
+}
+
+#convert ownerIds to owner objects
+my @objectOwners;
+foreach(@owners) {
+  my $ownerObject = Perun::beans::Owner->new();
+  $ownerObject->setId($_);
+  push @objectOwners, $ownerObject;
+}
+
+my $contactGroup = Perun::beans::ContactGroup->new();
+$contactGroup->setFacility($facility);
+$contactGroup->setName($contactName);
+$contactGroup->setGroups(\@objectGroups) if @objectGroups;
+$contactGroup->setOwners(\@objectOwners) if @objectOwners;
+$contactGroup->setUsers(\@richUsers) if @richUsers;
+
+#print Dumper($contactGroup);
+$facilitiesAgent->addFacilityContact(contactGroupToAdd => $contactGroup);
+
+printMessage("ContactGroup $contactName has been successfully added to facility ". $facility->getName,$batch); 
