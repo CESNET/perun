@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -478,8 +479,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					} else {
-						Set<String> certSubjects =((Map) this.attribute.getValue()).keySet();
-						String[] subjectsArray = Arrays.copyOf(certSubjects.toArray(), certSubjects.toArray().length, String[].class);
+						Set<String> certSubjectsWithPrefixes =((Map) this.attribute.getValue()).keySet();
+						Set<String> certSubjectsWithoutPrefixes = new HashSet<>();
+						//remove prefixes from certificates
+						for(String key: certSubjectsWithPrefixes) {
+							certSubjectsWithoutPrefixes.add(key.replaceFirst("^[0-9]+[:]", ""));
+						}
+						String[] subjectsArray = Arrays.copyOf(certSubjectsWithoutPrefixes.toArray(), certSubjectsWithoutPrefixes.toArray().length, String[].class);
 						ldapConnector.updateUsersCertSubjects(String.valueOf(this.user.getId()), subjectsArray);
 					}
 				//USER LIBRARY IDs WILL BE SET (special method for updating)

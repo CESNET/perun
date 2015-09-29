@@ -332,11 +332,15 @@ public class Utils {
 			else preferredMail+= (String) attrPreferredMail.getValue();
 			if(attrOrganization == null || attrOrganization.getValue() == null) o= null;
 			else o+= (String) attrOrganization.getValue();
-			Map<String, String> certDNs;
-			Set<String> certSubjects = null;
+			Map<String, String> certDNs = null;
+			Set<String> certSubjectsWithPrefix = null;
+			Set<String> certSubjectsWithoutPrefix = new HashSet<>();
 			if(attrVirtCertDNs != null && attrVirtCertDNs.getValue() != null) {
 				certDNs = (Map) attrVirtCertDNs.getValue();
-				certSubjects = certDNs.keySet();
+				certSubjectsWithPrefix = certDNs.keySet();
+				for(String certSubject: certSubjectsWithPrefix) {
+					certSubjectsWithoutPrefix.add(certSubject.replaceFirst("^[0-9]+[:]", ""));
+				}
 			}
 			writer.write(dn + '\n');
 			writer.write(oc1 + '\n');
@@ -355,8 +359,8 @@ public class Utils {
 			if(mail != null) writer.write(mail + '\n');
 			if(preferredMail != null) writer.write(preferredMail + '\n');
 			if(o != null) writer.write(o + '\n');
-			if(certSubjects != null && !certSubjects.isEmpty()) {
-				for(String s: certSubjects) {
+			if(certSubjectsWithoutPrefix != null && !certSubjectsWithoutPrefix.isEmpty()) {
+				for(String s: certSubjectsWithoutPrefix) {
 					writer.write("userCertificateSubject: " + s + '\n');
 				}
 			}
