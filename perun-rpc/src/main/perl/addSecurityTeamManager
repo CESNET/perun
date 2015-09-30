@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Adds user or group as SecurityTeam admin. User id or group id and SecurityTeam are required fields.
+	------------------------------------
+	Available options:
+	--securityTeamId | -s SecurityTeam id
+	--userId         | -u user id
+        --groupId        | -g group Id
+	--batch          | -b batch
+	--help           | -h prints this help
+
+	};
+}
+
+my ($securityTeamId, $userId, $groupId, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+"securityTeamId|s=i" => \$securityTeamId,
+"groupId|g=i" => \$groupId,
+"userId|u=i" => \$userId || die help());
+
+# Check options
+unless (defined($groupId) or (defined($userId))) { die "ERROR: groupId or userId is required \n";}
+unless (defined($securityTeamId)) {die "ERROR: securityTeamId is required\n";}
+
+my $agent = Perun::Agent->new();
+my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
+
+if (defined($userId)) {
+    $securityTeamsAgent->addAdmin(securityTeam => $securityTeamId, user => $userId);
+    printMessage("User Id:$userId successfully added as SecurityTeam $securityTeamId admin", $batch);
+}
+if (defined($groupId)) {
+    $securityTeamsAgent->addAdmin(securityTeam => $securityTeamId, group => $groupId);
+    printMessage("Group Id:$groupId successfully added as SecurityTeam $securityTeamId admin", $batch);
+}
+
