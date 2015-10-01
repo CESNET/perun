@@ -504,9 +504,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					if (dependantTask != null && dependantService.getExecServiceType().equals(ExecServiceType.SEND)) {
 						dependantTask.setSourceUpdated(false);
 					}
+					if(completedTask.isPropagationForced() && dependantTask.isPropagationForced()) {
+						log.debug("Going to force schedule dependant task " + dependantTask.getId());
+						taskScheduler.scheduleTask(dependantTask);
+					}
 				}
 			} 
-			
+			completedTask.setPropagationForced(false);
 		} else {
 			if (string.isEmpty()) {
 				// weird - task is in error and no destinations reported as

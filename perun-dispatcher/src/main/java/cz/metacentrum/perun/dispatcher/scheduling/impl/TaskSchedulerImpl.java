@@ -77,7 +77,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		Date time = new Date(System.currentTimeMillis());
 		DispatcherQueue dispatcherQueue;
 
-		if (task.getStatus().equals(TaskStatus.PROCESSING)) {
+		if (task.getStatus().equals(TaskStatus.PROCESSING) && !task.isPropagationForced()) {
 			log.debug("Task {} already processing, will not schedule again.",
 					task.toString());
 			return;
@@ -231,6 +231,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 								dispatcherQueue, time);
 						proceed = false;
 					} else {
+						dependencyServiceTask.setPropagationForced(task.isPropagationForced());
 						switch (dependencyServiceTask.getStatus()) {
 						case DONE:
 							switch (dependency.getExecServiceType()) {
@@ -316,8 +317,11 @@ public class TaskSchedulerImpl implements TaskScheduler {
 									+ " is in PROCESSING so we are gonna wait.");
 							// we do not need to put it back in pool here
 							// justWait(facility, execService);
-							if (dependencyScope.equals(DependencyScope.SERVICE)) {
+							if (dependencyScope.equals(DependencyScope.SERVICE) && !task.isPropagationForced()) {
 								proceed = false;
+							}
+							if(task.isPropagationForced()) {
+								rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
 							}
 							break;
 						default:
@@ -414,7 +418,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 			}
 		}
 
-		// task|[engine_id]|[task_id][exec_service_id][facility]|[destination_list]|[dependency_list]
+		// task|[engine_id]|[task_id][is_forced][exec_service_id][facility]|[destination_list]|[dependency_list]
 		// - the task|[engine_id] part is added by dispatcherQueue
 		List<Destination> destinations = task.getDestinations();
 		if (destinations == null || destinations.isEmpty()) {
@@ -450,6 +454,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		destinations_s.append("]");
 		String dependencies = "";
 		dispatcherQueue.sendMessage("[" + task.getId() + "]["
+				+ task.isPropagationForced() + "]["
 				+ task.getExecServiceId() + "]["
 				+ task.getFacility().serializeToString() + "]|["
 				+ destinations_s.toString() + "]|[" + dependencies + "]");

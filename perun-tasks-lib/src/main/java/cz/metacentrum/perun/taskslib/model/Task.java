@@ -31,7 +31,8 @@ public class Task implements Serializable {
 	private List<Destination> destinations;
 	private TaskStatus status;
 	private boolean sourceUpdated;	
-
+	private boolean propagationForced; 
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -170,5 +171,13 @@ public class Task implements Serializable {
 
 	public void setSourceUpdated(boolean sourceUpdated) {
 		this.sourceUpdated = sourceUpdated;
+	}
+
+	public boolean isPropagationForced() {
+		return propagationForced;
+	}
+
+	public void setPropagationForced(boolean propagationForced) {
+		this.propagationForced = propagationForced;
 	}
 }

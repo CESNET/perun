@@ -94,29 +94,44 @@ public class EventProcessorImpl implements EventProcessor {
 				});
 			}
 			log.debug("POOL SIZE:" + schedulingPool.getSize());
-		} else {
+		} 
 
-			log.debug("\t Facility[" + task.getFacility() + "]");
-			log.debug("\t Resolved ExecService[" + task.getExecService() + "]");
+		log.debug("\t Facility[" + task.getFacility() + "]");
+		log.debug("\t Resolved ExecService[" + task.getExecService() + "]");
 
-			if (task != null && task.getFacility() != null
-					&& task.getExecService() != null) {
-				// log.debug("ADD to POOL: ExecService[" +
-				// results.getLeft().getId() + "] : Facility[" +
-				// results.getRight() + "]");
-				Task currentTask = schedulingPool.getTaskById(task.getId());
-				if(currentTask == null) {
-					// task.setSourceUpdated(false);
-					schedulingPool.addToPool(task);
-				} else {
-					// currentTask.setSourceUpdated(true);
-					log.debug("Resetting current task destination list to {}", task.getDestinations());
-					currentTask.setDestinations(task.getDestinations());
-				}
+		if (task != null && task.getFacility() != null
+				&& task.getExecService() != null) {
+			// log.debug("ADD to POOL: ExecService[" +
+			// results.getLeft().getId() + "] : Facility[" +
+			// results.getRight() + "]");
+			Task currentTask = schedulingPool.getTaskById(task.getId());
+			if(currentTask == null) {
+				// task.setSourceUpdated(false);
+				schedulingPool.addToPool(task);
+				currentTask = task;
+			} else {
+				// currentTask.setSourceUpdated(true);
+				log.debug("Resetting current task destination list to {}", task.getDestinations());
+				currentTask.setDestinations(task.getDestinations());
+				currentTask.setPropagationForced(task.isPropagationForced());
 			}
-			log.debug("POOL SIZE:" + schedulingPool.getSize());
-
+			if(currentTask.isPropagationForced()) {
+				final Task ntask = currentTask;
+				taskExecutorEventProcessor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							taskScheduler.propagateService(ntask, new Date(
+									System.currentTimeMillis()));
+						} catch (InternalErrorException e) {
+							log.error(e.toString());
+						}
+					}
+				});
+			}
 		}
+		log.debug("POOL SIZE:" + schedulingPool.getSize());
+
 		log.info("Current pool size AFTER event processing:"
 				+ schedulingPool.getSize());
 	}
