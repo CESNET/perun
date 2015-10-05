@@ -955,12 +955,22 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					continue;
 				}
 				try {
-					if (membersSource instanceof ExtSourceApi) {
-						// get candidates from subjects we already have locally
-						candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
-					} else if (membersSource instanceof ExtSourceSimpleApi) {
-						// get candidates from external source by login
+					// One of three possible ways should happen to get Candidate
+					// 1] sources of login and other attributes are not same
+					if(!membersSource.equals(source)) {
+						//need to read attributes from the new memberSource, we can't use locally data there (there are from other extSource)
 						candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
+					// 2] sources are same and we work with source which is instance of ExtSourceApi
+					} else if (membersSource instanceof ExtSourceApi) {
+						// we can use the data from this source without reading them again (all exists in the map of subject attributes)
+						candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, subject, membersSource, login)));
+					// 3] sources are same and we work with source which is instace of ExtSourceSimpleApi
+					} else if (membersSource instanceof ExtSourceSimpleApi) {
+						// we can't use the data from this source, we need to read them again (they are not in the map of subject attributes)
+						candidates.add((getPerunBl().getExtSourcesManagerBl().getCandidate(sess, membersSource, login)));
+					} else {
+						// this could not happen without change in extSource API code
+						throw new InternalErrorException("ExtSource is other instance than SimpleApi or Api and this is not supported!");
 					}
 				} catch (ExtSourceNotExistsException e) {
 					throw new InternalErrorException("ExtSource " + membersSource + " doesn't exists.");
