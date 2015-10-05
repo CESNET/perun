@@ -1161,15 +1161,28 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				if(Character.toString(ch).equals("á")){sb.append("a");f=true;}
 				if(Character.toString(ch).equals("Ó")){sb.append("O");f=true;}
 				if(Character.toString(ch).equals("ě")){sb.append("e");f=true;}
+				if(Character.toString(ch).equals("Ě")){sb.append("E");f=true;}
 				if(Character.toString(ch).equals("š")){sb.append("s");f=true;}
+				if(Character.toString(ch).equals("Š")){sb.append("S");f=true;}
 				if(Character.toString(ch).equals("č")){sb.append("c");f=true;}
+				if(Character.toString(ch).equals("Č")){sb.append("C");f=true;}
 				if(Character.toString(ch).equals("ř")){sb.append("r");f=true;}
+				if(Character.toString(ch).equals("Ř")){sb.append("R");f=true;}
 				if(Character.toString(ch).equals("ž")){sb.append("z");f=true;}
+				if(Character.toString(ch).equals("Ž")){sb.append("Z");f=true;}
 				if(Character.toString(ch).equals("ý")){sb.append("y");f=true;}
+				if(Character.toString(ch).equals("Ý")){sb.append("Y");f=true;}
 				if(Character.toString(ch).equals("í")){sb.append("i");f=true;}
+				if(Character.toString(ch).equals("Í")){sb.append("I");f=true;}
 				if(Character.toString(ch).equals("ó")){sb.append("o");f=true;}
 				if(Character.toString(ch).equals("ú")){sb.append("u");f=true;}
+				if(Character.toString(ch).equals("Ú")){sb.append("u");f=true;}
 				if(Character.toString(ch).equals("ů")){sb.append("u");f=true;}
+				if(Character.toString(ch).equals("Ů")){sb.append("U");f=true;}
+				if(Character.toString(ch).equals("Ň")){sb.append("N");f=true;}
+				if(Character.toString(ch).equals("ň")){sb.append("n");f=true;}
+				if(Character.toString(ch).equals("Ť")){sb.append("T");f=true;}
+				if(Character.toString(ch).equals("ť")){sb.append("t");f=true;}
 				if(Character.toString(ch).equals(" ")){sb.append(" ");f=true;}
 
 				if(!f){
