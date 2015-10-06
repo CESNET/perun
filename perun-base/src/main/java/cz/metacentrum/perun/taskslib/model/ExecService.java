@@ -17,7 +17,7 @@ public class ExecService extends PerunBean implements Serializable {
 	}
 
 	private int defaultDelay;
-	private int defaultRecurrence = 5;
+	private int defaultRecurrence = 2;
 	private boolean enabled;
 	private Service service;
 	private String script;
