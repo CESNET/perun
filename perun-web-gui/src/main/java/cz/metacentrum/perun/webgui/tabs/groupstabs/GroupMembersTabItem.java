@@ -291,18 +291,21 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 
 				if(count.getInt() > 1000){
 
-					FlowPanel panel = new FlowPanel();
-					Label label = new Label();
-					label.setText("Count of members: " + count.getInt() + ". Load all members?");
-					CustomButton loadAllMembersButton = new CustomButton("load all members", new ClickHandler() {
+					FlexTable panel = new FlexTable();
+					panel.setSize("100%", "150px");
+					HTML label = new HTML();
+					label.setHTML("<h2>Group has more than 1000 members, do you wish to load all of them ?</h2>");
+					CustomButton loadAllMembersButton = new CustomButton("Load all members", SmallIcons.INSTANCE.userGreenIcon(), new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
 							table.setEmptyTableWidget(tableWidget);
 							members.retrieveData();
 						}
 					});
-					panel.add(label);
-					panel.add(loadAllMembersButton);
+					panel.setWidget(0, 0, label);
+					panel.setWidget(1, 0, loadAllMembersButton);
+					panel.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+					panel.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
 					table.setEmptyTableWidget(panel);
 				}
 				else{
