@@ -18,9 +18,12 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.groupsManager.GetGroupMembersCount;
 import cz.metacentrum.perun.webgui.json.groupsManager.RemoveMember;
 import cz.metacentrum.perun.webgui.json.membersManager.GetCompleteRichMembers;
+import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.Group;
+import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -68,6 +71,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 	ScrollPanel tableWrapper = new ScrollPanel();
 	private boolean wasDisabled = false;
 	String searchString = "";
+
+	CellTable<RichMember> table;
+	Widget tableWidget;
 
 	/**
 	 * Group
@@ -255,13 +261,64 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		removeButton.setEnabled(false);
 
 		// get the table
-		CellTable<RichMember> table = members.getTable(new FieldUpdater<RichMember, RichMember>() {
-			// when user click on a row -> open new tab
-			public void update(int index, RichMember object, RichMember value) {
-				// TODO better auth
-				session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
+
+		GetGroupMembersCount getGroupMembersCount = new GetGroupMembersCount(groupId, new JsonCallbackEvents(){
+
+			@Override
+			public void onError(PerunError error){
+				table.setEmptyTableWidget(tableWidget);
+				members.retrieveData();
 			}
+
+			@Override
+			public void onLoadingStart(){
+
+				table = members.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
+					// when user click on a row -> open new tab
+					public void update(int index, RichMember object, RichMember value) {
+						// TODO better auth
+						session.getTabManager().addTab(new MemberDetailTabItem(object.getId(), groupId));
+					}
+				});
+
+				tableWidget = table.getEmptyTableWidget();
+
+			}
+
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				BasicOverlayType count = (BasicOverlayType) jso;
+
+				if(count.getInt() > 1000){
+
+					FlexTable panel = new FlexTable();
+					panel.setSize("100%", "150px");
+					HTML label = new HTML();
+					label.setHTML("<h2>Group has more than 1000 members, do you wish to load all of them ?</h2>");
+					CustomButton loadAllMembersButton = new CustomButton("Load all members", SmallIcons.INSTANCE.userGreenIcon(), new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							table.setEmptyTableWidget(tableWidget);
+							members.retrieveData();
+						}
+					});
+					panel.setWidget(0, 0, label);
+					panel.setWidget(1, 0, loadAllMembersButton);
+					panel.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+					panel.getFlexCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+					table.setEmptyTableWidget(panel);
+				}
+				else{
+					table.setEmptyTableWidget(tableWidget);
+					members.retrieveData();
+				}
+
+			}
+
+
 		});
+
+		getGroupMembersCount.retrieveData();
 
 		if (session.isGroupAdmin(groupId) || session.isVoAdmin(group.getVoId())) JsonUtils.addTableManagedButton(members, table, removeButton);
 

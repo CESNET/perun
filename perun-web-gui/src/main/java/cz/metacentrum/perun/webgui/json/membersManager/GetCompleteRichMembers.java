@@ -138,14 +138,26 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 	}
 
 	/**
-	 * Returns the table with member-users
+	 * Returns empty table
 	 *
-	 * @param fu Custom field updater
+	 * @param up Custom field updater
 	 * @return CellTable widget
 	 */
-	public CellTable<RichMember> getTable(FieldUpdater<RichMember, RichMember> fu) {
-		this.tableFieldUpdater = fu;
-		return this.getTable();
+	public CellTable<RichMember> getEmptyTable(FieldUpdater up) {
+		this.tableFieldUpdater = up;
+		return this.getEmptyTable();
+	}
+
+	/**
+	 * Returns the table with member-users
+	 *
+	 * @param up Custom field updater
+	 * @return CellTable widget
+	 */
+	public CellTable<RichMember> getTable(FieldUpdater up) {
+		retrieveData();
+		this.tableFieldUpdater = up;
+		return this.getEmptyTable(up);
 	}
 
 	/**
@@ -154,8 +166,16 @@ public class GetCompleteRichMembers implements JsonCallback, JsonCallbackTable<R
 	 * @return CellTable widget
 	 */
 	public CellTable<RichMember> getTable() {
-
 		retrieveData();
+		return this.getEmptyTable();
+	}
+
+	/**
+	 * Returns empty table
+	 *
+	 * @return CellTable widget
+	 */
+	public CellTable<RichMember> getEmptyTable() {
 
 		// Table data provider.
 		dataProvider = new ListDataProvider<RichMember>(list);
