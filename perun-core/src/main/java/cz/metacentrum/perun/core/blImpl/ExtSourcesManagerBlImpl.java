@@ -255,11 +255,17 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				String[] userExtSourceRaw =  subject.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
 				log.debug("Processing additionalUserExtSource {}",  subject.get(attrName));
 
+				//Check if the array has at least 3 parts, this is protection against outOfBoundException
+				if(userExtSourceRaw.length < 3) {
+					throw new InternalErrorException("There is missing some mandatory part of additional user extSource value when processing it - '" + attrName + "'");
+				}
+
 				String additionalExtSourceName = userExtSourceRaw[0];
 				String additionalExtSourceType = userExtSourceRaw[1];
 				String additionalExtLogin = userExtSourceRaw[2];
-				int additionalExtLoa = -1;
-				if (userExtSourceRaw[3] != null) {
+				int additionalExtLoa = 0;
+				//Loa is not mandatory argument
+				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
 					try {
 						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
 					} catch (NumberFormatException e) {
@@ -286,11 +292,8 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
 						}
 					}
-					if (additionalExtLoa != -1) {
-						additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
-					} else {
-						additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLogin));
-					}
+					//add additional user extSource
+					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
 				}
 			}
 		}
@@ -360,11 +363,17 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				String[] userExtSourceRaw =  subjectData.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
 				log.debug("Processing additionalUserExtSource {}",  subjectData.get(attrName));
 
+				//Check if the array has at least 3 parts, this is protection against outOfBoundException
+				if(userExtSourceRaw.length < 3) {
+					throw new InternalErrorException("There is missing some mandatory part of additional user extSource value when processing it - '" + attrName + "'");
+				}
+
 				String additionalExtSourceName = userExtSourceRaw[0];
 				String additionalExtSourceType = userExtSourceRaw[1];
 				String additionalExtLogin = userExtSourceRaw[2];
-				int additionalExtLoa = -1;
-				if (userExtSourceRaw[3] != null) {
+				int additionalExtLoa = 0;
+				//Loa is not mandatory argument
+				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
 					try {
 						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
 					} catch (NumberFormatException e) {
@@ -391,11 +400,8 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
 						}
 					}
-					if (additionalExtLoa != -1) {
-						additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
-					} else {
-						additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLogin));
-					}
+					//add additional user extSource
+					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
 				}
 			}
 		}
