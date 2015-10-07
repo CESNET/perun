@@ -320,6 +320,9 @@ public class TaskSchedulerImpl implements TaskScheduler {
 							if (dependencyScope.equals(DependencyScope.SERVICE)) {
 								proceed = false;
 							}
+							if(dependencyServiceTask.isPropagationForced()) {
+								rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
+							}
 							break;
 						default:
 							throw new IllegalArgumentException(
