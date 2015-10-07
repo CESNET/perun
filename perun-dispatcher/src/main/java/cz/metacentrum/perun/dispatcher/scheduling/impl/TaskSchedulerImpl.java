@@ -317,11 +317,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 									+ " is in PROCESSING so we are gonna wait.");
 							// we do not need to put it back in pool here
 							// justWait(facility, execService);
-							if (dependencyScope.equals(DependencyScope.SERVICE) && !task.isPropagationForced()) {
+							if (dependencyScope.equals(DependencyScope.SERVICE)) {
 								proceed = false;
-							}
-							if(task.isPropagationForced()) {
-								rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
 							}
 							break;
 						default:
