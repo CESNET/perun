@@ -23,6 +23,7 @@ import cz.metacentrum.perun.engine.scheduling.DenialsResolver;
 import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
 import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
+import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
 import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 import cz.metacentrum.perun.engine.scheduling.TaskStatusManager;
 import cz.metacentrum.perun.taskslib.dao.ExecServiceDenialDao;
@@ -57,6 +58,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private PerunSession perunSession;
 	@Autowired
 	private DenialsResolver denialsResolver;
+	@Autowired
+	private TaskExecutorEngine taskExecutorEngine;
 	/*
 	 * @Autowired private TaskManager taskManager;
 	 * 
@@ -129,6 +132,10 @@ public class TaskSchedulerImpl implements TaskScheduler {
 			schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
 			taskStatusManager.clearTaskStatus(task);
 			task.setSchedule(time);
+			if(task.isPropagationForced()) {
+				// we are in special thread anyway...
+				taskExecutorEngine.runTask(task);
+			}
 		}
 	}
 
