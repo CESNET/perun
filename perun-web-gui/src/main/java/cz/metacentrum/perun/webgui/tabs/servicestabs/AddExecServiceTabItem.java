@@ -44,7 +44,7 @@ public class AddExecServiceTabItem implements TabItem {
 	 */
 	private Label titleWidget = new Label("Loading service");
 
-	private static final String DEFAULT_DELAY = "60";
+	private static final String DEFAULT_DELAY = "10";
 
 	// data
 	private Service service;
