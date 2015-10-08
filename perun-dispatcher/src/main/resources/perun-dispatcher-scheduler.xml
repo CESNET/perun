@@ -17,7 +17,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<bean id="perunScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
-				<!--<ref bean="maintenanceJobTrigger" />-->
+				<ref bean="maintenanceJobTrigger" />
 				<!-- <ref bean="checkInJobTrigger" /> -->
 				<ref bean="processPoolJobTrigger" />
 				<ref bean="propagationMaintainerJobTrigger" />
@@ -30,7 +30,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
 		<property name="jobDataAsMap">
 			<map>
-				<entry key="dispatcherManager" value-ref="dispatcherManager" />
+				<entry key="schedulingPool" value-ref="schedulingPool" />
 			</map>
 		</property>
 	</bean>
@@ -40,7 +40,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<!-- Every 20 minutes -->
 		<!--<property name="cronExpression" value="0 0/20 * * * ?" /> -->
 		<!-- Every 5 seconds -->
-		<property name="cronExpression" value="0/5 * * * * ?" />
+		<property name="cronExpression" value="${dispatcher.cron.maintenance}" />
 	</bean>
 
 	<bean id="propagationMaintainerJob" class="org.springframework.scheduling.quartz.JobDetailBean">
