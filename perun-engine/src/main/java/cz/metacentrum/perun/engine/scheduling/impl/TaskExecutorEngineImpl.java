@@ -161,7 +161,7 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	 *            Task to start.
 	 * 
 	 */
-	private void runTask(Task task) {
+	public void runTask(Task task) {
 		schedulingPool.setTaskStatus(task, TaskStatus.PROCESSING);
 		task.setStartTime(new Date(System.currentTimeMillis()));
 		List<Task> dependencies = dependencyResolver.getDependencies(task);
@@ -222,11 +222,10 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		executorEngineWorker.setFacility(task.getFacility());
 		executorEngineWorker.setExecService(task.getExecService());
 		executorEngineWorker.setDestination(destination);
+		executorEngineWorker.setResultListener((TaskResultListener) taskStatusManager);
 		if (task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
-			executorEngineWorker.setResultListener((TaskResultListener) schedulingPool);
 			taskExecutorGenWorkers.execute(executorEngineWorker);
 		} else {
-			executorEngineWorker.setResultListener((TaskResultListener) taskStatusManager);
 			taskExecutorSendWorkers.execute(executorEngineWorker);
 		}
 	}

@@ -53,12 +53,12 @@ public class EventParserImpl implements EventParser {
 		 * https://projekty.ics.muni.cz/perunv3/trac
 		 * /wiki/PerunEngineDispatcherController event|x|[timestamp][Event
 		 * header][Event data] New format:
-		 * "task|[engine_id]|[task_id][exec_service_id][facility]|[destination_list]|[dependency_list]"
+		 * "task|[engine_id]|[task_id][is_forced][exec_service_id][facility]|[destination_list]|[dependency_list]"
 		 * 
 		 */
 		// String eventParsingPattern =
 		// "^event\\|([0-9]{1,6})\\|\\[([a-zA-Z0-9: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
-		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([0-9]+)\\]\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]|\\[(.*)\\]$";
+		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\[([0-9]+)\\]\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]|\\[(.*)\\]$";
 		Pattern pattern = Pattern.compile(eventParsingPattern);
 		Matcher matcher = pattern.matcher(event);
 		boolean matchFound = matcher.find();
@@ -77,12 +77,14 @@ public class EventParserImpl implements EventParser {
 			// Data should provide information regarding the target ExecService
 			// (Processing rule).
 			String eventTaskId = matcher.group(2);
-			String eventExecService = matcher.group(3);
-			String eventFacility = matcher.group(4);
-			String eventDestinationList = matcher.group(5);
-			String eventDependencyList = matcher.group(6);
+			String eventIsForced = matcher.group(3);
+			String eventExecService = matcher.group(4);
+			String eventFacility = matcher.group(5);
+			String eventDestinationList = matcher.group(6);
+			String eventDependencyList = matcher.group(7);
 
 			log.debug("Event data to be parsed: task id " + eventTaskId
+					+ ", forced " + eventIsForced
 					+ ", facility " + eventFacility + ", exec service "
 					+ eventExecService + ", destination list "
 					+ eventDestinationList + ", dependency list "
@@ -139,7 +141,8 @@ public class EventParserImpl implements EventParser {
 			task.setDestinations(destinationList);
 			task.setDelay(execService.getDefaultDelay());
 			task.setRecurrence(execService.getDefaultRecurrence());
-
+			task.setPropagationForced(Boolean.parseBoolean(eventIsForced));
+			
 			// resolve list of dependencies
 			if (eventDependencyList != null) {
 				for (String token : eventDependencyList.split("[\t ]*,[\t ]*")) {

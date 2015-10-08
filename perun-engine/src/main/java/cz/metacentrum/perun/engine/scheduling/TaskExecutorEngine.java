@@ -2,6 +2,8 @@ package cz.metacentrum.perun.engine.scheduling;
 
 import org.springframework.core.task.TaskExecutor;
 
+import cz.metacentrum.perun.taskslib.model.Task;
+
 /**
  * 
  * @author Michal Karm Babacek JavaDoc coming soon...
@@ -10,6 +12,8 @@ import org.springframework.core.task.TaskExecutor;
 public interface TaskExecutorEngine {
 
 	void beginExecuting();
+
+	public void runTask(Task task);
 
 	public DependenciesResolver getDependencyResolver();
 
