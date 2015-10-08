@@ -12,7 +12,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
-public class AttributeDefinition extends Auditable implements Comparable<AttributeDefinition> {
+public class AttributeDefinition extends Auditable implements Comparable<PerunBean> {
 
 	/**
 	 * Attribute name, <strong>excluding</strong> the whole namespace.
@@ -149,10 +149,17 @@ public class AttributeDefinition extends Auditable implements Comparable<Attribu
 		} else return "";
 	}
 
-	public int compareTo(AttributeDefinition attribute) {
-		if(attribute == null) return 1;
-		if(this.friendlyName == null) return attribute.friendlyName == null ? 0 : -1;
-		return friendlyName.compareTo(attribute.friendlyName);
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof AttributeDefinition) {
+			AttributeDefinition attrDef = (AttributeDefinition) perunBean;
+			if (this.getFriendlyName()== null && attrDef.getFriendlyName() != null) return -1;
+			if (attrDef.getFriendlyName() == null && this.getFriendlyName() != null) return 1;
+			if (this.getFriendlyName() == null && attrDef.getFriendlyName() == null) return 0;
+			return this.getFriendlyName().compareToIgnoreCase(attrDef.getFriendlyName());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
 	}
 
 	public void setType(String type) {

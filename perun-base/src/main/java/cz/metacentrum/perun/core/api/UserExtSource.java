@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  *
  * @author Martin Kuba makub@ics.muni.cz
  */
-public class UserExtSource extends Auditable {
+public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 
 	private ExtSource extSource;
 	private String login;
@@ -130,5 +130,30 @@ public class UserExtSource extends Auditable {
 		int result = login != null ? login.hashCode() : 0;
 		result = 31 * result + (extSource != null ? extSource.hashCode() : 0);
 		return result;
+	}
+
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof UserExtSource) {
+			UserExtSource userExtSource = (UserExtSource) perunBean;
+			int compare;
+			//Compare on extSource
+			if (this.getExtSource() == null && userExtSource.getExtSource() != null) compare = -1;
+			else if (userExtSource.getExtSource() == null && this.getExtSource() != null) compare = 1;
+			else if (this.getExtSource() == null && userExtSource.getExtSource() == null) compare = 0;
+			else compare = this.getExtSource().compareTo(userExtSource.getExtSource());
+			if(compare != 0) return compare;
+			//Compare on login
+			if (this.getLogin()== null && userExtSource.getLogin() != null) compare = -1;
+			else if (userExtSource.getLogin() == null && this.getLogin() != null) compare = 1;
+			else if (this.getLogin()== null && userExtSource.getLogin() == null) compare = 0;
+			else compare = this.getLogin().compareToIgnoreCase(userExtSource.getLogin());
+			if(compare != 0) return compare;
+			//Compare to id if not
+			return (this.getId() - perunBean.getId());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
 	}
 }

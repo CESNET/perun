@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 
-public class Group extends Auditable implements Comparable<Group> {
+public class Group extends Auditable implements Comparable<PerunBean> {
 	private int voId;
 	private Integer parentGroupId;
 	private String name;
@@ -120,14 +120,18 @@ public class Group extends Auditable implements Comparable<Group> {
 		}
 	}
 
-
-
-	public int compareTo(Group group) {
-		if (group == null) throw new InternalErrorRuntimeException(new NullPointerException("Group group"));
-		if (this.getId() != group.getId()) {
-			return this.name.toLowerCase().compareTo(group.getName().toLowerCase());
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof Group) {
+			Group group = (Group) perunBean;
+			if (this.getName() == null && group.getName() != null) return -1;
+			if (group.getName() == null && this.getName() != null) return 1;
+			if (this.getName() == null && group.getName() == null) return 0;
+			return this.getName().compareToIgnoreCase(group.getName());
+		} else {
+			return (this.getId() - perunBean.getId());
 		}
-		return 0;
 	}
 
 	@Override

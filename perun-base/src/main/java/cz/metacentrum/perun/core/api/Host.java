@@ -13,7 +13,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * @author  Michal Prochazka
  * @author  Michal Karm Babacek
  */
-public class Host extends Auditable {
+public class Host extends Auditable implements Comparable<PerunBean> {
 
 	private String hostname;
 
@@ -84,5 +84,19 @@ public class Host extends Auditable {
 		if (getId() != other.getId())
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof Host) {
+			Host host = (Host) perunBean;
+			if (this.getHostname() == null && host.getHostname() != null) return -1;
+			if (host.getHostname() == null && this.getHostname() != null) return 1;
+			if (this.getHostname() == null && host.getHostname() == null) return 0;
+			return this.getHostname().compareToIgnoreCase(host.getHostname());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
 	}
 }

@@ -8,7 +8,7 @@ package cz.metacentrum.perun.core.api;
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 
-public abstract class PerunBean {
+public abstract class PerunBean implements Comparable<PerunBean> {
 	private int id;
 
 	public PerunBean() {
@@ -78,4 +78,11 @@ public abstract class PerunBean {
 		}
 		return true;
 	}
+
+	@Override
+	public int compareTo(PerunBean o) {
+		if (o == null) throw new NullPointerException("PerunBean to compare with is null.");
+ 		return (this.getId() - o.getId());
+	}
+
 }

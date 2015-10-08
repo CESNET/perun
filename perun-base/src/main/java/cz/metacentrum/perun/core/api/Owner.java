@@ -9,7 +9,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * @author Michal Prochazka
  * @author Slavek Licehammer
  */
-public class Owner extends Auditable {
+public class Owner extends Auditable implements Comparable<PerunBean> {
 
 
 	private String name = "";
@@ -150,5 +150,17 @@ public class Owner extends Auditable {
 		return true;
 	}
 
-
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof Owner) {
+			Owner owner = (Owner) perunBean;
+			if (this.getName() == null && owner.getName() != null) return -1;
+			if (owner.getName() == null && this.getName() != null) return 1;
+			if (this.getName() == null && owner.getName() == null) return 0;
+			return this.getName().compareToIgnoreCase(owner.getName());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
+	}
 }

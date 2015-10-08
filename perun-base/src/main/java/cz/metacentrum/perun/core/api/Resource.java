@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  *
  * @author  Slavek Licehammer
  */
-public class Resource extends Auditable {
+public class Resource extends Auditable implements Comparable<PerunBean> {
 	private int facilityId;
 	private int voId;
 	private String name;
@@ -147,4 +147,17 @@ public class Resource extends Auditable {
 		return true;
 	}
 
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof Resource) {
+			Resource resource = (Resource) perunBean;
+			if (this.getName() == null && resource.getName() != null) return -1;
+			if (resource.getName() == null && this.getName() != null) return 1;
+			if (this.getName() == null && resource.getName() == null) return 0;
+			return this.getName().compareToIgnoreCase(resource.getName());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
+	}
 }

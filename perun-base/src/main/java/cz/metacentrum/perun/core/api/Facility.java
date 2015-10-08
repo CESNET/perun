@@ -5,7 +5,7 @@ package cz.metacentrum.perun.core.api;
  *
  * @author Michal Prochazka
  */
-public class Facility extends Auditable implements Comparable<Facility> {
+public class Facility extends Auditable implements Comparable<PerunBean> {
 
 	private String name;
 	private String description;
@@ -101,12 +101,16 @@ public class Facility extends Auditable implements Comparable<Facility> {
 	}
 
 	@Override
-	public int compareTo(Facility facility) {
-		if (facility == null) throw new NullPointerException("Facility to compare with is null.");
-		if (this.name == null && facility.getName() != null) return -1;
-		if (facility.getName() == null && this.name != null) return 1;
-		if (this.name == null && facility.getName() == null) return 0;
-		return this.name.compareTo(facility.getName());
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof Facility) {
+			Facility facility = (Facility) perunBean;
+			if (this.getName() == null && facility.getName() != null) return -1;
+			if (facility.getName() == null && this.getName() != null) return 1;
+			if (this.getName() == null && facility.getName() == null) return 0;
+			return this.getName().compareToIgnoreCase(facility.getName());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
 	}
-
 }

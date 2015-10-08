@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * @author Michal Prochazka <michalp@ics.muni.cz>
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
-public class Service extends Auditable {
+public class Service extends Auditable implements Comparable<PerunBean> {
 	private String name;
 
 	public Service(){
@@ -77,5 +77,17 @@ public class Service extends Auditable {
 			).append("']").toString();
 	}
 
-
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof Service) {
+			Service service = (Service) perunBean;
+			if (this.getName() == null && service.getName() != null) return -1;
+			if (service.getName() == null && this.getName() != null) return 1;
+			if (this.getName() == null && service.getName() == null) return 0;
+			return this.getName().compareToIgnoreCase(service.getName());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
+	}
 }
