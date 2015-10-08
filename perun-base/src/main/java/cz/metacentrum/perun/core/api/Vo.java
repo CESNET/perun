@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 /**
  * Vo entity.
  */
-public class Vo extends Auditable implements Comparable<Vo> {
+public class Vo extends Auditable implements Comparable<PerunBean> {
 	private String name;
 	private String shortName;
 
@@ -80,11 +80,18 @@ public class Vo extends Auditable implements Comparable<Vo> {
 			']').toString();
 	}
 
-	public int compareTo(Vo vo) {
-		if (vo != null) {
-			return this.getName().compareTo(vo.getName());
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof Vo) {
+			Vo vo = (Vo) perunBean;
+			if (this.getName() == null && vo.getName() != null) return -1;
+			if (vo.getName() == null && this.getName() != null) return 1;
+			if (this.getName() == null && vo.getName() == null) return 0;
+			return this.getName().compareToIgnoreCase(vo.getName());
+		} else {
+			return (this.getId() - perunBean.getId());
 		}
-		return 1;
 	}
 
 	@Override

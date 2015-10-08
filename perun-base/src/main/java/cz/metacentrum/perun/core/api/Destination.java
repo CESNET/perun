@@ -7,7 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
  *
  * @author Slavek Licehammer
  */
-public class Destination extends Auditable implements Comparable<Destination> {
+public class Destination extends Auditable implements Comparable<PerunBean> {
 
 	public final static String DESTINATIONHOSTTYPE = "host";
 	public final static String DESTINATIONEMAILTYPE = "email";
@@ -196,10 +196,16 @@ public class Destination extends Auditable implements Comparable<Destination> {
 	}
 
 	@Override
-	public int compareTo(Destination destination) {
-		if (destination == null || this.destination == null) {
-			throw new InternalErrorRuntimeException(new NullPointerException("Destination destination"));
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof Destination) {
+			Destination destination = (Destination) perunBean;
+			if (this.getDestination() == null && destination.getDestination() != null) return -1;
+			if (destination.getDestination() == null && this.getDestination() != null) return 1;
+			if (this.getDestination() == null && destination.getDestination() == null) return 0;
+			return this.getDestination().compareToIgnoreCase(destination.getDestination());
+		} else {
+			return (this.getId() - perunBean.getId());
 		}
-		return this.destination.compareTo(destination.getDestination());
 	}
 }

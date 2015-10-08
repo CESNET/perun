@@ -9,7 +9,7 @@ import java.util.Objects;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class ContactGroup {
+public class ContactGroup implements Comparable<ContactGroup>{
 	private String name;
 	private Facility facility;
 	private List<Group> groups;
@@ -145,5 +145,12 @@ public class ContactGroup {
 		  "', owners='").append(getOwners()).append("', users='").append(users).append("']").toString();
 	}
 
-
+	@Override
+	public int compareTo(ContactGroup contactGroup) {
+		if(contactGroup == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if (this.getName() == null && contactGroup.getName() != null) return -1;
+		if (contactGroup.getName() == null && this.getName() != null) return 1;
+		if (this.getName() == null && contactGroup.getName() == null) return 0;
+		return this.getName().compareToIgnoreCase(contactGroup.getName());
+	}
 }

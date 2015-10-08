@@ -8,7 +8,7 @@ import java.util.Map;
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  */
-public class ExtSource extends Auditable {
+public class ExtSource extends Auditable implements Comparable<PerunBean>{
 
 	private String name;
 	private String type;
@@ -103,4 +103,28 @@ public class ExtSource extends Auditable {
 		return true;
 	}
 
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof ExtSource) {
+			ExtSource extSource = (ExtSource) perunBean;
+			int compare;
+			//Compare on last Name
+			if (this.getName()== null && extSource.getName() != null) compare = -1;
+			else if (extSource.getName() == null && this.getName() != null) compare = 1;
+			else if (this.getName() == null && extSource.getName() == null) compare = 0;
+			else compare = this.getName().compareToIgnoreCase(extSource.getName());
+			if(compare != 0) return compare;
+			//Compare on type
+			if (this.getType()== null && extSource.getType() != null) compare = -1;
+			else if (extSource.getType() == null && this.getType() != null) compare = 1;
+			else if (this.getType()== null && extSource.getType() == null) compare = 0;
+			else compare = this.getType().compareToIgnoreCase(extSource.getType());
+			if(compare != 0) return compare;
+			//Compare to id if not
+			return (this.getId() - perunBean.getId());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
+	}
 }

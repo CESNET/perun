@@ -6,13 +6,14 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import java.util.List;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Member of a Virtual Organization.
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Martin Kuba makub@ics.muni.cz
  */
-public class RichMember extends Member implements Comparable<RichMember> {
+public class RichMember extends Member implements Comparable<PerunBean> {
 	private User user;
 	private List<UserExtSource> userExtSources;
 	private List<Attribute> userAttributes;
@@ -185,9 +186,16 @@ public class RichMember extends Member implements Comparable<RichMember> {
 	}
 
 	@Override
-	public int compareTo(RichMember o) {
-		String name = this.getUser().getLastName() + " " + this.getUser().getFirstName();
-		String oName = o.getUser().getLastName() + " " + o.getUser().getFirstName();
-		return name.compareToIgnoreCase(oName);
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof RichMember) {
+			User user = ((RichMember) perunBean).getUser();
+			if (this.getUser()== null && user != null) return -1;
+			if (user == null && this.getUser() != null) return 1;
+			if (this.getUser()== null && user == null) return 0;
+			return this.getUser().compareTo(user);
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
 	}
 }

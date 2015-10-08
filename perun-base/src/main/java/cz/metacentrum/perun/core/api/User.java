@@ -10,7 +10,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  * @author Slavek Licehammer
  * @author Martin Kuba
  */
-public class User extends Auditable implements Comparable<User> {
+public class User extends Auditable implements Comparable<PerunBean> {
 
 	protected int id;
 	protected String firstName;
@@ -140,22 +140,36 @@ public class User extends Auditable implements Comparable<User> {
 	}
 
 	/**
-	 * Compares user names.
+	 * Compare this object with another perunBean.
+	 *
+	 * If the perunBean is User object, compare them by LastName, then FirstName and then Id
+	 *
 	 * @see Comparable#compareTo(Object)
-	 * @param user user
+	 * @param perunBean some perunBean object or User
 	 * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object
 	 */
-	public int compareTo(User user) {
-		int srov = compare(this.getLastName(),user.getLastName());
-		if (srov!=0) {
-			return srov;
+	@Override
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof User) {
+			User user = (User) perunBean;
+			int compare;
+			//Compare on last Name
+			if (this.getLastName() == null && user.getLastName() != null) compare = -1;
+			else if (user.getLastName() == null && this.getLastName() != null) compare = 1;
+			else if (this.getLastName() == null && user.getLastName() == null) compare = 0;
+			else compare = this.getLastName().compareToIgnoreCase(user.getLastName());
+			if(compare != 0) return compare;
+			//Compare on first Name if not
+			if (this.getFirstName() == null && user.getFirstName() != null) compare = -1;
+			else if (user.getFirstName() == null && this.getFirstName() != null) compare = 1;
+			else if (this.getFirstName()== null && user.getFirstName() == null) compare = 0;
+			else compare = this.getFirstName().compareToIgnoreCase(user.getFirstName());
+			if(compare != 0) return compare;
+			//Compare to id if not
+			return (this.getId() - perunBean.getId());
 		} else {
-			srov = compare(this.getFirstName(),user.getFirstName());
-			if (srov!=0) {
-				return srov;
-			} else {
-				return this.getId()-user.getId();
-			}
+			return (this.getId() - perunBean.getId());
 		}
 	}
 

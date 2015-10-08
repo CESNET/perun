@@ -5,7 +5,7 @@ package cz.metacentrum.perun.core.api;
  *
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
-public class SecurityTeam extends Auditable implements Comparable<SecurityTeam> {
+public class SecurityTeam extends Auditable implements Comparable<PerunBean> {
 	private String name;
 	private String description;
 
@@ -75,12 +75,17 @@ public class SecurityTeam extends Auditable implements Comparable<SecurityTeam> 
 	}
 
 	@Override
-	public int compareTo(SecurityTeam securityTeam) {
-		if (securityTeam == null) throw new NullPointerException("SecurityTeam to compare with is null.");
-		if (this.name == null && securityTeam.getName() != null) return -1;
-		if (securityTeam.getName() == null && this.name != null) return 1;
-		if (this.name == null && securityTeam.getName() == null) return 0;
-		return this.getName().compareTo(securityTeam.getName());
+	public int compareTo(PerunBean perunBean) {
+		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if(perunBean instanceof SecurityTeam) {
+			SecurityTeam securityTeam = (SecurityTeam) perunBean;
+			if (this.getName() == null && securityTeam.getName() != null) return -1;
+			if (securityTeam.getName() == null && this.getName() != null) return 1;
+			if (this.getName() == null && securityTeam.getName() == null) return 0;
+			return this.getName().compareToIgnoreCase(securityTeam.getName());
+		} else {
+			return (this.getId() - perunBean.getId());
+		}
 	}
 
 	@Override
