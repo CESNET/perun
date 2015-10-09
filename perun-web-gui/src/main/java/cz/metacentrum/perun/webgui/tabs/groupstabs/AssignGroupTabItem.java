@@ -94,6 +94,9 @@ public class AssignGroupTabItem implements TabItem {
 				for (RichResource rr : resources) {
 					callback.removeFromTable(rr);
 				}
+				ArrayList<RichResource> temp = new ArrayList<RichResource>();
+				temp.addAll(callback.getList());
+				callback.setList(temp);
 			}
 		});
 		CellTable<RichResource> table = callback.getTable();

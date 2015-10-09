@@ -206,7 +206,9 @@ public class GetRichResources implements JsonCallback, JsonCallbackTable<RichRes
 	 * @param object Resource to be removed as row
 	 */
 	public void removeFromTable(RichResource object) {
-		list.remove(object);
+		for (RichResource rr : list) {
+			if (rr.getId() == object.getId()) list.remove(rr);
+		}
 		selectionModel.getSelectedSet().remove(object);
 		dataProvider.flush();
 		dataProvider.refresh();
