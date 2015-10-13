@@ -47,6 +47,9 @@ public class Utils {
 	private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");
 	private static final Pattern lastNamePattern = Pattern.compile("^([\\p{L}-']+)|([\\p{L}][.])$");
 	
+	private static final String userPhoneAttribute = "urn:perun:user:attribute-def:def:phone";
+	private static final String memberPhoneAttribute = "urn:perun:member:attribute-def:def:phone";
+	
 	/**
 	 * Replaces dangerous characters.
 	 * Replaces : with - and spaces with _.
@@ -959,5 +962,130 @@ public class Utils {
 				&& (!destinationType.equals(Destination.DESTINATIONSERVICESPECIFICTYPE)))) {
 			throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
 		}
+	}
+	
+	/**
+	 * Sends SMS to the phone number of a user with the given message.
+	 * The phone number is taken from the user attribute urn:perun:user:attribute-def:def:phone.
+	 * 
+	 * @param sess session
+	 * @param user receiver of the message
+	 * @param message sms message to send
+	 * @throws InternalErrorException when the attribute value cannot be found or is broken
+	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException when the actor has not right to get the attribute
+	 * @throws cz.metacentrum.perun.core.api.exceptions.UserNotExistsException when given user does not exist
+	 */
+	public static void sendSMS(PerunSession sess, User user, String message) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+		if (user == null) {
+			throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("user is null");
+		}
+		if (message == null) {
+			throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("message is null");
+		}
+		String telNumber;
+		try {
+			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, user, userPhoneAttribute).getValue();
+		} catch (AttributeNotExistsException ex ) {
+			log.info("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
+			throw new InternalErrorException("The attribute " + userPhoneAttribute + " has not been found.", ex);
+		} catch (WrongAttributeAssignmentException ex) {
+			log.info("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
+			throw new InternalErrorException("The attribute " + userPhoneAttribute + " has not been found in user attributes.", ex);
+		}
+		sendSMS(telNumber, message);
+	}
+	
+	/**
+	 * Sends SMS to the phone number of a member with the given message.
+	 * The phone number is taken from the user attribute urn:perun:member:attribute-def:def:phone.
+	 * 
+	 * @param sess session
+	 * @param member receiver of the message
+	 * @param message sms message to send
+	 * @throws InternalErrorException when the attribute value cannot be found or is broken
+	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException when the actor has not right to get the attribute
+	 * @throws cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException when given member does not exist
+	 */
+	public static void sendSMS(PerunSession sess, Member member, String message) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+		String telNumber;
+		try {
+			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, member, memberPhoneAttribute).getValue();
+		} catch (AttributeNotExistsException ex) {
+			log.info("Sendig SMS with text \"" + message + "\" to member " + member + " failed: cannot get tel. number." );
+			throw new InternalErrorException("The attribute " + memberPhoneAttribute + " has not been found.", ex);
+		} catch (WrongAttributeAssignmentException ex) {
+			log.info("Sendig SMS with text \"" + message + "\" to member " + member + " failed: cannot get tel. number." );
+			throw new InternalErrorException("The attribute " + memberPhoneAttribute + " has not been found in user attributes.", ex);
+		}
+		sendSMS(telNumber, message);
+	}
+	
+	/**
+	 * Sends SMS to the phone number with the given message.
+	 * The sending provides external program for sending sms.
+	 * Its path is saved in the perun property perun.sms.program.
+	 * 
+	 * @param telNumber phone number of the receiver
+	 * @param message sms message to send
+	 * @throws InternalErrorException when there is something wrong with external program
+	 * @throws IllegalArgumentException when the phone or message has a wrong format
+	 */
+	public static void sendSMS(String telNumber, String message) throws InternalErrorException {
+		log.info("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + ".");
+		
+		try {
+			// create properties list
+			List<String> processProperties = new ArrayList<>();
+			// pass the location of external program for sending sms
+			processProperties.add(BeansUtils.getPropertyFromConfiguration("perun.sms.program"));			
+			// pass program options
+			processProperties.add("-p");
+			processProperties.add(telNumber);
+			processProperties.add("-m");
+			processProperties.add(message);
+			// execute
+			ProcessBuilder pb = new ProcessBuilder(processProperties);			
+			Process process;
+			process = pb.start();
+			int exitValue;
+			try {
+				exitValue = process.waitFor();
+			} catch (InterruptedException ex) {
+				String errMsg = "The external process for sending sms was interrupted.";
+				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				throw new InternalErrorException(errMsg, ex);
+			}
+			
+			// handle response
+			if (exitValue == 0) {
+				// successful
+				log.info("SMS with text \"" + message + "\" to tel. number " + telNumber + " successfully sent.");
+			} else if ((exitValue == 1) || (exitValue == 2)) {
+				// users fault
+				String errMsg = getStringFromInputStream(process.getErrorStream());
+				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException(errMsg);
+			} else if (exitValue > 2) {
+				// internal fault
+				String errMsg = getStringFromInputStream(process.getErrorStream());
+				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				throw new InternalErrorException(errMsg);
+			}
+			
+		} catch (IOException ex) {
+			log.info("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+			throw new InternalErrorException("Cannot access the sms external application.", ex);
+		}
+		
+	}
+	
+	private static String getStringFromInputStream(InputStream is) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		StringBuilder out = new StringBuilder();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			out.append(line);
+		}
+		return out.toString();
 	}
 }
