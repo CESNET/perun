@@ -4,10 +4,7 @@ import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
-import cz.metacentrum.perun.webgui.model.Facility;
-import cz.metacentrum.perun.webgui.model.Group;
-import cz.metacentrum.perun.webgui.model.User;
-import cz.metacentrum.perun.webgui.model.VirtualOrganization;
+import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.*;
 
 /**
@@ -53,6 +50,9 @@ public class BreadcrumbsWidget extends Composite {
 			mainWidget.setWidget(0, 0, image);
 		} else if (MainMenu.USER == menuSectionRole) {
 			Image image = new Image(LargeIcons.INSTANCE.userGrayIcon());
+			mainWidget.setWidget(0, 0, image);
+		} else if (MainMenu.SECURITY_ADMIN == menuSectionRole) {
+			Image image = new Image(LargeIcons.INSTANCE.userPoliceEnglandIcon());
 			mainWidget.setWidget(0, 0, image);
 		}
 
@@ -213,6 +213,43 @@ public class BreadcrumbsWidget extends Composite {
 
 		String innerHtml = "<a title=\""+group.getName()+"\" style=\"now-managing\" href=\"#"+ GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail?id=" + group.getId()+"&active=1;\" >";
 		innerHtml += Utils.getStrippedStringWithEllipsis(group.getName(), 40);
+		innerHtml += "</a>";
+
+		if (subSection != null && !subSection.isEmpty()) {
+			if (subSectionLink != null && !subSectionLink.isEmpty()) {
+				String active = "";
+				if (subSectionLink.contains("?")) { active = "&active=1;"; } else { active = "?active=1;"; }
+				innerHtml += " &gt; <a style=\"now-managing\" href=\"#"+subSectionLink+active+"\" >"+subSection+"</a>";
+				text.setHTML(innerHtml);
+			} else {
+				text.setHTML(innerHtml + " &gt; " +subSection);
+			}
+		} else {
+			text.setHTML(innerHtml);
+		}
+
+		ScrollPanel sp = new ScrollPanel();
+		sp.setSize("100%", "20px");
+		sp.setWidget(text);
+		sp.addStyleName("perun-header-link");
+
+		mainWidget.setWidget(0, 1, sp);
+		mainWidget.getFlexCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+
+	}
+
+	public void setLocation(SecurityTeam securityTeam, String subSection, String subSectionLink) {
+
+		mainWidget.clear();
+
+		Image image = new Image(LargeIcons.INSTANCE.userPoliceEnglandIcon());
+		mainWidget.setWidget(0, 0, image);
+
+		HTML text = new HTML();
+		text.setStyleName("now-managing");
+
+		String innerHtml = "<a title=\""+securityTeam.getName()+"\" style=\"now-managing\" href=\"#"+ SecurityTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + "detail?id=" + securityTeam.getId()+"&active=1;\" >";
+		innerHtml += Utils.getStrippedStringWithEllipsis(securityTeam.getName(), 40);
 		innerHtml += "</a>";
 
 		if (subSection != null && !subSection.isEmpty()) {

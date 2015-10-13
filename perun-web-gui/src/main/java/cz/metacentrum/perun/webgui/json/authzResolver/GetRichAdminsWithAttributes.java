@@ -25,7 +25,7 @@ import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import java.util.ArrayList;
 
 /**
- * Ajax query to get VO/GROUP/FACILITY admins
+ * Ajax query to get VO/GROUP/FACILITY/SEC_TEAM admins
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
@@ -38,11 +38,13 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 	private static final String GROUP_JSON_URL = "groupsManager/getRichAdminsWithSpecificAttributes";
 	private static final String VO_JSON_URL = "vosManager/getRichAdminsWithSpecificAttributes";
 	private static final String FACILITY_JSON_URL = "facilitiesManager/getRichAdminsWithSpecificAttributes";
+	private static final String SECURITY_JSON_URL = "securityTeamsManager/getRichAdminsWithSpecificAttributes";
 
 	// JSON URL TO LIST ONLY DIRECT ADMINISTRATORS (NOT ASSIGNED BY GROUP)
 	private static final String GROUP_DIRECT_JSON_URL = "groupsManager/getDirectRichAdminsWithSpecificAttributes";
 	private static final String VO_DIRECT_JSON_URL = "vosManager/getDirectRichAdminsWithSpecificAttributes";
 	private static final String FACILITY_DIRECT_JSON_URL = "facilitiesManager/getDirectRichAdminsWithSpecificAttributes";
+	private static final String SECURITY_DIRECT_JSON_URL = "securityTeamsManager/getDirectRichAdminsWithSpecificAttributes";
 
 	// entity ID
 	private int entityId;
@@ -155,6 +157,19 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 			} else {
 				js.retrieveData(FACILITY_DIRECT_JSON_URL, param, this);
 			}
+		} else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
+			param = "securityTeam="+entityId;
+			if (!attributes.isEmpty()) {
+				// parse lists
+				for (String attribute : attributes) {
+					param += "&specificAttributes[]=" + attribute;
+				}
+			}
+			if (showAllAdmins) {
+				js.retrieveData(SECURITY_JSON_URL, param, this);
+			} else {
+				js.retrieveData(SECURITY_DIRECT_JSON_URL, param, this);
+			}
 		}
 
 	}
@@ -195,6 +210,8 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 			loaderImage.setEmptyResultMessage("Group has no managers (try to switch to 'Groups' view).");
 		} else if (entity.equals(PerunEntity.FACILITY)) {
 			loaderImage.setEmptyResultMessage("Facility has no managers (try to switch to 'Groups' view).");
+		} else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
+			loaderImage.setEmptyResultMessage("SecurityTeam has no members (try to switch to 'Groups' view).");
 		}
 
 		// Sorting
@@ -219,7 +236,6 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 						return String.valueOf(object.getId());
 					}
 				}, this.tableFieldUpdater);
-
 
 		userIdColumn.setSortable(true);
 		columnSortHandler.setComparator(userIdColumn, new GeneralComparator<User>(GeneralComparator.Column.ID));
@@ -343,7 +359,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 	 * Called, when an error occurs
 	 */
 	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Error while loading admins.");
+		session.getUiElements().setLogErrorText("Error while loading managers.");
 		loaderImage.loadingError(error);
 		events.onError(error);
 	}
@@ -352,7 +368,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 	 * Called, when loading starts
 	 */
 	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading admins started.");
+		session.getUiElements().setLogText("Loading managers started.");
 		events.onLoadingStart();
 	}
 
@@ -362,7 +378,7 @@ public class GetRichAdminsWithAttributes implements JsonCallback, JsonCallbackTa
 	public void onFinished(JavaScriptObject jso) {
 		setList(JsonUtils.<User>jsoAsList(jso));
 		sortTable();
-		session.getUiElements().setLogText("Admins loaded: " + list.size());
+		session.getUiElements().setLogText("Managers loaded: " + list.size());
 		events.onFinished(jso);
 		loaderImage.loadingFinished();
 	}

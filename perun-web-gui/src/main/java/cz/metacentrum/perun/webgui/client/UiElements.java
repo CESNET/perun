@@ -1516,10 +1516,14 @@ public class UiElements {
 		// process roles to display
 		String roles = "";
 		// only self
-		if (session.isSelf() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin() || session.isFacilityAdmin() || session.isVoObserver())) {
+		if (session.isSelf() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin() || session.isFacilityAdmin() || session.isVoObserver() || session.isSecurityAdmin())) {
 			roles += "SELF";
-		} else if (session.isPerunAdmin()) {
+		} else if (session.isPerunAdmin() && !session.isSecurityAdmin()) {
 			roles += "PERUN ADMIN";
+		} else if (session.isPerunAdmin() && session.isSecurityAdmin()) {
+			roles += "PERUN / SECURITY ADMIN";
+		} else if (session.isSecurityAdmin() && !(session.isVoAdmin() || session.isFacilityAdmin() || session.isGroupAdmin())) {
+			roles += "SECURITY ADMIN ";
 		} else if (session.isVoObserver() && !(session.isVoAdmin() || session.isFacilityAdmin() || session.isGroupAdmin())) {
 			roles += "VO OBSERVER";
 		} else {
@@ -1533,6 +1537,9 @@ public class UiElements {
 			}
 			if (session.isFacilityAdmin()) {
 				roles += "FACILITY/";
+			}
+			if (session.isSecurityAdmin()) {
+				roles += "SECURITY/";
 			}
 
 			if (roles.length() >= 1) {
