@@ -187,10 +187,10 @@ public class VosManagerBlImpl implements VosManagerBl {
 			try {
 				addAdmin(sess, vo, sess.getPerunPrincipal().getUser());
 			} catch(AlreadyAdminException ex) {
-				throw new ConsistencyErrorException("Add manager to newly created VO failed because there is particalar manager already assigned", ex);
+				throw new ConsistencyErrorException("Add manager to newly created VO failed because there is a particular manager already assigned", ex);
 			}
 		} else {
-			log.error("Can't set VO manager during creting of the VO. User from perunSession is null. {} {}", vo, sess);
+			log.error("Can't set VO manager during creating of the VO. User from perunSession is null. {} {}", vo, sess);
 		}
 
 		log.debug("Vo {} created", vo);

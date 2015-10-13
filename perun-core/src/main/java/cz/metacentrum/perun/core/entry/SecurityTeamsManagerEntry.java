@@ -94,7 +94,8 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		Utils.notNull(securityTeam, "securityTeam");
 		Utils.notNull(securityTeam.getName(), "securityTeam.name");
 
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)
+				&& !AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN)) {
 			throw new PrivilegeException(sess, "createSecurityTeam");
 		}
 

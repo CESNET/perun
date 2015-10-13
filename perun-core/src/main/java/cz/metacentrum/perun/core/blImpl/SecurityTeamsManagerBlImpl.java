@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -69,6 +70,17 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	public SecurityTeam createSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamExistsException, InternalErrorException {
 		securityTeam = getSecurityTeamsManagerImpl().createSecurityTeam(sess, securityTeam);
 		getPerunBl().getAuditer().log(sess, "{} was created.", securityTeam);
+
+		// set creator as security team admin
+		User user = sess.getPerunPrincipal().getUser();
+		if(user != null) {   //user can be null in tests
+			try {
+				AuthzResolverBlImpl.setRole(sess, user, securityTeam, Role.SECURITYADMIN);
+			} catch (AlreadyAdminException e) {
+				throw new ConsistencyErrorException("Newly created securityTeam already have an admin.", e);
+			}
+		}
+
 		return securityTeam;
 	}
 

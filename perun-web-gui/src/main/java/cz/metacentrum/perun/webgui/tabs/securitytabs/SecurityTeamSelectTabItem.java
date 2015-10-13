@@ -77,43 +77,38 @@ public class SecurityTeamSelectTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
 
-		if (session.isPerunAdmin()) {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createSecurityTeam(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new CreateSecurityTeamTabItem());
+			}
+		}));
 
-			// do not display to sec admins only
-			tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createSecurityTeam(), new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					session.getTabManager().addTabToCurrentTab(new CreateSecurityTeamTabItem());
-				}
-			}));
+		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, buttonTranslation.deleteSecurityTeam());
+		removeButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
 
-			final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.DELETE, buttonTranslation.deleteSecurityTeam());
-			removeButton.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-
-					final ArrayList<SecurityTeam> itemsToRemove = teams.getTableSelectedList();
-					UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent clickEvent) {
-							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-							for (int i = 0; i < itemsToRemove.size(); i++) {
-								DeleteSecurityTeam request;
-								if (i == itemsToRemove.size() - 1) {
-									request = new DeleteSecurityTeam(JsonCallbackEvents.disableButtonEvents(removeButton, events));
-								} else {
-									request = new DeleteSecurityTeam(JsonCallbackEvents.disableButtonEvents(removeButton));
-								}
-								request.deleteSecurityTeam(itemsToRemove.get(i).getId(), false);
+				final ArrayList<SecurityTeam> itemsToRemove = teams.getTableSelectedList();
+				UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
+						for (int i = 0; i < itemsToRemove.size(); i++) {
+							DeleteSecurityTeam request;
+							if (i == itemsToRemove.size() - 1) {
+								request = new DeleteSecurityTeam(JsonCallbackEvents.disableButtonEvents(removeButton, events));
+							} else {
+								request = new DeleteSecurityTeam(JsonCallbackEvents.disableButtonEvents(removeButton));
 							}
+							request.deleteSecurityTeam(itemsToRemove.get(i).getId(), false);
 						}
-					});
+					}
+				});
 
-				}
-			});
-			tabMenu.addWidget(removeButton);
-
-		}
+			}
+		});
+		tabMenu.addWidget(removeButton);
 
 		// filter
 		tabMenu.addFilterWidget(new ExtendedSuggestBox(teams.getOracle()), new PerunSearchEvent() {
