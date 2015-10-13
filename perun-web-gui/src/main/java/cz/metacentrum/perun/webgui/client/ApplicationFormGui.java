@@ -661,7 +661,7 @@ public class ApplicationFormGui implements EntryPoint {
 			panel.clear();
 			FlexTable ft = new FlexTable();
 			ft.setSize("100%", "300px");
-			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>Error: "+ApplicationMessages.INSTANCE.groupMembershipCantBeExtended(group.getName(), vo.getName())+"</h2>");
+			ft.setHTML(0, 0, new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>Error: "+ApplicationMessages.INSTANCE.groupMembershipCantBeExtended(group.getName())+"</h2>");
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 			panel.add(ft);
