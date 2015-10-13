@@ -39,6 +39,7 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 	private static final String GROUP_JSON_URL = "groupsManager/getAdmins";
 	private static final String VO_JSON_URL = "vosManager/getAdmins";
 	private static final String FACILITY_JSON_URL = "facilitiesManager/getAdmins";
+	private static final String SECURITY_JSON_URL = "securityTeamsManager/getAdmins";
 
 	// entity ID
 	private int entityId;
@@ -100,6 +101,9 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 			Window.alert("Get admins for facility by new callback is not yet supported on perun side.");
 			// param = "facility="+entityId;
 			// js.retrieveData(FACILITY_JSON_URL, param, this);
+		} else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
+			param = "securityTeam="+entityId;
+			js.retrieveData(SECURITY_JSON_URL, param, this);
 		}
 
 	}
@@ -250,7 +254,7 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 	 * Called, when an error occurs
 	 */
 	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Error while loading admins.");
+		session.getUiElements().setLogErrorText("Error while loading managers.");
 		loaderImage.loadingError(error);
 		events.onError(error);
 	}
@@ -259,7 +263,7 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 	 * Called, when loading starts
 	 */
 	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading admins started.");
+		session.getUiElements().setLogText("Loading managers started.");
 		events.onLoadingStart();
 	}
 
@@ -270,7 +274,7 @@ public class GetAdmins implements JsonCallback, JsonCallbackTable<User> {
 		setList(JsonUtils.<User>jsoAsList(jso));
 		sortTable();
 		loaderImage.loadingFinished();
-		session.getUiElements().setLogText("Admins loaded: " + list.size());
+		session.getUiElements().setLogText("Managers loaded: " + list.size());
 		events.onFinished(jso);
 	}
 

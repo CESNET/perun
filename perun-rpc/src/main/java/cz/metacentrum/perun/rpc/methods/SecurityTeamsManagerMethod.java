@@ -12,12 +12,9 @@ import java.util.List;
 public enum SecurityTeamsManagerMethod implements ManagerMethod {
 
 	/*#
-	 * Get list of SecurityTeams by access rights
-	 *  - PERUNADMIN : all teams
-	 *  - SECURITYADMIN : teams where user is admin
+	 * List SecurityTeams your are member of or all for PerunAdmin.
 	 *
-	 * @param perunSession
-	 * @return List of SecurityTeams or empty ArrayList<SecurityTeam>
+	 * @return List<SecurityTeam> List of your security teams.
 	 */
 	getSecurityTeams {
 		@Override
@@ -27,10 +24,9 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * get all security teams in perun system
+	 * List all SecurityTeams in Perun.
 	 *
-	 * @param perunSession
-	 * @return List of SecurityTeams or empty List
+	 * @return List<SecurityTeam> List of all security teams.
 	 */
 	getAllSecurityTeams {
 		@Override
@@ -40,11 +36,11 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Create new SecurityTeam.
+	 * Create SecurityTeam.
 	 *
-	 * @param perunSession
-	 * @param securityTeam SecurityTeam object with prefilled name
-	 * @return Newly created Security team with new id
+	 * @param securityTeam SecurityTeam Security team to create
+	 * @throws SecurityTeamExistsException When name of SecurityTeam is not unique.
+	 * @return SecurityTeam Newly create SecurityTeam with <code>id</code> set.
 	 */
 	createSecurityTeam {
 		@Override
@@ -56,11 +52,13 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Updates SecurityTeam.
+	 * Update existing SecurityTeam name and description by teams <code>id</id>.
+	 * Name must be <= 128 and must be unique.
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @return returns updated SecurityTeam
+	 * @param securityTeam SecurityTeam Security team <code>id</code>
+	 * @throws SecurityTeamNotExistsException When <code>id</code> of a team doesn't exists in Perun.
+	 * @throws SecurityTeamExistsException When new name of security team is not unique.
+	 * @return SecurityTeam Team with updated values
 	 */
 	updateSecurityTeam {
 		@Override
@@ -72,27 +70,38 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Delete SecurityTeam.
+	 * Delete SecurityTeam by its <code>id</code>. If force is <code>true</code> team is deleted even if it
+	 * has some users on blacklist or is assigned to some facility.
 	 *
-	 * @param perunSession
-	 * @param securityTeam
+	 * @param securityTeam int Security team <code>id</code>
+	 * @param force boolean <code>true</code> if force delete
+	 */
+	/*#
+	 * Delete SecurityTeam by its <code>id</code>. If team has any users on blacklist or is assigned
+	 * some facility, it is not deleted.
+	 *
+	 * @param securityTeam int Security team <code>id</code>
 	 */
 	deleteSecurityTeam {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
-			ac.getSecurityTeamsManager().deleteSecurityTeam(ac.getSession(),  ac.getSecurityTeamById(parms.readInt("securityTeam")));
+			if (parms.contains("force")) {
+				ac.getSecurityTeamsManager().deleteSecurityTeam(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")), parms.readBoolean("force"));
+			} else {
+				ac.getSecurityTeamsManager().deleteSecurityTeam(ac.getSession(),  ac.getSecurityTeamById(parms.readInt("securityTeam")));
+			}
+
 			return null;
 		}
 	},
 
 	/*#
-	 * Find existing SecurityTeam by ID.
+	 * Get existing SecurityTeam by <code>id</id>.
 	 *
-	 * @param perunSession
-	 * @param id
-	 * @return security team with given id
+	 * @param id int Security team <code>id</code>
+	 * @return SecurityTeam Team with given <code>id</code>
 	 */
 	getSecurityTeamById {
 		@Override
@@ -102,11 +111,10 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * get all security admins of given security team
+	 * Get all managers (members) of SecurityTeam by its <code>id</id>.
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @return list of users which are admis of given security team
+	 * @param securityTeam int Security team <code>id</code>
+	 * @return List<User> List of Users who are managers (members) of specified SecurityTeam.
 	 */
 	getAdmins {
 		@Override
@@ -116,18 +124,16 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Create group as security admins group of given security team (all users in group will have security admin rights)
+	 * Add User as a manager to SecurityTeam
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @param group group which members will became a security administrators
+	 * @param securityTeam int <code>id</code> of SecurityTeam to add manager (member) to
+	 * @param user int <code>id</code> of User to be added as a manager (member) of SecurityTeam
 	 */
 	/*#
-	 * create security admin from given user and add him as security admin of given security team
+	 * Add group as a manager to SecurityTeam
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @param user user who will became a security administrator
+	 * @param securityTeam int <code>id</code> of SecurityTeam to add manager (member) to
+	 * @param group int <code>id</code> of Group to be added as a manager (member) of SecurityTeam
 	 */
 	addAdmin {
 		@Override
@@ -146,18 +152,16 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Remove security admin role for given security team from group
+	 * Remove User as a manager from SecurityTeam.
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @param group
+	 * @param securityTeam int <code>id</code> of SecurityTeam to remove manager (member) from
+	 * @param user int <code>id</code> of User to be removed as a manager (member) of SecurityTeam
 	 */
 	/*#
-	 * Remove security admin role for given security team from user
+	 * Remove group as a manager from SecurityTeam.
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @param user
+	 * @param securityTeam int <code>id</code> of SecurityTeam to remove manager (member) from
+	 * @param group int <code>id</code> of Group to be removed as a manager (member) of SecurityTeam
 	 */
 	removeAdmin {
 		@Override
@@ -176,11 +180,10 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Add User to black list of security team to filter him out.
+	 * Add user to blacklist of given SecurityTeam
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @param user
+	 * @param securityTeam int <code>id</code> of SecurityTeam to add user to blacklist
+	 * @param user int <code>id</code> of User to be added to blacklist of SecurityTeam
 	 */
 	addUserToBlacklist {
 		@Override
@@ -195,11 +198,10 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * remove user from blacklist of given security team
+	 * Remove user from blacklist of given SecurityTeam
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @param user user who will became a security administrator
+	 * @param securityTeam int <code>id</code> of SecurityTeam to remove user from blacklist
+	 * @param user int <code>id</code> of User to be removed from blacklist of SecurityTeam
 	 */
 	removeUserFromBlacklist {
 		@Override
@@ -213,18 +215,17 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * get union of blacklists of all security teams assigned to facility
+	 * Get blacklisted users on selected Facility. List is a union of all blacklists of
+	 * SecurityTeams assigned to selected Facility.
 	 *
-	 * @param perunSession
-	 * @param facility
-	 * @return list of blacklisted users for facility
+	 * @param facility int <code>id</code> of Facility to get blacklist for
+	 * @return List<User> List of users blacklisted on selected facility.
 	 */
 	/*#
-	 * get list of blacklisted users by security team
+	 * Get users blacklisted by selected SecurityTeam.
 	 *
-	 * @param perunSession
-	 * @param securityTeam
-	 * @return lis of blacklisted users by security team
+	 * @param securityTeam int <code>id</code> of SecurityTeam to get blacklist for
+	 * @return List<User> Blacklisted users
 	 */
 	getBlacklist {
 		@Override

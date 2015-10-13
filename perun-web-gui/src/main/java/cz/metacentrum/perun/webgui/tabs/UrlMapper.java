@@ -7,6 +7,7 @@ import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
+import cz.metacentrum.perun.webgui.model.SecurityTeam;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -192,7 +193,14 @@ public class UrlMapper {
 			return true;
 		}
 
-		// registrar
+		// security
+		if(tabPackage.equals(SecurityTabs.URL)) {
+			SecurityTabs tabs = new SecurityTabs();
+			tabs.loadTab(tabName, parameters);
+			return true;
+		}
+
+		// test
 		if(tabPackage.equals(TestTabs.URL)) {
 			TestTabs tabs = new TestTabs();
 			tabs.loadTab(tabName, parameters);

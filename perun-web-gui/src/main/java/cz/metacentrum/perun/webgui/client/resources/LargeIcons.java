@@ -6932,8 +6932,8 @@ public interface LargeIcons extends ClientBundle{
 	//@Source("icons/32x32/user_orange.png")
 	//ImageResource userOrangeIcon();
 
-	//@Source("icons/32x32/user_police_england.png")
-	//ImageResource userPoliceEnglandIcon();
+	@Source("icons/32x32/user_police_england.png")
+	ImageResource userPoliceEnglandIcon();
 
 	//@Source("icons/32x32/user_police_female.png")
 	//ImageResource userPoliceFemaleIcon();
@@ -6950,8 +6950,8 @@ public interface LargeIcons extends ClientBundle{
 	//@Source("icons/32x32/user_sailor.png")
 	//ImageResource userSailorIcon();
 
-	//@Source("icons/32x32/user_silhouette.png")
-	//ImageResource userSilhouetteIcon();
+	@Source("icons/32x32/user_silhouette.png")
+	ImageResource userSilhouetteIcon();
 
 	//@Source("icons/32x32/user_soldier.png")
 	//ImageResource userSoldierIcon();

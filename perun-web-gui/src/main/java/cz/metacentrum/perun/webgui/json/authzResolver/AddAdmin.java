@@ -27,6 +27,7 @@ public class AddAdmin {
 	final String VO_JSON_URL = "vosManager/addAdmin";
 	final String GROUP_JSON_URL = "groupsManager/addAdmin";
 	final String FACILITY_JSON_URL = "facilitiesManager/addAdmin";
+	final String SECURITY_JSON_URL = "securityTeamsManager/addAdmin";
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 
@@ -55,7 +56,7 @@ public class AddAdmin {
 		String errorMsg = "";
 
 		if(entityId == 0){
-			errorMsg += "Wrong parameter <strong>VO/Group/Facility ID</strong>";
+			errorMsg += "Wrong parameter <strong>VO/Group/Facility/SecurityTeam ID</strong>";
 			result = false;
 		}
 
@@ -91,12 +92,12 @@ public class AddAdmin {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding "+user.getFullName()+" as admin failed.");
+				session.getUiElements().setLogErrorText("Adding "+user.getFullName()+" as manager failed.");
 				events.onError(error); // custom events
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("User " + user.getFullName()+ " added as admin of "+group.getName());
+				session.getUiElements().setLogSuccessText("User " + user.getFullName()+ " added as manager of "+group.getName());
 				events.onFinished(jso);
 			};
 
@@ -131,12 +132,12 @@ public class AddAdmin {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding "+user.getFullName()+" as admin failed.");
+				session.getUiElements().setLogErrorText("Adding "+user.getFullName()+" as manager failed.");
 				events.onError(error); // custom events
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("User " + user.getFullName()+ " added as admin of "+vo.getName());
+				session.getUiElements().setLogSuccessText("User " + user.getFullName()+ " added as manager of "+vo.getName());
 				events.onFinished(jso);
 			};
 
@@ -171,12 +172,12 @@ public class AddAdmin {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding "+user.getFullName()+" as admin failed.");
+				session.getUiElements().setLogErrorText("Adding "+user.getFullName()+" as manager failed.");
 				events.onError(error); // custom events
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("User " + user.getFullName()+ " added as admin of "+facility.getName());
+				session.getUiElements().setLogSuccessText("User " + user.getFullName()+ " added as manager of "+facility.getName());
 				events.onFinished(jso);
 			};
 
@@ -188,6 +189,46 @@ public class AddAdmin {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(FACILITY_JSON_URL, prepareJSONObject());
+
+	}
+
+	/**
+	 * Attempts to add a new admin to SecurityTeam, it first tests the values and then submits them.
+	 *
+	 * @param securityTeam where we want to add admin
+	 * @param user User to be admin
+	 */
+	public void addSecurityTeamAdmin(final SecurityTeam securityTeam, final User user) {
+
+		this.userId = (user != null) ? user.getId() : 0;
+		this.entityId = (securityTeam != null) ? securityTeam.getId() : 0;
+		this.entity = PerunEntity.SECURITY_TEAM;
+
+		// test arguments
+		if(!this.testAdding()){
+			return;
+		}
+
+		// new events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Adding "+user.getFullName()+" as manager failed.");
+				events.onError(error); // custom events
+			};
+
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("User " + user.getFullName()+ " added as manager of "+securityTeam.getName());
+				events.onFinished(jso);
+			};
+
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
+
+		// sending data
+		JsonPostClient jspc = new JsonPostClient(newEvents);
+		jspc.sendData(SECURITY_JSON_URL, prepareJSONObject());
 
 	}
 
@@ -212,12 +253,12 @@ public class AddAdmin {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding group "+group.getShortName()+" as admin failed.");
+				session.getUiElements().setLogErrorText("Adding group "+group.getShortName()+" as manager failed.");
 				events.onError(error); // custom events
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Group " + group.getShortName()+ " added as admin of "+groupToAddAdminTo.getName());
+				session.getUiElements().setLogSuccessText("Group " + group.getShortName()+ " added as manager of "+groupToAddAdminTo.getName());
 				events.onFinished(jso);
 			};
 
@@ -253,12 +294,12 @@ public class AddAdmin {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding group "+group.getShortName()+" as admin failed.");
+				session.getUiElements().setLogErrorText("Adding group "+group.getShortName()+" as manager failed.");
 				events.onError(error); // custom events
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Group " + group.getShortName()+ " added as admin of "+vo.getName());
+				session.getUiElements().setLogSuccessText("Group " + group.getShortName()+ " added as manager of "+vo.getName());
 				events.onFinished(jso);
 			};
 
@@ -294,12 +335,12 @@ public class AddAdmin {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding group "+group.getShortName()+" as admin failed.");
+				session.getUiElements().setLogErrorText("Adding group "+group.getShortName()+" as manager failed.");
 				events.onError(error); // custom events
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Group " + group.getShortName()+ " added as admin of "+facility.getName());
+				session.getUiElements().setLogSuccessText("Group " + group.getShortName()+ " added as manager of "+facility.getName());
 				events.onFinished(jso);
 			};
 
@@ -311,6 +352,47 @@ public class AddAdmin {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(FACILITY_JSON_URL, prepareJSONObjectForGroup());
+
+	}
+
+	/**
+	 * Attempts to add a new admin group to SecurityTeam, it first tests the values and then submits them.
+	 *
+	 * @param securityTeam where we want to add admin
+	 * @param group Group to be admin
+	 */
+	public void addSecurityTeamAdminGroup(final SecurityTeam securityTeam,final Group group) {
+
+		// store group id to user id to used unified check method
+		this.userId = (group != null) ? group.getId() : 0;
+		this.entityId = (securityTeam != null) ? securityTeam.getId() : 0;
+		this.entity = PerunEntity.SECURITY_TEAM;
+
+		// test arguments
+		if(!this.testAdding()){
+			return;
+		}
+
+		// new events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Adding group "+group.getShortName()+" as manager failed.");
+				events.onError(error); // custom events
+			};
+
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("Group " + group.getShortName()+ " added as manager of "+securityTeam.getName());
+				events.onFinished(jso);
+			};
+
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
+
+		// sending data
+		JsonPostClient jspc = new JsonPostClient(newEvents);
+		jspc.sendData(SECURITY_JSON_URL, prepareJSONObjectForGroup());
 
 	}
 
@@ -329,6 +411,8 @@ public class AddAdmin {
 			jsonQuery.put("group", new JSONNumber(entityId));
 		} else if (entity.equals(PerunEntity.FACILITY)) {
 			jsonQuery.put("facility", new JSONNumber(entityId));
+		} else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
+			jsonQuery.put("securityTeam", new JSONNumber(entityId));
 		}
 		jsonQuery.put("user", new JSONNumber(userId));
 
@@ -350,6 +434,8 @@ public class AddAdmin {
 			jsonQuery.put("group", new JSONNumber(entityId));
 		} else if (entity.equals(PerunEntity.FACILITY)) {
 			jsonQuery.put("facility", new JSONNumber(entityId));
+		} else if (entity.equals(PerunEntity.SECURITY_TEAM)) {
+			jsonQuery.put("securityTeam", new JSONNumber(entityId));
 		}
 		jsonQuery.put("authorizedGroup", new JSONNumber(userId));
 

@@ -2771,8 +2771,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/firefox.png")
 	//ImageResource firefoxIcon();
 
-	//@Source("icons/16x16/firewall.png")
-	//ImageResource firewallIcon();
+	@Source("icons/16x16/firewall.png")
+	ImageResource firewallIcon();
 
 	//@Source("icons/16x16/firewall_burn.png")
 	//ImageResource firewallBurnIcon();
@@ -6935,8 +6935,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/user_orange.png")
 	//ImageResource userOrangeIcon();
 
-	//@Source("icons/16x16/user_police_england.png")
-	//ImageResource userPoliceEnglandIcon();
+	@Source("icons/16x16/user_police_england.png")
+	ImageResource userPoliceEnglandIcon();
 
 	//@Source("icons/16x16/user_police_female.png")
 	//ImageResource userPoliceFemaleIcon();
