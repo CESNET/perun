@@ -182,7 +182,7 @@ public class CreateSecurityTeamTabItem implements TabItem {
 
 	public boolean isAuthorized() {
 
-		if (session.isPerunAdmin()) {
+		if (session.isPerunAdmin() || session.isSecurityAdmin()) {
 			return true;
 		} else {
 			return false;
