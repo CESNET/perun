@@ -1012,7 +1012,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
-					parms.getServletRequest().getRequestURL().toString(),
+					parms.getServletRequest().getHeader("Referer"),
 					ac.getUserById(parms.readInt("user")),
 					parms.readString("email"));
 
