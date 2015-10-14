@@ -763,6 +763,39 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		assertEquals(expected, actual);
 	}
 
+	@Test
+	public void testGetBlacklistBySecurityTeamWithDescription() throws Exception {
+		System.out.println(CLASS_NAME + "testGetBlacklistBySecurityTeamWithDescription");
+
+		setUpSecurityTeams();
+		setUpUsers();
+		setUpFacilities();
+		setUpBlacklists();
+
+		Map<User, String> expected = new TreeMap<>(
+			new Comparator<User>() {
+
+			@Override
+			public int compare(User o1, User o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		expected.put(u1, "reason");
+		expected.put(u2, null);
+
+		Map<User, String> actual = new TreeMap<>(
+			new Comparator<User>() {
+
+			@Override
+			public int compare(User o1, User o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		actual.putAll(securityTeamsManagerEntry.getBlacklistWithDescription(sess, st0));
+                
+		assertEquals(expected, actual);
+	}
+
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testGetBlacklistBySecurityTeamSecurityTeamNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "testGetBlacklistBySecurityTeamSecurityTeamNotExists");
@@ -796,6 +829,39 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 
 		Collections.sort(expected);
 		Collections.sort(actual);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testGetBlacklistByFacilityWithDescription() throws Exception {
+		System.out.println(CLASS_NAME + "testGetBlacklistByFacilityWithDescription");
+
+		setUpSecurityTeams();
+		setUpUsers();
+		setUpFacilities();
+		setUpBlacklists();
+
+		Map<User, String> expected = new TreeMap<>(
+			new Comparator<User>() {
+
+			@Override
+			public int compare(User o1, User o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		expected.put(u1, "reason");
+		expected.put(u2, null);
+
+		Map<User, String> actual = new TreeMap<>(
+			new Comparator<User>() {
+
+			@Override
+			public int compare(User o1, User o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		actual.putAll(securityTeamsManagerEntry.getBlacklistWithDescription(sess, f1));
+                
 		assertEquals(expected, actual);
 	}
 

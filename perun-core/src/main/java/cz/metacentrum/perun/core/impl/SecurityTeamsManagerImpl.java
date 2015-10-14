@@ -23,6 +23,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -248,6 +249,25 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 		}
 	}
 
+        @Override
+	public Map<User, String> getBlacklistWithDescription(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException {
+		try {
+			Map<User, String> result = new HashMap<>();
+			for (SecurityTeam st : securityTeams) {
+
+				result = jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery +
+								",  blacklisted_ids.description as description from users inner join (" +
+								"select blacklists.user_id, blacklists.description from blacklists where security_team_id=?" +
+								") " + Compatibility.getAsAlias("blacklisted_ids") + " ON users.id=blacklisted_ids.user_id",
+						UsersManagerImpl.USERBLACKLIST_EXTRACTOR, st.getId());
+			}
+			return result;
+
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	@Override
 	public void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotExistsException {
 		if (!securityTeamExists(securityTeam)) {
@@ -393,6 +413,4 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
-
-	
 }

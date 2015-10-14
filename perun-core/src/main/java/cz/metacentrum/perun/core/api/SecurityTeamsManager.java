@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
@@ -221,7 +222,7 @@ public interface SecurityTeamsManager {
 	 *
 	 * @param perunSession
 	 * @param securityTeam
-	 * @return lis of blacklisted users by security team
+	 * @return list of blacklisted users by security team
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
 	 * @throws SecurityTeamNotExistsException
@@ -241,4 +242,28 @@ public interface SecurityTeamsManager {
 	 */
 	List<User> getBlacklist(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException;
 
+        /**
+	 * get list of blacklisted users by security team containing also description
+	 *
+	 * @param perunSession
+	 * @param securityTeam
+	 * @return map of blacklisted users by security team
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+	 * @throws SecurityTeamNotExistsException
+	 */
+	Map<User,String> getBlacklistWithDescription(PerunSession perunSession, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
+
+	/**
+	 * get union of blacklists of all security teams assigned to facility containing also description
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @return map of blacklisted users for facility
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException Can do only PerunAdmin or SecurityAdmin of the SecurityTeam
+	 * @throws SecurityTeamNotExistsException
+	 * @throws FacilityNotExistsException
+	 */
+	Map<User,String> getBlacklistWithDescription(PerunSession perunSession, Facility facility) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException;
 }

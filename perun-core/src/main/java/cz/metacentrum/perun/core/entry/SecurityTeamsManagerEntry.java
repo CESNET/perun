@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.impl.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
@@ -330,4 +331,27 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 		return getSecurityTeamsManagerBl().getBlacklist(sess, facility);
 	}
 
+	@Override
+	public Map<User, String> getBlacklistWithDescription(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException {
+		Utils.checkPerunSession(sess);
+		getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
+
+		if (!AuthzResolver.isAuthorized(sess, Role.SECURITYADMIN, securityTeam)) {
+			throw new PrivilegeException(sess, "getBlacklistWithDescription");
+		}
+
+		return getSecurityTeamsManagerBl().getBlacklistWithDescription(sess, securityTeam);
+	}
+
+	@Override
+	public Map<User, String> getBlacklistWithDescription(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getBlacklistWithDescription");
+		}
+
+		return getSecurityTeamsManagerBl().getBlacklistWithDescription(sess, facility);
+	}
 }
