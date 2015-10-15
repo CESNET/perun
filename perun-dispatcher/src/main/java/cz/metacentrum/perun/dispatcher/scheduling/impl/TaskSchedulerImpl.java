@@ -75,7 +75,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		ExecService execService = task.getExecService();
 		Facility facility = task.getFacility();
 		Date time = new Date(System.currentTimeMillis());
-		DispatcherQueue dispatcherQueue;
+		DispatcherQueue dispatcherQueue = null;
 
 		if (task.getStatus().equals(TaskStatus.PROCESSING) && !task.isPropagationForced()) {
 			log.debug("Task {} already processing, will not schedule again.",
@@ -87,9 +87,24 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		try {
 			dispatcherQueue = schedulingPool.getQueueForTask(task);
 		} catch (InternalErrorException e) {
-			// TODO Auto-generated catch block
 			log.warn("Task {} is not assigned to any queue", task.toString());
-			return;
+		}
+		// TODO: should take into account assignment of dependencies...ie to schedule SEND to the same queue as GEN
+		if (dispatcherQueue == null) {
+			// where should we send the task?
+			if (dispatcherQueuePool.poolSize() > 0) {
+				dispatcherQueue = dispatcherQueuePool.getPool().iterator().next();
+				schedulingPool.setQueueForTask(task, dispatcherQueue);
+				log.debug("Assigned new queue "
+						+ dispatcherQueue.getQueueName() + " to task "
+						+ task.getId());
+			} else {
+				// bad luck...
+				log.error("Task "
+						+ task.toString()
+						+ " has no engine assigned and there are no engines registered...");
+				return;
+			}
 		}
 
 		log.debug("Facility to be processed: " + facility.getId()
