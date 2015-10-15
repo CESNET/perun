@@ -713,4 +713,23 @@ public class BeansUtils {
 		BeansUtils.properties = properties;
 		return BeansUtils.properties;
 	}
+
+	public static String getIDsOfPerunBeans(List<? extends PerunBean> listOfBeans) {
+		if (listOfBeans == null || listOfBeans.isEmpty()) {
+			return "";
+		}
+
+		Boolean isFirstIteration = true;
+		StringBuilder str = new StringBuilder();
+		for(PerunBean perunBean : listOfBeans) {
+			if(isFirstIteration) {
+				str.append(perunBean.getId());
+				isFirstIteration = false;
+			}
+			else {
+				str.append(",").append(perunBean.getId());
+			}
+		}
+		return str.toString();
+	}
 }

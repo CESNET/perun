@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -141,8 +142,9 @@ public class ContactGroup implements Comparable<ContactGroup>{
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		return str.append("ContactGroup:[facility='").append(getFacility()).append("', name='").append(getName()).append("', groups='").append(getGroups()).append(
-		  "', owners='").append(getOwners()).append("', users='").append(users).append("']").toString();
+
+		return str.append("ContactGroup:[facilityID='").append(getFacility().getId()).append("', name='").append(getName()).append("', groupsIDs='").append(BeansUtils.getIDsOfPerunBeans(getGroups())).append(
+		  "', ownersIDs='").append(BeansUtils.getIDsOfPerunBeans(getOwners())).append("', usersIDs='").append(BeansUtils.getIDsOfPerunBeans(users)).append("']").toString();
 	}
 
 	@Override
