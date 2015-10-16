@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
@@ -133,7 +134,15 @@ public interface SecurityTeamsManagerImplApi {
 	 */
 	List<User> getBlacklist(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException;
 
-
+        /**
+	 * get union of blacklists of security teams containing also description
+	 *
+	 * @param sess
+	 * @param securityTeams
+	 * @return map of blacklisted users and description for list of given security teams
+	 * @throws InternalErrorException
+	 */
+	Map<User, String> getBlacklistWithDescription(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException;
 
 	/**
 	 * check if security team exists

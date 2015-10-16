@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
@@ -188,6 +189,18 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 		return getSecurityTeamsManagerImpl().getBlacklist(sess, securityTeams);
 	}
 
+        @Override
+        public Map<User, String> getBlacklistWithDescription(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+		List<SecurityTeam> wrapper = new ArrayList<>();
+		wrapper.add(securityTeam);
+		return getSecurityTeamsManagerImpl().getBlacklistWithDescription(sess, wrapper);
+        }
+
+        @Override
+        public Map<User, String> getBlacklistWithDescription(PerunSession sess, Facility facility) throws InternalErrorException {
+		List<SecurityTeam> securityTeams = perunBl.getFacilitiesManagerBl().getAssignedSecurityTeams(sess, facility);
+		return getSecurityTeamsManagerImpl().getBlacklistWithDescription(sess, securityTeams);
+        }
 
 	@Override
 	public void checkSecurityTeamExists(PerunSession sess, SecurityTeam securityTeam) throws SecurityTeamNotExistsException, InternalErrorException {
