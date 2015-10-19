@@ -8,6 +8,7 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 import java.util.List;
+import java.util.Map;
 
 public enum SecurityTeamsManagerMethod implements ManagerMethod {
 
@@ -234,6 +235,30 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 				return ac.getSecurityTeamsManager().getBlacklist(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
 			} else {
 				return ac.getSecurityTeamsManager().getBlacklist(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")));
+			}
+		}
+	},
+
+	/*#
+	 * Get blacklisted users on selected Facility. Map consists of a union of all blacklists of
+	 * SecurityTeams assigned to selected Facility and a description why the users are on the blacklist.
+	 *
+	 * @param facility int <code>id</code> of Facility to get blacklist for
+	 * @return Map<User,String> List of users blacklisted on selected facility.
+	 */
+	/*#
+	 * Get users blacklisted by selected SecurityTeam with a description why the users are on the blacklist.
+	 *
+	 * @param securityTeam int <code>id</code> of SecurityTeam to get blacklist for
+	 * @return Map<User,String> Blacklisted users with description
+	 */
+	getBlacklistWithDescription {
+		@Override
+		public Map<User,String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if (parms.contains("facility")) {
+				return ac.getSecurityTeamsManager().getBlacklistWithDescription(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
+			} else {
+				return ac.getSecurityTeamsManager().getBlacklistWithDescription(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")));
 			}
 		}
 	};
