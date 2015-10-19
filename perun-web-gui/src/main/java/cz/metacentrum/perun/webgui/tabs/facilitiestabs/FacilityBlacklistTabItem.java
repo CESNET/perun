@@ -11,8 +11,9 @@ import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.securityTeamsManager.GetBlacklist;
+import cz.metacentrum.perun.webgui.json.securityTeamsManager.GetBlacklistWithDescription;
 import cz.metacentrum.perun.webgui.model.Facility;
+import cz.metacentrum.perun.webgui.model.Pair;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -85,7 +86,7 @@ public class FacilityBlacklistTabItem implements TabItem, TabItemWithUrl {
 		VerticalPanel firstTabPanel = new VerticalPanel();
 		firstTabPanel.setSize("100%","100%");
 
-		final GetBlacklist securityTeams = new GetBlacklist(PerunEntity.FACILITY, facilityId);
+		final GetBlacklistWithDescription securityTeams = new GetBlacklistWithDescription(PerunEntity.FACILITY, facilityId);
 
 		// menu
 		TabMenu menu = new TabMenu();
@@ -97,12 +98,12 @@ public class FacilityBlacklistTabItem implements TabItem, TabItemWithUrl {
 			}
 		}, ButtonTranslation.INSTANCE.filterSecurityTeam());
 
-		CellTable<User> table;
+		CellTable<Pair<User,String>> table;
 		if (session.isPerunAdmin() || session.isSecurityAdmin()) {
-			table = securityTeams.getTable(new FieldUpdater<User, String>() {
+			table = securityTeams.getTable(new FieldUpdater<Pair<User,String>, String>() {
 				@Override
-				public void update(int index, User object, String value) {
-					session.getTabManager().addTab(new UserDetailTabItem(object));
+				public void update(int index, Pair<User,String> object, String value) {
+					session.getTabManager().addTab(new UserDetailTabItem(object.getLeft()));
 				}
 			});
 		} else {

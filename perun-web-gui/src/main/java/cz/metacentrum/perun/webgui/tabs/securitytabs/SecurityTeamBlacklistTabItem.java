@@ -14,8 +14,9 @@ import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.securityTeamsManager.GetBlacklist;
+import cz.metacentrum.perun.webgui.json.securityTeamsManager.GetBlacklistWithDescription;
 import cz.metacentrum.perun.webgui.json.securityTeamsManager.RemoveUserFromBlacklist;
+import cz.metacentrum.perun.webgui.model.Pair;
 import cz.metacentrum.perun.webgui.model.SecurityTeam;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.SecurityTabs;
@@ -91,7 +92,7 @@ public class SecurityTeamBlacklistTabItem implements TabItem, TabItemWithUrl {
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(securityTeam.getName())+": "+"blacklist");
 
 		// Get vos request
-		final GetBlacklist teams = new GetBlacklist(PerunEntity.SECURITY_TEAM, securityTeamId);
+		final GetBlacklistWithDescription teams = new GetBlacklistWithDescription(PerunEntity.SECURITY_TEAM, securityTeamId);
 
 		// Events for reloading when finished
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(teams);
@@ -114,7 +115,7 @@ public class SecurityTeamBlacklistTabItem implements TabItem, TabItemWithUrl {
 			@Override
 			public void onClick(ClickEvent event) {
 
-				final ArrayList<User> itemsToRemove = teams.getTableSelectedList();
+				final ArrayList<Pair<User,String>> itemsToRemove = teams.getTableSelectedList();
 				UiElements.showDeleteConfirm(itemsToRemove, new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
@@ -126,7 +127,7 @@ public class SecurityTeamBlacklistTabItem implements TabItem, TabItemWithUrl {
 							} else {
 								request = new RemoveUserFromBlacklist(securityTeamId, JsonCallbackEvents.disableButtonEvents(removeButton));
 							}
-							request.removeUserFromBlacklist(itemsToRemove.get(i).getId());
+							request.removeUserFromBlacklist(itemsToRemove.get(i).getLeft().getId());
 						}
 					}
 				});
@@ -145,13 +146,13 @@ public class SecurityTeamBlacklistTabItem implements TabItem, TabItemWithUrl {
 
 		final TabItem tab = this;
 
-		CellTable<User> table;
+		CellTable<Pair<User,String>> table;
 		if (session.isPerunAdmin()) {
 			// get the table with custom onclick
-			table = teams.getTable(new FieldUpdater<User, String>() {
+			table = teams.getTable(new FieldUpdater<Pair<User,String>, String>() {
 				@Override
-				public void update(int i, User user, String string) {
-					session.getTabManager().addTab(new UserDetailTabItem(user));
+				public void update(int i, Pair<User,String> pair, String string) {
+					session.getTabManager().addTab(new UserDetailTabItem(pair.getLeft()));
 					session.getTabManager().closeTab(tab, false);
 				}
 			});

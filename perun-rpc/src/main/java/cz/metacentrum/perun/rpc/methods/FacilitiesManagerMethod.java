@@ -591,11 +591,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
-					parms.readBoolean("onlyDirectAdmins"));
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+						ac.getFacilityById(parms.readInt("facility")));
 			}
 		}
 	},
@@ -662,13 +662,13 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
-					parms.readList("specificAttributes", String.class),
-					parms.readBoolean("allUserAttributes"),
-					parms.readBoolean("onlyDirectAdmins"));
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.readList("specificAttributes", String.class),
+						parms.readBoolean("allUserAttributes"),
+						parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+						ac.getFacilityById(parms.readInt("facility")));
 			}
 		}
 	},
@@ -889,16 +889,16 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public List<ContactGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("owner")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-				  ac.getOwnerById(parms.readInt("owner")));
+						ac.getOwnerById(parms.readInt("owner")));
 			} else if(parms.contains("user")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-				  ac.getUserById(parms.readInt("user")));
+						ac.getUserById(parms.readInt("user")));
 			} else if(parms.contains("group")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-				  ac.getGroupById(parms.readInt("group")));
+						ac.getGroupById(parms.readInt("group")));
 			} else if(parms.contains("facility")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-				  ac.getFacilityById(parms.readInt("facility")));
+						ac.getFacilityById(parms.readInt("facility")));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "owner or user or group or facility");
 			}
@@ -917,7 +917,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public ContactGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("facility") && parms.contains("name")) {
 				return ac.getFacilitiesManager().getFacilityContactGroup(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")), parms.readString("name"));
+						ac.getFacilityById(parms.readInt("facility")), parms.readString("name"));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and name");
 			}
@@ -1005,10 +1005,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * return assigned security teams for specific facility
+	 * Return assigned security teams for specific facility
 	 *
-	 * @param facility
-	 * @return assigned security teams fot given facility
+	 * @param facility int Facility <code>id</code>
+	 * @return List<SecurityTeam> assigned security teams fot given facility
+	 * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
 	 */
 	getAssignedSecurityTeams {
 		@Override
@@ -1020,8 +1021,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Assign given security team to given facility (means the facility trusts the security team)
 	 *
-	 * @param facility
-	 * @param securityTeam
+	 * @param facility int Facility <code>id</code>
+	 * @param securityTeam int SecurityTeam <code>id</code>
+	 * @throw SecurityTeamAlreadyAssignedException When SecurityTeam with given <code>id</code> is already assigned.
+	 * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
+	 * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
 	 */
 	assignSecurityTeam {
 		@Override
@@ -1035,8 +1039,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	/*#
 	 * Remove (Unassign) given security team from given facility
 	 *
-	 * @param facility
-	 * @param securityTeam
+	 * @param facility int Facility <code>id</code>
+	 * @param securityTeam int SecurityTeam <code>id</code>
+	 * @throw SecurityTeamNotAssignedException When SecurityTeam with given <code>id</code> is not assigned.
+	 * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
+	 * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
 	 */
 	removeSecurityTeam {
 		@Override

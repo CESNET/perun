@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -8,7 +9,6 @@ import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 import java.util.List;
-import java.util.Map;
 
 public enum SecurityTeamsManagerMethod implements ManagerMethod {
 
@@ -40,7 +40,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	 * Create SecurityTeam.
 	 *
 	 * @param securityTeam SecurityTeam Security team to create
-	 * @throws SecurityTeamExistsException When name of SecurityTeam is not unique.
+	 * @throw SecurityTeamExistsException When name of SecurityTeam is not unique.
 	 * @return SecurityTeam Newly create SecurityTeam with <code>id</code> set.
 	 */
 	createSecurityTeam {
@@ -53,12 +53,12 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Update existing SecurityTeam name and description by teams <code>id</id>.
+	 * Update existing SecurityTeam name and description by teams <code>id</code>.
 	 * Name must be <= 128 and must be unique.
 	 *
 	 * @param securityTeam SecurityTeam Security team <code>id</code>
-	 * @throws SecurityTeamNotExistsException When <code>id</code> of a team doesn't exists in Perun.
-	 * @throws SecurityTeamExistsException When new name of security team is not unique.
+	 * @throw SecurityTeamNotExistsException When <code>id</code> of a team doesn't exists in Perun.
+	 * @throw SecurityTeamExistsException When new name of security team is not unique.
 	 * @return SecurityTeam Team with updated values
 	 */
 	updateSecurityTeam {
@@ -99,7 +99,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get existing SecurityTeam by <code>id</id>.
+	 * Get existing SecurityTeam by <code>id</code>.
 	 *
 	 * @param id int Security team <code>id</code>
 	 * @return SecurityTeam Team with given <code>id</code>
@@ -112,7 +112,7 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get all managers (members) of SecurityTeam by its <code>id</id>.
+	 * Get all managers (members) of SecurityTeam by its <code>id</code>.
 	 *
 	 * @param securityTeam int Security team <code>id</code>
 	 * @return List<User> List of Users who are managers (members) of specified SecurityTeam.
@@ -240,21 +240,21 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get blacklisted users on selected Facility. Map consists of a union of all blacklists of
-	 * SecurityTeams assigned to selected Facility and a description why the users are on the blacklist.
+	 * Get blacklisted users on selected Facility. List consists of Pairs. Left is a item from union of all blacklists of
+	 * SecurityTeams assigned to selected Facility and right item is a description why the user is on the blacklist.
 	 *
 	 * @param facility int <code>id</code> of Facility to get blacklist for
-	 * @return Map<User,String> List of users blacklisted on selected facility.
+	 * @return List<Pair<User,String>> List of users blacklisted on selected facility.
 	 */
 	/*#
 	 * Get users blacklisted by selected SecurityTeam with a description why the users are on the blacklist.
 	 *
 	 * @param securityTeam int <code>id</code> of SecurityTeam to get blacklist for
-	 * @return Map<User,String> Blacklisted users with description
+	 * @return List<Pair<User,String>> Blacklisted users with description
 	 */
 	getBlacklistWithDescription {
 		@Override
-		public Map<User,String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+		public List<Pair<User,String>> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if (parms.contains("facility")) {
 				return ac.getSecurityTeamsManager().getBlacklistWithDescription(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
 			} else {

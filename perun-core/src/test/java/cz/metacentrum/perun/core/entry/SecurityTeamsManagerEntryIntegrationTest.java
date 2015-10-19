@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.SecurityTeamsManager;
@@ -772,28 +773,18 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpFacilities();
 		setUpBlacklists();
 
-		Map<User, String> expected = new TreeMap<>(
-			new Comparator<User>() {
+		List<Pair<User, String>> expected = new ArrayList<>();
+		expected.add(new Pair<>(u1, "reason"));
+		String nullString = null;
+		expected.add(new Pair<>(u2, nullString));
 
-			@Override
-			public int compare(User o1, User o2) {
-				return o1.compareTo(o2);
-			}
-		});
-		expected.put(u1, "reason");
-		expected.put(u2, null);
+		List<Pair<User, String>> actual = new ArrayList<>();
+		actual.addAll(securityTeamsManagerEntry.getBlacklistWithDescription(sess, st0));
 
-		Map<User, String> actual = new TreeMap<>(
-			new Comparator<User>() {
+		for (Pair<User,String> pair : actual) {
+			assertTrue("Blacklisted user with reason is not present ", expected.contains(pair));
+		}
 
-			@Override
-			public int compare(User o1, User o2) {
-				return o1.compareTo(o2);
-			}
-		});
-		actual.putAll(securityTeamsManagerEntry.getBlacklistWithDescription(sess, st0));
-                
-		assertEquals(expected, actual);
 	}
 
 	@Test(expected = SecurityTeamNotExistsException.class)
@@ -841,28 +832,18 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpFacilities();
 		setUpBlacklists();
 
-		Map<User, String> expected = new TreeMap<>(
-			new Comparator<User>() {
+		List<Pair<User, String>> expected = new ArrayList<>();
+		expected.add(new Pair<>(u1, "reason"));
+		String nullString = null;
+		expected.add(new Pair<>(u2, nullString));
 
-			@Override
-			public int compare(User o1, User o2) {
-				return o1.compareTo(o2);
-			}
-		});
-		expected.put(u1, "reason");
-		expected.put(u2, null);
+		List<Pair<User, String>> actual = new ArrayList<>();
+		actual.addAll(securityTeamsManagerEntry.getBlacklistWithDescription(sess, f1));
 
-		Map<User, String> actual = new TreeMap<>(
-			new Comparator<User>() {
+		for (Pair<User,String> pair : actual) {
+			assertTrue("Blacklisted user with reason is not present ", expected.contains(pair));
+		}
 
-			@Override
-			public int compare(User o1, User o2) {
-				return o1.compareTo(o2);
-			}
-		});
-		actual.putAll(securityTeamsManagerEntry.getBlacklistWithDescription(sess, f1));
-                
-		assertEquals(expected, actual);
 	}
 
 	@Test(expected = FacilityNotExistsException.class)

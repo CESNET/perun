@@ -1,14 +1,15 @@
 package cz.metacentrum.perun.core.bl;
 
+
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
@@ -197,25 +198,25 @@ public interface SecurityTeamsManagerBl {
 	 */
 	List<User> getBlacklist(PerunSession sess, Facility facility) throws InternalErrorException;
 
-        /**
+	/**
 	 * get blacklist of security team containing also description
 	 *
 	 * @param sess
 	 * @param securityTeam
-	 * @return map of blacklisted users by security team
+	 * @return List of pairs of blacklisted users by security team
 	 * @throws InternalErrorException
 	 */
-	Map<User, String> getBlacklistWithDescription(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
+	List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
 	 * get union of blacklists of all security teams assigned to facility containing also description
 	 *
 	 * @param sess
 	 * @param facility
-	 * @return map of blacklisted users for facility
+	 * @return List of pairs of blacklisted users for facility
 	 * @throws InternalErrorException
 	 */
-	Map<User, String> getBlacklistWithDescription(PerunSession sess, Facility facility) throws InternalErrorException;
+	List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * check if security team exists
