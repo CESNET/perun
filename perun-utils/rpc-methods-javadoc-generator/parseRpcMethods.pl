@@ -139,6 +139,10 @@ $objectExamples{"SecurityTeam"} = "{ \"id\" : 924 , \"name\" : \"CSIRT\" , \"des
 $objectExamples{"List&lt;SecurityTeam&gt;"} = $listPrepend . $objectExamples{"SecurityTeam"} . $listAppend;
 $objectExamples{"List<SecurityTeam>"} = $objectExamples{"List&lt;SecurityTeam&gt;"};
 
+$objectExamples{"Pair<User,String>"} = "{ \"left\" : " . $objectExamples{"User"} ." , \"right\" : \"Some reason\" }";
+$objectExamples{"List&lt;Pair&lt;User,String&gt;&gt;"} = $listPrepend . $objectExamples{"Pair<User,String>"} . $listAppend;
+$objectExamples{"List<Pair<User,String>>"} = $objectExamples{"List&lt;Pair&lt;User,String&gt;&gt;"};
+
 # SUB HELP
 # help info
 sub help {

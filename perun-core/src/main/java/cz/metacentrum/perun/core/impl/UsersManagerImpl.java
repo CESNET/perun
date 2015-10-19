@@ -34,8 +34,6 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
@@ -97,14 +95,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	};
 
-        protected static final ResultSetExtractor<Map<User,String>> USERBLACKLIST_EXTRACTOR = new ResultSetExtractor<Map<User,String>>(){
+        protected static final ResultSetExtractor<List<Pair<User,String>>> USERBLACKLIST_EXTRACTOR = new ResultSetExtractor<List<Pair<User,String>>>(){
             @Override
-            public Map<User,String> extractData(ResultSet rs) throws SQLException{
-                Map<User, String> result = new HashMap<>();
+            public List<Pair<User,String>> extractData(ResultSet rs) throws SQLException{
+                List<Pair<User, String>> result = new ArrayList<>();
 
                 int row = 0;
                 while(rs.next()){
-                    result.put(USER_MAPPER.mapRow(rs, row), rs.getString("description"));
+                    result.add(new Pair<User, String>(USER_MAPPER.mapRow(rs, row), rs.getString("description")));
                     row++;
                 }
 

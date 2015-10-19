@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
@@ -23,7 +24,6 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -250,9 +250,9 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 	}
 
         @Override
-	public Map<User, String> getBlacklistWithDescription(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException {
+	public List<Pair<User, String>> getBlacklistWithDescription(PerunSession sess, List<SecurityTeam> securityTeams) throws InternalErrorException {
 		try {
-			Map<User, String> result = new HashMap<>();
+			List<Pair<User, String>> result = new ArrayList<>();
 			for (SecurityTeam st : securityTeams) {
 
 				result = jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery +
