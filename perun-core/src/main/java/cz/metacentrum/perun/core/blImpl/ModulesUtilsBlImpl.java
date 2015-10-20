@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
@@ -22,12 +23,15 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +42,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	final static Logger log = LoggerFactory.getLogger(ServicesManagerBlImpl.class);
 	private PerunBl perunBl;
+	Map<String,String> perunNamespaces = null;
 
 	public static final String A_E_namespace_minGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID";
 	public static final String A_E_namespace_maxGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID";
@@ -481,14 +486,36 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return groupNameNamespaces;
 	}
 
-	public void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws WrongAttributeValueException {
+	public void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws InternalErrorException, WrongAttributeValueException {
 		if(groupNameAttribute == null) return;
-		if(reservedNamesForUnixGroups.contains(groupNameAttribute.getValue())) throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
+		checkPerunNamespacesMap();
+
+		String reservedNames = perunNamespaces.get(groupNameAttribute.getFriendlyName() + ":reservedNames");
+		if (reservedNames != null) {
+			List<String> reservedNamesList = Arrays.asList(reservedNames.split("\\s*,\\s*"));
+			if (reservedNamesList.contains(groupNameAttribute.getValue()))
+				throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
+		} else {
+			//Property not found in our attribute map, so we will use the default hardcoded values instead
+			if (reservedNamesForUnixGroups.contains(groupNameAttribute.getValue()))
+				throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
+		}
 	}
 
-	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException {
+	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws InternalErrorException, WrongAttributeValueException {
 		if(loginAttribute == null) return;
-		if(unpermittedNamesForUserLogins.contains(loginAttribute.getValue())) throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+		checkPerunNamespacesMap();
+
+		String unpermittedNames = perunNamespaces.get(loginAttribute.getFriendlyName() + ":reservedNames");
+		if (unpermittedNames != null) {
+			List<String> unpermittedNamesList = Arrays.asList(unpermittedNames.split("\\s*,\\s*"));
+			if (unpermittedNamesList.contains(loginAttribute.getValue()))
+				throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+		} else {
+			//Property not found in our attribute map, so we will use the default hardcoded values instead
+			if (unpermittedNamesForUserLogins.contains(loginAttribute.getValue()))
+				throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+		}
 	}
 
 	@Override
@@ -579,7 +606,48 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, "Bad shell attribute format " + shell);
 		}
+	}
 
+	public void checkAttributeRegex(Attribute attribute, String defaultRegex) throws InternalErrorException, WrongAttributeValueException {
+		if (attribute == null || attribute.getValue() == null) throw new InternalErrorException("Attribute or it's value is null.");
+		String attributeValue = (String) attribute.getValue();
+		checkPerunNamespacesMap();
+
+		String regex = perunNamespaces.get(attribute.getFriendlyName() + ":regex");
+		if (regex != null) {
+			//Check if regex is valid
+			try {
+				Pattern.compile(regex);
+			} catch (PatternSyntaxException e) {
+				log.error("Regex pattern \"" + regex + "\" from \"" + attribute.getFriendlyName() + ":regex\"" + " property of perun-namespaces.properties file is invalid.");
+				throw new InternalErrorException("Regex pattern \"" + regex + "\" from \"" + attribute.getFriendlyName() + ":regex\"" + " property of perun-namespaces.properties file is invalid.");
+			}
+			if(!attributeValue.matches(regex)) {
+				throw new WrongAttributeValueException(attribute, "Wrong format. Regex: \"" + regex +"\" expected for this attribute:");
+			}
+		} else {
+			//Regex property not found in our attribute map, so use the default hardcoded regex
+			if (defaultRegex == null) return;
+			if (!attributeValue.matches(defaultRegex)) {
+				throw new WrongAttributeValueException(attribute, "Wrong format. Regex: \"" + defaultRegex +"\" expected for this attribute:");
+			}
+		}
+	}
+
+	/**
+	 * Internal protected method.
+	 * Checks this.perunNamespaces map, which is always initialized as null.
+	 * If null, it tries to load the configuration into this map from a perun-namespaces.properties file.
+	 * If the file does not exist, it creates an empty HashMap, so it's not null anymore.
+	 */
+	protected void checkPerunNamespacesMap() {
+		if (perunNamespaces == null) {
+			try {
+				perunNamespaces = BeansUtils.getAllPropertiesFromCustomConfiguration("perun-namespaces.properties");
+			} catch (InternalErrorException e) {
+				perunNamespaces = new HashMap<>();
+			}
+		}
 	}
 
 	public PerunBl getPerunBl() {
