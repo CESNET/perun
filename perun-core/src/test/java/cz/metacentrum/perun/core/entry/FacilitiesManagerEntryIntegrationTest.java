@@ -62,7 +62,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	final Facility facility = new Facility(); // always in DB
-	final Owner owner = new Owner(); // always in DB and always own "facility" facility
+	private Owner owner = new Owner(); // always in DB and always own "facility" facility
 
 	private static final String CLASS_NAME = "FacilitiesManager.";
 
@@ -81,7 +81,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		owner.setName("FacilityManagerTestOwner");
 		owner.setContact("testingContact");
 		owner.setType(OwnerType.technical);
-		assertNotNull("unable to create owner",perun.getOwnersManager().createOwner(sess, owner));
+		owner = perun.getOwnersManager().createOwner(sess, owner);
+		assertNotNull("unable to create owner",owner);
 		perun.getFacilitiesManager().addOwner(sess, facility, owner);
 
 		facilitiesManagerEntry = perun.getFacilitiesManager();
@@ -979,7 +980,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
-		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertTrue(cg.equals(cgs.get(0)));
 		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
 	}
 
@@ -1111,7 +1112,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
-		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertTrue(cg.equals(cgs.get(0)));
 		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
 
 		facilitiesManagerEntry.removeFacilityContact(sess, cg);

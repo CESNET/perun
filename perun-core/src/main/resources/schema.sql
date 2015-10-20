@@ -1091,7 +1091,7 @@ create sequence facilities_id_seq;
 create sequence groups_id_seq;
 create sequence hosts_id_seq;
 create sequence members_id_seq;
-create sequence owners_id_seq;
+create sequence owners_id_seq start with 1 increment by 1;
 create sequence processing_rules_id_seq start with 10 increment by 1;
 create sequence resources_id_seq;
 create sequence routing_rules_id_seq start with 10 increment by 1;
