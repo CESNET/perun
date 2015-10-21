@@ -991,4 +991,16 @@ public interface UsersManager {
 	 * @return count of all users
 	 */
 	int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
+	 *
+	 * @param perunSession
+	 * @param userExtSource
+	 * 
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws UserExtSourceNotExistsException
+	 */
+	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, PrivilegeException, UserExtSourceNotExistsException;
 }
