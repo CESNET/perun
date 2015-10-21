@@ -210,7 +210,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
 			throw new PrivilegeException(sess, "getAllowedMembers");
 		}
 
@@ -223,7 +225,9 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
 			throw new PrivilegeException(sess, "getAllowedUsers");
 		}
 
