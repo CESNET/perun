@@ -1080,4 +1080,17 @@ public class UsersManagerEntry implements UsersManager {
 
 		return getUsersManagerBl().getUsersCount(sess);
 	}
+
+	@Override
+	public void updateUserExtSourceLastAccess(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException, PrivilegeException, UserExtSourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "updateUserExtSourceLastAccess");
+		}
+
+		getUsersManagerBl().updateUserExtSourceLastAccess(sess, userExtSource);
+	}
 }

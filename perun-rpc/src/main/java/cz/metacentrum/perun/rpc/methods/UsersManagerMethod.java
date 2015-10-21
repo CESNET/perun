@@ -1119,5 +1119,22 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 			return null;
 		}
+	},
+
+	/*#
+	 * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
+	 *
+	 * @param UserExtSource int UserExtSource <code>id</code>
+	 */
+	updateUserExtSourceLastAccess {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			ac.getUsersManager().updateUserExtSourceLastAccess(ac.getSession(),
+					ac.getUserExtSourceById(parms.readInt("userExtSource")));
+
+			return null;
+		}
 	};
 }
