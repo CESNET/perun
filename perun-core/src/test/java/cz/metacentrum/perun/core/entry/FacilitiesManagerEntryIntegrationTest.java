@@ -41,9 +41,11 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
@@ -53,6 +55,7 @@ import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
+import cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl;
 
 /**
  * Integration tests of FacilitiesManager
@@ -62,7 +65,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	final Facility facility = new Facility(); // always in DB
-	final Owner owner = new Owner(); // always in DB and always own "facility" facility
+	private Owner owner = new Owner(); // always in DB and always own "facility" facility
 
 	private static final String CLASS_NAME = "FacilitiesManager.";
 
@@ -81,7 +84,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		owner.setName("FacilityManagerTestOwner");
 		owner.setContact("testingContact");
 		owner.setType(OwnerType.technical);
-		assertNotNull("unable to create owner",perun.getOwnersManager().createOwner(sess, owner));
+		owner = perun.getOwnersManager().createOwner(sess, owner);
+		assertNotNull("unable to create owner",owner);
 		perun.getFacilitiesManager().addOwner(sess, facility, owner);
 
 		facilitiesManagerEntry = perun.getFacilitiesManager();
@@ -939,12 +943,15 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		String contactGroupName = "testContactGroup01";
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
-		cg.setUsers(new ArrayList<>(Arrays.asList(new RichUser(user, null))));
+		RichUser richUser = new RichUser(user, null);
+
+		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Arrays.asList(richUser), getMandatoryAttrs());
+		cg.setUsers(new ArrayList<>(users));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, user);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, user);
-		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertTrue(cg.equals(cgs.get(0)));
 		assertEquals(user.getId(), cgs.get(0).getUsers().get(0).getId());
 	}
 
@@ -979,7 +986,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
-		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertTrue(cg.equals(cgs.get(0)));
 		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
 	}
 
@@ -995,12 +1002,15 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
 		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
 		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
-		cg.setUsers(new ArrayList<>(Arrays.asList(new RichUser(user, null))));
+		RichUser richUser = new RichUser(user, null);
+
+		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Arrays.asList(richUser), getMandatoryAttrs());
+		cg.setUsers(new ArrayList<>(users));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 
 		ContactGroup cgReturned = facilitiesManagerEntry.getFacilityContactGroup(sess, facility, contactGroupName);
 
-		assertTrue(cg.equalsGroup(cgReturned));
+		assertTrue(cg.equals(cgReturned));
 
 		assertEquals(owner.getId(), cgReturned.getOwners().get(0).getId());
 		assertEquals(group.getId(), cgReturned.getGroups().get(0).getId());
@@ -1019,12 +1029,15 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
 		cg.setOwners(new ArrayList<>(Arrays.asList(owner)));
 		cg.setGroups(new ArrayList<>(Arrays.asList(group)));
-		cg.setUsers(new ArrayList<>(Arrays.asList(new RichUser(user, null))));
+		RichUser richUser = new RichUser(user, null);
+
+		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Arrays.asList(richUser), getMandatoryAttrs());
+		cg.setUsers(new ArrayList<>(users));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, facility);
 
-		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertTrue(cg.equals(cgs.get(0)));
 
 		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
 		assertEquals(group.getId(), cgs.get(0).getGroups().get(0).getId());
@@ -1063,12 +1076,15 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		String contactGroupName = "testContactGroup01";
 		ContactGroup cg = new ContactGroup(contactGroupName, facility);
-		cg.setUsers(new ArrayList<>(Arrays.asList(new RichUser(user, null))));
+		RichUser richUser = new RichUser(user, null);
+
+		List<RichUser> users = perun.getUsersManagerBl().convertUsersToRichUsersWithAttributes(sess, Arrays.asList(richUser), getMandatoryAttrs());
+		cg.setUsers(new ArrayList<>(users));
 		facilitiesManagerEntry.addFacilityContact(sess, cg);
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, user);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, user);
-		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertTrue(cg.equals(cgs.get(0)));
 		assertEquals(user.getId(), cgs.get(0).getUsers().get(0).getId());
 
 		facilitiesManagerEntry.removeFacilityContact(sess, cg);
@@ -1111,7 +1127,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getFacilitiesManagerBl().checkFacilityContactExists(sess, facility, contactGroupName, owner);
 
 		List<ContactGroup> cgs = facilitiesManagerEntry.getFacilityContactGroups(sess, owner);
-		assertTrue(cg.equalsGroup(cgs.get(0)));
+		assertTrue(cg.equals(cgs.get(0)));
 		assertEquals(owner.getId(), cgs.get(0).getOwners().get(0).getId());
 
 		facilitiesManagerEntry.removeFacilityContact(sess, cg);
@@ -1430,5 +1446,22 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			facilitiesManagerEntry.assignSecurityTeam(sess, facility, st);
 		}
 	}
+        
+        private List<AttributeDefinition> getMandatoryAttrs() throws InternalErrorException{
+		List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
+                        AttributesManager.NS_USER_ATTR_DEF + ":organization",
+                        AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+		List<AttributeDefinition> mandatoryAttrs = new ArrayList<>();
+
+		for(String attrName: MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT) {
+			try {
+				mandatoryAttrs.add(perun.getAttributesManagerBl().getAttributeDefinition(sess, attrName));
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("Some of mandatory attributes for users in facility contacts not exists.",ex);
+			}
+		}
+
+		return mandatoryAttrs;
+        }
 
 }
