@@ -7,6 +7,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -405,6 +406,11 @@ public class PerunBlImpl implements PerunBl {
 
 	public void setSearcherBl(SearcherBl searcherBl) {
 		this.searcherBl = searcherBl;
+	}
+
+	@Override
+	public boolean isPerunReadOnly() {
+		return BeansUtils.isPerunReadOnly();
 	}
 
 	/**

@@ -1,0 +1,61 @@
+-- Changelog file should have the newest version at the top, the oldest at the bottom.
+-- Versions must be separated by empty lines, version number should consist of three numbers with dots between, f.e. 3.0.1 is ok, 3.1 or 3.1.1.1 is not.
+-- Directly under version number should be version commands. They will be executed in the order they are written here.
+-- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
+
+3.1.31
+alter table blacklists add ( constraint BLLIST_PK primary key (security_team_id,user_id), constraint BLLIST_SECTEAM_FK foreign key (security_team_id) references security_teams (id), constraint BLLIST_USER_FK foreign key (user_id) references users(id) );
+create index IDX_FK_SEC_TEAM_FACS_SEC on security_teams_facilities (security_team_id);
+create index IDX_FK_SEC_TEAM_FACS_FAC on security_teams_facilities (facility_id);
+create index IDX_FK_BLLIST_USER on blacklists (user_id);
+create index IDX_FK_BLLIST_SECTEAM on blacklists (security_team_id);
+update configurations set value='3.1.31' where property='DATABASE VERSION';
+
+3.1.30
+drop index IDX_FK_SERV_OW;
+alter table services drop constraint SERV_OW_FK;
+alter table services drop column owner_id;
+update configurations set value='3.1.30' where property='DATABASE VERSION';
+
+3.1.29
+alter table authz add security_team_id integer;
+create table security_teams ( id integer not null, name nvarchar2(128) not null, description nvarchar2(1024), created_at timestamp default sysdate not null, created_by nvarchar2(1024) default user not null, modified_at timestamp default sysdate not null, modified_by nvarchar2(1024) default user not null, created_by_uid integer, modified_by_uid integer );
+create table security_teams_facilities ( security_team_id integer not null, facility_id integer not null, created_at timestamp default sysdate not null, created_by nvarchar2(1024) default user not null, modified_at timestamp default sysdate not null, modified_by nvarchar2(1024) default user not null, created_by_uid integer, modified_by_uid integer );
+create table blacklists ( security_team_id integer not null, user_id integer not null, description nvarchar2(1024), created_at timestamp default sysdate not null, created_by nvarchar2(1024) default user not null, modified_at timestamp default sysdate not null, modified_by nvarchar2(1024) default user not null, created_by_uid integer, modified_by_uid integer );
+create sequence SECURITY_TEAMS_ID_SEQ maxvalue 1.0000E+28;
+create index IDX_FK_AUTHZ_SEC_TEAM on authz(security_team_id);
+ALTER TABLE authz DROP CONSTRAINT AUTHZ_U2;
+drop index AUTHZ_U2;
+alter table authz add ( constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id,security_team_id) );
+alter table security_teams add ( constraint SEC_TEAM_PK primary key (id) );
+alter table security_teams_facilities add ( constraint SEC_TEAM_FACS_PK primary key (security_team_id, facility_id), constraint SEC_TEAM_FACS_SEC_FK foreign key (security_team_id) references security_teams(id), constraint SEC_TEAM_FACS_FAC_FK foreign key (facility_id) references facilities(id) );
+update configurations set value='3.1.29' where property='DATABASE VERSION';
+
+3.1.28
+ALTER TABLE facility_contacts DROP CONSTRAINT FACCONT_U2;
+DROP INDEX FACCONT_U2;
+ALTER TABLE facility_contacts RENAME COLUMN contact_group_name TO name;
+alter table facility_contacts add ( constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,name) );
+update configurations set value='3.1.28' where property='DATABASE VERSION';
+
+3.1.27
+create table "group_ext_sources" ( group_id integer not null, ext_source_id integer not null, created_at date default sysdate not null, created_by nvarchar2(1024) default user not null, modified_at date default sysdate not null, modified_by nvarchar2(1024) default user not null, created_by_uid integer, modified_by_uid integer );
+create index IDX_FK_GROUPSRC_SRC on group_ext_sources(ext_source_id);
+create index IDX_FK_GROUPSRC_GROUP on group_ext_sources(group_id);
+alter table group_ext_sources add ( constraint GROUPSRC_PK primary key (group_id,ext_source_id), constraint GROUPSRC_SRC_FK foreign key(ext_source_id) references ext_sources(id), constraint GROUPSRC_GROUPS_FK foreign key(group_id) references groups(id) );
+update configurations set value='3.1.27' where property='DATABASE VERSION';
+
+3.1.26
+create table facility_contacts (contact_group_name nvarchar2(128) not null,facility_id integer not null,owner_id integer,user_id integer,group_id integer);
+create index IDX_FK_FACCONT_FAC on facility_contacts(facility_id);
+create index IDX_FK_FACCONT_USR on facility_contacts(user_id);
+create index IDX_FK_FACCONT_OWN on facility_contacts(owner_id);
+create index IDX_FK_FACCONT_GRP on facility_contacts(group_id);
+alter table facility_contacts add (constraint FACCONT_FAC_FK foreign key (facility_id) references facilities(id), constraint FACCONT_USR_FK foreign key (user_id) references users(id), constraint FACCONT_OWN_FK foreign key (owner_id) references owners(id), constraint FACCONT_GRP_FK foreign key (group_id) references groups(id), constraint FACCONT_USR_OWN_GRP_CHK check (decode(user_id,null,0,1)+decode(owner_id,null,0,1)+decode(group_id,null,0,1) = 1), constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,contact_group_name));
+update configurations set value='3.1.26' where property='DATABASE VERSION';
+
+
+3.1.25
+alter table service_dependencies add constraint SRVDEP_U unique(exec_service_id,dependency_id);
+alter table service_denials add constraint SRVDEN_U unique(exec_service_id,facility_id,destination_id);
+update configurations set value='3.1.25' where property='DATABASE VERSION';

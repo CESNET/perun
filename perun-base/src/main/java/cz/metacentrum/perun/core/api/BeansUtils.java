@@ -36,6 +36,7 @@ public class BeansUtils {
 	private final static int MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE = 1000;
 	public final static String configurationsLocations = "/etc/perun/";
 	private static Properties properties;
+	private static Boolean isPerunReadOnly = null;
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -616,6 +617,77 @@ public class BeansUtils {
 			throw new InternalErrorException("Cannot read "+propertyFile+" file", e);
 		}
 
+	}
+
+	/**
+	 * True if this instance of perun is read only.
+	 * False if not.
+	 *
+	 * @return true or false (readOnly or not)
+	 */
+	public static boolean isPerunReadOnly() {
+		//Set only if variable isPerunReadOnly is not set already
+		if(isPerunReadOnly == null) {
+			String readOnly;
+			try {
+				readOnly = BeansUtils.getPropertyFromConfiguration("perun.readOnlyPerun");
+			} catch (Exception ex) {
+				//If something wierd happens, set this to normal configuration (not readOnly) and log this exception
+				log.error("Problem occures when trying to get readOnly configuration from perun properties file.", ex);
+				log.debug("Read only configuration not found, set to false.");
+				isPerunReadOnly = false;
+				return isPerunReadOnly;
+			}
+
+			if(readOnly == null) {
+				log.debug("Read only configuration is null, set to false.");
+				isPerunReadOnly = false;
+				return isPerunReadOnly;
+			}
+
+			if(readOnly.contains("true")) {
+				log.debug("Read only configuration found='{}', set to true.", readOnly);
+				isPerunReadOnly = true;
+				return isPerunReadOnly;
+			}
+
+			log.debug("Read only configuration found='{}', set to false.", readOnly);
+			isPerunReadOnly = false;
+			return isPerunReadOnly;
+		} else {
+			return isPerunReadOnly;
+		}
+	}
+
+	/**
+	 * True if DB initializator is enabled, false if not
+	 * Default is false
+	 *
+	 * @return true if enabled, false if disabled
+	 */
+	public static boolean initializatorEnabled() {
+		String initializatorEnabled;
+		try {
+			initializatorEnabled = BeansUtils.getPropertyFromConfiguration("perun.DBInitializatorEnabled");
+		} catch (Exception ex) {
+			//If something wierd happens, set this to normal configuration (not readOnly) and log this exception
+			log.error("Problem occures when trying to get DBInitializatorEnabled configuration from perun properties file.", ex);
+			log.debug("DBInitializatorEnabled configuration not found, set to false.");
+			return false;
+		}
+
+		if(initializatorEnabled == null) {
+			log.debug("DBInitializatorEnabled configuration is null, set to false.");
+			return false;
+		}
+
+		if(initializatorEnabled.contains("true")) {
+			log.debug("DBInitializatorEnabled configuration found='{}', set to true.", initializatorEnabled);
+			return true;
+		}
+
+		log.debug("Read only configuration found='{}', set to false.", initializatorEnabled);
+		return false;
 	}
 	
 	/**

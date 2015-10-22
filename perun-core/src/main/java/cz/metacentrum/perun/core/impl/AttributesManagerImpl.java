@@ -5091,8 +5091,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDisplayName("Last Synchronization timestamp");
 		attributes.add(attr);
 
+		if(perun.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
+
 		for(AttributeDefinition attribute : attributes) {
-			if(!checkAttributeExistsForInitialize(attribute)) createAttributeExistsForInitialize(attribute);
+			if(!checkAttributeExistsForInitialize(attribute)) {
+				if(perun.isPerunReadOnly()) {
+					throw new InternalErrorException("There is missing required attribute " + attribute + " and can't be created because this instance is read only.");
+				} else {
+					createAttributeExistsForInitialize(attribute);
+				}
+			}
 		}
 		log.debug("AttributesManagerImpl initialize ended.");
 	}

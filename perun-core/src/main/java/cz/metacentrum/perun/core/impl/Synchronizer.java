@@ -42,6 +42,11 @@ public class Synchronizer {
 	 * Method is triggered by Spring scheduler (every 5 minutes).
 	 */
 	public void synchronizeGroups() {
+		if(perunBl.isPerunReadOnly()) {
+			log.debug("This instance is just read only so skip synchronization of groups.");
+			return;
+		}
+
 		if (synchronizeGroupsRunning.compareAndSet(false, true)) {
 			try {
 				log.debug("Synchronizer starting synchronizing the groups");
@@ -68,6 +73,10 @@ public class Synchronizer {
 	 * Method is triggered by Spring scheduler (at midnight everyday).
 	 */
 	public void checkMembersState() {
+		if(perunBl.isPerunReadOnly()) {
+			log.debug("This instance is just read only so skip checking members states.");
+			return;
+		}
 
 		try {
 

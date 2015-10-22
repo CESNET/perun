@@ -1,0 +1,16 @@
+-- This is a comment.
+
+-- this is a comment, too.
+2.2.5
+DROP TABLE testInitMng
+
+-- I am a comment between versions.
+
+2.2.5
+ALTER TABLE testInitMng DROP text
+ALTER TABLE testInitMng ADD description varchar(255)
+
+2.2.4
+CREATE TABLE testInitMng (id int, text varchar(255) )
+INSERT INTO testInitMng (id, text) VALUES (4, 'random_text1')
+INSERT INTO testInitMng (id, text) VALUES (2, 'random_text2')
