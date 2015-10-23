@@ -17,6 +17,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesV2;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetRequiredAttributesV2;
 import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
@@ -38,19 +39,17 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Tab for setting attributes for specified services on facility
- *
- * also:
- *
+ * Tab for setting attributes for specified services on facility also:
  * FACILITY ADMIN / PERUN ADMIN - Create facility wizard - page 2
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
+public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -73,13 +72,15 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	private boolean hide = false;
 
 	private int lastServiceId = 0;
+	private int indexInList = 1;
 	private boolean lastCheckBoxValue = true;
 
 	/**
 	 * Creates a tab instance
+	 *
 	 * @param facility facility to get services from
 	 */
-	public FacilitySettingsTabItem(Facility facility){
+	public FacilitySettingsTabItem(Facility facility) {
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
@@ -89,67 +90,103 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	 *
 	 * @param facilityId
 	 */
-	public FacilitySettingsTabItem(int facilityId){
+	public FacilitySettingsTabItem(int facilityId) {
 		this.facilityId = facilityId;
-		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+			public void onFinished(JavaScriptObject jso) {
 				facility = jso.cast();
 			}
 		}).retrieveData();
 	}
 
-	public boolean isPrepared(){
+	public boolean isPrepared() {
 		return !(facility == null);
 	}
 
 	public void hideServicesSwitch(boolean hide) {
 		this.hide = hide;
 		lastCheckBoxValue = !hide;
+		indexInList = 0;
 	}
 
 	public Widget draw() {
 
 		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Service settings");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Service settings");
 
 		// content
 		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%","100%");
+		vp.setSize("100%", "100%");
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
 
 		// Get Attributes method
 		final GetRequiredAttributesV2 reqAttrs = new GetRequiredAttributesV2();
-
 		// get empty table
 		final CellTable<Attribute> table = reqAttrs.getEmptyTable();
 
+		final GetAttributesV2 attrs = new GetAttributesV2(new JsonCallbackEvents() {
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				List<Attribute> list = JsonUtils.<Attribute>jsoAsList(jso);
+				for (int i = 0; i < list.size(); i++) {
+					if (!list.get(i).getDefinition().equals("core")) {
+						reqAttrs.addToTable(list.get(i));
+					}
+				}
+				reqAttrs.sortTable();
+				((AjaxLoaderImage) table.getEmptyTableWidget()).loadingFinished();
+			}
+
+			@Override
+			public void onError(PerunError error) {
+				((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
+			}
+
+			@Override
+			public void onLoadingStart() {
+				reqAttrs.clearTable();
+			}
+
+		});
+		attrs.getFacilityAttributes(facilityId);
+
 		// ids to retrieve data from rpc
-		final Map<String,Integer> ids = new HashMap<String, Integer>();
-		ids.put("facility",facility.getId());
+		final Map<String, Integer> ids = new HashMap<String, Integer>();
+		ids.put("facility", facility.getId());
 
 		// service switcher checkbox
 		final CheckBox switchServicesChb = new CheckBox(WidgetTranslation.INSTANCE.offerAvailableServicesOnly(), false);
 		switchServicesChb.setValue(lastCheckBoxValue); // selected by default - unselected if switch hidden
 		switchServicesChb.setTitle(WidgetTranslation.INSTANCE.offerAvailableServicesOnlyTitle());
-
 		// services listbox
 		final ListBoxWithObjects<Service> servList = new ListBoxWithObjects<Service>();
+
 		// on change of service update table
 		servList.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
-				if (switchServicesChb.getValue() == true && servList.getSelectedIndex() > 0) {
-					// if service selected
-					ids.put("service",servList.getSelectedObject().getId());
-					lastServiceId = servList.getSelectedObject().getId();
-				} else if (switchServicesChb.getValue() == false) {
-					ids.put("service",servList.getSelectedObject().getId());
-					lastServiceId = servList.getSelectedObject().getId();
-				} else {
+				if (servList.getSelectedIndex() == 0) {
+					// show all facility attributes
+					attrs.retrieveData();
+					lastServiceId = 0;
+					indexInList = 0;
+					return;
+				}
+				if (switchServicesChb.getValue() == true && servList.getSelectedIndex() == 1) {
+					// show required attrs for all assigned services
 					ids.remove("service");
 					lastServiceId = 0;
+					indexInList = 1;
+				} else if ((switchServicesChb.getValue() == true && servList.getSelectedIndex() > 1)
+						|| (switchServicesChb.getValue() == false && servList.getSelectedIndex() > 0)) {
+					// show required attrs for selected service
+					// >0 when listing all services
+					// >1 when listing assigned services
+					ids.put("service", servList.getSelectedObject().getId());
+					lastServiceId = servList.getSelectedObject().getId();
 				}
+				// load req attrs
 				reqAttrs.setIds(ids);
 				reqAttrs.clearTable();
 				reqAttrs.retrieveData();
@@ -157,67 +194,81 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		});
 
 		// event which fills the listbox and call getRequiredAttributes
-		JsonCallbackEvents event = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				if (switchServicesChb.getValue() == false) servList.removeAllOption();
+		final JsonCallbackEvents event = new JsonCallbackEvents() {
+			public void onFinished(JavaScriptObject jso) {
 				servList.clear();
 				ArrayList<Service> srv = JsonUtils.jsoAsList(jso);
 				srv = new TableSorter<Service>().sortByName(srv);
-				for (int i=0; i<srv.size(); i++){
-					servList.addItem(srv.get(i)); // fill listbox
+				for (int i = 0; i < srv.size(); i++) {
+					servList.addItem(srv.get(i));
 				}
+				// no services available - load all facility attrs
 				if (servList.isEmpty()) {
-					servList.addItem("No service available");
-					((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
+					servList.addNotSelectedOption();
+					lastServiceId = 0;
+					indexInList = 0;
+					attrs.retrieveData();
 					return;
 				}
+				// offer only available
 				if (switchServicesChb.getValue() == true) {
+					servList.addNotSelectedOption();
 					servList.addAllOption();
 					if (lastServiceId == 0) {
-						servList.setSelectedIndex(0);
-						ids.remove("service"); // remove if present - we use all as default
-					} else {
-						for (Service s : servList.getAllObjects()) {
-							if (s.getId() == lastServiceId) {
-								servList.setSelected(s, true);
-								ids.put("service", lastServiceId);
-								break;
-							}
+						if (indexInList == 1) {
+							// all
+							servList.setSelectedIndex(1);
+						} else if (indexInList == 0) {
+							// not selected - load all fac attrs
+							servList.setSelectedIndex(0);
+							attrs.retrieveData();
+							return;
 						}
 					}
 				} else {
+					// offer all services
+					servList.addNotSelectedOption();
 					if (lastServiceId == 0) {
-						ids.put("service", servList.getSelectedObject().getId());
-					} else {
-						for (Service s : servList.getAllObjects()) {
-							if (s.getId() == lastServiceId) {
-								servList.setSelected(s, true);
-								ids.put("service", lastServiceId);
-								break;
-							}
+						// if no service selected, load all fac attrs
+						servList.setSelectedIndex(0);
+						attrs.retrieveData();
+						return;
+					}
+				}
+
+				// if some service was selected
+				if (lastServiceId != 0) {
+					for (Service s : servList.getAllObjects()) {
+						if (s.getId() == lastServiceId) {
+							servList.setSelected(s, true);
+							ids.put("service", lastServiceId);
+							break;
 						}
 					}
 				}
+				// get required attrs for service
 				reqAttrs.clearTable();
 				reqAttrs.setIds(ids);
 				reqAttrs.retrieveData();
 			}
+
 			@Override
 			public void onError(PerunError error) {
 				servList.clear();
-				((AjaxLoaderImage)table.getEmptyTableWidget()).loadingError(error);
+				((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
 				servList.addItem("Error while loading");
 			}
+
 			@Override
 			public void onLoadingStart() {
 				servList.removeAllOption();
+				servList.removeNotSelectedOption();
 				servList.clear();
 				servList.addItem("Loading...");
 			}
 		};
-
 		final GetServices allServices = new GetServices(event);
-		final GetFacilityAssignedServices assignedServices = new GetFacilityAssignedServices(facility.getId(),event);
+		final GetFacilityAssignedServices assignedServices = new GetFacilityAssignedServices(facility.getId(), event);
 
 		// if hide and unchecked or just unchecked
 		if (!lastCheckBoxValue) {
@@ -247,7 +298,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 			public void onClick(ClickEvent event) {
 				ArrayList<Attribute> list = reqAttrs.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					Map<String, Integer> ids = new HashMap<String,Integer>();
+					Map<String, Integer> ids = new HashMap<String, Integer>();
 					ids.put("facility", facilityId);
 					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
 					request.removeAttributes(ids, list);
@@ -256,7 +307,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		});
 
 		// switch serv checkbox
-		switchServicesChb.addClickHandler(new ClickHandler(){
+		switchServicesChb.addClickHandler(new ClickHandler() {
 			// load proper set of services on click
 			public void onClick(ClickEvent event) {
 				lastCheckBoxValue = switchServicesChb.getValue();
@@ -361,7 +412,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
 		session.getUiElements().getBreadcrumbs().setLocation(facility, "Services settings", getUrlWithParameters());
-		if(facility != null) {
+		if (facility != null) {
 			session.setActiveFacility(facility);
 		} else {
 			session.setActiveFacilityId(facilityId);
@@ -380,8 +431,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 
 	public final static String URL = "settings";
 
-	public String getUrl()
-	{
+	public String getUrl() {
 		return URL;
 	}
 
