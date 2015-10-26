@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -270,7 +271,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		candidate.setTitleAfter("");
 		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
 		candidate.setUserExtSource(ues);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<String, String>());
 
 		List<User> serviceUserOwners = new ArrayList<>();
 		serviceUserOwners.add(perun.getUsersManagerBl().getUserByMember(sess, createdMember));
@@ -314,8 +315,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		final Member m = membersManagerEntry.getMemberById(sess,
 				createdMember.getId());
 
-		assertNotNull("unable to get member",m);
-		assertEquals("returned member is not same as stored",createdMember.getId(), m.getId());
+		assertNotNull("unable to get member", m);
+		assertEquals("returned member is not same as stored", createdMember.getId(), m.getId());
 
 	}
 
@@ -333,8 +334,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		System.out.println(CLASS_NAME + "getMemberByExtAuth");
 
 		final Member expectedMember = membersManagerEntry.getMemberByUserExtSource(sess, createdVo, ues);
-		assertNotNull("unable to return member by Ext auth",expectedMember);
-		assertEquals("created and returned member is not the same",createdMember, expectedMember);
+		assertNotNull("unable to return member by Ext auth", expectedMember);
+		assertEquals("created and returned member is not the same", createdMember, expectedMember);
 
 	}
 
@@ -408,8 +409,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		System.out.println(CLASS_NAME + "getMemberVo");
 
 		Vo vo = membersManagerEntry.getMemberVo(sess, createdMember);
-		assertNotNull("unable to get VO by member",vo);
-		assertEquals("saved and returned member's Vo is not the same",vo , createdVo);
+		assertNotNull("unable to get VO by member", vo);
+		assertEquals("saved and returned member's Vo is not the same", vo, createdVo);
 
 	}
 
@@ -476,8 +477,8 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		final User u = perun.getUsersManager().getUserByMember(sess, createdMember);
 		List<Member> members = membersManagerEntry.getMembersByUser(sess, u);
-		assertNotNull("unable to return members by user",members);
-		assertTrue("should return 1 member by user",members.contains(createdMember));
+		assertNotNull("unable to return members by user", members);
+		assertTrue("should return 1 member by user", members.contains(createdMember));
 
 	}
 
@@ -883,6 +884,135 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertNotNull("membership attribute value must be set", membershipAttributeFirst.getValue());
 
 		// Try to extend membership
+		assertFalse(membersManagerEntry.canExtendMembership(sess, createdMember));
+	}
+
+
+	@Test
+	public void canExtendMembershipInGracePeriodRelativeDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriodRelativeDate");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "+6m");
+		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set expiration date to tomorrow (one day after grace period begun)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 1);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Attribute mebershipExpiration = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
+		mebershipExpiration.setValue(format.format(today.getTime()));
+		attributesManagerEntry.setAttribute(sess, createdMember, mebershipExpiration);
+
+		// Check if enviroment is set properly
+		mebershipExpiration = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		assertNotNull("membership attribute must be set", mebershipExpiration);
+		assertNotNull("membership attribute value must be set", mebershipExpiration.getValue());
+		extendMembershipRulesAttribute = attributesManagerEntry.getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules");
+		assertNotNull("membership rules must be set", extendMembershipRulesAttribute);
+		assertNotNull("membership rules value must be set", extendMembershipRulesAttribute.getValue());
+
+		// Check if membership can be extended
+		assertTrue(membersManagerEntry.canExtendMembership(sess, createdMember));
+	}
+
+	@Test
+	public void canExtendMembershipOutOfGracePeriodRelativeDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipOutOfGracePeriodRelativeDate");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "+6m");
+		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set expiration date to three days after. (one day untill grace period begins)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 3);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Attribute mebershipExpiration = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
+		mebershipExpiration.setValue(format.format(today.getTime()));
+		attributesManagerEntry.setAttribute(sess, createdMember, mebershipExpiration);
+
+		// Check if enviroment is set properly
+		mebershipExpiration = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		assertNotNull("membership attribute must be set", mebershipExpiration);
+		assertNotNull("membership attribute value must be set", mebershipExpiration.getValue());
+		extendMembershipRulesAttribute = attributesManagerEntry.getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules");
+		assertNotNull("membership rules must be set", extendMembershipRulesAttribute);
+		assertNotNull("membership rules value must be set", extendMembershipRulesAttribute.getValue());
+
+		// Check if membership can be extended
+		assertFalse(membersManagerEntry.canExtendMembership(sess, createdMember));
+	}
+
+	@Test
+	public void canExtendMembershipInGracePeriodAbsoluteDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriodAbsoluteDate");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set expiration date to tomorrow (one day after grace period begun)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 1);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Attribute mebershipExpiration = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
+		mebershipExpiration.setValue(format.format(today.getTime()));
+		attributesManagerEntry.setAttribute(sess, createdMember, mebershipExpiration);
+
+		// Check if enviroment is set properly
+		mebershipExpiration = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		assertNotNull("membership attribute must be set", mebershipExpiration);
+		assertNotNull("membership attribute value must be set", mebershipExpiration.getValue());
+		extendMembershipRulesAttribute = attributesManagerEntry.getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules");
+		assertNotNull("membership rules must be set", extendMembershipRulesAttribute);
+		assertNotNull("membership rules value must be set", extendMembershipRulesAttribute.getValue());
+
+		// Check if membership can be extended
+		assertTrue(membersManagerEntry.canExtendMembership(sess, createdMember));
+	}
+
+	@Test
+	public void canExtendMembershipOutOfGracePeriodAbsoluteDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipOutOfGracePeriodAbsoluteDate");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set expiration date to three days after. (one day untill grace period begins)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 3);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Attribute mebershipExpiration = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
+		mebershipExpiration.setValue(format.format(today.getTime()));
+		attributesManagerEntry.setAttribute(sess, createdMember, mebershipExpiration);
+
+		// Check if enviroment is set properly
+		mebershipExpiration = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		assertNotNull("membership attribute must be set", mebershipExpiration);
+		assertNotNull("membership attribute value must be set", mebershipExpiration.getValue());
+		extendMembershipRulesAttribute = attributesManagerEntry.getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules");
+		assertNotNull("membership rules must be set", extendMembershipRulesAttribute);
+		assertNotNull("membership rules value must be set", extendMembershipRulesAttribute.getValue());
+
+		// Check if membership can be extended
 		assertFalse(membersManagerEntry.canExtendMembership(sess, createdMember));
 	}
 
