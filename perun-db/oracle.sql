@@ -1,5 +1,4 @@
--- database version 3.1.31 (don't forget to update insert statement at the end of file)
-
+-- database version 3.1.32 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -28,8 +27,8 @@ create table users (
 	first_name nvarchar2(64),
 	last_name nvarchar2(64),
 	middle_name nvarchar2(64),
-	title_before nvarchar2(20),
-	title_after nvarchar2(20),
+	title_before nvarchar2(40),
+	title_after nvarchar2(40),
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -1724,6 +1723,5 @@ constraint pwdreset_pk primary key (id),
 constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
-
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.31');
+insert into configurations values ('DATABASE VERSION','3.1.32');

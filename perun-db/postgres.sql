@@ -1,4 +1,4 @@
--- database version 3.1.31 (don't forget to update insert statement at the end of file)
+-- database version 3.1.32 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -20,8 +20,8 @@ create table "users" (
 	first_name varchar(64),   -- christening name
 	last_name varchar(64),    -- family name
 	middle_name varchar(64),   -- second name
-	title_before varchar(20),  -- academic degree used before name
-	title_after varchar(20),   -- academic degree used after name
+	title_before varchar(40),  -- academic degree used before name
+	title_after varchar(40),   -- academic degree used after name
 	created_at timestamp  default now() not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now() not null,
@@ -1773,4 +1773,4 @@ grant all on security_teams_facilities to perun;
 grant all on blacklists to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.31');
+insert into configurations values ('DATABASE VERSION','3.1.32');

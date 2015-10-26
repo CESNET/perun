@@ -3,6 +3,11 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.32
+alter table users alter column title_before varchar(40);
+alter table users alter column title_after varchar(40);
+update configurations set value='3.1.32' where property='DATABASE VERSION';
+
 3.1.31
 alter table blacklists add constraint bllist_pk primary key (security_team_id,user_id);
 alter table blacklists add constraint bllist_secteam_fk foreign key (security_team_id) references security_teams (id);
