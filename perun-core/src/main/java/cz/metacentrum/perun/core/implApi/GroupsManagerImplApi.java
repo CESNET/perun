@@ -5,6 +5,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupOperations;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -169,6 +170,15 @@ public interface GroupsManagerImplApi {
 	 */
 	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException;
 
+	/**
+	 * Remove all members from group by their Membership type.
+	 * 
+	 * @param perunSession perun session
+	 * @param group source group
+	 * @param membershipType membership type
+	 */
+	void removeMembersByMembershipType(PerunSession perunSession, Group group, MembershipType membershipType);
+	
 	/** Return groups by theirs id.
 	 *
 	 * @param perunSession
@@ -236,7 +246,7 @@ public interface GroupsManagerImplApi {
 	List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
 
 	/**
-	 * Return direct group members.
+	 * Returns all records of direct group members. Excluded members are not taken into account.
 	 *
 	 * @param sess perun session
 	 * @param group group to get direct members from
@@ -246,6 +256,18 @@ public interface GroupsManagerImplApi {
 	 */
 	List<Member> getDirectGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
 
+	/**
+	 * Returns all members specified by:
+	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
+	 * 2) all INDIRECT, which are not EXCLUDED - as INDIRECT
+	 * 3) all DIRECT, which are EXCLUDED - as EXCLUDED 
+	 * 
+	 * @param sess perun session
+	 * @param group group to get members from
+	 * @return list of members
+	 */
+	List<Member> getGroupMembersWithContext(PerunSession sess, Group group) throws InternalErrorException;
+	
 	/**
 	 * Get all group members ignoring theirs status.
 	 *
@@ -515,10 +537,10 @@ public interface GroupsManagerImplApi {
 	 * @param sess perun session
 	 * @param resultGroup result group
 	 * @param operandGroup operand group
-	 * @param relationType type of relation
+	 * @param operation type of relation
 	 * @throws InternalErrorException if there is no relation of the given type between the groups
 	 */
-	void removeGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, int relationType) throws InternalErrorException;
+	void removeGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, GroupOperations operation) throws InternalErrorException;
 
 	/**
 	 * Removes all relations of this result group.
@@ -534,9 +556,9 @@ public interface GroupsManagerImplApi {
 	 * @param sess perun session
 	 * @param resultGroup group to which members are added
 	 * @param operandGroup group from which members are taken
-	 * @param operationId operation id
+	 * @param operation type of relation
 	 */
-	void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, int operationId) throws InternalErrorException;
+	void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, GroupOperations operation) throws InternalErrorException;
 
 	/**
 	 * Checks if relation between groups exists. It checks both ways.
@@ -563,7 +585,7 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param groupId group id
-	 * @return list of pairs where LEFT is group id and RIGHT is relation id.
+	 * @return list of pairs where LEFT is group id and RIGHT is operation.
 	 */
-	List<Pair<Integer, Integer>> getGroupRelations(PerunSession sess, int groupId);
+	List<Pair<Integer, GroupOperations>> getGroupRelations(PerunSession sess, int groupId);
 }

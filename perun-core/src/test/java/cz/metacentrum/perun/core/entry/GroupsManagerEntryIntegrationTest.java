@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichGroup;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -892,6 +893,22 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void getGroupMembersStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupMembers");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+
+		List<Member> members = groupsManager.getGroupMembers(sess, group, Status.VALID);
+		assertTrue(members.size() == 1);
+		assertTrue(members.contains(member));
+	}
+
+
+	@Test
 	public void getGroupMembersInBiggerGroupStructure() throws Exception {
 		System.out.println("GroupsManager.getGroupMembersInBiggerGroupStructure");
 
@@ -967,6 +984,44 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue(groupsManager.getGroupMembers(sess, group21).size() == 0);
 		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
 		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 1);
+	}
+	
+	@Test
+	public void getGroupMembersWithContext() throws Exception {
+		System.out.println("GroupsManager.getGroupMembersWithContext");
+
+		vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, vo, group2);
+		groupsManager.createGroup(sess, vo, group3);
+
+		Member direct = setUpMember(vo);
+		Member directAsExcluded = setUpMember(vo);
+		Member randomExcluded = setUpMember(vo);
+		Member indirect = setUpMember(vo);
+		Member indirectAsExcluded = setUpMember(vo);
+		
+		groupsManager.addMember(sess, group, direct);
+		groupsManager.addMember(sess, group, directAsExcluded);
+		groupsManager.addMember(sess, group2, directAsExcluded);
+		groupsManager.addMember(sess, group2, randomExcluded);
+		groupsManager.addMember(sess, group3, indirect);
+		groupsManager.addMember(sess, group3, indirectAsExcluded);
+		groupsManager.addMember(sess, group2, indirectAsExcluded);
+		
+		groupsManager.groupDifference(sess, group, group2);
+		groupsManager.groupUnion(sess, group, group3);
+		
+		List<Member> result = groupsManagerBl.getGroupMembersWithContext(sess, group);
+		
+		assertTrue(result.size() == 3);
+		assertTrue(result.contains(direct));
+		assertTrue(result.contains(directAsExcluded) 
+				&& result.get(result.indexOf(directAsExcluded)).getMembershipType() == MembershipType.EXCLUDED);
+		assertFalse(result.contains(randomExcluded));
+		assertTrue(result.contains(indirect)
+				&& result.get(result.indexOf(indirect)).getMembershipType() == MembershipType.INDIRECT);
+		assertFalse(result.contains(indirectAsExcluded));
 	}
 
 	@Test

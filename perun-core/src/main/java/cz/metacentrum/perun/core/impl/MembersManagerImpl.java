@@ -40,6 +40,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		"members.created_at as members_created_at, members.created_by as members_created_by, members.modified_by as members_modified_by, members.modified_at as members_modified_at, " +
 		"members.created_by_uid as members_created_by_uid, members.modified_by_uid as members_modified_by_uid";
 
+	protected final static String memberMappingSelectQueryWithMemTypeAndSourceGroupId = memberMappingSelectQuery + 
+			", groups_members.membership_type AS membership_type, groups_members.source_group_id AS source_group_id"; 
+	
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 

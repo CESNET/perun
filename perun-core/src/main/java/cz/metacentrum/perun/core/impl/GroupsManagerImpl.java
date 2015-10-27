@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.GroupOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -98,10 +99,11 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	};
 
-	private static final RowMapper<Pair<Integer, Integer>> GROUP_RELATIONS_MAPPER = new RowMapper<Pair<Integer, Integer>>() {
-		public Pair<Integer, Integer> mapRow(ResultSet rs, int i) throws SQLException {
-			Pair<Integer, Integer> pair = new Pair<>();
-			pair.put(rs.getInt("result_gid"), rs.getInt("operation_id"));
+	private static final RowMapper<Pair<Integer, GroupOperations>> GROUP_RELATIONS_MAPPER = new RowMapper<Pair<Integer, GroupOperations>>() {
+		public Pair<Integer, GroupOperations> mapRow(ResultSet rs, int i) throws SQLException {
+			Pair<Integer, GroupOperations> pair = new Pair<>();
+			GroupOperations operation = GroupOperations.getGroupOperations(rs.getInt("operation_id"));
+			pair.put(rs.getInt("result_gid"), operation);
 			return pair;
 		}
 	};
@@ -286,11 +288,11 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type AS membership_type, " +
-					"groups_members.source_group_id AS source_group_id FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+			return jdbc.query("SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId +
+					" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
 					" WHERE groups_members.group_id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Member>();
@@ -328,8 +330,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public List<Member> getDirectGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type AS membership_type," +
-					" groups_members.source_group_id AS source_group_id FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+			return jdbc.query("SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId + 
+					" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
 					" WHERE groups_members.group_id=? AND groups_members.membership_type=?", MembersManagerImpl.MEMBER_MAPPER, group.getId(), MembershipType.DIRECT.getCode());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -337,6 +339,44 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
+
+	@Override
+	public List<Member> getGroupMembersWithContext(PerunSession sess, Group group) throws InternalErrorException {
+		try {
+			return jdbc.query(
+				"SELECT * FROM " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId + 
+						" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id NOT IN " +
+							"(SELECT member_id FROM groups_members " +
+							"WHERE group_id = ? AND membership_type = ?))" +
+				"UNION " + 
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId +
+						" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id NOT IN " +
+							"(SELECT member_id FROM groups_members " +
+							"WHERE group_id = ? AND membership_type = ?))" +
+				"UNION " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId +
+						" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id IN " +
+							"(SELECT member_id FROM groups_members " +
+							"WHERE group_id = ? AND membership_type = ?))", 
+					MembersManagerImpl.MEMBER_MAPPER, 
+					group.getId(), MembershipType.DIRECT.getCode(), 
+					group.getId(), MembershipType.EXCLUDED.getCode(), 
+					group.getId(), MembershipType.INDIRECT.getCode(), 
+					group.getId(), MembershipType.EXCLUDED.getCode(), 
+					group.getId(), MembershipType.EXCLUDED.getCode(), 
+					group.getId(), MembershipType.DIRECT.getCode() 
+			);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 
 	public List<Group> getGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
@@ -489,7 +529,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException {
 		try {
-			return 1 <= jdbc.queryForInt("select count(1) from groups_members where group_id=? and member_id=? and membershipType!=?", group.getId(), member.getId(), MembershipType.EXCLUDED.getCode());
+			return 1 <= jdbc.queryForInt("select count(1) from groups_members where group_id=? and member_id=? and membership_type!=?", group.getId(), member.getId(), MembershipType.EXCLUDED.getCode());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -520,6 +560,11 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new ConsistencyErrorException(member + " and " + group + " have " + ret + " rows in groups_members table");
 		}
 
+	}
+
+	@Override
+	public void removeMembersByMembershipType(PerunSession perunSession, Group group, MembershipType membershipType) {
+		jdbc.update("DELETE FROM groups_members WHERE group_id = ? AND membership_type = ?", group.getId(), membershipType.getCode());
 	}
 
 	@Override
@@ -638,8 +683,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		// get app ids for all applications
 		return jdbc.query("select id from application where group_id=?", new RowMapper<Integer>() {
 			@Override
-			public Integer mapRow(ResultSet rs, int arg1)
-					throws SQLException {
+			public Integer mapRow(ResultSet rs, int arg1) throws SQLException {
 				return rs.getInt("id");
 			}
 		}, group.getId());
@@ -664,9 +708,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public void removeGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, int relationType) throws InternalErrorException {
+	public void removeGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, GroupOperations operation) throws InternalErrorException {
 		if (0 == jdbc.update("DELETE FROM groups_groups WHERE result_gid = ? AND operand_gid = ? AND operation_id = ?",
-				resultGroup.getId(), operandGroup.getId(), relationType)) {
+				resultGroup.getId(), operandGroup.getId(), operation.getCode())) {
 			throw new InternalErrorException("There is no relation of this type between " + resultGroup + " and " + operandGroup);
 		}
 	}
@@ -674,14 +718,13 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	@Override
 	public void removeResultGroupRelations(PerunSession sess, Group resultGroup) {
 		jdbc.update("DELETE FROM groups_groups WHERE result_gid = ?", resultGroup.getId());
-		jdbc.update("DELETE FROM groups_members WHERE group_id = ? AND membership_type != ?", resultGroup.getId(), MembershipType.DIRECT.getCode());
 	}
 
 	@Override
-	public void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, int operationId) throws InternalErrorException {
+	public void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, GroupOperations operation) throws InternalErrorException {
 		jdbc.update("INSERT INTO groups_groups(result_gid, operand_gid, operation_id, created_at, created_by, " +
 				"modified_at, modified_by) VALUES(?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?)",
-				resultGroup.getId(), operandGroup.getId(), operationId, sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor());
+				resultGroup.getId(), operandGroup.getId(), operation.getCode(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor());
 	}
 
 	@Override
@@ -722,7 +765,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Pair<Integer, Integer>> getGroupRelations(PerunSession sess, int groupId) {
+	public List<Pair<Integer, GroupOperations>> getGroupRelations(PerunSession sess, int groupId) {
 		return jdbc.query("SELECT result_gid, operation_id FROM groups_groups WHERE operand_gid=?", GROUP_RELATIONS_MAPPER, groupId);
 	}
 }

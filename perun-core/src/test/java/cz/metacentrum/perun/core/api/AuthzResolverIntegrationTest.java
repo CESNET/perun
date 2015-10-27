@@ -285,7 +285,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	}
 
-	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException {
+	private Member createSomeMember(final Vo createdVo) throws AlreadyMemberException, GroupOperationsException, WrongAttributeValueException, InternalErrorException, ExtendMembershipException, WrongReferenceAttributeValueException {
 		final Candidate candidate = setUpCandidate();
 		final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
 		return createdMember;
