@@ -16,10 +16,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.attributesManager.FillAttributes;
-import cz.metacentrum.perun.webgui.json.attributesManager.GetRequiredAttributesV2;
-import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
-import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
+import cz.metacentrum.perun.webgui.json.attributesManager.*;
 import cz.metacentrum.perun.webgui.json.resourcesManager.GetAssignedServices;
 import cz.metacentrum.perun.webgui.json.servicesManager.GetServices;
 import cz.metacentrum.perun.webgui.model.Attribute;
@@ -38,6 +35,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,6 +68,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 	private Service service;
 
 	private int lastSelectedService = 0;
+	private int indexInList = 1; // default all
 	private boolean lastOfferAvailableOnly = true;
 
 	/**
@@ -138,8 +137,32 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// puts first table
 		final CellTable<Attribute> table = resAttrs.getEmptyTable();
-
 		final ListBoxWithObjects<Service> servList = new ListBoxWithObjects<Service>();
+
+		final GetAttributesV2 attrs = new GetAttributesV2(new JsonCallbackEvents() {
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				List<Attribute> list = JsonUtils.<Attribute>jsoAsList(jso);
+				for (int i = 0; i < list.size(); i++) {
+					if (!list.get(i).getDefinition().equals("core")) {
+						resAttrs.addToTable(list.get(i));
+					}
+				}
+				resAttrs.sortTable();
+				((AjaxLoaderImage) table.getEmptyTableWidget()).loadingFinished();
+			}
+
+			@Override
+			public void onError(PerunError error) {
+				((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
+			}
+
+			@Override
+			public void onLoadingStart() {
+				resAttrs.clearTable();
+			}
+
+		});
 
 		// switch between assigned and all
 		final CheckBox chb = new CheckBox();
@@ -152,7 +175,6 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 			@Override
 			public void onFinished(JavaScriptObject jso){
 				// clear services list
-				if (chb.getValue() == false) servList.removeAllOption();
 				servList.clear();
 				// process services
 				ArrayList<Service> srv = JsonUtils.jsoAsList(jso);
@@ -161,31 +183,46 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 					servList.addItem(srv.get(i)); // fill listbox
 				}
 				if (servList.isEmpty()) {
-					servList.addItem("No service available");
-					((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
+					servList.addNotSelectedOption();
+					lastSelectedService = 0;
+					indexInList = 0;
+					attrs.retrieveData();
 					return;
 				}
-				if (lastSelectedService != 0) {
-					if (chb.getValue()==true) servList.addAllOption();
+
+				if(lastSelectedService == 0 && chb.getValue() == true){
+					servList.addNotSelectedOption();
+					servList.addAllOption();
+					if(indexInList == 0){
+						servList.setSelectedIndex(0);
+						attrs.retrieveData();
+						return;
+					}else if (indexInList == 1){
+						servList.setSelectedIndex(1);
+					}
+				}else if(lastSelectedService == 0 && chb.getValue() == false){
+					servList.addNotSelectedOption();
+					servList.setSelectedIndex(0);
+					attrs.retrieveData();
+					return;
+				}else if(lastSelectedService != 0) {
+					if (chb.getValue()==true){
+						servList.addNotSelectedOption();
+						servList.addAllOption();
+					}else {
+						servList.addNotSelectedOption();resAttrs.setIds(ids);
+					}
 					for (Service s : servList.getAllObjects()) {
 						if (s.getId() == lastSelectedService) {
 							// last time was service selected
 							servList.setSelected(s, true);
 							ids.put("service", s.getId());
+							break;
 						}
 					}
-				} else {
-					// last time service was not selected
-					if (chb.getValue()==true) { // for available serv. only select default all
-						servList.addAllOption();
-						servList.setSelectedIndex(0);
-						ids.remove("service");
-					} else { // for all services select first
-						ids.put("service", servList.getSelectedObject().getId()); // take first service as default
-					}
-
 				}
 				// make call
+				resAttrs.clearTable();
 				resAttrs.setIds(ids);
 				resAttrs.retrieveData();
 			};
@@ -196,7 +233,8 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 			};
 			@Override
 			public void onLoadingStart() {
-				resAttrs.clearTable();
+				servList.removeAllOption();
+				servList.removeNotSelectedOption();
 				servList.clear();
 				servList.addItem("Loading...");
 			}
@@ -208,23 +246,29 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		if (serviceId == 0) {
 			// services listbox
 			servList.setTitle("Services");
+			attrs.setIds(ids);
 			// on change of service update table
 			servList.addChangeHandler(new ChangeHandler() {
 				public void onChange(ChangeEvent event) {
 					// if service selected
-					if (chb.getValue() == true && servList.getSelectedIndex() > 0) {
-						ids.put("service",servList.getSelectedObject().getId());
-						lastSelectedService = servList.getSelectedObject().getId();
-					} else if (chb.getValue() == false) {
-						ids.put("service",servList.getSelectedObject().getId());
-						lastSelectedService = servList.getSelectedObject().getId();
-					} else {
+					if(servList.getSelectedIndex() == 0){
+						attrs.retrieveData();
 						lastSelectedService = 0;
+						indexInList = 0;
+						return;
+					}else if(chb.getValue() == true && servList.getSelectedIndex() == 1){
 						ids.remove("service");
+						lastSelectedService = 0;
+						indexInList = 1;
+					}else if((chb.getValue() == true && servList.getSelectedIndex() > 1)
+							|| (chb.getValue() == false && servList.getSelectedIndex() > 0)){
+						ids.put("service", servList.getSelectedObject().getId());
+						lastSelectedService = servList.getSelectedObject().getId();
 					}
+
 					lastOfferAvailableOnly = chb.getValue();
-					resAttrs.setIds(ids);
 					resAttrs.clearTable();
+					resAttrs.setIds(ids);
 					resAttrs.retrieveData();
 				}
 			});
