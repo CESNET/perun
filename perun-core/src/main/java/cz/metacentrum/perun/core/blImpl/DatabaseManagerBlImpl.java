@@ -93,7 +93,7 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 					log.debug("DB version updated successfully. Current version: " + codeDBVersion);
 				} catch(Exception e){
 					//Call exception which kills the initialization process in spring
-					throw new InternalErrorException("DB version is NOT up to date, database update was unsuccessful! Look to the logs for more info.");
+					throw new InternalErrorException("DB version is NOT up to date, database update was unsuccessful! Look to the logs for more info." , e);
 				}
 			} else {
 				log.error("Initializator of DB is disabled on this instance of Perun. Please, do manual changes in database.");

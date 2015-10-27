@@ -86,6 +86,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<prop key="perun.pwdreset.validationWindow">6</prop>
 					<prop key="perun.native.language">cs,Česky,Czech</prop>
 					<prop key="perun.loginNamespace.generated"></prop>
+					<prop key="perun.sms.program"></prop>
+					<prop key="perun.readOnlyPerun">false</prop>
+					<prop key="perun.DBInitializatorEnabled">false</prop>
 				</props>
 			</property>
 		</bean>
