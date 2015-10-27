@@ -1,7 +1,10 @@
 package cz.metacentrum.perun.core.blImpl;
 
 import cz.metacentrum.perun.core.api.ActionType;
+
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -1578,7 +1581,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * More info on https://wiki.metacentrum.cz/wiki/VO_managers%27s_manual
 	 *
 	 * If setAttributeValue is true, then store the membership expiration date into the attribute, otherwise
-	 * return object pair containing true/false if the member can be extended and date specifying exact date of the expiration
+	 * return object pair containing true/false if the member can be extended and date specifying exact date of the new expiration
 	 *
 	 * @param sess session
 	 * @param member member to check / set membership expiration
@@ -1721,6 +1724,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		// Do we extend for x months or for static date?
 		if (period != null) {
 			if (period.startsWith("+")) {
+				if (!isMemberInGracePeriod(membershipExpirationRules, (String) membershipExpirationAttribute.getValue())) {
+					if (throwExceptions) {
+						throw new ExtendMembershipException(ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD, (String) membershipExpirationAttribute.getValue(),
+								"Member " + member + " cannot extend because we are outside grace period for VO id " + member.getVoId() + ".");
+					} else {
+						return new Pair<Boolean, Date>(false, null);
+					}
+				}
 				// By default do not add nothing
 				int amount = 0;
 				int field;
@@ -1871,6 +1882,67 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 		return new Pair<Boolean, Date>(true, calendar.getTime());
+	}
+
+	/**
+	 * Return true if member is in grace period. If grace period is not set return always true.
+	 * If member has not expiration date return always true.
+	 *
+	 * @param membershipExpirationRules
+	 * @param membershipExpiration
+	 * @return true if member is in grace period. Be carefull about special cases - read method description.
+	 * @throws InternalErrorException
+	 */
+	private boolean isMemberInGracePeriod(Map<String, String> membershipExpirationRules, String membershipExpiration) throws InternalErrorException {
+		// Is a grace period set?
+		if (membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName) == null) {
+			// If not grace period is infinite
+			return true;
+		}
+		// does member have expiration date?
+		if (membershipExpiration == null) {
+			// if not grace period is infinite
+			return true;
+		}
+
+		String gracePeriod = membershipExpirationRules.get(MembersManager.membershipGracePeriodKeyName);
+
+		// If the extension is requested in period-gracePeriod then extend to next period
+		Pattern p = Pattern.compile("([0-9]+)([dmy]?)");
+		Matcher m = p.matcher(gracePeriod);
+
+		if (!m.matches()) {
+			throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+		}
+
+		int amount = Integer.valueOf(m.group(1));
+
+		int field;
+		String dmyString = m.group(2);
+		if (dmyString.equals("d")) {
+			field = Calendar.DAY_OF_YEAR;
+		} else if (dmyString.equals("m")) {
+			field = Calendar.MONTH;
+		} else if (dmyString.equals("y")) {
+			field = Calendar.YEAR;
+		} else {
+			throw new InternalErrorException("Wrong format of gracePeriod in VO membershipExpirationRules attribute. gracePeriod: " + gracePeriod);
+		}
+
+		try {
+			Calendar beginOfGracePeriod = Calendar.getInstance();
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			beginOfGracePeriod.setTime(format.parse(membershipExpiration));
+			beginOfGracePeriod.add(field, -amount);
+			if (beginOfGracePeriod.before(Calendar.getInstance())) {
+				return true;
+			}
+		} catch (ParseException e) {
+			throw new InternalErrorException("Wrong format of membership expiration attribute: " + membershipExpiration, e);
+		}
+
+		return false;
+
 	}
 
 	public void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException {
