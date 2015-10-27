@@ -68,7 +68,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 	private Service service;
 
 	private int lastSelectedService = 0;
-	private int indexInList = 0;
+	private int indexInList = 1; // default all
 	private boolean lastOfferAvailableOnly = true;
 
 	/**
@@ -246,7 +246,6 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		if (serviceId == 0) {
 			// services listbox
 			servList.setTitle("Services");
-			indexInList = 1;
 			attrs.setIds(ids);
 			// on change of service update table
 			servList.addChangeHandler(new ChangeHandler() {
