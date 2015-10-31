@@ -208,32 +208,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				// 3. removes all excluded and indirect records of members in group g. 
 				// We can remove members and relations(@see 2.) without recalculation (@see processRelationMembers) 
 				// because all dependencies of group g were deleted in step 1.
-				removeExcludedMembers(sess, g);
-				removeIndirectMembers(sess, g);
+				removeAllIndirectMembers(sess, g);
+				removeAllExcludedMembers(sess, g);
 
 				// Group applications, submitted data and app_form are deleted on cascade with "deleteGroup()"
-				List<Member> membersFromDeletedGroup = getGroupMembers(sess, g);
+				List<Member> directMembersFromDeletedGroup = getDirectGroupMembers(sess, g);
 				getGroupsManagerImpl().deleteGroup(sess, vo, g);
-
-				Integer parentGroupId = g.getParentGroupId();
-				while(parentGroupId != null) {
-					Group parentGroup;
-					try {
-						parentGroup = getGroupById(sess, parentGroupId);
-					} catch (GroupNotExistsException ex) {
-						throw new ConsistencyErrorException(ex);
-					}
-					List<Member> membersFromParentGroup = getGroupMembers(sess, parentGroup);
-					membersFromDeletedGroup.removeAll(membersFromParentGroup);
-					for(Member m: membersFromDeletedGroup) {
-						getPerunBl().getAuditer().log(sess, "{} was removed from {}.", m, parentGroup);
-						getPerunBl().getAuditer().log(sess, "{} is inactive in {}.", m, group);
-					}
-					parentGroupId=parentGroup.getParentGroupId();
+				
+				for (Member member: directMembersFromDeletedGroup) {
+					getPerunBl().getAuditer().log(sess, "{} was removed from {}.", member, g);
+					getPerunBl().getAuditer().log(sess, "{} is inactive in {}.", member, g);
 				}
 
 				getPerunBl().getAuditer().log(sess, "{} deleted.", g);
-
 			}
 		}
 
@@ -312,41 +299,32 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// 3. removes all excluded and indirect records of members in group. 
 		// We can remove members and relations(@see 2.) without recalculation (@see processRelationMembers) 
 		// because all dependencies of group were deleted in step 1.
-		removeExcludedMembers(sess, group);
-		removeIndirectMembers(sess, group);
+		removeAllIndirectMembers(sess, group);
+		removeAllExcludedMembers(sess, group);
 
 		// Group applications, submitted data and app_form are deleted on cascade with "deleteGroup()"
-		List<Member> membersFromDeletedGroup = getGroupMembers(sess, group);
+		List<Member> directMembersFromDeletedGroup = getGroupMembers(sess, group);
 		getGroupsManagerImpl().deleteGroup(sess, vo, group);
 
-		Integer parentGroupId = group.getParentGroupId();
-		while(parentGroupId != null) {
-			Group parentGroup;
-			try {
-				parentGroup = getGroupById(sess, parentGroupId);
-			} catch (GroupNotExistsException ex) {
-				throw new ConsistencyErrorException(ex);
-			}
-			List<Member> membersFromParentGroup = getGroupMembers(sess, parentGroup);
-			membersFromDeletedGroup.removeAll(membersFromParentGroup);
-			for(Member m: membersFromDeletedGroup) {
-				getPerunBl().getAuditer().log(sess, "{} was removed from {}.", m, parentGroup);
-				getPerunBl().getAuditer().log(sess, "{} is inactive in {}.", m, group);
-			}
-			parentGroupId=parentGroup.getParentGroupId();
+		for (Member member: directMembersFromDeletedGroup) {
+			getPerunBl().getAuditer().log(sess, "{} was removed from {}.", member, group);
+			getPerunBl().getAuditer().log(sess, "{} is inactive in {}.", member, group);
 		}
 
 		getPerunBl().getAuditer().log(sess, "{} deleted.", group);
 	}
 
 	/**
-	 * Removes records of excluded members from group and logs members new state into auditer log.
+	 * Removes all remaining records of excluded members from group. It also logs members new state into auditer log.
+	 *
+	 * Method is only used before group deletion, SO we can remove all records of excluded members without 
+	 * recalculation (@see processRelationMembers) because all dependencies of the group were already deleted.
 	 *
 	 * @param sess perun session
 	 * @param group to remove members from
 	 * @throws InternalErrorException
 	 */
-	private void removeExcludedMembers(PerunSession sess, Group group) throws InternalErrorException {
+	private void removeAllExcludedMembers(PerunSession sess, Group group) throws InternalErrorException {
 		List<Member> oldMembers = getGroupMembers(sess, group);
 
 		groupsManagerImpl.removeMembersByMembershipType(sess, group, MembershipType.EXCLUDED);
@@ -360,13 +338,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	/**
-	 * Removes records of indirect members from group and logs members new state into auditer log.
-	 * 
+	 * Removes all remaining records of indirect members from group. It also logs members new state into auditer log.
+	 *
+	 * Method is only used before group deletion, SO we can remove all records of indirect members without 
+	 * recalculation (@see processRelationMembers) because all dependencies of the group were already deleted.
+	 *
 	 * @param sess perun session
 	 * @param group to remove members from
 	 * @throws InternalErrorException
 	 */
-	private void removeIndirectMembers(PerunSession sess, Group group) throws InternalErrorException {
+	private void removeAllIndirectMembers(PerunSession sess, Group group) throws InternalErrorException {
 		List<Member> oldMembers = getGroupMembers(sess, group);
 
 		groupsManagerImpl.removeMembersByMembershipType(sess, group, MembershipType.INDIRECT);
@@ -504,12 +485,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		if(this.groupsManagerImpl.isDirectGroupMember(sess, group, member)) throw new AlreadyMemberException(member);
 
 		member = getGroupsManagerImpl().addMember(sess, group, member, MembershipType.DIRECT, group.getId());
-		getPerunBl().getAuditer().log(sess, "{} added to {} as DIRECT member.", member, group);
+		getPerunBl().getAuditer().log(sess, "{} was added to {}.", member, group);
 
 		// member is already excluded in group, adding him as direct to it will not cause any propagation to other groups
 		if (!getGroupMembers(sess, group).contains(member)) {
-			getPerunBl().getAuditer().log(sess, "{} is active in {}.", member, group);
 			return;
+		} else {
+			getPerunBl().getAuditer().log(sess, "{} is active in {}.", member, group);
 		}
 
 		// LEFT is group id and RIGHT is operation
