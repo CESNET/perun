@@ -4,6 +4,8 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -12,7 +14,9 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -324,4 +328,69 @@ public interface ModulesUtilsBl {
 	 * @throws WrongAttributeValueException
 	 */
 	void checkAttributeRegex(Attribute attribute, String defaultRegex) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Check if value in quotas attribute are in the right format.
+	 * Also transfer and return data in suitable container.
+	 *
+	 * Example of correct quotas with metrics: key=/path/to/volume , value=50T:0
+	 * Example of correct quotas without metrics: key=/path/to/volume , value=1000:2000
+	 *
+	 * Example of suitable format: key=/path/to/volume, softQuota=50000000000000, hradQuota=0
+	 *
+	 * Left part of value is softQuota, right part after delimeter ':' is hardQuota.
+	 * SoftQuota must be less or equals to hardQuota. '0' means unlimited.
+	 *
+	 * @param quotasAttribute attribute with paths and quotas (Map<String, String>) (data or files quotas)
+	 * @param firstPlaceholder first attribute placeholder (can't be null, mandatory)
+	 * @param secondPlaceholder second attribute placeholder (can be null if not exists)
+	 * @param withMetrics true if metrics are used, false if not
+	 *
+	 * @return map with path in key and pair with <softQuota, hardQuota> in big decimal
+	 *
+	 * @throws InternalErrorException if attribute or his value is null
+	 * @throws WrongAttributeValueException if something is wrong in format of attribute
+	 */
+	Map<String, Pair<BigDecimal, BigDecimal>> checkAndTransferQuotas(Attribute quotasAttribute, PerunBean firstPlaceholder, PerunBean secondPlaceholder, boolean withMetrics) throws InternalErrorException, WrongAttributeValueException;
+
+	/**
+	 * Reverse method for checkAndTransferQuotas method.
+	 * Take transfered map and create again not transfered map.
+	 * From path=/path/to/ , softQuota=50000, hardQuota=0
+	 * To path=/path/to/ , value=50M:0
+	 * (Do not check again!)
+	 *
+	 * @param transferedQuotasMap
+	 * @param withMetrics if true, then use metrics, if not, do not convert data to metrics
+	 *
+	 * @return not transfered map for saving to attribute value
+	 * @throws InternalErrorException
+	 */
+	Map<String, String> transferQuotasBackToAttributeValue(Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotasMap, boolean withMetrics) throws InternalErrorException;
+
+	/**
+	 * Merge two transfered Quotas together.
+	 * Paths are always unique, quotas are merged. (soft together and hard together)
+	 * Together means = bigger is better, 0 means unlimited so it is always bigger
+	 *
+	 * @param firstQuotas  first transfered map with quotas
+	 * @param secondQuotas second transfered map with quotas
+	 *
+	 * @return merged quotas transfered map
+	 */
+	Map<String,Pair<BigDecimal, BigDecimal>> mergeMemberAndResourceTransferedQuotas(Map<String, Pair<BigDecimal, BigDecimal>> firstQuotas, Map<String, Pair<BigDecimal, BigDecimal>> secondQuotas);
+
+	/**
+	 * Count all quotas for user.
+	 * Every record in list is merged quotas map with value from resource attribute and resource-member attribute where user has allowed member.
+	 *
+	 * Quotas for same paths are sum together. If value is '0' then result is also '0', because 0 means unlimited.
+	 * 
+	 * Example: /path/to/volume 30G:50G , /path/to/volume 40G:0 => /path/to/volume 70G:0
+	 * 
+	 * @param allUserQuotas list
+	 *
+	 * @return counted user facility quotas
+	 */
+	Map<String, Pair<BigDecimal, BigDecimal>> countUserFacilityQuotas(List<Map<String, Pair<BigDecimal, BigDecimal>>> allUserQuotas);
 }

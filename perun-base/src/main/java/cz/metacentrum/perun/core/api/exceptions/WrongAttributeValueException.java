@@ -33,27 +33,27 @@ public class WrongAttributeValueException extends AttributeValueException {
 	}
 
 	public WrongAttributeValueException(Attribute attribute, Object attributeHolder, Object attributeHolderSecondary, String message) {
-		super(attribute.toString() + "Set for: " + attributeHolder.toString() + " and " + attributeHolderSecondary.toString() + " - " + message);
+		super(attribute.toString() + "Set for: " + attributeHolder + " and " + attributeHolderSecondary + " - " + message);
 		this.attribute = attribute;
 		this.attributeHolder = attributeHolder;
 		this.attributeHolderSecondary = attributeHolderSecondary;
 	}
 
 	public WrongAttributeValueException(Attribute attribute, Object attributeHolder, Object attributeHolderSecondary) {
-		super(attribute.toString() + "Set for: " + attributeHolder.toString() + " and " + attributeHolderSecondary.toString());
+		super(attribute.toString() + "Set for: " + attributeHolder + " and " + attributeHolderSecondary);
 		this.attribute = attribute;
 		this.attributeHolder = attributeHolder;
 		this.attributeHolderSecondary = attributeHolderSecondary;
 	}
 
 	public WrongAttributeValueException(Attribute attribute, Object attributeHolder, String message){
-		super(attribute.toString() + "Set for: " + attributeHolder.toString() + " - " + message);
+		super(attribute.toString() + "Set for: " + attributeHolder + " - " + message);
 		this.attribute = attribute;
 		this.attributeHolder = attributeHolder;
 	}
 
 	public WrongAttributeValueException(Attribute attribute, Object attributeHolder, String message, Throwable cause){
-		super(attribute.toString() + "Set for: " + attributeHolder.toString() + " - " + message, cause);
+		super(attribute.toString() + "Set for: " + attributeHolder + " - " + message, cause);
 		this.attribute = attribute;
 		this.attributeHolder = attributeHolder;
 	}

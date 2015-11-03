@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
+import java.math.BigDecimal;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1077,6 +1079,49 @@ public class Utils {
 			throw new InternalErrorException("Cannot access the sms external application.", ex);
 		}
 		
+	}
+
+	/**
+	 * Get BigDecimal number like '1024' in Bytes and create better readable
+	 * String with metric value like '1K' where K means KiloBytes.
+	 *
+	 * Use K,M,G,T,P,E like multipliers of 1024.
+	 *
+	 * If quota is not dividable by 1024 use B (Bytes) without dividing.
+	 *
+	 * @param quota in big natural number
+	 * @return string with number and metric
+	 */
+	public static String bigDecimalBytesToReadableStringWithMetric(BigDecimal quota) throws InternalErrorException {
+		if(quota == null) throw new InternalErrorException("Quota in BigDecimal can't be null if we want to convert it to number with metric.");
+		//Prepare variable for result
+		String stringWithMetric;
+		//Try to divide quota to get result module 1024^x = 0 where X is in [B-0,K-1,M-2,G-3,T-4,P-5,E-6]
+		//If module is bigger than 0, try x-1
+		if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.E)).toPlainString().contains(".")) {
+			//divide by 1024^6
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.E)).toPlainString() + "E";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.P)).toPlainString().contains(".")) {
+			//divide by 1024^5
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.P)).toPlainString() + "P";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.T)).toPlainString().contains(".")) {
+			//divide by 1024^4
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.T)).toPlainString() + "T";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.G)).toPlainString().contains(".")) {
+			//divide by 1024^3
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.G)).toPlainString() + "G";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).toPlainString().contains(".")) {
+			//divide by 1024^2
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).toPlainString() + "M";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.K)).toPlainString().contains(".")) {
+			//divide by 1024^1
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.K)).toPlainString() + "K";
+		} else {
+			//can't be diveded by 1024^x where x>0 so let it be in the format like it already is
+			stringWithMetric = quota.toPlainString() + "B";
+		}
+		//return result format with metric
+		return stringWithMetric;
 	}
 	
 	private static String getStringFromInputStream(InputStream is) throws IOException {
