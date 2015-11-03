@@ -20,7 +20,7 @@
 
 	<Service name="Catalina">
 
-		<Connector port="8009" protocol="AJP/1.3" address="127.0.0.1" tomcatAuthentication="false" URIEncoding="UTF-8" packetSize="21000" />
+		<Connector port="8009" protocol="AJP/1.3" address="127.0.0.1" tomcatAuthentication="false" URIEncoding="UTF-8" packetSize="36000" />
 
 		<Engine name="Catalina" defaultHost="localhost">
 			<Host name="localhost" appBase="" deployOnStartup="false" autoDeploy="false">
