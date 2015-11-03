@@ -665,6 +665,12 @@ public class ApplicationFormGui implements EntryPoint {
 			ft.getFlexCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 			ft.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
 			panel.add(ft);
+
+			// redirect if possible
+			if (Location.getParameter("targetexisting") != null) {
+				Location.replace(Location.getParameter("targetexisting"));
+			}
+
 			return;
 
 		}
