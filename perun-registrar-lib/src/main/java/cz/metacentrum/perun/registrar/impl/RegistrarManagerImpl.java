@@ -2178,8 +2178,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						// user not found or null, hence can't be member of VO -> do not approve.
 						return;
 					}
+				} else {
+					// user known, but maybe not member of a vo
+					membersManager.getMemberByUser(registrarSession, app.getVo(), u);
 				}
-				// user is part of application, let approve mechanism handle it
 			} catch (MemberNotExistsException ex) {
 				return;
 			} catch (UserNotExistsException ex) {
