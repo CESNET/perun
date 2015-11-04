@@ -712,6 +712,14 @@ public class JsonErrorHandler {
 				return "Same service is already assigned to resource.";
 			}
 
+		} else if ("ServiceAlreadyBannedException".equalsIgnoreCase(errorName)) {
+
+			if (error.getService() != null && error.getFacility() != null) {
+				return "Service " + error.getService().getName() + " is already banned on facility "+error.getFacility().getName()+".";
+			} else {
+				return "Same service is already banned on facility.";
+			}
+
 		} else if ("ServiceExistsException".equalsIgnoreCase(errorName)) {
 
 			if (error.getService() != null) {
