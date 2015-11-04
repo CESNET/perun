@@ -1,12 +1,14 @@
 package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -75,6 +77,12 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 	private int indexInList = 1;
 	private boolean lastCheckBoxValue = true;
 
+	final VerticalPanel vp = new VerticalPanel();
+	ScrollPanel sp = new ScrollPanel();
+	ScrollPanel sp2 = new ScrollPanel();
+	// if required table is displayed
+	boolean required = true;
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -115,7 +123,6 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Service settings");
 
 		// content
-		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
 		// HORIZONTAL MENU
@@ -123,34 +130,14 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// Get Attributes method
 		final GetRequiredAttributesV2 reqAttrs = new GetRequiredAttributesV2();
+		final GetAttributesV2 attrs = new GetAttributesV2();
+		attrs.getFacilityAttributes(facilityId);
+
 		// get empty table
 		final CellTable<Attribute> table = reqAttrs.getEmptyTable();
-
-		final GetAttributesV2 attrs = new GetAttributesV2(new JsonCallbackEvents() {
-			@Override
-			public void onFinished(JavaScriptObject jso) {
-				List<Attribute> list = JsonUtils.<Attribute>jsoAsList(jso);
-				for (int i = 0; i < list.size(); i++) {
-					if (!list.get(i).getDefinition().equals("core")) {
-						reqAttrs.addToTable(list.get(i));
-					}
-				}
-				reqAttrs.sortTable();
-				((AjaxLoaderImage) table.getEmptyTableWidget()).loadingFinished();
-			}
-
-			@Override
-			public void onError(PerunError error) {
-				((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
-			}
-
-			@Override
-			public void onLoadingStart() {
-				reqAttrs.clearTable();
-			}
-
-		});
-		attrs.getFacilityAttributes(facilityId);
+		final CellTable<Attribute> table2 = attrs.getEmptyTable();
+		sp.add(table);
+		sp2.add(table2);
 
 		// ids to retrieve data from rpc
 		final Map<String, Integer> ids = new HashMap<String, Integer>();
@@ -169,6 +156,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 				if (servList.getSelectedIndex() == 0) {
 					// show all facility attributes
 					attrs.retrieveData();
+					setTable(false);
 					lastServiceId = 0;
 					indexInList = 0;
 					return;
@@ -190,6 +178,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 				reqAttrs.setIds(ids);
 				reqAttrs.clearTable();
 				reqAttrs.retrieveData();
+				setTable(true);
 			}
 		});
 
@@ -208,6 +197,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 					lastServiceId = 0;
 					indexInList = 0;
 					attrs.retrieveData();
+					setTable(false);
 					return;
 				}
 				// offer only available
@@ -222,6 +212,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 							// not selected - load all fac attrs
 							servList.setSelectedIndex(0);
 							attrs.retrieveData();
+							setTable(false);
 							return;
 						}
 					}
@@ -232,14 +223,18 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 						// if no service selected, load all fac attrs
 						servList.setSelectedIndex(0);
 						attrs.retrieveData();
+						setTable(false);
 						return;
 					}
 				}
 
 				// if some service was selected
 				if (lastServiceId != 0) {
+					ids.remove("service"); // remove service since we can't be sure, it was loaded again
+					servList.setSelectedIndex(1); // either all or first service in a list
 					for (Service s : servList.getAllObjects()) {
 						if (s.getId() == lastServiceId) {
+							// if found, select it
 							servList.setSelected(s, true);
 							ids.put("service", lastServiceId);
 							break;
@@ -250,12 +245,17 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 				reqAttrs.clearTable();
 				reqAttrs.setIds(ids);
 				reqAttrs.retrieveData();
+				setTable(true);
 			}
 
 			@Override
 			public void onError(PerunError error) {
 				servList.clear();
-				((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
+				if (required) {
+					((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
+				} else {
+					((AjaxLoaderImage) table2.getEmptyTableWidget()).loadingError(error);
+				}
 				servList.addItem("Error while loading");
 			}
 
@@ -280,13 +280,15 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 		// Save changes button
 		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
 		final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(reqAttrs);
+		final JsonCallbackEvents refreshEvents2 = JsonCallbackEvents.refreshTableEvents(attrs);
 		final JsonCallbackEvents saveChangesButtonEvent = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents);
+		final JsonCallbackEvents saveChangesButtonEvent2 = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents2);
 		saveChangesButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = reqAttrs.getTableSelectedList();
+				ArrayList<Attribute> list = (required) ? reqAttrs.getTableSelectedList() : attrs.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					SetAttributes request = new SetAttributes(saveChangesButtonEvent);
-					request.setAttributes(ids, reqAttrs.getTableSelectedList());
+					SetAttributes request = new SetAttributes((required) ? saveChangesButtonEvent : saveChangesButtonEvent2);
+					request.setAttributes(ids, list);
 				}
 			}
 		});
@@ -294,13 +296,14 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 		// Remove attr button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
 		final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvents);
+		final JsonCallbackEvents removeButtonEvent2 = JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvents2);
 		removeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = reqAttrs.getTableSelectedList();
+				ArrayList<Attribute> list = (required) ? reqAttrs.getTableSelectedList() : attrs.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					Map<String, Integer> ids = new HashMap<String, Integer>();
 					ids.put("facility", facilityId);
-					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
+					RemoveAttributes request = new RemoveAttributes((required) ? removeButtonEvent : removeButtonEvent2);
 					request.removeAttributes(ids, list);
 				}
 			}
@@ -324,7 +327,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 			public void onClick(ClickEvent event) {
 				Map<String, Integer> ids = new HashMap<String, Integer>();
 				ids.put("facility", facility.getId());
-				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, reqAttrs.getList()), true);
+				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, (required) ? reqAttrs.getList() : attrs.getList()), true);
 			}
 		});
 
@@ -360,19 +363,46 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
+		table.setWidth("100%");
+		table2.addStyleName("perun-table");
+		table2.setWidth("100%");
 		sp.addStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizePerunTable(sp, 350, this);
+		sp2.addStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizePerunTable(sp2, 350, this);
 
 		// add menu and the table to the main panel
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		vp.add(sp);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
-
+		// default is required attributes
+		setTable(true);
 		this.contentWidget.setWidget(vp);
 
 		return getWidget();
+	}
+
+	private void setTable(boolean required) {
+
+		if (vp.getWidgetCount() == 2) {
+			vp.remove(1);
+		}
+		if (required) {
+			vp.add(sp);
+
+		} else {
+			vp.add(sp2);
+		}
+
+		this.required = required;
+
+		Scheduler.get().scheduleDeferred(new Command() {
+			@Override
+			public void execute() {
+				UiElements.runResizeCommandsForCurrentTab();
+			}
+		});
+
 	}
 
 	public Widget getWidget() {
