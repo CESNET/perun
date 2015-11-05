@@ -1,4 +1,4 @@
--- database version 3.1.32 (don't forget to update insert statement at the end of file)
+-- database version 3.1.33 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1276,6 +1276,7 @@ create index idx_fk_taskres_eng on tasks_results(engine_id);
 create index idx_fk_srvden_exsrv on service_denials(exec_service_id);
 create index idx_fk_srvden_fac on service_denials(facility_id);
 create index idx_fk_srvden_dest on service_denials(destination_id);
+create unique index idx_srvden_u ON service_denials(COALESCE(exec_service_id, '0'), COALESCE(facility_id, '0'), COALESCE(destination_id, '0'));
 create index idx_fk_srvdep_exsrv on service_dependencies(exec_service_id);
 create index idx_fk_srvdep_depexsrv on service_dependencies(dependency_id);
 create index idx_fk_srvreqattr_srv on service_required_attrs(service_id);
@@ -1474,7 +1475,7 @@ alter table service_denials add constraint srvden_pk primary key (id);
 alter table service_denials add constraint srvden_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table service_denials add constraint srvden_fac_fk foreign key (facility_id) references facilities(id);
 alter table service_denials add constraint srvden_dest_fk foreign key (destination_id) references destinations(id);
-alter table service_denials add constraint srvden_u unique(exec_service_id,facility_id,destination_id);
+alter table service_denials add constraint srvden_u check(exec_service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)));
 
 alter table service_dependencies add constraint srvdep_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table service_dependencies add constraint srvdep_depexsrv_fk foreign key (dependency_id) references exec_services(id);
@@ -1773,4 +1774,4 @@ grant all on security_teams_facilities to perun;
 grant all on blacklists to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.32');
+insert into configurations values ('DATABASE VERSION','3.1.33');

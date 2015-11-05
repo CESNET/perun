@@ -3,7 +3,6 @@ package cz.metacentrum.perun.controller.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.taskslib.dao.ExecServiceDao;
 import cz.metacentrum.perun.taskslib.dao.ExecServiceDenialDao;
 import cz.metacentrum.perun.taskslib.dao.ExecServiceDependencyDao;
@@ -90,6 +96,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void banExecServiceOnFacility(PerunSession sess, ExecService execService, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException {
 		try {
 			execServiceDenialDao.banExecServiceOnFacility(execService.getId(), facility.getId());
