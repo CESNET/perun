@@ -267,6 +267,7 @@ public interface MembersManagerBl {
 	 * @param candidate
 	 * @param serviceUser (true if it is serviceUser, false if not)
 	 * @param groups list of groups where member will be added too
+	 * @param overwriteUserAttributes list of user attributes names which will be overwrite instead of merged
 	 *
 	 * @return newly created members
 	 * @throws InternalErrorException
@@ -277,7 +278,7 @@ public interface MembersManagerBl {
 	 * @throws GroupNotExistsException
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, Candidate)
 	 */
-	Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates Service Member.
@@ -306,6 +307,12 @@ public interface MembersManagerBl {
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
 	 */
 	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+
+	/**
+	 * Creates member. Runs synchronously. Add member also to all groups in list.
+	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
+	 */
+	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from user.
