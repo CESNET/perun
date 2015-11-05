@@ -10,6 +10,7 @@ import java.util.*;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
+import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
 import org.slf4j.Logger;
@@ -1031,7 +1032,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 		// proceed
-		markApplicationVerified(appId);
+		markApplicationVerified(sess, appId);
 		// return updated application
 		return getApplicationById(appId);
 
@@ -2108,7 +2109,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		if (allValidated) {
 			// mark VERIFIED
-			markApplicationVerified(app.getId());
+			markApplicationVerified(sess, app.getId());
 			app.setState(AppState.VERIFIED);
 			// try to APPROVE if auto approve
 			tryToAutoApproveApplication(sess, app);
@@ -2125,14 +2126,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	 * Forcefully marks application as VERIFIED
 	 * (only if was in NEW state before)
 	 *
+	 * @param sess session info to use for modified_by
 	 * @param appId ID of application to verify.
 	 */
-	private void markApplicationVerified(int appId) {
+	private void markApplicationVerified(PerunSession sess, int appId) {
 
-		if (jdbc.update("update application set state=? where id=? and state=?", AppState.VERIFIED.toString(), appId, AppState.NEW.toString()) > 0) {
-			log.info("Application {} marked as VERIFIED", appId);
-		} else {
-			log.info("Application {} not marked VERIFIED, was not in state NEW", appId);
+		try {
+			if (jdbc.update("update application set state=?, modified_at=" + Compatibility.getSysdate() + ", modified_by=? where id=? and state=?", AppState.VERIFIED.toString(), sess.getPerunPrincipal().getActor(), appId, AppState.NEW.toString()) > 0) {
+				log.info("Application {} marked as VERIFIED", appId);
+			} else {
+				log.info("Application {} not marked VERIFIED, was not in state NEW", appId);
+			}
+		} catch (InternalErrorException ex) {
+			log.error("Application {} NOT marked as VERIFIED due to error {}", appId, ex);
 		}
 
 	}
@@ -2172,8 +2178,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						// user not found or null, hence can't be member of VO -> do not approve.
 						return;
 					}
+				} else {
+					// user known, but maybe not member of a vo
+					membersManager.getMemberByUser(registrarSession, app.getVo(), u);
 				}
-				// user is part of application, let approve mechanism handle it
 			} catch (MemberNotExistsException ex) {
 				return;
 			} catch (UserNotExistsException ex) {
