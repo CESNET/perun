@@ -998,6 +998,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			// END - GET CURRENT MEMBERS IN PERUN
 
+			//Prepare info about userAttributes which need to be overwrite (not just updated)
+			Map<String, String> membersSourceAttributes = getPerunBl().getExtSourcesManagerBl().getAttributes(membersSource);
+			List<String> overwriteUserAttributes = new ArrayList<>();
+			String value = membersSourceAttributes.get("overwriteUserAttributes");
+			if(value != null && !value.isEmpty()) {
+				//remove all white spaces and invisible characters
+				value = value.replaceAll("\\s", "");
+				overwriteUserAttributes = Arrays.asList(value.split(","));
+			}
+
 			// List of members which will be removed from the perun group. Firstly fill the list with all
 			// perun group members, remove entry from the list, if the member is in the external source
 			List<RichMember> membersToRemove = new ArrayList<RichMember>(currentMembers);
@@ -1064,7 +1074,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 											userAttribute.setValue(subjectAttributeValue);
 											try {
-												getPerunBl().getAttributesManagerBl().mergeAttributeValueInNestedTransaction(sess, richMember.getUser(), userAttribute);
+												if(overwriteUserAttributes.contains(userAttribute.getName())) {
+													getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember.getUser(), userAttribute);
+												} else {
+													getPerunBl().getAttributesManagerBl().mergeAttributeValueInNestedTransaction(sess, richMember.getUser(), userAttribute);
+												}
 											} catch (AttributeValueException e) {
 												// There is a problem with attribute value, so set INVALID status for the member
 												getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
@@ -1216,8 +1230,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					member = getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate.getUserExtSources());
 				} catch (MemberNotExistsException e) {
 					try {
-						// We have new member, so create him using synchronous createMember
-						member = getPerunBl().getMembersManagerBl().createMemberSync(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate);
+						// We have new member, so create him using synchronous createMember (and overwrite chosed user attributes)
+						member = getPerunBl().getMembersManagerBl().createMemberSync(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate, null, overwriteUserAttributes);
 						log.info("Group synchronization {}: New member id {} created during synchronization.", group, member.getId());
 					} catch (AlreadyMemberException e1) {
 						throw new ConsistencyErrorException("Trying to add existing member");
