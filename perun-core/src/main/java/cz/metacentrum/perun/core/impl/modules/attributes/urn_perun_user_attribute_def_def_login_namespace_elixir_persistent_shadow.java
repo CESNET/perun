@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +17,20 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Class for checking logins uniqueness in the namespace and filling elixir-persistent namespace
+ * Class for checking logins uniqueness in the namespace and filling elixir-persistent id.
+ * It is only storage! Use module login elixir_persistent for access the value.
  *
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
+ * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  *
  * @date 06.07.2015
  */
-public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent extends urn_perun_user_attribute_def_def_login_namespace {
+public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
-	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_elixir_persistent.class);
-	private final String extSourceNameElixir = "https://engine.elixir-idp.ics.muni.cz/authentication/idp/metadata";
+	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow.class);
+	private final String extSourceNameElixir = "https://engine.elixir-czech.org/authentication/idp/metadata";
 	private final String domainNameElixir = "@elixir-europe.org";
-	private final String attrNameElixir = "login-namespace:elixir-persistent";
+	private final String attrNameElixir = "login-namespace:elixir-persistent-shadow";
 
 	/**
 	 * Filling implemented for login:namespace:elixir-persistent attribute
@@ -67,7 +70,6 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent 
 		try {
 			attribute.setValue(sha1HashCount(user).toString() + this.domainNameElixir);
 			checkAttributeValue(sess, user, attribute);
-
 			return attribute;
 		} catch (WrongAttributeValueException ex) {
 			return attribute;
@@ -77,8 +79,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent 
 	/**
 	 * Sha1HashCount() counts sha1hash for elixir-persistent namespace from user's id
 	 *
-	 * @param sess PerunSession
-	 * @param attribute Attribute to generate hash to
+	 * @param user user with the id
 	 * @return counted hash
 	 */
 	private StringBuilder sha1HashCount(User user) throws InternalErrorException {
@@ -126,5 +127,17 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent 
 		} catch (ExtSourceNotExistsException ex) {
 			throw new InternalErrorException("IdP external source for elixir doesn't exist.", ex);
 		}
+	}
+
+
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attr.setFriendlyName("login-namespace:elixir-persistent-shadow");
+		attr.setDisplayName("ELIXIR login");
+		attr.setType(String.class.getName());
+		attr.setDescription("Login to ELIXIR. Do not use it directly! " +
+				"Use instead virt:elixir-persistent attribute.");
+		return attr;
 	}
 }
