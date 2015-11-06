@@ -8,7 +8,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.FacilityUserVirtualA
 import java.util.List;
 
 /**
- * Get and set specified user krb Principal Name in arrayList included all userExtSources which are type of KERBEROS
+ * Get boolean value. TRUE if user is blacklisted by one of the security teams which are added to facilty.
  *
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
