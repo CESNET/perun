@@ -39,6 +39,8 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 	@Autowired
 	private Properties propertiesBean;
 	private int engineId = -1;
+	private WorkerStatus workerStatus;
+	int id;
 
 	// where gen scripts are located (relative to engine working directory = where you started the jar)
 	// value is taken from propertiesBean (see it's setter method)
@@ -279,4 +281,21 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 		this.sendDirectory = sendDirectory;
 	}
 
+	public String toString() {
+		return ("Worker ID: " + this.id + " STATUS: " + this.workerStatus + "      Worker details: Task ID: "
+				+ this.getTask().getId() + " TASK TYPE: " + this.getExecService().getExecServiceType()
+				+ " FACILITY: " + this.getFacility() + " DESTINATION: " + this.getDestination());
+	}
+
+	public void setID(int id) {
+		this.id = id;
+	}
+
+	public void setWorkerStatus(WorkerStatus status) {
+		this.workerStatus = status;
+	}
+
+	public WorkerStatus getWorkerStatus() {
+		return this.workerStatus;
+	}
 }

@@ -30,4 +30,8 @@ public interface TaskExecutorEngine {
 	public void setTaskExecutorSendWorkers(TaskExecutor sendWorkers);
 
 	public void setTaskExecutorGenWorkers(TaskExecutor genWorkers);
+
+	public TaskExecutor getTaskExecutorGenWorkers();
+
+	public TaskExecutor getTaskExecutorSendWorkers();
 }

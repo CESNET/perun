@@ -67,6 +67,8 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	
 	final int MAX_RUNNING_GEN = 20;
 	final int MAX_RUNNING = 1000;
+
+	private int idCounter = 0;
 	
 	@Override
 	public void beginExecuting() {
@@ -222,6 +224,8 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		log.debug("Starting worker for task " + task.getId()
 				+ " and destination " + destination.toString());
 		ExecutorEngineWorker executorEngineWorker = createExecutorEngineWorker();
+		idCounter +=1;
+		executorEngineWorker.setID(idCounter);
 		executorEngineWorker.setTask(task);
 		executorEngineWorker.setFacility(task.getFacility());
 		executorEngineWorker.setExecService(task.getExecService());
