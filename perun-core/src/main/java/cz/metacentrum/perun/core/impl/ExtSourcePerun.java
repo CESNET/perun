@@ -2,6 +2,9 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -189,7 +192,15 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	private List<RichUser> findRichUsers(String substring) throws InternalErrorException {
-		String query = "searchString=" + substring;
+
+		String query;
+		try {
+			// encode query params
+			query = "searchString=" + URLEncoder.encode(substring, "UTF-8");
+		} catch (UnsupportedEncodingException ex) {
+			// sent query params not encoded
+			query = "searchString=" + substring;
+		}
 
 		List<RichUser> richUsers;
 		try {
@@ -215,6 +226,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	private List<RichUser> findRichUsers(Integer groupId) throws InternalErrorException {
+		// we don't need to encode query params here, no unsafe char in fixed string
 		String query = "group=" + groupId + "&" + "allowedStatuses[]=" + "VALID";
 		
 		List<RichMember> richMembers;
