@@ -19,20 +19,20 @@ import static org.mockito.Mockito.when;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Testing class for login-namespace attribute
+ * Testing class for login-namespace elixir persistent shadow attribute
  *
  * @author Sona Mastrakova <sona.mastrakova@gmail.com>
  * @date 03.07.2015
  */
-public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistentTest {
+public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadowTest {
 
-    private static urn_perun_user_attribute_def_def_login_namespace_elixir_persistent classInstance;
+    private static urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow classInstance;
     private static PerunSessionImpl session;
     private static User user;
 
     @Before
     public void SetUp() throws AttributeNotExistsException, InternalErrorException, WrongAttributeAssignmentException {
-        classInstance = new urn_perun_user_attribute_def_def_login_namespace_elixir_persistent();
+        classInstance = new urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow();
         session = mock(PerunSessionImpl.class, RETURNS_DEEP_STUBS);
         user = new User();
         user.setId(123456);
@@ -66,7 +66,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistentT
         System.out.println("testFillAttributeValue()");
 
         Attribute attribute = new Attribute();
-        attribute.setFriendlyName("login-namespace:elixir-persistent");
+        attribute.setFriendlyName("login-namespace:elixir-persistent-shadow");
         attribute.setValue("879a224546cf11fe53863737de037d2d39640258@elixir-europe.org");
 
         when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(new Attribute() {
