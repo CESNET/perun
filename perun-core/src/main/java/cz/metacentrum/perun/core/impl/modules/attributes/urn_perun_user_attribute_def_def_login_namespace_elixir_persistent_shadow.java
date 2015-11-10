@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -115,9 +114,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 		try {
 			String userNamespace = attribute.getFriendlyNameParameter();
 
-			if(userNamespace.equals("elixir-persistent") && attribute.getValue() != null){
-				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, ExtSourcesManager.EXTSOURCE_IDP);
-				extSource.setName(this.extSourceNameElixir);
+			if(userNamespace.equals("elixir-persistent-shadow") && attribute.getValue() != null){
+				ExtSource extSource = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, extSourceNameElixir);
 				UserExtSource userExtSource = new UserExtSource(extSource, 0, attribute.getValue().toString());
 
 				session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, userExtSource);
