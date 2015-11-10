@@ -2180,7 +2180,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					}
 				} else {
 					// user known, but maybe not member of a vo
-					membersManager.getMemberByUser(registrarSession, app.getVo(), u);
+					membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
 				}
 			} catch (MemberNotExistsException ex) {
 				return;
