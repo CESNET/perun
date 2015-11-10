@@ -168,3 +168,5 @@ orgs["https://idptoo.osu.cz/simplesaml/saml2/idp/metadata.php"] = "University of
 orgs["https://login.ics.muni.cz/idp/shibboleth"] = "MetaCentrum";
 orgs["https://idp.hostel.eduid.cz/idp/shibboleth"] = "eduID.cz Hostel";
 orgs["https://shibboleth.techlib.cz/idp/shibboleth"] = "National Library of Technology";
+orgs["https://www.egi.eu/idp/shibboleth"] = "EGI SSO";
+orgs["https://engine.elixir-czech.org/authentication/idp/metadata"] = "ELIXIR ID";
