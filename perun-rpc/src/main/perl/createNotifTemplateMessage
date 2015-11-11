@@ -14,6 +14,7 @@ Available options:
  --templateId        | -t template id
  --locale            | -l locale
  --message           | -m message
+ --messageFile       | -f file containing the message
  --subject           | -s subject
  --batch             | -b batch
  --help              | -h prints this help
@@ -22,13 +23,27 @@ Available options:
 }
 
 our $batch;
-my ($templateId, $locale, $message, $subject);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "templateId|t=i" => \$templateId, "locale|l=s" => \$locale, "message|m=s" => \$message, "subject|s=s" => \$subject) || die help(); 
+my ($templateId, $locale, $message, $messageFile, $subject);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+"batch|b" => \$batch,
+"templateId|t=i" => \$templateId, 
+"locale|l=s" => \$locale, 
+"message|m=s" => \$message,
+"messageFile|f=s" => \$messageFile, 
+"subject|s=s" => \$subject) || die help(); 
 
 unless (defined($templateId)) {die "ERROR: templateId is required\n"}
 unless (defined($locale)) {die "ERROR: locale is required\n"}
 unless (defined($subject)) {die "ERROR: subject is required\n"}
+if (defined($message) and defined($messageFile)) {warn "WARNING: if message and messageFile is definned only message is used\n";}
+
+if (defined($messageFile) and !defined($message)) {
+    open MSG, $messageFile or die "ERROR: MessageFile cannot be opened\n";
+    my $lin;
+    while ($lin=<MSG>) {
+        $message=$message.$lin;
+    }
+}   
 
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
