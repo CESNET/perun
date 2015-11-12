@@ -324,6 +324,13 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
 								final Member member = jso.cast();
 
+								for (User u : itemsTable.getList()) {
+									if (u.getId() == session.getUser().getId()) {
+										// set local authz if one of associated users is us
+										session.addEditableUser(member.getUserId());
+									}
+								}
+
 								if (namespace.getSelectedIndex() == 0) {
 									// we didn't set login, hence skip password setting
 									session.getTabManager().closeTab(tab, true);
