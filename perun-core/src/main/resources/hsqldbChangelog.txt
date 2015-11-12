@@ -3,6 +3,12 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.33
+alter table service_denials drop constraint srvden_u;
+alter table service_denials add constraint srvden_u check(exec_service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)));
+create unique index idx_srvden_u ON service_denials(exec_service_id,facility_id,destination_id);
+update configurations set value='3.1.33' where property='DATABASE VERSION';
+
 3.1.32
 alter table users alter column title_before varchar(40);
 alter table users alter column title_after varchar(40);

@@ -135,6 +135,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
+	 * @throw ServiceAlreadyBannedException When service is already banned on facility.
 	 */
 	banExecServiceOnFacility {
 	    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {

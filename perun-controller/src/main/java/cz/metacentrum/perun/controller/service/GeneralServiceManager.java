@@ -4,14 +4,13 @@ import java.util.List;
 
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -143,8 +142,9 @@ public interface GeneralServiceManager {
 	 * @param execService The execService to be banned on the facility
 	 * @param facility The facility on which we want to ban the execService
 	 * @throws InternalErrorException
+	 * @throws ServiceAlreadyBannedException
 	 */
-	public void banExecServiceOnFacility(PerunSession perunSession, ExecService execService, Facility facility) throws InternalErrorException;
+	public void banExecServiceOnFacility(PerunSession perunSession, ExecService execService, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException;
 
 	/**
 	 * Bans execService on destination.
