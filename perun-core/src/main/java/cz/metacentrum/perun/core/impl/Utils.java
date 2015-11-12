@@ -763,11 +763,11 @@ public class Utils {
 			// use default if unknown rpc path
 			String path = "/gui/";
 
-			if (urlObject.getPath().contains("/krb/rpc/")) {
+			if (urlObject.getPath().contains("/krb/")) {
 				path = "/krb/gui/";
-			} else if (urlObject.getPath().contains("/fed/rpc/")) {
+			} else if (urlObject.getPath().contains("/fed/")) {
 				path = "/fed/gui/";
-			} else if (urlObject.getPath().contains("/cert/rpc/")) {
+			} else if (urlObject.getPath().contains("/cert/")) {
 				path = "/cert/gui/";
 			}
 
