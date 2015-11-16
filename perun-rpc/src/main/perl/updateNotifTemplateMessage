@@ -11,23 +11,40 @@ return qq{
 Updates a NotifTemplateMessage. Id is required field.
 --------------------------------------
 Available options:
- --NotifTemplateMessageId        | -i NotifTemplateMessage id
- --templateId                    | -t template id
- --locale                        | -l locale
- --message                       | -m message
- --subject                       | -s subject
- --batch                         | -b batch
- --help                          | -h prints this help
+ --NotifTemplateMessageId | -i NotifTemplateMessage id
+ --templateId             | -t template id
+ --locale                 | -l locale
+ --message                | -m message
+ --messageFile            | -f file containing the message
+ --subject                | -s subject
+ --batch                  | -b batch
+ --help                   | -h prints this help
  
 };
 }
 
 our $batch;
-my ($id, $templateId, $locale, $message, $subject);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, "NotifTemplateMessageId|i=i" => \$id,
- "templateId|t=i" => \$templateId, "locale|l=s" => \$locale, "message|m=s" => \$message, "subject|s=s" => \$subject) || die help(); 
+my ($id, $templateId, $locale, $message, $messageFile, $subject);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+"batch|b" => \$batch, 
+"NotifTemplateMessageId|i=i" => \$id,
+"templateId|t=i" => \$templateId, 
+"locale|l=s" => \$locale, 
+"message|m=s" => \$message, 
+"messageFile|f=s" => \$messageFile,
+"subject|s=s" => \$subject) || die help(); 
 
 unless (defined($id)) {die "ERROR: NotifTemplateMessage: id is required\n"}
+if (defined($message) and defined($messageFile)) {warn "WARNING: if message and messageFile is definned only message is used\n";}
+
+if (defined($messageFile) and !defined($message)) {
+    open MSG, $messageFile or die "ERROR: MessageFile cannot be opened\n";
+    my $lin;
+    while ($lin=<MSG>) {
+        $message=$message.$lin;
+    }
+}
+
 
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
