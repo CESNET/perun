@@ -2,14 +2,12 @@ package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
-import cz.metacentrum.perun.webgui.client.applicationresources.FormInputStatusWidget;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
@@ -250,9 +248,9 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		layout.setWidget(3, 1, namespace);
 		layout.setHTML(4, 0, "<strong>Login: </strong>");
 		layout.setWidget(4, 1, serviceUserLogin);
-		layout.setHTML(5, 0, "<strong>User cert DN: </strong>");
+		layout.setHTML(5, 0, "<strong>Subject DN: </strong>");
 		layout.setWidget(5, 1, certDN);
-		layout.setHTML(6, 0, "<strong>CA cert DN: </strong>");
+		layout.setHTML(6, 0, "<strong>Issuer DN: </strong>");
 		layout.setWidget(6, 1, cacertDN);
 
 		final FlexTable firstTabLayout = new FlexTable();
