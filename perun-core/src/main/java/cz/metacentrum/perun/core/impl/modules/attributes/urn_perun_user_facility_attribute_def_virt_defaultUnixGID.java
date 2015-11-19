@@ -61,7 +61,7 @@ public class urn_perun_user_facility_attribute_def_virt_defaultUnixGID extends F
 				for (Resource resource : resources) {
 					List<Group> groupsFromResource = sess.getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource);
 					for (Group group : groupsFromResource) {
-						List<Member> groupMembers = sess.getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+						List<Member> groupMembers = sess.getPerunBl().getGroupsManagerBl().getGroupActiveMembers(sess, group);
 						groupMembers.retainAll(userMembers);
 						if (!groupMembers.isEmpty()) {
 							String groupNamesForTest = (String) sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, group, AttributesManager.NS_GROUP_ATTR_DEF + ":unixGroupName-namespace:" + namespace).getValue();

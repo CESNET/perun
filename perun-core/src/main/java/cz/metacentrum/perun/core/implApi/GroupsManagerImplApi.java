@@ -243,7 +243,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
+	List<Member> getGroupActiveMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
 
 	/**
 	 * Returns all records of direct group members. Excluded members are not taken into account.
@@ -259,15 +259,31 @@ public interface GroupsManagerImplApi {
 	/**
 	 * Returns all members specified by:
 	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
-	 * 2) all INDIRECT, which are not EXCLUDED - as INDIRECT
-	 * 3) all DIRECT, which are EXCLUDED - as EXCLUDED 
-	 * 
+	 * 2) all DIRECT, which are EXCLUDED - as DIRECT_EXCLUDED
+	 * 3) all INDIRECT, which are not EXCLUDED and not DIRECT - as INDIRECT
+	 * 4) all INDIRECT, which are EXCLUDED and not DIRECT - as INDIRECT_EXCLUDED
+	 *
 	 * @param sess perun session
 	 * @param group group to get members from
 	 * @return list of members
 	 */
-	List<Member> getGroupMembersWithContext(PerunSession sess, Group group) throws InternalErrorException;
-	
+	List<Member> getAllGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns all members specified by:
+	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
+	 * 2) all DIRECT, which are EXCLUDED - as DIRECT_EXCLUDED
+	 * 3) all INDIRECT, which are not EXCLUDED and not DIRECT - as INDIRECT
+	 * 4) all INDIRECT, which are EXCLUDED and not DIRECT - as INDIRECT_EXCLUDED
+	 *
+	 * @param sess perun session
+	 * @param group group to get members from
+	 * @param statuses list of statuses, if status is null then return all members
+	 * @param excludeStatusInsteadOfIncludeStatus does the list of statuses means exclude members or include members with these statuses
+	 * @return list of members
+	 */
+	List<Member> getAllGroupMembersWithStatuses(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
+
 	/**
 	 * Get all group members ignoring theirs status.
 	 *
@@ -276,7 +292,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+	List<Member> getGroupActiveMembers(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Get all groups of the VO.

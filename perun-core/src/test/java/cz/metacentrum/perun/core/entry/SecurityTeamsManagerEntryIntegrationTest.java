@@ -911,7 +911,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Set<User> set = new HashSet<>();
 		set.add(u0);
 		set.add(u1);
-		for (Member member : perun.getGroupsManager().getGroupMembers(sess, group)) {
+		for (Member member : perun.getGroupsManager().getGroupActiveMembers(sess, group)) {
 			set.add(perun.getUsersManager().getUserByMember(sess, member));
 		}
 

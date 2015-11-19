@@ -23,7 +23,7 @@ public class Member extends Auditable {
 		super(id);
 		membershipType = MembershipType.NOT_DEFINED;
 		sourceGroupId = null;
-	}
+	        }
 
 	public Member(int id, String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);

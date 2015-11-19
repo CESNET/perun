@@ -263,7 +263,7 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorRuntimeException
 	 */
-	List<Member> getGroupMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+	List<Member> getGroupActiveMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Returns all records of direct group members. Excluded members are not taken into account.
@@ -291,7 +291,7 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorRuntimeException
 	 */
-	List<Member> getGroupMembers(PerunSession perunSession, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+	List<Member> getGroupActiveMembers(PerunSession perunSession, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 
 	/**

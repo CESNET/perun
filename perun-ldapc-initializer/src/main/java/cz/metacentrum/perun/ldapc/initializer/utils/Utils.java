@@ -221,7 +221,7 @@ public class Utils {
 				String description = "description: ";
 				String perunUniqueGroupName = "perunUniqueGroupName: ";
 				List<Member> members;
-				members = perun.getGroupsManagerBl().getGroupMembers(perunSession, group, Status.VALID);
+				members = perun.getGroupsManagerBl().getGroupActiveMembers(perunSession, group, Status.VALID);
 				perunGroupId+= String.valueOf(group.getId());
 				perunVoId+= String.valueOf(group.getVoId());
 				dn+= "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz";

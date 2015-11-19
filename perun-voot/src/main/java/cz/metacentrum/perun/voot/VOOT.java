@@ -384,7 +384,7 @@ public class VOOT {
 		try{
 			//if user is not member of group cannot read members of
 			if (!perun.getGroupsManagerBl().isUserMemberOfGroup(session, user, group)) throw new VOOTException("not_a_member");
-			members = perun.getGroupsManagerBl().getGroupMembers(session, group);
+			members = perun.getGroupsManagerBl().getGroupActiveMembers(session, group);
 		}catch(InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
 		}

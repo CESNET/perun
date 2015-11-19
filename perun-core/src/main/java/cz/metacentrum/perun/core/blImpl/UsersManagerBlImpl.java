@@ -799,7 +799,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		if(group != null) {
-			List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+			List<Member> members = getPerunBl().getGroupsManagerBl().getGroupActiveMembers(sess, group);
 			List<User> usersFromGroup = new ArrayList<User>();
 			for(Member memberElement: members) {
 				usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));

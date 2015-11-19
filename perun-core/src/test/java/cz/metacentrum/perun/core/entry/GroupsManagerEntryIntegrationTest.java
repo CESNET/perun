@@ -292,6 +292,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroup(sess, vo, group4);
 		groupsManager.createGroup(sess, vo, group5);
 		groupsManager.createGroup(sess, vo, group6);
+		groupsManager.createGroup(sess, vo, group7);
 
 		// first add members to groups
 		Member member = setUpMember(vo);
@@ -308,17 +309,51 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.groupUnion(sess, group4, group);
 		groupsManager.groupUnion(sess, group, group5);
 		groupsManager.groupDifference(sess, group, group6);
+		groupsManager.groupUnion(sess, group7, group2);
 
 		groupsManager.deleteGroup(sess, group, true);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group4).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group4).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).size() == 1);
+
+		groupsManager.removeMember(sess, group5, member);
+
+		groupsManager.deleteGroup(sess, group2, true);
+		groupsManager.deleteGroup(sess, group3, true);
+		groupsManager.deleteGroup(sess, group4, true);
+		groupsManager.deleteGroup(sess, group5, true);
+		groupsManager.deleteGroup(sess, group6, true);
+		groupsManager.deleteGroup(sess, group7, true);
 
 		//should throw exception
-		groupsManagerBl.checkGroupExists(sess, group);
+		try {
+			groupsManagerBl.checkGroupExists(sess, group);
+		} catch (GroupNotExistsException e) {
+			try {
+				groupsManagerBl.checkGroupExists(sess, group2);
+			} catch (GroupNotExistsException ex) {
+				try {
+					groupsManagerBl.checkGroupExists(sess, group3);
+				} catch (GroupNotExistsException exc) {
+					try {
+						groupsManagerBl.checkGroupExists(sess, group4);
+					} catch (GroupNotExistsException exce) {
+						try {
+							groupsManagerBl.checkGroupExists(sess, group5);
+						} catch (GroupNotExistsException excep) {
+							try {
+								groupsManagerBl.checkGroupExists(sess, group6);
+							} catch (GroupNotExistsException except) {
+								groupsManagerBl.checkGroupExists(sess, group7);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Test (expected = GroupNotExistsException.class)
@@ -351,8 +386,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManager.deleteGroup(sess, group, true);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).size() == 1);
 
 		//should throw exception
 		try {
@@ -689,7 +724,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManager.addMember(sess, group, member);
 
-		List<Member> members = groupsManager.getGroupMembers(sess, group);
+		List<Member> members = groupsManager.getGroupActiveMembers(sess, group);
 		assertTrue("our member should be in group", members.contains(member));
 
 	}
@@ -709,23 +744,23 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Member member = setUpMember(vo);
 		groupsManager.addMember(sess, group3, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
-		assertEquals(groupsManager.getGroupMembers(sess, group3).get(0).getId(), member.getId());
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 1);
+		assertEquals(groupsManager.getGroupActiveMembers(sess, group3).get(0).getId(), member.getId());
 
 		groupsManager.removeMember(sess, group3, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 0);
 
 		groupsManager.addMember(sess, group3, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
-		assertEquals(groupsManager.getGroupMembers(sess, group3).get(0).getId(), member.getId());
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 1);
+		assertEquals(groupsManager.getGroupActiveMembers(sess, group3).get(0).getId(), member.getId());
 	}
 
 	@Test
@@ -745,23 +780,23 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addMember(sess, group3, member);
 		groupsManager.addMember(sess, group2, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertEquals(groupsManager.getGroupMembers(sess, group3).get(0).getId(), member.getId());
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertEquals(groupsManager.getGroupActiveMembers(sess, group3).get(0).getId(), member.getId());
 
 		groupsManager.removeMember(sess, group3, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 0);
 
 		groupsManager.addMember(sess, group3, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertEquals(groupsManager.getGroupMembers(sess, group3).get(0).getId(), member.getId());
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertEquals(groupsManager.getGroupActiveMembers(sess, group3).get(0).getId(), member.getId());
 	}
 
 	// FIXME - vymyslet lepší výjímku
@@ -836,7 +871,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addMember(sess, group, member);
 		groupsManager.removeMember(sess, group, member);
 
-		List<Member> members = groupsManager.getGroupMembers(sess, group);
+		List<Member> members = groupsManager.getGroupActiveMembers(sess, group);
 		assertTrue(members.isEmpty());
 
 	}
@@ -877,8 +912,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
-	public void getGroupMembers() throws Exception {
-		System.out.println(CLASS_NAME + "getGroupMembers");
+	public void getGroupActiveMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupActiveMembers");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -886,15 +921,15 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Member member = setUpMember(vo);
 		groupsManager.addMember(sess, group, member);
 
-		List<Member> members = groupsManager.getGroupMembers(sess, group);
+		List<Member> members = groupsManager.getGroupActiveMembers(sess, group);
 		assertTrue(members.size() == 1);
 		assertTrue(members.contains(member));
 
 	}
 
 	@Test
-	public void getGroupMembersStatus() throws Exception {
-		System.out.println(CLASS_NAME + "getGroupMembers");
+	public void getGroupActiveMembersStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupActiveMembersStatus");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -902,15 +937,15 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Member member = setUpMember(vo);
 		groupsManager.addMember(sess, group, member);
 
-		List<Member> members = groupsManager.getGroupMembers(sess, group, Status.VALID);
+		List<Member> members = groupsManager.getGroupActiveMembers(sess, group, Status.VALID);
 		assertTrue(members.size() == 1);
 		assertTrue(members.contains(member));
 	}
 
 
 	@Test
-	public void getGroupMembersInBiggerGroupStructure() throws Exception {
-		System.out.println("GroupsManager.getGroupMembersInBiggerGroupStructure");
+	public void getGroupActiveMembersInBiggerGroupStructure() throws Exception {
+		System.out.println("GroupsManager.getGroupActiveMembersInBiggerGroupStructure");
 
 		vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
@@ -939,18 +974,18 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addMember(sess, group5, member);
 		groupsManager.addMember(sess, group6, member);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 2);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 2);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group4).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group21).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 2);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 2);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group4).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group21).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).size() == 1);
 	}
 
 	@Test
-	public void getGroupMembersInBiggerGroupStructureReverted() throws Exception {
-		System.out.println("GroupsManager.getGroupMembersInBiggerGroupStructureReverted");
+	public void getGroupActiveMembersInBiggerGroupStructureReverted() throws Exception {
+		System.out.println("GroupsManager.getGroupActiveMembersInBiggerGroupStructureReverted");
 
 		vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
@@ -977,18 +1012,18 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.groupUnion(sess, group5, group21);
 		groupsManager.groupUnion(sess, group6, group5);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group4).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group21).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group4).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group21).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).size() == 1);
 	}
 	
 	@Test
-	public void getGroupMembersWithContext() throws Exception {
-		System.out.println("GroupsManager.getGroupMembersWithContext");
+	public void getAllGroupMembers() throws Exception {
+		System.out.println("GroupsManager.getAllGroupMembers");
 
 		vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
@@ -1012,16 +1047,17 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.groupDifference(sess, group, group2);
 		groupsManager.groupUnion(sess, group, group3);
 		
-		List<Member> result = groupsManagerBl.getGroupMembersWithContext(sess, group);
+		List<Member> result = groupsManagerBl.getAllGroupMembers(sess, group);
 		
-		assertTrue(result.size() == 3);
+		assertTrue(result.size() == 4);
 		assertTrue(result.contains(direct));
 		assertTrue(result.contains(directAsExcluded) 
-				&& result.get(result.indexOf(directAsExcluded)).getMembershipType() == MembershipType.EXCLUDED);
+				&& result.get(result.indexOf(directAsExcluded)).getMembershipType() == MembershipType.DIRECT_EXCLUDED);
 		assertFalse(result.contains(randomExcluded));
 		assertTrue(result.contains(indirect)
 				&& result.get(result.indexOf(indirect)).getMembershipType() == MembershipType.INDIRECT);
-		assertFalse(result.contains(indirectAsExcluded));
+		assertTrue(result.contains(indirectAsExcluded)
+				&& result.get(result.indexOf(indirectAsExcluded)).getMembershipType() == MembershipType.INDIRECT_EXCLUDED);
 	}
 
 	@Test
@@ -1042,8 +1078,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.groupUnion(sess, group, group2);
 		groupsManager.groupDifference(sess, group3, group4);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 0);
 	}
 
 	@Test
@@ -1067,8 +1103,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.removeUnionRelation(sess, group, group2);
 		groupsManager.removeDifferenceRelation(sess, group3, group4);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 1);
 	}
 
 	@Test(expected=InternalErrorException.class)
@@ -1216,8 +1252,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
-	public void getGroupMembersInHugeStructure() throws Exception {
-		System.out.println("GroupsManager.getGroupMembersInHugeStructure");
+	public void getGroupActiveMembersInHugeStructure() throws Exception {
+		System.out.println("GroupsManager.getGroupActiveMembersInHugeStructure");
 
 		vo = setUpVo();
 
@@ -1257,30 +1293,30 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.groupUnion(sess, group7, group3);
 
 		//1 Basic structure
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group7).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group7).size() == 1);
 		//2 Basic structure
-		assertFalse(groupsManager.getGroupMembers(sess, group2).contains(member1));
-		assertFalse(groupsManager.getGroupMembers(sess, group5).contains(member1));
-		assertFalse(groupsManager.getGroupMembers(sess, group6).contains(member1));
+		assertFalse(groupsManager.getGroupActiveMembers(sess, group2).contains(member1));
+		assertFalse(groupsManager.getGroupActiveMembers(sess, group5).contains(member1));
+		assertFalse(groupsManager.getGroupActiveMembers(sess, group6).contains(member1));
 		//3 Basic structure
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).contains(member2));
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).contains(member2));
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).contains(member2));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).contains(member2));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 0);
 
 		//4 Adding difference relation
 		groupsManager.addMember(sess, group8, member1);
 		groupsManager.groupDifference(sess, group, group8);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group3).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group7).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 2);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).contains(member1));
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 2);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).contains(member1));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group7).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 2);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).contains(member1));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).size() == 2);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).contains(member1));
 
 		//5 Adding members into difference relation group chain
 		groupsManager.groupDifference(sess, group12, group5);
@@ -1291,49 +1327,49 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addMember(sess, group12, member3);
 		groupsManager.addMember(sess, group13, member3);
 
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 3);
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group12).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group12).contains(member3));
-		assertTrue(groupsManager.getGroupMembers(sess, group13).size() == 0);
-		assertFalse(groupsManager.getGroupMembers(sess, group13).contains(member3));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 3);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group12).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group12).contains(member3));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group13).size() == 0);
+		assertFalse(groupsManager.getGroupActiveMembers(sess, group13).contains(member3));
 
 		//6 Adding union relation
 		groupsManager.groupUnion(sess, group, group9);
 
 		groupsManager.addMember(sess, group9, member3);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 2);
-		assertFalse(groupsManager.getGroupMembers(sess, group2).contains(member3));
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group5).contains(member3));
-		assertTrue(groupsManager.getGroupMembers(sess, group12).size() == 0);
-		assertFalse(groupsManager.getGroupMembers(sess, group12).contains(member3));
-		assertTrue(groupsManager.getGroupMembers(sess, group13).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group13).contains(member3));
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 2);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 2);
+		assertFalse(groupsManager.getGroupActiveMembers(sess, group2).contains(member3));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).contains(member3));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group12).size() == 0);
+		assertFalse(groupsManager.getGroupActiveMembers(sess, group12).contains(member3));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group13).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group13).contains(member3));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).size() == 2);
 
 		//7 Adding member to group in which the member is excluded
 		groupsManager.addMember(sess, group4, member3);
-		assertTrue(groupsManager.getGroupMembers(sess, group4).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group4).size() == 0);
 
 		//8 Removing difference
 		groupsManager.removeDifferenceRelation(sess, group, group8);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 2);
-		assertTrue(groupsManager.getGroupMembers(sess, group).contains(member1));
-		assertTrue(groupsManager.getGroupMembers(sess, group).contains(member3));
-		assertTrue(groupsManager.getGroupMembers(sess, group3).contains(member1));
-		assertTrue(groupsManager.getGroupMembers(sess, group7).contains(member1));
-		assertTrue(groupsManager.getGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).contains(member2));
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group12).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group13).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 2);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).contains(member1));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).contains(member3));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group3).contains(member1));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group7).contains(member1));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).contains(member2));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group12).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group13).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group6).size() == 1);
 
 		//9 Removing union
 		groupsManager.removeUnionRelation(sess, group7, group3);
-		assertTrue(groupsManager.getGroupMembers(sess, group7).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group7).size() == 0);
 
 		//10 Removing group with member
 		try {
@@ -1344,15 +1380,15 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		//11 Removing group
 		groupsManager.deleteGroup(sess, group2, true);
-		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 2);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group).size() == 2);
 		try {
 			groupsManagerBl.checkGroupExists(sess, group2);
 		} catch (GroupNotExistsException e) {
 			//this is ok, group was deleted, it should not exist
 		}
-		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group12).size() == 0);
-		assertTrue(groupsManager.getGroupMembers(sess, group13).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group5).size() == 1);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group12).size() == 0);
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group13).size() == 1);
 	}
 
 	@Test
@@ -1373,8 +1409,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.groupUnion(sess, group2, group);
 
 		assertTrue(groupsManager.getDirectGroupMembers(sess, group2).size() == 1);
-		assertTrue(groupsManager.getGroupMembers(sess, group2).contains(member2));
-		assertTrue(groupsManager.getGroupMembers(sess, group2).contains(member1));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).contains(member2));
+		assertTrue(groupsManager.getGroupActiveMembers(sess, group2).contains(member1));
 	}
 
 	@Test
@@ -1398,24 +1434,24 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-	public void getGroupMembersWhenGroupNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "getGroupMembersWhenGroupNotExist");
+	public void getGroupActiveMembersWhenGroupNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupActiveMembersWhenGroupNotExist");
 
-		groupsManager.getGroupMembers(sess, new Group());
+		groupsManager.getGroupActiveMembers(sess, new Group());
 
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-	public void getGroupMembersPageWhenGroupNotExist() throws Exception {
-		System.out.println(CLASS_NAME + "getGroupMembersPageWhenGroupNotExist");
+	public void getGroupActiveMembersPageWhenGroupNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupActiveMembersPageWhenGroupNotExist");
 
-		groupsManager.getGroupMembers(sess, new Group());
+		groupsManager.getGroupActiveMembers(sess, new Group());
 
 	}
 
 	@Test
-	public void getGroupMembersCount() throws Exception {
-		System.out.println(CLASS_NAME + "getGroupMembersCount");
+	public void getGroupActiveMembersCount() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupActiveMembersCount");
 
 		vo = setUpVo();
 		setUpGroup(vo);
@@ -1429,8 +1465,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test (expected=GroupNotExistsException.class)
-	public void getGroupMembersCountWhenGroupNotExists() throws Exception {
-		System.out.println(CLASS_NAME + "getGroupMembersCountWhenGroupNotExists");
+	public void getGroupActiveMembersCountWhenGroupNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupActiveMembersCountWhenGroupNotExists");
 
 		groupsManager.getGroupMembersCount(sess, new Group());
 
@@ -2012,11 +2048,11 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		this.groupsManager.addMember(sess, group3, member);
 		this.groupsManager.addMember(sess, group4, member);
 
-		assertTrue(this.groupsManager.getGroupMembers(sess, group).size() == 1);
-		assertEquals(this.groupsManager.getGroupMembers(sess, group).get(0).getMembershipType(), MembershipType.INDIRECT);
-		assertEquals(this.groupsManager.getGroupMembers(sess, group2).get(0).getMembershipType(), MembershipType.DIRECT);
-		// the member was excluded so it should not be returned by getGroupMembers
-		assertTrue(this.groupsManager.getGroupMembers(sess, group3).size() == 0);
+		assertTrue(this.groupsManager.getGroupActiveMembers(sess, group).size() == 1);
+		assertEquals(this.groupsManager.getGroupActiveMembers(sess, group).get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(this.groupsManager.getGroupActiveMembers(sess, group2).get(0).getMembershipType(), MembershipType.DIRECT);
+		// the member was excluded so it should not be returned by getGroupActiveMembers
+		assertTrue(this.groupsManager.getGroupActiveMembers(sess, group3).size() == 0);
 	}
 
 	@Test

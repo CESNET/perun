@@ -260,7 +260,7 @@ public class Main {
 				String description = "description: ";
 				String perunUniqueGroupName = "perunUniqueGroupName: ";
 				List<Member> members = new ArrayList<Member>();
-				members = perun.getGroupsManagerBl().getGroupMembers(perunSession, g, Status.VALID);
+				members = perun.getGroupsManagerBl().getGroupActiveMembers(perunSession, g, Status.VALID);
 				perunGroupId+= String.valueOf(g.getId());
 				perunVoId+= String.valueOf(g.getVoId());
 				dn+= "perunGroupId=" + g.getId() + ",perunVoId=" + g.getVoId() + ",dc=perun,dc=cesnet,dc=cz";

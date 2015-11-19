@@ -289,7 +289,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
-	public List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
+	public List<Member> getGroupActiveMembers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query("SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId +
 					" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
@@ -301,7 +301,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
-	public List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException {
+	public List<Member> getGroupActiveMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException {
 		try {
 			MapSqlParameterSource parameters = new MapSqlParameterSource();
 			List<Integer> statusesCodes = new ArrayList<Integer>();
@@ -314,11 +314,11 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 			if (excludeStatusInsteadOfIncludeStatus) {
 				// Exclude members with one of the status
-				return this.namedParameterJdbcTemplate.query("SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type AS membership_type FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+				return this.namedParameterJdbcTemplate.query("SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId + " FROM groups_members JOIN members ON members.id=groups_members.member_id " +
 						" WHERE groups_members.group_id=:group_id AND groups_members.membership_type!=:membership_type AND members.status" + Compatibility.castToInteger() + " NOT IN (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			} else {
 				// Include members with one of the status
-				return this.namedParameterJdbcTemplate.query("SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type AS membership_type FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+				return this.namedParameterJdbcTemplate.query("SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId + " FROM groups_members JOIN members ON members.id=groups_members.member_id " +
 						" WHERE groups_members.group_id=:group_id AND groups_members.membership_type!=:membership_type AND members.status" + Compatibility.castToInteger() + " IN (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			}
 		} catch (EmptyResultDataAccessException e) {
@@ -341,34 +341,42 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Member> getGroupMembersWithContext(PerunSession sess, Group group) throws InternalErrorException {
+	public List<Member> getAllGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query(
 				"SELECT * FROM " +
-					"(SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId + 
-						" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
-						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id NOT IN " +
-							"(SELECT member_id FROM groups_members " +
-							"WHERE group_id = ? AND membership_type = ?))" +
-				"UNION " + 
-					"(SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId +
-						" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.source_group_id AS source_group_id, " + 1 + " AS membership_type " +
+						"FROM groups_members JOIN members ON members.id=groups_members.member_id " +
 						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id NOT IN " +
 							"(SELECT member_id FROM groups_members " +
 							"WHERE group_id = ? AND membership_type = ?))" +
 				"UNION " +
-					"(SELECT " + MembersManagerImpl.memberMappingSelectQueryWithMemTypeAndSourceGroupId +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.source_group_id AS source_group_id, " + 2 + " AS membership_type " +
 						" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id NOT IN " +
+							"(SELECT member_id FROM groups_members " +
+							"WHERE group_id = ? AND (membership_type = ? OR membership_type = ?)))" +
+				"UNION " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.source_group_id AS source_group_id, " + 6 + " AS membership_type " +
+						"FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? " +
+							"AND groups_members.member_id IN " +
+								"(SELECT member_id FROM groups_members " +
+								"WHERE group_id = ? AND membership_type = ?)" +
+							"AND groups_members.member_id NOT IN " +
+								"(SELECT member_id FROM groups_members " +
+								"WHERE group_id = ? AND membership_type = ?))" +
+				"UNION " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.source_group_id AS source_group_id, " + 5 + " AS membership_type " +
+						"FROM groups_members JOIN members ON members.id=groups_members.member_id " +
 						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id IN " +
 							"(SELECT member_id FROM groups_members " +
-							"WHERE group_id = ? AND membership_type = ?))", 
-					MembersManagerImpl.MEMBER_MAPPER, 
-					group.getId(), MembershipType.DIRECT.getCode(), 
-					group.getId(), MembershipType.EXCLUDED.getCode(), 
-					group.getId(), MembershipType.INDIRECT.getCode(), 
-					group.getId(), MembershipType.EXCLUDED.getCode(), 
-					group.getId(), MembershipType.EXCLUDED.getCode(), 
-					group.getId(), MembershipType.DIRECT.getCode() 
+							"WHERE group_id = ? AND membership_type = ?))"  ,
+					MembersManagerImpl.MEMBER_MAPPER,
+					group.getId(), MembershipType.DIRECT.getCode(), group.getId(), MembershipType.EXCLUDED.getCode(),
+					group.getId(), MembershipType.INDIRECT.getCode(), group.getId(), MembershipType.EXCLUDED.getCode(), MembershipType.DIRECT.getCode(),
+					group.getId(), MembershipType.INDIRECT.getCode(), group.getId(), MembershipType.EXCLUDED.getCode(), group.getId(), MembershipType.DIRECT.getCode(),
+					group.getId(), MembershipType.DIRECT.getCode(), group.getId(), MembershipType.EXCLUDED.getCode()
 			);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
@@ -377,6 +385,67 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
+	@Override
+	public List<Member> getAllGroupMembersWithStatuses(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException {
+		try {
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			List<Integer> statusesCodes = new ArrayList<Integer>();
+			for (Status status: statuses) {
+				statusesCodes.add(status.getCode());
+			}
+			parameters.addValue("statuses", statusesCodes);
+
+			String sql =
+				"SELECT * FROM " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.source_group_id AS source_group_id, " + 1 + " AS membership_type " +
+						"FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id NOT IN " +
+							"(SELECT member_id FROM groups_members " +
+							"WHERE group_id = ? AND membership_type = ?))" +
+				"UNION " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.source_group_id AS source_group_id, " + 2 + " AS membership_type " +
+						" FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id NOT IN " +
+							"(SELECT member_id FROM groups_members " +
+							"WHERE group_id = ? AND (membership_type = ? OR membership_type = ?)))" +
+				"UNION " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.source_group_id AS source_group_id, " + 6 + " AS membership_type " +
+						"FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? " +
+							"AND groups_members.member_id IN " +
+								"(SELECT member_id FROM groups_members " +
+								"WHERE group_id = ? AND membership_type = ?)" +
+							"AND groups_members.member_id NOT IN " +
+								"(SELECT member_id FROM groups_members " +
+								"WHERE group_id = ? AND membership_type = ?))" +
+				"UNION " +
+					"(SELECT " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.source_group_id AS source_group_id, " + 5 + " AS membership_type " +
+						"FROM groups_members JOIN members ON members.id=groups_members.member_id " +
+						"WHERE group_id = ? AND groups_members.membership_type = ? AND groups_members.member_id IN " +
+							"(SELECT member_id FROM groups_members " +
+							"WHERE group_id = ? AND membership_type = ?))";
+
+			if (excludeStatusInsteadOfIncludeStatus) {
+				// Exclude members with one of the status
+				sql += " WHERE members.status" + Compatibility.castToInteger() + " NOT IN (:statuses)";
+			} else {
+				// Include members with one of the status
+				sql += " WHERE members.status" + Compatibility.castToInteger() + " IN (:statuses)";
+			}
+
+			return jdbc.query(sql,
+					MembersManagerImpl.MEMBER_MAPPER,
+					group.getId(), MembershipType.DIRECT.getCode(), group.getId(), MembershipType.EXCLUDED.getCode(),
+					group.getId(), MembershipType.INDIRECT.getCode(), group.getId(), MembershipType.EXCLUDED.getCode(), MembershipType.DIRECT.getCode(),
+					group.getId(), MembershipType.INDIRECT.getCode(), group.getId(), MembershipType.EXCLUDED.getCode(), group.getId(), MembershipType.DIRECT.getCode(),
+					group.getId(), MembershipType.DIRECT.getCode(), group.getId(), MembershipType.EXCLUDED.getCode()
+			);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 
 	public List<Group> getGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {

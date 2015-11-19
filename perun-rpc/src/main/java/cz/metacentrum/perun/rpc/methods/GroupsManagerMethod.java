@@ -208,7 +208,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
-			return ac.getGroupsManager().getGroupMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+			return ac.getGroupsManager().getGroupActiveMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
 
 		}
 	},
