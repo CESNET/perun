@@ -4118,8 +4118,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 							 // Get current values
 							 storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attribute.getName());
 						 } catch (AttributeNotExistsException e) {
-							 // Just ignore, setAttribute will set the attribute if it didn't exists
+							 throw new ConsistencyErrorException(e);
 						 }
+
+						 //if attribute to merge has null value, return the stored attribute
+						 if(attribute.getValue() == null) return storedAttribute;
+
 						 if (storedAttribute != null) {
 							 ArrayList<String> updatedList = (ArrayList<String>) storedAttribute.getValue();
 							 // If there were someting then find values which haven't been already stored
@@ -4142,8 +4146,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 							 // Get current values
 							 storedAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, attribute.getName());
 						 } catch (AttributeNotExistsException e) {
-							 // Just ignore, setAttribute will set the attribute if it didn't exists
+							 throw new ConsistencyErrorException(e);
 						 }
+
+						 //if attribute to merge has null value, return the stored attribute
+						 if(attribute.getValue() == null) return storedAttribute;
+
 						 // If there were someting then find values which haven't been already stored
 						 if (storedAttribute != null) {
 							 LinkedHashMap<String, String> updatedMap = (LinkedHashMap<String, String>) storedAttribute.getValue();
