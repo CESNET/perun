@@ -77,7 +77,7 @@ public class InviteUserTabItem implements TabItem {
 		ft.setWidth("350px");
 		ft.setStyleName("inputFormFlexTable");
 
-		ft.setHTML(0, 0, "Person you are inviting will receive an email with link to VO's application form. You can setup email template in: Vo manager (advanced) -> Application form -> Notifications.");
+		ft.setHTML(0, 0, "Person you are inviting will receive an email with link to VO's application form. You can set up an email template in: Vo manager (advanced) -> Application form -> Notifications.");
 		ft.getFlexCellFormatter().setColSpan(0, 0, 2);
 		ft.getFlexCellFormatter().addStyleName(0, 0, "inputFormInlineComment");
 
