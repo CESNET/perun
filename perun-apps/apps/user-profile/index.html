@@ -148,7 +148,14 @@
                             <dt>Organization</dt>
                             <dd class="user-organization"> ... </dd>
                             <dt>E-mail</dt>
-                            <dd class="user-preferredMail"> ... </dd>
+                            <dd>
+                                <span class="user-preferredMail"> ... </span>
+                                <div class="btn-group">
+                                    <button id="changeMailBtn" class="btn btn-mini" data-toggle="modal" data-target="#changeMailModal">
+                                        change
+                                    </button>
+                                </div>
+                            </dd>
                             <dt>Phone</dt>
                             <dd class="user-phone"> ... </dd>
                             <dt>Preferred language</dt>
@@ -181,6 +188,31 @@
                                 </div>
                             </dd>
                         </dl>
+
+                        <!-- Change mail modal -->
+                        <div class="modal fade" id="changeMailModal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">Change preferred E-mail</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div id="requestEmailChangeAgain" class="alert alert-info">
+                                            You have already requested for e-mail change to <span id="requestedMail"></span>.
+                                            Check your mailbox and verify your e-mail. Or you can try it again below.
+                                        </div>
+                                        <form id="requestMailChange">
+                                            <div class="form-group">
+                                                <label for="newEmail">new e-mail address</label>
+                                                <input type="email" class="form-control" id="newEmail" placeholder="E-mail">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Request a change</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     </div> <!-- profile tab -->
 

@@ -10,6 +10,7 @@ function entryPoint(user) {
     loadProjects(user);
     loadIdentities(user);
     loadSSHKeys(user);
+    checkPendingMailChange(user);
 }
 
 $(document).ready(function() {
@@ -52,7 +53,42 @@ $(document).ready(function() {
         });
     });
 
+
+    $("#changeMailModal").on('shown.bs.modal', function (e) {
+        $(this).find("#newEmail").focus();
+    });
+
+    $("#changeMailModal form#requestMailChange").submit(function(e) {
+        e.preventDefault();
+        $(this).find(":input").prop("disabled", true);
+        var loadImage = new LoadImage($("#changeMailModal .modal-body"), "64px");
+
+        var email = $(this).find("#newEmail").val();
+
+        callPerunPost("usersManager", "requestPreferredEmailChange", {user: user.id, email: email}, function() {
+            loadImage.hide();
+            $("#changeMailModal").modal('hide');
+            $("#changeMailModal form#requestMailChange :input").prop("disabled", false);
+            checkPendingMailChange(user);
+        });
+    });
+
 });
+
+
+function checkPendingMailChange(user) {
+    callPerun("usersManager", "getPendingPreferredEmailChanges", {user: user.id}, function(mails) {
+        if (mails.length == 0) {
+            $("#changeMailBtn").val("change");
+            $("#requestEmailChangeAgain").hide();
+        } else {
+            $("#changeMailBtn").text("change (pending)");
+            $("#requestEmailChangeAgain").show();
+            $("#requestEmailChangeAgain #requestedMail").text(mails.toString());
+        }
+    });
+}
+
 
 function checkUserEinfraLogin(user) {
     if (!user) {
