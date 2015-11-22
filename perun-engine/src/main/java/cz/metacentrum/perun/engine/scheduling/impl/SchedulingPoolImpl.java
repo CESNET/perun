@@ -81,27 +81,37 @@ public class SchedulingPoolImpl implements SchedulingPool{
 
 	@Override
 	public List<Task> getPlannedTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
+		}
 	}
 
 	@Override
 	public List<Task> getNewTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.NONE));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.NONE));
+		}
 	}
 
 	@Override
 	public List<Task> getProcessingTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
+		}
 	}
 
 	@Override
 	public List<Task> getErrorTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
+		}
 	}
 
 	@Override
 	public List<Task> getDoneTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.DONE));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.DONE));
+		}
 	}
 
 	@Override
@@ -111,8 +121,16 @@ public class SchedulingPoolImpl implements SchedulingPool{
 		// move task to the appropriate place
 		synchronized(pool) {
 			if (!old.equals(status)) {
-				pool.get(old).remove(task);
-				pool.get(status).add(task);
+				if(pool.get(old) != null) {
+					pool.get(old).remove(task);
+				} else {
+					log.warn("Task " + task.getId() + "not known by old status");
+				}
+				if(pool.get(status) != null) {
+					pool.get(status).add(task);
+				} else {
+					log.error("No task pool for status " + status.toString());
+				}
 			}
 		}
 		taskManager.updateTask(task, 0);

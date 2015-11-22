@@ -171,16 +171,18 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		TaskStatus old = task.getStatus();
 		task.setStatus(status);
 		// move task to the appropriate place
-		if (!old.equals(status)) {
-			if(pool.get(old) != null) {
-				pool.get(old).remove(task);
-			} else {
-				log.warn("task unknown by status");
-			}
-			if(pool.get(status) != null) {
-				pool.get(status).add(task);
-			} else {
-				log.error("no task pool for status " + status.toString());
+		synchronized(pool) {
+			if (!old.equals(status)) {
+				if(pool.get(old) != null) {
+					pool.get(old).remove(task);
+				} else {
+					log.warn("task unknown by status");
+				}
+				if(pool.get(status) != null) {
+					pool.get(status).add(task);
+				} else {
+					log.error("no task pool for status " + status.toString());
+				}
 			}
 		}
 		taskManager.updateTask(task);
@@ -199,27 +201,37 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 	@Override
 	public List<Task> getWaitingTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.NONE));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.NONE));
+		}
 	}
 
 	@Override
 	public List<Task> getDoneTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.DONE));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.DONE));
+		}
 	}
 
 	@Override
 	public List<Task> getErrorTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
+		}
 	}
 
 	@Override
 	public List<Task> getProcessingTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
+		}
 	}
 
 	@Override
 	public List<Task> getPlannedTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
+		}
 	}
 
 	@Override
