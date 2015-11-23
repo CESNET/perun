@@ -50,6 +50,7 @@ function fillFederations(federations) {
     var federationsFriendly = [];
     for (var id in federations) {
         federationsFriendly[id] = {};
+        federationsFriendly[id]["id"] = federations[id].id;
         federationsFriendly[id]["name"] = federations[id].extSource.name;   //default 
         federationsFriendly[id]["login"] = federations[id].login;           //default
         if (federations[id].extSource.name.split("/")[2] == 'extidp.cesnet.cz') {   //if is extIdp
@@ -72,8 +73,21 @@ function fillFederations(federations) {
     federationsTable.addColumn({type: "number", title: "#"});
     federationsTable.addColumn({type: "text", title: "Poskytovatel", name: "name"});
     federationsTable.addColumn({type: "text", title: "Identita", name: "login"});
+    federationsTable.addColumn({type: "button", title:"", btnText:"Odpojit", btnType:"danger", btnId:"id", btnName:"removeFed"});
     federationsTable.setValues(federationsFriendly);
     $("#identities-table-fed").html(federationsTable.draw());
+
+    $('#identities-table-fed button[id^="removeFed-"]').click(function() {
+
+        var fedId = parseInt(this.id.split('-')[1]);
+        var loadImage = new LoadImage($("#federations-table"), "auto");
+
+        callPerunPost("usersManager", "removeUserExtSource", {user: user.id, userExtSource: fedId}, function () {
+            loadIdentities(user);
+            loadImage.hide();
+            (flowMessager.newMessage("Federated identity", "was removed successfully", "success")).draw();
+        });
+    });
 }
 
 var social = [];
