@@ -121,7 +121,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="perunBl" ref="perun"/>
 		<property name="facilitiesManagerBl" ref="facilitiesManagerBl"/>
 	</bean>
-		<bean id="databaseManager" class="cz.metacentrum.perun.core.entry.DatabaseManagerEntry" scope="singleton">
+	<bean id="databaseManager" class="cz.metacentrum.perun.core.entry.DatabaseManagerEntry" scope="singleton">
 		<property name="databaseManagerBl" ref="databaseManagerBl"/>
 	</bean>
 	<bean id="membersManager" class="cz.metacentrum.perun.core.entry.MembersManagerEntry" scope="singleton" depends-on="databaseManagerBl">
@@ -181,7 +181,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="perunBl" ref="perun"/>
 		<constructor-arg ref="facilitiesManagerImpl" />
 	</bean>
-		<bean id="databaseManagerBl" class="cz.metacentrum.perun.core.blImpl.DatabaseManagerBlImpl" scope="singleton" init-method="initialize">
+	<bean id="databaseManagerBl" class="cz.metacentrum.perun.core.blImpl.DatabaseManagerBlImpl" scope="singleton" init-method="initialize">
 		<constructor-arg ref="databaseManagerImpl" />
 	</bean>
 	<bean id="membersManagerBl" class="cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
@@ -241,7 +241,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean id="facilitiesManagerImpl" class="cz.metacentrum.perun.core.impl.FacilitiesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
 	</bean>
-		<bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
+	<bean id="databaseManagerImpl" class="cz.metacentrum.perun.core.impl.DatabaseManagerImpl" scope="singleton">
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="membersManagerImpl" class="cz.metacentrum.perun.core.impl.MembersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
@@ -285,7 +285,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceGoogle" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
-        <bean class="cz.metacentrum.perun.core.impl.ExtSourceCSV" factory-method="setPerunBlImpl">
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourceCSV" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceISMU" factory-method="setPerunBlImpl">
