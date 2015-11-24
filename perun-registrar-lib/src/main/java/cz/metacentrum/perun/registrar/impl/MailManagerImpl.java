@@ -20,6 +20,7 @@ import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.mail.MailException;
@@ -105,7 +106,8 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	@Override
-	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException {
+	@Transactional(rollbackFor = Exception.class)
+	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException, DuplicateKeyException {
 
 		if (form.getGroup() != null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
@@ -129,6 +131,12 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		log.info("[MAIL MANAGER] Mail notification definition created: {}", mail);
+		if (form.getGroup() != null) {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} added for Group ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+		} else {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} added for VO ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
+		}
+
 
 		return id;
 
@@ -147,10 +155,18 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 
+		ApplicationMail mail = getMailById(sess, id);
+
 		int result = jdbc.update("delete from application_mails where id=?", id);
 		if (result == 0) throw new InternalErrorException("Mail notification with id="+id+" doesn't exists!");
 		if (result == 1) log.info("[MAIL MANAGER] Mail notification with id={} deleted", id);
 		if (result > 1) throw new ConsistencyErrorException("There is more than one mail notification with id="+id);
+
+		if (form.getGroup() != null) {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} removed for Group ID: {}.", id, mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+		} else {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} removed for VO ID: {}.", id, mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
+		}
 
 	}
 
@@ -206,6 +222,8 @@ public class MailManagerImpl implements MailManager {
 	@Transactional(rollbackFor=Exception.class)
 	public void updateMailById(PerunSession sess, ApplicationMail mail) throws PerunException {
 
+		ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
+
 		// update sending (enabled / disabled)
 		jdbc.update("update application_mails set send=? where id=?", mail.getSend() ? "1" : "0", mail.getId());
 
@@ -216,6 +234,12 @@ public class MailManagerImpl implements MailManager {
 			MailText text = mail.getMessage(loc);
 			jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)",
 					mail.getId(), loc.toString(), text.getSubject(), text.getText());
+		}
+
+		if (form.getGroup() != null) {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} updated for Group ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+		} else {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} updated for VO ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
 		}
 
 	}
@@ -279,7 +303,12 @@ public class MailManagerImpl implements MailManager {
 		ApplicationForm formTo = registrarManager.getFormForVo(toVo);
 		List<ApplicationMail> mails = getApplicationMails(sess, formFrom);
 		for (ApplicationMail mail : mails) {
-			addMail(sess, formTo, mail);
+			// to start transaction
+			try {
+				registrarManager.getMailManager().addMail(sess, formTo, mail);
+			} catch (DuplicateKeyException ex) {
+				log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
+			}
 		}
 
 	}
@@ -302,7 +331,12 @@ public class MailManagerImpl implements MailManager {
 
 			List<ApplicationMail> mails = getApplicationMails(sess, groupForm);
 			for (ApplicationMail mail : mails) {
-				addMail(sess, voForm, mail);
+				// to start transaction
+				try {
+					registrarManager.getMailManager().addMail(sess, voForm, mail);
+				} catch (DuplicateKeyException ex) {
+					log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
+				}
 			}
 
 		} else {
@@ -313,7 +347,12 @@ public class MailManagerImpl implements MailManager {
 
 			List<ApplicationMail> mails = getApplicationMails(sess, voForm);
 			for (ApplicationMail mail : mails) {
-				addMail(sess, groupForm, mail);
+				// to start transaction
+				try {
+					registrarManager.getMailManager().addMail(sess, groupForm, mail);
+				} catch (DuplicateKeyException ex) {
+					log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
+				}
 			}
 
 		}
@@ -339,7 +378,12 @@ public class MailManagerImpl implements MailManager {
 		ApplicationForm formTo = registrarManager.getFormForGroup(toGroup);
 		List<ApplicationMail> mails = getApplicationMails(sess, formFrom);
 		for (ApplicationMail mail : mails) {
-			addMail(sess, formTo, mail);
+			// to start transaction
+			try {
+				registrarManager.getMailManager().addMail(sess, formTo, mail);
+			} catch (DuplicateKeyException ex) {
+				log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
+			}
 		}
 
 	}
@@ -793,7 +837,7 @@ public class MailManagerImpl implements MailManager {
 
 		if (group == null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-			    !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
+					!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		} else {

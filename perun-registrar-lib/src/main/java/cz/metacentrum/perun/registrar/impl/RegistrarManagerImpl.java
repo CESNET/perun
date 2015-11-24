@@ -562,6 +562,53 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 	}
 
+	@Override
+	public ApplicationForm getFormById(PerunSession sess, int id) throws PerunException {
+
+		try {
+			ApplicationForm form = jdbc.queryForObject(FORM_SELECT + " where id=?", new RowMapper<ApplicationForm>() {
+				@Override
+				public ApplicationForm mapRow(ResultSet rs, int arg1) throws SQLException {
+					ApplicationForm form = new ApplicationForm();
+					form.setId(rs.getInt("id"));
+					form.setAutomaticApproval(rs.getBoolean("automatic_approval"));
+					form.setAutomaticApprovalExtension(rs.getBoolean("automatic_approval_extension"));
+					form.setModuleClassName(rs.getString("module_name"));
+					try {
+						form.setVo(vosManager.getVoById(registrarSession, rs.getInt("vo_id")));
+					} catch (Exception ex) {
+						// we don't care, shouldn't happen for internal identity.
+					}
+					try {
+						if (rs.getInt("group_id") != 0)
+							form.setGroup(perun.getGroupsManager().getGroupById(registrarSession, rs.getInt("group_id")));
+					} catch (Exception ex) {
+						// we don't care, shouldn't happen for internal identity.
+					}
+					return form;
+				}
+			}, id);
+
+			if (form.getGroup() == null) {
+				// VO application
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo())) {
+					throw new PrivilegeException(sess, "getFormById");
+				}
+			} else {
+				if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) &&
+						!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup()) ) {
+					throw new PrivilegeException(sess, "getFormById");
+				}
+			}
+
+			return form;
+
+		} catch (EmptyResultDataAccessException ex) {
+			throw new FormNotExistsException("Form with ID: "+id+" doesn't exists.");
+		}
+
+	}
+
 	@Transactional
 	@Override
 	public ApplicationFormItem addFormItem(PerunSession user, ApplicationForm form, ApplicationFormItem item) throws PrivilegeException, InternalErrorException {
@@ -1462,7 +1509,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, app.getVo())
 						&& !AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.RPC)
 						&& !(app.getCreatedBy().equals(sess.getPerunPrincipal().getActor()) &&
-						     app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
+						app.getExtSourceName().equals(sess.getPerunPrincipal().getExtSourceName()))) {
 					throw new PrivilegeException(sess, "getApplicationById");
 				}
 
