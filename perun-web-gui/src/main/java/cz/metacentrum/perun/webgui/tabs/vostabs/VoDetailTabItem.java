@@ -120,9 +120,10 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 			menu.setHTML(0, column, "&nbsp;");
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
-		}
 
-		menu.setHTML(0, column, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getShortName()+"</span>");
+			menu.setHTML(0, column, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getShortName()+"</span>");
+
+		}
 
 		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
 			@Override
