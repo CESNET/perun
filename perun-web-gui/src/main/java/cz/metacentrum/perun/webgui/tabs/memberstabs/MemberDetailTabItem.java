@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;

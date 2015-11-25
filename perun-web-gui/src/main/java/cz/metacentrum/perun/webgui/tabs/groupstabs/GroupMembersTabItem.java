@@ -207,7 +207,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		});
 
 
-		CustomButton inviteButton = new CustomButton("Invite user", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
+		CustomButton inviteButton = new CustomButton("Invite member", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new InviteUserTabItem(group.getVoId(), group));

@@ -133,6 +133,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 			column++;
 		}
 
+		/*
 		String text = (((RichGroup)group).isSyncEnabled()) ? "Enabled" : "Disabled";
 
 		text += (((RichGroup)group).getAuthoritativeGroup().equals("1")) ? " / Authoritative" : "";
@@ -140,6 +141,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		menu.setHTML(0, column, "<strong>Sync:</strong><br/><span class=\"inputFormInlineComment\">"+text+"</span>");
 
 		column++;
+		*/
 
 		menu.setHTML(0, column, "&nbsp;");
 		menu.getFlexCellFormatter().setWidth(0, column, "25px");

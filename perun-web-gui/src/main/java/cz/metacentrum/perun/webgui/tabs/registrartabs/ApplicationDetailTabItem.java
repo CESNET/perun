@@ -114,7 +114,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 			text += app.getCreatedBy();
 		}
 		text += " <strong>from External Source:</strong> " + app.getExtSourceName()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
-		text += " <strong>at: </strong> " + app.getCreatedAt().split("\\.")[0];
+		text += " <strong>on: </strong> " + app.getCreatedAt().split("\\.")[0];
 		ft.setHTML(row, 0, text);
 		ft.setCellSpacing(5);
 
@@ -128,11 +128,11 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 		if (app.getState().equalsIgnoreCase("APPROVED")) {
 			row++;
-			ft.setHTML(row, 0, "<strong>Approved by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>at: </strong> " + app.getModifiedAt().split("\\.")[0]);
+			ft.setHTML(row, 0, "<strong>Approved by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>on: </strong> " + app.getModifiedAt().split("\\.")[0]);
 		}
 		if (app.getState().equalsIgnoreCase("REJECTED")) {
 			row++;
-			ft.setHTML(row, 0, "<strong>Rejected by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>at: </strong> " + app.getModifiedAt().split("\\.")[0]);
+			ft.setHTML(row, 0, "<strong>Rejected by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>on: </strong> " + app.getModifiedAt().split("\\.")[0]);
 		}
 
 		// for extension in VO if not approved or rejected

@@ -152,7 +152,7 @@ public class VoOverviewTabItem implements TabItem {
 				session.getTabManager().addTabToCurrentTab(new CreateServiceMemberInVoTabItem(vo));
 			}
 		});
-		CustomButton inviteUser = new CustomButton("Invite user", "Invite unknown or existing user to your VO.", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
+		CustomButton inviteUser = new CustomButton("Invite member", "Invite person to become member of your Virtual organization.", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new InviteUserTabItem(vo, null));
@@ -193,11 +193,10 @@ public class VoOverviewTabItem implements TabItem {
 
 		toolsLayout.setHTML(0, 1, "Add new member into your VO. Candidates can be searched for in VO's external sources or among user already existing in Perun.");
 		toolsLayout.setHTML(1, 1, "Create new member which represent service account (account usually used by more users with separate login and password).");
-		toolsLayout.setHTML(2, 1, "Invite unknown or existing user into your VO.");
+		toolsLayout.setHTML(2, 1, "Invite person to become member of your Virtual organization.");
 		toolsLayout.setHTML(3, 1, "Add new manager which can manage your VO in Perun.");
 		toolsLayout.setHTML(4, 1, "Create new group in your VO.");
 		toolsLayout.setHTML(5, 1, "Add selected member to specific resource (grant some type of access to Facility resources).");
-
 
 		vp2.add(tools);
 

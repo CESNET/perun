@@ -122,6 +122,9 @@ public class AddVoExtSourceTabItem implements TabItem, TabItemWithUrl{
 			}
 		};
 		extSources.setEvents(localEvents);
+		extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceX509");
+		extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceKerberos");
+		extSources.setExtSourceTypeFilter("cz.metacentrum.perun.core.impl.ExtSourceIdp");
 
 		final ExtendedSuggestBox box = new ExtendedSuggestBox(extSources.getOracle());
 

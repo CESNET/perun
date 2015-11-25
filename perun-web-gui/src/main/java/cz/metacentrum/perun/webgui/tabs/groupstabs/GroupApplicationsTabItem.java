@@ -110,6 +110,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(menu);
 		firstTabPanel.setCellHeight(menu, "30px");
 
+		/*
 		// verify button
 		final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
 		verify.addClickHandler(new ClickHandler() {
@@ -211,6 +212,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 		menu.addWidget(approve);
 		menu.addWidget(reject);
 		menu.addWidget(delete);
+		*/
 
 		// FILTER
 		menu.addWidget(new HTML("<strong>State: </strong>"));
@@ -260,6 +262,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 		session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
 
+		/*
 		verify.setEnabled(false);
 		approve.setEnabled(false);
 		reject.setEnabled(false);
@@ -279,9 +282,12 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 
 		} else {
 
-			applicationsRequest.setCheckable(false);
+
 
 		}
+
+		*/
+		applicationsRequest.setCheckable(false);
 
 		this.contentWidget.setWidget(firstTabPanel);
 		return getWidget();

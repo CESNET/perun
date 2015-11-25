@@ -18,6 +18,7 @@ import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -48,6 +49,8 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 	private boolean checkable = true;
 	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle(" ./-");
 	private ArrayList<ExtSource> fullBackup = new ArrayList<ExtSource>();
+
+	private ArrayList<String> extSourceTypeFilter = new ArrayList<>();
 
 	/**
 	 * Creates a new callback
@@ -244,10 +247,22 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
 	public void setList(ArrayList<ExtSource> list) {
 		clearTable();
-		this.list.addAll(list);
-		for (ExtSource object : list) {
-			oracle.add(object.getName());
-			oracle.add(renameContent(object.getType()));
+
+		if (!extSourceTypeFilter.isEmpty()) {
+			// filter only them
+			for (ExtSource object : list) {
+				if (!extSourceTypeFilter.contains(object.getType())) {
+					this.list.add(object);
+					oracle.add(object.getName());
+					oracle.add(renameContent(object.getType()));
+				}
+			}
+		} else {
+			this.list.addAll(list);
+			for (ExtSource object : list) {
+				oracle.add(object.getName());
+				oracle.add(renameContent(object.getType()));
+			}
 		}
 		dataProvider.flush();
 		dataProvider.refresh();
@@ -328,6 +343,10 @@ public class GetExtSources implements JsonCallback, JsonCallbackTable<ExtSource>
 
 	public MultiSelectionModel<ExtSource> getSelectionModel() {
 		return this.selectionModel;
+	}
+
+	public void setExtSourceTypeFilter(String... types) {
+		extSourceTypeFilter.addAll(Arrays.asList(types));
 	}
 
 }
