@@ -100,8 +100,8 @@ public class FacilityHostsTabItem implements TabItem, TabItemWithUrl{
 
 		// menu
 		TabMenu menu = new TabMenu();
-
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addHost(), new ClickHandler() {
+		menu.addWidget(UiElements.getRefreshButton(this));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addHost(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new AddHostsTabItem(facility));

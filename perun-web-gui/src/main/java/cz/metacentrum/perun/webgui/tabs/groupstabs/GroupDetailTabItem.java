@@ -125,6 +125,26 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
 		int column = 3;
+
+		CustomButton change;
+		if (group.isCoreGroup()) {
+			change = new CustomButton("Edit…", "Core group's name and description can't be changed", SmallIcons.INSTANCE.applicationFormEditIcon());
+			change.setEnabled(false);
+		} else {
+			change = new CustomButton("Edit…", ButtonTranslation.INSTANCE.editGroupDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
+		}
+		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) change.setEnabled(false);
+		change.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new EditGroupDetailsTabItem(group, events));
+			}
+		});
+		menu.setWidget(0, column, change);
+		column++;
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
+
 		if (JsonUtils.isExtendedInfoVisible()) {
 			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+group.getId()+"</span>");
 			column++;
@@ -143,38 +163,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		column++;
 		*/
 
-		menu.setHTML(0, column, "&nbsp;");
-		menu.getFlexCellFormatter().setWidth(0, column, "25px");
-
-		column++;
-
 		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+group.getDescription()+"&nbsp;</span>");
-
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
-
-		CustomButton change;
-		if (group.isCoreGroup()) {
-			change = new CustomButton("", "Core group's name and description can't be changed", SmallIcons.INSTANCE.applicationFormEditIcon());
-			change.setEnabled(false);
-		} else {
-			change = new CustomButton("", ButtonTranslation.INSTANCE.editGroupDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
-		}
-		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) change.setEnabled(false);
-		change.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				session.getTabManager().addTabToCurrentTab(new EditGroupDetailsTabItem(group, events));
-			}
-		});
-
-		dp.add(change);
-		change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
 
 		dp.add(menu);
 		vp.add(dp);

@@ -93,12 +93,13 @@ public class ResourceAssignedServicesTabItem implements TabItem, TabItemWithUrl{
 		vp.setSize("100%", "100%");
 
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		final GetAssignedServices resourceServices = new GetAssignedServices(resourceId);
 
 		final JsonCallbackEvents localEvents = JsonCallbackEvents.refreshTableEvents(resourceServices);
 
-		CustomButton assignServicesButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignServiceToResource(), new ClickHandler() {
+		CustomButton assignServicesButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.assignServiceToResource(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AssignServiceTabItem(resourceId), true);
 			}

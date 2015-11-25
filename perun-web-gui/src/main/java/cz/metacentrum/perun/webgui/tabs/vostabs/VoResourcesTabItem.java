@@ -99,6 +99,8 @@ public class VoResourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		// refresh
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// get VO resources
 		final GetRichResources resources = new GetRichResources(voId);

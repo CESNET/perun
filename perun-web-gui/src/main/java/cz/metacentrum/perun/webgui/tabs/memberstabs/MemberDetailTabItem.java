@@ -142,15 +142,6 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
 			menu.setWidget(0, column, a);
 		}
 
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
-
 		dp.add(menu);
 		vp.add(dp);
 		vp.setCellHeight(dp, "30px");

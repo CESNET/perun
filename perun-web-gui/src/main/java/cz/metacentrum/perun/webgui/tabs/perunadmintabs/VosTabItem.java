@@ -78,11 +78,12 @@ public class VosTabItem implements TabItem, TabItemWithUrl {
 
 		// create new VO button
 		TabMenu tabMenu = new TabMenu();
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
 		// add menu to the main panel
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
 
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, buttonTranslation.createVo(), new ClickHandler() {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, buttonTranslation.createVo(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CreateVoTabItem());
 			}

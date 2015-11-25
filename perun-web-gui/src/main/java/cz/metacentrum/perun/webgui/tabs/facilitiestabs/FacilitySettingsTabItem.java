@@ -124,6 +124,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// content
 		vp.setSize("100%", "100%");
+		vp.clear();
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
@@ -136,8 +137,8 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 		// get empty table
 		final CellTable<Attribute> table = reqAttrs.getEmptyTable();
 		final CellTable<Attribute> table2 = attrs.getEmptyTable();
-		sp.add(table);
-		sp2.add(table2);
+		sp.setWidget(table);
+		sp2.setWidget(table2);
 
 		// ids to retrieve data from rpc
 		final Map<String, Integer> ids = new HashMap<String, Integer>();
@@ -323,7 +324,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 		});
 
 		// allow to set new (currently unused facility attribute)
-		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				Map<String, Integer> ids = new HashMap<String, Integer>();
 				ids.put("facility", facility.getId());
@@ -331,6 +332,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
+		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addWidget(saveChangesButton);
 		menu.addWidget(setNewAttributeButton);
 		menu.addWidget(removeButton);

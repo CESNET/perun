@@ -500,7 +500,7 @@ public class TabManager {
         var shield = "#tab-" + tabId + " .tab-overlay-shield";
         var content = "#tab-" + tabId + " .tab-content";
         var height = 1000;
-        var topSpace = 0;
+        var topSpace = 15;
 
         if (visible) {
             $wnd.jQuery(overlay).show();

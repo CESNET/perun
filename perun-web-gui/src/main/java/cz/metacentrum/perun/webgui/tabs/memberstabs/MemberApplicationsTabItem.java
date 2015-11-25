@@ -71,6 +71,8 @@ public class MemberApplicationsTabItem implements TabItem {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		// set proper request
 		if (session.isVoAdmin(member.getVoId())) {
 			applicationsRequest = new GetApplicationsForMember(memberId, 0);

@@ -128,11 +128,14 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		}
 
 		vp.setSize("100%", "100%");
+		vp.clear();
 
 		// menu
 		TabMenu menu = new TabMenu();
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
+
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// callback
 		final GetRequiredAttributesV2 resAttrs = new GetRequiredAttributesV2();
@@ -147,8 +150,8 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		final CellTable<Attribute> table = resAttrs.getEmptyTable();
 		final CellTable<Attribute> table2 = attrs.getEmptyTable();
 		final ListBoxWithObjects<Service> servList = new ListBoxWithObjects<Service>();
-		sp.add(table);
-		sp2.add(table2);
+		sp.setWidget(table);
+		sp2.setWidget(table2);
 
 		// switch between assigned and all
 		final CheckBox chb = new CheckBox();
@@ -319,7 +322,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		});
 
 		// add set new to menu
-		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				ArrayList<Attribute> list = new ArrayList<Attribute>();
 				if (required) {

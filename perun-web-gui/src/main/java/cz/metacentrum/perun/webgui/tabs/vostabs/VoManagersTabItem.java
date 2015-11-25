@@ -23,7 +23,6 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetAdminGroups;
 import cz.metacentrum.perun.webgui.json.authzResolver.GetRichAdminsWithAttributes;
 import cz.metacentrum.perun.webgui.json.authzResolver.RemoveAdmin;
-import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
@@ -144,8 +143,8 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 			sp.setWidget(fillContentGroups(adminGroups, menu));
 		}
 
-		menu.addWidget(2, new HTML("<strong>Select mode: </strong>"));
-		menu.addWidget(3, box);
+		menu.addWidget(3, new HTML("<strong>Select mode: </strong>"));
+		menu.addWidget(4, box);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
@@ -163,19 +162,22 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 
 		admins.clearTableSelectedSet();
 
+		// refresh
+		menu.addWidget(0, UiElements.getRefreshButton(this));
+
 		// Events for reloading when finished
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(admins);
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToVo(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerToVo(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(vo), true);
 			}
 		});
 		if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
-		menu.addWidget(0, addButton);
+		menu.addWidget(1, addButton);
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerFromVo());
-		menu.addWidget(1, removeButton);
+		menu.addWidget(2, removeButton);
 		removeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				final ArrayList<User> adminsForRemoving = admins.getTableSelectedList();
@@ -224,19 +226,22 @@ public class VoManagersTabItem implements TabItem, TabItemWithUrl {
 
 		adminGroups.clearTableSelectedSet();
 
+		// refresh
+		menu.addWidget(0, UiElements.getRefreshButton(this));
+
 		// Events for reloading when finished
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(adminGroups);
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToVo(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerGroupToVo(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddVoManagerGroupTabItem(vo, events), true);
 			}
 		});
 		if (!session.isVoAdmin(voId)) addButton.setEnabled(false);
-		menu.addWidget(0, addButton);
+		menu.addWidget(1, addButton);
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerGroupFromVo());
-		menu.addWidget(1, removeButton);
+		menu.addWidget(2, removeButton);
 		removeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				final ArrayList<Group> adminsForRemoving = adminGroups.getTableSelectedList();

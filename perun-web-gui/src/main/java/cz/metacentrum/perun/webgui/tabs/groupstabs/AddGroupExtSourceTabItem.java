@@ -103,6 +103,7 @@ public class AddGroupExtSourceTabItem implements TabItem, TabItemWithUrl{
 
 		// menu
 		TabMenu menu = new TabMenu();
+		menu.addWidget(new HTML(""));
 
 		final GetVoExtSources extSources = new GetVoExtSources(group.getVoId());
 

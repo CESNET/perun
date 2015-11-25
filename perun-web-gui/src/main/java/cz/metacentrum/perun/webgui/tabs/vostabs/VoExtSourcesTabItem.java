@@ -95,6 +95,8 @@ public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		// refresh
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// get VO resources
 		final GetVoExtSources extSources = new GetVoExtSources(voId);
@@ -103,7 +105,7 @@ public class VoExtSourcesTabItem implements TabItem, TabItemWithUrl{
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(extSources);
 
 		// create ext source button
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addExtSource(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addExtSource(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddVoExtSourceTabItem(voId), true);
 			}

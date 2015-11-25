@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
@@ -98,11 +99,12 @@ public class GroupApplicationFormSettingsTabItem implements TabItem, TabItemWith
 		vp.setSize("100%", "100%");
 
 		final TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem());
-		final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
-		final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
+		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addNewAppFormItem());
+		final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton()+"…", ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
+		final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton()+"…", ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
 		final CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm());
 
 		// request

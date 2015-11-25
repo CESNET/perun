@@ -68,9 +68,9 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
 
-
 		TabMenu menu = new TabMenu();
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new category", new ClickHandler(){
+		menu.addWidget(UiElements.getRefreshButton(this));
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new category", new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CreateCategoryTabItem());
 			}

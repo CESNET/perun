@@ -136,8 +136,11 @@ public class VoMembersTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
+		// refresh
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
+
 		// ADD
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMemberToVo(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addMemberToVo(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(voId), true);
 			}

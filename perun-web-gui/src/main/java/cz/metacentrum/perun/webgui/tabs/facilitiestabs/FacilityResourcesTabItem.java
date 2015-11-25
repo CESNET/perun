@@ -96,6 +96,7 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// get VO resources
 		final GetAssignedRichResources resources = new GetAssignedRichResources(facility.getId());
@@ -104,7 +105,7 @@ public class FacilityResourcesTabItem implements TabItem, TabItemWithUrl{
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resources);
 
 		// create resource button
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createResource(), new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createResource(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CreateFacilityResourceTabItem(facility), false);
 			}

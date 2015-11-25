@@ -469,7 +469,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			innerContent.setCellHeight(menu, "30px");
 
 			// add button
-			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewOwners());
+			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addNewOwners());
 			addButton.addClickHandler(new ClickHandler(){
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new AddFacilityOwnerTabItem(facility), true);
@@ -1301,7 +1301,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 					}
 				});
 
-				CustomButton createResource = new CustomButton("Create new resource", SmallIcons.INSTANCE.addIcon());
+				CustomButton createResource = new CustomButton("Create new resource…", SmallIcons.INSTANCE.addIcon());
 				createResource.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
@@ -1318,7 +1318,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 
 			} else {
 
-				CustomButton createResource = new CustomButton("Create new resource", SmallIcons.INSTANCE.addIcon());
+				CustomButton createResource = new CustomButton("Create new resource…", SmallIcons.INSTANCE.addIcon());
 				createResource.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
@@ -1374,7 +1374,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			table = jsonCallback.getTable();
 		}
 
-		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToFacility(), new ClickHandler() {
+		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerToFacility(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityManagerTabItem(facility), true);
 			}
@@ -1425,7 +1425,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToFacility(), new ClickHandler() {
+		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerGroupToFacility(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityManagerGroupTabItem(facility, JsonCallbackEvents.refreshTableEvents(jsonCallback)), true);
 			}

@@ -97,6 +97,7 @@ public class GroupExtSourcesTabItem implements TabItem, TabItemWithUrl {
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// get VO resources
 		final GetGroupExtSources extSources = new GetGroupExtSources(groupId);
@@ -105,7 +106,7 @@ public class GroupExtSourcesTabItem implements TabItem, TabItemWithUrl {
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(extSources);
 
 		// create ext source button
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addExtSource(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addExtSource(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddGroupExtSourceTabItem(groupId), true);
 			}

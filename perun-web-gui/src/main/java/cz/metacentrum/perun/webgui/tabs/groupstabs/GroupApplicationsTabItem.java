@@ -107,6 +107,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 		firstTabPanel.add(menu);
 		firstTabPanel.setCellHeight(menu, "30px");
 

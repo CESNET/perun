@@ -7,6 +7,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
@@ -92,9 +93,19 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 		ScrollPanel vp = new ScrollPanel();
 		vp.setSize("100%","100%");
 
+		final VerticalPanel innerVp = new VerticalPanel();
+		innerVp.setSize("100%", "100%");
+
+		final TabMenu menu = new TabMenu();
+		innerVp.add(menu);
+		innerVp.setCellHeight(menu, "30px");
+
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		final FlexTable layout = new FlexTable();
 		layout.setSize("100%","100%");
-		vp.add(layout);
+		vp.add(innerVp);
+		innerVp.add(layout);
 
 		layout.setStyleName("perun-table");
 		vp.setStyleName("perun-tableScrollPanel");
@@ -157,12 +168,12 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 							FlexTable fw = new FlexTable();
 							fw.addStyleName("padding-vertical");
 
-							CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
+							CustomButton cb = new CustomButton("Change password…", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 								public void onClick(ClickEvent event) {
 									session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
 								}
 							});
-							CustomButton cb2 = new CustomButton("Reset password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
+							CustomButton cb2 = new CustomButton("Reset password…", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 								public void onClick(ClickEvent event) {
 									// OPEN PASSWORD RESET APPLICATION ON SAME SERVER
 									Window.open("" + Utils.getPasswordResetLink(a.getFriendlyNameParameter()), "_blank", "");
@@ -172,7 +183,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 							if (!user.isServiceUser()) {
 								fw.setWidget(0, 1, cb2);
 							} else {
-								cb.setText("Reset password");
+								cb.setText("Reset password…");
 							}
 
 							loginsTable.setWidget(row, 2, fw);

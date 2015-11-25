@@ -71,7 +71,9 @@ public class MemberGroupsTabItem implements TabItem {
 
 		final GetMemberGroups groupsCall = new GetMemberGroups(memberId);
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new group", new ClickHandler() {
+		menu.addWidget(UiElements.getRefreshButton(this));
+
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add member to new group", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new MemberAddToGroupTabItem(member), true);

@@ -135,6 +135,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 
 		// MENU
 		TabMenu tabMenu = new TabMenu();
+
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
+
 		boolean isMembersGroup = group.isCoreGroup();
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromGroup());
@@ -142,7 +145,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		if(!isMembersGroup){
 
 			// ADD
-			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMemberToGroup(), new ClickHandler() {
+			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addMemberToGroup(), new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new AddMemberToGroupTabItem(group), true);
 				}
@@ -207,7 +210,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 		});
 
 
-		CustomButton inviteButton = new CustomButton("Invite member", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
+		CustomButton inviteButton = new CustomButton("Invite member…", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new InviteUserTabItem(group.getVoId(), group));

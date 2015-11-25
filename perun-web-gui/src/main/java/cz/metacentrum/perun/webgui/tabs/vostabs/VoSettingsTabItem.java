@@ -100,6 +100,8 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		// refresh
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// Get Attributes
 		final GetAttributesV2 jsonCallback = new GetAttributesV2();
@@ -136,7 +138,7 @@ public class VoSettingsTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				Map<String, Integer> ids = new HashMap<String, Integer>();

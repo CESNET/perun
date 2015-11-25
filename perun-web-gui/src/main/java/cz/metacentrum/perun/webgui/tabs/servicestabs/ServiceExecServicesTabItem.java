@@ -100,6 +100,8 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		final ListExecServices callback = new ListExecServices(serviceId);
 		CellTable<ExecService> table = callback.getTable(new FieldUpdater<ExecService, String>(){
 			public void update(int index, ExecService object, String value) {
@@ -111,7 +113,7 @@ public class ServiceExecServicesTabItem implements TabItem, TabItemWithUrl{
 		// refresh event after deletion
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createExecService(), new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createExecService(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new AddExecServiceTabItem(service));

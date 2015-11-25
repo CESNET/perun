@@ -10,6 +10,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
@@ -26,6 +27,7 @@ import cz.metacentrum.perun.webgui.tabs.*;
 import cz.metacentrum.perun.webgui.tabs.userstabs.RequestQuotaChangeTabItem.QuotaType;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -163,6 +165,12 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
+		final TabMenu menu = new TabMenu();
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
+
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		final ScrollPanel scroll = new ScrollPanel();
 		scroll.setWidget(vp);
 		scroll.setStyleName("perun-tableScrollPanel");
@@ -175,7 +183,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 		GetVosWhereUserIsMember vosRequest = new GetVosWhereUserIsMember(userId, new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
-				vp.clear();
+				vp.getWidget(1).removeFromParent();
 				ArrayList<VirtualOrganization> vos = JsonUtils.jsoAsList(jso);
 				vos = new TableSorter<VirtualOrganization>().sortByName(vos);
 
@@ -370,7 +378,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 
 								empty = false;
 								// change button
-								CustomButton cb = new CustomButton("Change",SmallIcons.INSTANCE.cogIcon());
+								CustomButton cb = new CustomButton("Change…",SmallIcons.INSTANCE.cogIcon());
 								layoutx.setWidget(row, 2, cb);
 								// click handler
 								cb.addClickHandler(new ClickHandler() {
@@ -407,7 +415,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 						for (final Attribute a : attrs) {
 							if (a.getFriendlyName().equalsIgnoreCase("dataLimit")) {
 								final int rowDataLimit = row;
-								final CustomButton quotaChangeButton = new CustomButton("Request change", SmallIcons.INSTANCE.databaseIcon());
+								final CustomButton quotaChangeButton = new CustomButton("Request change…", SmallIcons.INSTANCE.databaseIcon());
 
 								// display value
 								layoutx.setHTML(row, 0, "<strong>Data quota: </strong>");
@@ -479,7 +487,7 @@ public class SelfResourcesSettingsTabItem implements TabItem, TabItemWithUrl, Ta
 								Map<String, Integer> ids = new HashMap<String, Integer>();
 								ids.put("resource", resource.getId());
 
-								final CustomButton quotaChangeButton = new CustomButton("Request change", SmallIcons.INSTANCE.databaseIcon());
+								final CustomButton quotaChangeButton = new CustomButton("Request change…", SmallIcons.INSTANCE.databaseIcon());
 
 								GetAttributes defaultAttr = new GetAttributes(new JsonCallbackEvents(){
 									public void onError(PerunError error) {

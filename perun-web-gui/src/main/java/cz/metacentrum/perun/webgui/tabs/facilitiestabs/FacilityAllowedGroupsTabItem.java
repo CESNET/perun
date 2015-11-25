@@ -108,6 +108,7 @@ public class FacilityAllowedGroupsTabItem implements TabItem, TabItemWithUrl {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
+		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addWidget(new HTML("<strong>Filter by VO:</strong>"));
 		menu.addWidget(vosListbox);
 		menu.addWidget(new HTML("<strong>Filter by service:</strong>"));

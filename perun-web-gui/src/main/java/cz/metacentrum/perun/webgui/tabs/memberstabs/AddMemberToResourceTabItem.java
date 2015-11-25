@@ -464,7 +464,7 @@ public class AddMemberToResourceTabItem implements TabItem  {
 				}
 			});
 
-			menu.addWidget(new CustomButton("Create group", "Create new empty group", SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+			menu.addWidget(new CustomButton("Create group…", "Create new empty group", SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent clickEvent) {
 					// get back and reload

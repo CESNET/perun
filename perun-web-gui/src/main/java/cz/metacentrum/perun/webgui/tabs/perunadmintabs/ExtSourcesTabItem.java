@@ -6,6 +6,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
@@ -68,6 +69,7 @@ public class ExtSourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// menu
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addFilterWidget(new ExtendedSuggestBox(getExtSources.getOracle()), new PerunSearchEvent() {
 			@Override
 			public void searchFor(String text) {

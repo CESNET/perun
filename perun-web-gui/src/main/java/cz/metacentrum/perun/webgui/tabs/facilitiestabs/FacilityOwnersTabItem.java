@@ -101,8 +101,10 @@ public class FacilityOwnersTabItem implements TabItem, TabItemWithUrl{
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		// add button
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewOwners());
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addNewOwners());
 		addButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityOwnerTabItem(facility), true);

@@ -77,7 +77,9 @@ public class SecurityTeamSelectTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
 
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createSecurityTeam(), new ClickHandler() {
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
+
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createSecurityTeam(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CreateSecurityTeamTabItem());

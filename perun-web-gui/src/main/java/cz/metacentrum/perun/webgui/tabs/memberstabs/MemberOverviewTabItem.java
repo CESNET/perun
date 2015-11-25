@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.MembershipExpirationWidget;
 import cz.metacentrum.perun.webgui.widgets.PerunStatusWidget;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,11 +64,22 @@ public class MemberOverviewTabItem implements TabItem {
 		ScrollPanel vp = new ScrollPanel();
 		vp.setSize("100%","100%");
 
+		VerticalPanel innerVp = new VerticalPanel();
+		innerVp.setSize("100%", "100%");
+		vp.add(innerVp);
+
+		TabMenu menu = new TabMenu();
+		innerVp.add(menu);
+		innerVp.setCellHeight(menu, "30px");
+
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		session.getUiElements().resizeSmallTabPanel(vp, 400);
 
 		FlexTable layout = new FlexTable();
 		layout.setSize("100%","100%");
-		vp.add(layout);
+
+		innerVp.add(layout);
 
 		layout.setHTML(0, 0, "<p>Personal:");
 		layout.setHTML(0, 1, "<p>Membership:");
@@ -155,7 +168,7 @@ public class MemberOverviewTabItem implements TabItem {
 
 		if (session.isVoAdmin(member.getVoId())) {
 
-			CustomButton resetButton = new CustomButton("Send password reset request", "", SmallIcons.INSTANCE.keyIcon(), new ClickHandler() {
+			CustomButton resetButton = new CustomButton("Send password reset request…", "", SmallIcons.INSTANCE.keyIcon(), new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new SendPasswordResetRequestTabItem(member));

@@ -113,6 +113,9 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		firstTabPanel.add(menu);
 		firstTabPanel.setCellHeight(menu, "30px");
 
+		// refresh
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		/*
 
 		// verify button
