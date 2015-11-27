@@ -1173,6 +1173,8 @@ public class Utils {
 		orgs.put("@linkedin.extidp.cesnet.cz", "LinkedIn");
 		orgs.put("@twitter.extidp.cesnet.cz", "Twitter");
 		orgs.put("@seznam.extidp.cesnet.cz", "Seznam");
+		orgs.put("@github.extidp.cesnet.cz", "GitHub");
+		orgs.put("@orcid.extidp.cesnet.cz", "OrcID");
 
 		if (orgs.get(name) != null) {
 			return orgs.get(name);
