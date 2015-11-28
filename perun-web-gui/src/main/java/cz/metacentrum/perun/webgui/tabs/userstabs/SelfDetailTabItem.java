@@ -125,7 +125,7 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 			}
 		};
 
-		CustomButton change = new CustomButton("Edit…", "Edit user", SmallIcons.INSTANCE.applicationFormEditIcon());
+		CustomButton change = new CustomButton("", "Edit user", SmallIcons.INSTANCE.applicationFormEditIcon());
 		change.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new EditUserDetailsTabItem(user, events));

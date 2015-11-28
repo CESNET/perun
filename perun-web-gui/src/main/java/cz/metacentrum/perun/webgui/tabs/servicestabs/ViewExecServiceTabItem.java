@@ -112,7 +112,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 		int column = 3;
 
-		CustomButton cb = new CustomButton("Edit…", "Edit exec service", SmallIcons.INSTANCE.applicationFormEditIcon(), new ClickHandler() {
+		CustomButton cb = new CustomButton("", "Edit exec service", SmallIcons.INSTANCE.applicationFormEditIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new EditExecServiceTabItem(execService, new JsonCallbackEvents(){

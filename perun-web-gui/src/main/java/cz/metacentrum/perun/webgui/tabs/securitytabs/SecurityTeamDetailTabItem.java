@@ -121,7 +121,7 @@ public class SecurityTeamDetailTabItem implements TabItem, TabItemWithUrl{
 			}
 		};
 
-		CustomButton change = new CustomButton("Edit…", "Edit SecurityTeam details", SmallIcons.INSTANCE.applicationFormEditIcon());
+		CustomButton change = new CustomButton("", "Edit SecurityTeam details", SmallIcons.INSTANCE.applicationFormEditIcon());
 		change.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new EditSecurityTeamDetailsTabItem(securityTeam, events));

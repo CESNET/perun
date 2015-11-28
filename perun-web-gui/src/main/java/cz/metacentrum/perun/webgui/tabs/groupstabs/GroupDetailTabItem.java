@@ -128,10 +128,10 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 
 		CustomButton change;
 		if (group.isCoreGroup()) {
-			change = new CustomButton("Edit…", "Core group's name and description can't be changed", SmallIcons.INSTANCE.applicationFormEditIcon());
+			change = new CustomButton("", "Core group's name and description can't be changed", SmallIcons.INSTANCE.applicationFormEditIcon());
 			change.setEnabled(false);
 		} else {
-			change = new CustomButton("Edit…", ButtonTranslation.INSTANCE.editGroupDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
+			change = new CustomButton("", ButtonTranslation.INSTANCE.editGroupDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
 		}
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) change.setEnabled(false);
 		change.addClickHandler(new ClickHandler(){

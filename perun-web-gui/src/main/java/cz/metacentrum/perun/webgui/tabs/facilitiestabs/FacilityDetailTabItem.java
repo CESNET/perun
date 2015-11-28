@@ -135,7 +135,7 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 			}
 		};
 
-		CustomButton change = new CustomButton("Edit…", ButtonTranslation.INSTANCE.editFacilityDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
+		CustomButton change = new CustomButton("", ButtonTranslation.INSTANCE.editFacilityDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
 		change.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				// prepare confirm content

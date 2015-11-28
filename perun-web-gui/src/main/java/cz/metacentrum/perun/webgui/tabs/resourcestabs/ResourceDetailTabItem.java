@@ -130,7 +130,7 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 			}
 		};
 
-		CustomButton change = new CustomButton("Edit…",ButtonTranslation.INSTANCE.editResourceDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
+		CustomButton change = new CustomButton("",ButtonTranslation.INSTANCE.editResourceDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
 		if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) change.setEnabled(false);
 		change.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {

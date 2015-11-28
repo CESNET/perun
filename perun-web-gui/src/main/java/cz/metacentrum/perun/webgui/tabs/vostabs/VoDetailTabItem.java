@@ -127,7 +127,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 				}
 			};
 
-			CustomButton change = new CustomButton("Edit…", "Edit VO name", SmallIcons.INSTANCE.applicationFormEditIcon());
+			CustomButton change = new CustomButton("", "Edit VO name", SmallIcons.INSTANCE.applicationFormEditIcon());
 			change.addClickHandler(new ClickHandler(){
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new EditVoDetailsTabItem(vo, events));
