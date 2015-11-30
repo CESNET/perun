@@ -64,6 +64,7 @@ public class AssignGroupToResources {
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
 				session.getUiElements().setLogErrorText("Assigning group: " + group.getShortName() + " failed.");
+				handleCommonExceptions(error, group);
 				events.onError(error);
 			};
 
