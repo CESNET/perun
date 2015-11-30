@@ -115,7 +115,7 @@ public class AssignGroupTabItem implements TabItem {
 			}
 		}, ButtonTranslation.INSTANCE.filterResources());
 
-		// buttton
+		// button
 		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToSelectedResources());
 		assignButton.addClickHandler(new ClickHandler(){
 			@Override
