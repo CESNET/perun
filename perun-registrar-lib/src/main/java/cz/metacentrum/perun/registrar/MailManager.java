@@ -13,6 +13,7 @@ import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
 import cz.metacentrum.perun.registrar.model.ApplicationMail;
 import cz.metacentrum.perun.registrar.model.ApplicationMail.MailType;
+import org.springframework.dao.DuplicateKeyException;
 
 public interface MailManager {
 
@@ -25,8 +26,9 @@ public interface MailManager {
 	 * @param mail ApplicationMail to be stored
 	 * @return ApplicationMail with ID property set returned from DB (null on error)
 	 * @throws PerunException
+	 * @throws DuplicateKeyException When mail definition already exists.
 	 */
-	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException;
+	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException, DuplicateKeyException;
 
 	/**
 	 * Delete mail notification from DB based on ID property.
