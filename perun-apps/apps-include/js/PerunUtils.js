@@ -167,7 +167,7 @@ $(document).ready(function () {
         }
 
         $(this).attr("href",$(this).attr("href").replace("/apps/", "/" + topFolder + "/"));
-        $(this).attr("href",$(this).attr("href").replace("/current/", window.location));
+        $(this).attr("href",$(this).attr("href").replace("/current/", encodeURIComponent(window.location)));
     })
 });
 
