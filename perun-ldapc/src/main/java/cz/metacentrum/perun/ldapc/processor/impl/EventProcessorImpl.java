@@ -143,6 +143,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 						Thread.sleep(sleepTime);
 						sleepTime+=sleepTime;
 					}
+
+					//If there are no messages, sleep for 1 sec and then try it again
+					if(messages == null) Thread.sleep(1000);
 				} while(messages == null);
 				//If new messages exist, resolve them all
 				Iterator<AuditMessage> messagesIter = messages.iterator();
