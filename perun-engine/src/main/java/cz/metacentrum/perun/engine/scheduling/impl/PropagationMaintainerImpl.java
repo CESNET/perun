@@ -579,6 +579,26 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					task.setStartTime(checkDate);
 				}
 			}
+			Date ended = task.getEndTime();
+			TaskStatus status = task.getStatus();
+			if(ended != null ||
+					status.equals(TaskStatus.DONE) ||
+					status.equals(TaskStatus.ERROR)) {
+				log.error("ERROR: Task presumably in PLANNED or PROCESSING state, but appears to have ended.");
+				cz.metacentrum.perun.engine.scheduling.TaskStatus taskStatus = taskStatusManager.getTaskStatus(task);
+				if (taskStatus.isTaskFinished()) {
+					schedulingPool.setTaskStatus(task, taskStatus.getTaskStatus());
+					log.debug("TASK " + task.getId() + " status set to DONE");
+				} else {
+					// there is something deeply wrong...
+					log.error("ERROR: Task is weird. Switching it to ERROR. {}",
+							task);
+					task.setEndTime(new Date(System.currentTimeMillis()));
+					schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+				}
+
+			}
+			
 			int howManyMinutesAgo = (int) (System.currentTimeMillis() - checkDate
 					.getTime()) / 1000 / 60;
 
