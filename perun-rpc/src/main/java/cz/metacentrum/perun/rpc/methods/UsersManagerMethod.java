@@ -1029,6 +1029,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 *
 	 * @param i String encrypted request parameter
 	 * @param m String encrypted request parameter
+	 * @param u int <code>id</code> of user you want to validate preferred email request
 	 *
 	 * @return String new validated email address
 	 */

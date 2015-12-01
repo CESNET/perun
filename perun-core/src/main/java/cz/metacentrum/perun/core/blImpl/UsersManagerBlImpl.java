@@ -1623,6 +1623,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		// store attribute
 		getPerunBl().getAttributesManagerBl().setAttribute(sess, user, a);
 
+		getUsersManagerImpl().removeAllPreferredEmailChangeRequests(sess, user);
+
 		return email;
 
 	}
