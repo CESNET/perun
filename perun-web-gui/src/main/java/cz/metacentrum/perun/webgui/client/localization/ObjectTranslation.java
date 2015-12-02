@@ -14,10 +14,10 @@ public interface ObjectTranslation extends Messages {
 
 	/* ============ APPLICATION OBJECT ================ */
 
-	@DefaultMessage("New")
+	@DefaultMessage("Waiting for mail verification")
 	String applicationStateNew();
 
-	@DefaultMessage("Verified")
+	@DefaultMessage("Submitted")
 	String applicationStateVerified();
 
 	@DefaultMessage("Approved")

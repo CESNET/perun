@@ -223,7 +223,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 		stateListBox.addItem(WidgetTranslation.INSTANCE.listboxAll(), "");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew(), "NEW");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateVerified(), "VERIFIED");
-		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
+		stateListBox.addItem("Pending", "NEW,VERIFIED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
 		stateListBox.setSelectedIndex(selectedIndex);

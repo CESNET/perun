@@ -385,8 +385,8 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-		menu.addWidget(new HTML("<strong>TYPE: </strong>"+app.getType()));
-		menu.addWidget(new HTML("<strong>STATE: </strong>"+app.getState()));
+		menu.addWidget(new HTML("<strong>TYPE: </strong>"+Application.getTranslatedType(app.getType())));
+		menu.addWidget(new HTML("<strong>STATE: </strong>"+Application.getTranslatedState(app.getState())));
 
 		GetApplicationDataById data = new GetApplicationDataById(appId);
 		data.retrieveData();
@@ -395,7 +395,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		vp.add(sp);
 		vp.setCellHorizontalAlignment(sp, HasHorizontalAlignment.ALIGN_CENTER);
 
-		session.getUiElements().resizePerunTable(sp, 400);
+		session.getUiElements().resizePerunTable(sp, 400, this);
 
 		this.contentWidget.setWidget(vp);
 		return getWidget();

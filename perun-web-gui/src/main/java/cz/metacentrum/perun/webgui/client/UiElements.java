@@ -18,7 +18,6 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.CustomButton;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
@@ -30,7 +29,6 @@ import cz.metacentrum.perun.webgui.json.JsonErrorHandler;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
-import cz.metacentrum.perun.webgui.tabs.TabManager;
 import cz.metacentrum.perun.webgui.tabs.userstabs.SelfDetailTabItem;
 import cz.metacentrum.perun.webgui.widgets.*;
 
@@ -1686,7 +1684,8 @@ public class UiElements {
 				int height = clientHeight - panel.getAbsoluteTop() - freeSpace;
 
 				// correction for overlay tabs since they are smaller
-				if (tabItem.equals(PerunWebSession.getInstance().getTabManager().getActiveOverlayTab())) {
+				TabItem overlayTab = PerunWebSession.getInstance().getTabManager().getActiveOverlayTab();
+				if (overlayTab != null && overlayTab.equals(tabItem)) {
 					height = height - 40;
 				}
 				if (height > 0) {

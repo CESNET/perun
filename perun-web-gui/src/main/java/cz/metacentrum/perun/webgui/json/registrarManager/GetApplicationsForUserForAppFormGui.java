@@ -199,7 +199,7 @@ public class GetApplicationsForUserForAppFormGui implements JsonCallback, JsonCa
 			}
 		});
 		table.addColumn(stateColumn, ApplicationMessages.INSTANCE.state());
-		table.setColumnWidth(stateColumn, "60px");
+		table.setColumnWidth(stateColumn, "120px");
 
 		// VO COLUMN
 		Column<Application, String> voColumn = JsonUtils.addColumn(

@@ -231,7 +231,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew(), "NEW");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateVerified(), "VERIFIED");
-		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
+		stateListBox.addItem("Pending", "NEW,VERIFIED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
 		stateListBox.setSelectedIndex(selectedIndex);
