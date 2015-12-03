@@ -198,17 +198,33 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns members of a group.
+	 * Returns active members of a group.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @return List<Member> Group members
 	 */
-	getGroupMembers {
+	getGroupActiveMembers {
 
 		@Override
 		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getGroupsManager().getGroupActiveMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
+
+		}
+	},
+
+	/*#
+	 * Returns all members of a group.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return List<Member> Group members
+	 */
+	getAllGroupMembers {
+
+		@Override
+		public List<Member> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getAllGroupMembers(ac.getSession(), ac.getGroupById(parms.readInt("group")));
 
 		}
 	},
@@ -246,16 +262,31 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns count of group members.
+	 * Returns count of all group members.
 	 *
 	 * @param group int Group <code>id</code>
 	 * @return int Members count
 	 */
-	getGroupMembersCount {
+	getAllGroupMembersCount {
 
 		@Override
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getGroupsManager().getGroupMembersCount(ac.getSession(),
+			return ac.getGroupsManager().getAllGroupMembersCount(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")));
+		}
+	},
+
+	/*#
+	 * Returns count of group active members.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @return int Members count
+	 */
+	getGroupActiveMembersCount {
+
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupActiveMembersCount(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")));
 		}
 	},

@@ -96,12 +96,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupAlreadyRemovedException, GroupNotExistsException, RelationExistsException, GroupAlreadyRemovedFromResourceException, InternalErrorException, GroupOperationsException {
 		//Use sorting by group names reverse order (first name A:B:c then A:B etc.)
 		Collections.sort(groups, Collections.reverseOrder(
-			new Comparator<Group>() {
-				@Override
-				public int compare(Group groupToCompare, Group groupToCompareWith) {
-					return groupToCompare.getName().compareTo(groupToCompareWith.getName());
-				}
-			}));
+				new Comparator<Group>() {
+					@Override
+					public int compare(Group groupToCompare, Group groupToCompareWith) {
+						return groupToCompare.getName().compareTo(groupToCompareWith.getName());
+					}
+				}));
 
 		for(Group group: groups) {
 			this.deleteGroup(perunSession, group, forceDelete);
@@ -224,7 +224,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 		}
 
-		if ((this.getGroupMembersCount(sess, group) > 0) && !forceDelete) {
+		if ((this.getAllGroupMembersCount(sess, group) > 0) && !forceDelete) {
 			throw new RelationExistsException("Group group=" + group + " contains members");
 		}
 
@@ -689,7 +689,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public List<Member> getGroupActiveMembers(PerunSession sess, Group group) throws InternalErrorException {
-		return this.filterMembersByMembershipTypeInGroup(getGroupsManagerImpl().getGroupActiveMembers(sess, group));
+		return getGroupsManagerImpl().getGroupActiveMembers(sess, group);
 	}
 
 	@Override
@@ -703,18 +703,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	@Override
-	public List<Member> getAllGroupMembersWithStatuses(PerunSession sess, Group group, Status status) throws InternalErrorException {
-		if (status == null) {
+	public List<Member> getAllGroupMembersWithStatuses(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException {
+		if (statuses == null || statuses.isEmpty()) {
 			return getAllGroupMembers(sess, group);
 		}
-		return getGroupsManagerImpl().getAllGroupMembersWithStatuses(sess, group, Arrays.asList(status), false);
+		return getGroupsManagerImpl().getAllGroupMembersWithStatuses(sess, group, statuses, excludeStatusInsteadOfIncludeStatus);
 	}
 
-	public List<Member> getGroupActiveMembers(PerunSession sess, Group group, Status status) throws InternalErrorException {
-		if (status == null) {
+	@Override
+	public List<Member> getAllGroupMembersWithStatus(PerunSession sess, Group group, Status status) throws InternalErrorException {
+		return getAllGroupMembersWithStatuses(sess, group, Arrays.asList(status), false);
+	}
+
+	public List<Member> getGroupActiveMembersWithStatuses(PerunSession sess, Group group, List<Status> statuses) throws InternalErrorException {
+		if (statuses == null || statuses.isEmpty()) {
 			return this.getGroupActiveMembers(sess, group);
 		}
-		return this.filterMembersByMembershipTypeInGroup(getGroupsManagerImpl().getGroupActiveMembers(sess, group, Arrays.asList(status), false));
+		return getGroupsManagerImpl().getGroupActiveMembersWithStatuses(sess, group, statuses, false);
 	}
 
 	@Override
@@ -722,12 +727,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return new ArrayList<User>(new HashSet<User>(getGroupsManagerImpl().getGroupUsers(perunSession, group)));
 	}
 
-	public List<Member> getGroupMembersExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
-		return getGroupsManagerImpl().getGroupActiveMembers(sess, group, Arrays.asList(Status.INVALID), true);
+	public List<Member> getGroupActiveMembersExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
+		return getGroupsManagerImpl().getGroupActiveMembersWithStatuses(sess, group, Arrays.asList(Status.INVALID), true);
 	}
 
-	public List<Member> getGroupMembersExceptInvalidAndDisabled(PerunSession sess, Group group) throws InternalErrorException {
-		return getGroupsManagerImpl().getGroupActiveMembers(sess, group, Arrays.asList(Status.INVALID, Status.DISABLED), true);
+	public List<Member> getGroupActiveMembersExceptInvalidAndDisabled(PerunSession sess, Group group) throws InternalErrorException {
+		return getGroupsManagerImpl().getGroupActiveMembersWithStatuses(sess, group, Arrays.asList(Status.INVALID, Status.DISABLED), true);
 	}
 
 	public List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException {
@@ -735,13 +740,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public List<RichMember> getGroupRichMembersExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
-		List<Member> members = this.getGroupMembersExceptInvalid(sess, group);
+		List<Member> members = this.getAllGroupMembersWithStatuses(sess, group, Arrays.asList(Status.INVALID), true);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, members);
 	}
 
 	public List<RichMember> getGroupRichMembers(PerunSession sess, Group group, Status status) throws InternalErrorException {
-		List<Member> members = this.getGroupActiveMembers(sess, group, status);
+		List<Member> members = this.getAllGroupMembersWithStatus(sess, group, status);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, members);
 	}
@@ -750,19 +755,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return this.getGroupRichMembersWithAttributes(sess, group, null);
 	}
 
-	public List<RichMember> getGroupRichMembersWithAttributesExceptInvalid(PerunSession sess, Group group) throws InternalErrorException {
-		List<RichMember> richMembers = this.getGroupRichMembersExceptInvalid(sess, group);
-
-		return getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, richMembers);
-	}
-
 	public List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException {
 		List<RichMember> richMembers = this.getGroupRichMembers(sess, group, status);
 
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, richMembers);
 	}
 
-	public int getGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException {
+	public int getAllGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException {
+		List<Member> members = this.getAllGroupMembers(sess, group);
+		return members.size();
+	}
+
+	@Override
+	public int getGroupActiveMembersCount(PerunSession sess, Group group) throws InternalErrorException {
 		List<Member> members = this.getGroupActiveMembers(sess, group);
 		return members.size();
 	}
@@ -1933,31 +1938,6 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		groups = new ArrayList<Group>(new HashSet<Group>(groups));
 		return groups;
-	}
-
-	public List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) throws InternalErrorException {
-
-		List<Member> excludedMembers = new ArrayList<>();
-		List<Member> filteredMembers = new ArrayList<>();
-
-		for (Member member : members) {
-			if (member.getMembershipType().equals(MembershipType.EXCLUDED) && !excludedMembers.contains(member)) {
-				excludedMembers.add(member);
-			} else if (member.getMembershipType().equals(MembershipType.DIRECT)) {
-				filteredMembers.add(member);
-			}
-		}
-
-		// add members with indirect membership type that are not already in the filteredMembers list
-		for(Member m: members) {
-			if(!filteredMembers.contains(m)) {
-				filteredMembers.add(m);
-			}
-		}
-
-		filteredMembers.removeAll(excludedMembers);
-
-		return filteredMembers;
 	}
 
 	public RichGroup filterOnlyAllowedAttributes(PerunSession sess, RichGroup richGroup) throws InternalErrorException {

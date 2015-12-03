@@ -3,20 +3,16 @@ package cz.metacentrum.perun.core.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.core.api.Attribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -56,13 +52,19 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 					rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
 					rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
 					rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
+			return member;
+		}
+	};
 
-			try {
-				member.setSourceGroupId(rs.getInt("source_group_id"));
-				member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
-			} catch(SQLException ex) {
-				/*member.setType(MembershipType.NOT_DEFINED); již provedeno v konstruktoru*/
-			}
+	protected static final RowMapper<Member> EXTENDED_MEMBER_MAPPER = new RowMapper<Member>() {
+		public Member mapRow(ResultSet rs, int i) throws SQLException {
+			Member member = new Member(rs.getInt("members_id"), rs.getInt("members_user_id"), rs.getInt("members_vo_id"), Status.getStatus(rs.getInt("members_status")),
+					rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
+					rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
+					rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
+
+			member.setSourceGroupId(rs.getInt("source_group_id"));
+			member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
 
 			return member;
 		}

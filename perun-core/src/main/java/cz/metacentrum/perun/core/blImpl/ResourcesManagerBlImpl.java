@@ -259,7 +259,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 		//fill and check required attributes' values for each member
 		//and set defaultResource attribute if necessary
-		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupActiveMembers(sess, group);
+		List<Member> members = getPerunBl().getGroupsManagerBl().getAllGroupMembers(sess, group);
 		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 		for(Member member : members) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -316,7 +316,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		}
 
 		//check attributes and set new correct values if necessary
-		List<Member> groupsMembers = getPerunBl().getGroupsManagerBl().getGroupActiveMembers(sess, group);
+		List<Member> groupsMembers = getPerunBl().getGroupsManagerBl().getAllGroupMembers(sess, group);
 		Facility facility = getFacility(sess, resource);
 		List<User> allowedUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
 		for(Member member : groupsMembers) {

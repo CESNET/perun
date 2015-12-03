@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +109,7 @@ public class Utils {
 			writer.write(perunVoId + '\n');
 			writer.write(desc + '\n');
 			//Generate all members in member groups of this vo and add them here (only members with status Valid)
-			List<Member> validMembers = perun.getMembersManagerBl().getMembers(perunSession, vo, Status.VALID);
+			List<Member> validMembers = perun.getMembersManagerBl().getActiveMembers(perunSession, vo, Status.VALID);
 			for(Member m: validMembers) {
 				writer.write("uniqueMember: perunUserId=" + m.getUserId() + ",ou=People,dc=perun,dc=cesnet,dc=cz" + '\n');
 			}
@@ -221,7 +222,7 @@ public class Utils {
 				String description = "description: ";
 				String perunUniqueGroupName = "perunUniqueGroupName: ";
 				List<Member> members;
-				members = perun.getGroupsManagerBl().getGroupActiveMembers(perunSession, group, Status.VALID);
+				members = perun.getGroupsManagerBl().getGroupActiveMembersWithStatuses(perunSession, group, Arrays.asList(Status.VALID));
 				perunGroupId+= String.valueOf(group.getId());
 				perunVoId+= String.valueOf(group.getVoId());
 				dn+= "perunGroupId=" + group.getId() + ",perunVoId=" + group.getVoId() + ",dc=perun,dc=cesnet,dc=cz";

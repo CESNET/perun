@@ -50,7 +50,7 @@ public interface MembersManagerBl {
 	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberAlreadyRemovedException, GroupOperationsException;
 
 	/**
-	 *  Deletes all VO members.
+	 * Deletes all VO members.
 	 *
 	 * @param sess
 	 * @param vo
@@ -450,7 +450,7 @@ public interface MembersManagerBl {
 	Member getMemberByUserId(PerunSession sess, Vo vo, int userId) throws InternalErrorException, MemberNotExistsException;
 
 	/**
-	 * Get all VO members.
+	 * Get all records of VO members. It returns direct, indirect and also excluded members.
 	 *
 	 * @param sess
 	 * @param vo
@@ -460,7 +460,7 @@ public interface MembersManagerBl {
 	List<Member> getMembers(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
-	 * Get all VO members who have the status.
+	 * Get all records of VO members with the status. It returns direct, indirect and also excluded members.
 	 *
 	 * @param sess
 	 * @param vo
@@ -469,6 +469,18 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException;
+
+	/**
+	 * Get active members with the status.
+	 *
+	 * @param sess perun session
+	 * @param vo vo
+	 * @param status status
+	 * @return list of active members with the status
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getActiveMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException;
 
 	/**
 	 * Get Member to RichMember with attributes.

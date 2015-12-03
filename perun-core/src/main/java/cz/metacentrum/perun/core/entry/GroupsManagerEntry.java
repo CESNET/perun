@@ -271,7 +271,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().getGroupActiveMembers(sess, group);
 	}
 
-	public List<Member> getGroupActiveMembers(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+	@Override
+	public List<Member> getAllGroupMembers(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
@@ -279,10 +280,39 @@ public class GroupsManagerEntry implements GroupsManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
 				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
 				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
-			throw new PrivilegeException(sess, "getGroupActiveMembers");
+			throw new PrivilegeException(sess, "getAllGroupMembers");
+		}
+
+		return getGroupsManagerBl().getAllGroupMembers(sess, group);
+	}
+
+	@Override
+	public List<Member> getAllGroupMembersWithStatus(PerunSession sess, Group group, Status status) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getAllGroupMembersWithStatus");
+		}
+
+		return getGroupsManagerBl().getAllGroupMembersWithStatus(sess, group, status);
+	}
+
+	public List<Member> getGroupActiveMembersWithStatuses(PerunSession sess, Group group, List<Status> statuses) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getGroupActiveMembersWithStatuses");
 				}
 
-		return getGroupsManagerBl().getGroupActiveMembers(sess, group, status);
+		return getGroupsManagerBl().getGroupActiveMembersWithStatuses(sess, group, statuses);
 	}
 
 	public List<Member> getDirectGroupMembers(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
@@ -354,7 +384,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status), true);
 	}
 
-	public int getGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
+	public int getAllGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
@@ -362,10 +392,24 @@ public class GroupsManagerEntry implements GroupsManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
 				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
 				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
-			throw new PrivilegeException(sess, "getGroupMembersCount");
+			throw new PrivilegeException(sess, "getAllGroupMembersCount");
 				}
 
-		return getGroupsManagerBl().getGroupMembersCount(sess, group);
+		return getGroupsManagerBl().getAllGroupMembersCount(sess, group);
+	}
+
+	public int getGroupActiveMembersCount(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getGroupActiveMembersCount");
+		}
+
+		return getGroupsManagerBl().getGroupActiveMembersCount(sess, group);
 	}
 
 	public void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException {

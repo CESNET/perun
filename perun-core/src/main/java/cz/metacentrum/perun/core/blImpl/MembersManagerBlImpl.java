@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.blImpl;
 import cz.metacentrum.perun.core.api.ActionType;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -595,7 +596,6 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return getMembersManagerImpl().getMembersByUser(sess, user);
 	}
 
-	// TODO zistit co vsetko vyuziva tieto metodicky, tak aby sme vedeli, ci ich mozeme prepisat na getAllGroupMembers.
 	public List<Member> getMembers(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
 			Group g = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
@@ -608,7 +608,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public List<Member> getMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException {
 		try {
 			Group g = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
-			return getPerunBl().getGroupsManagerBl().getAllGroupMembersWithStatuses(sess, g, status);
+			return getPerunBl().getGroupsManagerBl().getAllGroupMembersWithStatus(sess, g, status);
+		} catch (GroupNotExistsException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<Member> getActiveMembers(PerunSession sess, Vo vo, Status status) throws InternalErrorException {
+		try {
+			Group g = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
+			return getPerunBl().getGroupsManagerBl().getGroupActiveMembersWithStatuses(sess, g, Arrays.asList(status));
 		} catch (GroupNotExistsException e) {
 			throw new InternalErrorException(e);
 		}
@@ -935,7 +944,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public List<Member> findMembersInGroup(PerunSession sess, Group group, String searchString) throws InternalErrorException{
 
 		List<User> users = getPerunBl().getUsersManagerBl().findUsers(sess, searchString);
-		List<Member> allGroupMembers = getPerunBl().getGroupsManagerBl().getGroupActiveMembers(sess, group);
+		List<Member> allGroupMembers = getPerunBl().getGroupsManagerBl().getAllGroupMembers(sess, group);
 		List<Member> allFoundMembers = new ArrayList<Member>();
 		for(User user: users){
 			allFoundMembers.addAll(getMembersByUser(sess, user));

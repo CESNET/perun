@@ -261,9 +261,43 @@ public interface GroupsManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorRuntimeException
 	 */
 	List<Member> getGroupActiveMembers(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
+
+	/**
+	 * Returns all members specified by:
+	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
+	 * 2) all DIRECT, which are EXCLUDED - as DIRECT_EXCLUDED
+	 * 3) all INDIRECT, which are not EXCLUDED and not DIRECT - as INDIRECT
+	 * 4) all INDIRECT, which are EXCLUDED and not DIRECT - as INDIRECT_EXCLUDED
+	 *
+	 * @param sess perun session
+	 * @param group group to get members from
+	 * @return list of members
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<Member> getAllGroupMembers(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns all members with status. The members are specified by:
+	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
+	 * 2) all DIRECT, which are EXCLUDED - as DIRECT_EXCLUDED
+	 * 3) all INDIRECT, which are not EXCLUDED and not DIRECT - as INDIRECT
+	 * 4) all INDIRECT, which are EXCLUDED and not DIRECT - as INDIRECT_EXCLUDED
+	 *
+	 * @param sess perun session
+	 * @param group group to get members from
+	 * @param status status, if status is null then return all members
+	 * @return list of members with the status
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<Member> getAllGroupMembersWithStatus(PerunSession sess, Group group, Status status) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Returns all records of direct group members. Excluded members are not taken into account.
@@ -281,9 +315,9 @@ public interface GroupsManager {
 	/**
 	 * Return group members with specified vo membership status.
 	 *
-	 * @param perunSession
-	 * @param group
-	 * @param status
+	 * @param perunSession perun session
+	 * @param group group
+	 * @param statuses list of statuses
 	 * @return list of members with specified membership status or empty list if no such member is found in group
 	 *
 	 * @throws InternalErrorException
@@ -291,8 +325,7 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorRuntimeException
 	 */
-	List<Member> getGroupActiveMembers(PerunSession perunSession, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
-
+	List<Member> getGroupActiveMembersWithStatuses(PerunSession perunSession, Group group, List<Status> statuses) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Returns group members in the RichMember object, which contains Member+User data.
@@ -345,17 +378,34 @@ public interface GroupsManager {
 	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * @param perunSession
-	 * @param group
+	 * Get all records of members of a group. It returns direct, indirect and also excluded members.
 	 *
-	 * @return count of members of specified group
+	 * @param perunSession perun session
+	 * @param group group
+	 *
+	 * @return count of all members of specified group
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorRuntimeException
 	 */
-	int getGroupMembersCount(PerunSession perunSession, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
+	int getAllGroupMembersCount(PerunSession perunSession, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Get active members of a group.
+	 *
+	 * @param perunSession perun session
+	 * @param group group
+	 *
+	 * @return count of active members
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws GroupNotExistsException
+	 * @throws InternalErrorRuntimeException
+	 */
+	int getGroupActiveMembersCount(PerunSession perunSession, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
 	/**
 	 * Get groups of Vo by ACCESS RIGHTS:

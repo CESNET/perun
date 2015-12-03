@@ -937,11 +937,10 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Member member = setUpMember(vo);
 		groupsManager.addMember(sess, group, member);
 
-		List<Member> members = groupsManager.getGroupActiveMembers(sess, group, Status.VALID);
+		List<Member> members = groupsManager.getGroupActiveMembersWithStatuses(sess, group, Arrays.asList(Status.VALID));
 		assertTrue(members.size() == 1);
 		assertTrue(members.contains(member));
 	}
-
 
 	@Test
 	public void getGroupActiveMembersInBiggerGroupStructure() throws Exception {
@@ -1058,6 +1057,21 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 				&& result.get(result.indexOf(indirect)).getMembershipType() == MembershipType.INDIRECT);
 		assertTrue(result.contains(indirectAsExcluded)
 				&& result.get(result.indexOf(indirectAsExcluded)).getMembershipType() == MembershipType.INDIRECT_EXCLUDED);
+	}
+
+	@Test
+	public void getAllGroupMembersStatus() throws Exception {
+		System.out.println(CLASS_NAME + "getAllGroupMembersStatus");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+
+		List<Member> members = groupsManager.getAllGroupMembersWithStatus(sess, group, Status.VALID);
+		assertTrue(members.size() == 1);
+		assertTrue(members.contains(member));
 	}
 
 	@Test
@@ -1459,7 +1473,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Member member = setUpMember(vo);
 		groupsManager.addMember(sess, group, member);
 
-		int count = groupsManager.getGroupMembersCount(sess, group);
+		int count = groupsManager.getAllGroupMembersCount(sess, group);
 		assertTrue(count == 1);
 
 	}
@@ -1468,7 +1482,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	public void getGroupActiveMembersCountWhenGroupNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "getGroupActiveMembersCountWhenGroupNotExists");
 
-		groupsManager.getGroupMembersCount(sess, new Group());
+		groupsManager.getAllGroupMembersCount(sess, new Group());
 
 	}
 
@@ -1884,16 +1898,16 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			groupsManager.addMember(sess, group, member);
 			groupsManager.addMember(sess,group2,member);
 		}
-		int count = groupsManager.getGroupMembersCount(sess, group2);
+		int count = groupsManager.getAllGroupMembersCount(sess, group2);
 		assertTrue(count == 5);
 		Candidate candidate = setUpCandidate(5);
 		member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
 		assertNotNull("No member created", member);
 		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
 		groupsManager.addMember(sess, group, member);
-		count = groupsManager.getGroupMembersCount(sess, group2);
+		count = groupsManager.getAllGroupMembersCount(sess, group2);
 		assertTrue(count == 6);
-		count = groupsManager.getGroupMembersCount(sess, group);
+		count = groupsManager.getAllGroupMembersCount(sess, group);
 		assertTrue(count == 6);
 	}
 
@@ -1921,30 +1935,30 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		this.groupsManager.addMember(sess, group21, members.get(2));
 		this.groupsManager.addMember(sess, group3, members.get(3));
 
-		assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(4, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(2, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group3));
 		this.groupsManager.removeMember(sess, group3, members.get(3));
-		assertEquals(3, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(3, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group3));
 		this.groupsManager.removeMember(sess, group21, members.get(2));
-		assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(2, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group3));
 		this.groupsManager.removeMember(sess, group2, members.get(1));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group3));
 		this.groupsManager.removeMember(sess, group, members.get(0));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group3));
 
 		this.groupsManager.addMember(sess, group, members.get(0));
 		this.groupsManager.addMember(sess, group2, members.get(1));
@@ -1952,30 +1966,30 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		this.groupsManager.addMember(sess, group3, members.get(3));
 		this.groupsManager.addMember(sess, group, members.get(3));
 
-		assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(4, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(2, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group3));
 		this.groupsManager.removeMember(sess, group3, members.get(3));
-		assertEquals(4, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(4, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group3));
 		this.groupsManager.removeMember(sess, group21, members.get(2));
-		assertEquals(3, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(3, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group3));
 		this.groupsManager.removeMember(sess, group2, members.get(1));
-		assertEquals(2, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(2, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group3));
 		this.groupsManager.removeMember(sess, group, members.get(0));
-		assertEquals(1, this.groupsManager.getGroupMembersCount(sess, group));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group2));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group21));
-		assertEquals(0, this.groupsManager.getGroupMembersCount(sess, group3));
+		assertEquals(1, this.groupsManager.getAllGroupMembersCount(sess, group));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group2));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group21));
+		assertEquals(0, this.groupsManager.getAllGroupMembersCount(sess, group3));
 
 	}
 

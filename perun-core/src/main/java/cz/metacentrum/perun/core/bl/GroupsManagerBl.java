@@ -290,11 +290,11 @@ public interface GroupsManagerBl {
 	void removeMemberFromMembersOrAdministratorsGroup(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupOperationsException, GroupNotExistsException;
 
 	/**
-	 * Return all group members.
+	 * Return active group members.
 	 *
-	 * @param perunSession
-	 * @param group
-	 * @return list of users or empty list if the group is empty
+	 * @param perunSession perun session
+	 * @param group group
+	 * @return list of members or empty list if the group is empty
 	 *
 	 * @throws InternalErrorException
 	 */
@@ -325,7 +325,24 @@ public interface GroupsManagerBl {
 	List<Member> getAllGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
-	 * Returns all members specified by:
+	 * Returns all members with or without the statuses. The members are specified by:
+	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
+	 * 2) all DIRECT, which are EXCLUDED - as DIRECT_EXCLUDED
+	 * 3) all INDIRECT, which are not EXCLUDED and not DIRECT - as INDIRECT
+	 * 4) all INDIRECT, which are EXCLUDED and not DIRECT - as INDIRECT_EXCLUDED
+	 *
+	 * @param sess perun session
+	 * @param group group to get members from
+	 * @param statuses list of statuses, if there is no status then return all members
+	 * @param excludeStatusInsteadOfIncludeStatus does the list of statuses means exclude members or include members with these statuses
+	 * @return list of members with or without the statuses
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAllGroupMembersWithStatuses(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
+
+	/**
+	 * Returns all members with status. The members are specified by:
 	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
 	 * 2) all DIRECT, which are EXCLUDED - as DIRECT_EXCLUDED
 	 * 3) all INDIRECT, which are not EXCLUDED and not DIRECT - as INDIRECT
@@ -334,9 +351,11 @@ public interface GroupsManagerBl {
 	 * @param sess perun session
 	 * @param group group to get members from
 	 * @param status status, if status is null then return all members
-	 * @return list of members
+	 * @return list of members with the status
+	 *
+	 * @throws InternalErrorException
 	 */
-	List<Member> getAllGroupMembersWithStatuses(PerunSession sess, Group group, Status status) throws InternalErrorException;
+	List<Member> getAllGroupMembersWithStatus(PerunSession sess, Group group, Status status) throws InternalErrorException;
 
 	/**
 	 * Return only valid, suspended, expired and disabled group members.
@@ -348,7 +367,7 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembersExceptInvalid(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getGroupActiveMembersExceptInvalid(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
 	 * Return only valid, suspended and expired group members.
@@ -360,20 +379,20 @@ public interface GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembersExceptInvalidAndDisabled(PerunSession perunSession, Group group) throws InternalErrorException;
+	List<Member> getGroupActiveMembersExceptInvalidAndDisabled(PerunSession perunSession, Group group) throws InternalErrorException;
 
 	/**
-	 * Return group members.
+	 * Return group members with specified vo membership statuses.
 	 *
-	 * @param perunSession
-	 * @param group
-	 * @param status
+	 * @param perunSession perun session
+	 * @param group group
+	 * @param statuses list of statuses
 	 *
 	 * @return list users or empty list if there are no users on specified page
 	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupActiveMembers(PerunSession perunSession, Group group, Status status) throws InternalErrorException;
+	List<Member> getGroupActiveMembersWithStatuses(PerunSession perunSession, Group group, List<Status> statuses) throws InternalErrorException;
 
 	/**
 	 * Return group users sorted by name.
@@ -430,17 +449,6 @@ public interface GroupsManagerBl {
 	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
-	 * Returns only valid, suspended and expired group members in the RichMember object, which contains Member+User data. Also contains user and member attributes.
-	 *
-	 * @param sess
-	 * @param group
-	 *
-	 * @return list of RichMembers
-	 * @throws InternalErrorException
-	 */
-	List<RichMember> getGroupRichMembersWithAttributesExceptInvalid(PerunSession sess, Group group) throws InternalErrorException;
-
-	/**
 	 * Returns group members in the RichMember object, which contains Member+User data. Also contains user and member attributes.
 	 *
 	 * @param sess
@@ -453,14 +461,28 @@ public interface GroupsManagerBl {
 	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException;
 
 	/**
-	 * @param perunSession
-	 * @param group
+	 * Get all records of members of a group. It returns direct, indirect and also excluded members.
 	 *
-	 * @return count of members of specified group
+	 * @param sess perun session
+	 * @param group group
+	 *
+	 * @return count of all members of specified group
 	 *
 	 * @throws InternalErrorException
 	 */
-	int getGroupMembersCount(PerunSession perunSession, Group group) throws InternalErrorException;
+	int getAllGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Get active members of a group.
+	 *
+	 * @param sess perun session
+	 * @param group group
+	 *
+	 * @return count of active members
+	 *
+	 * @throws InternalErrorException
+	 */
+	int getGroupActiveMembersCount(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Checks whether the user is member of the group.
@@ -949,16 +971,6 @@ public interface GroupsManagerBl {
 	List<Group> getGroupsByPerunBean(PerunSession sess, PerunBean perunBean) throws InternalErrorException;
 
 	void checkGroupExists(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException;
-
-	/**
-	 * This method take list of members (also with duplicit) and:
-	 * 1] add all members with direct membership to target list
-	 * 2] add all members with indirect membership who are not already in target list to the target list
-	 *
-	 * @param members list of members to filtering
-	 * @return filteredMembers list of members without duplicit after filtering
-	 */
-	List<Member> filterMembersByMembershipTypeInGroup(List<Member> members) throws InternalErrorException;
 
 	/**
 	 * For richGroup filter all his group attributes and remove all which principal has no access to.
