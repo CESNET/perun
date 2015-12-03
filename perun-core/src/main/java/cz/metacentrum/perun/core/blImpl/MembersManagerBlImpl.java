@@ -268,7 +268,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		//create member for service user from candidate
-		Member member = createMember(sess, vo, true, candidate, groups);
+		Member member = createMember(sess, vo, true, candidate, groups, null);
 
 		//set service owners
 		User serviceUser = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
@@ -286,9 +286,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.createMemberSync(sess, vo, candidate, null);
 	}
 
-	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-
-		Member member = createMember(sess, vo, false, candidate, groups);
+	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		Member member = createMember(sess, vo, false, candidate, groups, overwriteUserAttributes);
 
 		//Validate synchronously
 		try {
@@ -299,6 +298,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		return member;
 	}
+
+	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createMemberSync(sess, vo, candidate, groups, null);
+	}
+
 
 	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		return this.createServiceMemberSync(sess, vo, candidate, serviceUserOwners, null);
@@ -323,15 +327,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return createMember(sess, vo, false, candidate, groups);
+		return createMember(sess, vo, false, candidate, groups, null);
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-			return this.createMember(sess, vo, serviceUser, candidate, null);
+			return this.createMember(sess, vo, serviceUser, candidate, null, new ArrayList<String>());
 	}
 
 	//MAIN METHOD
-	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		log.debug("Creating member for VO {} from candidate {}", vo, candidate);
 
 		// Get the user
@@ -403,7 +407,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		// Create the member's attributes
 		List<Attribute> membersAttributes = new ArrayList<Attribute>();
-		List<Attribute> usersAttributes = new ArrayList<Attribute>();
+		List<Attribute> usersAttributesToMerge = new ArrayList<>();
+		List<Attribute> usersAttributesToModify = new ArrayList<>();
 		if (candidate.getAttributes() != null) {
 			for (String attributeName: candidate.getAttributes().keySet()) {
 				AttributeDefinition attributeDefinition;
@@ -420,15 +425,21 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					membersAttributes.add(attribute);
 				} else if (getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR_DEF) ||
 						getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR_OPT)) {
-					usersAttributes.add(attribute);
-						}
+					if(overwriteUserAttributes != null && !overwriteUserAttributes.isEmpty() && overwriteUserAttributes.contains(attribute.getName())) {
+						usersAttributesToModify.add(attribute);
+					} else {
+						usersAttributesToMerge.add(attribute);
+					}
+				}
 			}
 		}
 
 		// Store the attributes
 		try {
-			getPerunBl().getAttributesManagerBl().setAttributes(sess, member, membersAttributes);
-			getPerunBl().getAttributesManagerBl().mergeAttributesValues(sess, user, usersAttributes);
+			//if empty, skip setting or merging empty arrays of attributes at all
+			if(!membersAttributes.isEmpty()) getPerunBl().getAttributesManagerBl().setAttributes(sess, member, membersAttributes);
+			if(!usersAttributesToMerge.isEmpty()) getPerunBl().getAttributesManagerBl().mergeAttributesValues(sess, user, usersAttributesToMerge);
+			if(!usersAttributesToModify.isEmpty()) getPerunBl().getAttributesManagerBl().setAttributes(sess, user, usersAttributesToModify);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		}
