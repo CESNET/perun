@@ -37,11 +37,11 @@ import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
  */
 public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
-	private Map<String, String> mapping;
+	protected Map<String, String> mapping;
 
-	private final static Logger log = LoggerFactory.getLogger(ExtSourceLdap.class);
+	protected final static Logger log = LoggerFactory.getLogger(ExtSourceLdap.class);
 
-	private DirContext dirContext = null;
+	protected DirContext dirContext = null;
 
 	protected DirContext getContext() throws InternalErrorException {
 		if (dirContext == null) {
