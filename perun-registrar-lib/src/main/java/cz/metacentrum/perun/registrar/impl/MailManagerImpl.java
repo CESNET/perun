@@ -1646,6 +1646,21 @@ public class MailManagerImpl implements MailManager {
 					}
 				}
 			}
+
+			if (nameText.isEmpty()) {
+				User user = null;
+				if (app.getUser() != null) {
+					user = app.getUser();
+				} else {
+					try {
+						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					} catch (Exception ex) {
+						// user not found is ok
+					}
+				}
+				if (user != null) nameText = user.getDisplayName();
+			}
+
 			mailText = mailText.replace("{displayName}", nameText);
 		}
 
@@ -1660,6 +1675,21 @@ public class MailManagerImpl implements MailManager {
 					}
 				}
 			}
+
+			if (nameText.isEmpty()) {
+				User user = null;
+				if (app.getUser() != null) {
+					user = app.getUser();
+				} else {
+					try {
+						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					} catch (Exception ex) {
+						// user not found is ok
+					}
+				}
+				if (user != null) nameText = user.getFirstName();
+			}
+
 			mailText = mailText.replace("{firstName}", nameText);
 		}
 
@@ -1674,7 +1704,23 @@ public class MailManagerImpl implements MailManager {
 					}
 				}
 			}
+
+			if (nameText.isEmpty()) {
+				User user = null;
+				if (app.getUser() != null) {
+					user = app.getUser();
+				} else {
+					try {
+						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					} catch (Exception ex) {
+						// user not found is ok
+					}
+				}
+				if (user != null) nameText = user.getLastName();
+			}
+
 			mailText = mailText.replace("{lastName}", nameText);
+
 		}
 
 		// replace exceptions
