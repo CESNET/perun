@@ -176,24 +176,23 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 		// only NEW apps can be Verified
 		if (app.getState().equals("NEW")) {
-
-			// verify button
-			final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
-			verify.setEnabled(session.isPerunAdmin());
-			menu.addWidget(verify);
-			verify.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, new JsonCallbackEvents() {
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							app = jso.cast();
-							draw();
-						}
-					}));
-					request.verifyApplication(appId);
-				}
-			});
-
+			if (session.isPerunAdmin()) {
+				// verify button
+				final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
+				menu.addWidget(verify);
+				verify.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								app = jso.cast();
+								draw();
+							}
+						}));
+						request.verifyApplication(appId);
+					}
+				});
+			}
 		}
 
 		// only VERIFIED apps can be approved/rejected
