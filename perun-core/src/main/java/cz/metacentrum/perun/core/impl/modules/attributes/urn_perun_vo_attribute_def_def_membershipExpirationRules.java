@@ -17,10 +17,12 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleIm
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +35,7 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Vo
 	Pattern datePattern = Pattern.compile("^[0-9]+(d|m|y)$");
 	Pattern loaPattern = Pattern.compile("^(([0-9]+,)|([0-9]+,[ ]))*[0-9]+$");
 	Pattern periodLoaPattern = Pattern.compile("^[0-9]+[|](([0-9]+[.][0-9]+[.])|([+][0-9]+(d|m|y)))[.]?$");
+	Pattern standardFormatDatePattern = Pattern.compile("^([0-9]+)[.]([0-9]+).([0-9]{4})?");
 
 	public void checkAttributeValue(PerunSessionImpl sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Map<String, String> attrValue = new LinkedHashMap<String, String>();
@@ -60,12 +63,15 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Vo
 		//For period (only date like 1.1. or 29.4. without year) or (+xy where x is number and y is d/m/y - +35m or +80d)
 		String parameter = MembersManager.membershipPeriodKeyName;
 		if(keys.contains(parameter)) {
-			DateFormat dateFormatter = new SimpleDateFormat("dd.MM.");
+			DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
 			Date date = null;
 			try {
-				date = dateFormatter.parse(attrValue.get(parameter));
+				//Use Leap year there (has 29.2) or it can end with 1.3 date instead (year is not important there)
+				String dateString = attrValue.get(parameter) + "2000";
+				date = dateFormatter.parse(dateString);
+
 				//Test if it is valid date format (need to use standardization: 01.01. = 1.1, 29.03 = 29.3 for both in test)
-				if (!standardFormatDate(dateFormatter.format(date)).equals(standardFormatDate(attrValue.get(parameter)))) {
+				if (!standardFormatDate(dateFormatter.format(date)).equals(standardFormatDate(dateString))) {
 					throw new WrongAttributeValueException(attribute, "There is not allowed value (bad date format) for parameter '" + parameter + "': " + attrValue.get(parameter));
 				}
 			} catch (ParseException ex) {
@@ -164,17 +170,20 @@ public class urn_perun_vo_attribute_def_def_membershipExpirationRules extends Vo
 	 * @param date format of date (1.1. or 01.1. or 01.01. etc)
 	 * @return String standard format of date
 	 */
-	private String standardFormatDate(String date) {
-		int position1 = 0;
-		int position2 = 3;
-		if(date == null || date.length() == 0) return date;
-		if(date.charAt(position1) == '0') {
-			date = date.substring(position1+1);
-			position2--;
+	private String standardFormatDate(String date) throws InternalErrorException {
+		if(date == null || date.isEmpty()) return date;
+		//remove all white spaces
+		date = date.replaceAll("\\s", "");
+
+		Matcher standardFormatDateMatcher = standardFormatDatePattern.matcher(date);
+
+		if(!standardFormatDateMatcher.matches()) {
+			throw new InternalErrorException("Date is not in supported format: " + date);
 		}
-		if(date.length() == (position2+3) && date.charAt(position2) == '0') {
-			date = date.substring(0,position2) + date.substring(position2+1);
-		}
+
+		//remove all characters '0' at first place in days and months
+		date = date.replaceAll("0([0-9])[.]", "$1.");
+
 		return date;
 	}
 }

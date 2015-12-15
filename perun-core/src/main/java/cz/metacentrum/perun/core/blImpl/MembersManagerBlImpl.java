@@ -1786,9 +1786,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					}
 
 					// Set the date to which the membershi should be extended, can be changed if there was grace period, see next part of the code
-					calendar.set(year, month-1, day); // month is 0-based
 					if (extensionInNextYear) {
-						calendar.add(Calendar.YEAR, 1);
+						calendar.set(year+1, month-1, day);
+					} else {
+						calendar.set(year, month-1, day);
 					}
 
 					// ***** GRACE PERIOD *****
