@@ -74,7 +74,7 @@ public class PerunNotifEmailGroupSender implements PerunNotifSender {
 
 				Integer groupId = Integer.valueOf(receiver.getTarget());
 				Group group = perun.getGroupsManagerBl().getGroupById(session, groupId);
-				List<Member> groupMembers = perun.getGroupsManagerBl().getGroupMembers(session, group);
+				List<Member> groupMembers = perun.getGroupsManagerBl().getGroupActiveMembers(session, group);
 				if (groupMembers != null) {
 					for (Member member : groupMembers) {
 						try {

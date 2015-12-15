@@ -40,6 +40,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		"members.created_at as members_created_at, members.created_by as members_created_by, members.modified_by as members_modified_by, members.modified_at as members_modified_at, " +
 		"members.created_by_uid as members_created_by_uid, members.modified_by_uid as members_modified_by_uid";
 
+	protected final static String memberMappingSelectQueryWithMemTypeAndSourceGroupId = memberMappingSelectQuery + 
+			", groups_members.membership_type AS membership_type, groups_members.source_group_id AS source_group_id"; 
+	
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -49,9 +52,20 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 					rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
 					rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
 					rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
-			try{
-				member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
-			}catch(SQLException ex){/*member.setType(MembershipType.NOT_DEFINED); již provedeno v konstruktoru*/}
+			return member;
+		}
+	};
+
+	protected static final RowMapper<Member> EXTENDED_MEMBER_MAPPER = new RowMapper<Member>() {
+		public Member mapRow(ResultSet rs, int i) throws SQLException {
+			Member member = new Member(rs.getInt("members_id"), rs.getInt("members_user_id"), rs.getInt("members_vo_id"), Status.getStatus(rs.getInt("members_status")),
+					rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
+					rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
+					rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
+
+			member.setSourceGroupId(rs.getInt("source_group_id"));
+			member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
+
 			return member;
 		}
 	};

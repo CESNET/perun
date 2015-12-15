@@ -5,6 +5,7 @@ import java.util.List;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupOperations;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.Pair;
@@ -14,16 +15,13 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
@@ -172,6 +170,15 @@ public interface GroupsManagerImplApi {
 	 */
 	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, NotGroupMemberException;
 
+	/**
+	 * Remove all members from group by their Membership type.
+	 * 
+	 * @param perunSession perun session
+	 * @param group source group
+	 * @param membershipType membership type
+	 */
+	void removeMembersByMembershipType(PerunSession perunSession, Group group, MembershipType membershipType);
+	
 	/** Return groups by theirs id.
 	 *
 	 * @param perunSession
@@ -227,16 +234,56 @@ public interface GroupsManagerImplApi {
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
-	 * Return group members.
+	 * Return group members with specified vo membership status.
 	 *
-	 * @param sess
-	 * @param group
+	 * @param sess perun session
+	 * @param group group
 	 * @param statuses list of statuses, if status is null then return all members
 	 * @param excludeStatusInsteadOfIncludeStatus does the list of statuses means exclude members or include members with these statuses
 	 * @return list of members
+	 *
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
+	List<Member> getGroupActiveMembersWithStatuses(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
+
+	/**
+	 * Returns all records of direct group members. Excluded members are not taken into account.
+	 *
+	 * @param sess perun session
+	 * @param group group to get direct members from
+	 * @return list of direct members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getDirectGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns all members specified by:
+	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
+	 * 2) all DIRECT, which are EXCLUDED - as DIRECT_EXCLUDED
+	 * 3) all INDIRECT, which are not EXCLUDED and not DIRECT - as INDIRECT
+	 * 4) all INDIRECT, which are EXCLUDED and not DIRECT - as INDIRECT_EXCLUDED
+	 *
+	 * @param sess perun session
+	 * @param group group to get members from
+	 * @return list of members
+	 */
+	List<Member> getAllGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+
+	/**
+	 * Returns all members with or without the statuses specified by:
+	 * 1) all DIRECT, which are not EXCLUDED - as DIRECT
+	 * 2) all DIRECT, which are EXCLUDED - as DIRECT_EXCLUDED
+	 * 3) all INDIRECT, which are not EXCLUDED and not DIRECT - as INDIRECT
+	 * 4) all INDIRECT, which are EXCLUDED and not DIRECT - as INDIRECT_EXCLUDED
+	 *
+	 * @param sess perun session
+	 * @param group group to get members from
+	 * @param statuses list of statuses, if status is null then return all members
+	 * @param excludeStatusInsteadOfIncludeStatus does the list of statuses means exclude members or include members with these statuses
+	 * @return list of members
+	 */
+	List<Member> getAllGroupMembersWithStatuses(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException;
 
 	/**
 	 * Get all group members ignoring theirs status.
@@ -246,7 +293,7 @@ public interface GroupsManagerImplApi {
 	 * @return list of members
 	 * @throws InternalErrorException
 	 */
-	List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException;
+	List<Member> getGroupActiveMembers(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Get all groups of the VO.
@@ -439,15 +486,13 @@ public interface GroupsManagerImplApi {
 	 */
 	boolean isGroupMember(PerunSession sess, Group group, Member member) throws InternalErrorException;
 
-
 	/**
-	 * Return true if Member is direct member of the Group
+	 * Returns true if Member is a direct member of the group
 	 *
-	 *
-	 * @param sess
-	 * @param group
-	 * @param member
-	 * @return true if Member is direct member of the Group
+	 * @param sess perun session
+	 * @param group group
+	 * @param member member
+	 * @return true if member is a direct member of the group
 	 *
 	 * @throws InternalErrorException
 	 */
@@ -493,4 +538,71 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
+
+	/**
+	 * Returns all result groups ids of the given operand group.
+	 *
+	 * @param sess perun session
+	 * @param groupId operand group id
+	 * @return related groups ids
+	 */
+	List<Integer> getRelatedGroupsIds(PerunSession sess, int groupId);
+
+	/**
+	 * Removes a relation between two groups.
+	 *
+	 * @param sess perun session
+	 * @param resultGroup result group
+	 * @param operandGroup operand group
+	 * @param operation type of relation
+	 * @throws InternalErrorException if there is no relation of the given type between the groups
+	 */
+	void removeGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, GroupOperations operation) throws InternalErrorException;
+
+	/**
+	 * Removes all relations of this result group.
+	 *
+	 * @param sess perun session
+	 * @param resultGroup result group
+	 */
+	void removeResultGroupRelations(PerunSession sess, Group resultGroup);
+
+	/**
+	 * Saves union operation between result group and operand group.
+	 *
+	 * @param sess perun session
+	 * @param resultGroup group to which members are added
+	 * @param operandGroup group from which members are taken
+	 * @param operation type of relation
+	 */
+	void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, GroupOperations operation) throws InternalErrorException;
+
+	/**
+	 * Checks if relation between groups exists. It checks both ways.
+	 * Does not matter which one is result group and which one is operand group.
+	 *
+	 * @param group1 group
+	 * @param group2 group
+	 * @return true if there is a relation, false otherwise
+	 */
+	boolean isRelationBetweenGroups(Group group1, Group group2);
+
+	/**
+	 * Checks if relation exists between result group and operand group.
+	 * It matters which one is result group and which one is operand group.
+	 *
+	 * @param resultGroup result group
+	 * @param operandGroup operand group
+	 * @return true if there is a one-way relation, false otherwise
+	 */
+	boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup);
+
+	/**
+	 * Return all group relations.
+	 *
+	 * @param sess perun session
+	 * @param groupId group id
+	 * @return list of pairs where LEFT is group id and RIGHT is operation.
+	 */
+	List<Pair<Integer, GroupOperations>> getGroupRelations(PerunSession sess, int groupId);
 }

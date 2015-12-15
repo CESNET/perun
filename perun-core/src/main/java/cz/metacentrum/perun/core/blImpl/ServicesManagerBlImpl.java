@@ -16,7 +16,6 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
@@ -33,7 +32,6 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedExcepti
 import cz.metacentrum.perun.core.api.exceptions.DestinationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
@@ -227,7 +225,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		ServiceAttributes groupsMembersElement = new ServiceAttributes();
 		//Invalid and disabled are not allowed here
-		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
+		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupActiveMembersExceptInvalidAndDisabled(sess, group);
 		for(Member member : members) {
 			groupsMembersElement.addChildElement(memberAttributes.get(member));
 		}

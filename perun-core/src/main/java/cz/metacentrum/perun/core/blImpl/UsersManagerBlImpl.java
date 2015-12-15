@@ -276,11 +276,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return user;
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException  {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException, GroupOperationsException {
 		this.deleteUser(sess, user, false);
 	}
 
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException, GroupOperationsException {
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
@@ -799,7 +799,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		if(group != null) {
-			List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+			List<Member> members = getPerunBl().getGroupsManagerBl().getAllGroupMembers(sess, group);
 			List<User> usersFromGroup = new ArrayList<User>();
 			for(Member memberElement: members) {
 				usersFromGroup.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));

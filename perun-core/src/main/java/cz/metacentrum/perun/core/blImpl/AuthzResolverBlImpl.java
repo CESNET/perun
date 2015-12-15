@@ -15,7 +15,6 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
@@ -918,7 +917,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			}
 		//If there is authorized group instead of user, try to find intersection in members and if there is at least one, then refresh authz
 		} else if(authorizedGroup != null && sess.getPerunPrincipal() != null && sess.getPerunPrincipal().getUser() != null) {
-			List<Member> groupMembers = perunBlImpl.getGroupsManagerBl().getGroupMembers(sess, authorizedGroup);
+			List<Member> groupMembers = perunBlImpl.getGroupsManagerBl().getGroupActiveMembers(sess, authorizedGroup);
 			List<Member> userMembers = perunBlImpl.getMembersManagerBl().getMembersByUser(sess, sess.getPerunPrincipal().getUser());
 			userMembers.retainAll(groupMembers);
 			if(!userMembers.isEmpty()) AuthzResolverBlImpl.refreshAuthz(sess);

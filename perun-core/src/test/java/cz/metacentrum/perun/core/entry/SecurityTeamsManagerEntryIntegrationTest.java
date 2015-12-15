@@ -18,8 +18,10 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.NotMemberOfParentGroupException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -929,7 +931,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		securityTeamsManagerEntry.addUserToBlacklist(sess, st1, u4, "reason");
 	}
 
-	private Group setUpGroup(User u0, User u1) throws PrivilegeException, InternalErrorException, UserNotExistsException, AlreadyAdminException, SecurityTeamNotExistsException, VoExistsException, GroupExistsException, VoNotExistsException, GroupNotExistsException, AlreadyMemberException, MemberNotExistsException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, WrongAttributeValueException, ExtendMembershipException, NotMemberOfParentGroupException {
+	private Group setUpGroup(User u0, User u1) throws PrivilegeException, InternalErrorException, UserNotExistsException, AlreadyAdminException, SecurityTeamNotExistsException, VoExistsException, GroupExistsException, VoNotExistsException, GroupNotExistsException, AlreadyMemberException, MemberNotExistsException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, WrongAttributeValueException, ExtendMembershipException, NotMemberOfParentGroupException, NotGroupMemberException, GroupOperationsException {
 		Vo vo = new Vo();
 		vo.setShortName("testVo");
 		vo.setName("Test VO");
@@ -956,7 +958,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Set<User> set = new HashSet<>();
 		set.add(u0);
 		set.add(u1);
-		for (Member member : perun.getGroupsManager().getGroupMembers(sess, group)) {
+		for (Member member : perun.getGroupsManager().getGroupActiveMembers(sess, group)) {
 			set.add(perun.getUsersManager().getUserByMember(sess, member));
 		}
 

@@ -17,6 +17,7 @@ insert into action_types (id,action_type,description) values (1,'read','Can read
 insert into action_types (id,action_type,description) values (2,'write','Can write, rewrite and remove value.');
 insert into membership_types (id,membership_type,description) values (1,'DIRECT','Member is directly added into group');
 insert into membership_types (id,membership_type,description) values (2,'INDIRECT','Member is added into subgroup');
+insert into membership_types (id,membership_type,description) values (4,'EXCLUDED','Member is excluded from group');
 insert into attr_names (created_by_uid,modified_by_uid,display_name,id,default_attr_id,attr_name,friendly_name,namespace,type,dsc,created_at,created_by,modified_at,modified_by,status) values (null,3411,'Login in namespace: meta',55,null,'urn:perun:user:attribute-def:def:login-namespace:meta','login-namespace:meta','urn:perun:user:attribute-def:def','java.lang.String','Logname in namespace ''meta''.',timestamp '2011-06-01 10:57:48.4','PERUNV3',timestamp '2014-09-24 14:39:44.4','/C=CZ/O=Masarykova univerzita/CN=Pavel Zl\xC3\xA1mal/unstructuredName=256627','0');
 insert into attr_names (created_by_uid,modified_by_uid,display_name,id,default_attr_id,attr_name,friendly_name,namespace,type,dsc,created_at,created_by,modified_at,modified_by,status) values (3255,3261,'Shibboleth external sources',2380,null,'urn:perun:user:attribute-def:virt:shibbolethExtSources','shibbolethExtSources','urn:perun:user:attribute-def:virt','java.util.LinkedHashMap','Pairs of IdP indentifier and user''s EPPN.',timestamp '2013-06-27 10:02:15.5','glory@META',timestamp '2013-10-29 11:28:02.3','/C=CZ/O=Masaryk University/CN=Zora Sebestianova/unstructuredName=71378','0');
 insert into attr_names (created_by_uid,modified_by_uid,display_name,id,default_attr_id,attr_name,friendly_name,namespace,type,dsc,created_at,created_by,modified_at,modified_by,status) values (null,3261,'Home mount points',14,null,'urn:perun:facility:attribute-def:def:homeMountPoints','homeMountPoints','urn:perun:facility:attribute-def:def','java.util.ArrayList','Available mount points for home on Facility.',timestamp '2011-06-01 10:57:48.4','PERUNV3',timestamp '2013-10-24 14:03:50.5','/C=CZ/O=Masaryk University/CN=Zora Sebestianova/unstructuredName=71378','0');
@@ -2188,3 +2189,6 @@ insert into users (id, first_name, last_name) values (1, 'John', 'Doe');
 insert into ext_sources (id, name, type) values (1, 'BA', 'cz.metacentrum.perun.core.impl.ExtSourceKerberos');
 insert into user_ext_sources (id, user_id, login_ext, ext_sources_id, loa) values (1, 1, 'perun@BA', 1, 2);
 insert into authz (user_id, role_id) values (1 , 21);
+
+insert into groups_operations(id, name) VALUES (1, 'union');
+insert into groups_operations(id, name) VALUES (2, 'difference');

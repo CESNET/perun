@@ -35,8 +35,9 @@ public interface MembersManager {
 	 * @throws MemberNotExistsException
 	 * @throws PrivilegeException
 	 * @throws MemberAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 * @throws GroupOperationsException if error occurs which prevent operation to finish
 	 */
-	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
+	void deleteMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, MemberAlreadyRemovedException, GroupOperationsException;
 
 	/**
 	 *  Deletes all VO members.
@@ -47,8 +48,9 @@ public interface MembersManager {
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 * @throws MemberAlreadyRemovedException if there is at least 1 member not affected by deleting from DB
+	 * @throws GroupOperationsException if error occurs which prevent operation to finish
 	 */
-	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException;
+	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, VoNotExistsException, PrivilegeException, MemberAlreadyRemovedException, GroupOperationsException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating serviceUser
@@ -62,15 +64,16 @@ public interface MembersManager {
 	 * @return newly created member (of service User)
 	 * @throws InternalErrorException if serviceUserOwners is empty or if unexpected exception occur
 	 * @throws AlreadyMemberException if this candidate is already member of this VO
-	 * @throws VoNotExistsException  the vo not exist in perun yet
+	 * @throws VoNotExistsException the vo not exist in perun yet
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException some user from the list not exists
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws ExtendMembershipException
 	 * @throws GroupNotExistsException
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException;
+	Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, GroupNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member from candidate which is prepared for creating serviceUser
@@ -88,15 +91,16 @@ public interface MembersManager {
 	 * @return newly created member (of service User)
 	 * @throws InternalErrorException if serviceUserOwners is empty or if unexpected exception occur
 	 * @throws AlreadyMemberException if this candidate is already member of this VO
-	 * @throws VoNotExistsException  the vo not exist in perun yet
+	 * @throws VoNotExistsException the vo not exist in perun yet
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException some user from the list not exists
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws ExtendMembershipException
 	 * @throws GroupNotExistsException
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException;
+	Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, GroupNotExistsException, PrivilegeException, VoNotExistsException, UserNotExistsException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -111,17 +115,17 @@ public interface MembersManager {
 	 * @param login user's login within extSource
 	 * @return newly created member, who has set all his/her attributes
 	 * @throws InternalErrorException
-	 * @throws AlreadyMemberException
-	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws ExtendMembershipException
 	 * @throws GroupNotExistsException
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws AlreadyMemberException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, PrivilegeException, GroupNotExistsException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
-/**
+	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
 	 * Also stores the associated user if doesn't exist. This method is used by the registrar.
 	 *
@@ -138,15 +142,15 @@ public interface MembersManager {
 	 * @param groups list of groups where member will be added too
 	 * @return newly created member, who has set all his/her attributes
 	 * @throws InternalErrorException
-	 * @throws AlreadyMemberException
-	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws ExtendMembershipException
 	 * @throws GroupNotExistsException
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws AlreadyMemberException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, PrivilegeException, GroupNotExistsException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -162,15 +166,15 @@ public interface MembersManager {
 	 * @param login user's login within extSource
 	 * @return newly created member, who has set all his/her attributes
 	 * @throws InternalErrorException
-	 * @throws AlreadyMemberException
-	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws ExtendMembershipException
 	 * @throws GroupNotExistsException
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws AlreadyMemberException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate) throws InternalErrorException, PrivilegeException, GroupNotExistsException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -190,15 +194,15 @@ public interface MembersManager {
 	 * @param groups list of groups where member will be added too
 	 * @return newly created member, who has set all his/her attributes
 	 * @throws InternalErrorException
-	 * @throws AlreadyMemberException
-	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws ExtendMembershipException
 	 * @throws GroupNotExistsException
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws AlreadyMemberException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, PrivilegeException, GroupNotExistsException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
@@ -209,21 +213,22 @@ public interface MembersManager {
 	 * @param candidate
 	 * @return newly created members
 	 * @throws InternalErrorException
-	 * @throws AlreadyMemberException
-	 * @throws VoNotExistsException
+	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
-	 * @throws WrongAttributeValueException
+	 * @throws VoNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws ExtendMembershipException
-	 * @throws GroupsNotExistsException
+	 * @throws GroupOperationsException
+	 * @throws AlreadyMemberException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, GroupNotExistsException, PrivilegeException, VoNotExistsException, WrongReferenceAttributeValueException, ExtendMembershipException, GroupOperationsException, AlreadyMemberException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
 	 *
 	 * Also add this member to groups in list.
-	 * 
+	 *
 	 * <strong>This method runs WITHOUT synchronization. If validation is needed, need to call concrete validateMember method (validateMemberAsync recommended).</strong>
 	 *
 	 * @param sess
@@ -232,15 +237,16 @@ public interface MembersManager {
 	 * @param groups list of groups where member will be added too
 	 * @return newly created members
 	 * @throws InternalErrorException
-	 * @throws AlreadyMemberException
-	 * @throws VoNotExistsException
+	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
-	 * @throws WrongAttributeValueException
+	 * @throws VoNotExistsException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws ExtendMembershipException
-	 * @throws GroupsNotExistsException
+	 * @throws GroupOperationsException
+	 * @throws AlreadyMemberException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, GroupNotExistsException, PrivilegeException, VoNotExistsException, WrongReferenceAttributeValueException, ExtendMembershipException, GroupOperationsException, AlreadyMemberException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member from user.
@@ -252,13 +258,16 @@ public interface MembersManager {
 	 * @return newly created member
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @throws AlreadyMemberException
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
+	 * @throws GroupNotExistsException
+	 * @throws WrongReferenceAttributeValueException
 	 * @throws ExtendMembershipException
-	 * @throws GroupExistsException
+	 * @throws GroupOperationsException
+	 * @throws AlreadyMemberException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException, GroupNotExistsException, WrongReferenceAttributeValueException, ExtendMembershipException, GroupOperationsException, AlreadyMemberException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member from user.
@@ -274,13 +283,16 @@ public interface MembersManager {
 	 * @return newly created member
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @throws AlreadyMemberException
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
+	 * @throws GroupNotExistsException
+	 * @throws WrongReferenceAttributeValueException
 	 * @throws ExtendMembershipException
-	 * @throws GroupExistsException
+	 * @throws GroupOperationsException
+	 * @throws AlreadyMemberException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, UserNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException, GroupNotExistsException, WrongReferenceAttributeValueException, ExtendMembershipException, GroupOperationsException, AlreadyMemberException, WrongAttributeValueException;
 
 	/**
 	 * Create new member from user by login and ExtSource.
@@ -293,16 +305,17 @@ public interface MembersManager {
 	 * @param login
 	 * @return newly created member
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws AlreadyMemberException
-	 * @throws ExtendMembershipException
 	 * @throws VoNotExistsException
 	 * @throws ExtSourceNotExistsException
+	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
-	 * @throws GroupNotExistsException 
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws AlreadyMemberException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login) throws InternalErrorException, VoNotExistsException, ExtSourceNotExistsException, GroupNotExistsException, PrivilegeException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Create new member from user by login and ExtSource.
@@ -318,16 +331,17 @@ public interface MembersManager {
 	 * @param groups
 	 * @return newly created member
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws AlreadyMemberException
-	 * @throws ExtendMembershipException
 	 * @throws VoNotExistsException
 	 * @throws ExtSourceNotExistsException
-	 * @throws PrivilegeException
 	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 * @throws GroupOperationsException
+	 * @throws ExtendMembershipException
+	 * @throws AlreadyMemberException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
 	 */
-	Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException;
+	Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, VoNotExistsException, ExtSourceNotExistsException, GroupNotExistsException, PrivilegeException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Find member of this Vo by his login in external source

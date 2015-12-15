@@ -1079,15 +1079,21 @@ create table pn_regex_object (
 	modified_by_uid integer
 );
 
--- GROUPS_GROUPS - subgroups in groups -  actually is not used. Prepared fore more sofisticated structure of groups.
+-- GROUPS_GROUPS - operations between two groups
 create table groups_groups (
-	group_id integer not null,         --identifier of group
-	parent_group_id integer not null,  --identifier of parent group
-	group_mode integer not null,
+	result_gid integer not null,    --identifier of result group (groups.id)
+	operand_gid integer not null,   --identifier of operand group (groups.id)
+	operation_id integer not null,  --identifier of operation (group_operations.id)
 	created_at timestamp default now() not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now() not null,
 	modified_by varchar(1024) default user not null
+);
+
+-- GROUPS_OPERATIONS - types of operations
+create table groups_operations (
+	id integer not null, --identifier of operation
+	name varchar(64) not null
 );
 
 -- RES_TAGS - possible resource tags in VO
@@ -1218,6 +1224,7 @@ create sequence "res_tags_seq" maxvalue 9223372036854775807;
 create sequence "mailchange_id_seq" maxvalue 9223372036854775807;
 create sequence "pwdreset_id_seq" maxvalue 9223372036854775807;
 create sequence "security_teams_id_seq" maxvalue 9223372036854775807;
+create sequence "groups_operation_id_seq" maxvalue 9223372036854775807;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1343,8 +1350,8 @@ create index idx_fk_pn_rgxobj_rgx on pn_regex_object(regex_id);
 create index idx_fk_pn_rgxobj_obj on pn_regex_object(object_id);
 create index idx_fk_servu_u_ui on service_user_users(user_id);
 create index idx_fk_servu_u_sui on service_user_users(service_user_id);
-create index idx_fk_grp_grp_gid on groups_groups(group_id);
-create index idx_fk_grp_grp_pgid on groups_groups(parent_group_id);
+create index idx_fk_grp_grp_rgid on groups_groups(result_gid);
+create index idx_fk_grp_grp_ogid on groups_groups(operand_gid);
 create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
 create index idx_fk_attrauthz_role on attributes_authz(role_id);
 create index idx_fk_attrauthz_attr on attributes_authz(attr_id);
@@ -1617,9 +1624,12 @@ alter table service_user_users add constraint acc_servu_u_uid_fk foreign key (us
 alter table service_user_users add constraint acc_servu_u_suid_fk foreign key (service_user_id) references users(id);
 alter table service_user_users add constraint servu_u_status_chk check (status in ('0','1'));
 
-alter table groups_groups add constraint grp_grp_pk primary key (group_id,parent_group_id);
-alter table groups_groups add constraint grp_grp_gid_fk foreign key (group_id) references groups(id);
-alter table groups_groups add constraint grp_grp_pgid_fk foreign key (parent_group_id) references groups(id);
+alter table groups_operations add constraint grp_operation_pk primary key (id);
+alter table groups_operations add constraint grp_operation_name_u unique (name);
+alter table groups_groups add constraint grp_grp_pk primary key (result_gid, operand_gid);
+alter table groups_groups add constraint grp_grp_rgid_fk foreign key (result_gid) references groups(id);
+alter table groups_groups add constraint grp_grp_ogid_fk foreign key (operand_gid) references groups(id);
+alter table groups_groups add constraint grp_operation_id_fk foreign key (operation_id) references groups_operations(id);
 
 alter table action_types add constraint actiontyp_pk primary key (id);
 alter table action_types add constraint actiontyp_u unique (action_type);
