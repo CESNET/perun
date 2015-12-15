@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -300,5 +302,42 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 
 	public ServicesManager getServicesManager() {
 		return servicesManager;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void createCompleteService(PerunSession perunSession, String serviceName, String scriptPath, int defaultDelay, boolean enabled) throws InternalErrorException, PrivilegeException, ServiceExistsException {
+
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "createCompleteService");
+		}
+
+		Service service = null;
+
+		try {
+			service = servicesManager.getServiceByName(perunSession, serviceName);
+		} catch (ServiceNotExistsException e) {
+			service = new Service();
+			service.setName(serviceName);
+			service = servicesManager.createService(perunSession, service);
+		}
+
+		ExecService genExecService = new ExecService();
+		genExecService.setService(service);
+		genExecService.setDefaultDelay(defaultDelay);
+		genExecService.setEnabled(enabled);
+		genExecService.setScript(scriptPath);
+		genExecService.setExecServiceType(ExecServiceType.GENERATE);
+		execServiceDao.insertExecService(genExecService);
+
+		ExecService sendExecService = new ExecService();
+		sendExecService.setService(service);
+		sendExecService.setDefaultDelay(defaultDelay);
+		sendExecService.setEnabled(enabled);
+		sendExecService.setScript(scriptPath);
+		sendExecService.setExecServiceType(ExecServiceType.SEND);
+		execServiceDao.insertExecService(sendExecService);
+
+		this.createDependency(sendExecService, genExecService);
 	}
 }

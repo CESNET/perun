@@ -360,5 +360,22 @@ public interface GeneralServiceManager {
 	 */
 	List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException ;
 
+	/**
+	 * Creates 2 ExecServices, first one has type GENERATE, second one has type SEND. 
+	 * Method also creates dependency of SEND service on GENERATE service.
+	 * 
+	 * 
+	 * @param perunSession
+	 * @param serviceName name of the service
+	 * @param scriptPath path to the gen/send script
+	 * @param defaultDelay
+	 * @param enabled 
+	 * @throws InternalErrorException 
+	 * @throws PrivilegeException The method can be executed only by 
+	 * PERUNADMIN user, otherwise the PrivilegeException is thrown.
+	 * @throws ServiceExistsException Exception is thrown when you're trying
+	 * to create a service that already exists
+	 */
+	void createCompleteService(PerunSession perunSession, String serviceName, String scriptPath, int defaultDelay, boolean enabled) throws InternalErrorException, PrivilegeException, ServiceExistsException ;
 
 }
