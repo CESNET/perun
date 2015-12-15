@@ -8,7 +8,10 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.servicesManager.CreateCompleteService;
 import cz.metacentrum.perun.webgui.json.servicesManager.CreateService;
 import cz.metacentrum.perun.webgui.model.Owner;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -42,6 +45,8 @@ public class CreateServiceTabItem implements TabItem {
 	 */
 	private Label titleWidget = new Label("Create service");
 
+	private static final String DEFAULT_DELAY = "10";
+
 	/**
 	 * Tab with create service form
 	 */
@@ -57,6 +62,9 @@ public class CreateServiceTabItem implements TabItem {
 		vp.setSize("100%", "100%");
 
 		final ExtendedTextBox serviceName = new ExtendedTextBox();
+		final ExtendedTextBox scriptPath = new ExtendedTextBox();
+		final CheckBox enabled = new CheckBox();
+		final ExtendedTextBox delay = new ExtendedTextBox();
 
 		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
@@ -65,12 +73,52 @@ public class CreateServiceTabItem implements TabItem {
 					serviceName.setError("Name can't be empty");
 					return false;
 				} else {
+
+
 					serviceName.setOk();
+					// fill script path on service name change
+					scriptPath.getTextBox().setValue("./"+serviceName.getTextBox().getText().trim().toLowerCase().replaceAll(Utils.SERVICE_NAME_TO_SCRIP_PATH_MATCHER,"_"));
 					return true;
 				}
 			}
 		};
 		serviceName.setValidator(validator);
+
+		enabled.setText("Enabled / Disabled");
+		enabled.setValue(true);
+
+		delay.getTextBox().setText(DEFAULT_DELAY);
+
+		final ExtendedTextBox.TextBoxValidator delayValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (!JsonUtils.checkParseInt(delay.getTextBox().getText().trim())) {
+					delay.setError("Delay must be a number (time in minutes) !");
+					return false;
+				} else {
+					delay.setOk();
+					return true;
+				}
+			}
+		};
+		delay.setValidator(delayValidator);
+
+
+
+		final ExtendedTextBox.TextBoxValidator scriptValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (scriptPath.getTextBox().getText().trim().isEmpty()) {
+					scriptPath.setError("Script path can't be empty !");
+					return false;
+				} else {
+					scriptPath.setOk();
+					return true;
+				}
+			}
+		};
+		scriptPath.setValidator(scriptValidator);
+
 
 		// prepares layout
 		FlexTable layout = new FlexTable();
@@ -84,7 +132,14 @@ public class CreateServiceTabItem implements TabItem {
 
 		// fill form
 		layout.setHTML(0, 0, "Name:");
+		layout.setHTML(1, 0, "Status:");
+		layout.setHTML(2, 0, "Delay:");
+		layout.setHTML(3, 0, "Script path:");
+
 		layout.setWidget(0, 1, serviceName);
+		layout.setWidget(1, 1, enabled);
+		layout.setWidget(2, 1, delay);
+		layout.setWidget(3, 1, scriptPath);
 
 		for (int i=0; i<layout.getRowCount(); i++) {
 			cellFormatter.addStyleName(i, 0, "itemName");
@@ -94,9 +149,9 @@ public class CreateServiceTabItem implements TabItem {
 		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createService());
 		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				if (validator.validateTextBox()) {
-					CreateService request = new CreateService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-					request.createService(serviceName.getTextBox().getText().trim());
+				if (validator.validateTextBox() && delayValidator.validateTextBox() && scriptValidator.validateTextBox()) {
+					CreateCompleteService request = new CreateCompleteService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+					request.createCompleteService(serviceName.getTextBox().getText().trim(), scriptPath.getTextBox().getText().trim(), Integer.parseInt(delay.getTextBox().getText().trim()), enabled.getValue());
 				}
 			}
 		});

@@ -294,11 +294,11 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates a dependency.
+	 * Creates a dependency of one ExecService on other.
 	 * The execService can not be executed if any of the execServices it depends on is in an unstable (not terminal) state.
 	 *
-	 * @param dependantExecService int DependantExecService <code>id</code>
-	 * @param execService int ExecService <code>id</code>
+	 * @param execService int ExecService <code>id</code> to create dependency for
+	 * @param dependantExecService int ExecService <code>id</code> to depend on
 	 */
 	createDependency {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
