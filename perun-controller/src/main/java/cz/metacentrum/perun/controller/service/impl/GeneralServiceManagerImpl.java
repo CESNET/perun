@@ -306,7 +306,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public void createCompleteService(PerunSession perunSession, String serviceName, String scriptPath, int defaultDelay, boolean enabled) throws InternalErrorException, PrivilegeException, ServiceExistsException {
+	public Service createCompleteService(PerunSession perunSession, String serviceName, String scriptPath, int defaultDelay, boolean enabled) throws InternalErrorException, PrivilegeException, ServiceExistsException {
 
 		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
 			throw new PrivilegeException(perunSession, "createCompleteService");
@@ -316,6 +316,9 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 
 		try {
 			service = servicesManager.getServiceByName(perunSession, serviceName);
+			if (service != null) {
+				throw new ServiceExistsException(service);
+			}
 		} catch (ServiceNotExistsException e) {
 			service = new Service();
 			service.setName(serviceName);
@@ -328,7 +331,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		genExecService.setEnabled(enabled);
 		genExecService.setScript(scriptPath);
 		genExecService.setExecServiceType(ExecServiceType.GENERATE);
-		execServiceDao.insertExecService(genExecService);
+		genExecService.setId(execServiceDao.insertExecService(genExecService));
 
 		ExecService sendExecService = new ExecService();
 		sendExecService.setService(service);
@@ -336,8 +339,11 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		sendExecService.setEnabled(enabled);
 		sendExecService.setScript(scriptPath);
 		sendExecService.setExecServiceType(ExecServiceType.SEND);
-		execServiceDao.insertExecService(sendExecService);
+		sendExecService.setId(execServiceDao.insertExecService(sendExecService));
 
 		this.createDependency(sendExecService, genExecService);
+
+		return service;
+
 	}
 }
