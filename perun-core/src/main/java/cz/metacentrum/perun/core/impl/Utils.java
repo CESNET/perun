@@ -747,7 +747,15 @@ public class Utils {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
-		message.setSubject("[Perun] New email address verification");
+
+		String instanceName = "Perun";
+		try {
+			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
+		} catch (InternalErrorException ex) {
+			// this is not a reason not to send notification
+		}
+
+		message.setSubject("["+instanceName+"] New email address verification");
 
 		// get validation link params
 		String i = Integer.toString(changeId, Character.MAX_RADIX);
@@ -788,7 +796,7 @@ public class Utils {
 				"\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
 				"Message is automatically generated." +
 				"\n----------------------------------------------------------------" +
-				"\nPerun - User and Resource Management System";
+				"\nPerun - Identity & Access Management System";
 
 			message.setText(text);
 
@@ -823,7 +831,15 @@ public class Utils {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
-		message.setSubject("[Perun] Password reset in namespace: "+namespace);
+
+		String instanceName = "Perun";
+		try {
+			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
+		} catch (InternalErrorException ex) {
+			// this is not a reason not to send notification
+		}
+
+		message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
 
 		// get validation link params
 		String i = cipherInput(String.valueOf(user.getId()), false);
@@ -850,7 +866,7 @@ public class Utils {
 					"\n\nPlease visit the link below, where you can set new password:\n\n"+link+"\n\n" +
 					"Message is automatically generated." +
 					"\n----------------------------------------------------------------" +
-					"\nPerun - User and Resource Management System";
+					"\nPerun - Identity & Access Management System";
 
 			message.setText(text);
 
@@ -882,7 +898,15 @@ public class Utils {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
-		message.setSubject("[Perun] Password reset in namespace: "+namespace);
+
+		String instanceName = "Perun";
+		try {
+			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
+		} catch (InternalErrorException ex) {
+			// this is not a reason not to send notification
+		}
+
+		message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
 
 		// get validation link params
 		String i = cipherInput(String.valueOf(user.getId()), false);
@@ -890,11 +914,11 @@ public class Utils {
 
 			// Build message
 			String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
-					"\n\nThis message is automatically sent to all your email addresses registered in Perun in order to prevent malicious password reset without your knowledge.\n\n" +
-					"If you didn't request / perform password reset, please notify your VO administrator and support at "+BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom")+" to resolve this security issue.\n\n" +
+					"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious password reset without your knowledge.\n\n" +
+					"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom")+" to resolve this security issue.\n\n" +
 					"Message is automatically generated." +
 					"\n----------------------------------------------------------------" +
-					"\nPerun - User and Resource Management System";
+					"\nPerun - Identity & Access Management System";
 
 			message.setText(text);
 
