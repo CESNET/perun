@@ -113,7 +113,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		} else {
 			text += app.getCreatedBy();
 		}
-		text += " <strong>from:</strong> " + app.getExtSourceName()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
+		text += " <strong>from External Source:</strong> " + app.getExtSourceName()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
 		text += " <strong>at: </strong> " + app.getCreatedAt().split("\\.")[0];
 		ft.setHTML(row, 0, text);
 		ft.setCellSpacing(5);
