@@ -50,7 +50,7 @@ binmode DBD,":utf8";
 
 while (@tables) {
 	my $table=shift(@tables);
-	my $text='delete from "'.$user.'"."'.$table.'"';
+	my $text='delete from "'.$user.'"."'.$table.'";';
 	print DBD $text;
 	print DBD "\n";
 }
