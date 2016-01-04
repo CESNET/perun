@@ -36,19 +36,6 @@ public class LdapProperties {
 		return this.getLdapcProperties().getProperty("ldap.loginNamespace");
 	}
 
-	/**
-	 * This means that object class groupOfUniqueNames is not supported yet!
-	 *
-	 * @return true if not supported, false if still needed
-	 */
-	public boolean isThisNewVersionOfLdap() {
-		String newVersionOfLdap = this.getLdapcProperties().getProperty("ldap.newVersionOfLdap");
-		if("true".equals(newVersionOfLdap)) {
-			return true;
-		}
-		return false;
-	}
-
 	public void setLdapcProperties(Properties ldapcProperties) {
 		this.ldapcProperties = ldapcProperties;
 	}

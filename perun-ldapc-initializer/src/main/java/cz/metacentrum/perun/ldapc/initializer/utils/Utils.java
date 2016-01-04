@@ -131,7 +131,6 @@ public class Utils {
 		PerunSession perunSession = perunInitializer.getPerunSession();
 		PerunBl perun = perunInitializer.getPerunBl();
 		BufferedWriter writer = perunInitializer.getOutputWriter();
-		boolean newLDAPversion = perunInitializer.isNewVersionOfLDAP();
 
 		//first get all Vos
 		List<Vo> vos = perun.getVosManagerBl().getVos(perunSession);
@@ -143,7 +142,6 @@ public class Utils {
 			for(Resource resource: resources) {
 				String dn = "dn: ";
 				String oc1 = "objectclass: top";
-				String oc2 = "objectclass: groupOfUniqueNames";
 				String oc3 = "objectclass: perunResource";
 				String cn = "cn: ";
 				String perunVoId = "perunVoId: ";
@@ -162,10 +160,6 @@ public class Utils {
 				}
 				writer.write(dn + '\n');
 				writer.write(oc1 + '\n');
-				//Use only if old version of ldap with groupOfUniqueNames is used
-				if(!newLDAPversion) {
-					writer.write(oc2 + '\n');
-				}
 				writer.write(oc3 + '\n');
 				writer.write(cn + '\n');
 				writer.write(perunResourceId + '\n');
@@ -198,7 +192,6 @@ public class Utils {
 		PerunSession perunSession = perunInitializer.getPerunSession();
 		PerunBl perun = perunInitializer.getPerunBl();
 		BufferedWriter writer = perunInitializer.getOutputWriter();
-		boolean newLDAPversion = perunInitializer.isNewVersionOfLDAP();
 
 		//First get all vos
 		List<Vo> vos = perun.getVosManagerBl().getVos(perunSession);
@@ -210,7 +203,6 @@ public class Utils {
 			for(Group group: groups) {
 				String dn = "dn: ";
 				String oc1 = "objectclass: top";
-				String oc2 = "objectclass: groupOfUniqueNames";
 				String oc3 = "objectclass: perunGroup";
 				String cn = "cn: ";
 				String perunVoId = "perunVoId: ";
@@ -235,10 +227,6 @@ public class Utils {
 				List<Member> admins = new ArrayList<>();
 				writer.write(dn + '\n');
 				writer.write(oc1 + '\n');
-				//Use only if old version of ldap with groupOfUniqueNames is used
-				if(!newLDAPversion) {
-					writer.write(oc2 + '\n');
-				}
 				writer.write(oc3 + '\n');
 				writer.write(cn + '\n');
 				writer.write(perunUniqueGroupName + '\n');
