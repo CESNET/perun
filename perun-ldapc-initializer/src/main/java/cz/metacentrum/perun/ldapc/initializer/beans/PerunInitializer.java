@@ -25,7 +25,6 @@ public class PerunInitializer {
 	private PerunSession perunSession;
 	private PerunPrincipal perunPrincipal;
 	private BufferedWriter outputWriter;
-	private boolean newVersionOfLDAP;
 	private final String consumerName = "ldapcConsumer";
 
 	public PerunInitializer() throws InternalErrorException, FileNotFoundException {
@@ -48,7 +47,6 @@ public class PerunInitializer {
 		this.perunBl = springCtx.getBean("perun", PerunBl.class);
 		this.perunSession = perunBl.getPerunSession(perunPrincipal);
 		this.outputWriter = new BufferedWriter(Utils.getWriterForOutput(outputFileName));
-		this.newVersionOfLDAP = newVersionOfLDAP;
 	}
 
 	public PerunBl getPerunBl() {
@@ -69,10 +67,6 @@ public class PerunInitializer {
 
 	public BufferedWriter getOutputWriter() {
 		return outputWriter;
-	}
-
-	public boolean isNewVersionOfLDAP() {
-		return newVersionOfLDAP;
 	}
 
 	public String getConsumerName() {

@@ -52,10 +52,6 @@ public class LdapConnectorImpl implements LdapConnector {
 		// Create the objectclass to add
 		Attribute objClasses = new BasicAttribute("objectClass");
 		objClasses.add("top");
-		//use this object class only in old version of perun ldap
-		if(!ldapProperties.isThisNewVersionOfLdap()) {
-			objClasses.add("groupOfUniqueNames");
-		}
 		objClasses.add("perunResource");
 
 		// Add attributes
@@ -98,10 +94,6 @@ public class LdapConnectorImpl implements LdapConnector {
 		// Create the objectclass to add
 		Attribute objClasses = new BasicAttribute("objectClass");
 		objClasses.add("top");
-		//use this object class only in old version of perun ldap
-		if(!ldapProperties.isThisNewVersionOfLdap()) {
-			objClasses.add("groupOfUniqueNames");
-		}
 		objClasses.add("perunGroup");
 
 		// Add attributes
