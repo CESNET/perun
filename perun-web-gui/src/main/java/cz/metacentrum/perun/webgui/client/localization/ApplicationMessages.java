@@ -153,7 +153,7 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("<h2>Your IDP doesn`t provide data required by application form.</h2><h2>Please contact your IDP to resolve this issue or try to log-in with different IDP.</h2>")
 	String missingDataFromIDP();
 
-	@DefaultMessage("<strong>Can`t reconstruct '{0}'. Missing IDP attributes: displayName, cn, givenName, sn.</strong>")
+	@DefaultMessage("<strong>Can`t reconstruct {0}. Missing IDP attributes: displayName, cn, givenName, sn.</strong>")
 	String cantResolveIDPNameAttribute(String attrName);
 
 	@DefaultMessage("<strong>Missing IDP attribute: </strong>")
