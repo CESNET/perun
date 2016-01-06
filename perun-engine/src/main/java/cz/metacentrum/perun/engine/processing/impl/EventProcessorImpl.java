@@ -66,6 +66,10 @@ public class EventProcessorImpl implements EventProcessor {
 			log.error(e.toString());
 		}
 
+		if(task == null) {
+			return;
+		}
+		
 		// FIXME: Disabled because it can cause race condition. See RT#33803
 		if (false) {
 			// if (event.contains("forceit")) { // TODO: Move string constant to
