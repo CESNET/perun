@@ -58,7 +58,7 @@ public class EventParserImpl implements EventParser {
 		 */
 		// String eventParsingPattern =
 		// "^event\\|([0-9]{1,6})\\|\\[([a-zA-Z0-9: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
-		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\[([0-9]+)\\]\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]|\\[(.*)\\]$";
+		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\[([0-9]+)\\]\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]\\|\\[(.*)\\]$";
 		Pattern pattern = Pattern.compile(eventParsingPattern);
 		Matcher matcher = pattern.matcher(event);
 		boolean matchFound = matcher.find();
@@ -150,8 +150,14 @@ public class EventParserImpl implements EventParser {
 			// resolve list of dependencies
 			if (eventDependencyList != null) {
 				for (String token : eventDependencyList.split("[\t ]*,[\t ]*")) {
-					dependenciesResolver.addDependency(task,
-							Integer.parseInt(token));
+					if(token.length() > 0) {
+						try {
+							dependenciesResolver.addDependency(task,
+									Integer.parseInt(token));
+						} catch (Exception e) {
+							throw new InvalidEventMessageException("Invalid dependency in event: " + token);
+						}
+					}
 				}
 			}
 
