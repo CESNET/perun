@@ -68,11 +68,15 @@ public class EventParserImpl implements EventParser {
 			String thisEngineID = matcher.group(1);
 			// This should indeed match the current Engine instance ID, so let's
 			// compare it...
-			if (Integer.parseInt(thisEngineID) != Integer
-					.parseInt((String) propertiesBean.get("engine.unique.id"))) {
-				throw new InvalidEventMessageException("Wrong Engine ID. Was:"
-						+ thisEngineID + ", Expected:"
-						+ propertiesBean.get("engine.unique.id"));
+			try {
+				if (Integer.parseInt(thisEngineID) != Integer
+						.parseInt((String) propertiesBean.get("engine.unique.id"))) {
+					throw new InvalidEventMessageException("Wrong Engine ID. Was:"
+							+ thisEngineID + ", Expected:"
+							+ propertiesBean.get("engine.unique.id"));
+				}
+			} catch (Exception e) {
+				throw new InvalidEventMessageException("Wrong Engine ID: parse exception", e);
 			}
 			// Data should provide information regarding the target ExecService
 			// (Processing rule).
