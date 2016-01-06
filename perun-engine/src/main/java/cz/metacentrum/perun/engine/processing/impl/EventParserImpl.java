@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +88,20 @@ public class EventParserImpl implements EventParser {
 			String eventDestinationList = matcher.group(6);
 			String eventDependencyList = matcher.group(7);
 
+			// check possible enconding
+			if(!eventFacility.startsWith("Facility")) {
+				eventFacility = new String(Base64.decodeBase64(eventFacility));
+			}
+			if(!eventFacility.startsWith("Facility")) {
+				throw new InvalidEventMessageException("Wrong facility: parse exception");
+			}			
+			if(!eventDestinationList.startsWith("Destinations")) {
+				eventDestinationList = new String(Base64.decodeBase64(eventDestinationList));
+			}
+			if(!eventDestinationList.startsWith("Destinations")) {
+				throw new InvalidEventMessageException("Wrong destination list: parse exception");
+			}
+			
 			log.debug("Event data to be parsed: task id " + eventTaskId
 					+ ", forced " + eventIsForced
 					+ ", facility " + eventFacility + ", exec service "

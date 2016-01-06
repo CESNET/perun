@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -471,11 +472,19 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		dispatcherQueue.sendMessage("[" + task.getId() + "]["
 				+ task.isPropagationForced() + "]["
 				+ task.getExecServiceId() + "]["
-				+ task.getFacility().serializeToString() + "]|["
-				+ destinations_s.toString() + "]|[" + dependencies + "]");
+				+ fixStringSeparators(task.getFacility().serializeToString()) + "]|["
+				+ fixStringSeparators(destinations_s.toString()) + "]|[" + dependencies + "]");
 		task.setStartTime(new Date(System.currentTimeMillis()));
 		task.setEndTime(null);
 		schedulingPool.setTaskStatus(task, TaskStatus.PROCESSING);
+	}
+
+	private String fixStringSeparators(String data) {
+		if(data.contains("|")) {
+			return new String(Base64.encodeBase64(data.getBytes()));
+		} else {
+			return data;
+		}
 	}
 
 	@Override
