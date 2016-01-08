@@ -172,9 +172,14 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		 * Date(System.currentTimeMillis()), pair.getRight()); }
 		 */
 		for (Task task : schedulingPool.getNewTasks()) {
-			log.debug("Propagating ExecService:Facility : "
-					+ task.getExecServiceId() + ":" + task.getFacilityId());
-			propagateService(task, new Date(System.currentTimeMillis()));
+			if(task.isPropagationForced()) {
+				log.info("Skipping normal schedule cycle for task " + task.getId() + 
+						", it is being force-scheduled asynchronously.");
+			} else {
+				log.debug("Propagating ExecService:Facility : "
+						+ task.getExecServiceId() + ":" + task.getFacilityId());
+				propagateService(task, new Date(System.currentTimeMillis()));
+			}
 		}
 	}
 
