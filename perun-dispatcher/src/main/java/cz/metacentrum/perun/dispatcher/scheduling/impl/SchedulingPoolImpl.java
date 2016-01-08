@@ -31,7 +31,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			.getLogger(SchedulingPoolImpl.class);
 
 	private Map<Integer, Pair<Task, DispatcherQueue>> tasksById = new ConcurrentHashMap<Integer, Pair<Task, DispatcherQueue>>();
-	private Map<Pair<ExecService, Facility>, Task> tasksByServiceAndFacility = new ConcurrentHashMap<Pair<ExecService, Facility>, Task>();
+	private Map<Pair<Integer, Integer>, Task> tasksByServiceAndFacility = new ConcurrentHashMap<Pair<Integer, Integer>, Task>();
 	private Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(
 			TaskStatus.class);
 
@@ -58,7 +58,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			// this task was created new, so we have to check the
 			// ExecService,Facility pair
 			synchronized (tasksByServiceAndFacility) {
-				if (!tasksByServiceAndFacility.containsKey(new Pair<ExecService, Facility>(task.getExecService(), task.getFacility()))) {
+				if (!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()))) {
 					log.debug("Adding new task to pool " + task);
 					if (null == task.getStatus()) {
 						task.setStatus(TaskStatus.NONE);
@@ -73,8 +73,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 								"Could not assign id to newly created task", e);
 					}
 					tasksByServiceAndFacility.put(
-							new Pair<ExecService, Facility>(task
-									.getExecService(), task.getFacility()),
+							new Pair<Integer, Integer>(task
+									.getExecServiceId(), task.getFacilityId()),
 							task);
 					tasksById.put(task.getId(),
 							new Pair<Task, DispatcherQueue>(task,
@@ -99,7 +99,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 						task.setStatus(TaskStatus.NONE);
 					}
 					tasksById.put(task.getId(), new Pair<Task, DispatcherQueue>(task, dispatcherQueue));
-					tasksByServiceAndFacility.put(new Pair<ExecService, Facility>(task.getExecService(), task.getFacility()), task);
+					tasksByServiceAndFacility.put(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()), task);
 					List<Task> list = pool.get(task.getStatus());
 					if(list == null) {
 						log.info("Making new list for task status " + task.getStatus().toString());
@@ -143,8 +143,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		synchronized (pool) {
 			pool.get(task.getStatus()).remove(task);
 			val = tasksById.remove(task.getId());
-			tasksByServiceAndFacility.remove(new Pair<ExecService, Facility>(task.getExecService(),
-					task.getFacility()));
+			tasksByServiceAndFacility.remove(new Pair<Integer, Integer>(task.getExecServiceId(),
+					task.getFacilityId()));
 		}
 		taskManager.removeTask(task.getId(), val.getRight().getClientID());
 
@@ -152,8 +152,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 	@Override
 	public Task getTask(ExecService execService, Facility facility) {
-		return tasksByServiceAndFacility.get(new Pair<ExecService, Facility>(
-				execService, facility));
+		return tasksByServiceAndFacility.get(new Pair<Integer, Integer>(
+				execService.getId(), facility.getId()));
 	}
 
 	@Override
@@ -277,8 +277,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 					new Pair<Task, DispatcherQueue>(task, dispatcherQueuePool
 							.getDispatcherQueueByClient(pair.getRight())));
 			tasksByServiceAndFacility.put(
-					new Pair<ExecService, Facility>(task.getExecService(), task
-							.getFacility()), task);
+					new Pair<Integer, Integer>(task.getExecServiceId(), 
+								task.getFacilityId()), task);
 			// TODO: what about possible duplicates?
 			log.debug("Added task " + task.toString() + " belonging to queue " + pair.getRight());
 		}
@@ -312,9 +312,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 					local_task = local_pair.getLeft();
 				}
 				if(local_task == null) {
-					local_task = tasksByServiceAndFacility.get(new Pair<ExecService,Facility>(
-							task.getExecService(),
-							task.getFacility()));						
+					local_task = tasksByServiceAndFacility.get(new Pair<Integer,Integer>(
+							task.getExecServiceId(),
+							task.getFacilityId()));						
 				}
 				if(local_task == null) {
 					for (TaskStatus sts : TaskStatus.class.getEnumConstants()) {
@@ -340,13 +340,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 						tasksById.put(local_task.getId(), new Pair<Task, DispatcherQueue>(local_task, 
 								dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight())));
 					}
-					if(!tasksByServiceAndFacility.containsKey(new Pair<ExecService, Facility>(
-							local_task.getExecService(), local_task.getFacility()))) {
+					if(!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(
+							local_task.getExecServiceId(), local_task.getFacilityId()))) {
 						log.debug("  task not known by ExecService and Facility, adding");
 						tasksByServiceAndFacility.put(
-								new Pair<ExecService, Facility>(
-										local_task.getExecService(), 
-										local_task.getFacility()), 
+								new Pair<Integer, Integer>(
+										local_task.getExecServiceId(), 
+										local_task.getFacilityId()), 
 								task);
 						
 					}
