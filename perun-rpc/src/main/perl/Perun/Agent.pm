@@ -75,11 +75,7 @@ sub new {
 		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/perun-cookie-$hostname-$grp.txt", autosave => 1, ignore_discard => 1 });
 	}
 
-	if ($^V ge 'v5.11.0') {
-		$self->{_jsonXs} = JSON::XS->new->convert_blessed->allow_nonref;
-	} else {
-		$self->{_jsonXs} = JSON::XS->new->utf8->convert_blessed->allow_nonref;
-	}
+	$self->{_jsonXs} = JSON::XS->new->utf8->convert_blessed->allow_nonref;
 
 	# if $login is defined then use login/password authentication
 	if (defined($login)) {
