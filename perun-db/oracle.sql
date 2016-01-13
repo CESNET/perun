@@ -1,4 +1,4 @@
--- database version 3.1.33 (don't forget to update insert statement at the end of file)
+-- database version 3.1.34 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1057,9 +1057,9 @@ create table security_teams (
 	id integer not null,
 	name nvarchar2(128) not null,
 	description nvarchar2(1024),
-	created_at timestamp default sysdate not null,
+	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
-	modified_at timestamp default sysdate not null,
+	modified_at date default sysdate not null,
 	modified_by nvarchar2(1024) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1068,9 +1068,9 @@ create table security_teams (
 create table security_teams_facilities (
 	security_team_id integer not null,
 	facility_id integer not null,
-	created_at timestamp default sysdate not null,
+	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
-	modified_at timestamp default sysdate not null,
+	modified_at date default sysdate not null,
 	modified_by nvarchar2(1024) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1080,9 +1080,9 @@ create table blacklists (
 	security_team_id integer not null,
 	user_id integer not null,
 	description nvarchar2(1024),
-	created_at timestamp default sysdate not null,
+	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
-	modified_at timestamp default sysdate not null,
+	modified_at date default sysdate not null,
 	modified_by nvarchar2(1024) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1724,4 +1724,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.33');
+insert into configurations values ('DATABASE VERSION','3.1.34');

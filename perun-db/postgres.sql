@@ -1,4 +1,4 @@
--- database version 3.1.33 (don't forget to update insert statement at the end of file)
+-- database version 3.1.34 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1774,4 +1774,4 @@ grant all on security_teams_facilities to perun;
 grant all on blacklists to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.33');
+insert into configurations values ('DATABASE VERSION','3.1.34');
