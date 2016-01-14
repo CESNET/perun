@@ -4787,7 +4787,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		
 		//if specific module not exists or attribute has no parameter, find the common one
 		moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());
-		return getAttributesModule(sess, moduleName);
+		Object attributeModule = getAttributesModule(sess, moduleName);
+		if(attributeModule == null) log.debug("Attribute module not found. Module name={}", moduleName);
+		return attributeModule;
 	}
 
 	/**
@@ -4811,7 +4813,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return module;
 		} catch(ClassNotFoundException ex) {
 			//attrribute module don't exist
-			log.debug("Attribute module not found. Module name={}", moduleName);
 			return null;
 		} catch(InstantiationException ex) {
 			throw new InternalErrorException("Attribute module " + moduleName + " cannot be instaciated.", ex);
