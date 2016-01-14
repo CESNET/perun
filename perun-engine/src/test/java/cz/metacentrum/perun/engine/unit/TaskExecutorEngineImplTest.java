@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.engine.unit;
 
+import cz.metacentrum.perun.engine.scheduling.MonitoringTaskExecutor;
 import cz.metacentrum.perun.engine.scheduling.impl.ExecutorEngineWorkerImpl;
+import cz.metacentrum.perun.engine.scheduling.impl.MonitoringThreadPoolExecutor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +16,7 @@ import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
 import java.io.File;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Tests of TaskExecutorEngineImpl which is responsible for starting of planned Tasks.
@@ -22,7 +25,7 @@ import java.io.File;
  * @author Michal Voců
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class TaskExecutorEngineImplTest extends AbstractEngineTest implements TaskExecutor {
+public class TaskExecutorEngineImplTest extends AbstractEngineTest implements MonitoringTaskExecutor {
 
 	@Autowired
 	private SchedulingPool schedulingPool;
@@ -51,6 +54,14 @@ public class TaskExecutorEngineImplTest extends AbstractEngineTest implements Ta
 		// for test there is no send subfolder, let's fake root
 		((ExecutorEngineWorkerImpl) arg0).setSendDirectory(new File("/"));
 		arg0.run();
+	}
+
+	public MonitoringThreadPoolExecutor getThreadPoolExecutor() {
+		return null;
+	}
+
+	@Override
+	public void printAndWait(int howManyTimes, int delayTime) {
 	}
 
 	@After
