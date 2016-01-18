@@ -103,8 +103,7 @@ public class EventProcessorImpl implements EventProcessor {
 		log.debug("\t Facility[" + task.getFacility() + "]");
 		log.debug("\t Resolved ExecService[" + task.getExecService() + "]");
 
-		if (task != null && task.getFacility() != null
-				&& task.getExecService() != null) {
+		if (task.getFacility() != null && task.getExecService() != null) {
 			// log.debug("ADD to POOL: ExecService[" +
 			// results.getLeft().getId() + "] : Facility[" +
 			// results.getRight() + "]");
