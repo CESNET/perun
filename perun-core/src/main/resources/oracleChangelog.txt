@@ -3,6 +3,40 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.34
+-- fix create_at and modified_at column types timestamp -> date
+alter table security_teams add created_at2 date;
+alter table security_teams add modified_at2 date;
+update security_teams set created_at2=(select to_date(substr(created_at,0,18),'DD-MON-YY HH24.MI.SS') from security_teams);
+update security_teams set modified_at2=(select to_date(substr(modified_at,0,18),'DD-MON-YY HH24.MI.SS') from security_teams);
+alter table security_teams drop column created_at;
+alter table security_teams drop column modified_at;
+alter table security_teams rename column created_at2 to created_at;
+alter table security_teams rename column modified_at2 to modified_at;
+alter table security_teams modify CREATED_AT default sysdate not null;
+alter table security_teams modify MODIFIED_AT default sysdate not null;
+alter table security_teams_facilities add created_at2 date;
+alter table security_teams_facilities add modified_at2 date;
+update security_teams_facilities set created_at2=(select to_date(substr(created_at,0,18),'DD-MON-YY HH24.MI.SS') from security_teams_facilities);
+update security_teams_facilities set modified_at2=(select to_date(substr(modified_at,0,18),'DD-MON-YY HH24.MI.SS') from security_teams_facilities);
+alter table security_teams_facilities drop column created_at;
+alter table security_teams_facilities drop column modified_at;
+alter table security_teams_facilities rename column created_at2 to created_at;
+alter table security_teams_facilities rename column modified_at2 to modified_at;
+alter table security_teams_facilities modify CREATED_AT default sysdate not null;
+alter table security_teams_facilities modify MODIFIED_AT default sysdate not null;
+alter table blacklists add created_at2 date;
+alter table blacklists add modified_at2 date;
+update blacklists set created_at2=(select to_date(substr(created_at,0,18),'DD-MON-YY HH24.MI.SS') from blacklists);
+update blacklists set modified_at2=(select to_date(substr(modified_at,0,18),'DD-MON-YY HH24.MI.SS') from blacklists);
+alter table blacklists drop column created_at;
+alter table blacklists drop column modified_at;
+alter table blacklists rename column created_at2 to created_at;
+alter table blacklists rename column modified_at2 to modified_at;
+alter table blacklists modify CREATED_AT default sysdate not null;
+alter table blacklists modify MODIFIED_AT default sysdate not null;
+update configurations set value='3.1.34' where property='DATABASE VERSION';
+
 3.1.33
 update configurations set value='3.1.33' where property='DATABASE VERSION';
 
