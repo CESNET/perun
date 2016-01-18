@@ -1057,9 +1057,9 @@ create table security_teams (
 	id integer not null,
 	name nvarchar2(128) not null,
 	description nvarchar2(1024),
-	created_at timestamp default sysdate not null,
+	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
-	modified_at timestamp default sysdate not null,
+	modified_at date default sysdate not null,
 	modified_by nvarchar2(1024) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1068,9 +1068,9 @@ create table security_teams (
 create table security_teams_facilities (
 	security_team_id integer not null,
 	facility_id integer not null,
-	created_at timestamp default sysdate not null,
+	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
-	modified_at timestamp default sysdate not null,
+	modified_at date default sysdate not null,
 	modified_by nvarchar2(1024) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1080,9 +1080,9 @@ create table blacklists (
 	security_team_id integer not null,
 	user_id integer not null,
 	description nvarchar2(1024),
-	created_at timestamp default sysdate not null,
+	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
-	modified_at timestamp default sysdate not null,
+	modified_at date default sysdate not null,
 	modified_by nvarchar2(1024) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
