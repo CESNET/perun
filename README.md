@@ -1,14 +1,24 @@
-# Perun #
+<a href="https://perun.cesnet.cz/"><img style="float: left; position: relative;" src="https://raw.githubusercontent.com/CESNET/perun/master/perun-web-gui/src/main/webapp/img/logo.png"></a>
+## Identity & Access Management System ##
 
-Identity and Access Management System
+Perun is an identity and access management system primary targeting academia environment. Perun is well suited for managing users within organizations and projects and managing access rights to the services.
 
-Perun covers management of the whole ecosystem around the users' identities, groups, resources and services. Perun is well suited for managing users within organizations and projects and managing access rights to the services.
+### Features ###
 
-MORE AT: http://perun.cesnet.cz
+* Simplify and automate all identity management related workflows
+* Perform access management by provisioning and deprovisioning users to your services
+* Support delegation of user/service management responsibilities
+* Unified GUI as a single place for managing everything from personal profile to groups and services settings
+* Organize users within groups and virtual organizations
+* Handle whole user lifecycle from registration to membership expiration / extension
+* Allow users to self register using invitations
+* Support import/export and synchronization between your existing user databases
+* Can handle and join multiple user identities a manage them across your services
+* All actions are audited
 
-## Perun licence ##
+### License ###
 
-Copyright (c) 2014, CESNET, CERIT-SC. All rights reserved.
+&copy; 2010-2016 [CESNET](https://www.cesnet.cz/?lang=en) and [CERIT-SC](https://www.cerit-sc.cz/en/index.html), all rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
@@ -28,4 +38,3 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-
