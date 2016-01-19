@@ -370,10 +370,9 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		List<PerunNotifMessageDto> result = new ArrayList<PerunNotifMessageDto>();
 		for (PerunNotifReceiver receiver : template.getReceivers()) {
 			PerunNotifMessageDto messageDto = new PerunNotifMessageDto();
-			String messageContent = compileTemplate(Integer.toString(template.getId()),
-				interpretLocale(receiver.getLocale(), receiver.getTarget(), dto.getKeyAttributes()), container);
-			String subjectContent = compileTemplate(Integer.toString(template.getId()) + "-subject",
-				interpretLocale(receiver.getLocale(), receiver.getTarget(), dto.getKeyAttributes()), container);
+			Locale locale = interpretLocale(receiver.getLocale(), receiver.getTarget(), dto.getKeyAttributes());
+			String messageContent = compileTemplate(Integer.toString(template.getId()),	locale, container);
+			String subjectContent = compileTemplate(Integer.toString(template.getId()) + "-subject", locale, container);
 			messageDto.setMessageToSend(messageContent);
 			messageDto.setPoolMessage(dto);
 			messageDto.setUsedPoolIds(usedPoolIds);
@@ -997,8 +996,15 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 				// you can add more locale interpretations in the future
 				case "$user.preferredLanguage":
 					try {
-						loc = new Locale((String) perun.getAttributesManagerBl().getAttribute(session, perun.getUsersManagerBl()
-						.getUserById(session, id), "urn:perun:user:attribute-def:def:preferredLanguage").getValue());
+						String userLocale = (String) perun.getAttributesManagerBl().getAttribute(session, perun.getUsersManagerBl()
+								.getUserById(session, id), "urn:perun:user:attribute-def:def:preferredLanguage").getValue();
+						if (userLocale == null) {
+							// user's preferred language is not defined -> use default
+							logger.info("User's preferred language is not defined, therefore the message will be sent in default language: + " + DEFAULT_LOCALE);
+							loc = DEFAULT_LOCALE;
+						} else {
+							loc = new Locale(userLocale);
+						}
 					} catch (UserNotExistsException ex) {
 						logger.error("Cannot found user with id: {}, ex: {}", id, ex.getMessage());
 					} catch (AttributeNotExistsException ex) {
