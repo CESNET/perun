@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ public class EventParserImpl implements EventParser {
 		 */
 		// String eventParsingPattern =
 		// "^event\\|([0-9]{1,6})\\|\\[([a-zA-Z0-9: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
-		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\[([0-9]+)\\]\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]|\\[(.*)\\]$";
+		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\[([0-9]+)\\]\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]\\|\\[(.*)\\]$";
 		Pattern pattern = Pattern.compile(eventParsingPattern);
 		Matcher matcher = pattern.matcher(event);
 		boolean matchFound = matcher.find();
@@ -68,11 +69,15 @@ public class EventParserImpl implements EventParser {
 			String thisEngineID = matcher.group(1);
 			// This should indeed match the current Engine instance ID, so let's
 			// compare it...
-			if (Integer.parseInt(thisEngineID) != Integer
-					.parseInt((String) propertiesBean.get("engine.unique.id"))) {
-				throw new InvalidEventMessageException("Wrong Engine ID. Was:"
-						+ thisEngineID + ", Expected:"
-						+ propertiesBean.get("engine.unique.id"));
+			try {
+				if (Integer.parseInt(thisEngineID) != Integer
+						.parseInt((String) propertiesBean.get("engine.unique.id"))) {
+					throw new InvalidEventMessageException("Wrong Engine ID. Was:"
+							+ thisEngineID + ", Expected:"
+							+ propertiesBean.get("engine.unique.id"));
+				}
+			} catch (Exception e) {
+				throw new InvalidEventMessageException("Wrong Engine ID: parse exception", e);
 			}
 			// Data should provide information regarding the target ExecService
 			// (Processing rule).
@@ -83,6 +88,20 @@ public class EventParserImpl implements EventParser {
 			String eventDestinationList = matcher.group(6);
 			String eventDependencyList = matcher.group(7);
 
+			// check possible enconding
+			if(!eventFacility.startsWith("Facility")) {
+				eventFacility = new String(Base64.decodeBase64(eventFacility));
+			}
+			if(!eventFacility.startsWith("Facility")) {
+				throw new InvalidEventMessageException("Wrong facility: parse exception");
+			}			
+			if(!eventDestinationList.startsWith("Destinations")) {
+				eventDestinationList = new String(Base64.decodeBase64(eventDestinationList));
+			}
+			if(!eventDestinationList.startsWith("Destinations")) {
+				throw new InvalidEventMessageException("Wrong destination list: parse exception");
+			}
+			
 			log.debug("Event data to be parsed: task id " + eventTaskId
 					+ ", forced " + eventIsForced
 					+ ", facility " + eventFacility + ", exec service "
@@ -146,8 +165,14 @@ public class EventParserImpl implements EventParser {
 			// resolve list of dependencies
 			if (eventDependencyList != null) {
 				for (String token : eventDependencyList.split("[\t ]*,[\t ]*")) {
-					dependenciesResolver.addDependency(task,
-							Integer.parseInt(token));
+					if(token.length() > 0) {
+						try {
+							dependenciesResolver.addDependency(task,
+									Integer.parseInt(token));
+						} catch (Exception e) {
+							throw new InvalidEventMessageException("Invalid dependency in event: " + token);
+						}
+					}
 				}
 			}
 

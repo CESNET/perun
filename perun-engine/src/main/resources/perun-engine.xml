@@ -61,9 +61,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
     <!-- for force propagation  now it is unused -->
     <bean id="taskExecutorEventProcessor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="1" />
-        <property name="maxPoolSize" value="1" />
-        <property name="queueCapacity" value="1" />
+        <property name="corePoolSize" value="3" />
+        <property name="maxPoolSize" value="3" />
+        <property name="queueCapacity" value="1000" />
     </bean>
 
     <bean id="taskExecutorSchedulingPoolSerializer" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
