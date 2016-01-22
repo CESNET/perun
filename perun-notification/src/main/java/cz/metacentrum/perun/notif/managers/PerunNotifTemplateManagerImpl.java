@@ -371,7 +371,7 @@ public class PerunNotifTemplateManagerImpl implements PerunNotifTemplateManager 
 		for (PerunNotifReceiver receiver : template.getReceivers()) {
 			PerunNotifMessageDto messageDto = new PerunNotifMessageDto();
 			Locale locale = interpretLocale(receiver.getLocale(), receiver.getTarget(), dto.getKeyAttributes());
-			String messageContent = compileTemplate(Integer.toString(template.getId()),	locale, container);
+			String messageContent = compileTemplate(Integer.toString(template.getId()), locale, container);
 			String subjectContent = compileTemplate(Integer.toString(template.getId()) + "-subject", locale, container);
 			messageDto.setMessageToSend(messageContent);
 			messageDto.setPoolMessage(dto);
