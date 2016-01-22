@@ -14,8 +14,8 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyReservedLoginException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SpecificUserAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
@@ -64,99 +64,99 @@ public interface UsersManagerImplApi {
 	User getUserById(PerunSession perunSession, int id) throws InternalErrorException, UserNotExistsException;
 
 	/**
-	 * Return all serviceUsers who are owned by the user and their ownership is not in status disabled
+	 * Return all specificUsers who are owned by the user and their ownership is not in status disabled
 	 *
 	 * @param sess
 	 * @param user the user
-	 * @return list of service users who are owned by the user
+	 * @return list of specificUsers who are owned by the user
 	 * @throws InternalErrorException
 	 */
-	List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException;
+	List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
-	 * Return all users who owns the serviceUser and their ownership is not in status disabled
+	 * Return all users who owns the specificUser and their ownership is not in status disabled
 	 *
 	 * @param sess
-	 * @param serviceUser the service User
-	 * @return list of user who owns the serviceUser
+	 * @param specificUser the specific User
+	 * @return list of user who owns the specificUser
 	 * @throws InternalErrorException
 	 */
-	List<User> getUsersByServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException;
+	List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException;
 
 	/**
-	 * Remove serviceUser owner (the user)
-	 * Only disable ownership of user and serviceUser
+	 * Remove specificUser owner (the user)
+	 * Only disable ownership of user and specificUser
 	 *
 	 * @param sess
 	 * @param user the user
-	 * @param serviceUser the serviceUser
+	 * @param specificUser the specificUser
 	 * @throws InternalErrorException
-	 * @throws cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
+	 * @throws cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, SpecificUserOwnerAlreadyRemovedException;
 
 	/**
-	 * Add serviceUser owner (the user).
+	 * Add specificUser owner (the user).
 	 * If not exists, create new ownership.
-	 * If exists, only enable ownership for user and serviceUser
+	 * If exists, only enable ownership for user and specificUser
 	 *
 	 * @param sess
 	 * @param user the user
-	 * @param serviceUser the serviceUser
+	 * @param specificUser the specificUser
 	 * @throws InternalErrorException
 	 */
-	void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
+	void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException;
 
 	/**
-	 * Set ownership for user and serviceUser to ENABLE (0).
+	 * Set ownership for user and specificUser to ENABLE (0).
 	 *
 	 * @param sess
 	 * @param user
-	 * @param serviceUser
+	 * @param specificUser
 	 * @throws InternalErrorException
 	 */
-	void enableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
+	void enableOwnership(PerunSession sess, User user, User specificUser) throws InternalErrorException;
 
 	/**
-	 * Set ownership for user and serviceUser to DISABLE (1).
+	 * Set ownership for user and specificUser to DISABLE (1).
 	 *
 	 * @param sess
 	 * @param user
-	 * @param serviceUser
+	 * @param specificUser
 	 * @throws InternalErrorException
 	 */
-	void disableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
+	void disableOwnership(PerunSession sess, User user, User specificUser) throws InternalErrorException;
 
 	/**
-	 * Return true if ownership between user and serviceUser already exists.
+	 * Return true if ownership between user and specificUser already exists.
 	 * Return false if not.
 	 *
 	 * @param sess
 	 * @param user
-	 * @param serviceUser
+	 * @param specificUser
 	 * @return true if ownership exists, false if not
 	 * @throws InternalErrorException
 	 */
-	boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException;
+	boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser) throws InternalErrorException;
 
 	/**
-	 * Return all service Users (only service users)
+	 * Return all specific Users (only specific users)
 	 * Return also users who has no owners.
 	 *
 	 * @param sess
-	 * @return list of all service users in perun
+	 * @return list of all specific users in perun
 	 * @throws InternalErrorException
 	 */
-	List<User> getServiceUsers(PerunSession sess) throws InternalErrorException;
+	List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException;
 
 	/**
-	 * Delete service user and all connection between service user and other users
+	 * Delete specific user and all connection between specific user and other users
 	 *
 	 * @param sess
-	 * @param serviceUser the service user
+	 * @param specificUser the specific user
 	 * @throws InternalErrorException
 	 */
-	void deleteServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException, ServiceUserAlreadyRemovedException;
+	void deleteSpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 * Returns user by VO member.
@@ -179,7 +179,7 @@ public interface UsersManagerImplApi {
 	List<User> getUsersByVo(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
-	 * Returns all users (included service users).
+	 * Returns all users (included specific users).
 	 *
 	 * @param sess
 	 * @return list of all users

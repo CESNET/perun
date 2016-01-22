@@ -3,6 +3,30 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.35
+alter table user add sponsored_acc char(1) default '0' not null;
+drop index idx_fk_servu_u_ui;
+drop index idx_fk_servu_u_sui;
+alter table service_user_users drop constraint acc_servu_u_pk;
+alter table service_user_users drop constraint acc_servu_u_uid_fk;
+alter table service_user_users drop constraint acc_servu_u_suid_fk;
+alter table service_user_users drop constraint servu_u_status_chk;
+alter table service_user_users rename to specific_user_users;
+alter table specific_user_users rename column service_user_id to specific_user_id;
+alter table specific_user_users add type varchar(20) default 'service' not null;
+create index idx_fk_specifu_u_ui on specific_user_users(user_id);
+create index idx_fk_specifu_u_sui on specific_user_users(specific_user_id);
+alter table specific_user_users add constraint acc_specifu_u_pk primary key (user_id,specific_user_id);
+alter table specific_user_users add constraint acc_specifu_u_uid_fk foreign key (user_id) references users(id);
+alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id);
+alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
+alter table authz add sponsored_user_id integer;
+create index idx_fk_authz_sponsoru_team on authz(sponsored_user_id);
+drop index idx_authz_u2;
+create unique index idx_authz_u on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id, security_team_id, sponsored_user_id);
+alter table authz add constraint authz_sponsu_fk foreign key (sponsored_user_id) references users(id);
+update configurations set value='3.1.35' where property='DATABASE VERSION';
+
 3.1.34
 update configurations set value='3.1.34' where property='DATABASE VERSION';
 

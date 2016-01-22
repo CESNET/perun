@@ -273,10 +273,10 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		candidate.setUserExtSource(ues);
 		candidate.setAttributes(new HashMap<String, String>());
 
-		List<User> serviceUserOwners = new ArrayList<>();
-		serviceUserOwners.add(perun.getUsersManagerBl().getUserByMember(sess, createdMember));
+		List<User> specificUserOwners = new ArrayList<>();
+		specificUserOwners.add(perun.getUsersManagerBl().getUserByMember(sess, createdMember));
 
-		Member member = perun.getMembersManager().createServiceMember(sess, createdVo, candidate, serviceUserOwners, groups);
+		Member member = perun.getMembersManager().createSpecificMember(sess, createdVo, candidate, specificUserOwners, SpecificUserType.SERVICE, groups);
 
 		//test if member is in vo and also in defined groups
 		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));

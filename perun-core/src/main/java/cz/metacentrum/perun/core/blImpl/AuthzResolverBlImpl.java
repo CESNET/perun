@@ -841,6 +841,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				} else {
 					throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 				}
+			} else if(role.equals(Role.SPONSOR)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set SponsoredUser rights without user.");
+				} else if(complementaryObject instanceof User) {
+					if(user != null) addAdmin(sess, (User) complementaryObject, user);
+					else addAdmin(sess, (User) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for SponsoredUser: " + complementaryObject);
+				}
 			} else {
 				throw new InternalErrorException("Not supported role: " + role);
 			}
@@ -903,6 +912,15 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					else removeAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
 				} else {
 					throw new InternalErrorException("Not supported complementary object for VoObserver: " + complementaryObject);
+				}
+			} else if(role.equals(Role.SPONSOR)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't unset Sponsor rights without User this way.");
+				} else if(complementaryObject instanceof User) {
+					if(user != null) removeAdmin(sess, (User) complementaryObject, user);
+					else removeAdmin(sess, (User) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for Sponsor: " + complementaryObject);
 				}
 			} else {
 				throw new InternalErrorException("Not supported role: " + role);
@@ -1253,6 +1271,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		authzResolverImpl.removeAllUserAuthz(sess, user);
 	}
 
+	public static void removeAllSponsoredUserAuthz(PerunSession sess, User sponsoredUser) throws InternalErrorException {
+		authzResolverImpl.removeAllSponsoredUserAuthz(sess, sponsoredUser);
+	}
+
 	public static void removeAllAuthzForGroup(PerunSession sess, Group group) throws InternalErrorException {
 		authzResolverImpl.removeAllAuthzForGroup(sess, group);
 	}
@@ -1287,6 +1309,22 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	public static void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
 		authzResolverImpl.removeAdmin(sess, facility, group);
+	}
+
+	public static void addAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addAdmin(sess, sponsoredUser, user);
+	}
+
+	public static void addAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addAdmin(sess, sponsoredUser, group);
+	}
+
+	public static void removeAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, UserNotAdminException {
+		authzResolverImpl.removeAdmin(sess, sponsoredUser, user);
+	}
+
+	public static void removeAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, GroupNotAdminException {
+		authzResolverImpl.removeAdmin(sess, sponsoredUser, group);
 	}
 
 	public static void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {

@@ -17,6 +17,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -92,12 +93,16 @@ public class MembersManagerEntry implements MembersManager {
 		getMembersManagerBl().deleteAllMembers(sess, vo);
 	}
 
-	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
-		return this.createServiceMember(sess, vo, candidate, serviceUserOwners, null);
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
+		return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
 	}
 
-	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, UserNotExistsException, ExtendMembershipException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
+		Utils.notNull(specificUserType, "specificUserType");
+
+		//normal type is not allowed when creating specific member
+		if(specificUserType.equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Type of specific user must be defined.");
 
 		// if any group is not from the vo, throw an exception
 		if(groups != null) {
@@ -109,17 +114,17 @@ public class MembersManagerEntry implements MembersManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) {
-			throw new PrivilegeException(sess, "createServiceMember (Service User) - from candidate");
+			throw new PrivilegeException(sess, "createSpecificMember (Specific User) - from candidate");
 		}
 		Utils.notNull(candidate, "candidate");
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-		if(serviceUserOwners.isEmpty()) throw new InternalErrorException("List of serviceUserOwners of " + candidate + " can't be empty.");
+		if(specificUserOwners.isEmpty()) throw new InternalErrorException("List of specificUserOwners of " + candidate + " can't be empty.");
 
-		for(User u: serviceUserOwners) {
+		for(User u: specificUserOwners) {
 			getPerunBl().getUsersManagerBl().checkUserExists(sess, u);
 		}
 
-		return getMembersManagerBl().createServiceMember(sess, vo, candidate, serviceUserOwners, groups);
+		return getMembersManagerBl().createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, groups);
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException {
