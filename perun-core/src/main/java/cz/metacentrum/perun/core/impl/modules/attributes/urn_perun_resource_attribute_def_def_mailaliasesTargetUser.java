@@ -25,7 +25,7 @@ public class urn_perun_resource_attribute_def_def_mailaliasesTargetUser extends 
 
 	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
-		if (attribute.getValue() != null) {
+		if (attribute.getValue() == null) {
 			throw new WrongAttributeValueException(attribute, resource, null, "Attribute value can't be null.");
 		}
 
