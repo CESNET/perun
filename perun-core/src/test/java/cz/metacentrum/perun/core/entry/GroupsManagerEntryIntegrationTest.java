@@ -490,6 +490,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		vo = setUpVo();
 		setUpGroup(vo);
+		ExtSource es = perun.getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+		perun.getExtSourcesManagerBl().addExtSource(sess, vo, es);
 		perun.getGroupsManager().createGroup(sess, vo, group2);
 
 		Attribute synchroAttr1 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:synchronizationEnabled"));
@@ -503,7 +505,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr2);
 
 		Attribute synchroAttr3 = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:groupExtSource"));
-		synchroAttr3.setValue(extSource.getName());
+		synchroAttr3.setValue(es.getName());
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr3);
 		perun.getAttributesManager().setAttribute(sess, group2, synchroAttr3);
 
