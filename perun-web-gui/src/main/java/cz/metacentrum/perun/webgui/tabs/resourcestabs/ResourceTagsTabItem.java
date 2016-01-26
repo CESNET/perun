@@ -90,12 +90,13 @@ public class ResourceTagsTabItem implements TabItem, TabItemWithUrl{
 		vp.setSize("100%", "100%");
 
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		final GetAllResourcesTags tags = new GetAllResourcesTags(PerunEntity.RESOURCE, resourceId);
 
 		final JsonCallbackEvents localEvents = JsonCallbackEvents.refreshTableEvents(tags);
 
-		CustomButton assignTagsButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignTagsToResource(), new ClickHandler() {
+		CustomButton assignTagsButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.assignTagsToResource(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AssignTagTabItem(resource), true);
 			}

@@ -193,6 +193,7 @@ public class GroupsResourceRequiredAttributesTabItem implements TabItem {
 			}
 		});
 
+		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addWidget(saveChangesButton);
 		if (!session.isGroupAdmin() && !session.isVoAdmin()) saveChangesButton.setEnabled(false);
 

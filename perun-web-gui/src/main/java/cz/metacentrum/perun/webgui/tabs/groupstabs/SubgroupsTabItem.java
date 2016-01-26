@@ -121,7 +121,9 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		// menu
 		TabMenu menu = new TabMenu();
 
-		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createSubGroup(), new ClickHandler() {
+		menu.addWidget(UiElements.getRefreshButton(this));
+
+		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createSubGroup(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				// creates a new form
 				session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(group));

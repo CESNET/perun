@@ -30,10 +30,7 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.SelfDetailTabItem;
-import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
-import cz.metacentrum.perun.webgui.widgets.BreadcrumbsWidget;
-import cz.metacentrum.perun.webgui.widgets.Confirm;
-import cz.metacentrum.perun.webgui.widgets.LogoutButton;
+import cz.metacentrum.perun.webgui.widgets.*;
 
 import java.util.*;
 
@@ -70,7 +67,6 @@ public class UiElements {
 	// pending requests widget displayed in menu
 	//private GetPendingRequests pendingRequests;
 
-	// tabs
 	private int tabCount = 0;
 	private HashMap<Integer, Widget> allTabs = new HashMap<Integer, Widget>(); // key is UNIQUE ID, value is content widget
 	private ArrayList<Integer> tabsHistory = new ArrayList<Integer>(); // History of opened tabs (UNIQUE ID)
@@ -1686,6 +1682,12 @@ public class UiElements {
 
 				int clientHeight = (Window.getClientHeight() > WebGui.MIN_CLIENT_HEIGHT) ? Window.getClientHeight() : WebGui.MIN_CLIENT_HEIGHT;
 				int height = clientHeight - panel.getAbsoluteTop() - freeSpace;
+
+				// correction for overlay tabs since they are smaller
+				TabItem overlayTab = PerunWebSession.getInstance().getTabManager().getActiveOverlayTab();
+				if (overlayTab != null && overlayTab.equals(tabItem)) {
+					height = height - 40;
+				}
 				if (height > 0) {
 					panel.setHeight(height + "px");
 				}
@@ -1947,5 +1949,19 @@ public class UiElements {
 	public BreadcrumbsWidget getBreadcrumbs() {
 		return this.breadcrumbs;
 	}
+
+	public static cz.metacentrum.perun.webgui.widgets.CustomButton getRefreshButton(final TabItem tabToRefres) {
+		cz.metacentrum.perun.webgui.widgets.CustomButton cb = new cz.metacentrum.perun.webgui.widgets.CustomButton("", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				tabToRefres.draw();
+			}
+		});
+		cb.setTitle("Refresh page content");
+		return cb;
+
+	}
+
+
 
 }

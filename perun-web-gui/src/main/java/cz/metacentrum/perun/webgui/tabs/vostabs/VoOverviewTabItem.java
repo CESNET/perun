@@ -123,7 +123,7 @@ public class VoOverviewTabItem implements TabItem {
 		toolsLayout.setCellSpacing(5);
 		tools.setContent(toolsLayout);
 
-		toolsLayout.getFlexCellFormatter().setWidth(0, 0, "200px");
+		toolsLayout.getFlexCellFormatter().setWidth(0, 0, "220px");
 
 		toolsLayout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_MIDDLE);
 		toolsLayout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -140,37 +140,37 @@ public class VoOverviewTabItem implements TabItem {
 		toolsLayout.getFlexCellFormatter().setAlignment(6, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_MIDDLE);
 		toolsLayout.getFlexCellFormatter().setAlignment(6, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_MIDDLE);
 
-		CustomButton addMember = new CustomButton(ButtonTranslation.INSTANCE.addMemberButton(), ButtonTranslation.INSTANCE.addMemberToVo(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+		CustomButton addMember = new CustomButton(ButtonTranslation.INSTANCE.addMemberButton()+"…", ButtonTranslation.INSTANCE.addMemberToVo(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new AddMemberToVoTabItem(vo), true);
 			}
 		});
-		CustomButton addServiceMember = new CustomButton(ButtonTranslation.INSTANCE.createServiceMemberButton(), ButtonTranslation.INSTANCE.createServiceMember(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+		CustomButton addServiceMember = new CustomButton(ButtonTranslation.INSTANCE.createServiceMemberButton()+"…", ButtonTranslation.INSTANCE.createServiceMember(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new CreateServiceMemberInVoTabItem(vo));
 			}
 		});
-		CustomButton inviteUser = new CustomButton("Invite user", "Invite unknown or existing user to your VO.", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
+		CustomButton inviteUser = new CustomButton("Invite member…", "Invite person to become member of your Virtual organization.", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new InviteUserTabItem(vo, null));
 			}
 		});
-		CustomButton addManager = new CustomButton(ButtonTranslation.INSTANCE.addManagerButton(), ButtonTranslation.INSTANCE.addManagerToVo(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+		CustomButton addManager = new CustomButton(ButtonTranslation.INSTANCE.addManagerButton()+"…", ButtonTranslation.INSTANCE.addManagerToVo(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new AddVoManagerTabItem(vo), true);
 			}
 		});
-		CustomButton createGroup = new CustomButton(ButtonTranslation.INSTANCE.createGroupButton(), ButtonTranslation.INSTANCE.createGroup(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+		CustomButton createGroup = new CustomButton(ButtonTranslation.INSTANCE.createGroupButton()+"…", ButtonTranslation.INSTANCE.createGroup(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(vo));
 			}
 		});
-		CustomButton addToResource = new CustomButton(ButtonTranslation.INSTANCE.addMemberToResourceButton(), ButtonTranslation.INSTANCE.addMemberToResource(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+		CustomButton addToResource = new CustomButton(ButtonTranslation.INSTANCE.addMemberToResourceButton()+"…", ButtonTranslation.INSTANCE.addMemberToResource(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new AddMemberToResourceTabItem(vo), true);
@@ -193,11 +193,10 @@ public class VoOverviewTabItem implements TabItem {
 
 		toolsLayout.setHTML(0, 1, "Add new member into your VO. Candidates can be searched for in VO's external sources or among user already existing in Perun.");
 		toolsLayout.setHTML(1, 1, "Create new member which represent service account (account usually used by more users with separate login and password).");
-		toolsLayout.setHTML(2, 1, "Invite unknown or existing user into your VO.");
+		toolsLayout.setHTML(2, 1, "Invite person to become member of your Virtual organization.");
 		toolsLayout.setHTML(3, 1, "Add new manager which can manage your VO in Perun.");
 		toolsLayout.setHTML(4, 1, "Create new group in your VO.");
 		toolsLayout.setHTML(5, 1, "Add selected member to specific resource (grant some type of access to Facility resources).");
-
 
 		vp2.add(tools);
 

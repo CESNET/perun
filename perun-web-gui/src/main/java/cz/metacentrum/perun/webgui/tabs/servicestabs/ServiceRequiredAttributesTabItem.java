@@ -97,11 +97,12 @@ public class ServiceRequiredAttributesTabItem implements TabItem, TabItemWithUrl
 
 		// menu
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// custom event
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(servReqAttr);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addRequiredAttribute(), new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addRequiredAttribute(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new AddRequiredAttributesTabItem(service), true);

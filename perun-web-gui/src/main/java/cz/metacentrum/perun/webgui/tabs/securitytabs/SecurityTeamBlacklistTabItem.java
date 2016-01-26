@@ -102,8 +102,10 @@ public class SecurityTeamBlacklistTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
 
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
+
 		// do not display to sec admins only
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addUsersToBlacklist(), new ClickHandler() {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addUsersToBlacklist(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddUserToBlacklistTabItem(securityTeam), true);

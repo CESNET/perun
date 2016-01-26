@@ -68,13 +68,14 @@ public class OwnersTabItem implements TabItem, TabItemWithUrl {
 
 		// horizontal menu
 		TabMenu tabMenu = new TabMenu();
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
 
 		final GetOwners owners = new GetOwners();
 
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(owners);
 
 		// create button
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createOwner(), new ClickHandler() {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createOwner(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CreateOwnerTabItem());
 			}

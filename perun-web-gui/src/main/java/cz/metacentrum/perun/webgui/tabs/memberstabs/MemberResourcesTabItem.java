@@ -60,7 +60,9 @@ public class MemberResourcesTabItem implements TabItem {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add member to new resource", new ClickHandler() {
+		menu.addWidget(UiElements.getRefreshButton(this));
+
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add member to new resource", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				AddMemberToResourceTabItem tab = new AddMemberToResourceTabItem(member.getVoId());

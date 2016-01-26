@@ -105,13 +105,14 @@ public class ServiceDestinationsTabItem implements TabItem, TabItemWithUrl{
 		vp.setSize("100%", "100%");
 
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// Adds menu to the main panel
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
 		// buttons
-		final CustomButton addDestButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination());
+		final CustomButton addDestButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addDestination());
 		final CustomButton removeDestButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeSelectedDestinations());
 
 		menu.addWidget(addDestButton);

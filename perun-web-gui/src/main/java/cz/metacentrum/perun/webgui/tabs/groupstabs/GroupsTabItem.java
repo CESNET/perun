@@ -8,6 +8,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -100,6 +101,8 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		vp.setSize("100%", "100%");
 		// Horizontal menu
 		TabMenu menu = new TabMenu();
+
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		//call
 		final GetAllGroups groups = new GetAllGroups(voId);

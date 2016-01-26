@@ -97,6 +97,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// get VO resources
 		final GetAssignedRichResources resources = new GetAssignedRichResources(groupId, PerunEntity.GROUP);
@@ -110,7 +111,7 @@ public class GroupResourcesTabItem implements TabItem, TabItemWithUrl{
 		// add / remove resource from group can be done by vo / perun admin only.
 		if (session.isVoAdmin(group.getVoId())) {
 
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToResources(), new ClickHandler() {
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.assignGroupToResources(), new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new AssignGroupTabItem(group, resources.getList()), true);
 				}

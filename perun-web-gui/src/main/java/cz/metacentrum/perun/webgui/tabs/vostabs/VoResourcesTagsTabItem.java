@@ -97,6 +97,8 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		// refresh
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// members request
 		final GetAllResourcesTags resTags = new GetAllResourcesTags(PerunEntity.VIRTUAL_ORGANIZATION, voId);
@@ -107,7 +109,7 @@ public class VoResourcesTagsTabItem implements TabItem, TabItemWithUrl{
 		// Events for reloading when finished
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(resTags);
 
-		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createResourceTag(), new ClickHandler() {
+		CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createResourceTag(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CreateVoResourceTagTabItem(voId));
 			}

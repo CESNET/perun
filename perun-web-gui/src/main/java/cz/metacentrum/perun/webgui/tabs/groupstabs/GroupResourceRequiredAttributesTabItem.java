@@ -363,6 +363,7 @@ public class GroupResourceRequiredAttributesTabItem implements TabItem, TabItemW
 			}
 		});
 
+		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addWidget(saveChangesButton);
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) saveChangesButton.setEnabled(false);
 		menu.addWidget(new HTML("<strong>Group members:</strong>"));

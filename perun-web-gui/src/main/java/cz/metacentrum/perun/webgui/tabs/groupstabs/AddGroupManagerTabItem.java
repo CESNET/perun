@@ -129,6 +129,7 @@ public class AddGroupManagerTabItem implements TabItem {
 
 		// HORIZONTAL MENU
 		TabMenu tabMenu = new TabMenu();
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
 
 		// get the table
 		final CellTable<User> table;

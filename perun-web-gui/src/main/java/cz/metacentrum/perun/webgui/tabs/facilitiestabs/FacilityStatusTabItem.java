@@ -97,14 +97,8 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		// get empty table
 		final GetFacilityServicesState callback = new GetFacilityServicesState(facility.getId());
 
-		final CustomButton refreshButton = TabMenu.getPredefinedButton(ButtonType.REFRESH, ButtonTranslation.INSTANCE.refreshPropagationResults(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				callback.clearTable();
-				callback.retrieveData();
-			}
-		});
-
-		callback.setEvents(JsonCallbackEvents.disableButtonEvents(refreshButton));
+		CustomButton refreshButton = UiElements.getRefreshButton(this);
+		//callback.setEvents(JsonCallbackEvents.disableButtonEvents(refreshButton));
 
 		final CellTable<ServiceState> table = callback.getTable(new FieldUpdater<ServiceState, String>(){
 			// on row click

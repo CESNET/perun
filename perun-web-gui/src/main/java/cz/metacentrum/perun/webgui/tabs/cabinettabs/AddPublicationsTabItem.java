@@ -181,7 +181,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		importLayout.setCellSpacing(10);
 		dp.add(importLayout);
 		// button
-		CustomButton importButton = new CustomButton("Import publication", SmallIcons.INSTANCE.addIcon());
+		CustomButton importButton = new CustomButton("Import publication…", SmallIcons.INSTANCE.addIcon());
 		// layout
 		importLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Import publication</span>");
 		importLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Are you from MU, ZCU? You can import publications you have already reported in university publication systems.</span>");
@@ -193,7 +193,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		createLayout.setCellSpacing(10);
 		dp2.add(createLayout);
 		// button
-		CustomButton createButton = new CustomButton("Create publication", SmallIcons.INSTANCE.addIcon());
+		CustomButton createButton = new CustomButton("Create publication…", SmallIcons.INSTANCE.addIcon());
 		// layout
 		createLayout.setHTML(0, 0, "<span class=\"subsection-heading\">Create publication</span>");
 		createLayout.setHTML(1, 0, "<span class=\"inputFormInlineComment\">Use when you want to add custom publication or report publication created by other user.</span>");
@@ -946,7 +946,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			CellTable<Thanks> thanksTable = thanksCall.getTable();
 
 			// button
-			thanksMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add acknowledgement to publication", new ClickHandler(){
+			thanksMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add acknowledgement to publication", new ClickHandler(){
 				public void onClick(ClickEvent event) {
 					JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(thanksCall);
 					session.getTabManager().addTabToCurrentTab(new CreateThanksTabItem(pub, events), true);
@@ -1026,7 +1026,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			});
 			authorMenu.addWidget(addMyselfButton);
 
-			CustomButton addOthersButton = new CustomButton("Add others", "Add more authors", SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+			CustomButton addOthersButton = new CustomButton("Add others…", "Add more authors", SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(authorCall);
 					session.getTabManager().addTabToCurrentTab(new AddAuthorTabItem(pub, events), true);

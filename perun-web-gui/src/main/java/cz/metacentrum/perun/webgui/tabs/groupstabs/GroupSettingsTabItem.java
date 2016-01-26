@@ -443,7 +443,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 		};
 
 		// SET NEW ATTR BUTTON
-		final CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes());
+		final CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes());
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) setNewAttributeButton.setEnabled(false);
 		// click handler
 		setNewAttributeButton.addClickHandler(new ClickHandler(){
@@ -568,6 +568,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 		membersDropDown.addChangeHandler(changeHandler);
 
 		// PUT ELEMENTS IN MENU
+		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addWidget(saveChangesButton);
 		//menu.addWidget(resChb);
 		menu.addWidget(memChb);

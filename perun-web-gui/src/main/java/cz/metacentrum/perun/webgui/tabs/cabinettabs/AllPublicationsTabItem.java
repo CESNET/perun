@@ -100,7 +100,9 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		final TabMenu filterMenu = new TabMenu();
 		filterMenu.setVisible(false);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Create new publication", new ClickHandler() {
+		menu.addWidget(UiElements.getRefreshButton(this));
+
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Create new publication", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTab(new AddPublicationsTabItem(session.getUser()));
 			}

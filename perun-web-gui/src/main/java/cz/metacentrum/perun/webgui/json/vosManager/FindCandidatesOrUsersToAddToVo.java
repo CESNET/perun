@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.webgui.json.vosManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.TextColumn;

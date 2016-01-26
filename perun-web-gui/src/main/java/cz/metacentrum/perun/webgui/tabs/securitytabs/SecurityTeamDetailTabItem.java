@@ -110,24 +110,6 @@ public class SecurityTeamDetailTabItem implements TabItem, TabItemWithUrl{
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
 		int column = 3;
-		if (JsonUtils.isExtendedInfoVisible()) {
-			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+securityTeam.getId()+"</span>");
-			column++;
-			menu.setHTML(0, column, "&nbsp;");
-			menu.getFlexCellFormatter().setWidth(0, column, "25px");
-			column++;
-		}
-
-		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+securityTeam.getDescription()+"</span>");
-
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
 
 		final JsonCallbackEvents events = new JsonCallbackEvents() {
 			@Override
@@ -145,9 +127,22 @@ public class SecurityTeamDetailTabItem implements TabItem, TabItemWithUrl{
 				session.getTabManager().addTabToCurrentTab(new EditSecurityTeamDetailsTabItem(securityTeam, events));
 			}
 		});
+		menu.setWidget(0, column, change);
+		column++;
 
-		dp.add(change);
-		change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
+
+		if (JsonUtils.isExtendedInfoVisible()) {
+			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+securityTeam.getId()+"</span>");
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+		}
+
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+securityTeam.getDescription()+"</span>");
 
 		dp.add(menu);
 		vp.add(dp);

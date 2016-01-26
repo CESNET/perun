@@ -89,6 +89,8 @@ public class MemberSettingsTabItem implements TabItem {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		// callbacks
 		final GetAttributesV2 callback = new GetAttributesV2();
 		if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) {
@@ -337,7 +339,7 @@ public class MemberSettingsTabItem implements TabItem {
 		menu.addWidget(saveChangesButton);
 
 		// buttons
-		CustomButton setNewMemberAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+		CustomButton setNewMemberAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				Map<String, Integer> ids = new HashMap<String,Integer>();
 				ids.put("member", member.getId());

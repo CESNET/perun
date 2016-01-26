@@ -8,6 +8,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -222,6 +223,7 @@ public class AttributeDefinitionDetailTabItem implements TabItem {
 		rightsTable.addStyleName("centeredTable");
 
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addWidget(updateButton);
 
 		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.CLOSE, "", new ClickHandler() {

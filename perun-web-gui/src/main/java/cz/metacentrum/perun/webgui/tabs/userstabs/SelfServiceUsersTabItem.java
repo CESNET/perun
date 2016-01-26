@@ -80,8 +80,10 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 			vp.add(menu);
 			vp.setCellHeight(menu, "30px");
 
+			menu.addWidget(UiElements.getRefreshButton(this));
+
 			// buttons
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
 				public void onClick(ClickEvent clickEvent) {
 					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
 				}
@@ -187,6 +189,7 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 			TabMenu menu = new TabMenu();
 			vp.add(menu);
 			vp.setCellHeight(menu, "30px");
+			menu.addWidget(UiElements.getRefreshButton(this));
 
 			final CustomButton removeUserButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove service identity from "+user.getFullName());
 			menu.addWidget(removeUserButton);

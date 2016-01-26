@@ -85,6 +85,7 @@ public class AssignGroupTabItem implements TabItem {
 
 		// menu
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// callback
 		final GetRichResources callback = new GetRichResources(group.getVoId());

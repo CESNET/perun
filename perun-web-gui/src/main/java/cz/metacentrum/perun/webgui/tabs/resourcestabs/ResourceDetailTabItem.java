@@ -117,6 +117,36 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
 		int column = 3;
+
+		final JsonCallbackEvents events = new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso){
+				new GetEntityById(PerunEntity.RICH_RESOURCE, resourceId, new JsonCallbackEvents(){
+					public void onFinished(JavaScriptObject jso){
+						resource = jso.cast();
+						open();
+						draw();
+					}
+				}).retrieveData();
+			}
+		};
+
+		CustomButton change = new CustomButton("",ButtonTranslation.INSTANCE.editResourceDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
+		if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) change.setEnabled(false);
+		change.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event) {
+				// prepare confirm content
+				Resource r = resource.cast();
+				session.getTabManager().addTabToCurrentTab(new EditResourceDetailsTabItem(r, events));
+			}
+		});
+		menu.setWidget(0, column, change);
+
+		column++;
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+
+		column++;
+
 		if (JsonUtils.isExtendedInfoVisible()) {
 			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getId()+"</span>");
 			column++;
@@ -145,39 +175,6 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 			menu.setWidget(0, column, a);
 
 		}
-
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
-
-		final JsonCallbackEvents events = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				new GetEntityById(PerunEntity.RICH_RESOURCE, resourceId, new JsonCallbackEvents(){
-					public void onFinished(JavaScriptObject jso){
-						resource = jso.cast();
-						open();
-						draw();
-					}
-				}).retrieveData();
-			}
-		};
-
-		CustomButton change = new CustomButton("",ButtonTranslation.INSTANCE.editResourceDetails(), SmallIcons.INSTANCE.applicationFormEditIcon());
-		if (!session.isVoAdmin(resource.getVoId()) && !session.isFacilityAdmin(resource.getFacilityId())) change.setEnabled(false);
-		change.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event) {
-				// prepare confirm content
-				Resource r = resource.cast();
-				session.getTabManager().addTabToCurrentTab(new EditResourceDetailsTabItem(r, events));
-			}
-		});
-		dp.add(change);
-		change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
 
 		dp.add(menu);
 		vp.add(dp);

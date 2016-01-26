@@ -79,7 +79,7 @@ public interface ButtonTranslation extends Messages {
 	@DefaultMessage("Fill")
 	String fillButton();
 
-	@DefaultMessage("List all")
+	@DefaultMessage("List all members")
 	String listAllMembersButton();
 
 	@DefaultMessage("List all")

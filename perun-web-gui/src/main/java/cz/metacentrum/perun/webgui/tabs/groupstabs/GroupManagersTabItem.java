@@ -137,8 +137,8 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 			sp.setWidget(fillContentGroups(adminGroups, menu));
 		}
 
-		menu.addWidget(2, new HTML("<strong>Select mode: </strong>"));
-		menu.addWidget(3, box);
+		menu.addWidget(3, new HTML("<strong>Select mode: </strong>"));
+		menu.addWidget(4, box);
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
@@ -159,6 +159,8 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
 		boolean isMembersGroup = group.isCoreGroup();
 
+		menu.addWidget(0, UiElements.getRefreshButton(this));
+
 		// Events for reloading when finished
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(admins);
 
@@ -166,13 +168,13 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
 		if(!isMembersGroup){
 
-			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToGroup(), new ClickHandler() {
+			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerToGroup(), new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new AddGroupManagerTabItem(group), true);
 				}
 			});
 			if (!session.isVoAdmin(group.getVoId()) && !session.isGroupAdmin(group.getId())) addButton.setEnabled(false);
-			menu.addWidget(0, addButton);
+			menu.addWidget(1, addButton);
 
 			removeButton.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
@@ -195,12 +197,12 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 					});
 				}
 			});
-			menu.addWidget(1, removeButton);
+			menu.addWidget(2, removeButton);
 
 		} else {
 
 			// is core group
-			menu.addWidget(0, new Image(SmallIcons.INSTANCE.helpIcon()));
+			menu.addWidget(1, new Image(SmallIcons.INSTANCE.helpIcon()));
 			Anchor a = new Anchor("<strong>To edit VO managers use VO manager section in menu.</strong>", true);
 			a.addClickHandler(new ClickHandler() {
 				@Override
@@ -208,7 +210,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 					session.getTabManager().addTab(new VoManagersTabItem(group.getVoId()));
 				}
 			});
-			menu.addWidget(1, a);
+			menu.addWidget(2, a);
 
 		}
 
@@ -241,6 +243,8 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
 		boolean isMembersGroup = group.isCoreGroup();
 
+		menu.addWidget(0, UiElements.getRefreshButton(this));
+
 		// Events for reloading when finished
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(admins);
 
@@ -248,13 +252,13 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 
 		if(!isMembersGroup){
 
-			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToGroup(), new ClickHandler() {
+			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerGroupToGroup(), new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new AddGroupManagerGroupTabItem(group, events), true);
 				}
 			});
 			if (!session.isVoAdmin(group.getVoId()) && !session.isGroupAdmin(group.getId())) addButton.setEnabled(false);
-			menu.addWidget(0, addButton);
+			menu.addWidget(1, addButton);
 
 			removeButton.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
@@ -277,12 +281,12 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 					});
 				}
 			});
-			menu.addWidget(1, removeButton);
+			menu.addWidget(2, removeButton);
 
 		} else {
 
 			// is core group
-			menu.addWidget(0, new Image(SmallIcons.INSTANCE.helpIcon()));
+			menu.addWidget(1, new Image(SmallIcons.INSTANCE.helpIcon()));
 			Anchor a = new Anchor("<strong>To edit VO managers use VO manager section in menu.</strong>", true);
 			a.addClickHandler(new ClickHandler() {
 				@Override
@@ -290,7 +294,7 @@ public class GroupManagersTabItem implements TabItem, TabItemWithUrl{
 					session.getTabManager().addTab(new VoManagersTabItem(group.getVoId()));
 				}
 			});
-			menu.addWidget(1, a);
+			menu.addWidget(2, a);
 
 		}
 

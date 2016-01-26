@@ -298,6 +298,20 @@ public class TabMenu extends Composite {
 	}
 
 	/**
+	 * Return defined button without clickHandler
+	 *
+	 * @param type selected button type
+	 * @param ellipsis TRUE if button opens dialog instead of performing action
+	 * @param title text displayed on button hover
+	 * @return created button
+	 */
+	public static CustomButton getPredefinedButton(ButtonType type, boolean ellipsis, String title) {
+
+		return getPredefinedButton(type, ellipsis, title, null);
+
+	}
+
+	/**
 	 * Return defined button with own click handler
 	 *
 	 * @param type selected button type
@@ -307,13 +321,32 @@ public class TabMenu extends Composite {
 	 */
 	public static CustomButton getPredefinedButton(ButtonType type, String title, ClickHandler clickAction) {
 
+		return getPredefinedButton(type, false, title, clickAction);
+
+	}
+
+	/**
+	 * Return defined button with own click handler
+	 *
+	 * @param type selected button type
+	 * @param ellipsis TRUE if button opens dialog instead of performing action
+	 * @param title text displayed on button hover
+	 * @param clickAction ClickHandler / if null it's not added
+	 * @return create button
+	 */
+	public static CustomButton getPredefinedButton(ButtonType type, boolean ellipsis, String title, ClickHandler clickAction) {
+
 		CustomButton b = new CustomButton();
 
 		// icon first
 		b.setIcon(getButtonIconByType(type));
 		// then text
 
-		b.setText(getButtonTextByType(type));
+		if (ellipsis) {
+			b.setText(getButtonTextByType(type)+"…");
+		} else {
+			b.setText(getButtonTextByType(type));
+		}
 
 		if (title != null && !title.isEmpty()) {
 			b.setTitle(title);

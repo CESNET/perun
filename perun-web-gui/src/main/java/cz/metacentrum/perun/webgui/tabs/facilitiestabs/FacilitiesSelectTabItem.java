@@ -81,8 +81,10 @@ public class FacilitiesSelectTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
+
 		// add new facility button
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTab(new CreateFacilityTabItem(facilities.getFullBackupList(),events));
 			}

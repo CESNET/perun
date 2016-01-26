@@ -8,6 +8,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -132,6 +133,8 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 		TabMenu menu = new TabMenu();
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
+
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		final ListBoxWithObjects<RichService> listbox = new ListBoxWithObjects<RichService>();
 

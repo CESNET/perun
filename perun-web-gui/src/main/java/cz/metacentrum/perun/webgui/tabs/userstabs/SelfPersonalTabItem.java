@@ -8,6 +8,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -99,7 +100,17 @@ public class SelfPersonalTabItem implements TabItem {
 		horizontalSplitter.setCellWidth(leftPanel, "50%");
 		horizontalSplitter.setCellWidth(rightPanel, "50%");
 
-		sp.setWidget(horizontalSplitter);
+		final VerticalPanel innerVp = new VerticalPanel();
+		innerVp.setSize("100%", "100%");
+
+		final TabMenu menu = new TabMenu();
+		innerVp.add(menu);
+		innerVp.setCellHeight(menu, "30px");
+
+		menu.addWidget(UiElements.getRefreshButton(this));
+		innerVp.add(horizontalSplitter);
+
+		sp.setWidget(innerVp);
 
 		FlexTable quickHeader = new FlexTable();
 		quickHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.directionIcon()));

@@ -1001,7 +1001,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// if there were exceptions, throw some to let know GUI about it
 				if (!exceptions.isEmpty()) {
 					RegistrarException ex = new RegistrarException("Your application (ID="+ application.getId()+
-							") has been created with errors. Administrator of " + application.getVo().getName() + " has been notified. If you want, you can use \"Send report to RT\" button to send this information to Perun administrators.");
+							") has been created with errors. Administrator of " + application.getVo().getName() + " has been notified. If you want, you can use \"Send report to RT\" button to send this information to administrators directly.");
 					log.error("[REGISTRAR] New application {} created with errors {}. This is case of PerunException {}", new Object[] {application, exceptions, ex.getErrorId()});
 					throw ex;
 				}
@@ -1057,7 +1057,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			jdbc.update("delete from application where id=?", app.getId());
 
 		} else {
-			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Verified application can't be deleted. Approve or reject application first. Try to refresh the view to see changes.");
+			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
 			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 		}
 
@@ -1105,9 +1105,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// only VERIFIED applications can be rejected
 		if (AppState.APPROVED.equals(app.getState())) {
-			throw new RegistrarException("Once approved applications can't be rejected !");
+			throw new RegistrarException("Approved application can't be rejected ! Try to refresh the view to see changes.");
 		} else if (AppState.REJECTED.equals(app.getState())) {
-			throw new RegistrarException("Once rejected applications can't be rejected !");
+			throw new RegistrarException("Application is already rejected. Try to refresh the view to see changes.");
 		}
 
 		// mark as rejected
@@ -1229,7 +1229,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (!AppState.VERIFIED.equals(app.getState())) {
 			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Application is already approved. Try to refresh the view to see changes.");
 			if (AppState.REJECTED.equals(app.getState())) throw new RegistrarException("Rejected application cant' be approved. Try to refresh the view to see changes.");
-			throw new RegistrarException("Only VERIFIED applications can be approved. Please verify application manually before approval or wait for applicant own action.");
+			throw new RegistrarException("User didn't verify his email address yet. Please wait until application will be in a 'Submitted' state. You can send mail verification notification to user again if you wish.");
 		}
 
 		// mark as APPROVED

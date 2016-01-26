@@ -28,6 +28,7 @@ import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Ajax query to find all RichMembers of VO / Group by searchString with list of selected attributes
@@ -84,12 +85,7 @@ public class FindCompleteRichMembers implements JsonCallbackSearchFor, JsonCallb
 		} else {
 			this.attributes = attributes;
 		}
-		// by default load without "disabled"
-		for (PerunStatus s : PerunStatus.values()) {
-			if (!s.equals(PerunStatus.DISABLED) && !s.equals(PerunStatus.EXPIRED)) {
-				allowedStatuses.add(s);
-			}
-		}
+		allowedStatuses.addAll(Arrays.asList(PerunStatus.values()));
 	}
 
 	/**

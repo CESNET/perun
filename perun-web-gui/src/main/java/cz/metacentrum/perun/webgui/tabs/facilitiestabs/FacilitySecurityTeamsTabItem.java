@@ -93,8 +93,9 @@ public class FacilitySecurityTeamsTabItem implements TabItem, TabItemWithUrl {
 
 		// menu
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignSecurityTeam(), new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.assignSecurityTeam(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AssignSecurityTeamTabItem(facility), true);

@@ -311,7 +311,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		});
 		menu.addWidget(saveAttrButton);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for user", new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Set new attributes for user", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 
 				Map<String, Integer> ids = new HashMap<String, Integer>();
@@ -388,7 +388,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		};
 
 		// buttons
-		CustomButton addUserExtSourceButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add new external identity to user", new ClickHandler() {
+		CustomButton addUserExtSourceButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new external identity to user", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				// when user click on add ext source btn
 				session.getTabManager().addTabToCurrentTab(new AddUserExtSourceTabItem(user.getId()));
@@ -734,7 +734,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				});
 				menu.addWidget(saveAttrButton);
 
-				menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for member", new ClickHandler() {
+				menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Set new attributes for member", new ClickHandler() {
 					public void onClick(ClickEvent event) {
 
 						Map<String, Integer> ids = new HashMap<String,Integer>();
@@ -866,7 +866,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 							innerTable.setHTML(rowCount, 1, a.getValue());
 							// change password
 							if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
-								CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
+								CustomButton cb = new CustomButton("Change password…", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 									public void onClick(ClickEvent event) {
 										session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
 									}
@@ -998,7 +998,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		});
 		menu.addWidget(saveAttrButton);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes", new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Set new attributes", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 
 				Map<String, Integer> ids = new HashMap<String, Integer>();
@@ -1067,7 +1067,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			vp.setCellHeight(menu, "30px");
 
 			// buttons
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
 				public void onClick(ClickEvent clickEvent) {
 					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
 				}
@@ -1166,7 +1166,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			vp.setCellHeight(menu, "30px");
 
 			// buttons
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new service identity to "+user.getFullName(), new ClickHandler() {
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new service identity to "+user.getFullName(), new ClickHandler() {
 				public void onClick(ClickEvent clickEvent) {
 					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
 				}

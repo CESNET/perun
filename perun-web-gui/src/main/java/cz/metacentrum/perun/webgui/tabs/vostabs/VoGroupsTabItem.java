@@ -111,10 +111,11 @@ public class VoGroupsTabItem implements TabItem, TabItemWithUrl{
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(groups);
 		if (!session.isVoAdmin(voId)) groups.setCheckable(false);
 
-
+		// refresh
+		 menu.addWidget(UiElements.getRefreshButton(this));
 
 		// add new group button
-		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
+		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createGroup(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CreateGroupTabItem(vo));
 			}

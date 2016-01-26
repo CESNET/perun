@@ -64,7 +64,7 @@ public class EditVoDetailsTabItem implements TabItem {
 
 	public Widget draw() {
 
-		titleWidget = new Label("Edit VO");
+		titleWidget = new Label("Edit VO name");
 
 		VerticalPanel vp = new VerticalPanel();
 

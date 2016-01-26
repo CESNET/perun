@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
@@ -106,10 +107,10 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 		vp.setCellHeight(menu, "30px");
 
 		final CustomButton save = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveApplicationFormSettings());
-		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewAppFormItem());
-		final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton(), ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
-		final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
-		final CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, ButtonTranslation.INSTANCE.previewAppForm());
+		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addNewAppFormItem());
+		final CustomButton emailButton = new CustomButton(ButtonTranslation.INSTANCE.emailNotificationsButton()+"…", ButtonTranslation.INSTANCE.emailNotifications(), SmallIcons.INSTANCE.emailIcon());
+		final CustomButton copyButton = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton()+"…", ButtonTranslation.INSTANCE.copyFromVo(), SmallIcons.INSTANCE.copyIcon());
+		final CustomButton previewButton = TabMenu.getPredefinedButton(ButtonType.PREVIEW, true, ButtonTranslation.INSTANCE.previewAppForm());
 
 		// request
 		final GetFormItems itemsRequest = new GetFormItems(PerunEntity.VIRTUAL_ORGANIZATION, vo.getId(), true, null, new JsonCallbackEvents(){
@@ -132,6 +133,8 @@ public class VoApplicationFormSettingsTabItem implements TabItem, TabItemWithUrl
 				itemsRequest.prepareSettings(sourceList);
 			}
 		};
+
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// save button
 		menu.addWidget(save);

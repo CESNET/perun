@@ -83,12 +83,12 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 
 				// adding finished?
 				if(!addingFinished)
-		{
-			return;
-		}
+				{
+					return;
+				}
 
-		int i = event.getSelectedItem();
-		runOnSelectEvent(i);
+				int i = event.getSelectedItem();
+				runOnSelectEvent(i);
 			}
 		});
 
@@ -99,27 +99,27 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 
 				// adding finished?
 				if(!addingFinished)
-		{
-			return;
-		}
+				{
+					return;
+				}
 
-		int i = getLastTabId();
+				int i = getLastTabId();
 
-		// check size
-		if(innerTabs.size() < (i + 1))
-		{
-			return;
-		}
+				// check size
+				if(innerTabs.size() < (i + 1))
+				{
+					return;
+				}
 
-		// retrieves the tab item
-		TabItem tab = innerTabs.get(i);
+				// retrieves the tab item
+				TabItem tab = innerTabs.get(i);
 
-		// check null
-		if(tab == null){
-			return;
-		}
+				// check null
+				if(tab == null){
+					return;
+				}
 
-		UiElements.runResizeCommands(tab);
+				UiElements.runResizeCommands(tab);
 			}
 		}, parentTab);
 

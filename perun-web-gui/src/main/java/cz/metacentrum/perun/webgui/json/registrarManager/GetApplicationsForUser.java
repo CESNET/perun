@@ -199,7 +199,7 @@ public class GetApplicationsForUser implements JsonCallback, JsonCallbackTable<A
 			}
 		});
 		table.addColumn(stateColumn, "State");
-		table.setColumnWidth(stateColumn, "80px");
+		table.setColumnWidth(stateColumn, "120px");
 
 		// VO COLUMN
 		Column<Application, String> voColumn = JsonUtils.addColumn(

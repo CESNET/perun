@@ -100,8 +100,10 @@ public class SecurityTeamMembersTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
 
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
+
 		// do not display to sec admins only
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMemberToSecurityTeam(), new ClickHandler() {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addMemberToSecurityTeam(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddSecurityTeamManagerTabItem(securityTeam), true);
