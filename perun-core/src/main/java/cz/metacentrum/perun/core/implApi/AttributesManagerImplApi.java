@@ -854,7 +854,34 @@ public interface AttributesManagerImplApi {
 	 */
 	boolean setAttribute(PerunSession sess, String key, Attribute attribute) throws InternalErrorException;
 
-
+	/**
+	 * Tries to insert attribute value in DB.
+	 * This method should be called only from impl layer.
+	 * 
+	 * @param sess perun session
+	 * @param valueColName column, where the data will be stored, usually one of value or attr_value or attr_value_text
+	 * @param attribute that will be stored in the DB
+	 * @param facility for which to store attribute
+	 * @return true if new value differs from old value (i.e. values changed)
+	 *         false otherwise (value do not change)
+	 * @throws InternalErrorException 
+	 */
+	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, Facility facility) throws InternalErrorException;
+	
+	/**
+	 * Tries to update attribute value in DB.
+	 * This method should be called only from impl layer.
+	 * 
+	 * @param sess perun session
+	 * @param valueColName column, where the data will be stored, usually one of value or attr_value or attr_value_text
+	 * @param attribute that will be stored in the DB
+	 * @param facility attr_value_text
+	 * @return true if new value differs from old value (i.e. values changed)
+	 *         false otherwise (value do not change)
+	 * @throws InternalErrorException 
+	 */
+	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, Facility facility) throws InternalErrorException;
+	
 	/**
 	 * Store the particular virtual attribute associated with the facility.
 	 *
