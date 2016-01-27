@@ -16,6 +16,12 @@ Perun is an identity and access management system primary targeting academia env
 * Can handle and join multiple user identities a manage them across your services
 * All actions are audited
 
+### Related projects ###
+
+* [Perun services](https://github.com/CESNET/perun-services) - connectors Perun uses to manage services
+* [Perun WUI](https://github.com/zlamalp/perun-wui) - next-gen web user interface for Perun
+* [Google Group connector](https://github.com/CESNET/google-group-connector) - allow provisioning of Google groups on your domain
+
 ### License ###
 
 &copy; 2010-2016 [CESNET](https://www.cesnet.cz/?lang=en) and [CERIT-SC](https://www.cerit-sc.cz/en/index.html), all rights reserved.
