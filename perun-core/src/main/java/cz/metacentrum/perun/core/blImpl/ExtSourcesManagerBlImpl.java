@@ -239,6 +239,18 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			}
 		}
 
+		//Set sponsored user
+		if(subject.get("isSponsoredUser") == null) {
+			candidate.setSponsoredUser(false);
+		} else {
+			String isSponsoredUser = subject.get("isSponsoredUser");
+			if(isSponsoredUser.equals("true")) {
+				candidate.setSponsoredUser(true);
+			} else {
+				candidate.setSponsoredUser(false);
+			}
+		}
+
 		// Additional userExtSources
 		List<UserExtSource> additionalUserExtSources = new ArrayList<UserExtSource>();
 
@@ -344,6 +356,18 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				candidate.setServiceUser(true);
 			} else {
 				candidate.setServiceUser(false);
+			}
+		}
+
+		//Set sponsored user
+		if(subjectData.get("isSponsoredUser") == null) {
+			candidate.setSponsoredUser(false);
+		} else {
+			String isSponsoredUser = subjectData.get("isSponsoredUser");
+			if(isSponsoredUser.equals("true")) {
+				candidate.setSponsoredUser(true);
+			} else {
+				candidate.setSponsoredUser(false);
 			}
 		}
 

@@ -28,6 +28,7 @@ create table "users" (
 	modified_by varchar(1024) default user not null,
 	status char(1) default '0' not null,
 	service_acc char(1) default '0' not null, --is it service account?
+	sponsored_acc char(1) default '0' not null, --is it sponsored account?
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -335,6 +336,7 @@ create table "authz" (
 	service_id integer,       --identifier of service
 	resource_id integer,      --identifier of resource
 	service_principal_id integer,  --identifier service principal
+	sponsored_user_id integer, --identifier of sponsored user
 	created_by_uid integer,
 	modified_by_uid integer,
 	authorized_group_id integer, --identifier of whole authorized group
@@ -424,12 +426,13 @@ create table "service_required_attrs" (
 );
 
 -- SERVICE_USER_USERS - relation between service-users and real users
-create table service_user_users (
+create table specific_user_users (
 	user_id integer not null,          --identifier of real user (users.id)
-	service_user_id integer not null,  --identifier of service user (users.id)
+	specific_user_id integer not null,  --identifier of service user (users.id)
 	created_by_uid integer,
 	modified_by_uid integer,
 	modified_at timestamp default now() not null,
+	type varchar(20) default 'service' not null,
 	status char(1) default '0' not null --is it service user?
 );
 
@@ -1312,6 +1315,7 @@ create index idx_fk_authz_service on authz(service_id);
 create index idx_fk_authz_res on authz(resource_id);
 create index idx_fk_authz_ser_princ on authz(service_principal_id);
 create index idx_fk_authz_sec_team on authz(security_team_id);
+create index idx_fk_authz_sponsoru_team on authz(sponsored_user_id);
 create index idx_fk_grres_gr on groups_resources(group_id);
 create index idx_fk_grres_res on groups_resources(resource_id);
 create index idx_fk_grpmem_gr on groups_members(group_id);
@@ -1341,8 +1345,8 @@ create index idx_fk_pn_tmplrgx_rgx on pn_template_regex(regex_id);
 create index idx_fk_pn_tmplrgx_tmpl on pn_template_regex(template_id);
 create index idx_fk_pn_rgxobj_rgx on pn_regex_object(regex_id);
 create index idx_fk_pn_rgxobj_obj on pn_regex_object(object_id);
-create index idx_fk_servu_u_ui on service_user_users(user_id);
-create index idx_fk_servu_u_sui on service_user_users(service_user_id);
+create index idx_fk_specifu_u_ui on service_user_users(user_id);
+create index idx_fk_specifu_u_sui on service_user_users(specific_user_id);
 create index idx_fk_grp_grp_gid on groups_groups(group_id);
 create index idx_fk_grp_grp_pgid on groups_groups(parent_group_id);
 create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
@@ -1612,10 +1616,10 @@ alter table pn_regex_object add constraint pn_rgxobj_pk primary key (id);
 alter table pn_regex_object add constraint pn_rgxobj_rgx_fk foreign key (regex_id) references pn_regex(id);
 alter table pn_regex_object add constraint pn_rgxobj_obj_fk foreign key (object_id) references pn_object(id);
 
-alter table service_user_users add constraint acc_servu_u_pk primary key (user_id,service_user_id);
-alter table service_user_users add constraint acc_servu_u_uid_fk foreign key (user_id) references users(id);
-alter table service_user_users add constraint acc_servu_u_suid_fk foreign key (service_user_id) references users(id);
-alter table service_user_users add constraint servu_u_status_chk check (status in ('0','1'));
+alter table specific_user_users add constraint acc_specifu_u_pk primary key (user_id,specific_user_id);
+alter table specific_user_users add constraint acc_specifu_u_uid_fk foreign key (user_id) references users(id);
+alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id);
+alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
 
 alter table groups_groups add constraint grp_grp_pk primary key (group_id,parent_group_id);
 alter table groups_groups add constraint grp_grp_gid_fk foreign key (group_id) references groups(id);
@@ -1774,4 +1778,4 @@ grant all on security_teams_facilities to perun;
 grant all on blacklists to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.34');
+insert into configurations values ('DATABASE VERSION','3.1.35');
