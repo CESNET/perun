@@ -82,7 +82,7 @@ public class UsersManagerEntry implements UsersManager {
 	public List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
-		if(user.isSpecificUser()) throw new NotSpecificUserExpectedException(user);
+		if(user.isServiceUser()) throw new NotSpecificUserExpectedException(user);
 
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
 			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, user);
@@ -125,8 +125,9 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
 		getUsersManagerBl().checkUserExists(sess, specificUser);
-		if(!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
-		if(user.isSpecificUser()) throw new NotSpecificUserExpectedException(user);
+		if (user.isServiceUser()) throw new NotSpecificUserExpectedException(user);
+		if (user.isSponsoredUser() && specificUser.isSponsoredUser()) throw new NotSpecificUserExpectedException(specificUser);
+		if (!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, specificUser) &&
 			!AuthzResolver.isAuthorized(sess, Role.SPONSOR, specificUser)) {
 			throw new PrivilegeException(sess, "removeSpecificUserOwner");
@@ -138,8 +139,9 @@ public class UsersManagerEntry implements UsersManager {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
 		getUsersManagerBl().checkUserExists(sess, specificUser);
-		if(!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
-		if(user.isSpecificUser()) throw new NotSpecificUserExpectedException(user);
+		if (user.isServiceUser()) throw new NotSpecificUserExpectedException(user);
+		if (user.isSponsoredUser() && specificUser.isSponsoredUser()) throw new NotSpecificUserExpectedException(specificUser);
+		if (!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, specificUser) &&
 			!AuthzResolver.isAuthorized(sess, Role.SPONSOR, specificUser)) {
 			throw new PrivilegeException(sess, "addSpecificUserOwner");

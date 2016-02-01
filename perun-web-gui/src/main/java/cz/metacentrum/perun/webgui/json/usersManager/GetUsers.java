@@ -48,6 +48,7 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 	// filter by user type (default show all)
 	private boolean hideService = false;
 	private boolean hidePerson = false;
+	private boolean hideSponsored = false;
 	private boolean checkable = true;
 
 	/**
@@ -219,8 +220,10 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 		for (User u : list) {
 			if (hideService && u.isServiceUser())  {
 				// if service hidden, skip service users
-			} else if (hidePerson && !u.isServiceUser()) {
+			} else if (hidePerson && !u.isServiceUser() && !u.isSponsoredUser()) {
 				// if person hidden, skip person
+			} else if (hideSponsored && !u.isSponsoredUser()) {
+				// if sponsored hidden, skip person
 			} else {
 				addToTable(u);
 			}
@@ -264,4 +267,11 @@ public class GetUsers implements JsonCallback, JsonCallbackTable<User> {
 		this.hidePerson = hide;
 	}
 
+	public boolean isHideSponsored() {
+		return hideSponsored;
+	}
+
+	public void setHideSponsored(boolean hideSponsored) {
+		this.hideSponsored = hideSponsored;
+	}
 }

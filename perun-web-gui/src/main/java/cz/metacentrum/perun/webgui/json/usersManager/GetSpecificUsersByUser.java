@@ -21,17 +21,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- * Ajax query to get list of users for service user
+ * Ajax query to get list of service users for user
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<User> {
+public class GetSpecificUsersByUser implements JsonCallback, JsonCallbackTable<User> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	private int userId;
 	// json url
-	static private final String JSON_URL = "usersManager/getUsersByServiceUser";
+	static private final String JSON_URL = "usersManager/getSpecificUsersByUser";
 	// Data provider
 	private ListDataProvider<User> dataProvider = new ListDataProvider<User>();
 	// table
@@ -47,12 +47,14 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
 	private boolean checkable = true;
+	private boolean hideService = false;
+	private boolean hideSponsored = false;
 
 	/**
 	 * Creates a new request
 	 * @param userId
 	 */
-	public GetUsersByServiceUser(int userId) {
+	public GetSpecificUsersByUser(int userId) {
 		this.userId = userId;
 	}
 
@@ -61,7 +63,7 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 	 * @param userId
 	 * @param events
 	 */
-	public GetUsersByServiceUser(int userId, JsonCallbackEvents events) {
+	public GetSpecificUsersByUser(int userId, JsonCallbackEvents events) {
 		this.userId = userId;
 		this.events = events;
 	}
@@ -102,7 +104,7 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
-		loaderImage.setEmptyResultMessage("Service identity has no owners (users) assigned.");
+		loaderImage.setEmptyResultMessage("You have no service identities assigned.");
 
 		// columns
 		if (checkable) {
@@ -126,6 +128,43 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 
 		table.addColumn(nameColumn, "Name");
 
+		// SERVICE COLUMN
+		Column<User, String> serviceColumn = JsonUtils.addColumn(new JsonUtils.GetValue<User, String>() {
+			public String getValue(User user) {
+				if (user.isServiceUser()) {
+					return "Service";
+				} else if (user.isSponsoredUser()) {
+					return "Sponsored";
+				} else {
+					return "Person";
+				}
+			}
+		},tableFieldUpdater);
+
+		serviceColumn.setSortable(true);
+		columnSortHandler.setComparator(serviceColumn, new Comparator<User>() {
+			public int compare(User o1, User o2) {
+
+				String type1 = "Person";
+				if (o1.isServiceUser()) {
+					type1 = "Service";
+				} else if (o1.isSponsoredUser()) {
+					type1 = "Sponsored";
+				}
+
+				String type2 = "Person";
+				if (o2.isServiceUser()) {
+					type2 = "Service";
+				} else if (o2.isSponsoredUser()) {
+					type2 = "Sponsored";
+				}
+
+				return type1.compareTo(type2);
+			}
+		});
+
+		table.addColumn(serviceColumn, "User type");
+
 		return table;
 
 	}
@@ -135,7 +174,7 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 	 */
 	public void retrieveData() {
 		JsonClient js = new JsonClient();
-		js.retrieveData(JSON_URL, "serviceUser="+userId, this);
+		js.retrieveData(JSON_URL, "user="+userId, this);
 	}
 
 	/**
@@ -201,7 +240,7 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 	 * Called, when an error occurs
 	 */
 	public void onError(PerunError error) {
-		session.getUiElements().setLogErrorText("Error while loading service users.");
+		session.getUiElements().setLogErrorText("Error while loading specific users.");
 		loaderImage.loadingError(error);
 		events.onError(error);
 	}
@@ -210,7 +249,7 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 	 * Called, when loading starts
 	 */
 	public void onLoadingStart() {
-		session.getUiElements().setLogText("Loading service users started.");
+		session.getUiElements().setLogText("Loading specific users started.");
 		events.onLoadingStart();
 	}
 
@@ -218,7 +257,15 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 	 * Called, when operation finishes successfully.
 	 */
 	public void onFinished(JavaScriptObject jso) {
-		setList(JsonUtils.<User>jsoAsList(jso));
+		for (User user : JsonUtils.<User>jsoAsList(jso)) {
+			if (hideService && user.isServiceUser()) {
+				// skip service
+			} else if (hideSponsored && user.isSponsoredUser()) {
+				// skip sponsored
+			} else {
+				addToTable(user);
+			}
+		}
 		sortTable();
 		session.getUiElements().setLogText("Users loaded: " + list.size());
 		events.onFinished(jso);
@@ -248,6 +295,18 @@ public class GetUsersByServiceUser implements JsonCallback, JsonCallbackTable<Us
 
 	public ArrayList<User> getList() {
 		return this.list;
+	}
+
+	public boolean isHideService() {
+		return hideService;
+	}
+
+	public void setHideService(boolean hideService) {
+		this.hideService = hideService;
+	}
+
+	public void setHideSponsored(boolean hideSponsored) {
+		this.hideSponsored = hideSponsored;
 	}
 
 }

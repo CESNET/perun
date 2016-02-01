@@ -117,7 +117,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationExistsException {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
-
 		List<User> specificUserOwners = this.getUsersBySpecificUser(sess, specificUser);
 		if(specificUserOwners.remove(user)) throw new RelationExistsException("User is already the active owner of specific user.");
 

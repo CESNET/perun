@@ -3,10 +3,15 @@ package cz.metacentrum.perun.webgui.tabs.memberstabs;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
-import cz.metacentrum.perun.webgui.client.resources.*;
+import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.usersManager.GetSpecificUsersByUser;
 import cz.metacentrum.perun.webgui.json.usersManager.GetUsersBySpecificUser;
 import cz.metacentrum.perun.webgui.model.RichMember;
@@ -20,7 +25,7 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
  *
  * @author Pavel Zlamal <zlamal@cesnet.cz>
  */
-public class MemberServiceUsersTabItem implements TabItem {
+public class MemberSponsoredUsersTabItem implements TabItem {
 
 	private RichMember member;
 	private int memberId;
@@ -34,22 +39,22 @@ public class MemberServiceUsersTabItem implements TabItem {
 	 *
 	 * @param member RichMember object, typically from table
 	 */
-	public MemberServiceUsersTabItem(RichMember member, int groupId){
+	public MemberSponsoredUsersTabItem(RichMember member, int groupId){
 		this.member = member;
 		this.memberId = member.getId();
 		this.groupId = groupId;
 	}
 
-	public boolean isPrepared(){
+	public boolean isPrepared() {
 		return !(member == null);
 	}
 
 	public Widget draw() {
 
-		if (member.getUser().isServiceUser()) {
-			this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": associated users");
+		if (member.getUser().isSponsoredUser()) {
+			this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": sponsors");
 		} else {
-			this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": service identities");
+			this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(member.getUser().getFullNameWithTitles().trim()) + ": sponsored users");
 		}
 
 		VerticalPanel vp = new VerticalPanel();
@@ -62,7 +67,7 @@ public class MemberServiceUsersTabItem implements TabItem {
 
 		menu.addWidget(UiElements.getRefreshButton(this));
 
-		if (member.getUser().isServiceUser()) {
+		if (member.getUser().isSponsoredUser()) {
 
 			// request
 			final GetUsersBySpecificUser request = new GetUsersBySpecificUser(member.getUserId());
@@ -91,7 +96,7 @@ public class MemberServiceUsersTabItem implements TabItem {
 
 			final GetSpecificUsersByUser request = new GetSpecificUsersByUser(member.getUserId());
 			request.setCheckable(false);
-			request.setHideSponsored(true);
+			request.setHideService(true);
 
 			// table
 			CellTable<User> table;
@@ -148,7 +153,7 @@ public class MemberServiceUsersTabItem implements TabItem {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		MemberServiceUsersTabItem other = (MemberServiceUsersTabItem) obj;
+		MemberSponsoredUsersTabItem other = (MemberSponsoredUsersTabItem) obj;
 		if (memberId != other.memberId)
 			return false;
 		return true;

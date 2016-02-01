@@ -17,9 +17,9 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.usersManager.GetServiceUsersByUser;
-import cz.metacentrum.perun.webgui.json.usersManager.GetUsersByServiceUser;
-import cz.metacentrum.perun.webgui.json.usersManager.RemoveServiceUserOwner;
+import cz.metacentrum.perun.webgui.json.usersManager.GetSpecificUsersByUser;
+import cz.metacentrum.perun.webgui.json.usersManager.GetUsersBySpecificUser;
+import cz.metacentrum.perun.webgui.json.usersManager.RemoveSpecificUserOwner;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -72,7 +72,7 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 			this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+": Associated users");
 
 			// request
-			final GetUsersByServiceUser request = new GetUsersByServiceUser(userId);
+			final GetUsersBySpecificUser request = new GetUsersBySpecificUser(userId);
 			final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(request);
 
 			// menu
@@ -108,11 +108,11 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 									public void onClick(ClickEvent event) {
 										for (int i = 0; i < list.size(); i++) {
 											// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-											RemoveServiceUserOwner req;
+											RemoveSpecificUserOwner req;
 											if (i == list.size() - 1) {
-												req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+												req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
 											} else {
-												req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+												req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
 											}
 											req.removeServiceUser(list.get(i), user);
 
@@ -133,11 +133,11 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 							public void onClick(ClickEvent event) {
 								for (int i = 0; i < list.size(); i++) {
 									// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-									RemoveServiceUserOwner req;
+									RemoveSpecificUserOwner req;
 									if (i == list.size() - 1) {
-										req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+										req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
 									} else {
-										req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+										req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
 									}
 									req.removeServiceUser(list.get(i), user);
 
@@ -182,8 +182,9 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 			this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+": Service identities");
 
 			// request
-			final GetServiceUsersByUser request = new GetServiceUsersByUser(userId);
+			final GetSpecificUsersByUser request = new GetSpecificUsersByUser(userId);
 			final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(request);
+			request.setHideSponsored(true);
 
 			// menu
 			TabMenu menu = new TabMenu();
@@ -202,12 +203,12 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 						public void onClick(ClickEvent event) {
 							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
 							for (int i=0; i<list.size(); i++ ) {
-								RemoveServiceUserOwner req;
+								RemoveSpecificUserOwner req;
 								// if last, refresh
 								if(i == list.size() - 1) {
-									req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+									req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
 								} else {
-									req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+									req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
 								}
 								req.removeServiceUser(user, list.get(i));
 

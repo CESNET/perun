@@ -12,7 +12,7 @@ public enum Role {
 	RPC ("rpc"),
 	NOTIFICATIONS ("notifications"),
 	SERVICEUSER ("serviceuser"),
-	SPONSOR ("sponsoreduser"),
+	SPONSOR ("sponsor"),
 	VOOBSERVER ("voobserver"),
 	TOPGROUPCREATOR ("topgroupcreator"),
 	SECURITYADMIN ("securityadmin"),

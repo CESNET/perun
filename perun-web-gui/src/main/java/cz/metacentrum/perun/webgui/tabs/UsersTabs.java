@@ -95,6 +95,11 @@ public class UsersTabs {
 			return true;
 		}
 
+		if (tab.equals(SelfSponsoredUsersTabItem.URL)) {
+			session.getTabManager().addTab(SelfSponsoredUsersTabItem.load(parameters), open);
+			return true;
+		}
+
 		return false;
 
 

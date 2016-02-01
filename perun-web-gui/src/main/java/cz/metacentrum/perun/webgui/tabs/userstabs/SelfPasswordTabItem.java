@@ -225,6 +225,11 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
+		if (user.isServiceUser()) {
+			// for service users it's reset since they don't provide old password
+			changeButton.setText("Reset password…");
+		}
+
 		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent clickEvent) {
 				if (validator.validateTextBox() && validator2.validateTextBox()) {

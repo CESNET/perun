@@ -11,46 +11,46 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
 
 /**
- * Ajax query which connects service user and user together
+ * Ajax query which connects specific user and user together
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class AddServiceUserOwner {
+public class AddSpecificUserOwner {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// URL to call
-	final String JSON_URL = "usersManager/addServiceUserOwner";
+	final String JSON_URL = "usersManager/addSpecificUserOwner";
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// local variables for entity to send
 	private User user;
-	private User serviceUser;
+	private User specificUser;
 
 	/**
 	 * Creates a new request
 	 */
-	public AddServiceUserOwner() {}
+	public AddSpecificUserOwner() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
 	 * @param events custom events
 	 */
-	public AddServiceUserOwner(final JsonCallbackEvents events) {
+	public AddSpecificUserOwner(final JsonCallbackEvents events) {
 		this.events = events;
 	}
 
 	/**
-	 * Create connection between user and service user
+	 * Create connection between user and service/specific user
 	 *
 	 * @param user
-	 * @param serviceUser
+	 * @param specificUser
 	 */
-	public void addServiceUser(final User user, final User serviceUser) {
+	public void addSpecificUser(final User user, final User specificUser) {
 
 		this.user = user;
-		this.serviceUser = serviceUser;
+		this.specificUser = specificUser;
 
 		// test arguments
 		if(!this.testAdding()){
@@ -60,12 +60,12 @@ public class AddServiceUserOwner {
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Adding "+serviceUser.getFullName()+" to user: " + user.getFullName() + " failed.");
+				session.getUiElements().setLogErrorText("Adding "+specificUser.getFullName()+" to user: " + user.getFullName() + " failed.");
 				events.onError(error); // custom events
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("Service identity: "+serviceUser.getFullName()+" added to user: " + user.getFullName());
+				session.getUiElements().setLogSuccessText("Service identity: "+specificUser.getFullName()+" added to user: " + user.getFullName());
 				events.onFinished(jso);
 			};
 
@@ -91,10 +91,10 @@ public class AddServiceUserOwner {
 		String errorMsg = "";
 
 		if(user.isServiceUser()){
-			errorMsg += "Can't connect two service identities.</br>";
+			errorMsg += "Can't connect two specific user identities.</br>";
 			result = false;
 		}
-		if(!serviceUser.isServiceUser()){
+		if(!specificUser.isServiceUser() && !specificUser.isSponsoredUser()){
 			errorMsg += "Can't connect two 'Person' like users.";
 			result = false;
 		}
@@ -115,7 +115,7 @@ public class AddServiceUserOwner {
 		// create whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("user", new JSONNumber(user.getId()));
-		jsonQuery.put("serviceUser", new JSONNumber(serviceUser.getId()));
+		jsonQuery.put("specificUser", new JSONNumber(specificUser.getId()));
 		return jsonQuery;
 
 	}

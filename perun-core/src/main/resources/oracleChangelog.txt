@@ -4,7 +4,7 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.1.35
-alter table user add sponsored_acc char(1) default '0' not null;
+alter table users add sponsored_acc char(1) default '0' not null;
 drop index IDX_FK_SERVU_U_UI;
 drop index IDX_FK_SERVU_U_SUI;
 alter table service_user_users drop constraint ACC_SPECIFU_U_PK;

@@ -17,13 +17,12 @@ import java.util.ArrayList;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
-public class CreateServiceMember {
+public class CreateSpecificMember {
 
 	// web session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// URL to call
-	final String JSON_URL = "membersManager/createServiceMember";
+	final String JSON_URL = "membersManager/createSpecificMember";
 	// external events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// params
@@ -35,18 +34,19 @@ public class CreateServiceMember {
 	private String email = "";
 	private String certDN = "";
 	private String caCertDN = "";
+	private String specificUserType = "service";
 
 	/**
 	 * Creates a new request
 	 */
-	public CreateServiceMember() {}
+	public CreateSpecificMember() {}
 
 	/**
 	 * Creates a new request with custom events passed from tab or page
 	 *
 	 * @param events external events
 	 */
-	public CreateServiceMember(final JsonCallbackEvents events) {
+	public CreateSpecificMember(final JsonCallbackEvents events) {
 		this.events = events;
 	}
 
@@ -62,7 +62,7 @@ public class CreateServiceMember {
 	 * @param certDN users cert DN
 	 * @param caCertDN users CA cert DN
 	 */
-	public void createMember(final int voId, final String name, final String email, ArrayList<User> users, String namespace, String login, String certDN, String caCertDN)  {
+	public void createMember(final int voId, final String name, final String email, ArrayList<User> users, String namespace, String login, String certDN, String caCertDN, String specificUserType)  {
 
 		this.voId = voId;
 		this.name = name;
@@ -72,6 +72,7 @@ public class CreateServiceMember {
 		this.namespace = namespace;
 		this.certDN = certDN;
 		this.caCertDN = caCertDN;
+		this.specificUserType = specificUserType;
 
 		// test arguments
 		if(!this.testAdding()){
@@ -207,6 +208,7 @@ public class CreateServiceMember {
 			JSONValue titleAfter = user.get("titleAfter");
 			JSONValue titleBefore = user.get("titleBefore");
 			JSONValue service = user.get("serviceUser");
+			JSONValue sponsored = user.get("sponsoredUser");
 
 			JSONObject newUser = new JSONObject();
 			newUser.put("id", id);
@@ -216,6 +218,7 @@ public class CreateServiceMember {
 			newUser.put("titleAfter", titleAfter);
 			newUser.put("titleBefore", titleBefore);
 			newUser.put("serviceUser", service);
+			newUser.put("sponsoredUser", sponsored);
 
 			array.set(i, newUser);
 
@@ -225,7 +228,8 @@ public class CreateServiceMember {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("vo", selectedVoId);
 		jsonQuery.put("candidate", newCandidate);
-		jsonQuery.put("serviceUserOwners", array);
+		jsonQuery.put("specificUserOwners", array);
+		jsonQuery.put("specificUserType", new JSONString(specificUserType));
 
 		return jsonQuery;
 

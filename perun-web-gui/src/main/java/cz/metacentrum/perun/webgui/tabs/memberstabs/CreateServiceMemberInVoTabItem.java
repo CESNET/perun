@@ -14,7 +14,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.membersManager.CreateServiceMember;
+import cz.metacentrum.perun.webgui.json.membersManager.CreateSpecificMember;
 import cz.metacentrum.perun.webgui.json.membersManager.ValidateMemberAsync;
 import cz.metacentrum.perun.webgui.json.usersManager.CreatePassword;
 import cz.metacentrum.perun.webgui.json.usersManager.FindUsers;
@@ -109,6 +109,10 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
 		final ExtendedTextBox certDN = new ExtendedTextBox();
 		final ExtendedTextBox cacertDN = new ExtendedTextBox();
+
+		final ListBox userType = new ListBox();
+		userType.addItem("Service", "SERVICE");
+		userType.addItem("Sponsored", "SPONSORED");
 
 		serviceUserPassword.getTextBox().setWidth("200px");
 		serviceUserPassword2.getTextBox().setWidth("200px");
@@ -252,6 +256,10 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		layout.setWidget(5, 1, certDN);
 		layout.setHTML(6, 0, "<strong>Issuer DN: </strong>");
 		layout.setWidget(6, 1, cacertDN);
+		if (session.isPerunAdmin()) {
+			layout.setHTML(7, 0, "<strong>User type: </strong>");
+			layout.setWidget(7, 1, userType);
+		}
 
 		final FlexTable firstTabLayout = new FlexTable();
 		firstTabLayout.setSize("100%", "100%");
@@ -317,7 +325,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 						}
 
 						// create member + user
-						CreateServiceMember request = new CreateServiceMember(JsonCallbackEvents.disableButtonEvents(cb, new JsonCallbackEvents(){
+						CreateSpecificMember request = new CreateSpecificMember(JsonCallbackEvents.disableButtonEvents(cb, new JsonCallbackEvents(){
 							public void onFinished(JavaScriptObject jso){
 
 								final Member member = jso.cast();
@@ -404,7 +412,9 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 									namespace.getValue(namespace.getSelectedIndex()),
 									serviceUserLogin.getTextBox().getValue().trim(),
 									certDN.getTextBox().getValue().trim(),
-									cacertDN.getTextBox().getValue().trim());
+									cacertDN.getTextBox().getValue().trim(),
+									userType.getSelectedValue()
+								);
 
 					}
 				});
@@ -563,9 +573,16 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-		layout.setWidget(7, 0, cb);
-		layout.getFlexCellFormatter().setHorizontalAlignment(7, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		layout.getFlexCellFormatter().setColSpan(7, 0, 2);
+		if (session.isPerunAdmin()) {
+			layout.setWidget(8, 0, cb);
+			layout.getFlexCellFormatter().setHorizontalAlignment(8, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+			layout.getFlexCellFormatter().setColSpan(8, 0, 2);
+		} else {
+			layout.setWidget(7, 0, cb);
+			layout.getFlexCellFormatter().setHorizontalAlignment(7, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+			layout.getFlexCellFormatter().setColSpan(7, 0, 2);
+		}
+
 		this.contentWidget.setWidget(mainTab);
 
 		return getWidget();

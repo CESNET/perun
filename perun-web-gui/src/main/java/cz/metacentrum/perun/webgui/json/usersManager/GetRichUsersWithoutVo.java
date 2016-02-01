@@ -121,6 +121,8 @@ public class GetRichUsersWithoutVo implements JsonCallback, JsonCallbackTable<Us
 			public String getValue(User user) {
 				if (user.isServiceUser()) {
 					return "Service";
+				} else if (user.isSponsoredUser()) {
+					return "Sponsored";
 				} else {
 					return "Person";
 				}
@@ -130,7 +132,22 @@ public class GetRichUsersWithoutVo implements JsonCallback, JsonCallbackTable<Us
 		serviceColumn.setSortable(true);
 		columnSortHandler.setComparator(serviceColumn, new Comparator<User>() {
 			public int compare(User o1, User o2) {
-				return String.valueOf(o1.isServiceUser()).compareToIgnoreCase(String.valueOf(o2.isServiceUser()));  // sort by name without titles
+
+				String type1 = "Person";
+				if (o1.isServiceUser()) {
+					type1 = "Service";
+				} else if (o1.isSponsoredUser()) {
+					type1 = "Sponsored";
+				}
+
+				String type2 = "Person";
+				if (o2.isServiceUser()) {
+					type2 = "Service";
+				} else if (o2.isSponsoredUser()) {
+					type2 = "Sponsored";
+				}
+
+				return type1.compareTo(type2);
 			}
 		});
 
