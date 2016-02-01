@@ -44,6 +44,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO <code>id</code>
 	 * @param candidate Candidate prepared future specificUser
+	 * @param specificUserType String Type of user: SERVICE or SPONSORED
 	 * @param specificUserOwners List<User> List of users who own specificUser (can't be empty or contain specificUser)
 	 * @return Member newly created member (of specific User)
 	 */
@@ -57,6 +58,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 *
 	 * @param vo int VO ID
 	 * @param candidate Candidate prepared future specificUser
+	 * @param specificUserType String Type of user: SERVICE or SPONSORED
 	 * @param specificUserOwners List<User> List of users who own specificUser (can't be empty or contain specificUser)
 	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
 	 * @return Member newly created member (of specific User)
