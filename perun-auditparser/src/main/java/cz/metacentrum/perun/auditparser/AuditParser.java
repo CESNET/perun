@@ -279,6 +279,7 @@ public class AuditParser {
 		user.setLastName(BeansUtils.eraseEscaping(beanAttr.get("lastName")));
 		user.setMiddleName(BeansUtils.eraseEscaping(beanAttr.get("middleName")));
 		user.setServiceUser(Boolean.valueOf(beanAttr.get("serviceAccount")).booleanValue());
+		user.setSponsoredUser(Boolean.valueOf(beanAttr.get("sponsoredAccount")).booleanValue());
 		return user;
 	}
 

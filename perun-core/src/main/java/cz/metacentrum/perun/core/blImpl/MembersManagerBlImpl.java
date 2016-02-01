@@ -35,6 +35,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichMember;
 import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -235,12 +236,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
-	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return this.createServiceMember(sess, vo, candidate, serviceUserOwners, null);
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, null);
 	}
 
-	public Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		candidate.setFirstName("(Service)");
+	public Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		if(specificUserType.equals(SpecificUserType.SERVICE)) candidate.setFirstName("(Service)");
 
 		//Set organization only if user in sessione exists (in tests there is no user in session)
 		if(sess.getPerunPrincipal().getUser() != null) {
@@ -268,13 +269,13 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 
 		//create member for service user from candidate
-		Member member = createMember(sess, vo, true, candidate, groups, null);
+		Member member = createMember(sess, vo, specificUserType, candidate, groups, null);
 
-		//set service owners
-		User serviceUser = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-		for(User u: serviceUserOwners) {
+		//set specific user owners or sponsors
+		User specificUser = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+		for(User u: specificUserOwners) {
 			try {
-				getPerunBl().getUsersManagerBl().addServiceUserOwner(sess, u, serviceUser);
+				getPerunBl().getUsersManagerBl().addSpecificUserOwner(sess, u, specificUser);
 			} catch (RelationExistsException ex) {
 				throw new InternalErrorException(ex);
 			}
@@ -287,7 +288,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		Member member = createMember(sess, vo, false, candidate, groups, overwriteUserAttributes);
+		Member member = createMember(sess, vo, SpecificUserType.NORMAL, candidate, groups, overwriteUserAttributes);
 
 		//Validate synchronously
 		try {
@@ -304,19 +305,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 
-	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return this.createServiceMemberSync(sess, vo, candidate, serviceUserOwners, null);
+	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+		return this.createSpecificMemberSync(sess, vo, candidate, specificUserOwners, specificUserType, null);
 	}
 
-	public Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 
-		Member member = createServiceMember(sess, vo, candidate, serviceUserOwners, groups);
+		Member member = createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, groups);
 
 		//Validate synchronously
 		try {
 			member = validateMember(sess, member);
 		} catch (AttributeValueException ex) {
-			log.info("Service Member can't be validated. He stays in invalid state. Cause: " + ex);
+			log.info("Specific Member can't be validated. He stays in invalid state. Cause: " + ex);
 		}
 
 		return member;
@@ -327,15 +328,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-		return createMember(sess, vo, false, candidate, groups, null);
+		return createMember(sess, vo, SpecificUserType.NORMAL, candidate, groups, null);
 	}
 
-	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
-			return this.createMember(sess, vo, serviceUser, candidate, null, new ArrayList<String>());
+	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+			return this.createMember(sess, vo, specificUserType, candidate, null, new ArrayList<String>());
 	}
 
 	//MAIN METHOD
-	public Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
+	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException {
 		log.debug("Creating member for VO {} from candidate {}", vo, candidate);
 
 		// Get the user
@@ -369,7 +370,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			user.setMiddleName(candidate.getMiddleName());
 			user.setTitleAfter(candidate.getTitleAfter());
 			user.setTitleBefore(candidate.getTitleBefore());
-			user.setServiceUser(serviceUser);
+			if(specificUserType.equals(specificUserType.SERVICE)) user.setServiceUser(true);
+			if(specificUserType.equals(specificUserType.SPONSORED)) user.setSponsoredUser(true);
 			// Store the user, this must be done in separate transaction
 			user = getPerunBl().getUsersManagerBl().createUser(sess, user);
 

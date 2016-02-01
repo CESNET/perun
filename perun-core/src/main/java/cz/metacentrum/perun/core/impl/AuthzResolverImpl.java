@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -54,7 +55,8 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public final static String authzRoleMappingSelectQuery = " authz.user_id as authz_user_id, authz.role_id as authz_role_id," +
 		"authz.authorized_group_id as authz_authorized_group_id, authz.vo_id as pb_vo_id, authz.group_id as pb_group_id, " +
 		"authz.facility_id as pb_facility_id, authz.member_id as pb_member_id, authz.resource_id as pb_resource_id, " +
-		"authz.service_id as pb_service_id, authz.service_principal_id as pb_user_id, authz.security_team_id as pb_security_team_id";
+		"authz.service_id as pb_service_id, authz.service_principal_id as pb_user_id, authz.security_team_id as pb_security_team_id, " +
+		"authz.sponsored_user_id as pb_sponsored_user_id";
 
 
 	protected static final RowMapper<Role> AUTHZROLE_MAPPER_FOR_ATTRIBUTES = new RowMapper<Role>() {
@@ -137,8 +139,9 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 				}
 
 				// Get service users for user
-				List<Integer> authzServiceUsers = jdbc.query("select service_user_users.service_user_id as id from users, " +
-						"service_user_users where users.id=service_user_users.user_id and service_user_users.status='0' and users.id=?", Utils.ID_MAPPER ,user.getId());
+				List<Integer> authzServiceUsers = jdbc.query("select specific_user_users.specific_user_id as id from users, " +
+						"specific_user_users where users.id=specific_user_users.user_id and specific_user_users.status='0' and users.id=? " +
+				        "and specific_user_users.type=?", Utils.ID_MAPPER ,user.getId(), SpecificUserType.SERVICE.getSpecificUserType());
 				for (Integer serviceUserId : authzServiceUsers) {
 					authzRoles.putAuthzRole(Role.SELF, User.class, serviceUserId);
 				}
@@ -197,6 +200,14 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 	public void removeAllUserAuthz(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			jdbc.update("delete from authz where user_id=?", user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void removeAllSponsoredUserAuthz(PerunSession sess, User sponsoredUser) throws InternalErrorException {
+		try {
+			jdbc.update("delete from authz where sponsored_user_id=?", sponsoredUser.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -293,6 +304,46 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		try {
 			if (0 == jdbc.update("delete from authz where authorized_group_id=? and facility_id=? and role_id=(select id from roles where name=?)", group.getId(), facility.getId(), Role.FACILITYADMIN.getRoleName())) {
 				throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the facility " + facility);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void addAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, AlreadyAdminException {
+		try {
+			jdbc.update("insert into authz (user_id, role_id, sponsored_user_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.SPONSOR.getRoleName(), sponsoredUser.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already sponsor of the sponsoredUser " + sponsoredUser, e, user, sponsoredUser);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void addAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, AlreadyAdminException {
+		try {
+			jdbc.update("insert into authz (authorized_group_id, role_id, sponsored_user_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.SPONSOR.getRoleName(), sponsoredUser.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("Group id=" + group.getId() + " is already sponsor of the sponsoredUser " + sponsoredUser, e, group, sponsoredUser);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void removeAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, UserNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where user_id=? and sponsored_user_id=? and role_id=(select id from roles where name=?)", user.getId(), sponsoredUser.getId(), Role.SPONSOR.getRoleName())) {
+				throw new UserNotAdminException("User id=" + user.getId() + " is not sponsor of the sponsored user " + sponsoredUser);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void removeAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, GroupNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where authorized_group_id=? and sponsored_user_id=? and role_id=(select id from roles where name=?)", group.getId(), sponsoredUser.getId(), Role.SPONSOR.getRoleName())) {
+				throw new GroupNotAdminException("Group id=" + group.getId() + " is not sponsor of the sponsored user " + sponsoredUser);
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);

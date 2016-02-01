@@ -34,7 +34,7 @@ security_teams_facilities
 blacklists
 service_processing_rule
 service_required_attrs
-service_user_users
+specific_user_users
 exec_services
 service_denials
 service_dependencies

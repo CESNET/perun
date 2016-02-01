@@ -9,24 +9,24 @@ import cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeExceptio
  * @see cz.metacentrum.perun.core.api.exceptions.rt.RelationExistsRuntimeException
  * @author Michal Šťava
  */
-public class NotServiceUserExpectedException extends PerunException {
+public class NotSpecificUserExpectedException extends PerunException {
 	static final long serialVersionUID = 0;
 
 	private User user;
 
-	public NotServiceUserExpectedException(String message) {
+	public NotSpecificUserExpectedException(String message) {
 		super(message);
 	}
 
-	public NotServiceUserExpectedException(String message, Throwable cause) {
+	public NotSpecificUserExpectedException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public NotServiceUserExpectedException(Throwable cause) {
+	public NotSpecificUserExpectedException(Throwable cause) {
 		super(cause);
 	}
 
-	public NotServiceUserExpectedException(User user) {
+	public NotSpecificUserExpectedException(User user) {
 		super(user.toString());
 		this.user = user;
 	}

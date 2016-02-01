@@ -71,7 +71,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	Group parentGroup;
 	Vo vo;
 	User user;
-	User serviceUser;
+	User specificUser;
 	cz.metacentrum.perun.core.api.Attribute attribute;
 	AttributeDefinition attributeDef;
 	UserExtSource userExtSource;
@@ -259,8 +259,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		log.debug("MessageNumber=" + idOfMessage + " -- OBJECTS: " + this.member + '/' + this.group + '/' + this.parentGroup + '/' + this.vo + '/'
 				+ this.resource + '/' + this.user + '/' + this.attribute + '/' + this.attributeDef + '/' + this.userExtSource);
 
-		//If service user is the only one user in message, so behavior will be same for him like for any other user!
-		if(this.serviceUser != null && this.user == null) this.user = this.serviceUser;
+		//If specific user is the only one user in message, so behavior will be same for him like for any other user!
+		if(this.specificUser != null && this.user == null) this.user = this.specificUser;
 
 		//------------------------------------------------------------------
 		//-----------------OPERATIONS ON FILLED OBJECTS---------------------
@@ -1102,7 +1102,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 * @param resource resource in message
 	 * @param member member in message
 	 * @param user user in message
-	 * @param serviceUser serviceUser in message
+	 * @param specificUser specificUser in message
 	 * @param attributeDef attributeDefinition in message
 	 * @param attribute attribute in message
 	 * @param userExtSource userExtSource in message
@@ -1117,7 +1117,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		parentGroup = null;
 		vo = null;
 		user = null;
-		serviceUser = null;
+		specificUser = null;
 		attribute = null;
 		attributeDef = null;
 		userExtSource = null;
@@ -1137,9 +1137,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				else throw new InternalErrorException("More than one vo come to method parserMessages!");
 			} else if(perunBean instanceof User) {
 				User u = (User) perunBean;
-				if(u.isServiceUser()) {
-					if(this.serviceUser == null) this.serviceUser = u;
-					else throw new InternalErrorException("More than one serviceUser come to method parseMessages!");
+				if(u.isServiceUser() || u.isSponsoredUser()) {
+					if(this.specificUser == null) this.specificUser = u;
+					else throw new InternalErrorException("More than one specificUser come to method parseMessages!");
 				} else {
 					if(this.user == null) this.user = u;
 					else throw new InternalErrorException("More than one user come to method parseMessages!");
