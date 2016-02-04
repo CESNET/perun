@@ -7,13 +7,13 @@
 alter table users add sponsored_acc char(1) default '0' not null;
 drop index IDX_FK_SERVU_U_UI;
 drop index IDX_FK_SERVU_U_SUI;
-alter table service_user_users drop constraint ACC_SPECIFU_U_PK;
-alter table service_user_users drop constraint ACC_SPECIFU_U_UID_FK;
-alter table service_user_users drop constraint ACC_SPECIFU_U_SUID_FK;
-alter table service_user_users drop constraint SPECIFU_U_STATUS_CHK;
+alter table service_user_users drop constraint ACC_SERVU_U_PK;
+alter table service_user_users drop constraint ACC_SERVU_U_UID_FK;
+alter table service_user_users drop constraint ACC_SERVU_U_SUID_FK;
+alter table service_user_users drop constraint SERVU_U_STATUS_CHK;
 alter table service_user_users rename to specific_user_users;
 alter table specific_user_users rename column service_user_id to specific_user_id;
-alter table specific_user_users add type varchar(20) default 'service' not null;
+alter table specific_user_users add type nvarchar2(20) default 'service' not null;
 create index IDX_FK_SPECIFU_U_UI on specific_user_users(user_id);
 create index IDX_FK_SPECIFU_U_SUI on specific_user_users(specific_user_id);
 alter table specific_user_users add (constraint ACC_SPECIFU_U_PK primary key (user_id,specific_user_id), constraint ACC_SPECIFU_U_UID_FK foreign key (user_id) references users(id), constraint ACC_SPECIFU_U_SUID_FK foreign key (specific_user_id) references users(id), constraint SPECIFU_U_STATUS_CHK check (status in ('0','1')));
