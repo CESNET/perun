@@ -45,6 +45,7 @@ public class PerunWebSession {
 	private boolean voObserver = false; // is not vo admin
 	private boolean self = false; // is not admin
 	private boolean securityAdmin = false;
+	private boolean sponsor = false; // sponsor
 
 	// User roles constants
 	static public final String PERUN_ADMIN_PRINCIPAL_ROLE = "PERUNADMIN";
@@ -61,6 +62,7 @@ public class PerunWebSession {
 	private ArrayList<Integer> editableFacilities = new ArrayList<Integer>();
 	private ArrayList<Integer> editableUsers = new ArrayList<Integer>();
 	private ArrayList<Integer> editableSecTeams = new ArrayList<Integer>();
+	private ArrayList<Integer> editableSponsoredUsers = new ArrayList<Integer>();
 
 
 	// entities which user can view (Observer role)
@@ -88,8 +90,7 @@ public class PerunWebSession {
 	 * Returns the instance of PerunWebSession
 	 */
 
-	static public PerunWebSession getInstance()
-	{
+	static public PerunWebSession getInstance() {
 		if(INSTANCE == null){
 			INSTANCE = new PerunWebSession();
 		}
@@ -106,8 +107,7 @@ public class PerunWebSession {
 	 * Returns the URL of the RPC
 	 * @return URL
 	 */
-	public String getRpcUrl()
-	{
+	public String getRpcUrl() {
 		if(!rpcUrl.isEmpty()){
 			return rpcUrl;
 		}
@@ -384,6 +384,36 @@ public class PerunWebSession {
 	}
 
 	/**
+	 * True if the user is Sponsor.
+	 * TRUE for PerunAdmin too.
+	 *
+	 * @return true if Sponsor
+	 */
+	public boolean isSponsor(){
+
+		if (this.perunAdmin) {
+			return this.perunAdmin;
+		}
+		return this.sponsor;
+	}
+
+	/**
+	 * True if the user is sponsor of a specified user.
+	 * TRUE for PerunAdmin too.
+	 *
+	 * @param id ID of sponsored user to check sponsorship status for
+	 * @return true if user is Users sponsor
+	 */
+	public boolean isSponsor(int id){
+		if (this.perunAdmin) {
+			return this.perunAdmin;
+		} else if (this.sponsor) {
+			return editableSponsoredUsers.contains(id);
+		}
+		return false;
+	}
+
+	/**
 	 * True if the user is also user.
 	 * TRUE for PerunAdmin too.
 	 *
@@ -458,6 +488,15 @@ public class PerunWebSession {
 	}
 
 	/**
+	 * Add a SponsoredUser, which user can edit
+	 *
+	 * @param sponsoredUser SponsoredUser, which can user edit
+	 */
+	public void addEditableSponsoredUsers(int sponsoredUser){
+		if (!this.editableSponsoredUsers.contains(sponsoredUser)) this.editableSponsoredUsers.add(sponsoredUser);
+	}
+
+	/**
 	 * Add a User, which user can edit
 	 *
 	 * @param userId User, which can user edit
@@ -510,6 +549,16 @@ public class PerunWebSession {
 	public ArrayList<Integer> getEditableSecurityTeams() {
 		return editableSecTeams;
 	}
+
+	/**
+	 * Return list of editable sponsored users IDs
+	 *
+	 * @return sponsored users
+	 */
+	public ArrayList<Integer> getEditableSponsoredUsers() {
+		return editableSponsoredUsers;
+	}
+
 
 	/**
 	 * Return list of editable users IDs
@@ -777,6 +826,10 @@ public class PerunWebSession {
 		for (int i=0; i<array6.length(); i++) {
 			addEditableSecurityTeam(array6.get(i));
 		}
+		JsArrayInteger array7 = roles.getEditableEntities("SPONSOR", "SponsoredUser");
+		for (int i=0; i<array7.length(); i++) {
+			addEditableSponsoredUsers(array7.get(i));
+		}
 
 	}
 
@@ -810,7 +863,10 @@ public class PerunWebSession {
 			result += "; FacilityManager="+editableFacilities;
 		}
 		if (securityAdmin) {
-			result += "; SecurityAdmin"+editableSecTeams;
+			result += "; SecurityAdmin="+editableSecTeams;
+		}
+		if (sponsor) {
+			result += "; Sponsor="+editableSponsoredUsers;
 		}
 
 		return result;

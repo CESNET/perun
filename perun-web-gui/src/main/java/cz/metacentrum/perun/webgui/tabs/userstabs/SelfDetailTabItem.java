@@ -147,7 +147,9 @@ public class SelfDetailTabItem implements TabItem, TabItemWithUrl {
 			column++;
 		}
 
-		String type = user.isServiceUser() ? "Service" : "Person";
+		String type = "Person";
+		type = user.isServiceUser() ? "Service" : "Person";
+		type = user.isSponsoredUser() ? "Sponsored" : "Person";
 		menu.setHTML(0, column, "<strong>User type:</strong><br/><span class=\"inputFormInlineComment\">"+type+"</span>");
 
 		dp.add(menu);

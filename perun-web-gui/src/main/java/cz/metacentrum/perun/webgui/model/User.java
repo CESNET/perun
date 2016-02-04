@@ -269,7 +269,7 @@ public class User extends JavaScriptObject {
 	/**
 	 * Return TRUE if user is "service user".
 	 *
-	 * @return TRUE = service user / FALSE = standard user
+	 * @return TRUE = service user / FALSE = standard user (might be sponsored user)
 	 */
 	public final native boolean isServiceUser() /*-{
 		return this.serviceUser;
@@ -278,10 +278,37 @@ public class User extends JavaScriptObject {
 	/**
 	 * Mark user as service account
 	 *
-	 * @param service TRUE = service user / FALSE = normal user
+	 * @param service TRUE = service user / FALSE = normal user (might be sponsored user)
 	 */
 	public final native void setServiceUser(boolean service) /*-{
 		return this.serviceUser = service;
+	}-*/;
+
+	/**
+	 * Return TRUE if user is "sponsored user".
+	 *
+	 * @return TRUE = sponsored user / FALSE = standard user (might be service user)
+	 */
+	public final native boolean isSponsoredUser() /*-{
+		return this.sponsoredUser;
+	}-*/;
+
+	/**
+	 * Mark user as service account
+	 *
+	 * @param sponsored TRUE = sponsored user / FALSE = normal user (might be service user)
+	 */
+	public final native void setSponsoredUser(boolean sponsored) /*-{
+		return this.sponsoredUser = sponsored;
+	}-*/;
+
+	/**
+	 * Return TRUE if user is service or sponsored user.
+	 *
+	 * @return TRUE = service / sponsored user / FALSE = standard user
+	 */
+	public final native boolean isSpecificUser() /*-{
+		return this.specificUser;
 	}-*/;
 
 	/**
@@ -289,8 +316,8 @@ public class User extends JavaScriptObject {
 	 * @param o Object to compare
 	 * @return true, if they are the same
 	 */
-	public final boolean equals(User o)
-	{
+	public final boolean equals(User o) {
 		return o.getId() == this.getId();
 	}
+
 }

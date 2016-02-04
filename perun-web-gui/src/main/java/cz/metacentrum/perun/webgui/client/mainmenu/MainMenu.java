@@ -561,6 +561,7 @@ public class MainMenu {
 		TabItemWithUrl applications = null;
 		TabItemWithUrl publications = null;
 		TabItemWithUrl services = null;
+		TabItemWithUrl sponsored = null;
 
 		if (user != null) {
 			detail = new SelfDetailTabItem(user);
@@ -574,6 +575,9 @@ public class MainMenu {
 			applications = new SelfApplicationsTabItem(user);
 			if (session.getEditableUsers().size() > 1) {
 				services = new SelfServiceUsersTabItem(user);
+			}
+			if (session.getEditableSponsoredUsers().size() > 0) {
+				sponsored = new SelfSponsoredUsersTabItem(user);
 			}
 		} else {
 			detail = new IdentitySelectorTabItem();
@@ -594,10 +598,18 @@ public class MainMenu {
 		menu.addItem(new MainMenuItem("Publications", publications, SmallIcons.INSTANCE.booksIcon()));
 		menu.addItem(new MainMenuItem("Applications", applications, SmallIcons.INSTANCE.applicationFromStorageIcon()));
 
-		if (!user.isServiceUser()) {
-			menu.addItem(new MainMenuItem("Service identities", services, SmallIcons.INSTANCE.userRedIcon()));
-		} else {
+		if (user.isServiceUser()) {
 			menu.addItem(new MainMenuItem("Associated users", services, SmallIcons.INSTANCE.userRedIcon()));
+			if (user.isSponsoredUser()) {
+				menu.addItem(new MainMenuItem("Sponsors", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
+			}
+		} else {
+			menu.addItem(new MainMenuItem("Service identities", services, SmallIcons.INSTANCE.userRedIcon()));
+			if (user.isSponsoredUser()) {
+				menu.addItem(new MainMenuItem("Sponsors", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
+			} else {
+				menu.addItem(new MainMenuItem("Sponsored users", sponsored, SmallIcons.INSTANCE.userGrayIcon()));
+			}
 		}
 
 		menuStackPanel.setStackText(sectionsIds.get(USER), menu.getHeader(), true);

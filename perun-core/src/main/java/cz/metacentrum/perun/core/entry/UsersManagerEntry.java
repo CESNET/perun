@@ -79,10 +79,10 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
-	public List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotServiceUserExpectedException {
+	public List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
-		if(user.isServiceUser()) throw new NotServiceUserExpectedException(user);
+		if(user.isServiceUser()) throw new NotSpecificUserExpectedException(user);
 
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
 			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, user);
@@ -94,18 +94,19 @@ public class UsersManagerEntry implements UsersManager {
 			}
 			// if not self or vo/group admin of any of users VOs
 			if (!found) {
-				throw new PrivilegeException(sess, "getServiceUsersByUser");
+				throw new PrivilegeException(sess, "getSpecificUsersByUser");
 			}
 		}
-		return getUsersManagerBl().getServiceUsersByUser(sess, user);
+		return getUsersManagerBl().getSpecificUsersByUser(sess, user);
 	}
 
-	public List<User> getUsersByServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, ServiceUserExpectedException {
+	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException {
 		Utils.checkPerunSession(sess);
-		getUsersManagerBl().checkUserExists(sess, serviceUser);
-		if(!serviceUser.isServiceUser()) throw new ServiceUserExpectedException(serviceUser);
-		if(!AuthzResolver.isAuthorized(sess, Role.SELF, serviceUser)) {
-			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, serviceUser);
+		getUsersManagerBl().checkUserExists(sess, specificUser);
+		if(!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, specificUser) &&
+			!AuthzResolver.isAuthorized(sess, Role.SPONSOR, specificUser)) {
+			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, specificUser);
 			boolean found = false;
 			for (Vo vo : vos) {
 				if (found = AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)) break;
@@ -114,42 +115,46 @@ public class UsersManagerEntry implements UsersManager {
 			}
 			// if not self or vo/group admin of any of users VOs
 			if (!found) {
-				throw new PrivilegeException(sess, "getUsersByServiceUser");
+				throw new PrivilegeException(sess, "getUsersBySpecificUser");
 			}
 		}
-		return getUsersManagerBl().getUsersByServiceUser(sess, serviceUser);
+		return getUsersManagerBl().getUsersBySpecificUser(sess, specificUser);
 	}
 
-	public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, ServiceUserExpectedException, NotServiceUserExpectedException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException {
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException, NotSpecificUserExpectedException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
-		getUsersManagerBl().checkUserExists(sess, serviceUser);
-		if(!serviceUser.isServiceUser()) throw new ServiceUserExpectedException(serviceUser);
-		if(user.isServiceUser()) throw new NotServiceUserExpectedException(user);
-		if(!AuthzResolver.isAuthorized(sess, Role.SELF, serviceUser)) {
-			throw new PrivilegeException(sess, "removeServiceUser");
+		getUsersManagerBl().checkUserExists(sess, specificUser);
+		if (user.isServiceUser()) throw new NotSpecificUserExpectedException(user);
+		if (user.isSponsoredUser() && specificUser.isSponsoredUser()) throw new NotSpecificUserExpectedException(specificUser);
+		if (!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, specificUser) &&
+			!AuthzResolver.isAuthorized(sess, Role.SPONSOR, specificUser)) {
+			throw new PrivilegeException(sess, "removeSpecificUserOwner");
 		}
-		getUsersManagerBl().removeServiceUserOwner(sess, user, serviceUser);
+		getUsersManagerBl().removeSpecificUserOwner(sess, user, specificUser);
 	}
 
-	public void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, ServiceUserExpectedException, NotServiceUserExpectedException, RelationExistsException {
+	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException, NotSpecificUserExpectedException, RelationExistsException {
 		Utils.checkPerunSession(sess);
 		getUsersManagerBl().checkUserExists(sess, user);
-		getUsersManagerBl().checkUserExists(sess, serviceUser);
-		if(!serviceUser.isServiceUser()) throw new ServiceUserExpectedException(serviceUser);
-		if(user.isServiceUser()) throw new NotServiceUserExpectedException(user);
-		if(!AuthzResolver.isAuthorized(sess, Role.SELF, serviceUser)) {
-			throw new PrivilegeException(sess, "addServiceUser");
+		getUsersManagerBl().checkUserExists(sess, specificUser);
+		if (user.isServiceUser()) throw new NotSpecificUserExpectedException(user);
+		if (user.isSponsoredUser() && specificUser.isSponsoredUser()) throw new NotSpecificUserExpectedException(specificUser);
+		if (!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, specificUser) &&
+			!AuthzResolver.isAuthorized(sess, Role.SPONSOR, specificUser)) {
+			throw new PrivilegeException(sess, "addSpecificUserOwner");
 		}
-		getUsersManagerBl().addServiceUserOwner(sess, user, serviceUser);
+		getUsersManagerBl().addSpecificUserOwner(sess, user, specificUser);
 	}
 
-	public List<User> getServiceUsers(PerunSession sess) throws InternalErrorException, PrivilegeException {
+	public List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getServiceUsers");
+			throw new PrivilegeException(sess, "getSpecificUsers");
 		}
-		return getUsersManagerBl().getServiceUsers(sess);
+		return getUsersManagerBl().getSpecificUsers(sess);
 	}
 
 	public User getUserByMember(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException {
@@ -224,7 +229,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUserWithAttributes(sess, user));
 	}
 
-	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedServiceUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -234,10 +239,10 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "getAllRichUsers");
 		}
 
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsers(sess, includedServiceUsers));
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsers(sess, includedSpecificUsers));
 	}
 
-	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -247,7 +252,7 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "getAllRichUsersWithAttributes");
 		}
 
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsersWithAttributes(sess, includedServiceUsers));
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsersWithAttributes(sess, includedSpecificUsers));
 	}
 
 	public List<RichUser> getRichUsersFromListOfUsers(PerunSession sess, List<User> users) throws InternalErrorException, PrivilegeException, UserNotExistsException {
@@ -302,7 +307,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().createUser(sess, user);
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -315,7 +320,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().deleteUser(sess, user);
 	}
 
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -646,12 +651,12 @@ public class UsersManagerEntry implements UsersManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getRichUsersWithoutVoAssigned(sess));
 	}
 
-	public void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, NotServiceUserExpectedException {
+	public void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, NotSpecificUserExpectedException {
 		Utils.checkPerunSession(sess);
 
 		getUsersManagerBl().checkUserExists(sess, user);
 
-		if(user.isServiceUser()) throw new NotServiceUserExpectedException(user);
+		if(user.isServiceUser() || user.isSponsoredUser()) throw new NotSpecificUserExpectedException(user);
 		// Authorization
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "makeUserPerunAdmin");
@@ -917,7 +922,7 @@ public class UsersManagerEntry implements UsersManager {
 		return this.perunBl;
 	}
 
-	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers, List<String> attrsNames) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers, List<String> attrsNames) throws InternalErrorException, PrivilegeException, UserNotExistsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -928,7 +933,7 @@ public class UsersManagerEntry implements UsersManager {
 			throw new PrivilegeException(sess, "getAllRichUsersWithAttributes");
 		}
 
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsersWithAttributes(sess, includedServiceUsers, attrsNames));
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(sess, getUsersManagerBl().getAllRichUsersWithAttributes(sess, includedSpecificUsers, attrsNames));
 
 	}
 

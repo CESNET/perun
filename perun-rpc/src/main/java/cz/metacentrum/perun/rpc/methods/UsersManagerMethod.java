@@ -73,81 +73,81 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns all service users in Perun.
+	 * Returns all specific users in Perun.
 	 *
 	 * @return List<User> All Perun service users
 	 */
-	getServiceUsers {
+	getSpecificUsers {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getUsersManager().getServiceUsers(ac.getSession());
+			return ac.getUsersManager().getSpecificUsers(ac.getSession());
 		}
 	},
 
 	/*#
-	 * Return all serviceUsers who are owned by the user.
+	 * Return all specific users who are owned by the user.
 	 *
 	 * @param user int User <code>id</code>
-	 * @return List<User> Service users for a user
+	 * @return List<User> Specific users for a user
 	 */
-	getServiceUsersByUser {
+	getSpecificUsersByUser {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getUsersManager().getServiceUsersByUser(ac.getSession(),
+			return ac.getUsersManager().getSpecificUsersByUser(ac.getSession(),
 					ac.getUserById(parms.readInt("user")));
 		}
 	},
 
 	/*#
-	 * Return all users who owns the serviceUser.
+	 * Return all users who owns the specific user.
 	 *
-	 * @param serviceUser int Service User <code>id</code>
+	 * @param specificUser int Specific User <code>id</code>
 	 * @return List<User> Users for a service user
 	 */
-	getUsersByServiceUser {
+	getUsersBySpecificUser {
 
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getUsersManager().getUsersByServiceUser(ac.getSession(),
-					ac.getUserById(parms.readInt("serviceUser")));
+			return ac.getUsersManager().getUsersBySpecificUser(ac.getSession(),
+					ac.getUserById(parms.readInt("specificUser")));
 		}
 	},
 
 	/*#
-	 * Add serviceUser owner (the user).
+	 * Add specific user owner (the user).
 	 *
 	 * @param user int User <code>id</code>
-	 * @param serviceUser int Service user <code>id</code>
+	 * @param specificUser int Specific user <code>id</code>
 	 */
-	addServiceUserOwner {
+	addSpecificUserOwner {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-			ac.getUsersManager().addServiceUserOwner(ac.getSession(),
+			ac.getUsersManager().addSpecificUserOwner(ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
-					ac.getUserById(parms.readInt("serviceUser")));
+					ac.getUserById(parms.readInt("specificUser")));
 
 			return null;
 		}
 	},
 
 	/*#
-	 * Remove serviceUser owner (the user).
+	 * Remove specific user owner (the user).
 	 *
 	 * @param user int User <code>id</code>
-	 * @param serviceUser int Service user <code>id</code>
+	 * @param specificUser int Specific user <code>id</code>
 	 */
-	removeServiceUserOwner {
+	removeSpecificUserOwner {
 
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-			ac.getUsersManager().removeServiceUserOwner(ac.getSession(),
+			ac.getUsersManager().removeSpecificUserOwner(ac.getSession(),
 					ac.getUserById(parms.readInt("user")),
-					ac.getUserById(parms.readInt("serviceUser")));
+					ac.getUserById(parms.readInt("specificUser")));
 
 			return null;
 		}
@@ -184,9 +184,9 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Get All richUsers with or without serviceUsers.
+	 * Get All richUsers with or without specificUsers.
 	 *
-	 * @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+	 * @param includedSpecificUsers boolean if you want to or don't want to get specificUsers too
 	 * @return List<RichUser> all rich users without attributes
 	 */
 	getAllRichUsers {
@@ -194,14 +194,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getUsersManager().getAllRichUsers(ac.getSession(),
-					parms.readBoolean("includedServiceUsers"));
+					parms.readBoolean("includedSpecificUsers"));
 		}
 	},
 
 	/*#
-	 * Get All richUsers with or without serviceUsers.
+	 * Get All richUsers with or without specificUsers.
 	 *
-	 * @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+	 * @param includedSpecificUsers boolean if you want to or don't want to get specificUsers too
 	 * @return List<RichUser> all rich users with attributes
 	 */
 	getAllRichUsersWithAttributes {
@@ -209,7 +209,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		@Override
 		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-					parms.readBoolean("includedServiceUsers"));
+					parms.readBoolean("includedSpecificUsers"));
 		}
 	},
 
@@ -261,16 +261,16 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		 * Get All richUsers with or without serviceUsers with selected attributes.
+		 * Get All richUsers with or without specificuSers with selected attributes.
 		 *
 		 * @param attrsNames List<String> list of attributes name
-		 * @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+		 * @param includedSpecificUsers boolean if you want to or don't want to get specificUsers too
 		 * @return List<RichUser> list of RichUsers
 		 */
 	/*#
-		 * Get All richUsers with or without serviceUsers with all included attributes.
+		 * Get All richUsers with or without specificUsers with all included attributes.
 		 *
-		 * @param includedServiceUsers boolean if you want to or don't want to get serviceUsers too
+		 * @param includedSpecificUsers boolean if you want to or don't want to get specificUsers too
 		 * @return List<RichUser> list of RichUsers
 		 */
 	getRichUsersWithAttributes {
@@ -279,11 +279,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 			if (parms.contains("attrsNames")) {
 				return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-						parms.readBoolean("includedServiceUsers"),
+						parms.readBoolean("includedSpecificUsers"),
 						parms.readList("attrsNames", String.class));
 			} else {
 				return ac.getUsersManager().getAllRichUsersWithAttributes(ac.getSession(),
-						parms.readBoolean("includedServiceUsers"), null);
+						parms.readBoolean("includedSpecificUsers"), null);
 			}
 		}
 	},

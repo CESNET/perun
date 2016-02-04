@@ -158,6 +158,11 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
 		} else {
 			tabPanel.add(new MemberServiceUsersTabItem(member, groupId), "Service identities");
 		}
+		if (member.getUser().isSponsoredUser()) {
+			tabPanel.add(new MemberSponsoredUsersTabItem(member, groupId), "Sponsors");
+		} else if (!member.getUser().isSponsoredUser() && !member.getUser().isServiceUser()) {
+			tabPanel.add(new MemberSponsoredUsersTabItem(member, groupId), "Sponsored users");
+		}
 
 		// Resize must be called after page fully displays
 		Scheduler.get().scheduleDeferred(new Command() {

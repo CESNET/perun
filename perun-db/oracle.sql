@@ -35,6 +35,7 @@ create table users (
 	modified_by nvarchar2(1024) default user not null,
 	status char(1) default '0' not null,
 	service_acc char(1) default '0' not null,
+	sponsored_acc char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -316,6 +317,7 @@ create table authz (
 	service_id integer,
 	resource_id integer,
 	service_principal_id integer,
+	sponsored_user_id integer,
 	created_by_uid integer,
 	modified_by_uid integer,
 	authorized_group_id integer,
@@ -398,13 +400,14 @@ create table service_required_attrs (
 	modified_by_uid integer
 );
 
-create table service_user_users (
+create table specific_user_users (
 	user_id integer not null,
-	service_user_id integer not null,
+	specific_user_id integer not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	modified_at date default sysdate not null,
-	status char(1) default '0' not null
+	status char(1) default '0' not null,
+	type varchar(20) default 'service' not null,
 );
 
 create table exec_services (
@@ -1225,6 +1228,7 @@ create index IDX_FK_AUTHZ_GROUP on authz(group_id);
 create index IDX_FK_AUTHZ_SERVICE on authz(service_id);
 create index IDX_FK_AUTHZ_RES on authz(resource_id);
 create index IDX_FK_AUTHZ_SER_PRINC on authz(service_principal_id);
+create index IDX_FK_AUTHZ_SPONSORU_TEAM on authz(sponsored_user_id);
 create index IDX_FK_AUTHZ_SEC_TEAM on authz(security_team_id);
 create index IDX_FK_GRRES_GR on groups_resources(group_id);
 create index IDX_FK_GRRES_RES on groups_resources(resource_id);
@@ -1253,8 +1257,8 @@ create index IDX_FK_PN_TMPLRGX_RGX on pn_template_regex(regex_id);
 create index IDX_FK_PN_TMPLRGX_TMPL on pn_template_regex(template_id);
 create index IDX_FK_PN_RGXOBJ_RGX on pn_regex_object(regex_id);
 create index IDX_FK_PN_RGXOBJ_OBJ on pn_regex_object(object_id);
-create index IDX_FK_SERVU_U_UI on service_user_users(user_id);
-create index IDX_FK_SERVU_U_SUI on service_user_users(service_user_id);
+create index IDX_FK_SPECIFU_U_UI on specific_user_users(user_id);
+create index IDX_FK_SPECIFU_U_SUI on specific_user_users(specific_user_id);
 create index IDX_FK_GRP_GRP_GID on groups_groups(group_id);
 create index IDX_FK_GRP_GRP_PGID on groups_groups(parent_group_id);
 create index IDX_FK_ATTRAUTHZ_ACTIONTYP on attributes_authz(action_type_id);
@@ -1670,11 +1674,11 @@ constraint PN_RGXOBJ_RGX_FK foreign key (regex_id) references pn_regex(id),
 constraint PN_RGXOBJ_OBJ_FK foreign key (object_id) references pn_object(id)
 );
 
-alter table service_user_users add (
-constraint ACC_SERVU_U_PK primary key (user_id,service_user_id),
-constraint ACC_SERVU_U_UID_FK foreign key (user_id) references users(id),
-constraint ACC_SERVU_U_SUID_FK foreign key (service_user_id) references users(id),
-constraint SERVU_U_STATUS_CHK check (status in ('0','1'))
+alter table specific_user_users add (
+constraint ACC_SPECIFU_U_PK primary key (user_id,specific_user_id),
+constraint ACC_SPECIFU_U_UID_FK foreign key (user_id) references users(id),
+constraint ACC_SPECIFU_U_SUID_FK foreign key (specific_user_id) references users(id),
+constraint SPECIFU_U_STATUS_CHK check (status in ('0','1'))
 );
 
 alter table groups_groups add (
@@ -1724,4 +1728,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.34');
+insert into configurations values ('DATABASE VERSION','3.1.35');

@@ -618,7 +618,7 @@ public class JsonErrorHandler {
 
 			return "Can't add user to this group. User must be member of parent group first.";
 
-		} else if ("NotServiceUserExpectedException".equalsIgnoreCase(errorName)) {
+		} else if ("NotSpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 
 			return "Operation can't be done. Expected person type of user, but service type was provided instead.";
 
@@ -758,21 +758,21 @@ public class JsonErrorHandler {
 
 			return "Same service was already deleted.";
 
-		} else if ("ServiceUserExpectedException".equalsIgnoreCase(errorName)) {
+		} else if ("SpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 
-			return "Operation can't be done. Expected service type of user, but person type was provided instead.";
+			return "Operation can't be done. Expected specific type of user, but person type was provided instead.";
 
-		} else if ("ServiceUserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+		} else if ("SpecificUserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Same service user was already removed from user.";
+			return "Same specific user was already removed from user.";
 
-		} else if ("ServiceUserOwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+		} else if ("SpecificUserOwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Same user was already removed from owners of service user.";
+			return "Same user was already removed from owners of specific user.";
 
-		} else if ("ServiceUserMustHaveOwnerException".equalsIgnoreCase(errorName)) {
+		} else if ("SpecificUserMustHaveOwnerException".equalsIgnoreCase(errorName)) {
 
-			return "Service type user must have at least 1 person type user assigned, which is responsible for it.";
+			return "Specific type user must have at least 1 person type user assigned, which is responsible for it.";
 
 		} else if ("SpaceNotAllowedException".equalsIgnoreCase(errorName)) {
 

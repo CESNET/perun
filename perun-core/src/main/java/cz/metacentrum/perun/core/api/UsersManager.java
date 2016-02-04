@@ -40,75 +40,75 @@ public interface UsersManager {
 	User getUserByUserExtSources(PerunSession perunSession, List<UserExtSource> userExtSources) throws InternalErrorException, UserNotExistsException, PrivilegeException;
 
 	/**
-	 * Return all serviceUsers who are owned by the user
+	 * Return all specificUsers who are owned by the user
 	 *
 	 * @param sess
 	 * @param user the user
-	 * @return list of service users who are owned by the user
+	 * @return list of specific users who are owned by the user
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws NotServiceUserExpectedException when the user is service User
+	 * @throws NotSpecificUserExpectedException when the user is service User
 	 */
-	List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotServiceUserExpectedException;
+	List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException;
 
 	/**
-	 * Return all users who owns the serviceUser
+	 * Return all users who owns the specific one
 	 *
 	 * @param sess
-	 * @param serviceUser the service User
-	 * @return list of user who owns the serviceUser
+	 * @param specificUser the specific user
+	 * @return list of user who owns the specificUser
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws ServiceUserExpectedException when the serviceUser is not really service user (is it normal user)
+	 * @throws SpecificUserExpectedException when the serviceUser is not really service user (is it normal user)
 	 */
-	List<User> getUsersByServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, ServiceUserExpectedException;
+	List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, SpecificUserExpectedException;
 
 	/**
-	 * Remove serviceUser owner (the user)
-	 * Only disable ownership of user and serviceUser
+	 * Remove specificUser owner (the user)
+	 * Only disable ownership of user and specificUser
 	 *
 	 * @param sess
 	 * @param user the user
-	 * @param serviceUser the serviceUser
+	 * @param specificUser the specificUser
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws ServiceUserExpectedException when the serviceUser is not really service user (is it normal user)
-	 * @throws NotServiceUserExpectedException when the user is service User
+	 * @throws SpecificUserExpectedException when the specific user is not really specific user (is it normal user)
+	 * @throws NotSpecificUserExpectedException when the user is specific User
 	 * @throws RelationNotExistsException if there is no such user (the user) to remove
-	 * @throws ServiceUserMustHaveOwnerException if there is the last user to remove
-	 * @throws cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException if there are 0 rows affected by removing from DB
+	 * @throws SpecificUserMustHaveOwnerException if there is the last user to remove
+	 * @throws cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException if there are 0 rows affected by removing from DB
 	 */
-	void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotServiceUserExpectedException, ServiceUserExpectedException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException;
+	void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException, SpecificUserExpectedException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException;
 
 	/**
-	 * Add serviceUser owner (the user)
+	 * Add specificUser owner (the user)
 	 * If not exists, create new ownership.
-	 * If exists, only enable ownership for user and serviceUser
+	 * If exists, only enable ownership for user and specificUser
 	 *
 	 * @param sess
 	 * @param user the user
-	 * @param serviceUser the serviceUser
+	 * @param specificUser the specificUser
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws ServiceUserExpectedException when the serviceUser is not really service user (is it normal user)
-	 * @throws NotServiceUserExpectedException when the user is service User
+	 * @throws SpecificUserExpectedException when the specificUser is not really specific user (is it normal user)
+	 * @throws NotSpecificUserExpectedException when the user is specific User
 	 * @throws RelationExistsException If there is such user (the user) who try to add
 	 */
-	void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotServiceUserExpectedException, ServiceUserExpectedException, RelationExistsException;
+	void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, UserNotExistsException, PrivilegeException, NotSpecificUserExpectedException, SpecificUserExpectedException, RelationExistsException;
 
 	/**
-	 * Return all service Users (only service users)
+	 * Return all specific Users (only specific users)
 	 *
 	 * @param sess
-	 * @return list of all service users in perun
+	 * @return list of all specific users in perun
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
-	List<User> getServiceUsers(PerunSession sess) throws InternalErrorException, PrivilegeException;
+	List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException, PrivilegeException;
 
 	/**
 	 * Returns user by his/her id.
@@ -151,7 +151,7 @@ public interface UsersManager {
 	User getUserByExtSourceNameAndExtLogin(PerunSession sess, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, UserNotExistsException, InternalErrorException, PrivilegeException;
 
 	/**
-	 * Returns all users (included service users).
+	 * Returns all users (included specific users).
 	 *
 	 * @param sess
 	 * @return list of all users
@@ -182,36 +182,36 @@ public interface UsersManager {
 	RichUser getRichUserWithAttributes(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**
-	 * Get All richUsers with or without serviceUsers.
-	 * If includedServiceUsers is true, you got all Users included serviceUsers
-	 * If includedServiceUsers is false, you get all Users without serviceUsers
+	 * Get All richUsers with or without specificUsers.
+	 * If includedSpecificUsers is true, you got all Users included specificUsers
+	 * If includedSpecificUsers is false, you get all Users without specificUsers
 	 *
 	 * !!! This method get all RichUsers without Attributes !!!
 	 *
 	 * @param sess
-	 * @param includedServiceUsers true or false if you want or dont want get serviceUsers too
+	 * @param includedSpecificUsers true or false if you want or dont want get specificUsers too
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedServiceUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**
-	 * Get All richUsers with or without serviceUsers.
-	 * If includedServiceUsers is true, you got all Users included serviceUsers
-	 * If includedServiceUsers is false, you get all Users without serviceUsers
+	 * Get All richUsers with or without specificUsers.
+	 * If includedSpecificUsers is true, you got all Users included specificUsers
+	 * If includedSpecificUsers is false, you get all Users without specificUsers
 	 *
 	 * This method get all RichUsers included Attributes.
 	 *
 	 * @param sess
-	 * @param includedServiceUsers true or false if you want or dont want get serviceUsers too
+	 * @param includedSpecificUsers true or false if you want or dont want get specificUsers too
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException;
+	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**
 	 * From Users makes RichUsers without attributes.
@@ -259,9 +259,9 @@ public interface UsersManager {
 	 * @throws RelationExistsException if user has some members assigned
 	 * @throws MemberAlreadyRemovedException if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException if there are no rows affected by deleting user in DB
-	 * @throws ServiceUserAlreadyRemovedException if there are no rows affected  by deleting serviceUser in DB
+	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected  by deleting specific user in DB
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Deletes user. If forceDelete is true, then removes also associeted members.
@@ -274,9 +274,9 @@ public interface UsersManager {
 	 * @throws RelationExistsException if forceDelete is false and the user has some members assigned
 	 * @throws MemberAlreadyRemovedException if there is at least 1 member deleted but not affected by deleting from DB
 	 * @throws UserAlreadyRemovedException if there are no rows affected by deleting user in DB
-	 * @throws ServiceUserAlreadyRemovedException if there are no rows affected  by deleting serviceUser in DB
+	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected  by deleting specific user in DB
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Updates users data in DB.
@@ -610,11 +610,11 @@ public interface UsersManager {
 	 * @param sess
 	 * @param user
 	 * @throws InternalErrorException
-	 * @throws NotServiceUserExpectedException if the user is service User
+	 * @throws NotSpecificUserExpectedException if the user is specific User
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, NotServiceUserExpectedException;
+	void makeUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, NotSpecificUserExpectedException;
 
 	/**
 	 * Returns true if the user is PERUNADMIN.
@@ -828,21 +828,21 @@ public interface UsersManager {
 
 
 	/**
-	 * Get All richUsers with or without serviceUsers.
-	 * If includedServiceUsers is true, you got all Users included serviceUsers
-	 * If includedServiceUsers is false, you get all Users without serviceUsers
+	 * Get All richUsers with or without specificUsers.
+	 * If includedSpecificUsers is true, you got all Users included specificUsers
+	 * If includedSpecificUsers is false, you get all Users without specificUsers
 	 *
 	 * This method get all RichUsers included selected Attributes.
 	 *
 	 * @param sess
 	 * @param attrsNames
-	 * @param includedServiceUsers true or false if you want or dont want get serviceUsers too
+	 * @param includedSpecificUsers true or false if you want or dont want get specificUsers too
 	 * @return list of RichUsers
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws UserNotExistsException
 	 */
-	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers,List<String> attrsNames)
+	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers,List<String> attrsNames)
 		throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**

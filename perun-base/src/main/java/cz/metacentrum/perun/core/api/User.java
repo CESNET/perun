@@ -18,7 +18,8 @@ public class User extends Auditable implements Comparable<PerunBean> {
 	protected String middleName;
 	protected String titleBefore;
 	protected String titleAfter;
-	protected boolean serviceUser;
+	protected boolean serviceUser = false;
+	protected boolean sponsoredUser = false;
 
 	public User() {
 		super();
@@ -33,9 +34,10 @@ public class User extends Auditable implements Comparable<PerunBean> {
 		this.titleAfter = titleAfter;
 	}
 
-	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter, boolean serviceUser) {
+	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter, boolean serviceUser, boolean sponsoredUser) {
 		this(id, firstName, lastName, middleName, titleBefore, titleAfter);
 		this.serviceUser = serviceUser;
+		this.sponsoredUser = sponsoredUser;
 	}
 
 	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
@@ -49,9 +51,10 @@ public class User extends Auditable implements Comparable<PerunBean> {
 	}
 
 	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
-			String createdAt, String createdBy, String modifiedAt, String modifiedBy, boolean serviceUser, Integer createdByUid, Integer modifiedByUid) {
+			String createdAt, String createdBy, String modifiedAt, String modifiedBy, boolean serviceUser, boolean sponsoredUser, Integer createdByUid, Integer modifiedByUid) {
 		this(id, firstName, lastName, middleName, titleBefore, titleAfter, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.serviceUser = serviceUser;
+		this.sponsoredUser = sponsoredUser;
 	}
 
 
@@ -139,6 +142,24 @@ public class User extends Auditable implements Comparable<PerunBean> {
 		this.serviceUser = serviceUser;
 	}
 
+	public boolean isSponsoredUser() {
+		return sponsoredUser;
+	}
+
+	public void setSponsoredUser(boolean sponsoredUser) {
+		this.sponsoredUser = sponsoredUser;
+	}
+
+	public boolean isSpecificUser() {
+		return isServiceUser() || isSponsoredUser();
+	}
+
+	public SpecificUserType getMajorSpecificType() {
+		if(isServiceUser()) return SpecificUserType.SERVICE;
+		else if(isSponsoredUser()) return SpecificUserType.SPONSORED;
+		else return SpecificUserType.NORMAL;
+	}
+
 	/**
 	 * Compare this object with another perunBean.
 	 *
@@ -197,6 +218,7 @@ public class User extends Auditable implements Comparable<PerunBean> {
 			", middleName=<").append(getMiddleName() == null ? "\\0" : BeansUtils.createEscaping(getMiddleName())).append(">").append(
 			", titleAfter=<").append(getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())).append(">").append(
 			", serviceAccount=<").append(isServiceUser()).append(">").append(
+			", sponsoredAccount=<").append(isSponsoredUser()).append(">").append(
 			']').toString();
 	}
 
@@ -218,6 +240,8 @@ public class User extends Auditable implements Comparable<PerunBean> {
 		ret.append(titleAfter);
 		ret.append("', serviceAccount='");
 		ret.append(serviceUser);
+		ret.append("', sponsoredAccount='");
+		ret.append(sponsoredUser);
 		ret.append("']");
 
 		return ret.toString();
@@ -241,6 +265,8 @@ public class User extends Auditable implements Comparable<PerunBean> {
 			+ ((titleBefore == null) ? 0 : titleBefore.hashCode());
 		result = prime * result
 			+ ((serviceUser ? 1 : 2));
+		result = prime * result
+			+ ((sponsoredUser ? 1 : 2));
 		return result;
 	}
 
@@ -281,6 +307,8 @@ public class User extends Auditable implements Comparable<PerunBean> {
 		} else if (!titleBefore.equals(other.titleBefore))
 			return false;
 		else if (serviceUser != other.serviceUser)
+			return false;
+		else if (sponsoredUser != other.sponsoredUser)
 			return false;
 		return true;
 	}

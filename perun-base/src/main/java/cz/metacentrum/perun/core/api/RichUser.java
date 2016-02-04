@@ -20,7 +20,7 @@ public class RichUser extends User {
 	public RichUser(User user, List<UserExtSource> userExtSources) {
 		super(user.getId(), user.getFirstName(), user.getLastName(), user.getMiddleName(),
 				user.getTitleBefore(), user.getTitleAfter(), user.getCreatedAt(), user.getCreatedBy(),
-				user.getModifiedAt(), user.getModifiedBy(), user.isServiceUser(), user.getCreatedByUid(), user.getModifiedByUid());
+				user.getModifiedAt(), user.getModifiedBy(), user.isServiceUser(), user.isSponsoredUser(), user.getCreatedByUid(), user.getModifiedByUid());
 		this.userExtSources = userExtSources;
 		this.userAttributes = null;
 	}
