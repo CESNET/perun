@@ -43,7 +43,7 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"name", "value", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
 	private interface AttributeDefinitionMixIn {}
 
-	@JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser"})
+	@JsonIgnoreProperties({"commonName", "displayName", "beanName", "specificUser", "majorSpecificType"})
 	private interface UserMixIn {}
 
 	@JsonIgnoreProperties({"fullMessage"})
