@@ -46,12 +46,24 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_HOST_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_GROUP_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_RESOURCE_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_FACILITY_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR_DEF;
 import cz.metacentrum.perun.core.api.Auditable;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
@@ -75,7 +87,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 
 import cz.metacentrum.perun.core.api.exceptions.rt.ConsistencyErrorRuntimeException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 
 import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 
@@ -98,6 +109,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
+import java.util.Map.Entry;
 import org.springframework.dao.DataAccessException;
 
 /**
@@ -128,6 +140,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<String, AttributesModuleImplApi>();
 	
 	private AttributesManagerImplApi self;
+	
+	// mapping of the perun bean names to the attribute namespaces
+	private static final Map<String,String> NAMESPACES_BEANS_MAP = new HashMap<>();
+	static {
+		NAMESPACES_BEANS_MAP.put("user", NS_USER_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("member", NS_MEMBER_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("facility", NS_FACILITY_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("vo", NS_VO_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("host", NS_HOST_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("group", NS_GROUP_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("resource", NS_RESOURCE_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("member_resource", NS_MEMBER_RESOURCE_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("member_group", NS_MEMBER_GROUP_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("user_facility", NS_USER_FACILITY_ATTR_DEF);
+		NAMESPACES_BEANS_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR_DEF);		
+	}
 
 	/**
 	 * Constructor.
@@ -1489,25 +1517,116 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public boolean setAttribute(final PerunSession sess, final Facility facility, final Attribute attribute) throws InternalErrorException {
+	@Override
+	public boolean setAttribute(final PerunSession sess, final Object object, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		String tableName = null;
+		String columnName = null;
+		Object identificator = null;
+		String namespace = null;
+		
+		// check whether the object is String or Perun Bean:
+		if (object instanceof String) {
+			tableName = "entityless_attr_values";
+			columnName = "subject";
+			identificator = (String) object;
+			namespace = AttributesManager.NS_ENTITYLESS_ATTR;
+		} else if (object instanceof PerunBean) {
+			PerunBean bean = (PerunBean) object;
+			String name = bean.getBeanName().toLowerCase();
+			// get namespace of the perun bean
+			namespace = NAMESPACES_BEANS_MAP.get(name);
+			if (namespace == null) {
+				// perun bean is not in the namespace map
+				throw new IllegalArgumentException("Setting attribute for perun bean " + bean + " is not allowed.");
+			}
+			tableName = name + "_attr_values";
+			columnName = name + "_id";
+			identificator = bean.getId();
+		} else {
+			throw new IllegalArgumentException("Object " + object + " must be either String or PerunBean.");
+		}
+		
+		// check that given object is consistent with the attribute
+		checkNamespace(sess, attribute, namespace);
+		
+		// create map of parameters for the where clause of the SQL query
+		Map<String,Object> params = new HashMap<>();
+		params.put("attr_id", attribute.getId());
+		params.put(columnName, identificator);
+		
+		// save attribute
+		return setAttributeInDB(sess, attribute, tableName, params);
+	}
+	
+	@Override
+	public boolean setAttribute(final PerunSession sess, final PerunBean bean1, final PerunBean bean2, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		String tableName = null;
+		String namespace = null;
+		Integer identificator1 = null;
+		Integer identificator2 = null;
+
+		// get bean names
+		String name1 = bean1.getBeanName().toLowerCase();
+		String name2 = bean2.getBeanName().toLowerCase();
+		// get namespace of the perun bean
+		namespace = NAMESPACES_BEANS_MAP.get(name1 + "_" + name2);
+		identificator1 = bean1.getId();
+		identificator2 = bean2.getId();
+		if (namespace == null) {
+			// swap the names and beans and try again
+			String nameTmp = name1;
+			name1 = name2;
+			name2 = nameTmp;
+			identificator1 = bean2.getId();
+			identificator2 = bean1.getId();
+			namespace = NAMESPACES_BEANS_MAP.get(name1 + "_" + name2);
+		}
+		if (namespace == null) {
+			// the combination of perun beans is not in the namespace map
+			throw new IllegalArgumentException("Setting attribute for perun bean " + bean1 + " and " + bean2 + " is not allowed.");
+		}
+		tableName = name1 + "_" + name2 + "_attr_values";
+
+		// check that given object is consistent with the attribute
+		checkNamespace(sess, attribute, namespace);
+
+		// create map of parameters for the where clause of the SQL query
+		Map<String,Object> params = new HashMap<>();
+		params.put("attr_id", attribute.getId());
+		params.put(name1 + "_id", identificator1);
+		params.put(name2 + "_id", identificator2);
+		
+		// save attribute
+		return setAttributeInDB(sess, attribute, tableName, params);
+	}
+		
+	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, final Map<String, Object> params) throws InternalErrorException {
+		// get two sorted lists for parameter names and values
+		List<String> columnNames = new ArrayList<>();
+		List<Object> columnValues = new ArrayList<>();
+		for (Entry entry: params.entrySet()) {
+			columnNames.add((String) entry.getKey());
+			columnValues.add(entry.getValue());
+		}
+		
 		try {
 			// deleting the attibute if the given attribute value is null
 			if (attribute.getValue() == null) {
-				int numAffected = jdbc.update("delete from facility_attr_values where attr_id=? and facility_id=?", attribute.getId(), facility.getId());
+				int numAffected = jdbc.update("delete from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), columnValues);
 				if (numAffected > 1) {
-					throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from facility_attr_values where attr_id=" + attribute.getId() + " and facility_id=" + facility.getId());
+					throw new ConsistencyErrorException(String.format("Too much rows to delete (" + numAffected + " rows). SQL: delete from " + tableName + " where " + buildParameters(columnNames, "=%s", " and "), columnValues.toArray()));
 				}
 				return numAffected == 1;
 			}
 
-			// set the value column name
+			// set the column name according to the size of the attribute
 			boolean largeAttribute = isLargeAttribute(sess, attribute);
 			String valueColName = (largeAttribute ? "attr_value_text" : "attr_value");
 			
-			// if the DB value is same as argument, return
+			// if the DB value is the same as parameter, return
 			if (!largeAttribute) {
 				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from facility_attr_values where attr_id=? and facility_id=?", String.class, attribute.getId(), facility.getId()), attribute.getType());
+					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), String.class, columnValues.toArray()), attribute.getType());
 					if (attribute.getValue().equals(value)) {
 						return false;
 					}
@@ -1519,14 +1638,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			int repetatCounter = 0;
 			while (true) {
 				// number of values of this attribute value in db
-				int numOfAttributesInDb = jdbc.queryForInt("select count(attr_id) from facility_attr_values where attr_id=? and facility_id=?", attribute.getId(), facility.getId());
+				int numOfAttributesInDb = jdbc.queryForInt("select count(attr_id) from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), columnValues.toArray());
 				switch (numOfAttributesInDb) {
 					case 0: {
 						// value doesn't exist -> insert
 						try {
-							return self.insertAttribute(sess, valueColName, attribute, facility);
+							return self.insertAttribute(sess, valueColName, attribute, tableName, columnNames, columnValues);
 						} catch (DataAccessException ex) {
-							// unsuccessful insert, do it again
+							// unsuccessful insert, do it again in while loop
 							if (++repetatCounter > MERGE_TRY_CNT) {
 								throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.");
 							}
@@ -1540,9 +1659,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					case 1: {
 						// value exists -> update
 						try {
-							return self.updateAttribute(sess, valueColName, attribute, facility);
+							return self.updateAttribute(sess, valueColName, attribute, tableName, columnNames, columnValues);
 						} catch (DataAccessException ex) {
-							// unsuccessful insert, do it again
+							// unsuccessful insert, do it again in while loop
 							if (++repetatCounter > MERGE_TRY_CNT) {
 								throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.");
 							}
@@ -1554,1168 +1673,66 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						break;
 					}
 					default:
-						throw new ConsistencyErrorException("Attribute id " + attribute.getId() + " for facility" + facility.getId() + " is more than once in DB.");
+						throw new ConsistencyErrorException(String.format("Attribute id " + attribute.getId() + " for " + tableName + " with parameters: " + buildParameters(columnNames, "=%s", " and ") + " is more than once in DB.", columnValues.toArray()));
 				}
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
-
-	public boolean setAttribute(final PerunSession sess, final Vo vo, final Attribute attribute) throws InternalErrorException {
-		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from vo_attr_values where attr_id=? and vo_id=?", attribute.getId(), vo.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from vo_attr_values where attr_id="+ attribute.getId() +" and vo_id=" + vo.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.execute("merge into vo_attr_values using dual on (attr_id=? and vo_id=?) " +
-									"when not matched   then insert (attr_id, vo_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, vo.getId());
-											ps.setInt(3, attribute.getId());
-											ps.setInt(4, vo.getId());
-											try {
-												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
-												ps.setString(6, sess.getPerunPrincipal().getActor());
-												ps.setString(7, sess.getPerunPrincipal().getActor());
-												ps.setInt(8, sess.getPerunPrincipal().getUserId());
-												ps.setInt(9, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 10, BeansUtils.attributeValueToString(attribute));
-												ps.setString(11, sess.getPerunPrincipal().getActor());
-												ps.setInt(12, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from vo_attr_values where attr_id=? and vo_id=? for update", attribute.getId(), vo.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into vo_attr_values (attr_id, vo_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), vo.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update vo_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and vo_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), vo.getId());
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from vo_attr_values where attr_id=? and vo_id=?", attribute.getId(), vo.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from vo_attr_values where attr_id="+ attribute.getId() +" and vo_id=" + vo.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from vo_attr_values where attr_id=? and vo_id=?", String.class, attribute.getId(), vo.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							jdbc.update("merge into vo_attr_values using dual on (attr_id=? and vo_id=?) " +
-									"when not matched then insert (attr_id, vo_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?) when matched then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), vo.getId(), attribute.getId(), vo.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from vo_attr_values where attr_id=? and vo_id=? for update", attribute.getId(), vo.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into vo_attr_values (attr_id, vo_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), vo.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update vo_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and vo_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), vo.getId());
-							return true;
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
+	
+	/**
+	 * Build string for purposes of SQL query with given parameters.
+	 * 
+	 * @param params parameters to print
+	 * @param afterParam string, which will be inserted after each parameter
+	 * @param separator string, which will be inserted between parameters
+	 * @return built query
+	 */
+	private String buildParameters(List<String> params, String afterParam, String separator) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < params.size(); i++) {
+			sb.append(params.get(i));
+			sb.append(afterParam);
+			if (i < params.size() - 1) {
+				sb.append(separator);
 			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
 		}
+		return sb.toString();
 	}
-
-	public boolean setAttribute(final PerunSession sess, final Host host, final Attribute attribute) throws InternalErrorException {
-		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from host_attr_values where attr_id=? and host_id=?", attribute.getId(), host.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from host_attr_values where attr_id="+ attribute.getId() +" and host_id=" + host.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.execute("merge into host_attr_values using dual on (attr_id=? and host_id=?) " +
-									"when not matched   then insert (attr_id, host_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, host.getId());
-											ps.setInt(3, attribute.getId());
-											ps.setInt(4, host.getId());
-											try {
-												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
-												ps.setString(6, sess.getPerunPrincipal().getActor());
-												ps.setString(7, sess.getPerunPrincipal().getActor());
-												ps.setInt(8, sess.getPerunPrincipal().getUserId());
-												ps.setInt(9, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 10, BeansUtils.attributeValueToString(attribute));
-												ps.setString(11, sess.getPerunPrincipal().getActor());
-												ps.setInt(12, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from host_attr_values where attr_id=? and host_id=? for update", attribute.getId(), host.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into host_attr_values (attr_id, host_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), host.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update host_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and host_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), host.getId());
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from host_attr_values where attr_id=? and host_id=?", attribute.getId(), host.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from host_attr_values where attr_id="+ attribute.getId() +" and host_id=" + host.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from host_attr_values where attr_id=? and host_id=?", String.class, attribute.getId(), host.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							jdbc.update("merge into host_attr_values using dual on (attr_id=? and host_id=?) " +
-									"when not matched then insert (attr_id, host_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?) when matched then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), host.getId(), attribute.getId(), host.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from host_attr_values where attr_id=? and host_id=? for update", attribute.getId(), host.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into host_attr_values (attr_id, host_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), host.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update host_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and host_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), host.getId());
-							return true;
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	public boolean setAttribute(final PerunSession sess, final Group group, final Attribute attribute) throws InternalErrorException {
-		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from group_attr_values where attr_id=? and group_id=?", attribute.getId(), group.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from group_attr_values where attr_id="+ attribute.getId() +" and group_id=" + group.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.execute("merge into group_attr_values using dual on (attr_id=? and group_id=?) " +
-									"when not matched   then insert (attr_id, group_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, group.getId());
-											ps.setInt(3, attribute.getId());
-											ps.setInt(4, group.getId());
-											try {
-												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
-												ps.setString(6, sess.getPerunPrincipal().getActor());
-												ps.setString(7, sess.getPerunPrincipal().getActor());
-												ps.setInt(8, sess.getPerunPrincipal().getUserId());
-												ps.setInt(9, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 10, BeansUtils.attributeValueToString(attribute));
-												ps.setString(11, sess.getPerunPrincipal().getActor());
-												ps.setInt(12, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from group_attr_values where attr_id=? and group_id=? for update", attribute.getId(), group.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into group_attr_values (attr_id, group_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), group.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update group_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and group_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), group.getId());
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from group_attr_values where attr_id=? and group_id=?", attribute.getId(), group.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from group_attr_values where attr_id="+ attribute.getId() +" and group_id=" + group.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from group_attr_values where attr_id=? and group_id=?", String.class, attribute.getId(), group.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							jdbc.update("merge into group_attr_values using dual on (attr_id=? and group_id=?) " +
-									"when not matched then insert (attr_id, group_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?) when matched then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), group.getId(), attribute.getId(), group.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from group_attr_values where attr_id=? and group_id=? for update", attribute.getId(), group.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into group_attr_values (attr_id, group_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), group.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update group_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and group_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), group.getId());
-							return true;
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	public boolean setAttribute(final PerunSession sess, final Resource resource, final Attribute attribute) throws InternalErrorException {
-		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from resource_attr_values where attr_id=? and resource_id=?", attribute.getId(), resource.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from resource_attr_values where attr_id="+ attribute.getId() +" and resource_id=" + resource.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.execute("merge into resource_attr_values using dual on (attr_id=? and resource_id=?) " +
-									"when not matched   then insert (attr_id, resource_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, resource.getId());
-											ps.setInt(3, attribute.getId());
-											ps.setInt(4, resource.getId());
-											try {
-												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
-												ps.setString(6, sess.getPerunPrincipal().getActor());
-												ps.setString(7, sess.getPerunPrincipal().getActor());
-												ps.setInt(8, sess.getPerunPrincipal().getUserId());
-												ps.setInt(9, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 10, BeansUtils.attributeValueToString(attribute));
-												ps.setString(11, sess.getPerunPrincipal().getActor());
-												ps.setInt(12, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from resource_attr_values where attr_id=? and resource_id=? for update", attribute.getId(), resource.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this method)
-								jdbc.update("insert into resource_attr_values (attr_id, resource_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), resource.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update resource_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and resource_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), resource.getId());
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from resource_attr_values where attr_id=? and resource_id=?", attribute.getId(), resource.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from resource_attr_values where attr_id="+ attribute.getId() +" and resource_id=" + resource.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from resource_attr_values where attr_id=? and resource_id=?", String.class, attribute.getId(), resource.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							jdbc.update("merge into resource_attr_values using dual on (attr_id=? and resource_id=?) " +
-									"when not matched   then insert (attr_id, resource_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), resource.getId(), attribute.getId(), resource.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from resource_attr_values where attr_id=? and resource_id=? for update", attribute.getId(), resource.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into resource_attr_values (attr_id, resource_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), resource.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update resource_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and resource_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), resource.getId());
-							return true;
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	public boolean setAttribute(final PerunSession sess, final Resource resource, final Member member, final Attribute attribute) throws InternalErrorException {
-		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from member_resource_attr_values where attr_id=? and member_id=? and resource_id=?", attribute.getId(), member.getId(), resource.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from member_resource_attr_values where attr_id="+ attribute.getId() +" and member_id=" + member.getId() + " and resource_id=" + resource.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.execute("merge into member_resource_attr_values using dual on (attr_id=? and resource_id=? and member_id=?) " +
-									"when not matched   then insert (attr_id, resource_id, member_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, resource.getId());
-											ps.setInt(3, member.getId());
-											ps.setInt(4, attribute.getId());
-											ps.setInt(5, resource.getId());
-											ps.setInt(6, member.getId());
-											try {
-												lobCreator.setClobAsString(ps, 7, BeansUtils.attributeValueToString(attribute));
-												ps.setString(8, sess.getPerunPrincipal().getActor());
-												ps.setString(9, sess.getPerunPrincipal().getActor());
-												ps.setInt(10, sess.getPerunPrincipal().getUserId());
-												ps.setInt(11, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 11, BeansUtils.attributeValueToString(attribute));
-												ps.setString(12, sess.getPerunPrincipal().getActor());
-												ps.setInt(13, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from member_resource_attr_values where attr_id=? and resource_id=? and member_id=? for update", attribute.getId(), resource.getId(), member.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								return 0 < jdbc.update("insert into member_resource_attr_values (attr_id, resource_id, member_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)",attribute.getId(), resource.getId(),
-										member.getId(), BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-							}
-							//Exception wasn't thrown -> update
-							return 0 < jdbc.update("update member_resource_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and resource_id=? and member_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), resource.getId(), member.getId());
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from member_resource_attr_values where attr_id=? and member_id=? and resource_id=?", attribute.getId(), member.getId(), resource.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from member_resource_attr_values where attr_id="+ attribute.getId() +" and member_id=" + member.getId() + " and resource_id=" + resource.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from member_resource_attr_values where attr_id=? and member_id=? and resource_id=?", String.class, attribute.getId(), member.getId(), resource.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.update("merge into member_resource_attr_values using dual on (attr_id=? and resource_id=? and member_id=?) " +
-									"when not matched   then insert (attr_id, resource_id, member_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), resource.getId(), member.getId(), attribute.getId(), resource.getId(), member.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from member_resource_attr_values where attr_id=? and resource_id=? and member_id=? for update", attribute.getId(), resource.getId(), member.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								return 0 < jdbc.update("insert into member_resource_attr_values (attr_id, resource_id, member_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)",attribute.getId(), resource.getId(),
-										member.getId(), BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-							}
-							//Exception wasn't thrown -> update
-							return 0 < jdbc.update("update member_resource_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and resource_id=? and member_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), resource.getId(), member.getId());
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
+	
 	@Override
-	public boolean setAttribute(final PerunSession sess, final Member member, final Group group, final Attribute attribute) throws InternalErrorException {
+	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
+		// add additional SQL values to the list
+		columnValues.add(BeansUtils.attributeValueToString(attribute)); // valueColName
+		columnValues.add(sess.getPerunPrincipal().getActor()); // created_by
+		columnValues.add(sess.getPerunPrincipal().getActor()); // modified_by
+		columnValues.add(sess.getPerunPrincipal().getUserId()); // created_by_uid
+		columnValues.add(sess.getPerunPrincipal().getUserId()); // modified_by_uid
 		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from member_group_attr_values where attr_id=? and member_id=? and group_id=?", attribute.getId(), member.getId(), group.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from member_group_attr_values where attr_id="+ attribute.getId() +" and member_id=" + member.getId() + " and group_id=" + group.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.execute("merge into member_group_attr_values using dual on (attr_id=? and group_id=? and member_id=?) " +
-											"when not matched then insert (attr_id, group_id, member_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-											"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-											"when matched then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, group.getId());
-											ps.setInt(3, member.getId());
-											ps.setInt(4, attribute.getId());
-											ps.setInt(5, group.getId());
-											ps.setInt(6, member.getId());
-											try {
-												lobCreator.setClobAsString(ps, 7, BeansUtils.attributeValueToString(attribute));
-												ps.setString(8, sess.getPerunPrincipal().getActor());
-												ps.setString(9, sess.getPerunPrincipal().getActor());
-												ps.setInt(10, sess.getPerunPrincipal().getUserId());
-												ps.setInt(11, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 11, BeansUtils.attributeValueToString(attribute));
-												ps.setString(12, sess.getPerunPrincipal().getActor());
-												ps.setInt(13, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from member_group_attr_values where attr_id=? and group_id=? and member_id=? for update", attribute.getId(), group.getId(), member.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert (and return from this method
-								return 0 < jdbc.update("insert into member_group_attr_values (attr_id, group_id, member_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-												"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), group.getId(),
-										member.getId(), BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-							}
-							//Exception wasn't thrown -> update
-							return 0 < jdbc.update("update member_group_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and group_id=? and member_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), group.getId(), member.getId());
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from member_group_attr_values where attr_id=? and member_id=? and group_id=?", attribute.getId(), member.getId(), group.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from member_group_attr_values where attr_id="+ attribute.getId() +" and member_id=" + member.getId() + " and group_id=" + group.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from member_group_attr_values where attr_id=? and member_id=? and group_id=?", String.class, attribute.getId(), member.getId(), group.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.update("merge into member_group_attr_values using dual on (attr_id=? and group_id=? and member_id=?) " +
-											"when not matched then insert (attr_id, group_id, member_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-											"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-											"when matched then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), group.getId(), member.getId(), attribute.getId(), group.getId(), member.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-							);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from member_group_attr_values where attr_id=? and group_id=? and member_id=? for update", attribute.getId(), group.getId(), member.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert (and return from this metod)
-								return 0 < jdbc.update("insert into member_group_attr_values (attr_id, group_id, member_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-												"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), group.getId(),
-										member.getId(), BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-							}
-							//Exception wasn't thrown -> update
-							return 0 < jdbc.update("update member_group_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and group_id=? and member_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), group.getId(), member.getId());
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
+			int changed = jdbc.update("insert into " + tableName + " (" + buildParameters(columnNames, "", ", ") + ", " + valueColName + ", created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
+					+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", columnValues.toArray());
+			return changed > 0;
+		} catch (DataAccessException ex) {
+			throw ex;
 		}
 	}
-
-	public boolean setAttribute(final PerunSession sess, final Facility facility, final User user, final Attribute attribute) throws InternalErrorException {
+	
+	@Override
+	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
+		// add additional SQL values to the list
+		columnValues.add(0, BeansUtils.attributeValueToString(attribute)); // valueColName
+		columnValues.add(1, sess.getPerunPrincipal().getActor()); // modified_by
+		columnValues.add(2, sess.getPerunPrincipal().getUserId()); // modified_by_uid
 		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from user_facility_attr_values where attr_id=? and facility_id=? and user_id=?", attribute.getId(), facility.getId(), user.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from user_facility_attr_values where attr_id=" + attribute.getId() + " and facility_id=" + facility.getId() + " and user_id=" + user.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.execute("merge into user_facility_attr_values using dual on (attr_id=? and facility_id=? and user_id=?) " +
-									"when not matched   then insert (attr_id, facility_id, user_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, facility.getId());
-											ps.setInt(3, user.getId());
-											ps.setInt(4, attribute.getId());
-											ps.setInt(5, facility.getId());
-											ps.setInt(6, user.getId());
-											try {
-												lobCreator.setClobAsString(ps, 7, BeansUtils.attributeValueToString(attribute));
-												ps.setString(8, sess.getPerunPrincipal().getActor());
-												ps.setString(9, sess.getPerunPrincipal().getActor());
-												ps.setInt(10, sess.getPerunPrincipal().getUserId());
-												ps.setInt(11, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 11, BeansUtils.attributeValueToString(attribute));
-												ps.setString(12, sess.getPerunPrincipal().getActor());
-												ps.setInt(13, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								// FIXME ?? This is vulnerable to race conditions ??
-								jdbc.queryForInt("select attr_id from user_facility_attr_values where attr_id=? and facility_id=? and user_id=? for update", attribute.getId(), facility.getId(), user.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this method)
-								jdbc.update("insert into user_facility_attr_values (attr_id, facility_id, user_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), facility.getId(), user.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update user_facility_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and facility_id=? and user_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), facility.getId(), user.getId());
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from user_facility_attr_values where attr_id=? and facility_id=? and user_id=?", attribute.getId(), facility.getId(), user.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from user_facility_attr_values where attr_id=" + attribute.getId() + " and facility_id=" + facility.getId() + " and user_id=" + user.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from user_facility_attr_values where attr_id=? and facility_id=? and user_id=?", String.class, attribute.getId(), facility.getId(), user.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							jdbc.update("merge into user_facility_attr_values using dual on (attr_id=? and facility_id=? and user_id=?) " +
-									"when not matched   then insert (attr_id, facility_id, user_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), facility.getId(), user.getId(), attribute.getId(), facility.getId(), user.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								//FIXME This is vunerable to race conditions
-								jdbc.queryForInt("select attr_id from user_facility_attr_values where attr_id=? and facility_id=? and user_id=? for update", attribute.getId(), facility.getId(), user.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into user_facility_attr_values (attr_id, facility_id, user_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), facility.getId(), user.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update user_facility_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and facility_id=? and user_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), facility.getId(), user.getId());
-							return true;
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
+			int changed = jdbc.update("update " + tableName + " set " + valueColName + "=?, modified_by=?, modified_by_uid=?, modified_at=" + 
+					Compatibility.getSysdate() + " where " + buildParameters(columnNames, "=?", " and "), columnValues.toArray());
+		return changed > 0;
+		} catch (DataAccessException ex) {
+			throw ex;
 		}
-	}
-
-	public boolean setAttribute(final PerunSession sess, final User user, final Attribute attribute) throws InternalErrorException {
-		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from user_attr_values where attr_id=? and user_id=?", attribute.getId(), user.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from user_attr_values where attr_id="+ attribute.getId() +" and user_id=" + user.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							//TODO return false when attr_value_text is not changed
-							return 0 < jdbc.execute("merge into user_attr_values using dual on (attr_id=? and user_id=?) " +
-									"when not matched   then insert (attr_id, user_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, user.getId());
-											ps.setInt(3, attribute.getId());
-											ps.setInt(4, user.getId());
-											try {
-												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
-												ps.setString(6, sess.getPerunPrincipal().getActor());
-												ps.setString(7, sess.getPerunPrincipal().getActor());
-												ps.setInt(8, sess.getPerunPrincipal().getUserId());
-												ps.setInt(9, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 10, BeansUtils.attributeValueToString(attribute));
-												ps.setString(11, sess.getPerunPrincipal().getActor());
-												ps.setInt(12, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from user_attr_values where attr_id=? and user_id=? for update", attribute.getId(), user.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into user_attr_values (attr_id, user_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), user.getId(), BeansUtils.attributeValueToString(attribute),
-										sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update user_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and user_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), user.getId());
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from user_attr_values where attr_id=? and user_id=?", attribute.getId(), user.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from user_attr_values where attr_id="+ attribute.getId() +" and user_id=" + user.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from user_attr_values where attr_id=? and user_id=?", String.class, attribute.getId(), user.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							jdbc.update("merge into user_attr_values using dual on (attr_id=? and user_id=?) " +
-									"when not matched   then insert (attr_id, user_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?) " +
-									"when matched       then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), user.getId(), attribute.getId(), user.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								jdbc.queryForInt("select attr_id from user_attr_values where attr_id=? and user_id=? for update", attribute.getId(), user.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into user_attr_values (attr_id, user_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), user.getId(), BeansUtils.attributeValueToString(attribute),
-										sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update user_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and user_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), user.getId());
-							return true;
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	public boolean setAttribute(final PerunSession sess, final Member member, final Attribute attribute) throws InternalErrorException {
-		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from member_attr_values where attr_id=? and member_id=?", attribute.getId(), member.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from member_attr_values where attr_id="+ attribute.getId() +" and member_id=" + member.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							//TODO return false when attr_value_text is not changed
-							return 0 < jdbc.execute("merge into member_attr_values using dual on (attr_id=? and member_id=?) " +
-									"when not matched   then insert (attr_id, member_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, member.getId());
-											ps.setInt(3, attribute.getId());
-											ps.setInt(4, member.getId());
-											try {
-												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
-												ps.setString(6, sess.getPerunPrincipal().getActor());
-												ps.setString(7, sess.getPerunPrincipal().getActor());
-												ps.setInt(8, sess.getPerunPrincipal().getUserId());
-												ps.setInt(9, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 10, BeansUtils.attributeValueToString(attribute));
-												ps.setString(11, sess.getPerunPrincipal().getActor());
-												ps.setInt(12, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								//FIXME ?? This is vulnerable to race conditions
-								jdbc.queryForInt("select attr_id from member_attr_values where attr_id=? and member_id=? for update", attribute.getId(), member.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into member_attr_values (attr_id, member_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), member.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update member_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and member_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), member.getId());
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from member_attr_values where attr_id=? and member_id=?", attribute.getId(), member.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from member_attr_values where attr_id="+ attribute.getId() +" and member_id=" + member.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from member_attr_values where attr_id=? and member_id=?", String.class, attribute.getId(), member.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							jdbc.update("merge into member_attr_values using dual on (attr_id=? and member_id=?) " +
-									"when not matched   then insert (attr_id, member_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), member.getId(), attribute.getId(), member.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								//FIXME This is vunerable to race conditions
-								jdbc.queryForInt("select attr_id from member_attr_values where attr_id=? and member_id=? for update", attribute.getId(), member.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into member_attr_values (attr_id, member_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), member.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update member_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and member_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), member.getId());
-							return true;
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	public boolean setAttribute(final PerunSession sess, final Resource resource, final Group group, final Attribute attribute) throws InternalErrorException {
-		try {
-			if(isLargeAttribute(sess, attribute)) {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from group_resource_attr_values where attr_id=? and resource_id=? and group_id=?", attribute.getId(), resource.getId(), group.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from group_resource_attr_values where attr_id=" + attribute.getId() + " and resource_id=" + resource.getId() + " and group_id=" + group.getId());
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							return 0 < jdbc.execute("merge into group_resource_attr_values using dual on (attr_id=? and resource_id=? and group_id=?) " +
-									"when not matched   then insert (attr_id, resource_id, group_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setInt(2, resource.getId());
-											ps.setInt(3, group.getId());
-											ps.setInt(4, attribute.getId());
-											ps.setInt(5, resource.getId());
-											ps.setInt(6, group.getId());
-											try {
-												lobCreator.setClobAsString(ps, 7, BeansUtils.attributeValueToString(attribute));
-												ps.setString(8, sess.getPerunPrincipal().getActor());
-												ps.setString(9, sess.getPerunPrincipal().getActor());
-												ps.setInt(10, sess.getPerunPrincipal().getUserId());
-												ps.setInt(11, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 11, BeansUtils.attributeValueToString(attribute));
-												ps.setString(12, sess.getPerunPrincipal().getActor());
-												ps.setInt(13, sess.getPerunPrincipal().getUserId());
-											} catch(InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									}
-							);
-						} else {
-							try {
-								//FIXME This is vulnerable to race conditions
-								jdbc.queryForInt("select attr_id from  group_resource_attr_values where attr_id=? and resource_id=? and group_id=? for update", attribute.getId(), resource.getId(), group.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into group_resource_attr_values (attr_id, resource_id, group_id, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), resource.getId(), group.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update group_resource_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and resource_id=? and group_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), resource.getId(), group.getId());
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			} else {
-				if(attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from group_resource_attr_values where attr_id=? and resource_id=? and group_id=?", attribute.getId(), resource.getId(), group.getId());
-					if(numAffected > 1) throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from group_resource_attr_values where attr_id=" + attribute.getId() + " and resource_id=" + resource.getId() + " and group_id=" + group.getId());
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from group_resource_attr_values where attr_id=? and resource_id=? and group_id=?", String.class, attribute.getId(), resource.getId(), group.getId()), attribute.getType());
-					if(attribute.getValue().equals(value)) return false;
-				} catch(EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while(true) {
-					try {
-						if(Compatibility.isMergeSupported()) {
-							jdbc.update("merge into group_resource_attr_values using dual on (attr_id=? and resource_id=? and group_id=?) " +
-									"when not matched   then insert (attr_id, resource_id, group_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-									"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)" +
-									"when matched       then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), resource.getId(), group.getId(), attribute.getId(), resource.getId(), group.getId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								//FIXME This is vunerable to race conditions
-								jdbc.queryForInt("select attr_id from  group_resource_attr_values where attr_id=? and resource_id=? and group_id=? for update", attribute.getId(), resource.getId(), group.getId());
-							} catch(EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into group_resource_attr_values (attr_id, resource_id, group_id, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) " +
-										"values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), resource.getId(), group.getId(),
-										BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update group_resource_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and resource_id=? and group_id=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), resource.getId(), group.getId());
-							return true;
-						}
-					} catch(DataIntegrityViolationException ex) {
-						if(++repetatCounter > MERGE_TRY_CNT) throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch(InterruptedException IGNORE) { }
-					}
-				}
-			}
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
+	}	
+	
 	/**
 	 * Set entityless attribute with null value (for key and attribute)
 	 *
@@ -2737,160 +1754,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-
-	public boolean setAttribute(final PerunSession sess, final String key, final Attribute attribute) throws InternalErrorException {
-		try {
-			if (isLargeAttribute(sess, attribute)) {
-				if (attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from entityless_attr_values where attr_id=? and subject=?", attribute.getId(), key);
-					if (numAffected > 1) {
-						throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from entityless_attr_values where attr_id=" + attribute.getId() + " and subject=" + key);
-					}
-					return numAffected == 1;
-				}
-				int repetatCounter = 0;
-				while (true) {
-					try {
-						if (Compatibility.isMergeSupported()) {
-							//TODO return false when attr_value_text is not changed
-							return 0 < jdbc.execute("merge into entityless_attr_values using dual on (attr_id=? and subject=?) "
-									+ "when not matched   then insert (attr_id, subject, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
-									+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)"
-									+ "when matched       then update set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-
-										public void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException {
-											ps.setInt(1, attribute.getId());
-											ps.setString(2, key);
-											ps.setInt(3, attribute.getId());
-											ps.setString(4, key);
-
-											try {
-												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
-												ps.setString(6, sess.getPerunPrincipal().getActor());
-												ps.setString(7, sess.getPerunPrincipal().getActor());
-												ps.setInt(8, sess.getPerunPrincipal().getUserId());
-												ps.setInt(9, sess.getPerunPrincipal().getUserId());
-												lobCreator.setClobAsString(ps, 10, BeansUtils.attributeValueToString(attribute));
-												ps.setString(11, sess.getPerunPrincipal().getActor());
-												ps.setInt(12, sess.getPerunPrincipal().getUserId());
-											} catch (InternalErrorException ex) {
-												throw new InternalErrorRuntimeException(ex);
-											}
-										}
-									});
-						} else {
-							try {
-								//FIXME ?? This is vulnerable to race conditions
-								jdbc.queryForInt("select attr_id from entityless_attr_values where attr_id=? and subject=? for update", attribute.getId(), key);
-							} catch (EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into entityless_attr_values (attr_id, subject, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
-										+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), key, BeansUtils.attributeValueToString(attribute),
-										sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update entityless_attr_values set attr_value_text=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and subject=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), key);
-							return true;
-							//throw new InternalErrorException("Set large attribute isn't supported yet for databases without merge statement supported.");
-						}
-					} catch (DataIntegrityViolationException ex) {
-						if (++repetatCounter > MERGE_TRY_CNT) {
-							throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						}
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch (InterruptedException IGNORE) {
-						}
-					}
-				}
-			} else {
-				if (attribute.getValue() == null) {
-					int numAffected = jdbc.update("delete from entityless_attr_values where attr_id=? and subject=?", attribute.getId(), key);
-					if (numAffected > 1) {
-						throw new ConsistencyErrorException("Too much rows to delete (" + numAffected + " rows). SQL: delete from entityless_attr_values where attr_id=" + attribute.getId() + " and subject=" + key);
-					}
-					return numAffected == 1;
-				}
-				try {
-					Object value = BeansUtils.stringToAttributeValue(jdbc.queryForObject("select attr_value from entityless_attr_values where attr_id=? and subject=?", String.class, attribute.getId(), key), attribute.getType());
-					if (attribute.getValue().equals(value)) {
-						return false;
-					}
-				} catch (EmptyResultDataAccessException ex) {
-					//This is ok. Attribute will be stored later.
-				}
-
-				int repetatCounter = 0;
-				while (true) {
-					try {
-						if (Compatibility.isMergeSupported()) {
-							jdbc.update("merge into entityless_attr_values using dual on (attr_id=? and subject=?) "
-									+ "when not matched   then insert (attr_id, subject, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
-									+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)"
-									+ "when matched       then update set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate(),
-									attribute.getId(), key, attribute.getId(), key,
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
-									sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId()
-									);
-							return true;
-						} else {
-							try {
-								//FIXME This is vunerable to race conditions
-								jdbc.queryForInt("select attr_id from entityless_attr_values where attr_id=? and subject=? for update", attribute.getId(), key);
-							} catch (EmptyResultDataAccessException ex) {
-								//Value doesn't exist -> insert   (and return from this metod)
-								jdbc.update("insert into entityless_attr_values (attr_id, subject, attr_value, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
-										+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), key, BeansUtils.attributeValueToString(attribute),
-										sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-								return true;
-							}
-							//Exception wasn't thrown -> update
-							jdbc.update("update entityless_attr_values set attr_value=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and subject=?",
-									BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), key);
-							return true;
-						}
-					} catch (DataIntegrityViolationException ex) {
-						if (++repetatCounter > MERGE_TRY_CNT) {
-							throw new InternalErrorException("SQL merger (or other UPSERT command) failed more than " + MERGE_TRY_CNT + " times.", ex);
-						}
-						try {
-							Thread.sleep(Math.round(MERGE_RAND_SLEEP_MAX * Math.random())); //randomized sleep
-						} catch (InterruptedException IGNORE) {
-						}
-					}
-				}
-			}
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-	
-	@Override
-	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, Facility facility) throws InternalErrorException {
-		try {
-			int changed = jdbc.update("insert into facility_attr_values (attr_id, facility_id, " + valueColName + ", created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
-					+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), facility.getId(),
-					BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
-			return changed > 0;
-		} catch (DataAccessException ex) {
-			throw ex;
-		}
-	}
-	
-	@Override
-	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, Facility facility) throws InternalErrorException {
-		try {
-			int changed = jdbc.update("update facility_attr_values set " + valueColName + "=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where attr_id=? and facility_id=?",
-					BeansUtils.attributeValueToString(attribute), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), attribute.getId(), facility.getId());
-			return changed > 0;
-		} catch (DataAccessException ex) {
-			throw ex;
-		}
-	}		
 
 	public boolean setVirtualAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException {
 		return getFacilityVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, facility, attribute);
