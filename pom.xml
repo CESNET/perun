@@ -38,6 +38,7 @@
 		<module>perun-auditer-exporter</module>
 		<module>perun-ldapc-initializer</module>
 		<module>perun-web-gui</module>
+		<module>perun-scim</module>
 	</modules>
 
 	<!-- common environmental and version properties-->
