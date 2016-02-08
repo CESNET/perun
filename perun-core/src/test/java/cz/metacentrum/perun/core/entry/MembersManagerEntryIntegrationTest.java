@@ -852,6 +852,52 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void canExtendMembershipForDefinedLoaNotAllowedAndServiceUser() throws Exception {
+		System.out.println(CLASS_NAME + "extendMembershipForDefinedLoaNotAllowedAndServiceUser");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m.");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set LOA 1 for member
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
+		UserExtSource uesService = new UserExtSource(es, "abc");
+		uesService.setLoa(0);
+
+		User user = usersManagerEntry.getUserByMember(sess, createdMember);
+		//usersManagerEntry.addUserExtSource(sess, user, ues);
+
+		Candidate serviceCandidate = new Candidate();
+		serviceCandidate.setServiceUser(true);
+		serviceCandidate.setFirstName("");
+		serviceCandidate.setLastName("");
+		serviceCandidate.setId(0);
+		serviceCandidate.setUserExtSource(uesService);
+		serviceCandidate.setAttributes(new HashMap<String,String>());
+
+		Member serviceMember = perun.getMembersManager().createSpecificMember(sess, createdVo, serviceCandidate, Arrays.asList(user), SpecificUserType.SERVICE);
+
+		// Try to extend membership
+		membersManagerEntry.extendMembership(sess, serviceMember);
+
+		Attribute membershipAttributeFirst = attributesManagerEntry.getAttribute(sess, serviceMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttributeFirst);
+		assertNotNull("membership attribute value must be set", membershipAttributeFirst.getValue());
+
+		// Try to extend membership - must pass since user is service user
+		assertTrue(membersManagerEntry.canExtendMembership(sess, serviceMember));
+
+	}
+
+	@Test
 	// It extend membership and try to extend it again, it must decline another expiration
 	public void canExtendMembershipInGracePeriod() throws Exception {
 		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriod");
@@ -1036,6 +1082,46 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Try to extend membership
 		assertFalse(membersManagerEntry.canBeMember(sess, createdVo, user, loa));
+
+	}
+
+	@Test
+	// It checks if service user can be member independent of his LoA
+	public void canBeMemberLoaNotAllowedServiceUser() throws Exception {
+		System.out.println(CLASS_NAME + "canBeMemberLoaNotAllowedServiceUser");
+
+		String loa = "1";
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipDoNotAllowLoaKeyName, loa);
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		User user = usersManagerEntry.getUserByMember(sess, createdMember);
+
+		// Set LOA 1 for member
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
+		UserExtSource uesService = new UserExtSource(es, "abc");
+		uesService.setLoa(1);
+
+		Candidate serviceCandidate = new Candidate();
+		serviceCandidate.setServiceUser(true);
+		serviceCandidate.setFirstName("");
+		serviceCandidate.setLastName("");
+		serviceCandidate.setId(0);
+		serviceCandidate.setUserExtSource(uesService);
+		serviceCandidate.setAttributes(new HashMap<String,String>());
+
+		Member serviceMember = perun.getMembersManager().createSpecificMember(sess, createdVo, serviceCandidate, Arrays.asList(user), SpecificUserType.SERVICE);
+		User serviceUser = usersManagerEntry.getUserByMember(sess, serviceMember);
+
+		// Must return true even if loa is not allowed
+		assertTrue(membersManagerEntry.canBeMember(sess, createdVo, serviceUser, loa));
+
 	}
 
 	@Test

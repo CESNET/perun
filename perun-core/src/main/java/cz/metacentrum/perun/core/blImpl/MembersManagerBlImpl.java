@@ -212,7 +212,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(e);
 		}
 
-		// check if user can be member
+		// check if user can be member - service members are not checked for LoA
 		this.canBeMemberInternal(sess, vo, user, memberLoa, true);
 
 		// set initial membership expiration
@@ -1234,10 +1234,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
     // Which LOA we won't extend? This is applicable only for members who have already set expiration from the previous period
     if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null) {
-      String[] doNotEtxendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
+      String[] doNotExtendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
 
-      for (String doNotEtxendLoa : doNotEtxendLoas) {
-        if (doNotEtxendLoa.equals(loa)) {
+      for (String doNotExtendLoa : doNotExtendLoas) {
+        if (doNotExtendLoa.equals(loa)) {
           // LOA provided is not allowed for extension
           throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOA,
                 "Provided LoA " + loa + " doesn't have required level for VO id " + vo.getId() + ".");
@@ -1531,7 +1531,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	/**
 	 * More info on https://wiki.metacentrum.cz/wiki/VO_managers%27s_manual
 	 *
-	 * Check if the user can apply for VO membership.
+	 * Check if the user can apply for VO membership. VO restrictions doesn't apply to service users.
 	 *
 	 * @param sess session
 	 * @param vo VO to apply for
@@ -1544,6 +1544,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	 * @throws InternalErrorException
 	*/
 	protected boolean canBeMemberInternal(PerunSession sess, Vo vo, User user, String loa, boolean throwExceptions) throws InternalErrorException, ExtendMembershipException {
+
+		if (user.isServiceUser()) return true;
+
 		// Check if the VO has set membershipExpirationRules attribute
 		LinkedHashMap<String, String> membershipExpirationRules;
 
@@ -1656,10 +1659,22 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(e);
 		}
 
-		// Which LOA we won't extend? This is applicable only for members who have already set expiration from the previous period
-		if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null && membershipExpirationAttribute.getValue() != null) {
+		boolean isServiceUser = false;
+		try {
+			User user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
+			isServiceUser = user.isServiceUser();
+		} catch (UserNotExistsException ex) {
+			throw new ConsistencyErrorException("User must exists for "+member+" when checking expiration rules.");
+		}
+
+		// Which LOA we won't extend?
+		// This is applicable only for members who have already set expiration from the previous period
+		// and are not service users
+		if (membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName) != null &&
+				membershipExpirationAttribute.getValue() != null &&
+				!isServiceUser) {
 			if (memberLoa == null) {
-				// Member doesn't have LOA defined and LOA is required for extenstion, so do not extend membership.
+				// Member doesn't have LOA defined and LOA is required for extension, so do not extend membership.
 				log.warn("Member {} doesn't have LOA defined, but 'doNotExtendLoa' option is set for VO id {}.", member, member.getVoId());
 				if (throwExceptions) {
 					throw new ExtendMembershipException(ExtendMembershipException.Reason.NOUSERLOA,
@@ -1669,10 +1684,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				}
 			}
 
-			String[] doNotEtxendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
+			String[] doNotExtendLoas = membershipExpirationRules.get(MembersManager.membershipDoNotExtendLoaKeyName).split(",");
 
-			for (String doNotEtxendLoa : doNotEtxendLoas) {
-				if (doNotEtxendLoa.equals(memberLoa)) {
+			for (String doNotExtendLoa : doNotExtendLoas) {
+				if (doNotExtendLoa.equals(memberLoa)) {
 					// Member has LOA which is not allowed for extension
 					if (throwExceptions) {
 						throw new ExtendMembershipException(ExtendMembershipException.Reason.INSUFFICIENTLOAFOREXTENSION,
