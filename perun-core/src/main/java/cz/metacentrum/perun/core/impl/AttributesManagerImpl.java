@@ -4941,7 +4941,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDisplayName("User title after");
 		attributes.add(attr);
 
-		//User.titleAfter
+		//User.serviceUser
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
 		attr.setType(Boolean.class.getName());
