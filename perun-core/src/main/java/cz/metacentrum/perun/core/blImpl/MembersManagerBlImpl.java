@@ -1623,7 +1623,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		} catch (VoNotExistsException e) {
 			throw new ConsistencyErrorException("Member " + member + " of non-existing VO id=" + member.getVoId());
 		} catch (AttributeNotExistsException e) {
-			// No rules set, so leave it as it is
+			// There is no attribute definition for membership expiration rules.
 			return new Pair<Boolean, Date>(true, null);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException("Shouldn't happen.");
@@ -1646,15 +1646,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			membershipExpirationAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member,
 					AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
 		} catch (AttributeNotExistsException e) {
-			// membershipExpiration was not set, so calculate it in a next phase
-			try {
-				AttributeDefinition membershipExpirationAttributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess,
-						AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-				membershipExpirationAttribute = new Attribute(membershipExpirationAttributeDefinition);
-			} catch (AttributeNotExistsException e1) {
-				throw new ConsistencyErrorException("Attribute: " + AttributesManager.NS_MEMBER_ATTR_DEF +
+			throw new ConsistencyErrorException("Attribute: " + AttributesManager.NS_MEMBER_ATTR_DEF +
 						":membershipExpiration" + " must be defined in order to use membershipExpirationRules");
-			}
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		}
