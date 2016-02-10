@@ -874,7 +874,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Creates a password.
+	 * Creates a password in external authz system.
 	 *
 	 * @param login String Login
 	 * @param namespace String Namespace
@@ -897,7 +897,8 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Reserves a random password.
+	 * Reserves a random password in external authz system. User shouldn't be able to log-in (account disabled, password unknown to him).
+	 * This is usefull when manager create account for others and later send them password reset request.
 	 *
 	 * @param user int User <code>id</code>
 	 * @param namespace String Namespace
@@ -914,7 +915,14 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Reserves a password.
+	 * Reserves password for a user in specified login-namespace.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param namespace String Namespace
+	 * @param password String password
+	 */
+	/*#
+	 * Reserves password for a user in specified login-namespace.
 	 *
 	 * @param login String Login
 	 * @param namespace String Namespace
@@ -936,11 +944,18 @@ public enum UsersManagerMethod implements ManagerMethod {
 		}
 	},
 	/*#
-	 * Validates a password.
+	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
+	 * in external authz system using his credentials.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param namespace String Namespace
+	 */
+	/*#
+	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
+	 * in external authz system using his credentials.
 	 *
 	 * @param login String Login
 	 * @param namespace String Namespace
-	 * @param password String password
 	 */
 	validatePassword {
 		@Override
@@ -959,11 +974,12 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Validates a password and set ext sources
+	 * Validates password for a user in specified login-namespace. After that, user should be able to log-in
+	 * in external authz system using his credentials. It also creates UserExtSource and sets some required attributes.
 	 *
+	 * @param user int User <code>id</code>
 	 * @param login String Login
 	 * @param namespace String Namespace
-	 * @param user int User <code>id</code>
 	 */
 	validatePasswordAndSetExtSources {
 		@Override
@@ -980,7 +996,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	 * Set new login in namespace if login is available and user doesn't have login in that namespace.
 	 * !! Works only for service users !!
 	 *
-	 * @param user Integer User <code>id</code>
+	 * @param user int User <code>id</code>
 	 * @param login String Login
 	 * @param namespace String Namespace
 	 */
