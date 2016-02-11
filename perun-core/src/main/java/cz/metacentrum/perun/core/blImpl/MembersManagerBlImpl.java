@@ -1545,7 +1545,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	*/
 	protected boolean canBeMemberInternal(PerunSession sess, Vo vo, User user, String loa, boolean throwExceptions) throws InternalErrorException, ExtendMembershipException {
 
-		if (user.isServiceUser()) return true;
+		if (user != null && user.isServiceUser()) return true;
 
 		// Check if the VO has set membershipExpirationRules attribute
 		LinkedHashMap<String, String> membershipExpirationRules;
