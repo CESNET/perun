@@ -7,6 +7,10 @@ use Crypt::OpenSSL::AES;
 use Crypt::CBC;
 use MIME::Base64::URLSafe;
 use JSON;
+use utf8;
+use Encode qw(decode encode);
+
+binmode STDOUT, ":utf8";
 
 my $q = CGI->new;
 print $q->header(-type=>'application/json', -charset=>'UTF-8');
@@ -19,8 +23,8 @@ my $emailRegularExp = '^[-_A-Za-z0-9+]+(\.[-_A-Za-z0-9]+)*@[-A-Za-z0-9]+(\.[-A-Z
 $email = param("email");
 $callback = param("callback");
 $mailingList = 'bioinfo-cz@elixir-czech.cz';
-my $firstname = param("name");
-my $lastname = param("surname");
+my $firstname = decode('UTF-8', param("name"));
+my $lastname = decode('UTF-8', param("surname"));
 
 #reaction to not defined callback
 if(!defined($callback)) {
@@ -67,7 +71,8 @@ if(!defined($firstname) || !defined($lastname)) {
 }
 
 #check if first name and last name contains only alphabet chracters
-if($firstname !~ /^[a-zA-Z ]*$/ || $lastname !~ /^[a-zA-Z ]*$/ ) {
+my $nameRegex = '^(\w|[ ])*$';
+if($firstname !~ /$nameRegex/ || $lastname !~ /$nameRegex/ ) {
   my $errorId = "5";
   my $message = "Wrong format of first or last name";
   my $name = "NameFromatException";
