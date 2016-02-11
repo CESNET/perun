@@ -13,6 +13,9 @@ use MIME::Base64::URLSafe;
 use JSON;
 use lib '/opt/perun-cli/lib/';
 use Perun::Agent;
+use utf8;
+use Encode qw(decode encode);
+binmode STDOUT, ":utf8";
 
 #header
 my $q = CGI->new;
@@ -78,8 +81,11 @@ if ($@) {
   exit 0;
 }
 
+#decode decrypted text to UTF-8
+$decryptedText = decode('UTF-8', $decryptedText);
+
 #test if decrypted secret is in correct format
-my $parametersRegExp = '^[a-zA-Z ]+\|[a-zA-Z ]+\|([-_A-Za-z0-9+]+(\.[-_A-Za-z0-9]+)*@[-A-Za-z0-9]+(\.[-A-Za-z0-9]+)*(\.[A-Za-z]{2,}))\|bioinfo-cz@elixir-czech.cz\|([0-9]+)$';
+my $parametersRegExp = '^(\w|[ ])+\|(\w|[ ])+\|([-_A-Za-z0-9+]+(\.[-_A-Za-z0-9]+)*@[-A-Za-z0-9]+(\.[-A-Za-z0-9]+)*(\.[A-Za-z]{2,}))\|bioinfo-cz@elixir-czech.cz\|([0-9]+)$';
 
 if($decryptedText !~ /$parametersRegExp/) {
   my $errorId = "6";
