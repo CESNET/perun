@@ -294,8 +294,7 @@ public class Utils {
 			String preferredMail = "preferredMail: ";
 			String o = "o: ";
 			String isServiceUser = "isServiceUser: ";
-			// FIXME - enable for support sponsored users
-			//String isSponsoredUser = "isSponsoredUser: ";
+			String isSponsoredUser = "isSponsoredUser: ";
 			String userPassword = "userPassword: ";
 			List<String> membersOf = new ArrayList<>();
 			List<Member> members;
@@ -326,9 +325,8 @@ public class Utils {
 			cn+= firstName + " " + lastName;
 			if(user.isServiceUser()) isServiceUser+= "1";
 			else isServiceUser+= "0";
-			// FIXME - enable for support sponsored users
-			//if(user.isSponsoredUser()) isSponsoredUser+= "1";
-			//else isSponsoredUser+= "0";
+			if(user.isSponsoredUser()) isSponsoredUser+= "1";
+			else isSponsoredUser+= "0";
 			if(firstName.isEmpty()) givenName = null;
 			else givenName+= firstName;
 			if(attrPreferredMail == null || attrPreferredMail.getValue() == null) mail = null;
@@ -361,6 +359,7 @@ public class Utils {
 			if(givenName != null) writer.write(givenName + '\n');
 			writer.write(perunUserId + '\n');
 			writer.write(isServiceUser + '\n');
+			writer.write(isSponsoredUser + '\n');
 			if(mail != null) writer.write(mail + '\n');
 			if(preferredMail != null) writer.write(preferredMail + '\n');
 			if(o != null) writer.write(o + '\n');

@@ -297,9 +297,8 @@ public class LdapConnectorImpl implements LdapConnector {
 		attributes.put("perunUserId", String.valueOf(user.getId()));
 		if(user.isServiceUser()) attributes.put("isServiceUser", "1");
 		else attributes.put("isServiceUser", "0");
-		// FIXME - for now disable support for sponsored
-		//if(user.isSponsoredUser()) attributes.put("isSponsoredUser", "1");
-		//else attributes.put("isSponsoredUser", "0");
+		if(user.isSponsoredUser()) attributes.put("isSponsoredUser", "1");
+		else attributes.put("isSponsoredUser", "0");
 
 		// Create the entry
 		try {
