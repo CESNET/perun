@@ -371,6 +371,19 @@ public class LdapConnectorImpl implements LdapConnector {
 		return true;
 	}
 
+	public boolean resourceAttributeExist(Resource resource, String ldapAttributeName) throws InternalErrorException {
+		if(ldapAttributeName == null) throw new InternalErrorException("ldapAttributeName can't be null.");
+		Object o = null;
+		try {
+			setLdapAttributeName(ldapAttributeName);
+			o = ldapTemplate.lookup(getResourceDN(String.valueOf(resource.getVoId()), String.valueOf(resource.getId())), new ResourcePerunResourceAttributeContextMapper());
+		} catch (NameNotFoundException ex) {
+			return false;
+		}
+		if(o == null) return false;
+		return true;
+	}
+
 	public boolean userPasswordExists(User user) {
 		Object o = ldapTemplate.lookup(getUserDN(String.valueOf(user.getId())), new UserAttributesContextMapper());
 		Attributes attrs = null;
@@ -560,6 +573,19 @@ public class LdapConnectorImpl implements LdapConnector {
 		public String[] mapFromContext(Object ctx) {
 			DirContextAdapter context = (DirContextAdapter)ctx;
 			String[] s=context.getStringAttributes("uniqueMember");
+			return s;
+		}
+	}
+
+	/**
+	 * Resource attribute 'any' context Mapper (the name of attribute is in variable 'ldapAttributeName'
+	 *
+	 * Context mapper is used for choosing concrete attribute.
+	 */
+	private class ResourcePerunResourceAttributeContextMapper implements ContextMapper {
+		public String mapFromContext(Object ctx) {
+			DirContextAdapter context = (DirContextAdapter)ctx;
+			String s=context.getStringAttribute(getLdapAttributeName());
 			return s;
 		}
 	}

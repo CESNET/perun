@@ -3,6 +3,7 @@ package cz.metacentrum.perun.ldapc.initializer.utils;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
@@ -13,6 +14,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -140,6 +142,20 @@ public class Utils {
 			List<Resource> resources;
 			resources = perun.getResourcesManagerBl().getResources(perunSession, vo);
 			for(Resource resource: resources) {
+				//Read facility attribute entityID and write it for the resource if exists
+				Facility facility = null;
+				try {
+					facility = perun.getFacilitiesManagerBl().getFacilityById(perunSession, resource.getFacilityId());
+				} catch (FacilityNotExistsException ex) {
+					throw new InternalErrorException("Can't found facility of this resource " + resource, ex);
+				}
+				Attribute entityIDAttr = null;
+				try {
+					entityIDAttr = perun.getAttributesManagerBl().getAttribute(perunSession, facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID");
+				} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+					throw new InternalErrorException("Problem with loading entityID attribute of facility " + facility, ex);
+				}
+
 				String dn = "dn: ";
 				String oc1 = "objectclass: top";
 				String oc3 = "objectclass: perunResource";
@@ -148,6 +164,7 @@ public class Utils {
 				String perunFacilityId = "perunFacilityId: ";
 				String perunResourceId = "perunResourceId: ";
 				String description = "description: ";
+				String entityID = "entityID: ";
 
 				perunVoId+= String.valueOf(resource.getVoId());
 				perunFacilityId+= String.valueOf(resource.getFacilityId());
@@ -166,6 +183,7 @@ public class Utils {
 				if(descriptionValue != null) writer.write(description + descriptionValue + '\n');
 				writer.write(perunVoId + '\n');
 				writer.write(perunFacilityId + '\n');
+				if(entityIDAttr.getValue() != null) writer.write(entityID + (String) entityIDAttr.getValue() + '\n');
 				//ADD resources which group is assigned to
 				List<Group> associatedGroups = perun.getResourcesManagerBl().getAssignedGroups(perunSession, resource);
 				for(Group g: associatedGroups) {
