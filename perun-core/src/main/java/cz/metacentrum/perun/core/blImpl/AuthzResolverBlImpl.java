@@ -434,7 +434,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if(roles.contains(Role.FACILITYADMIN)) {
 				if(isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
 			}
-			if(roles.contains(Role.GROUPADMIN)); {
+			if(roles.contains(Role.GROUPADMIN)) {
 				List<Group> groupsFromResource = getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 				for(Group g: groupsFromResource) {
 					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
