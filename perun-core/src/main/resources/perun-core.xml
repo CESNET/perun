@@ -23,6 +23,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.synchronizeGroup(..))"/>
 		<!--<aop:advisor advice-ref="txAdviceAuditerTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.*.*(..))"/>-->
 		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSql.*(..))"/>
+		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourceSqlComplex.*(..))"/>
 		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.flush(..))"/>
 		<aop:advisor advice-ref="txAdviceNoneTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.Auditer.storeMessageToDb(..))"/>
 		<aop:advisor advice-ref="txAdviceRequiresNewTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.GroupsManagerBlImpl.saveInformationAboutGroupSynchronization(..))"/>
@@ -298,6 +299,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<constructor-arg ref="perun" />
 	</bean>
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceSql" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
+	<bean class="cz.metacentrum.perun.core.impl.ExtSourceSqlComplex" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceXML" factory-method="setPerunBlImpl">
