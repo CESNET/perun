@@ -113,17 +113,21 @@ public class EventProcessorImpl implements EventProcessor {
 				schedulingPool.addToPool(task);
 				if(task.isPropagationForced()) {
 					final Task ntask = task;
-					taskExecutorEventProcessor.execute(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								taskScheduler.propagateService(ntask, new Date(
-										System.currentTimeMillis()));
-							} catch (InternalErrorException e) {
-								log.error(e.toString());
+					try {
+						taskExecutorEventProcessor.execute(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									taskScheduler.propagateService(ntask, new Date(
+											System.currentTimeMillis()));
+								} catch (InternalErrorException e) {
+									log.error(e.toString());
+								}
 							}
-						}
-					});
+						});
+					} catch(Exception e) {
+						log.error("Error queuing task to executor: " + e.toString());
+					}
 				}
 			} else {
 				// currentTask.setSourceUpdated(true);

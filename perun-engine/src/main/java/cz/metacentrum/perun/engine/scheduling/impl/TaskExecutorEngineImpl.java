@@ -200,8 +200,12 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 					log.error("Error setting status for destination {} of task {}",
 							destination, task.toString());
 				}
-				startWorker(task, destination);
-				started = true;
+				try {
+					startWorker(task, destination);
+					started = true;
+				} catch(Exception e) {
+					log.error("Error queuing worker for execution: " + e.toString());
+				}
 			}
 		}
 		if(!started) {
