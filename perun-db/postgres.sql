@@ -425,10 +425,10 @@ create table "service_required_attrs" (
 	modified_by_uid integer
 );
 
--- SERVICE_USER_USERS - relation between service-users and real users
+-- SPECIFIC_USER_USERS - relation between specific-users and real users
 create table specific_user_users (
 	user_id integer not null,          --identifier of real user (users.id)
-	specific_user_id integer not null,  --identifier of service user (users.id)
+	specific_user_id integer not null,  --identifier of specific user (users.id)
 	created_by_uid integer,
 	modified_by_uid integer,
 	modified_at timestamp default now() not null,
@@ -1345,8 +1345,8 @@ create index idx_fk_pn_tmplrgx_rgx on pn_template_regex(regex_id);
 create index idx_fk_pn_tmplrgx_tmpl on pn_template_regex(template_id);
 create index idx_fk_pn_rgxobj_rgx on pn_regex_object(regex_id);
 create index idx_fk_pn_rgxobj_obj on pn_regex_object(object_id);
-create index idx_fk_specifu_u_ui on service_user_users(user_id);
-create index idx_fk_specifu_u_sui on service_user_users(specific_user_id);
+create index idx_fk_specifu_u_ui on specific_user_users(user_id);
+create index idx_fk_specifu_u_sui on specific_user_users(specific_user_id);
 create index idx_fk_grp_grp_gid on groups_groups(group_id);
 create index idx_fk_grp_grp_pgid on groups_groups(parent_group_id);
 create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
@@ -1764,7 +1764,7 @@ grant all on pn_template to perun;
 grant all on pn_template_message to perun;
 grant all on pn_template_regex to perun;
 grant all on pn_regex_object to perun;
-grant all on service_user_users to perun;
+grant all on specific_user_users to perun;
 grant all on groups_groups to perun;
 grant all on action_types to perun;
 grant all on attributes_authz to perun;
