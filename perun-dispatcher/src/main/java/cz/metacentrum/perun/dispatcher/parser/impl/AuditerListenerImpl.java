@@ -44,7 +44,7 @@ public class AuditerListenerImpl implements AuditerListener {
 							}
 							event.setData(message);
 							eventQueue.add(event);
-							Thread.sleep(100);
+							// Thread.sleep(100);
 						}
 					}
 				} catch (InternalErrorException e) {
