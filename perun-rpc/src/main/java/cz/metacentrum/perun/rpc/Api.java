@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,6 +118,30 @@ public class Api extends HttpServlet {
 			}
 		}
 
+		// If OIDC_CLAIM_principal header exists, it means user has to authorized via OAuth2
+		else if (req.getHeader("OIDC_CLAIM_principal") != null && !req.getHeader("OIDC_CLAIM_principal").isEmpty()) {
+
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				ObjectNode jsonPrincipal = (ObjectNode) mapper.readTree(req.getHeader("OIDC_CLAIM_principal"));
+				ObjectNode jsonAttributes = (ObjectNode) jsonPrincipal.get("attributes");
+
+				extLogin = jsonPrincipal.get("name").getTextValue();
+				extSourceName = jsonAttributes.get("extSourceName").getTextValue();
+				extSourceType = jsonAttributes.get("extSourceType").getTextValue();
+				extSourceLoaString = jsonAttributes.get("extSourceLoa").getTextValue();
+
+				// remove because we do not want them in additional info
+				jsonAttributes.remove("extSourceName");
+				jsonAttributes.remove("extSourceType");
+				jsonAttributes.remove("extSourceLoa");
+				additionalInformations = mapper.convertValue(jsonAttributes, Map.class);
+
+			} catch (IOException e) {
+				throw new RpcException(RpcException.Type.NO_REMOTE_USER_SPECIFIED, "Cannot read OAuth2 principal", e);
+			}
+		}
+
 		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
 		else if (req.getAttribute("EXTSOURCE") != null) {
 			extSourceName = (String) req.getAttribute("EXTSOURCE");
@@ -125,7 +152,7 @@ public class Api extends HttpServlet {
 				extLogin = req.getRemoteUser();
 			} else if (req.getAttribute("ENV_REMOTE_USER") != null && !((String) req.getAttribute("ENV_REMOTE_USER")).isEmpty()) {
 				extLogin = (String) req.getAttribute("ENV_REMOTE_USER");
-			} else if (extSourceName.equals(cz.metacentrum.perun.core.api.ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
+			} else if (extSourceName.equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
 				/** LOCAL EXTSOURCE **/
 				// If ExtSource is LOCAL then generate REMOTE_USER name on the fly
 				extLogin = Long.toString(System.currentTimeMillis());
