@@ -3,6 +3,30 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.36
+ALTER TABLE groups_groups RENAME group_id TO result_gid;
+ALTER TABLE groups_groups RENAME parent_group_id TO operand_gid;
+ALTER TABLE groups_groups ADD COLUMN parent_flag BOOLEAN DEFAULT FALSE;
+ALTER TABLE groups_groups DROP COLUMN group_mode;
+DROP INDEX idx_fk_grp_grp_gid;
+DROP INDEX idx_fk_grp_grp_pgid;
+CREATE INDEX idx_fk_grp_grp_rgid ON groups_groups(result_gid);
+CREATE INDEX idx_fk_grp_grp_ogid ON groups_groups(operand_gid);
+ALTER TABLE groups_groups DROP CONSTRAINT grp_grp_gid_fk;
+ALTER TABLE groups_groups DROP CONSTRAINT grp_grp_pgid_fk;
+ALTER TABLE groups_groups ADD CONSTRAINT grp_grp_rgid_fk FOREIGN KEY (result_gid) REFERENCES groups(id);
+ALTER TABLE groups_groups ADD CONSTRAINT grp_grp_ogid_fk FOREIGN KEY (operand_gid) REFERENCES groups(id);
+CREATE PROCEDURE check_and_update_members(a IN INTEGER, b IN INTEGER, c IN INTEGER, d IN INTEGER) AS BEGIN IF NOT EXISTS(SELECT 1 FROM groups_members WHERE group_id = c AND source_group_id = b AND groups_members.member_id = d) THEN UPDATE groups_members SET source_group_id = b WHERE group_id = c AND source_group_id = a AND groups_members.member_id = d; ELSE DELETE FROM groups_members WHERE group_id = c AND source_group_id = a AND groups_members.member_id = d; END IF; END;
+CREATE PROCEDURE recursive_hierarchy_check(a IN INTEGER, b IN INTEGER) AS DECLARE parent_gid INTEGER; BEGIN SELECT parent_group_id INTO parent_gid FROM groups WHERE id = b; IF parent_gid IS NOT NULL THEN BEGIN FOR c IN (SELECT parent_gid, member_id FROM groups_members WHERE group_id = parent_gid AND source_group_id = a) LOOP check_and_update_members(a, b, c.parent_gid, c.member_id); END LOOP; END; recursive_hierarchy_check(a, parent_gid); END IF; END; 
+BEGIN FOR c IN (SELECT id, parent_group_id FROM groups WHERE groups.parent_group_id IS NOT NULL) LOOP recursive_hierarchy_check(c.id, c.parent_group_id); END LOOP; END;
+CREATE PROCEDURE create_relations(a IN INTEGER, b IN INTEGER) AS BEGIN IF NOT EXISTS(SELECT 1 FROM groups_groups WHERE result_gid = a AND operand_gid = b) THEN INSERT INTO groups_groups(result_gid, operand_gid, parent_flag) VALUES (a, b, TRUE); END IF; END;
+BEGIN FOR c IN (SELECT id, parent_group_id FROM groups WHERE groups.parent_group_id IS NOT NULL) LOOP create_relations(c.id, c.parent_group_id); END LOOP; END;
+DROP FUNCTION create_relations;
+DROP FUNCTION recursive_hierarchy_check;
+DROP FUNCTION check_and_update_members;
+UPDATE membership_types SET description = 'Member is added indirectly through UNION relation' WHERE membership_type = 'INDIRECT';
+update configurations set value='3.1.35' where property='DATABASE VERSION';
+
 3.1.35
 alter table users add sponsored_acc char(1) default '0' not null;
 drop index IDX_FK_SERVU_U_UI;

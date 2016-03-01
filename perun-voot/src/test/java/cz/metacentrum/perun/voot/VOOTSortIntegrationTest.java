@@ -171,7 +171,7 @@ public class VOOTSortIntegrationTest extends AbstractVOOTTest {
 	}
 
 	@Override
-	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException {
+	public void setUpBackground() throws VoExistsException, InternalErrorException, GroupExistsException, AlreadyMemberException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, AlreadyAdminException, AttributeNotExistsException, ExtendMembershipException, GroupOperationsException, GroupNotExistsException {
 		vo1 = perun.getVosManagerBl().createVo(session, new Vo(0, "vo1", "vo1"));
 
 		group1 = perun.getGroupsManagerBl().createGroup(session, vo1, new Group("group1", "B group1 in vo1"));

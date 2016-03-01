@@ -260,12 +260,13 @@ public interface UsersManagerBl {
 	 * @param perunSession
 	 * @param user
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException            if user has some members assigned
-	 * @throws MemberAlreadyRemovedException      if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException        if there are no rows affected by deleting user in DB
+	 * @throws RelationExistsException             if user has some members assigned
+	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
+	 * @throws GroupOperationsException	           if something went wrong while processing relations
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException;
 
 	/**
 	 * Deletes user. If forceDelete is true, then removes also associated members.
@@ -274,12 +275,13 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @param forceDelete  if true, deletes also all members if they are assigned to the user
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException            if forceDelete is false and the user has some members assigned
-	 * @throws MemberAlreadyRemovedException      if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException        if there are no rows affected by deleting user in DB
-	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
+	 * @throws RelationExistsException             if forceDelete is false and the user has some members assigned
+	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
+	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
+	 * @throws GroupOperationsException	           if something went wrong while processing relations
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException;
 
 	/**
 	 * Updates users data in DB.
