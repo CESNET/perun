@@ -85,12 +85,15 @@ public class SystemQueueReceiver implements Runnable {
 				Thread.sleep(periodicity);
 			} catch (JMSException e) {
 				log.error(e.toString(), e);
+				systemQueueProcessor.stopProcessingSystemMessages();
+				systemQueueProcessor.startProcessingSystemMessages();
 			} catch (InterruptedException e) {
 				log.error(e.toString(), e);
+				stop();
 			} catch (Exception e) {
 				log.error(e.toString(), e);
+				stop();
 			}
-			// TODO: Close connection and restart SystemQueueProcessor?
 		}
 		try {
 			messageConsumer.close();
