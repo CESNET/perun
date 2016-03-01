@@ -87,6 +87,12 @@ public class SystemQueueReceiver implements Runnable {
 				log.error(e.toString(), e);
 				systemQueueProcessor.stopProcessingSystemMessages();
 				systemQueueProcessor.startProcessingSystemMessages();
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException ex) {
+					log.error(ex.toString(), ex);
+					stop();
+				}
 			} catch (InterruptedException e) {
 				log.error(e.toString(), e);
 				stop();
