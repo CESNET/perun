@@ -9,7 +9,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.sql.Clob;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -32,10 +31,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
 
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
-import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.jdbc.support.lob.OracleLobHandler;
 
@@ -46,17 +43,17 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributeRights;
 import cz.metacentrum.perun.core.api.AttributesManager;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_HOST_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_GROUP_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_RESOURCE_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_FACILITY_ATTR_DEF;
-import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR_DEF;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_GROUP_RESOURCE_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_HOST_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_GROUP_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_RESOURCE_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_RESOURCE_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_FACILITY_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
 import cz.metacentrum.perun.core.api.Auditable;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -144,17 +141,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	// mapping of the perun bean names to the attribute namespaces
 	private static final Map<String,String> NAMESPACES_BEANS_MAP = new HashMap<>();
 	static {
-		NAMESPACES_BEANS_MAP.put("user", NS_USER_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("member", NS_MEMBER_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("facility", NS_FACILITY_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("vo", NS_VO_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("host", NS_HOST_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("group", NS_GROUP_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("resource", NS_RESOURCE_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("member_resource", NS_MEMBER_RESOURCE_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("member_group", NS_MEMBER_GROUP_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("user_facility", NS_USER_FACILITY_ATTR_DEF);
-		NAMESPACES_BEANS_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR_DEF);		
+		NAMESPACES_BEANS_MAP.put("user", NS_USER_ATTR);
+		NAMESPACES_BEANS_MAP.put("member", NS_MEMBER_ATTR);
+		NAMESPACES_BEANS_MAP.put("facility", NS_FACILITY_ATTR);
+		NAMESPACES_BEANS_MAP.put("vo", NS_VO_ATTR);
+		NAMESPACES_BEANS_MAP.put("host", NS_HOST_ATTR);
+		NAMESPACES_BEANS_MAP.put("group", NS_GROUP_ATTR);
+		NAMESPACES_BEANS_MAP.put("resource", NS_RESOURCE_ATTR);
+		NAMESPACES_BEANS_MAP.put("member_resource", NS_MEMBER_RESOURCE_ATTR);
+		NAMESPACES_BEANS_MAP.put("member_group", NS_MEMBER_GROUP_ATTR);
+		NAMESPACES_BEANS_MAP.put("user_facility", NS_USER_FACILITY_ATTR);
+		NAMESPACES_BEANS_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR);		
 	}
 
 	/**
@@ -1612,7 +1609,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			// deleting the attibute if the given attribute value is null
 			if (attribute.getValue() == null) {
-				int numAffected = jdbc.update("delete from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), columnValues);
+				int numAffected = jdbc.update("delete from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), columnValues.toArray());
 				if (numAffected > 1) {
 					throw new ConsistencyErrorException(String.format("Too much rows to delete (" + numAffected + " rows). SQL: delete from " + tableName + " where " + buildParameters(columnNames, "=%s", " and "), columnValues.toArray()));
 				}
@@ -1704,14 +1701,22 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
 		// add additional SQL values to the list
-		columnValues.add(BeansUtils.attributeValueToString(attribute)); // valueColName
-		columnValues.add(sess.getPerunPrincipal().getActor()); // created_by
-		columnValues.add(sess.getPerunPrincipal().getActor()); // modified_by
-		columnValues.add(sess.getPerunPrincipal().getUserId()); // created_by_uid
-		columnValues.add(sess.getPerunPrincipal().getUserId()); // modified_by_uid
+		List<Object> values = new ArrayList<>(columnValues);
+		values.add(BeansUtils.attributeValueToString(attribute)); // valueColName
+		values.add(sess.getPerunPrincipal().getActor()); // created_by
+		values.add(sess.getPerunPrincipal().getActor()); // modified_by
+		values.add(sess.getPerunPrincipal().getUserId()); // created_by_uid
+		values.add(sess.getPerunPrincipal().getUserId()); // modified_by_uid
+		// prepare correct number of question marks
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < values.size(); i++) {
+			sb.append("?,");
+		}
+		String questionMarks = sb.toString();
+		
 		try {
-			int changed = jdbc.update("insert into " + tableName + " (" + buildParameters(columnNames, "", ", ") + ", " + valueColName + ", created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
-					+ "values (?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", columnValues.toArray());
+			int changed = jdbc.update("insert into " + tableName + " (" + buildParameters(columnNames, "", ", ") + ", " + valueColName + ", created_by, modified_by, created_by_uid, modified_by_uid, modified_at, created_at) "
+					+ "values (" + questionMarks + Compatibility.getSysdate() + ", " + Compatibility.getSysdate() + " )", values.toArray());
 			return changed > 0;
 		} catch (DataAccessException ex) {
 			throw ex;
@@ -1721,12 +1726,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
 		// add additional SQL values to the list
-		columnValues.add(0, BeansUtils.attributeValueToString(attribute)); // valueColName
-		columnValues.add(1, sess.getPerunPrincipal().getActor()); // modified_by
-		columnValues.add(2, sess.getPerunPrincipal().getUserId()); // modified_by_uid
+		List<Object> values = new ArrayList<>();
+		values.add(BeansUtils.attributeValueToString(attribute)); // valueColName
+		values.add(sess.getPerunPrincipal().getActor()); // modified_by
+		values.add(sess.getPerunPrincipal().getUserId()); // modified_by_uid
+		values.addAll(columnValues);
 		try {
 			int changed = jdbc.update("update " + tableName + " set " + valueColName + "=?, modified_by=?, modified_by_uid=?, modified_at=" + 
-					Compatibility.getSysdate() + " where " + buildParameters(columnNames, "=?", " and "), columnValues.toArray());
+					Compatibility.getSysdate() + " where " + buildParameters(columnNames, "=?", " and "), values.toArray());
 		return changed > 0;
 		} catch (DataAccessException ex) {
 			throw ex;
