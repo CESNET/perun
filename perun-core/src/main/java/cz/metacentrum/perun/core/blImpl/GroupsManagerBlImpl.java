@@ -888,6 +888,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			log.info("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", new Object[] {group, membersSource, membersSource.getName()});
 
 			//Get subjects from extSource
+			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupRichMembers(sess, group);
 			List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, source, group);
 
 			//Convert subjects to candidates
@@ -897,7 +898,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			List<Candidate> candidatesToAdd = new ArrayList<>();
 			Map<Candidate, RichMember> membersToUpdate = new HashMap<>();
 			List<RichMember> membersToRemove = new ArrayList<>();
-			categorizeMembersForSynchronization(sess, group, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
+			categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
 
 			//Update members already presented in group
 			updateExistingMembersWhileSynchronization(sess, group, membersToUpdate, overwriteUserAttributesList, lightweightSynchronization);
@@ -1427,8 +1428,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if getting RichMembers without attributes for the group fail
 	 */
-	private void categorizeMembersForSynchronization(PerunSession sess, Group group, List<Candidate> candidates, List<Candidate> candidatesToAdd, Map<Candidate, RichMember> membersToUpdate, List<RichMember> membersToRemove) throws InternalErrorException {
-		List<RichMember> groupMembers = getPerunBl().getGroupsManagerBl().getGroupRichMembers(sess, group);
+	private void categorizeMembersForSynchronization(PerunSession sess, List<RichMember> groupMembers, List<Candidate> candidates, List<Candidate> candidatesToAdd, Map<Candidate, RichMember> membersToUpdate, List<RichMember> membersToRemove) throws InternalErrorException {
 		candidatesToAdd.addAll(candidates);
 		membersToRemove.addAll(groupMembers);
 		//mapping structure for more efficient searching
@@ -1690,6 +1690,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		for(Candidate candidate: membersToUpdate.keySet()) {
 			RichMember richMember = membersToUpdate.get(candidate);
 
+			//If member not exists in this moment (somebody remove him before start of updating), skip him and log it
+			try {
+				getPerunBl().getMembersManagerBl().checkMemberExists(sess, richMember);
+			} catch (MemberNotExistsException ex) {
+				//log it and skip this member
+				log.debug("Someone removed member {} from group {} before updating process. Skip him.", richMember, group);
+				continue;
+			}
+
 			//update attributes or skip them if this is lightweight synchronization (without updating attributes for existing members)
 			if(!lightweightSynchronization) {
 				for (String attributeName : candidate.getAttributes().keySet()) {
@@ -1910,7 +1919,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 				log.info("Group synchronization {}: New member id {} added.", group, member.getId());
 			} catch (AlreadyMemberException e) {
-				throw new ConsistencyErrorException("Trying to add existing member");
+				//This part is ok, it means someone add member before synchronization ends, log it and skip this member
+				log.debug("Member {} was added to group {} before adding process. Skip this member.", member, group);
+				continue;
 			} catch (AttributeValueException e) {
 				// There is a problem with attribute value, so set INVALID status of the member
 				getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
@@ -2014,6 +2025,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			} catch (NotGroupMemberException e) {
 				throw new ConsistencyErrorException("Trying to remove non-existing user");
+			} catch (MemberAlreadyRemovedException ex) {
+				//Member was probably removed before starting of synchronization removing process, log it and skip this member
+				log.debug("Member {} was removed from group {} before removing process. Skip this member.", member, group);
+				continue;
 			}
 		}
 	}
