@@ -564,8 +564,8 @@ public class MailManagerImpl implements MailManager {
 										if (newValue != null && !newValue.isEmpty()) {
 											if (!newValue.endsWith("/")) newValue += "/";
 											newValue += namespace + "/registrar/";
-											newValue += "?vo="+app.getVo().getShortName();
-											newValue += ((app.getGroup() != null) ? "&group="+app.getGroup().getName() : "");
+											newValue += "?vo="+getEncodedString(app.getVo().getShortName());
+											newValue += ((app.getGroup() != null) ? "&group="+getEncodedString(app.getGroup().getName()) : "");
 											try {
 												newValue += "&i=" + URLEncoder.encode(i, "UTF-8") + "&m=" + URLEncoder.encode(m, "UTF-8");
 											} catch (UnsupportedEncodingException ex) {
@@ -589,12 +589,12 @@ public class MailManagerImpl implements MailManager {
 									url += "registrar/";
 								}
 
-								if (url != null && !url.isEmpty()) url = url + "?vo=" + app.getVo().getShortName();
+								if (url != null && !url.isEmpty()) url = url + "?vo=" + getEncodedString(app.getVo().getShortName());
 
 
 								if (app.getGroup() != null) {
 									// append group name for
-									if (url != null && !url.isEmpty()) url += "&group=" + app.getGroup().getName();
+									if (url != null && !url.isEmpty()) url += "&group=" + getEncodedString(app.getGroup().getName());
 								}
 
 								// construct whole url
@@ -1534,17 +1534,17 @@ public class MailManagerImpl implements MailManager {
 
 		if (text == null || text.isEmpty()) return "";
 
-		text = text + "?vo=" + vo.getShortName();
+		text = text + "?vo=" + getEncodedString(vo.getShortName());
 
 		if (isMember && group != null) {
 			// application for group
-			text += "&group="+group.getName();
+			text += "&group="+getEncodedString(group.getName());
 		} else if (!isMember && group == null) {
 			// application for VO
 			// ==> no change to URL
 		} else if (!isMember && group != null) {
 			// application for VO+group (redirect)
-			text += "&targetnew=" + text.replace("?", "%3F") + "%26group=" + group.getName() + "&targetexisting=" + text.replace("?", "%3F") + "%26group=" + group.getName();
+			text += "&targetnew=" + text.replace("?", "%3F") + "%26group=" + getEncodedString(group.getName()) + "&targetexisting=" + text.replace("?", "%3F") + "%26group=" + getEncodedString(group.getName());
 		}
 
 		return text;
@@ -1959,10 +1959,10 @@ public class MailManagerImpl implements MailManager {
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
 				text += "registrar/";
-				text += "?vo=" + vo.getShortName() + "&page=apps";
+				text += "?vo=" + getEncodedString(vo.getShortName()) + "&page=apps";
 			}
 			if (group != null) {
-				text += "&group="+group.getName();
+				text += "&group="+getEncodedString(group.getName());
 			}
 			mailText = mailText.replace("{appGuiUrl}", text);
 		}
@@ -1992,8 +1992,8 @@ public class MailManagerImpl implements MailManager {
 					if (newValue != null && !newValue.isEmpty()) {
 						if (!newValue.endsWith("/")) newValue += "/";
 						newValue += namespace + "/registrar/";
-						newValue += "?vo="+vo.getShortName();
-						newValue += ((group != null) ? "&group="+group.getName() : "");
+						newValue += "?vo="+getEncodedString(vo.getShortName());
+						newValue += ((group != null) ? "&group="+getEncodedString(group.getName()) : "");
 						newValue += "&page=apps";
 					}
 
@@ -2087,6 +2087,22 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 		return fedAuthz;
+	}
+
+	/**
+	 * Return URL encoded String in utf-8. If not possible, return original string.
+	 *
+	 * @param s String to encode
+	 * @return URL Encoded string
+	 */
+	private static String getEncodedString(String s) {
+
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (UnsupportedEncodingException ex) {
+			return s;
+		}
+
 	}
 
 }
