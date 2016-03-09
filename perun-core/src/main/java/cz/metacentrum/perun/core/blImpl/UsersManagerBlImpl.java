@@ -96,6 +96,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
+		if (!user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
 
 		List<User> specificUserOwners = this.getUsersBySpecificUser(sess, specificUser);
 		if(!specificUserOwners.remove(user)) throw new RelationNotExistsException("User is not the active owner of the specificUser.");
@@ -117,6 +118,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationExistsException {
 		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
 		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
+		if (!user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
 		List<User> specificUserOwners = this.getUsersBySpecificUser(sess, specificUser);
 		if(specificUserOwners.remove(user)) throw new RelationExistsException("User is already the active owner of specific user.");
 
