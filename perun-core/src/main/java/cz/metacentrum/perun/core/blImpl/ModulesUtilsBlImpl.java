@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +60,8 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
 	//Often used patterns
-	public static final Pattern pathPattern = Pattern.compile("^/([-a-zA-Z0-9_]+[/]?)*$");
-	public static final Pattern quotaWithMetricsPattern = Pattern.compile("^([0-9]+([.][0-9]+)?[KMGTPE]?):([0-9]+([.][0-9]+)?[KMGTPE]?)");
-	public static final Pattern quotaWithoutMetricsPattern = Pattern.compile("^([0-9]+)(:)([0-9]+)");
+	public static final Pattern quotaWithMetricsPattern = Pattern.compile("^([0-9]+([.][0-9]+)?[KMGTPE]?):([0-9]+([.][0-9]+)?[KMGTPE]?)$");
+	public static final Pattern quotaWithoutMetricsPattern = Pattern.compile("^([0-9]+)(:)([0-9]+)$");
 	public static final Pattern numberPattern = Pattern.compile("[0-9]+([.][0-9]+)?");
 	public static final Pattern letterPattern = Pattern.compile("[A-Z]");
 
@@ -685,25 +686,29 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			if(path == null || path.isEmpty()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "The path of some volume where quota should be set is null.");
 
 			//testing if path is unique
-			if(uniquePaths.contains(path.replaceAll("[/]+$", ""))) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Paths are not unique, there are two same paths: " + path);
-			else uniquePaths.add(path.replaceAll("[/]+$", ""));
+			String canonicalPath;
+			try {
+				canonicalPath = new URI(path).normalize().getPath();
+				if(!canonicalPath.endsWith("/")) canonicalPath = canonicalPath.concat("/");
+			} catch (URISyntaxException ex) {
+				throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Path '" + path + "' is not correct form.");
+			}
+
+			if(uniquePaths.contains(canonicalPath)) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Paths are not unique, there are two same paths: " + path);
+			else uniquePaths.add(canonicalPath);
 
 			String quota = defaultQuotasMap.get(path);
 			//quota can't be null, if exists in attribute, must be set in some way
 			if(quota == null) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "The quota of some volume where quota should be set is null.");
 
-			//check format of path parameter
-			Matcher pathMatcher = ModulesUtilsBlImpl.pathPattern.matcher(path);
-			if(!pathMatcher.find()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Format of path in quotas attribute is not correct.");
-
 			//check format of quota parameter (for data with metrics, for count of files without metrics)
 			Matcher quotaMatcher;
 			if(withMetrics) {
 				quotaMatcher = ModulesUtilsBlImpl.quotaWithMetricsPattern.matcher(quota);
-				if(!quotaMatcher.find()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Format of quota in quotas attribute is not correct.");
+				if(!quotaMatcher.matches()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Format of quota in quotas attribute is not correct.");
 			} else {
 				quotaMatcher = ModulesUtilsBlImpl.quotaWithoutMetricsPattern.matcher(quota);
-				if(!quotaMatcher.find()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Format of quota in quotas attribute is not correct.");
+				if(!quotaMatcher.matches()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Format of quota in quotas attribute is not correct.");
 			}
 
 			//Parse quotas to variables
@@ -795,7 +800,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			}
 			//other cases are ok
 
-			transferedQuotas.put(path.replaceAll("[/]+$", ""), new Pair(softQuotaAfterTransfer, hardQuotaAfterTransfer));
+			transferedQuotas.put(canonicalPath, new Pair(softQuotaAfterTransfer, hardQuotaAfterTransfer));
 		}
 
 		return transferedQuotas;
