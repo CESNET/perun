@@ -218,7 +218,9 @@ public class GetAllGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	 * @param object Group to be removed as row
 	 */
 	public void removeFromTable(Group object) {
-		list.remove(object);
+		for (Group group : list) {
+			if (group.getId() == object.getId()) list.remove(group);
+		}
 		selectionModel.getSelectedSet().remove(object);
 		dataProvider.flush();
 		dataProvider.refresh();
