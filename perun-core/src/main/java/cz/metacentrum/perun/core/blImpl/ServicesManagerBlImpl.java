@@ -165,6 +165,14 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
 		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
+		
+		//Add there also voRequiredAttributes for service
+		try {
+			Vo resourceVo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
+			resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resourceVo));
+		} catch (VoNotExistsException ex) {
+			throw new ConsistencyErrorException("There is missing Vo for existing resource " + resource);
+		}
 
 		ServiceAttributes membersAbstractSA = new ServiceAttributes();
 		Map<Member, ServiceAttributes> memberAttributes = new HashMap<Member, ServiceAttributes>();
