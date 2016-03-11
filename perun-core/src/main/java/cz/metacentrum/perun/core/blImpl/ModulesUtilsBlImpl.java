@@ -76,8 +76,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		        "jetty", "hbase", "zookeeper", "hive", "hue");
 
 	//Definition of K = KB, M = MB etc.
-	public static final long K = 1024;
-	public static final long M = K * 1024;
+	public static final long M = 1024;
 	public static final long G = M * 1024;
 	public static final long T = G * 1024;
 	public static final long P = T * 1024;
@@ -753,8 +752,6 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 				//multiplying for softQuota
 				switch (softQuotaLetter) {
-					case "K":	softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(K));
-								break;
 					case "G":	softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(G));
 								break;
 					case "M":	softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(M));
@@ -770,8 +767,6 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 				//multiplying for softQuota
 				switch (hardQuotaLetter) {
-					case "K":	hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(K));
-								break;
 					case "G":	hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(G));
 								break;
 					case "M":	hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(M));
