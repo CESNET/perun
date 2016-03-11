@@ -752,34 +752,48 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 				//multiplying for softQuota
 				switch (softQuotaLetter) {
-					case "K":	break; //K is basic metric, no need to multiply it
-					case "G":	softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(G));
-						    	break;
-					case "M":	softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(M));
-						    	break;
-					case "T":	softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(T));
-						    	break;
-					case "P":	softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(P));
-						    	break;
-					case "E":	softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(E));
-						    	break;
-					default:	throw new ConsistencyErrorException("There is not allowed character in soft quota letter '" + softQuotaLetter + "'.");
+					case "K":
+						break; //K is basic metric, no need to multiply it
+					case "G":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(G));
+						break;
+					case "M":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(M));
+						break;
+					case "T":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(T));
+						break;
+					case "P":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(P));
+						break;
+					case "E":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(E));
+						break;
+					default:
+						throw new ConsistencyErrorException("There is not allowed character in soft quota letter '" + softQuotaLetter + "'.");
 				}
 
 				//multiplying for softQuota
 				switch (hardQuotaLetter) {
-					case "K":	break; //K is basic metric, no need to multiply it
-					case "G":	hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(G));
-						    	break;
-					case "M":	hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(M));
-						    	break;
-					case "T":	hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(T));
-						    	break;
-					case "P":	hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(P));
-						    	break;
-					case "E":	hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(E));
-						    	break;
-					default:	throw new ConsistencyErrorException("There is not allowed character in hard quota letter '" + hardQuotaLetter + "'.");
+					case "K":
+						break; //K is basic metric, no need to multiply it
+					case "G":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(G));
+						break;
+					case "M":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(M));
+						break;
+					case "T":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(T));
+						break;
+					case "P":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(P));
+						break;
+					case "E":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(E));
+						break;
+					default:
+						throw new ConsistencyErrorException("There is not allowed character in hard quota letter '" + hardQuotaLetter + "'.");
 				}
 			//easy way without metrics
 			} else {
