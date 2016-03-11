@@ -298,6 +298,12 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				firstTabLayout.setVisible(true);
 
 				final FindUsers callback = new FindUsers();
+				// Service users can't own another Service or Guest (Sponsored) account.
+				callback.hideService(true);
+				if (userType.getSelectedValue().equals("SPONSORED")) {
+					// Sponsored account can't sponsor another !
+					callback.setHideSponsored(true);
+				}
 
 				// HORIZONTAL MENU
 				TabMenu tabMenu = new TabMenu();
