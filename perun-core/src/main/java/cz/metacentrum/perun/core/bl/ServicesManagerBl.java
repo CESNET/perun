@@ -149,6 +149,8 @@ public interface ServicesManagerBl {
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
+	 * Generate also vo-required attributes for service. Add them to the same structure like resource-required attributes.
+	 *
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
