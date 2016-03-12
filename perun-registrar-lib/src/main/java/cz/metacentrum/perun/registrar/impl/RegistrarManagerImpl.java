@@ -426,7 +426,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("voFormExtensionException", ex);
 				} catch (MissingRequiredDataException ex) {
 					// can't display form
-					result.put("voFormInitialException", ex);
+					result.put("voFormExtensionException", ex);
 				}
 
 			}
@@ -454,7 +454,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("groupFormInitialException", ex);
 				}  catch (MissingRequiredDataException ex) {
 					// can't display form
-					result.put("voFormInitialException", ex);
+					result.put("groupFormInitialException", ex);
 				}
 
 			}
