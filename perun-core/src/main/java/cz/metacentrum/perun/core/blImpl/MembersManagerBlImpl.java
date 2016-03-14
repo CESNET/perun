@@ -1090,15 +1090,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				Status oldStatus = Status.getStatus(member.getStatus().getCode());
+
 				try {
 					((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
 				} catch(Exception ex) {
 					log.info("validateMemberAsync failed. Cause: {}", ex);
 					try {
-						getPerunBl().getAuditer().log(sess, "Validation of {} failed. He stays in {} state.", member, member.getStatus());
-						log.info("Validation of {} failed. He stays in {} state.", member, member.getStatus());
+						getPerunBl().getAuditer().log(sess, "Validation of {} failed. He stays in {} state.", member, oldStatus);
+						log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
 					} catch(InternalErrorException internalError) {
-						log.error("Store message to auditer failed. message: Validation of {} failed. He stays in {} state. cause: {}", new Object[] {member, member.getStatus(), internalError});
+						log.error("Store message to auditer failed. message: Validation of {} failed. He stays in {} state. cause: {}", new Object[] {member, oldStatus, internalError});
 					}
 				}
 			}
