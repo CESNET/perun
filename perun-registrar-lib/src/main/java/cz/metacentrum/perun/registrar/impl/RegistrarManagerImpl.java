@@ -1632,8 +1632,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		try {
 			PerunPrincipal pp = sess.getPerunPrincipal();
-			// sort by ID which respect latest applications
-			return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.id desc", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
+			if (pp.getUser() != null) {
+				return jdbc.query(APP_SELECT + " where user_id=? or (a.created_by=? and extsourcename=?) order by a.id desc", APP_MAPPER, pp.getUserId(), pp.getActor(), pp.getExtSourceName());
+			} else {
+				// sort by ID which respect latest applications
+				return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.id desc", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
+			}
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Application>();
 		}
