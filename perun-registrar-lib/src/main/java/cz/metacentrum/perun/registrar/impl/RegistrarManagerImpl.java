@@ -1754,12 +1754,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						} else {
 							// user isn't member of group
 							regs.clear();
-							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 									new SingleColumnRowMapper<Integer>(Integer.class),
-									AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.NEW.toString()));
-							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+									AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 									new SingleColumnRowMapper<Integer>(Integer.class),
-									AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
+									AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
 							if (!regs.isEmpty()) {
 								// user have unprocessed application for group
 								throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
@@ -1775,12 +1775,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					if (group != null) {
 						// not member of VO - check for unprocessed applications to Group
 						regs.clear();
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.NEW.toString()));
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+								AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
+								AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
 						if (!regs.isEmpty()) {
 							// user have unprocessed application for group - can't post more
 							throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
@@ -1789,12 +1789,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					} else {
 						// not member of VO - check for unprocessed applications
 						regs.clear();
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), user.getId(), AppState.NEW.toString()));
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+								AppType.INITIAL.toString(), vo.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
+								AppType.INITIAL.toString(), vo.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
 						if (!regs.isEmpty()) {
 							// user have unprocessed application for VO - can't post more
 							throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
