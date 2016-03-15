@@ -449,12 +449,14 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Gets all applications for the current user.
+	 * Gets all applications for the current user
+	 * based on authz and internal user ID.
 	 *
 	 * @return List<Application> Found applications
 	 */
 	/*#
-	 * Gets all applications for a specific user.
+	 * Gets all applications for a specific user
+	 * by user ID. Ignores session data.
 	 *
 	 * @param id int User <code>id</code>
 	 * @return List<Application> Found applications
