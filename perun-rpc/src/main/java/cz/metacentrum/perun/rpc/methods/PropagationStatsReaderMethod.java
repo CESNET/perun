@@ -244,5 +244,18 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 		public List<ServiceState> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getPropagationStatsReader().getFacilityServicesState(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
 		}
+	},
+
+	/*#
+	 * Delete Task and TaskResults.
+	 *
+	 * @param task Task Task to delete.
+	 */
+	deleteTask {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getPropagationStatsReader().deleteTask(ac.getSession(), ac.getPropagationStatsReader().getTaskById(ac.getSession(), parms.readInt("task")));
+			return null;
+		}
 	};
+
 }
