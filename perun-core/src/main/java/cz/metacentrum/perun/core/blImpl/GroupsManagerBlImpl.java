@@ -1750,7 +1750,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							if(userAttribute.getName().equals(attributeName)) {
 								attributeFound = true;
 								Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), userAttribute.getType());
-								if (subjectAttributeValue != null && !userAttribute.getValue().equals(subjectAttributeValue)) {
+								if (!userAttribute.getValue().equals(subjectAttributeValue)) {
 									log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
 											new Object[] {group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue});
 									userAttribute.setValue(subjectAttributeValue);
