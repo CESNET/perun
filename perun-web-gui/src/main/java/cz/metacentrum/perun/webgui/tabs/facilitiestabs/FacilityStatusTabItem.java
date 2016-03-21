@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
 
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -13,11 +14,13 @@ import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.BanExecServiceOnFacility;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.ForceServicePropagation;
 import cz.metacentrum.perun.webgui.json.generalServiceManager.FreeDenialOfExecServiceOnFacility;
+import cz.metacentrum.perun.webgui.json.propagationStatsReader.DeleteTask;
 import cz.metacentrum.perun.webgui.json.propagationStatsReader.GetFacilityServicesState;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.FacilitiesTabs;
@@ -168,6 +171,8 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		final CustomButton blockButton = new CustomButton(ButtonTranslation.INSTANCE.blockPropagationButton(), ButtonTranslation.INSTANCE.blockServicesOnFacility(), SmallIcons.INSTANCE.stopIcon());
 		final CustomButton allowButton = new CustomButton(ButtonTranslation.INSTANCE.allowPropagationButton(), ButtonTranslation.INSTANCE.allowServicesOnFacility(), SmallIcons.INSTANCE.acceptIcon());
 
+		final CustomButton deleteButton = new CustomButton(ButtonTranslation.INSTANCE.deleteButton(), ButtonTranslation.INSTANCE.deleteTasks(), SmallIcons.INSTANCE.deleteIcon());
+
 		blockButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -207,6 +212,32 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		menu.addWidget(forceButton);
 		menu.addWidget(allowButton);
 		menu.addWidget(blockButton);
+
+		if (session.isPerunAdmin()) {
+			menu.addWidget(deleteButton);
+			deleteButton.setEnabled(false);
+			JsonUtils.addTableManagedButton(callback, table, deleteButton);
+
+			deleteButton.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					final ArrayList<ServiceState> list = callback.getTableSelectedList();
+					if (UiElements.cantSaveEmptyListDialogBox(list)) {
+						UiElements.generateAlert("", "This action will also delete all propagation results. <p>If service is still assigned to any resource, it will be listed in a table.", new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								for (ServiceState ss : list) {
+									DeleteTask deleteTask = new DeleteTask(JsonCallbackEvents.disableButtonEvents(deleteButton));
+									if (ss.getGenTask() != null) deleteTask.deleteTask(ss.getGenTask().getId());
+									deleteTask.setEvents(JsonCallbackEvents.disableButtonEvents(deleteButton, JsonCallbackEvents.refreshTableEvents(callback)));
+									if (ss.getSendTask() != null) deleteTask.deleteTask(ss.getSendTask().getId());
+								}
+							}
+						});
+					}
+				}
+			});
+		}
 
 		forceButton.setEnabled(false);
 		allowButton.setEnabled(false);

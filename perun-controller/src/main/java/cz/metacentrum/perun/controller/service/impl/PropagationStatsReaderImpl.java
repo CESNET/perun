@@ -359,4 +359,22 @@ public class PropagationStatsReaderImpl implements PropagationStatsReader {
 
 	}
 
+	@Override
+	public void deleteTask(PerunSession sess, Task task) throws InternalErrorException, PrivilegeException {
+
+		Facility facility = task.getFacility();
+		ExecService execService = task.getExecService();
+
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException("deleteTask");
+		}
+
+		// clear all task results
+		taskResultDao.clearByTask(task.getId());
+
+		// remove task itself
+		taskDao.removeTask(execService, facility);
+
+	}
+
 }

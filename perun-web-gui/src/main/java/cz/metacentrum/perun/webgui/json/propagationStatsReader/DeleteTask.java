@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.webgui.json.generalServiceManager;
+package cz.metacentrum.perun.webgui.json.propagationStatsReader;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONNumber;
@@ -10,43 +10,43 @@ import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.PerunError;
 
 /**
- * Ajax query to delete exec service
+ * Ajax query to delete Task with it's task results
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class DeleteExecService {
+public class DeleteTask {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// External events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// Json URL
-	static private final String JSON_URL = "generalServiceManager/deleteExecService";
+	static private final String JSON_URL = "propagationStatsReader/deleteTask";
 	// ID
-	private int execServiceId = 0;
+	private int taskId = 0;
 
 	/**
-	 * New instance of DeleteExecService
+	 * New instance of DeleteTask
 	 */
-	public DeleteExecService() {}
+	public DeleteTask() {}
 
 	/**
-	 * New instance of DeleteExecService with external events
+	 * New instance of DeleteTask with external events
 	 *
 	 * @param events external events
 	 */
-	public DeleteExecService(JsonCallbackEvents events) {
+	public DeleteTask(JsonCallbackEvents events) {
 		this.events = events;
 	}
 
 	/**
-	 * Deletes Exec Service from DB
+	 * Deletes Task from DB
 	 *
-	 * @param serviceId id of exec service to be deleted
+	 * @param taskId id of Task to be deleted
 	 */
-	public void deleteExecService(final int serviceId) {
+	public void deleteTask(final int taskId) {
 
-		this.execServiceId = serviceId;
+		this.taskId = taskId;
 
 		// test arguments
 		if(!this.testArguments()){
@@ -55,17 +55,17 @@ public class DeleteExecService {
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("execService", new JSONNumber(serviceId));
+		jsonQuery.put("task", new JSONNumber(taskId));
 
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
 			public void onError(PerunError error) {
-				session.getUiElements().setLogErrorText("Deleting of ExecService: "+execServiceId+" failed.");
+				session.getUiElements().setLogErrorText("Deleting of Task: "+taskId+" failed.");
 				events.onError(error);
 			};
 
 			public void onFinished(JavaScriptObject jso) {
-				session.getUiElements().setLogSuccessText("ExecService: "+execServiceId+" deleted successfully.");
+				session.getUiElements().setLogSuccessText("Task: "+taskId+" deleted successfully.");
 				events.onFinished(jso);
 			};
 
@@ -84,13 +84,13 @@ public class DeleteExecService {
 	 * Tests the values, if the process can continue
 	 * @return true if correct / false otherwise
 	 */
-	private boolean testArguments()
-	{
+	private boolean testArguments() {
+
 		boolean result = true;
 		String errorMsg = "";
 
-		if(execServiceId == 0){
-			errorMsg += "Wrong parameter 'exec service ID'.\n";
+		if(taskId == 0){
+			errorMsg += "Wrong parameter 'Task ID'.\n";
 			result = false;
 		}
 
@@ -99,6 +99,10 @@ public class DeleteExecService {
 		}
 
 		return result;
+	}
+
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
 	}
 
 }
