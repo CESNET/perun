@@ -45,7 +45,7 @@ public class MonitoringTaskExecutorImpl extends ThreadPoolTaskExecutor implement
 	}
 
 	@Override
-	public ThreadPoolExecutor getThreadPoolExecutor() throws IllegalStateException {
+	public MonitoringThreadPoolExecutor getThreadPoolExecutor() throws IllegalStateException {
 
 		Assert.state(executor != null, "ThreadPoolTaskExecutor not initialized.");
 		return executor;
