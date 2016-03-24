@@ -23,24 +23,16 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 		//Default is old version and stdout (null file)
-		boolean newVersionOfLDAP = false;
 		String fileName = null;
 
-		if(args.length == 0 || args.length > 2) {
+		if(args.length > 1 || args.length == 0) {
 			System.out.println(help());
 		} else if(args[0].equals("-h") || args[0].equals("--help")) {
 			System.out.println(help());
-		} else if(args[0].equals("-g")) {
-			if(args.length == 2) fileName = args[1];
-			Main main;
-			main = new Main(fileName, newVersionOfLDAP);
-		} else if(args[0].equals("-gnew")) {
-			newVersionOfLDAP = true;
-			if(args.length == 2) fileName = args[1];
-			Main main;
-			main = new Main(fileName, newVersionOfLDAP);
 		} else {
-			System.out.println(help());
+			fileName = args[0];
+			Main main;
+			main = new Main(fileName);
 		}
 	}
 
@@ -54,11 +46,11 @@ public class Main {
 	 * 
 	 * @throws InternalErrorException
 	 */
-	public Main(String fileName, boolean newLDAPversion) throws InternalErrorException {
+	public Main(String fileName) throws InternalErrorException {
 		PerunInitializer perunInitializer = null;
 		try {
 			try {
-				perunInitializer = new PerunInitializer(newLDAPversion, fileName);
+				perunInitializer = new PerunInitializer(fileName);
 			} catch (InternalErrorException ex) {
 				System.err.println("There is problem with Initializing of PerunInitializer. More info can be found in " + fileName);
 				throw ex;
