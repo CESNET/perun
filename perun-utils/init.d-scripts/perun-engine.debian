@@ -14,6 +14,7 @@
 #
 # 14.04.2015 Modified path to perun.conf.custom and log4j to /etc/perun
 # 04.05.2015 Create, chown and delete pidfile in order to allow user "perun" to start/stop the service
+# 24.03.2016 Create /var/run/perun if not exists, will work when started on system boot
 #
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun Engine"
@@ -58,6 +59,16 @@ do_start () {
 	start-stop-daemon --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
         --pidfile $PIDFILE --chdir $EXEC_DIR --exec $DAEMON --test --background > /dev/null \
         || return 1
+
+	# /var/run is not persistent, create pid directory on first start
+	# is expected to run by root on system startup
+	# if started by perun (service restart), this will fail
+	PID_DIR="/var/run/perun";
+	if [ ! -d $PID_DIR ]; then
+		mkdir $PID_DIR;
+		chown $DAEMON_USER $PID_DIR;
+	fi
+
 	# Create empty pidfile
 	touch $PIDFILE;
 	chown $DAEMON_USER $PIDFILE;
