@@ -52,12 +52,11 @@ public class PasswordResetFormPage {
 		// if using backup pwd-reset option, draw different content
 		if (Location.getParameterMap().keySet().contains("m") &&
 				Location.getParameterMap().keySet().contains("i") &&
-				session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+				session.getRpcUrl().startsWith("/non/rpc")) {
 
 			return drawNonAuthzPasswordReset(vp);
 
 		}
-
 
 		if (Location.getParameter("login-namespace") != null && !Location.getParameter("login-namespace").isEmpty()) {
 			namespace = Location.getParameter("login-namespace");
