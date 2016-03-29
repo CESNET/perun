@@ -13,31 +13,31 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 
 /**
  * Module for redmine role
- * Sets the role to either Manager, Reporter or Developer
+ * Checks if the role has correct value of either Manager, Reporter or Developer
  * @author Marek Hrasna marekhrasna@outlook.com
  * @date 04.03.16.
  */
 public class urn_perun_resource_attribute_def_def_redmineRole extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
-    public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
-        String role = (String)attribute.getValue();
+	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException {
+		String role = (String)attribute.getValue();
 
-        if (role == null) {
-            throw new WrongAttributeValueException(attribute, resource, "Attribute value is null.");
-        }
-        else if ((!role.equals("Manager")  || !role.equals("Reporter") || !role.equals("Developer")) {
-            throw new WrongAttributeValueException(attribute, resource, "Attribute value is invalid.");
-        }
+		if (role == null) {
+			throw new WrongAttributeValueException(attribute, resource, "Attribute value is null.");
+		}
+		else if (!role.equals("Manager")  && !role.equals("Reporter") && !role.equals("Developer")) {
+			throw new WrongAttributeValueException(attribute, resource, "Attribute value is invalid.The role can be either Manager, Reporter or Developer");
+		}
 
 
-    }
+	}
 
-    public AttributeDefinition getAttributeDefinition() {
-        AttributeDefinition attr = new AttributeDefinition();
-        attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
-        attr.setFriendlyName("redmineRole");
-        attr.setDisplayName("Redmine role");
-        attr.setType(String.class.getName());
-        attr.setDescription("The role can be either Manager, Reporter or Developer");
-        return attr;
-    }
+	public AttributeDefinition getAttributeDefinition() {
+		AttributeDefinition attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
+		attr.setFriendlyName("redmineRole");
+		attr.setDisplayName("Redmine role");
+		attr.setType(String.class.getName());
+		attr.setDescription("The role can be either Manager, Reporter or Developer");
+		return attr;
+	}
 }
