@@ -83,33 +83,15 @@ public class Utils {
 			// always use URL of machine, where GUI runs
 			String baseUrl = Window.Location.getProtocol() + "//" + Window.Location.getHost();
 
-			final String URL_KRB = baseUrl + "/krb/ic/index.cgi";
-			final String URL_FED = baseUrl + "/fed/ic/index.cgi";
-			final String URL_CERT = baseUrl + "/cert/ic/index.cgi";
-			String rpc = "";
-			String link = "";
-
-			if (PerunWebSession.getInstance().getRpcServer() != null) {
-				rpc = PerunWebSession.getInstance().getRpcServer();
-			}
-
-			if (rpc.equalsIgnoreCase("krb")) {
-				link = URL_KRB;
-			} else if (rpc.equalsIgnoreCase("fed")) {
-				link = URL_FED;
-			} else if (rpc.equalsIgnoreCase("cert")) {
-				link = URL_CERT;
-			} else {
-				// KRB AS BACKUP - "default"
-				link = URL_KRB;
-			}
+			String url = baseUrl + "/" + PerunWebSession.getInstance().getRpcServer() + "/ic/";
 
 			if (target) {
 				// FIXME - ENCODE QUERY STRING 2 TIMES BECAUSE OF CONSOLIDATOR APP
-				link += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() +  URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString()));
+				url += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() +  URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString()));
 			}
 
-			return link;
+			return url;
+
 		}
 
 	}
@@ -142,28 +124,14 @@ public class Utils {
 			// always use URL of machine, where GUI runs
 			String baseUrl = Window.Location.getProtocol() + "//" + Window.Location.getHost();
 
-			final String URL_KRB = baseUrl + "/krb/ic/index.cgi";
-			final String URL_FED = baseUrl + "/fed/ic/index.cgi";
-			final String URL_CERT = baseUrl + "/cert/ic/index.cgi";
-			String link = "";
-
-			if (authz.equalsIgnoreCase("krb")) {
-				link = URL_KRB;
-			} else if (authz.equalsIgnoreCase("fed")) {
-				link = URL_FED;
-			} else if (authz.equalsIgnoreCase("cert")) {
-				link = URL_CERT;
-			} else {
-				// KRB AS BACKUP - "default"
-				link = URL_KRB;
-			}
+			String url = baseUrl + "/" + authz + "/ic/";
 
 			if (target) {
 				// FIXME - ENCODE QUERY STRING 2 TIMES BECAUSE OF CONSOLIDATOR APP
-				link += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() + URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString()));
+				url += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() + URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString()));
 			}
 
-			return link;
+			return url;
 		}
 
 	}
