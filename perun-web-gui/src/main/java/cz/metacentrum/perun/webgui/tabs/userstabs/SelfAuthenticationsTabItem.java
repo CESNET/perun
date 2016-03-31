@@ -123,7 +123,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 		certHeader.getFlexCellFormatter().setStyleName(0, 1, "subsection-heading");
 		layout.setWidget(3, 0, certHeader);
 
-		layout.setHTML(4, 0, "To <strong>add certificate</strong> please visit <a href=\""+ Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator &gt;&gt;</a> and select \"Connect with your IGTF digital certificate\" option.<br />&nbsp;");
+		layout.setHTML(4, 0, "To <strong>add certificate</strong> please visit <a href=\""+ Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator &gt;&gt;</a> and select \"Using personal certificate\" option.<br />&nbsp;");
 
 		FlexTable sshHeader = new FlexTable();
 		sshHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.serverKeyIcon()));
