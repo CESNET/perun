@@ -11,7 +11,7 @@ use Crypt::OpenSSL::AES;
 use Crypt::CBC;
 use MIME::Base64::URLSafe;
 use JSON;
-use lib '/opt/perun-cli/';
+use lib '/opt/perun-cli/lib';
 use Perun::Agent;
 use utf8;
 use Encode qw(decode encode);
