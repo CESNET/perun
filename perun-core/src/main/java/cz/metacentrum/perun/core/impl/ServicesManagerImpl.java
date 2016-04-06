@@ -512,6 +512,16 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		}
 	}
 
+	public List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + destinationMappingSelectQuery + " from facility_service_destinations " +
+					"join destinations on destinations.id=facility_service_destinations.destination_id " +
+					"where facility_id=? order by destinations.destination", DESTINATION_MAPPER, facility.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + richDestinationMappingSelectQuery + " from facility_service_destinations " +
@@ -552,6 +562,15 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 	public void removeAllDestinations(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
 		try {
 			jdbc.update("delete from facility_service_destinations where service_id=? and facility_id=?", service.getId(), facility.getId());
+			//TODO remove from table destinations?
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void removeAllDestinations(PerunSession sess, Facility facility) throws InternalErrorException {
+		try {
+			jdbc.update("delete from facility_service_destinations where facility_id=?", facility.getId());
 			//TODO remove from table destinations?
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);

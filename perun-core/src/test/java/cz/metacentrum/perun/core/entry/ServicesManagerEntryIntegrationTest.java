@@ -863,6 +863,26 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
+	@Test
+	public void removeAllDestinationsWithFacility() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllDestinationsWithFacility");
+
+		List<Service> services = setUpServices();
+		facility = setUpFacility();
+		destination = setUpDestination();
+
+		Destination dest1 = perun.getServicesManager().addDestination(sess, services.get(0), facility, destination);
+		Destination dest2 = perun.getServicesManager().addDestination(sess, services.get(1), facility, destination);
+
+		List<Destination> destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
+		assertTrue("There need to be dest1", destinations.contains(dest1));
+		assertTrue("There need to be dest2", destinations.contains(dest2));
+
+		perun.getServicesManagerBl().removeAllDestinations(sess, facility);
+		destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
+		assertTrue("All destinations should be removed", destinations.isEmpty());
+	}
+
 	@Test (expected=ServiceNotExistsException.class)
 	public void removeDestinationWhenServiceNotExists() throws Exception {
 		System.out.println(CLASS_NAME + "removeDestinationWhenServiceNotExists");
@@ -937,6 +957,19 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManager().removeAllDestinations(sess, service, new Facility());
 		// shouldn't find facility
 
+	}
+
+	@Test
+	public void getAllDestinationsWithFacility() throws Exception {
+		System.out.println(CLASS_NAME + "getAllDestinationsWithFacility");
+		service = setUpService();
+		facility = setUpFacility();
+		destination = setUpDestination();
+		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
+		List<Destination> destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
+		assertTrue("there shoudl be one detination",!destinations.isEmpty());
+		Destination dest = destinations.get(0);
+		assertTrue("there is the right destination in the richDestination", dest.getDestination().equals(destination.getDestination()));
 	}
 
 	@Test
