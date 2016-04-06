@@ -393,7 +393,8 @@ public class Api extends HttpServlet {
 				// If the user is coming from the URL protected by different authN mechanism, destroy and create session again
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
 				req.getSession(true).setAttribute(APICALLER, caller);
-			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), this.getActor(req, des))) {
+			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), this.getActor(req, des)) &&
+					!caller.getSession().getPerunPrincipal().getExtSourceName().equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
 				// prevent cookie stealing (if remote user changed, rebuild session)
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
 				req.getSession(true).setAttribute(APICALLER, caller);
