@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.json.comparators;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import cz.metacentrum.perun.webgui.client.resources.Collator;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
 
 import java.util.Comparator;
@@ -72,7 +73,9 @@ public class GeneralComparator<T extends JavaScriptObject> implements Comparator
 	 */
 	private int compareByName(GeneralObject o1, GeneralObject o2)
 	{
-		return o1.getName().compareToIgnoreCase(o2.getName());
+		String name = (o1.getName() != null) ? o1.getName() : "";
+		String name2 = (o2.getName() != null) ? o2.getName() : "";
+		return Collator.getInstance().compareIgnoreCase(name, name2);
 	}
 
 	/**
@@ -85,7 +88,7 @@ public class GeneralComparator<T extends JavaScriptObject> implements Comparator
 	{
 		String desc = (o1.getDescription() != null) ? o1.getDescription() : "";
 		String desc2 = (o2.getDescription() != null) ? o2.getDescription() : "";
-		return desc.compareToIgnoreCase(desc2);
+		return Collator.getInstance().compareIgnoreCase(desc, desc2);
 	}
 
 	/**
@@ -96,6 +99,8 @@ public class GeneralComparator<T extends JavaScriptObject> implements Comparator
 	 */
 	private int compareByStatus(GeneralObject o1, GeneralObject o2)
 	{
-		return o1.getStatus().compareToIgnoreCase(o2.getStatus());
+		String stat = (o1.getStatus() != null) ? o1.getStatus() : "";
+		String stat2 = (o2.getStatus() != null) ? o2.getStatus() : "";
+		return Collator.getInstance().compareIgnoreCase(stat, stat2);
 	}
 }
