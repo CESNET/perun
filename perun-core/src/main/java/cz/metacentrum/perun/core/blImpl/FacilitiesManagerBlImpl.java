@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -279,10 +280,14 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			throw new RelationExistsException("Facility is still used as a resource");
 		}
 
+		//remove hosts
 		List<Host> hosts = this.getHosts(sess, facility);
 		for (Host host: hosts) {
 			this.removeHost(sess, host);
 		}
+
+		//remove destinations
+		getPerunBl().getServicesManagerBl().removeAllDestinations(sess, facility);
 
 		// remove assigned security teams
 		List<SecurityTeam> teams = getAssignedSecurityTeams(sess, facility);

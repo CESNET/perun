@@ -543,6 +543,10 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return destinations;
 	}
 
+	public List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+		return getServicesManagerImpl().getDestinations(perunSession, facility);
+	}
+
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException{
 		return getServicesManagerImpl().getAllRichDestinations(perunSession, facility);
 	}
@@ -559,6 +563,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		getServicesManagerImpl().removeAllDestinations(sess, service, facility);
 		//TODO remove destination from destination taable if is not used anymore
 		getPerunBl().getAuditer().log(sess, "All destinations removed from {} and {}.", service, facility);
+	}
+
+	public void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+		getServicesManagerImpl().removeAllDestinations(perunSession, facility);
+		getPerunBl().getAuditer().log(perunSession, "All destinations removed from {} for all services.", facility);
 	}
 
 	public void checkServiceExists(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException {

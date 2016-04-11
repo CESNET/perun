@@ -375,6 +375,16 @@ public interface ServicesManagerImplApi {
 	List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException;
 
 	/**
+	 * Get lists of all destinations for specific Facility
+	 *
+	 * @param perunSession
+	 * @param facility the facility
+	 * @return lists of all destinations for specific Facility
+	 * @throws InternalErrorException
+	 */
+	List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+	/**
 	 * Get list of all rich destinations defined for the facility.
 	 *
 	 * @param perunSession
@@ -414,6 +424,15 @@ public interface ServicesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void removeAllDestinations(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Removes all defined destinations for the facility.
+	 *
+	 * @param perunSession
+	 * @param facility the facility
+	 * @throws InternalErrorException
+	 */
+	void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	@Deprecated
 	int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException;
