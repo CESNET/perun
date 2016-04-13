@@ -1423,42 +1423,12 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 
-		// DECIDE PROPER SETTINGS
-
-		// default not member at all
-		boolean isMember = false;
-
-		if (user != null) {
-
-			try {
-
-				Member m = membersManager.getMemberByUser(registrarSession, vo, user);
-				isMember = true;
-				// is member, is invite to group ?
-				if (group != null) {
-					List<Group> g = groupsManager.getMemberGroups(registrarSession, m);
-					if (g.contains(group)) {
-						// user is member of group - can't invite him
-						throw new RegistrarException("User to invite is already member of your group: "+group.getShortName());
-					}
-				} else {
-					throw new RegistrarException("User to invite is already member of your VO:"+vo.getShortName());
-				}
-
-			} catch (Exception ex) {
-				log.error("[MAIL MANAGER] Exception {} when getting member by {} from "+vo.toString(), ex, user);
-			}
-
-		}
-
-		// from here we know, that user is not member of VO and group or is member of VO (by "isMember" variable)
-
 		// replace invitation link
 		if (mailText.contains("{invitationLink}")) {
 			String url = getPerunUrl(vo, group);
 			if (!url.endsWith("/")) url += "/";
 			url += "registrar/";
-			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, url));
+			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, url));
 		}
 
 		// replace invitation link
@@ -1485,7 +1455,7 @@ public class MailManagerImpl implements MailManager {
 					if (url != null && !url.isEmpty()) {
 						if (!url.endsWith("/")) url += "/";
 						url += namespace + "/registrar/";
-						newValue = buildInviteURL(vo, group, isMember, url);
+						newValue = buildInviteURL(vo, group, url);
 					}
 
 				}
@@ -1526,25 +1496,18 @@ public class MailManagerImpl implements MailManager {
 	 *
 	 * @param vo vo to get invite link for
 	 * @param group group if is for group application
-	 * @param isMember if user is member of VO
 	 * @param text base of URL for invitation
 	 * @return full URL to application form
 	 */
-	private String buildInviteURL(Vo vo, Group group, boolean isMember, String text) {
+	private String buildInviteURL(Vo vo, Group group, String text) {
 
 		if (text == null || text.isEmpty()) return "";
 
-		text = text + "?vo=" + getEncodedString(vo.getShortName());
+		text += "?vo=" + getEncodedString(vo.getShortName());
 
-		if (isMember && group != null) {
-			// application for group
+		if (group != null) {
+			// application for group too
 			text += "&group="+getEncodedString(group.getName());
-		} else if (!isMember && group == null) {
-			// application for VO
-			// ==> no change to URL
-		} else if (!isMember && group != null) {
-			// application for VO+group (redirect)
-			text += "&targetnew=" + text.replace("?", "%3F") + "%26group=" + getEncodedString(group.getName()) + "&targetexisting=" + text.replace("?", "%3F") + "%26group=" + getEncodedString(group.getName());
 		}
 
 		return text;
@@ -1573,6 +1536,7 @@ public class MailManagerImpl implements MailManager {
 	 *
 	 * {logins} - list of all logins from application
 	 * {membershipExpiration} - membership expiration date
+	 * {mail} - user preferred mail submitted on application or stored in a system
 	 *
 	 * {customMessage} - message passed by admin to mail (e.g. reason of application reject)
 	 * {errors} - include errors which ocured when processing registrar actions
@@ -1820,6 +1784,47 @@ public class MailManagerImpl implements MailManager {
 			}
 			// replace by date or empty
 			mailText = mailText.replace("{membershipExpiration}", expiration);
+		}
+
+		// user mail
+		if (mailText.contains("{mail}")) {
+			String mail = "";
+			if (app.getUser() != null) {
+				try {
+					User u = usersManager.getUserById(registrarSession, app.getUser().getId());
+					Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PREFERRED_MAIL);
+					if (a != null && a.getValue() != null) {
+						// attribute value is string
+						mail = ((String)a.getValue());
+					}
+				} catch (Exception ex) {
+					log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail. {}", ex);
+				}
+			} else {
+
+				for (ApplicationFormItemData d : data) {
+					if ("urn:perun:member:attribute-def:def:mail".equals(d.getFormItem().getPerunDestinationAttribute())) {
+						if (d.getValue() != null && !d.getValue().isEmpty()) {
+							mail = d.getValue();
+							break;
+						}
+					}
+				}
+
+				for (ApplicationFormItemData d : data) {
+					if ("urn:perun:user:attribute-def:def:preferredMail".equals(d.getFormItem().getPerunDestinationAttribute())) {
+						if (d.getValue() != null && !d.getValue().isEmpty()) {
+							mail = d.getValue();
+							break;
+						}
+					}
+				}
+
+
+			}
+
+			// replace by mail or empty
+			mailText = mailText.replace("{mail}", mail);
 		}
 
 		// mail footer
