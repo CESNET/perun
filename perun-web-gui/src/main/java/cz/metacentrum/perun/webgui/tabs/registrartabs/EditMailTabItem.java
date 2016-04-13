@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.tabs.registrartabs;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -252,9 +251,10 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 
 				"<p><strong><u>User related:</u></strong>" +
 
-				"<p><strong>{firstName}</strong> - user's first name taken from application form or Perun" +
-				"<br/><strong>{lastName}</strong> - user's last name taken from application form or Perun" +
-				"<br/><strong>{displayName}</strong> - user's display name taken from application form or Perun" +
+				"<p><strong>{firstName}</strong> - users first name taken from application form or Perun" +
+				"<br/><strong>{lastName}</strong> - users last name taken from application form or Perun" +
+				"<br/><strong>{displayName}</strong> - users display name taken from application form or Perun" +
+				"<br/><strong>{mail}</strong> - users preferred mail from application form or Perun" +
 				"<br/><strong>{login-<i>namespace</i>}</strong> - user's login in selected namespace, taken from registration form or Perun. You MUST specify the namespace, e.g. <i>{login-einfra}</i> will print user's login in einfra namespace." +
 				"<br/><strong>{membershipExpiration}</strong> - membership expiration date decided after membership creation or extension." +
 
