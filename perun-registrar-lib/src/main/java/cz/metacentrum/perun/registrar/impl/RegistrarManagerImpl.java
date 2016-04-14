@@ -2634,6 +2634,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// if new => skipp user will approve automatically by verifying email
 			if (a.getState().equals(AppState.NEW)) continue;
 
+			// approve applications only for auto-approve forms
+			if (!getFormForGroup(a.getGroup()).isAutomaticApproval()) continue;
+
 			try {
 				registrarManager.approveApplicationInternal(sess, a.getId());
 			} catch (RegistrarException ex) {
