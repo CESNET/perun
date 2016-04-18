@@ -299,6 +299,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		log.debug("Going to cross-check tasks in database...");
 		for (Pair<Task, Integer> pair : taskManager.listAllTasksAndClients()) {
 			Task task = pair.getLeft();
+			DispatcherQueue taskQueue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight());
 			TaskStatus status = task.getStatus();
 			if (status == null) {
 				task.setStatus(TaskStatus.NONE);
@@ -306,6 +307,10 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			Task local_task = null;
 			TaskStatus local_status = null;
 			log.debug("  checking task " + task.toString());
+			if(taskQueue == null) {
+				log.warn("  there is no task queue for client " + pair.getRight());
+				continue;
+			}
 			synchronized (tasksById) {
 				Pair<Task, DispatcherQueue> local_pair = tasksById.get(task.getId());
 				if(local_pair != null) {
@@ -332,12 +337,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if(local_task == null) {
 				try {
 					log.debug("  task not found in any of local structures, adding fresh");
-					DispatcherQueue taskQueue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight());
-					if(taskQueue != null) {
-						addToPool(task, taskQueue);
-					} else {
-						log.warn("  there is no client queue for the client id " + pair.getRight());
-					}
+					addToPool(task, taskQueue);
 				} catch(InternalErrorException e) {
 					log.error("Error adding task to the local structures: " + e.getMessage());
 				}
@@ -345,8 +345,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				synchronized(tasksById) {
 					if(!tasksById.containsKey(local_task.getId())) {
 						log.debug("  task not known by id, adding");
-						tasksById.put(local_task.getId(), new Pair<Task, DispatcherQueue>(local_task, 
-								dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight())));
+						tasksById.put(local_task.getId(), 
+								new Pair<Task, DispatcherQueue>(local_task, taskQueue));
 					}
 					if(!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(
 							local_task.getExecServiceId(), local_task.getFacilityId()))) {
@@ -360,9 +360,14 @@ public class SchedulingPoolImpl implements SchedulingPool {
 					}
 					if(local_status != null && local_status != local_task.getStatus()) {
 						log.debug("  task listed with wrong status, removing");
-						pool.get(local_status).remove(local_task.getId());
+						if(pool.get(local_status) != null) {
+							pool.get(local_status).remove(local_task.getId());
+						} else {
+							log.error("  no task list for status " + local_status);
+						}
 					}
-					if(!pool.get(local_task.getStatus()).contains(local_task)) {
+					if(pool.get(local_task.getStatus()) != null &&
+							!pool.get(local_task.getStatus()).contains(local_task)) {
 						log.debug("  task not listed with its status, adding");
 						pool.get(local_task.getStatus()).add(local_task);
 					}
