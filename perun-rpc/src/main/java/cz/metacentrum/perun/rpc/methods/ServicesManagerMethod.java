@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -922,6 +923,21 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 			return ac.getServicesManager().getAssignedServices(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
+		}
+	},
+
+	/*#
+	 * Lists resources assigned to service.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @return List<Resource> List of resources
+	 */
+	getAssignedResources {
+
+		@Override
+		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getServicesManager().getAssignedResources(ac.getSession(),
+					ac.getServiceById(parms.readInt("service")));
 		}
 	};
 }
