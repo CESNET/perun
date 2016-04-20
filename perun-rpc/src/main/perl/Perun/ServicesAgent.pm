@@ -201,5 +201,9 @@ sub getFacilitiesDestinations
 	return Perun::Common::callManagerMethod('getFacilitiesDestinations', '[]Destination', @_);
 }
 
+sub getAssignedResources
+{
+	return Perun::Common::callManagerMethod('getAssignedResources', '[]Resource', @_);
+}
 
 1;
