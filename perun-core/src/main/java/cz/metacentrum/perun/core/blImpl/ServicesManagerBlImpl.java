@@ -288,7 +288,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
-
 		ServiceAttributes allResourcesServiceAttributes = new ServiceAttributes();
 		List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		facilityResources.retainAll(getAssignedResources(sess, service));
@@ -300,10 +299,15 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		ServiceAttributes allUsersServiceAttributes = new ServiceAttributes();
 		List<User> facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
+
+		// get attributes for all users at once !
+		HashMap<User, List<Attribute>> userFacilityAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, facilityUsers);
+		HashMap<User, List<Attribute>> userAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facilityUsers);
+
 		for (User user : facilityUsers) {
 			ServiceAttributes userServiceAttributes = new ServiceAttributes();
-			userServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, user));
-			userServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, user));
+			userServiceAttributes.addAttributes(userAttributes.get(user));
+			userServiceAttributes.addAttributes(userFacilityAttributes.get(user));
 			allUsersServiceAttributes.addChildElement(userServiceAttributes);
 		}
 
