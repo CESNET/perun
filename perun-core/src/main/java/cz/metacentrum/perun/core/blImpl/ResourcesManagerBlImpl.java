@@ -124,6 +124,13 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		//Remove all resources tags
 		this.removeAllResourcesTagFromResource(sess, resource);
 
+		//Because resource will be tottaly deleted, we can also delete all member-resource attributes
+		try {
+			this.perunBl.getAttributesManagerBl().removeAllMemberResourceAttributes(sess, resource);
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException ex) {
+			throw new InternalErrorException(ex);
+		}
+
 		// Get the resource VO
 		Vo vo = this.getVo(sess, resource);
 		getResourcesManagerImpl().deleteResource(sess, vo, resource);

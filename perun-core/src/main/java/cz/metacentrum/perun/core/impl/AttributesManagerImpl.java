@@ -3920,6 +3920,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
+
+	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+		try {
+			jdbc.update("delete from member_resource_attr_values where resource_id=?", resource.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 	
 	public boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
 		try {

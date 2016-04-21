@@ -2879,6 +2879,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		this.attributesManagerImpl.removeAllMemberResourceAttributes(sess, resource);
+		this.getPerunBl().getAuditer().log(sess, "All non-virtual member-resource attributes removed for all members and {}", resource);
+	}
+
 	public void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		List<Group> groups = this.getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for (Group group : groups) {
