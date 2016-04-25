@@ -306,8 +306,9 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		for (User user : facilityUsers) {
 			ServiceAttributes userServiceAttributes = new ServiceAttributes();
-			userServiceAttributes.addAttributes(userAttributes.get(user));
-			userServiceAttributes.addAttributes(userFacilityAttributes.get(user));
+			// Depending on a service requirements we might get null user or user-facility attributes
+			if (userAttributes.get(user) != null) userServiceAttributes.addAttributes(userAttributes.get(user));
+			if (userFacilityAttributes.get(user) != null) userServiceAttributes.addAttributes(userFacilityAttributes.get(user));
 			allUsersServiceAttributes.addChildElement(userServiceAttributes);
 		}
 
