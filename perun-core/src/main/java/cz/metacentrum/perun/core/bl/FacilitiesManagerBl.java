@@ -246,6 +246,18 @@ public interface FacilitiesManagerBl {
 	List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
 
 	/**
+	 * Return all members, which are "allowed" on facility.
+	 *
+	 * @param sess
+	 * @param facility
+	 *
+	 * @return list of allowed members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
 	 * Returns all resources assigned to the facility.
 	 *
 	 * @param perunSession

@@ -2,19 +2,7 @@ package cz.metacentrum.perun.core.implApi;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.ContactGroup;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.SecurityTeam;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
@@ -161,6 +149,18 @@ public interface FacilitiesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Integer> getAllowedVosIds(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Return all members, which are "allowed" on facility.
+	 *
+	 * @param sess
+	 * @param facility
+	 *
+	 * @return list of allowed members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Returns all resources assigned to the facility.

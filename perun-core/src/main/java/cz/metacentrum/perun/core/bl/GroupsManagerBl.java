@@ -3,22 +3,7 @@ package cz.metacentrum.perun.core.bl;
 import java.util.List;
 import java.util.Map;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichGroup;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -252,6 +237,17 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, boolean withSubGroups) throws InternalErrorException;
+
+	/** Return list of assigned groups on all facility resources (without subgroups unless they are assigned too)
+	 *
+	 * @param perunSession
+	 * @param facility
+	 *
+	 * @return list of groups, which are assigned on all facility resources
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Removes member form the group. But not from members or administrators group.

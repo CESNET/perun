@@ -836,14 +836,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			users.add(user);
 		} else if(resource != null) {
-			List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-			List<User> usersFromResource = new ArrayList<User>();
-			for(Member memberElement: members) {
-				usersFromResource.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-			}
-			for(User userElement: usersFromResource) {
-				users.add(userElement);
-			}
+			List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
+			users.addAll(usersFromResource);
 		} else if(user != null) {
 			users.add(user);
 		} else if(host != null) {

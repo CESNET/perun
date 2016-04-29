@@ -670,6 +670,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return assignedGroups;
 	}
 
+	public List<Group> getAssignedGroupsToFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+		return getGroupsManagerImpl().getAssignedGroupsToFacility(sess, facility);
+	}
+
 	public List<Group> getAllGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		List<Group> groups = getGroupsManagerImpl().getAllGroups(sess, vo);
 
@@ -1420,7 +1424,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * 3. membersToRemove - Former members who are not in synchronized ExtSource now
 	 *
 	 * @param sess
-	 * @param group to be synchronized
+	 * @param groupMembers to be synchronized
 	 * @param candidates to be synchronized from extSource
 	 * @param membersToUpdate 1. container (more above)
 	 * @param candidatesToAdd 2. container (more above)
