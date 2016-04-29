@@ -806,6 +806,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return assignedGroups;
 	}
 
+	public List<Group> getAssignedGroupsToFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+		return getGroupsManagerImpl().getAssignedGroupsToFacility(sess, facility);
+	}
+
 	public List<Group> getAllGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		List<Group> groups = getGroupsManagerImpl().getAllGroups(sess, vo);
 
@@ -832,7 +836,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 *
 	 * @param sess
-	 * @param groups initialized HashMap containing pair <topLevelGropu, null>
+	 * @param groups initialized HashMap containing pair <topLevelGroup, null>
 	 * @return HashMap containing all VO groups hierarchically organized
 	 */
 	private Map<Group, Object> getGroupsForHierarchy(PerunSession sess, Map<Group, Object> groups) throws InternalErrorException {

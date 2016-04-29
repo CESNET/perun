@@ -20,6 +20,8 @@ import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
@@ -70,8 +72,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 
 	protected final static String facilityContactsMappingSelectQuery = " facility_contacts.facility_id as fc_id, facility_contacts.name as fc_name, " +
 	    "facility_contacts.owner_id as fc_owner_id, facility_contacts.user_id as fc_user_id, facility_contacts.group_id as fc_group_id";
-	
-	protected final static String facilityContactsMappingSelectQueryWithAllEntities = facilityContactsMappingSelectQuery + ", " + UsersManagerImpl.userMappingSelectQuery + ", " + 
+
+	protected final static String facilityContactsMappingSelectQueryWithAllEntities = facilityContactsMappingSelectQuery + ", " + UsersManagerImpl.userMappingSelectQuery + ", " +
 	  facilityMappingSelectQuery + ", " + OwnersManagerImpl.ownerMappingSelectQuery + ", " + GroupsManagerImpl.groupMappingSelectQuery;
 
 	protected final static String banOnFacilityMappingSelectQuery = "facilities_bans.id as fac_bans_id, facilities_bans.description as fac_bans_description, " +
@@ -289,13 +291,13 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			throw new InternalErrorException("Facility existence was checked at the higher level",e);
 		}
 
-		if ((!dbFacility.getName().equals(facility.getName())) || 
+		if ((!dbFacility.getName().equals(facility.getName())) ||
 				((dbFacility.getDescription() != null && !dbFacility.getDescription().equals(facility.getDescription())) ||
 						(dbFacility.getDescription() == null && facility.getDescription() != null))) {
 			try {
-				jdbc.update("update facilities set name=?, dsc=?, modified_by=?, modified_by_uid=?, modified_at=" + 
+				jdbc.update("update facilities set name=?, dsc=?, modified_by=?, modified_by_uid=?, modified_at=" +
 								Compatibility.getSysdate() + " where id=?",
-						facility.getName(), facility.getDescription(), sess.getPerunPrincipal().getActor(), 
+						facility.getName(), facility.getDescription(), sess.getPerunPrincipal().getActor(),
 						sess.getPerunPrincipal().getUserId(), facility.getId());
 			} catch (RuntimeException e) {
 				throw new InternalErrorException(e);
@@ -426,6 +428,20 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					"resources.vo_id=vos.id", Utils.ID_MAPPER, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException {
+		try  {
+			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
+							" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
+							" join resources on groups_resources.resource_id=resources.id " +
+							" where resources.facility_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBER_MAPPER, facility.getId(),
+					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Member>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 

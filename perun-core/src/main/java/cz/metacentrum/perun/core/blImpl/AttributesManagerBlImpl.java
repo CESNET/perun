@@ -4653,19 +4653,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				listOfRichAttributes.add(new RichAttribute(group, null, attribute));
 			} else if(user != null && facility != null) {
 				List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Group> groupsFromMembers = new ArrayList<Group>();
+				Set<Group> groupsFromMembers = new HashSet<Group>();
 				for(Member memberElement: members) {
 					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
 						groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
 					}
 				}
-				List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Group> groupsFromResources = new ArrayList<Group>();
-				for (Resource resourceElement : resources) {
-					groupsFromResources.addAll(getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-				}
-				groupsFromMembers.retainAll(groupsFromResources);
-				groupsFromMembers = new ArrayList<Group>(new HashSet<Group>(groupsFromMembers));
+				groupsFromMembers.retainAll(getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility));
 				for (Group groupElement : groupsFromMembers) {
 					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
 					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
@@ -4705,24 +4699,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			} else if(host != null) {
 				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Group> groupsFromResources = new ArrayList<Group>();
-				for(Resource resourceElement: resourcesFromFacility) {
-					groupsFromResources.addAll(getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resourceElement));
-				}
-				groupsFromResources = new ArrayList<Group>(new HashSet<Group>(groupsFromResources));
-				for(Group groupElement: groupsFromResources) {
+				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+				for(Group groupElement: groupsFromFacility) {
 					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
 					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
 				}
 			} else if(facility != null) {
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Group> groupsFromResources = new ArrayList<Group>();
-				for(Resource resourceElement: resourcesFromFacility) {
-					groupsFromResources.addAll(getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resourceElement));
-				}
-				groupsFromResources = new ArrayList<Group>(new HashSet<Group>(groupsFromResources));
-				for(Group groupElement: groupsFromResources) {
+				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+				for(Group groupElement: groupsFromFacility) {
 					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, groupElement, attrDef.getName());
 					listOfRichAttributes.add(new RichAttribute(groupElement, null, attribute));
 				}
@@ -4851,11 +4835,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			} else if(user != null && facility != null) {
 				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Member> membersFromFacility = new ArrayList<Member>();
-				for(Resource resourceElement: resources) {
-					membersFromFacility.addAll(getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement));
-				}
+				List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
 				membersFromUser.retainAll(membersFromFacility);
 				membersFromUser = new ArrayList<Member>(new HashSet<Member>(membersFromUser));
 				for(Member memberElement: membersFromUser) {
@@ -4896,23 +4876,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			} else if(host != null) {
 				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Member> membersFromHost = new ArrayList<Member>();
-				for(Resource resourceElemenet: resources) {
-					membersFromHost.addAll(getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElemenet));
-				}
-				membersFromHost = new ArrayList<Member>(new HashSet<Member>(membersFromHost));
+				List<Member> membersFromHost = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
 				for(Member memberElement: membersFromHost) {
 					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
 					listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
 				}
 			} else if(facility != null) {
-				List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Member> membersFromFacility = new ArrayList<Member>();
-				for(Resource resourceElemenet: resources) {
-					membersFromFacility.addAll(getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElemenet));
-				}
-				membersFromFacility = new ArrayList<Member>(new HashSet<Member>(membersFromFacility));
+				List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
 				for(Member memberElement: membersFromFacility) {
 					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, memberElement, attrDef.getName());
 					listOfRichAttributes.add(new RichAttribute(memberElement, null, attribute));
@@ -5083,12 +5053,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					listOfRichAttributes.add(new RichAttribute(user, null, attribute));
 				}
 			} else if(resource != null) {
-				List<Member> members = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-				List<User> usersFromResource = new ArrayList<User>();
-				for(Member memberElement: members) {
-					usersFromResource.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-				}
-				usersFromResource = new ArrayList<User>(new HashSet<User>(usersFromResource));
+				List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
 				for(User userElement: usersFromResource) {
 					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, userElement, attrDef.getName());
 					listOfRichAttributes.add(new RichAttribute(userElement, null, attribute));
@@ -5290,13 +5255,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						groupsFromUser.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
 					}
 				}
-				//Groups from facility
-				List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Group> groupsFromFacility = new ArrayList<Group>();
-				for(Resource resourceElement: resources) {
-					groupsFromFacility.addAll(getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-				}
-				//Retain of Groups
+				//Retain of Groups from facility
+				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
 				groupsFromFacility.retainAll(groupsFromUser);
 				//Resources from user
 				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
@@ -5442,20 +5402,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			} else if (user != null && facility != null) {
 				// get all groups from facility
-				List<Resource> resourcesFromFacilities = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Group> groupsFromResources = new ArrayList<>();
-				for (Resource resourceElement : resourcesFromFacilities) {
-					groupsFromResources.addAll(getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-				}
+				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
 				// get all groups from user
 				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
-				List<Group> groupsFromMembers = new ArrayList<>();
+				Set<Group> groupsFromMembers = new HashSet<>();
 				for (Member memberElement : membersFromUser) {
 					groupsFromMembers.addAll(getPerunBl().getGroupsManagerBl().getAllMemberGroups(sess, memberElement));
 				}
 				// retain of groups
-				groupsFromMembers.retainAll(groupsFromResources);
-				List<Group> retainedGroups = new ArrayList<>(new HashSet<>(groupsFromMembers));
+				groupsFromMembers.retainAll(groupsFromFacility);
+				List<Group> retainedGroups = new ArrayList<>(groupsFromMembers);
 				// all possible groups
 				for (Group groupElement : retainedGroups) {
 					// get all members for 'groupElement' variable
@@ -5509,13 +5465,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			} else if (host != null) {
 				facility = getPerunBl().getFacilitiesManagerBl().getFacilityForHost(sess, host);
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Group> groupsFromResources = new ArrayList<>();
-				for (Resource resourceElement : resourcesFromFacility) {
-					groupsFromResources.addAll(getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-				}
-				groupsFromResources = new ArrayList<>(new HashSet<>(groupsFromResources));
-				for (Group groupElement : groupsFromResources) {
+				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+				for (Group groupElement : groupsFromFacility) {
 					// get all members for 'groupElement' variable
 					List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
 					for (Member memberElement : membersFromGroup) {
@@ -5524,13 +5475,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 					}
 				}
 			} else if (facility != null) {
-				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Group> groupsFromResources = new ArrayList<>();
-				for (Resource resourceElement : resourcesFromFacility) {
-					groupsFromResources.addAll(getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-				}
-				groupsFromResources = new ArrayList<>(new HashSet<>(groupsFromResources));
-				for (Group groupElement : groupsFromResources) {
+				List<Group> groupsFromFacility = getPerunBl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+				for (Group groupElement : groupsFromFacility) {
 					// get all members for 'groupElement' variable
 					List<Member> membersFromGroup = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group, Status.VALID);
 					for (Member memberElement : membersFromGroup) {
@@ -5581,11 +5527,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			} else if(user != null && facility != null) {
 				List<Member> membersFromUser = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
+				List<Member> membersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedMembers(sess, facility);
 				List<Resource> resourcesFromFacility = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				List<Member> membersFromFacility = new ArrayList<Member>();
-				for(Resource resourceElement: resourcesFromFacility) {
-					membersFromFacility.addAll(getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resourceElement));
-				}
 				List<Resource> resourcesFromUser = new ArrayList<Resource>();
 				for(Member memberElement: membersFromUser) {
 					if(!getPerunBl().getMembersManagerBl().haveStatus(sess, memberElement, Status.INVALID)) {
@@ -5791,14 +5734,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				}
 			} else if(resource != null) {
 				facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-				List<Member> membersFromResource = getPerunBl().getResourcesManagerBl().getAllowedMembers(sess, resource);
-				List<User> usersFromResource = new ArrayList<User>();
-				for(Member memberElement: membersFromResource) {
-					usersFromResource.add(getPerunBl().getUsersManagerBl().getUserByMember(sess, memberElement));
-				}
-				List<User> usersFromFacility = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility);
-				usersFromResource.retainAll(usersFromFacility);
-				usersFromResource = new ArrayList<User>(new HashSet<User>(usersFromResource));
+				List<User> usersFromResource = getPerunBl().getResourcesManagerBl().getAllowedUsers(sess, resource);
 				for(User userElement: usersFromResource) {
 					attribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, facility, userElement, attrDef.getName());
 					listOfRichAttributes.add(new RichAttribute(facility, userElement, attribute));
