@@ -49,9 +49,25 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 					rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
 					rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
 					rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
-			try{
+			// source_group_id is not needed here
+			member.setSourceGroupId(null);
+			try {
 				member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
-			}catch(SQLException ex){/*member.setType(MembershipType.NOT_DEFINED); již provedeno v konstruktoru*/}
+			} catch(SQLException ex) {
+				/*member.setType(MembershipType.NOT_DEFINED); already done in constructor */
+			}
+			return member;
+		}
+	};
+
+	protected static final RowMapper<Member> GROUPS_MEMBER_MAPPER = new RowMapper<Member>() {
+		public Member mapRow(ResultSet rs, int i) throws SQLException {
+			Member member = new Member(rs.getInt("members_id"), rs.getInt("members_user_id"), rs.getInt("members_vo_id"), Status.getStatus(rs.getInt("members_status")),
+					rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
+					rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
+					rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
+			member.setSourceGroupId(rs.getInt("source_group_id"));
+			member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
 			return member;
 		}
 	};

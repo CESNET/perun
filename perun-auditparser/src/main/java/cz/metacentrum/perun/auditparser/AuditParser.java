@@ -386,6 +386,7 @@ public class AuditParser {
 		member.setVoId(Integer.valueOf(beanAttr.get("voId")).intValue());
 		member.setStatus(BeansUtils.eraseEscaping(beanAttr.get("status")));
 		member.setMembershipType(BeansUtils.eraseEscaping(beanAttr.get("type")));
+		member.setSourceGroupId(beanAttr.get("sourceGroupId").equals("\\0") ? null : Integer.valueOf(beanAttr.get("sourceGroupId")));
 		return member;
 	}
 

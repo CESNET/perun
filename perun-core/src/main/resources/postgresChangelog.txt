@@ -3,6 +3,30 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.36
+ALTER TABLE groups_groups RENAME group_id TO result_gid;
+ALTER TABLE groups_groups RENAME parent_group_id TO operand_gid;
+ALTER TABLE groups_groups ADD COLUMN parent_flag BOOLEAN DEFAULT FALSE;
+ALTER TABLE groups_groups DROP COLUMN group_mode;
+DROP INDEX idx_fk_grp_grp_gid;
+DROP INDEX idx_fk_grp_grp_pgid;
+CREATE INDEX idx_fk_grp_grp_rgid ON groups_groups(result_gid);
+CREATE INDEX idx_fk_grp_grp_ogid ON groups_groups(operand_gid);
+ALTER TABLE groups_groups DROP CONSTRAINT grp_grp_gid_fk;
+ALTER TABLE groups_groups DROP CONSTRAINT grp_grp_pgid_fk;
+ALTER TABLE groups_groups ADD CONSTRAINT grp_grp_rgid_fk FOREIGN KEY (result_gid) REFERENCES groups(id);
+ALTER TABLE groups_groups ADD CONSTRAINT grp_grp_ogid_fk FOREIGN KEY (operand_gid) REFERENCES groups(id);
+CREATE FUNCTION check_and_update_member(INTEGER, INTEGER, INTEGER, INTEGER) RETURNS VOID AS $$ BEGIN IF NOT EXISTS(SELECT 1 FROM groups_members WHERE group_id = $3 AND source_group_id = $2 AND groups_members.member_id = $4) THEN UPDATE groups_members SET source_group_id = $2 WHERE group_id = $3 AND source_group_id = $1 AND groups_members.member_id = $4; ELSE DELETE FROM groups_members WHERE group_id = $3 AND source_group_id = $1 AND groups_members.member_id = $4; END IF; END $$ LANGUAGE plpgsql;
+CREATE FUNCTION recursive_hierarchy_check(INTEGER, INTEGER) RETURNS INTEGER AS $$ DECLARE parent_gid INTEGER; BEGIN SELECT parent_group_id INTO parent_gid FROM groups WHERE id = $2; IF parent_gid IS NOT NULL THEN PERFORM check_and_update_member($1, $2, parent_gid, member_id) FROM groups_members WHERE group_id = parent_gid AND source_group_id = $1; PERFORM recursive_hierarchy_check($1, parent_gid); END IF; RETURN parent_gid; END $$ LANGUAGE plpgsql;
+SELECT recursive_hierarchy_check(id, parent_group_id) FROM groups WHERE groups.parent_group_id IS NOT NULL;
+CREATE FUNCTION create_relations(INTEGER, INTEGER) RETURNS VOID AS $$ BEGIN IF NOT EXISTS(SELECT 1 FROM groups_groups WHERE result_gid = $2 AND operand_gid = $1) THEN INSERT INTO groups_groups(result_gid, operand_gid, parent_flag) VALUES ($2, $1, TRUE); END IF; END $$ LANGUAGE plpgsql;
+SELECT create_relations(id, parent_group_id) FROM groups WHERE parent_group_id IS NOT NULL;
+DROP FUNCTION create_relations(INTEGER, INTEGER);
+DROP FUNCTION recursive_hierarchy_check(INTEGER, INTEGER);
+DROP FUNCTION check_and_update_member(INTEGER,INTEGER,INTEGER,INTEGER);
+UPDATE membership_types SET description = 'Member is added indirectly through UNION relation' WHERE membership_type = 'INDIRECT';
+update configurations set value='3.1.36' where property='DATABASE VERSION';
+
 3.1.35
 alter table users add sponsored_acc char(1) default '0' not null;
 drop index idx_fk_servu_u_ui;
