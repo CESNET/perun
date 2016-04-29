@@ -378,14 +378,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	public List<Group> getAssignedGroups(PerunSession sess, Resource resource) throws InternalErrorException {
 		return getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource);
-
-		// GROUPER OUT
-		/*
-		// Get the groups ids
-		List<Integer> groupsIds = getResourcesManagerImpl().getAssignedGroupsIds(sess, resource, withSubGroups);
-		return getPerunBl().getGroupsManagerBl().getGroupsByIds(sess, groupsIds);
-		// GROUPER OUT
-		*/
 	}
 
 	public List<Resource> getAssignedResources(PerunSession sess, Group group) throws InternalErrorException {

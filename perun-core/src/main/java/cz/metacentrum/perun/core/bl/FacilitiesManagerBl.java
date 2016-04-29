@@ -246,6 +246,18 @@ public interface FacilitiesManagerBl {
 	List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
 
 	/**
+	 * Return all members, which are "allowed" on facility.
+	 *
+	 * @param sess
+	 * @param facility
+	 *
+	 * @return list of allowed members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
 	 * Returns all resources assigned to the facility.
 	 *
 	 * @param perunSession
@@ -256,6 +268,20 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Returns all resources assigned to the facility with optionally VO and Service specified
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param specificVo
+	 * @param specificService
+	 *
+	 * @return list of resources assigned to the facility
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
 
 	/**
 	 * Returns all rich resources assigned to the facility with VO property filled

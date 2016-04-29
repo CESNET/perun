@@ -2,23 +2,10 @@ package cz.metacentrum.perun.core.implApi;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.ContactGroup;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.SecurityTeam;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -26,7 +13,6 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
@@ -165,6 +151,18 @@ public interface FacilitiesManagerImplApi {
 	List<Integer> getAllowedVosIds(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Return all members, which are "allowed" on facility.
+	 *
+	 * @param sess
+	 * @param facility
+	 *
+	 * @return list of allowed members
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
 	 * Returns all resources assigned to the facility.
 	 *
 	 * @param perunSession
@@ -175,6 +173,20 @@ public interface FacilitiesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Returns all resources assigned to the facility with optionally VO and Service specified.
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param specificVo
+	 * @param specificService
+	 *
+	 * @return list of resources assigned to the facility with optionally filter for VO and Service.
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
 
 	/**
 	 * Returns all rich resources assigned to the facility.

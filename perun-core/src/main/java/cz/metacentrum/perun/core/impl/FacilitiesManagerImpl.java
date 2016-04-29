@@ -7,27 +7,13 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.ContactGroup;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.SecurityTeam;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
@@ -401,10 +387,56 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
+	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException {
+		try  {
+			return jdbc.query("select distinct " + MembersManagerImpl.memberMappingSelectQuery + " from groups_resources join groups on groups_resources.group_id=groups.id" +
+							" join groups_members on groups.id=groups_members.group_id join members on groups_members.member_id=members.id " +
+							" join resources on group_resources.resource_id=resource.id " +
+							" where resources.facility_id=? and members.status!=? and members.status!=?", MembersManagerImpl.MEMBER_MAPPER, facility.getId(),
+					String.valueOf(Status.INVALID.getCode()), String.valueOf(Status.DISABLED.getCode()));
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Member>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public List<Resource> getAssignedResources(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?",
 					ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+
+		try {
+
+			if (specificVo != null && specificService != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
+						"resource_services.resource_id=resources.id where facility_id=? and vo_id=? and service_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId(), specificService.getId());
+
+			} else if (specificVo != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=? and vo_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId());
+
+			} else if (specificService != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
+						"resource_services.resource_id=resources.id where facility_id=? and service_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificService.getId());
+
+			} else {
+
+				return getAssignedResources(sess, facility);
+
+			}
+
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

@@ -171,21 +171,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	public List<Group> getAllowedGroups(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
 		//Get all facilities resources
-		List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(perunSession, facility);
-
-		//Remove all resources which are not in specific VO (if is specific)
-		if(specificVo != null) {
-			Iterator<Resource> iter = facilityResources.iterator();
-			while(iter.hasNext()) {
-				if(specificVo.getId() != iter.next().getVoId()) iter.remove();
-			}
-		}
-
-		//Remove all resources which has not assigned specific service (if is specific)
-		if(specificService != null) {
-			List<Resource> resourcesWhereServiceIsAssigned = getPerunBl().getServicesManagerBl().getAssignedResources(perunSession, specificService);
-			facilityResources.retainAll(resourcesWhereServiceIsAssigned);
-		}
+		List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(perunSession, facility, specificVo, specificService);
 
 		//GetAll Groups for resulted Resources
 		Set<Group> allowedGroups = new HashSet<Group>();
@@ -210,22 +196,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	@Override
 	public List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+
 		//Get all facilities resources
-		List<Resource> resources = this.getAssignedResources(sess, facility);
-
-		//Remove all resources which are not in specific VO (if is specific)
-		if(specificVo != null) {
-			Iterator<Resource> iter = resources.iterator();
-			while(iter.hasNext()) {
-				if(specificVo.getId() != iter.next().getVoId()) iter.remove();
-			}
-		}
-
-		//Remove all resources which has not assigned specific service (if is specific)
-		if(specificService != null) {
-			List<Resource> resourcesWhereServiceIsAssigned = getPerunBl().getServicesManagerBl().getAssignedResources(sess, specificService);
-			resources.retainAll(resourcesWhereServiceIsAssigned);
-		}
+		List<Resource> resources = getAssignedResources(sess, facility, specificVo, specificService);
 
 		List<User> users =  new ArrayList<User>();
 		for (Resource resource: resources) {
@@ -235,8 +208,17 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		return users;
 	}
 
+	public List<Member> getAllowedMembers(PerunSession sess, Facility facility) throws InternalErrorException {
+		return getFacilitiesManagerImpl().getAllowedMembers(sess, facility);
+	}
+
 	public List<Resource> getAssignedResources(PerunSession sess, Facility facility) throws InternalErrorException {
 		return getFacilitiesManagerImpl().getAssignedResources(sess, facility);
+	}
+
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+		if (specificVo == null && specificService == null) return getAssignedResources(sess, facility);
+		return getFacilitiesManagerImpl().getAssignedResources(sess, facility, specificVo, specificService);
 	}
 
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
