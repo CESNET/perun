@@ -659,6 +659,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// set new properties back to object & return
 		item.setOrdnum(ordnum);
 		item.setId(itemId);
+		perun.getAuditer().log(user, "Application form item ID=" + form.getId() + " voID=" + form.getVo().getId() + " groupID=" + form.getGroup().getId() + " has been added");
 		return item;
 
 	}
@@ -736,6 +737,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
+		perun.getAuditer().log(sess, "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + " groupID=" + form.getGroup().getId() + " has had its items updated.");
 		// return number of updated rows
 		return finalResult;
 
@@ -756,6 +758,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
+		perun.getAuditer().log(user, "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + " groupID=" + form.getGroup().getId() + " has been updated.");
 		return jdbc.update(
 				"update application_form set automatic_approval=?, automatic_approval_extension=?, module_name=? where id=?",
 				form.isAutomaticApproval() ? "1" : "0", form.isAutomaticApprovalExtension() ? "1" : "0", form.getModuleClassName(), form.getId());
@@ -770,6 +773,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		jdbc.update("delete from application_form_items where form_id=? and ordnum=?", form.getId(), ordnum);
 		jdbc.update("update application_form_items set ordnum=ordnum-1 where form_id=? and ordnum>?", form.getId(), ordnum);
+		
+		perun.getAuditer().log(user, "Application form item ID=" + form.getId() + " voID=" + form.getVo().getId() + " groupID=" + form.getGroup().getId() + " has been deleted");
 
 	}
 
@@ -829,6 +834,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
 			throw ex;
 		}
+		perun.getAuditer().log(session, "Application ID=" + application.getId() + " voID=" + application.getVo().getId() + " groupID=" + application.getGroup().getId() + " has been created");
 
 		return data;
 
@@ -1060,6 +1066,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
 			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 		}
+		perun.getAuditer().log(sess, "Application ID=" + app.getId() + " voID=" + app.getVo().getId() + " groupID=" + app.getGroup().getId() + " has been deleted");
 
 	}
 
@@ -1080,6 +1087,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		// proceed
 		markApplicationVerified(sess, appId);
+		perun.getAuditer().log(sess, "Application ID=" + appId + " voID=" + app.getVo().getId() + " groupID=" + app.getGroup().getId() + " has been verified.");
 		// return updated application
 		return getApplicationById(appId);
 
@@ -1159,6 +1167,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// send mail
 		getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
 
+		perun.getAuditer().log(sess, "Application ID=" + app.getId() + " voID=" + app.getVo().getId() + " groupID=" + app.getGroup().getId() + " has been rejected.");
 		// return updated application
 		return app;
 
@@ -1195,6 +1204,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// we skip any exception thrown from here
 			log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
 		}
+		perun.getAuditer().log(sess, "Application ID=" + appId + " voID=" + app.getVo().getId() + " groupID=" + app.getGroup().getId() + " was approved.");
 
 		return app;
 	}

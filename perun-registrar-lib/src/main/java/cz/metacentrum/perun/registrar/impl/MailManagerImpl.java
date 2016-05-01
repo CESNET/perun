@@ -829,6 +829,7 @@ public class MailManagerImpl implements MailManager {
 			sendMessage(app, mailType, reason, null);
 
 		}
+		perun.getAuditer().log(sess, "Mail of Type: {} sent for Application: {}", mailType, app.getId());
 
 	}
 
