@@ -87,7 +87,7 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 		 * /wiki/PerunEngineDispatcherController event|x|[timestamp][Event
 		 * header][Event data]
 		 */
-		String eventParsingPattern = "^\\[([a-zA-Z0-9: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
+		String eventParsingPattern = "^\\[([a-zA-Z0-9+: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
 		Pattern pattern = Pattern.compile(eventParsingPattern);
 		Matcher matcher = pattern.matcher(event);
 		boolean matchFound = matcher.find();
