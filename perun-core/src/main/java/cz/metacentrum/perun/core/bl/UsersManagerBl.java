@@ -362,6 +362,18 @@ public interface UsersManagerBl {
 	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException;
 
 	/**
+	 * Get all users userExtSources with last_access not older than (now - m),
+	 * where 'm' is number of months defined in CONSTANT in UsersManagerImpl.
+	 *
+	 * @param sess
+	 * @param user user to get extSources for
+	 *
+	 * @return list of active user extSources (not older than now - m)
+	 * @throws InternalErrorException
+	 */
+	List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
 	 * Get list of user ext sources be their ids.
 	 *
 	 * @param sess

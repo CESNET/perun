@@ -441,6 +441,30 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	@Test
+	public void getActiveUserExtSources() throws Exception {
+		System.out.println(CLASS_NAME + "getActiveUserExtSources");
+		ExtSource externalSource = perun.getExtSourcesManager().getExtSourceByName(sess, extSourceName);
+		UserExtSource userExtSource = usersManager.getUserExtSourceByExtLogin(sess, externalSource, extLogin);
+
+		List<UserExtSource> ues = perun.getUsersManagerBl().getActiveUserExtSources(sess, user);
+		assertTrue(ues.contains(userExtSource));
+	}
+
+	@Test
+	public void getActiveUserExtSourcesIfEmpty() throws Exception {
+		System.out.println(CLASS_NAME + "getActiveUserExtSources");
+
+		User emptyUser = setUpEmptyUser();
+		List<UserExtSource> ues = perun.getUsersManagerBl().getUserExtSources(sess, emptyUser);
+		for(UserExtSource uExtSource: ues) {
+			perun.getUsersManagerBl().removeUserExtSource(sess, emptyUser, uExtSource);
+		}
+		
+		ues = perun.getUsersManagerBl().getActiveUserExtSources(sess, emptyUser);
+		assertTrue(ues.isEmpty());
+	}
+
+	@Test
 	public void getUserExtSourceByExtLogin() throws Exception {
 		System.out.println(CLASS_NAME + "getUserExtSourceByExtLogin");
 
@@ -826,6 +850,21 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		// create new user in database
 		usersForDeletion.add(user);
 		// save user for deletion after testing
+	}
+
+	private User setUpEmptyUser() throws Exception {
+
+		User usr = new User();
+		usr.setFirstName(userFirstName);
+		usr.setMiddleName("");
+		usr.setLastName(userLastName);
+		usr.setTitleBefore("");
+		usr.setTitleAfter("");
+		assertNotNull(perun.getUsersManagerBl().createUser(sess, usr));
+		// create new user in database
+		usersForDeletion.add(usr);
+		// save user for deletion after testing
+		return usr;
 	}
 
 	private void setUpSpecificUser1ForUser(Vo vo) throws Exception {

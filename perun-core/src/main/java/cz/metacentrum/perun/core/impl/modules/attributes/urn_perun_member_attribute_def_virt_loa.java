@@ -34,7 +34,7 @@ public class urn_perun_member_attribute_def_virt_loa extends MemberVirtualAttrib
 		} catch(UserNotExistsException ex) {
 			throw new InternalErrorException("There is no user for get member "+ member,ex);
 		}
-		List<UserExtSource> extSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+		List<UserExtSource> extSources = sess.getPerunBl().getUsersManagerBl().getActiveUserExtSources(sess, user);
 		Integer maxLoa = 0;
 		for(UserExtSource e : extSources) {
 			if(maxLoa < e.getLoa()) maxLoa = e.getLoa();

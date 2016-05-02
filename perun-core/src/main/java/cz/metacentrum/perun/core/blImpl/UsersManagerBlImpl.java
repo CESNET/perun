@@ -468,6 +468,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return getUsersManagerImpl().getAllUserExtSourcesByTypeAndLogin(sess, extType, extLogin);
 	}
 
+	public List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user) throws InternalErrorException {
+		return getUsersManagerImpl().getActiveUserExtSources(sess, user);
+	}
+
 	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
 		// Check if the userExtSource already exists
 		try {

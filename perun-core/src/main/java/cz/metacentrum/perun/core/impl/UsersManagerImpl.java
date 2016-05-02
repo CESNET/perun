@@ -34,6 +34,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
+import java.util.Calendar;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
@@ -49,6 +50,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	// time window size for mail validation if not taken from peruns configuration file
 	private final static int VALIDATION_ALLOWED_HOURS = 6;
+
+	// If user extSource is older than 'number' months, it is not defined as ACTIVE in methods
+	// INACTIVE userExtSources are skipped in counting max loa for user
+	private static final int MAX_OLD_OF_ACTIVE_USER_EXTSOURCE = 13;
 
 	// Part of the SQL script used for getting the User object
 	protected final static String userMappingSelectQuery = "users.id as users_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
@@ -505,6 +510,28 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return jdbc.query("select id from user_ext_sources where user_id=?", Utils.ID_MAPPER, user.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user) throws InternalErrorException {
+		//get now date
+		Calendar date = Calendar.getInstance();
+		date.add(Calendar.MONTH, -MAX_OLD_OF_ACTIVE_USER_EXTSOURCE);
+
+		// create sql toDate()
+		String compareDate = BeansUtils.getDateFormatterWithoutTime().format(date.getTime());
+
+		try {
+			String query = "select " + userExtSourceMappingSelectQuery + ", " + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+					" from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where " +
+					" user_ext_sources.user_id=? and " +
+					" user_ext_sources.last_access > " + Compatibility.toDate("'" + compareDate + "'", "'YYYY-MM-DD'");
+
+			return jdbc.query(query, USEREXTSOURCE_MAPPER, user.getId());
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
