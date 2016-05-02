@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
@@ -405,6 +406,38 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?",
 					ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+
+		try {
+
+			if (specificVo != null && specificService != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
+						"resource_services.resource_id=resources.id where facility_id=? and vo_id=? and service_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId(), specificService.getId());
+
+			} else if (specificVo != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=? and vo_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId());
+
+			} else if (specificService != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
+						"resource_services.resource_id=resources.id where facility_id=? and service_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificService.getId());
+
+			} else {
+
+				return getAssignedResources(sess, facility);
+
+			}
+
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

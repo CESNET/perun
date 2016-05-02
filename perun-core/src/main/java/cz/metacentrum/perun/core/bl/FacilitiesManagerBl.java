@@ -258,6 +258,20 @@ public interface FacilitiesManagerBl {
 	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Returns all resources assigned to the facility with optionally VO and Service specified
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param specificVo
+	 * @param specificService
+	 *
+	 * @return list of resources assigned to the facility
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+
+	/**
 	 * Returns all rich resources assigned to the facility with VO property filled
 	 *
 	 * @param perunSession
