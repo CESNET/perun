@@ -1936,6 +1936,11 @@ public interface AttributesManagerBl {
 	 */
 	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException;
 
+	HashMap<User, List<Attribute>> getRequiredUserAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException;
+	HashMap<User, List<Attribute>> getRequiredUserFacilityAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException;
+	HashMap<Member, List<Attribute>> getRequiredMemberAttributesOfAllowedMembers(PerunSession sess, Service service, Resource resource) throws InternalErrorException;
+	HashMap<Member, List<Attribute>> getRequiredMemberResourceAttributesOfAllowedMembers(PerunSession sess, Service service, Resource resource) throws InternalErrorException;
+
 	/**
 	 * Get member-group attributes which are required by the service.
 	 *

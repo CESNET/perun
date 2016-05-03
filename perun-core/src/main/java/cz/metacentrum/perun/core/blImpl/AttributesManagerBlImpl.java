@@ -2183,6 +2183,26 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
+	public HashMap<User, List<Attribute>> getRequiredUserAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredUserAttributesOfAllowedUsers(sess, service, facility);
+	}
+
+	@Override
+	public HashMap<User, List<Attribute>> getRequiredUserFacilityAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredUserFacilityAttributesOfAllowedUsers(sess, service, facility);
+	}
+
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredMemberAttributesOfAllowedMembers(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredMemberAttributesOfAllowedMembers(sess, service, resource);
+	}
+
+	@Override
+	public HashMap<Member, List<Attribute>> getRequiredMemberResourceAttributesOfAllowedMembers(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
+		return getAttributesManagerImpl().getRequiredMemberResourceAttributesOfAllowedMembers(sess, service, resource);
+	}
+
+	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group);
 	}

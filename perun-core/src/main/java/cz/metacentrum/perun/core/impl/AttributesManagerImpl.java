@@ -2,7 +2,8 @@ package cz.metacentrum.perun.core.impl;
 
 import java.util.*;
 
-import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.*;
+
 import java.io.IOException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -41,24 +42,6 @@ import org.springframework.jdbc.support.lob.OracleLobHandler;
 
 import org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributeRights;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.Auditable;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichAttribute;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 
 import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
@@ -218,7 +201,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				// WHEN CHECK FAILS TRY TO READ AS POSTGRES
 					valueText = rs.getString("attr_value_text");
 			}
-			
+
 			value = rs.getString("attr_value");
 
 			if(valueText != null) return valueText;
@@ -1066,7 +1049,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			return jdbc.queryForObject("select attr_value, attr_value_text from entityless_attr_values where subject=? and attr_id=? for update", ATTRIBUTE_VALUES_MAPPER, key, attrId);
@@ -1079,7 +1062,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws  InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
@@ -2790,7 +2773,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 											ps.setString(2, key);
 											ps.setInt(3, attribute.getId());
 											ps.setString(4, key);
-											
+
 											try {
 												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
 												ps.setString(6, sess.getPerunPrincipal().getActor());
@@ -3193,7 +3176,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds) throws InternalErrorException {
 		try {
 			List<String> namespace = new ArrayList();
@@ -3201,12 +3184,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			namespace.add(AttributesManager.NS_RESOURCE_ATTR_CORE);
 			namespace.add(AttributesManager.NS_RESOURCE_ATTR_OPT);
 			namespace.add(AttributesManager.NS_RESOURCE_ATTR_VIRT);
-			
 			MapSqlParameterSource parameters = new MapSqlParameterSource();
 			parameters.addValue("serviceIds", serviceIds);
 			parameters.addValue("resourceId", resource.getId());
 			parameters.addValue("namespace", namespace);
-			
 			return this.namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names "
 					+ "join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id in (:serviceIds) "
 					+ "left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=:resourceId "
@@ -3430,6 +3411,108 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	private static class UserAttributeExtractor2 implements ResultSetExtractor<HashMap<User, List<Attribute>>> {
+
+		private final PerunSession sess;
+		private final AttributesManagerImpl attributesManager;
+		private final Facility facility;
+
+		/**
+		 * Sets up parameters for data extractor
+		 *
+		 * @param sess perun session
+		 * @param attributesManager attribute manager
+		 */
+		public UserAttributeExtractor2(PerunSession sess, AttributesManagerImpl attributesManager, Facility facility) {
+			this.sess = sess;
+			this.attributesManager = attributesManager;
+			this.facility = facility;
+		}
+
+		public UserAttributeExtractor2(PerunSession sess, AttributesManagerImpl attributesManager) {
+			this(sess, attributesManager, null);
+		}
+
+		public HashMap<User, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+
+			HashMap<User, List<Attribute>> map = new HashMap<>();
+
+			while (rs.next()) {
+
+				int rowId = rs.getRow();
+
+				User user = UsersManagerImpl.USER_MAPPER.mapRow(rs, rowId);
+
+				if (!map.containsKey(user)) {
+					// first match for user
+					map.put(user, new ArrayList<Attribute>());
+
+				}
+
+				AttributeRowMapper attributeRowMapper = new AttributeRowMapper(sess, attributesManager, user, facility);
+				Attribute attribute = attributeRowMapper.mapRow(rs, rowId);
+
+				if (attribute != null) {
+					// add only if exists
+					if (map.get(user) != null) map.get(user).add(attribute);
+				}
+
+
+			}
+			return map;
+		}
+	}
+
+	private static class MemberAttributeExtractor2 implements ResultSetExtractor<HashMap<Member, List<Attribute>>> {
+
+		private final PerunSession sess;
+		private final AttributesManagerImpl attributesManager;
+		private final Resource resource;
+
+		/**
+		 * Sets up parameters for data extractor
+		 *
+		 * @param sess perun session
+		 * @param attributesManager attribute manager
+		 */
+		public MemberAttributeExtractor2(PerunSession sess, AttributesManagerImpl attributesManager, Resource resource) {
+			this.sess = sess;
+			this.attributesManager = attributesManager;
+			this.resource = resource;
+		}
+
+		public MemberAttributeExtractor2(PerunSession sess, AttributesManagerImpl attributesManager) {
+			this(sess, attributesManager, null);
+		}
+
+		public HashMap<Member, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+
+			HashMap<Member, List<Attribute>> map = new HashMap<>();
+
+			while (rs.next()) {
+
+				Member member = MembersManagerImpl.MEMBER_MAPPER.mapRow(rs, rs.getRow());
+
+				if (!map.containsKey(member)) {
+					// first match for user
+					map.put(member, new ArrayList<Attribute>());
+
+				}
+
+				AttributeRowMapper attributeRowMapper = new AttributeRowMapper(sess, attributesManager, member, resource);
+				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
+
+				if (attribute != null) {
+					// add only if exists
+					if (map.get(member) != null) map.get(member).add(attribute);
+				}
+
+			}
+			return map;
+		}
+	}
+
+
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
 		try {
 			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
@@ -3470,6 +3553,126 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					new UserAttributeExtractor(sess, this, users, facility), service.getId(), facility.getId(), AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT, AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
 		} catch(EmptyResultDataAccessException ex) {
 			return new HashMap<User, List<Attribute>>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public HashMap<User, List<Attribute>> getRequiredUserFacilityAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+		try {
+
+			return jdbc.query("SELECT " + UsersManagerImpl.userMappingSelectQuery + " , " + getAttributeMappingSelectQuery("usr_fac") +
+					" FROM resources" +
+					" JOIN groups_resources on resources.id=groups_resources.resource_id" +
+					" JOIN groups_members on groups_resources.group_id=groups_members.group_id" +
+					" JOIN members on groups_members.member_id=members.id" +
+					" JOIN users on users.id=members.user_id" +
+					" JOIN service_required_attrs on service_required_attrs.service_id=?" +
+					" JOIN attr_names on attr_names.id=service_required_attrs.attr_id" +
+					" LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id and usr_fac.user_id=users.id and usr_fac.facility_id=resources.facility_id" +
+					" WHERE resources.facility_id=? and members.status!=? and members.status!=?" +
+					" and namespace IN (?,?,?)",
+						new UserAttributeExtractor2(sess, this, facility),
+						service.getId(),
+						facility.getId(),
+						String.valueOf(Status.INVALID.getCode()),
+						String.valueOf(Status.DISABLED.getCode()),
+						AttributesManager.NS_USER_FACILITY_ATTR_DEF,
+						AttributesManager.NS_USER_FACILITY_ATTR_OPT,
+						AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+
+		} catch(EmptyResultDataAccessException ex) {
+			return new HashMap<User, List<Attribute>>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public HashMap<User, List<Attribute>> getRequiredUserAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+		try {
+
+			return jdbc.query("SELECT " + UsersManagerImpl.userMappingSelectQuery + " , " + getAttributeMappingSelectQuery("usr") +
+							" FROM resources" +
+							" JOIN groups_resources on resources.id=groups_resources.resource_id" +
+							" JOIN groups_members on groups_resources.group_id=groups_members.group_id" +
+							" JOIN members on groups_members.member_id=members.id" +
+							" JOIN users on users.id=members.user_id" +
+							" JOIN service_required_attrs on service_required_attrs.service_id=?" +
+							" JOIN attr_names on attr_names.id=service_required_attrs.attr_id" +
+							" LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id and usr.user_id=users.id" +
+							" WHERE resources.facility_id=? and members.status!=? and members.status!=?" +
+							" and namespace IN (?,?,?,?)",
+					new UserAttributeExtractor2(sess, this),
+					service.getId(),
+					facility.getId(),
+					String.valueOf(Status.INVALID.getCode()),
+					String.valueOf(Status.DISABLED.getCode()),
+					AttributesManager.NS_USER_ATTR_CORE,
+					AttributesManager.NS_USER_ATTR_DEF,
+					AttributesManager.NS_USER_ATTR_OPT,
+					AttributesManager.NS_USER_ATTR_VIRT);
+
+		} catch(EmptyResultDataAccessException ex) {
+			return new HashMap<User, List<Attribute>>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public HashMap<Member, List<Attribute>> getRequiredMemberAttributesOfAllowedMembers(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
+		try {
+
+			return jdbc.query("SELECT " + MembersManagerImpl.memberMappingSelectQuery + " , " + getAttributeMappingSelectQuery("mem") +
+							" FROM resources" +
+							" JOIN groups_resources on resources.id=groups_resources.resource_id" +
+							" JOIN groups_members on groups_resources.group_id=groups_members.group_id" +
+							" JOIN members on groups_members.member_id=members.id" +
+							" JOIN service_required_attrs on service_required_attrs.service_id=?" +
+							" JOIN attr_names on attr_names.id=service_required_attrs.attr_id" +
+							" LEFT JOIN member_attr_values mem ON attr_names.id=mem.attr_id and mem.member_id=members.id" +
+							" WHERE resources.id=? and members.status!=? and members.status!=?" +
+							" and namespace IN (?,?,?,?)",
+					new MemberAttributeExtractor2(sess, this),
+					service.getId(),
+					resource.getId(),
+					String.valueOf(Status.INVALID.getCode()),
+					String.valueOf(Status.DISABLED.getCode()),
+					AttributesManager.NS_MEMBER_ATTR_CORE,
+					AttributesManager.NS_MEMBER_ATTR_DEF,
+					AttributesManager.NS_MEMBER_ATTR_OPT,
+					AttributesManager.NS_MEMBER_ATTR_VIRT);
+
+		} catch(EmptyResultDataAccessException ex) {
+			return new HashMap<Member, List<Attribute>>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public HashMap<Member, List<Attribute>> getRequiredMemberResourceAttributesOfAllowedMembers(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
+		try {
+
+			return jdbc.query("SELECT " + MembersManagerImpl.memberMappingSelectQuery + " , " + getAttributeMappingSelectQuery("mem_res") +
+							" FROM resources" +
+							" JOIN groups_resources on resources.id=groups_resources.resource_id" +
+							" JOIN groups_members on groups_resources.group_id=groups_members.group_id" +
+							" JOIN members on groups_members.member_id=members.id" +
+							" JOIN service_required_attrs on service_required_attrs.service_id=?" +
+							" JOIN attr_names on attr_names.id=service_required_attrs.attr_id" +
+							" LEFT JOIN member_resource_attr_values mem_res ON attr_names.id=mem_res.attr_id and mem_res.member_id=members.id and mem_res.resource_id=resources.id" +
+							" WHERE resources.id=? and members.status!=? and members.status!=?" +
+							" and namespace IN (?,?,?)",
+					new MemberAttributeExtractor2(sess, this, resource),
+					service.getId(),
+					resource.getId(),
+					String.valueOf(Status.INVALID.getCode()),
+					String.valueOf(Status.DISABLED.getCode()),
+					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF,
+					AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT,
+					AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+
+		} catch(EmptyResultDataAccessException ex) {
+			return new HashMap<Member, List<Attribute>>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3920,7 +4123,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from facility_attr_values where attr_id=? and facility_id=?", attribute.getId(), facility.getId())) {
@@ -4784,7 +4987,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			Object attributeModule = getAttributesModule(sess, moduleName);
 			if(attributeModule != null) return attributeModule;
 		}
-		
+
 		//if specific module not exists or attribute has no parameter, find the common one
 		moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());
 		Object attributeModule = getAttributesModule(sess, moduleName);
