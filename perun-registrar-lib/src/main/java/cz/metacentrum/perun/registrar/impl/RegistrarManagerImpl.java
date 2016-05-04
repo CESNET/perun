@@ -834,7 +834,6 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
 			throw ex;
 		}
-		perun.getAuditer().log(session, "Application ID=" + application.getId() + " voID=" + application.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " has been created");
 
 		return data;
 

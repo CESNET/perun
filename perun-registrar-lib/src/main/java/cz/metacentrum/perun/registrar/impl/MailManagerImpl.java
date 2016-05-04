@@ -257,6 +257,9 @@ public class MailManagerImpl implements MailManager {
 			} else {
 				jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
 			}
+
+			perun.getAuditer().log(sess, "Sending of Mail ID: {} " + ((enabled) ? " enabled." : " disabled."));
+
 		}
 
 	}
