@@ -140,7 +140,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	protected static final String getAttributeMappingSelectQuery(String nameOfValueTable) {
 		String selectQuery = "";
-		selectQuery = selectQuery.concat(attributeAndTextMappingSelectQuery);
+		selectQuery = selectQuery.concat(attributeDefinitionMappingSelectQuery);
+		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".attr_value");
+		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".attr_value_text");
 		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".created_at as attr_value_created_at");
 		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".created_by as attr_value_created_by");
 		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".modified_at as attr_value_modified_at");
@@ -169,84 +171,84 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return attribute;
 		}
 	};
-	
-	/*
-	 * This rowMapper is only for getting attribute values (value and valueText)
-	 */
-	private static final RowMapper<String> ATTRIBUTE_VALUES_MAPPER = new RowMapper<String>() {
-		public String mapRow(ResultSet rs, int i) throws SQLException {
-			String value;
-			String valueText;
-			try {
-				//CLOB in oracle
-				if (Compatibility.isOracle()) {
-					Clob clob = rs.getClob("attr_value_text");
-					char[] cbuf = null;
-					if(clob == null) {
-						valueText = null;
-					} else {
-						try {
-							cbuf = new char[(int) clob.length()];
-							clob.getCharacterStream().read(cbuf);
-						} catch(IOException ex) {
-							throw new InternalErrorRuntimeException(ex);
+
+	private static RowMapper<String> getAttributeValuesMapper(final String nameOfAttributeValueTable) {
+
+		return new RowMapper<String>() {
+			public String mapRow(ResultSet rs, int i) throws SQLException {
+				String value;
+				String valueText;
+				try {
+					//CLOB in oracle
+					if (Compatibility.isOracle()) {
+						Clob clob = rs.getClob(nameOfAttributeValueTable+".attr_value_text");
+						char[] cbuf = null;
+						if(clob == null) {
+							valueText = null;
+						} else {
+							try {
+								cbuf = new char[(int) clob.length()];
+								clob.getCharacterStream().read(cbuf);
+							} catch(IOException ex) {
+								throw new InternalErrorRuntimeException(ex);
+							}
+							valueText = new String(cbuf);
 						}
-						valueText = new String(cbuf);
+					} else {
+						// POSTGRES READ CLOB AS STRING
+						valueText = rs.getString(nameOfAttributeValueTable+".attr_value_text");
 					}
-				} else {
-					// POSTGRES READ CLOB AS STRING
-					valueText = rs.getString("attr_value_text");
+				} catch (InternalErrorException ex) {
+					// WHEN CHECK FAILS TRY TO READ AS POSTGRES
+					valueText = rs.getString(nameOfAttributeValueTable+".attr_value_text");
 				}
-			} catch (InternalErrorException ex) {
-				// WHEN CHECK FAILS TRY TO READ AS POSTGRES
-					valueText = rs.getString("attr_value_text");
+
+				value = rs.getString(nameOfAttributeValueTable+".attr_value");
+
+				if(valueText != null) return valueText;
+				else return value;
 			}
+		};
 
-			value = rs.getString("attr_value");
+	}
 
-			if(valueText != null) return valueText;
-			else return value;
-		}
-	};
+	protected static RowMapper<Attribute> getAttributeMapper(final String nameOfAttributeValueTable) {
 
-	protected static final RowMapper<Attribute> ATTRIBUTE_MAPPER = new RowMapper<Attribute>() {
-		public Attribute mapRow(ResultSet rs, int i) throws SQLException {
+		return new RowMapper<Attribute>() {
+			public Attribute mapRow(ResultSet rs, int i) throws SQLException {
 
-			AttributeDefinition attributeDefinition = new AttributeDefinition();
-			attributeDefinition.setId(rs.getInt("attr_names_id"));
-			attributeDefinition.setFriendlyName(rs.getString("attr_names_friendly_name"));
-			attributeDefinition.setNamespace(rs.getString("attr_names_namespace"));
-			attributeDefinition.setType(rs.getString("attr_names_type"));
-			attributeDefinition.setDisplayName("attr_names_display_name");
-			attributeDefinition.setCreatedAt(rs.getString("attr_names_created_at"));
-			attributeDefinition.setCreatedBy(rs.getString("attr_names_created_by"));
-			attributeDefinition.setModifiedAt(rs.getString("attr_names_modified_at"));
-			attributeDefinition.setModifiedBy(rs.getString("attr_names_modified_by"));
-			if(rs.getInt("attr_names_modified_by_uid") == 0) attributeDefinition.setModifiedByUid(null);
-			else attributeDefinition.setModifiedByUid(rs.getInt("attr_names_modified_by_uid"));
-			if(rs.getInt("attr_names_created_by_uid") == 0) attributeDefinition.setCreatedByUid(null);
-			else attributeDefinition.setCreatedByUid(rs.getInt("attr_names_created_by_uid"));
+				AttributeDefinition attributeDefinition = ATTRIBUTE_DEFINITION_MAPPER.mapRow(rs, i);
 
-			Attribute attribute = new Attribute(attributeDefinition);
-			attribute.setValueCreatedAt(rs.getString("attr_value_created_at"));
-			attribute.setValueCreatedBy(rs.getString("attr_value_created_by"));
-			attribute.setValueModifiedAt(rs.getString("attr_value_modified_at"));
-			attribute.setValueModifiedBy(rs.getString("attr_value_modified_by"));
+				Attribute attribute = new Attribute(attributeDefinition);
 
-			String stringValue = rs.getString("attr_value");
+				String stringValue = null;
+				if (nameOfAttributeValueTable == null || nameOfAttributeValueTable.isEmpty()) {
+					attribute.setValueCreatedAt(rs.getString("attr_value_created_at"));
+					attribute.setValueCreatedBy(rs.getString("attr_value_created_by"));
+					attribute.setValueModifiedAt(rs.getString("attr_value_modified_at"));
+					attribute.setValueModifiedBy(rs.getString("attr_value_modified_by"));
+					stringValue = rs.getString("attr_value");
+				} else {
+					attribute.setValueCreatedAt(rs.getString(nameOfAttributeValueTable+".attr_value_created_at"));
+					attribute.setValueCreatedBy(rs.getString(nameOfAttributeValueTable+".attr_value_created_by"));
+					attribute.setValueModifiedAt(rs.getString(nameOfAttributeValueTable+".attr_value_modified_at"));
+					attribute.setValueModifiedBy(rs.getString(nameOfAttributeValueTable+".attr_value_modified_by"));
+					stringValue = rs.getString(nameOfAttributeValueTable+".attr_value");
+				}
 
-			try {
-				attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
-			} catch(InternalErrorException ex) {
-				throw new InternalErrorRuntimeException(ex);
+				try {
+					attribute.setValue(BeansUtils.stringToAttributeValue(stringValue, attribute.getType()));
+				} catch (InternalErrorException ex) {
+					throw new InternalErrorRuntimeException(ex);
+				}
+
+				attribute.setDescription(rs.getString("attr_names_dsc"));
+
+				return attribute;
 			}
+		};
 
-			attribute.setDescription(rs.getString("attr_names_dsc"));
-
-			return attribute;
-		}
-
-	};
+	}
 
 	private static final RowMapper<String> ENTITYLESS_KEYS_MAPPER = new RowMapper<String>() {
 		public String mapRow(ResultSet rs, int i) throws SQLException {
@@ -1052,7 +1054,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select attr_value, attr_value_text from entityless_attr_values where subject=? and attr_id=? for update", ATTRIBUTE_VALUES_MAPPER, key, attrId);
+			return jdbc.queryForObject("select attr_value, attr_value_text from entityless_attr_values where subject=? and attr_id=? for update", getAttributeValuesMapper("entityless_attr_values"), key, attrId);
 		} catch(EmptyResultDataAccessException ex) {
 			//If there is no such entityless attribute, create new one with null value and return null (insert is for transaction same like select for update)
 			Attribute attr = new Attribute(this.getAttributeDefinitionById(sess, attrId));
@@ -1090,7 +1092,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		// Get the entity from the name
 		String entity = attributeDefinition.getEntity();
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery(entity + "_attr_values") + " from attr_names join " + entity + "_attr_values on id=attr_id  where attr_name=?", ATTRIBUTE_MAPPER, attributeDefinition.getName());
+			return jdbc.query("select " + getAttributeMappingSelectQuery(entity + "_attr_values") + " from attr_names join " + entity + "_attr_values on id=attr_id  where attr_name=?", getAttributeMapper(null), attributeDefinition.getName());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -3512,6 +3514,127 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	private static class AllMemberUserAttributeExtractor implements ResultSetExtractor<HashMap<Member, List<Attribute>>> {
+
+		private final PerunSession sess;
+		private final AttributesManagerImpl attributesManager;
+		private final Resource resource;
+		private final Facility facility;
+
+		/**
+		 * Sets up parameters for data extractor
+		 *
+		 * @param sess perun session
+		 * @param attributesManager attribute manager
+		 * @param facility
+		 * @param resource
+		 */
+		public AllMemberUserAttributeExtractor(PerunSession sess, AttributesManagerImpl attributesManager, Facility facility, Resource resource) {
+			this.sess = sess;
+			this.attributesManager = attributesManager;
+			this.facility = facility;
+			this.resource = resource;
+		}
+
+		public HashMap<Member, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+
+			HashMap<Member, List<Attribute>> memberMap = new HashMap<>();
+
+			while (rs.next()) {
+
+				Member member = MembersManagerImpl.MEMBER_MAPPER.mapRow(rs, rs.getRow());
+				User user = UsersManagerImpl.USER_MAPPER.mapRow(rs, rs.getRow());
+
+				if (!memberMap.containsKey(member)) {
+					memberMap.put(member, new ArrayList<Attribute>());
+				}
+
+				AttributeRowMapper attributeRowMapper = null;
+
+				AttributeDefinition def = AttributesManagerImpl.ATTRIBUTE_DEFINITION_MAPPER.mapRow(rs, rs.getRow());
+
+				if (def.getNamespace().startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+					attributeRowMapper = new AttributeRowMapper(sess, attributesManager, member);
+				} else if (def.getNamespace().startsWith(AttributesManager.NS_USER_ATTR)) {
+					attributeRowMapper = new AttributeRowMapper(sess, attributesManager, user);
+				} else if (def.getNamespace().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+					attributeRowMapper = new AttributeRowMapper(sess, attributesManager, member, resource);
+				} else if (def.getNamespace().startsWith(AttributesManager.NS_USER_FACILITY_ATTR)) {
+					attributeRowMapper = new AttributeRowMapper(sess, attributesManager, user, facility);
+				} else {
+					throw new InternalErrorRuntimeException("Unsupported attribute namespace in select: "+def.getNamespace());
+				}
+
+				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
+
+				if (attribute != null) {
+					// add only if exists
+					if (memberMap.get(member) != null) memberMap.get(member).add(attribute);
+				}
+
+			}
+
+			return memberMap;
+
+		}
+	}
+
+	private static class AllUserAttributeExtractor implements ResultSetExtractor<HashMap<User, List<Attribute>>> {
+
+		private final PerunSession sess;
+		private final AttributesManagerImpl attributesManager;
+		private final Facility facility;
+
+		/**
+		 * Sets up parameters for data extractor
+		 *
+		 * @param sess perun session
+		 * @param attributesManager attribute manager
+		 * @param facility
+		 */
+		public AllUserAttributeExtractor(PerunSession sess, AttributesManagerImpl attributesManager, Facility facility) {
+			this.sess = sess;
+			this.attributesManager = attributesManager;
+			this.facility = facility;
+		}
+
+		public HashMap<User, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+
+			HashMap<User, List<Attribute>> userMap = new HashMap<>();
+
+			while (rs.next()) {
+
+				User user = UsersManagerImpl.USER_MAPPER.mapRow(rs, rs.getRow());
+
+				if (!userMap.containsKey(user)) {
+					userMap.put(user, new ArrayList<Attribute>());
+				}
+
+				AttributeRowMapper attributeRowMapper = null;
+
+				AttributeDefinition def = AttributesManagerImpl.ATTRIBUTE_DEFINITION_MAPPER.mapRow(rs, rs.getRow());
+
+				if (def.getNamespace().startsWith(AttributesManager.NS_USER_ATTR)) {
+					attributeRowMapper = new AttributeRowMapper(sess, attributesManager, user);
+				} else if (def.getNamespace().startsWith(AttributesManager.NS_USER_FACILITY_ATTR)) {
+					attributeRowMapper = new AttributeRowMapper(sess, attributesManager, user, facility);
+				} else {
+					throw new InternalErrorRuntimeException("Unsupported attribute namespace in select: "+def.getNamespace());
+				}
+
+				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
+
+				if (attribute != null) {
+					// add only if exists
+					if (userMap.get(user) != null) userMap.get(user).add(attribute);
+				}
+
+			}
+
+			return userMap;
+
+		}
+	}
 
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
 		try {
@@ -3558,8 +3681,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public HashMap<User, List<Attribute>> getRequiredUserFacilityAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public HashMap<User, List<Attribute>> getRequiredUserFacilityAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
 		try {
+
+			String resourceCondition = "";
+			if (resource != null) resourceCondition = " and resources.id=" + resource.getId();
 
 			return jdbc.query("SELECT " + UsersManagerImpl.userMappingSelectQuery + " , " + getAttributeMappingSelectQuery("usr_fac") +
 					" FROM resources" +
@@ -3570,7 +3696,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					" JOIN service_required_attrs on service_required_attrs.service_id=?" +
 					" JOIN attr_names on attr_names.id=service_required_attrs.attr_id" +
 					" LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id and usr_fac.user_id=users.id and usr_fac.facility_id=resources.facility_id" +
-					" WHERE resources.facility_id=? and members.status!=? and members.status!=?" +
+					" WHERE resources.facility_id=?" + resourceCondition + " and members.status!=? and members.status!=?" +
 					" and namespace IN (?,?,?)",
 						new UserAttributeExtractor2(sess, this, facility),
 						service.getId(),
@@ -3588,8 +3714,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	public HashMap<User, List<Attribute>> getRequiredUserAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+	public HashMap<User, List<Attribute>> getRequiredUserAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
 		try {
+
+			String resourceCondition = "";
+			if (resource != null) resourceCondition = " and resources.id=" + resource.getId();
 
 			return jdbc.query("SELECT " + UsersManagerImpl.userMappingSelectQuery + " , " + getAttributeMappingSelectQuery("usr") +
 							" FROM resources" +
@@ -3600,7 +3729,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							" JOIN service_required_attrs on service_required_attrs.service_id=?" +
 							" JOIN attr_names on attr_names.id=service_required_attrs.attr_id" +
 							" LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id and usr.user_id=users.id" +
-							" WHERE resources.facility_id=? and members.status!=? and members.status!=?" +
+							" WHERE resources.facility_id=?" + resourceCondition + " and members.status!=? and members.status!=?" +
 							" and namespace IN (?,?,?,?)",
 					new UserAttributeExtractor2(sess, this),
 					service.getId(),
@@ -3673,6 +3802,93 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 		} catch(EmptyResultDataAccessException ex) {
 			return new HashMap<Member, List<Attribute>>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public HashMap<Member, List<Attribute>> getAllRequiredAttributesOfAllowedMembers(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
+		try {
+
+			return jdbc.query("SELECT " + MembersManagerImpl.memberMappingSelectQuery + " , "
+							+ UsersManagerImpl.userMappingSelectQuery + " , "
+							+ getAttributeMappingSelectQuery("usr") + " , "
+							+ getAttributeMappingSelectQuery("usr_fac") + " , "
+							+ getAttributeMappingSelectQuery("mem") + " , "
+							+ getAttributeMappingSelectQuery("mem_res") +
+							" FROM resources" +
+							" JOIN groups_resources on resources.id=groups_resources.resource_id" +
+							" JOIN groups_members on groups_resources.group_id=groups_members.group_id" +
+							" JOIN members on groups_members.member_id=members.id" +
+							" JOIN users on users.id=members.user_id" +
+							" JOIN service_required_attrs on service_required_attrs.service_id=?" +
+							" JOIN attr_names on attr_names.id=service_required_attrs.attr_id" +
+							" LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id and usr.user_id=users.id " +
+							" LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id and usr_fac.user_id=users.id and usr_fac.facility_id=resources.facility_id " +
+							" LEFT JOIN member_attr_values mem ON attr_names.id=mem.attr_id and mem.member_id=members.id " +
+							" LEFT JOIN member_resource_attr_values mem_res ON attr_names.id=mem_res.attr_id and mem_res.member_id=members.id and mem_res.resource_id=resources.id " +
+							" WHERE resources.id=? and members.status!=? and members.status!=?" +
+							" and namespace IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+					new AllMemberUserAttributeExtractor(sess, this, facility, resource),
+					service.getId(),
+					resource.getId(),
+					String.valueOf(Status.INVALID.getCode()),
+					String.valueOf(Status.DISABLED.getCode()),
+					AttributesManager.NS_USER_ATTR_CORE,
+					AttributesManager.NS_USER_ATTR_DEF,
+					AttributesManager.NS_USER_ATTR_OPT,
+					AttributesManager.NS_USER_ATTR_VIRT,
+					AttributesManager.NS_USER_FACILITY_ATTR_DEF,
+					AttributesManager.NS_USER_FACILITY_ATTR_OPT,
+					AttributesManager.NS_USER_FACILITY_ATTR_VIRT,
+					AttributesManager.NS_MEMBER_ATTR_CORE,
+					AttributesManager.NS_MEMBER_ATTR_DEF,
+					AttributesManager.NS_MEMBER_ATTR_OPT,
+					AttributesManager.NS_MEMBER_ATTR_VIRT,
+					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF,
+					AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT,
+					AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+
+		} catch(EmptyResultDataAccessException ex) {
+			return new HashMap<Member, List<Attribute>>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public HashMap<User, List<Attribute>> getAllRequiredAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
+		try {
+
+			return jdbc.query("SELECT " + UsersManagerImpl.userMappingSelectQuery + " , "
+							+ getAttributeMappingSelectQuery("usr") + " , "
+							+ getAttributeMappingSelectQuery("usr_fac") +
+							" FROM resources" +
+							" JOIN groups_resources on resources.id=groups_resources.resource_id" +
+							" JOIN groups_members on groups_resources.group_id=groups_members.group_id" +
+							" JOIN members on groups_members.member_id=members.id" +
+							" JOIN users on users.id=members.user_id" +
+							" JOIN service_required_attrs on service_required_attrs.service_id=?" +
+							" JOIN attr_names on attr_names.id=service_required_attrs.attr_id" +
+							" LEFT JOIN user_attr_values usr ON attr_names.id=usr.attr_id and usr.user_id=users.id " +
+							" LEFT JOIN user_facility_attr_values usr_fac ON attr_names.id=usr_fac.attr_id and usr_fac.user_id=users.id and usr_fac.facility_id=resources.facility_id " +
+							" WHERE resources.facility_id=? and members.status!=? and members.status!=?" +
+							" and namespace IN (?,?,?,?,?,?,?)",
+					new AllUserAttributeExtractor(sess, this, facility),
+					service.getId(),
+					facility.getId(),
+					String.valueOf(Status.INVALID.getCode()),
+					String.valueOf(Status.DISABLED.getCode()),
+					AttributesManager.NS_USER_ATTR_CORE,
+					AttributesManager.NS_USER_ATTR_DEF,
+					AttributesManager.NS_USER_ATTR_OPT,
+					AttributesManager.NS_USER_ATTR_VIRT,
+					AttributesManager.NS_USER_FACILITY_ATTR_DEF,
+					AttributesManager.NS_USER_FACILITY_ATTR_OPT,
+					AttributesManager.NS_USER_FACILITY_ATTR_VIRT
+			);
+
+		} catch(EmptyResultDataAccessException ex) {
+			return new HashMap<User, List<Attribute>>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

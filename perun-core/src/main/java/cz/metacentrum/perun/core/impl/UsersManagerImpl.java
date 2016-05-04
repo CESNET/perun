@@ -142,7 +142,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	public List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException {
-		AttributeAndUserRowMapper<User> attributeAndUserRowMapper = new AttributeAndUserRowMapper<User>(USER_MAPPER, AttributesManagerImpl.ATTRIBUTE_MAPPER);
+		AttributeAndUserRowMapper<User> attributeAndUserRowMapper = new AttributeAndUserRowMapper<User>(USER_MAPPER, AttributesManagerImpl.getAttributeMapper(null));
 		try {
 			return jdbc.query("select " + userMappingSelectQuery + ", " + AttributesManagerImpl.getAttributeMappingSelectQuery("usr") + " from users " +
 					"left join user_attr_values usr on usr.user_id=users.id " +
