@@ -138,15 +138,30 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	protected final static String attributeRightSelectQuery = "attributes_authz.attr_id as attr_name_id, roles.name as role_name, "
 		+ "action_types.action_type as action_type";
 
+	protected static final String getAttributeMappingSelectQuery() {
+		return getAttributeMappingSelectQuery(null);
+	}
+
 	protected static final String getAttributeMappingSelectQuery(String nameOfValueTable) {
 		String selectQuery = "";
 		selectQuery = selectQuery.concat(attributeDefinitionMappingSelectQuery);
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".attr_value");
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".attr_value_text");
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".created_at as "+nameOfValueTable+"_attr_value_created_at");
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".created_by as "+nameOfValueTable+"_attr_value_created_by");
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".modified_at as "+nameOfValueTable+"_attr_value_modified_at");
-		selectQuery = selectQuery.concat(", " + nameOfValueTable + ".modified_by as "+nameOfValueTable+"_attr_value_modified_by");
+
+		if (nameOfValueTable == null || nameOfValueTable.isEmpty()) {
+			selectQuery = selectQuery.concat(", attr_value");
+			selectQuery = selectQuery.concat(", attr_value_text");
+			selectQuery = selectQuery.concat(", created_at as attr_value_created_at");
+			selectQuery = selectQuery.concat(", created_by as attr_value_created_by");
+			selectQuery = selectQuery.concat(", modified_at as attr_value_modified_at");
+			selectQuery = selectQuery.concat(", modified_by as attr_value_modified_by");
+		} else {
+			selectQuery = selectQuery.concat(", " + nameOfValueTable + ".attr_value as "+nameOfValueTable+"_attr_value");
+			selectQuery = selectQuery.concat(", " + nameOfValueTable + ".attr_value_text as "+nameOfValueTable+"_attr_value_text");
+			selectQuery = selectQuery.concat(", " + nameOfValueTable + ".created_at as "+nameOfValueTable+"_attr_value_created_at");
+			selectQuery = selectQuery.concat(", " + nameOfValueTable + ".created_by as "+nameOfValueTable+"_attr_value_created_by");
+			selectQuery = selectQuery.concat(", " + nameOfValueTable + ".modified_at as "+nameOfValueTable+"_attr_value_modified_at");
+			selectQuery = selectQuery.concat(", " + nameOfValueTable + ".modified_by as "+nameOfValueTable+"_attr_value_modified_by");
+		}
+
 		return selectQuery;
 	}
 
@@ -252,7 +267,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					attribute.setValueCreatedBy(rs.getString(nameOfAttributeValueTable+"_attr_value_created_by"));
 					attribute.setValueModifiedAt(rs.getString(nameOfAttributeValueTable+"_attr_value_modified_at"));
 					attribute.setValueModifiedBy(rs.getString(nameOfAttributeValueTable+"_attr_value_modified_by"));
-					stringValue = rs.getString(nameOfAttributeValueTable+".attr_value");
+					stringValue = rs.getString(nameOfAttributeValueTable+"_attr_value");
 				}
 
 				try {
@@ -483,7 +498,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				}
 			}
 
-			Object attributeValue = new ValueRowMapper(sess, attributesManagerImpl, attribute).mapRow(rs, i);
+			Object attributeValue = new ValueRowMapper(sess, attributesManagerImpl, attrValueTableName, attribute).mapRow(rs, i);
 			attribute.setValue(attributeValue);
 
 			//String attributeValue = getAttributeValuesMapper(attrValueTableName).mapRow(rs, i);
@@ -531,18 +546,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		private final PerunSession sess;
 		private final AttributesManagerImpl attributesManagerImpl;
 		private final AttributeDefinition attributeDefinition;
+		private String attrValueTableName;
 
 		/**
 		 * Constructor.
-		 *
-		 * @param sess
+		 *  @param sess
 		 * @param attributesManagerImpl
+		 * @param attrValueTableName
 		 * @param attributeDefinition
 		 */
-		public ValueRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, AttributeDefinition attributeDefinition) {
+		public ValueRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, String attrValueTableName, AttributeDefinition attributeDefinition) {
 			this.sess = sess;
 			this.attributesManagerImpl = attributesManagerImpl;
 			this.attributeDefinition = attributeDefinition;
+			this.attrValueTableName = (attrValueTableName == null || attrValueTableName.isEmpty()) ? null : attrValueTableName;
 		}
 
 		public Object mapRow(ResultSet rs, int i) throws SQLException {
@@ -551,7 +568,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				//large attributes
 				try {
 					if (Compatibility.isOracle()) {
-						Clob clob = rs.getClob("attr_value_text");
+						Clob clob = null;
+						if (attrValueTableName == null) {
+							clob = rs.getClob("attr_value_text");
+						} else {
+							rs.getClob(attrValueTableName+"_attr_value_text");
+						}
 						char[] cbuf = null;
 						if(clob == null) {
 							stringValue = null;
@@ -566,15 +588,27 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						}
 					} else {
 						// POSTGRES READ CLOB AS STRING
-						stringValue = rs.getString("attr_value_text");
+						if (attrValueTableName == null) {
+							stringValue = rs.getString("attr_value_text");
+						} else {
+							stringValue = rs.getString(attrValueTableName+"_attr_value_text");
+						}
 					}
 				} catch (InternalErrorException ex) {
 					// WHEN CHECK FAILS TRY TO READ AS POSTGRES
-					stringValue = rs.getString("attr_value_text");
+					if (attrValueTableName == null) {
+						stringValue = rs.getString("attr_value_text");
+					} else {
+						stringValue = rs.getString(attrValueTableName+"_attr_value_text");
+					}
 				}
 			} else {
 				//ordinary attributes
-				stringValue = rs.getString("attr_value");
+				if (attrValueTableName == null) {
+					stringValue = rs.getString("attr_value");
+				} else {
+					stringValue = rs.getString(attrValueTableName+"_attr_value");
+				}
 			}
 
 			try {
@@ -612,7 +646,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("fac") + " from attr_names " +
-					"left join facility_attr_values fac    on id=fac.attr_id and fac.facility_id=? " +
+					"left join facility_attr_values fac on id=fac.attr_id and fac.facility_id=? " +
 					"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
 					new AttributeRowMapper(sess,  this, "fac", facility), facility.getId(), AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_OPT);
 
@@ -691,10 +725,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getAttributes(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("voattr") + " from attr_names " +
-					"left join vo_attr_values voattr    on id=voattr.attr_id and voattr.vo_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("vo") + " from attr_names " +
+					"left join vo_attr_values vo on id=vo.attr_id and vo.vo_id=? " +
 					"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
-					new AttributeRowMapper(sess, this, "voattr", vo), vo.getId(), AttributesManager.NS_VO_ATTR_CORE, AttributesManager.NS_VO_ATTR_DEF, AttributesManager.NS_VO_ATTR_OPT);
+					new AttributeRowMapper(sess, this, "vo", vo), vo.getId(), AttributesManager.NS_VO_ATTR_CORE, AttributesManager.NS_VO_ATTR_DEF, AttributesManager.NS_VO_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -704,10 +738,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getAttributes(PerunSession sess, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +
-					"left join group_attr_values groupattr    on id=groupattr.attr_id and groupattr.group_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
+					"left join group_attr_values grp on id=grp.attr_id and grp.group_id=? " +
 					"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
-					new AttributeRowMapper(sess, this, "groupattr", group), group.getId(), AttributesManager.NS_GROUP_ATTR_CORE, AttributesManager.NS_GROUP_ATTR_DEF, AttributesManager.NS_GROUP_ATTR_OPT);
+					new AttributeRowMapper(sess, this, "grp", group), group.getId(), AttributesManager.NS_GROUP_ATTR_CORE, AttributesManager.NS_GROUP_ATTR_DEF, AttributesManager.NS_GROUP_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -717,10 +751,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getAttributes(PerunSession sess, Host host) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
-					"left join host_attr_values on id=attr_id and host_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("hst") + " from attr_names " +
+					"left join host_attr_values hst on id=attr_id and host_id=? " +
 					"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
-					new AttributeRowMapper(sess, this, "host_attr_values", host), host.getId(), AttributesManager.NS_HOST_ATTR_CORE, AttributesManager.NS_HOST_ATTR_DEF, AttributesManager.NS_HOST_ATTR_OPT);
+					new AttributeRowMapper(sess, this, "hst", host), host.getId(), AttributesManager.NS_HOST_ATTR_CORE, AttributesManager.NS_HOST_ATTR_DEF, AttributesManager.NS_HOST_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("No attribute for host exists.");
 			return new ArrayList<Attribute>();
@@ -731,10 +765,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
-					"left join resource_attr_values on id=attr_id and resource_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("res") + " from attr_names " +
+					"left join resource_attr_values res on id=attr_id and resource_id=? " +
 					"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
-					new AttributeRowMapper(sess, this, "resource_attr_values", resource), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_OPT);
+					new AttributeRowMapper(sess, this, "res", resource), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("No attribute for resource exists.");
 			return new ArrayList<Attribute>();
@@ -759,10 +793,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member) throws InternalErrorException {
 		try {
 			//member-resource attributes, member core attributes
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-					"left join   member_resource_attr_values   mem        on attr_names.id=mem.attr_id and mem.resource_id=? and member_id=? " +
-					"where namespace in (?,?) and (mem.attr_value is not null or mem.attr_value_text is not null)",
-					new AttributeRowMapper(sess, this, "mem", null),
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
+					"left join   member_resource_attr_values   mem_res       on attr_names.id=mem_res.attr_id and mem_res.resource_id=? and member_id=? " +
+					"where namespace in (?,?) and (mem_res.attr_value is not null or mem_res.attr_value_text is not null)",
+					new AttributeRowMapper(sess, this, "mem_res", null),
 					resource.getId(), member.getId(),
 					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
@@ -790,10 +824,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
-							"left join member_group_attr_values mem_gr on attr_names.id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
-							"where namespace in (?,?) and (mem_gr.attr_value is not null or mem_gr.attr_value_text is not null)",
-					new AttributeRowMapper(sess, this, "mem_gr", null), group.getId(), member.getId(),
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_grp") + " from attr_names " +
+							"left join member_group_attr_values mem_grp on attr_names.id=mem_grp.attr_id and mem_grp.group_id=? and member_id=? " +
+							"where namespace in (?,?) and (mem_grp.attr_value is not null or mem_grp.attr_value_text is not null)",
+					new AttributeRowMapper(sess, this, "mem_grp", null), group.getId(), member.getId(),
 					AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("No attribute for member-group combination exists.");
@@ -814,10 +848,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
-						"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and member_id=:mId and group_id=:gId " +
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_grp") + " from attr_names " +
+						"left join member_group_attr_values mem_grp on id=mem_grp.attr_id and member_id=:mId and group_id=:gId " +
 						"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
-						parameters, new AttributeRowMapper(sess, this, "mem_gr", member, group));
+						parameters, new AttributeRowMapper(sess, this, "mem_grp", member, group));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -851,10 +885,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("vot") + " from attr_names " +
-					"left join vo_attr_values vot on id=vot.attr_id and vo_id=:vId " +
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("vo") + " from attr_names " +
+					"left join vo_attr_values vo on id=vo.attr_id and vo_id=:vId " +
 					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
-					parameters, new AttributeRowMapper(sess, this, "vot", vo));
+					parameters, new AttributeRowMapper(sess, this, "vo", vo));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -872,10 +906,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("startPartOfName", startPartOfName + "%");
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grt") + " from attr_names " +
-					"left join group_attr_values grt on id=grt.attr_id and group_id=:gId " +
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
+					"left join group_attr_values grp on id=grp.attr_id and group_id=:gId " +
 					"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name LIKE :startPartOfName",
-					parameters, new AttributeRowMapper(sess, this, "grt", group));
+					parameters, new AttributeRowMapper(sess, this, "grp", group));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -893,10 +927,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("startPartOfName", startPartOfName + "%");
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("ret") + " from attr_names " +
-					"left join resource_attr_values ret on id=ret.attr_id and resource_id=:rId " +
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("res") + " from attr_names " +
+					"left join resource_attr_values res on id=res.attr_id and resource_id=:rId " +
 					"where namespace in ( :nSC,:nSO,:nSD ) and attr_names.attr_name LIKE :startPartOfName",
-					parameters, new AttributeRowMapper(sess, this, "ret", resource));
+					parameters, new AttributeRowMapper(sess, this, "res", resource));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -936,10 +970,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		parameters.addValue("attrNames", attrNames);
 
 		try {
-			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("groupattr") + " from attr_names " +
-					"left join group_attr_values groupattr on id=groupattr.attr_id and group_id=:gId " +
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
+					"left join group_attr_values grp on id=grp.attr_id and group_id=:gId " +
 					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
-					parameters, new AttributeRowMapper(sess, this, "groupattr", group));
+					parameters, new AttributeRowMapper(sess, this, "grp", group));
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -1084,7 +1118,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select attr_value, attr_value_text from entityless_attr_values where subject=? and attr_id=? for update", getAttributeValuesMapper("entityless_attr_values"), key, attrId);
+			return jdbc.queryForObject("select attr_value, attr_value_text from entityless_attr_values where subject=? and attr_id=? for update", getAttributeValuesMapper(null), key, attrId);
 		} catch(EmptyResultDataAccessException ex) {
 			//If there is no such entityless attribute, create new one with null value and return null (insert is for transaction same like select for update)
 			Attribute attr = new Attribute(this.getAttributeDefinitionById(sess, attrId));
@@ -1122,7 +1156,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		// Get the entity from the name
 		String entity = attributeDefinition.getEntity();
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery(entity + "_attr_values") + " from attr_names join " + entity + "_attr_values on id=attr_id  where attr_name=?", getAttributeMapper(entity + "_attr_values"), attributeDefinition.getName());
+			return jdbc.query("select " + getAttributeMappingSelectQuery("ett") + " from attr_names join " + entity + "_attr_values ett on id=ett.attr_id  where attr_name=?", getAttributeMapper("ett"), attributeDefinition.getName());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -1150,7 +1184,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names left join facility_attr_values on id=attr_id and facility_id=? where attr_name=?", new AttributeRowMapper(sess, this, "facility_attr_values", facility), facility.getId(), attributeName);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("fac") + " from attr_names left join facility_attr_values fac on id=fac.attr_id and facility_id=? where attr_name=?", new AttributeRowMapper(sess, this, "fac", facility), facility.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Facility attribute - attribute.name='" + attributeName + "'");
 		} catch(RuntimeException ex) {
@@ -1170,7 +1204,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttribute(PerunSession sess, Vo vo, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names left join vo_attr_values on id=attr_id and vo_id=? where attr_name=?", new AttributeRowMapper(sess, this, "vo_attr_values", vo), vo.getId(), attributeName);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo") +
+					" from attr_names left join vo_attr_values vo on id=vo.attr_id and vo_id=? where attr_name=?",
+					new AttributeRowMapper(sess, this, "vo", vo), vo.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Vo attribute - attribute.name='" + attributeName + "'");
 		} catch(RuntimeException ex) {
@@ -1180,7 +1216,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttribute(PerunSession sess, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("group_attr_values") + " from attr_names left join group_attr_values on id=attr_id and group_id=? where attr_name=?", new AttributeRowMapper(sess, this, "group_attr_values", group), group.getId(), attributeName);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp") +
+					" from attr_names left join group_attr_values grp on id=grp.attr_id and group_id=? where attr_name=?",
+					new AttributeRowMapper(sess, this, "grp", group), group.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Group attribute - attribute.name='" + attributeName + "'");
 		} catch(RuntimeException ex) {
@@ -1190,7 +1228,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttribute(PerunSession sess, Resource resource, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names left join resource_attr_values on id=attr_id and resource_id=? where attr_name=?", new AttributeRowMapper(sess, this, "resource_attr_values", resource), resource.getId(), attributeName);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("res") +
+					" from attr_names left join resource_attr_values res on id=res.attr_id and resource_id=? where attr_name=?",
+					new AttributeRowMapper(sess, this, "res", resource), resource.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Resource attribute - attribute.name='" + attributeName + "'");
 		} catch(RuntimeException ex) {
@@ -1201,10 +1241,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttribute(PerunSession sess, Resource resource, Member member, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			//member-resource attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-					"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
+					"left join member_resource_attr_values mem_res on id=mem_res.attr_id and mem_res.resource_id=? and member_id=? " +
 					"where attr_name=?",
-					new AttributeRowMapper(sess, this, "mem", null), resource.getId(), member.getId(), attributeName);
+					new AttributeRowMapper(sess, this, "mem_res", null), resource.getId(), member.getId(), attributeName);
 
 
 		} catch(EmptyResultDataAccessException ex) {
@@ -1218,10 +1258,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttribute(PerunSession sess, Member member, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
-							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_grp") + " from attr_names " +
+							"left join member_group_attr_values mem_grp on id=mem_grp.attr_id and group_id=? and member_id=? " +
 							"where attr_name=?",
-					new AttributeRowMapper(sess, this, "mem_gr", null), group.getId(), member.getId(), attributeName);
+					new AttributeRowMapper(sess, this, "mem_grp", null), group.getId(), member.getId(), attributeName);
 
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName +"\"", ex);
@@ -1234,7 +1274,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		//member and member core attributes
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-					"left join      member_attr_values    mem    on      id=mem.attr_id    and   member_id=? " +
+					"left join member_attr_values mem on id=mem.attr_id and member_id=? " +
 					"where attr_name=?",
 					new AttributeRowMapper(sess, this, "mem", member), member.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
@@ -1247,7 +1287,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttribute(PerunSession sess, Facility facility, User user, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
-					"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? and user_id=? " +
+					"left join user_facility_attr_values usr_fac on id=usr_fac.attr_id and facility_id=? and user_id=? " +
 					"where attr_name=?",
 					new AttributeRowMapper(sess, this, "usr_fac", user, facility), facility.getId(), user.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
@@ -1261,7 +1301,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		//user and user core attributes
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
-					"left join      user_attr_values    usr    on      id=usr.attr_id    and   user_id=? " +
+					"left join user_attr_values usr on id=usr.attr_id and user_id=? " +
 					"where attr_name=?",
 					new AttributeRowMapper(sess, this, "usr", user), user.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
@@ -1274,8 +1314,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttribute(PerunSession sess, Host host, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names " +
-					"left join host_attr_values on id=attr_id and host_id=? where attr_name=?", new AttributeRowMapper(sess, this, "host_attr_values", host), host.getId(), attributeName);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("hst") + " from attr_names " +
+					"left join host_attr_values hst on id=hst .attr_id and host_id=? where attr_name=?",
+					new AttributeRowMapper(sess, this, "hst", host), host.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Host attribute - attribute.name='" + attributeName + "'");
 		} catch(RuntimeException ex) {
@@ -1286,7 +1327,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttribute(PerunSession sess, Resource resource, Group group, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
-					"left join    group_resource_attr_values     grp_res      on id=grp_res.attr_id     and   resource_id=? and group_id=? " +
+					"left join group_resource_attr_values grp_res on id=grp_res.attr_id and resource_id=? and group_id=? " +
 					"where attr_name=?",
 					new AttributeRowMapper(sess, this, "grp_res", group, resource), resource.getId(), group.getId(), attributeName);
 		} catch(EmptyResultDataAccessException ex) {
@@ -1298,10 +1339,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("entityless_attr_values") + " from attr_names " +
-					"left join    entityless_attr_values     on id=entityless_attr_values.attr_id     and   subject=? " +
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("ett") + " from attr_names " +
+					"left join entityless_attr_values ett on id=ett.attr_id and subject=? " +
 					"where attr_name=?",
-					new AttributeRowMapper(sess, this, "entityless_attr_values", null), key, attributeName);
+					new AttributeRowMapper(sess, this, "ett", null), key, attributeName);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute name: \"" + attributeName +"\"", ex);
 		} catch(RuntimeException ex) {
@@ -1353,7 +1394,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttributeById(PerunSession sess, Facility facility, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names left join facility_attr_values on id=attr_id and facility_id=? where id=?", new AttributeRowMapper(sess, this, "facility_attr_values", facility), facility.getId(), id);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("fac") +
+					" from attr_names left join facility_attr_values fac on id=fac.attr_id and facility_id=? where id=?",
+					new AttributeRowMapper(sess, this, "fac", facility), facility.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
 		} catch(RuntimeException ex) {
@@ -1363,7 +1406,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttributeById(PerunSession sess, Vo vo, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names left join vo_attr_values on id=attr_id and vo_id=? where id=?", new AttributeRowMapper(sess, this, "vo_attr_values", vo), vo.getId(), id);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("vo") +
+					" from attr_names left join vo_attr_values vo on id=vo.attr_id and vo_id=? where id=?",
+					new AttributeRowMapper(sess, this, "vo", vo), vo.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
 		} catch(RuntimeException ex) {
@@ -1373,7 +1418,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttributeById(PerunSession sess, Resource resource, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names left join resource_attr_values on id=attr_id and resource_id=? where id=?", new AttributeRowMapper(sess, this, "resource_attr_values", resource), resource.getId(), id);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("res") +
+					" from attr_names left join resource_attr_values res on id=attr_id and resource_id=? where id=?",
+					new AttributeRowMapper(sess, this, "res", resource), resource.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
 		} catch(RuntimeException ex) {
@@ -1384,7 +1431,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
-					"left join    group_resource_attr_values     grp_res      on id=grp_res.attr_id     and   resource_id=? and group_id=? " +
+					"left join group_resource_attr_values grp_res on id=grp_res.attr_id and resource_id=? and group_id=? " +
 					"where id=?",
 					new AttributeRowMapper(sess, this, "grp_res", null), resource.getId(), group.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -1409,7 +1456,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public Attribute getAttributeById(PerunSession sess, Host host, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("host_attr_values") + " from attr_names left join host_attr_values on id=attr_id and host_id=? where id=?", new AttributeRowMapper(sess, this, "host_attr_values", host), host.getId(), id);
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("hst") +
+					" from attr_names left join host_attr_values hst on id=hst.attr_id and host_id=? where id=?",
+					new AttributeRowMapper(sess, this, "hst", host), host.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
 		} catch(RuntimeException ex) {
@@ -1421,10 +1470,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttributeById(PerunSession sess, Resource resource, Member member, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			//member-resource attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-					"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
+					"left join   member_resource_attr_values mem_res on id=mem_res.attr_id and resource_id=? and member_id=? " +
 					"where id=?",
-					new AttributeRowMapper(sess, this, "mem", member), resource.getId(), member.getId(), id);
+					new AttributeRowMapper(sess, this, "mem_res", member), resource.getId(), member.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
 		} catch(RuntimeException ex) {
@@ -1436,10 +1485,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttributeById(PerunSession sess, Member member, Group group, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			//member-group attributes, member core attributes
-			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
-					"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem_grp") + " from attr_names " +
+					"left join member_group_attr_values mem_grp on id=mem_grp.attr_id and group_id=? and member_id=? " +
 					"where id=?",
-					new AttributeRowMapper(sess, this, "mem_gr", member), group.getId(), member.getId(), id);
+					new AttributeRowMapper(sess, this, "mem_grp", member), group.getId(), member.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
 			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
 		} catch(RuntimeException ex) {
@@ -1451,7 +1500,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			//member and member core attributes
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-					"left join      member_attr_values    mem    on      id=mem.attr_id    and   member_id=? " +
+					"left join member_attr_values mem on id=mem.attr_id and member_id=? " +
 					"where id=?",
 					new AttributeRowMapper(sess, this, "mem", member), member.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -1464,7 +1513,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public Attribute getAttributeById(PerunSession sess, Facility facility, User user, int id) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
-					"left join    user_facility_attr_values     usr_fac      on id=usr_fac.attr_id     and   facility_id=? and user_id=? " +
+					"left join user_facility_attr_values usr_fac on id=usr_fac.attr_id and facility_id=? and user_id=? " +
 					"where id=?",
 					new AttributeRowMapper(sess, this, "usr_fac", user, facility), facility.getId(), user.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -1478,7 +1527,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			//user and user core attributes
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
-					"left join      user_attr_values    usr    on      id=usr.attr_id    and   user_id=? " +
+					"left join user_attr_values usr on id=usr.attr_id and user_id=? " +
 					"where id=?",
 					new AttributeRowMapper(sess, this, "usr", user), user.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -3011,12 +3060,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Facility facility) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
-					"left join facility_attr_values on id=facility_attr_values.attr_id and facility_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("fac") + " from attr_names " +
+					"left join facility_attr_values fac on id=fac.attr_id and facility_id=? " +
 					"where namespace in (?,?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=? )",
-					new AttributeRowMapper(sess, this, "facility_attr_values", facility), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT, resource.getId());
+					new AttributeRowMapper(sess, this, "fac", facility), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT, resource.getId());
 
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for facility: {} and services from resource: {}.", facility, resource);
@@ -3028,12 +3077,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom,  Resource resource) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
-					"left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("res") + " from attr_names " +
+					"left join resource_attr_values res on id=res.attr_id and res.resource_id=? " +
 					"where namespace in (?,?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new AttributeRowMapper(sess, this, "resource_attr_values", resource), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_OPT, AttributesManager.NS_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
+					new AttributeRowMapper(sess, this, "res", resource), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_OPT, AttributesManager.NS_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
 
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for resource: {} and services getted from it", resourceToGetServicesFrom);
@@ -3045,12 +3094,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("member_attr_values") + " from attr_names " +
-					"left join member_attr_values on id=member_attr_values.attr_id and member_attr_values.member_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
+					"left join member_attr_values mem on id=mem .attr_id and mem .member_id=? " +
 					"where namespace in (?,?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new AttributeRowMapper(sess, this, "member_attr_values", member), member.getId(), AttributesManager.NS_MEMBER_ATTR_DEF, AttributesManager.NS_MEMBER_ATTR_CORE, AttributesManager.NS_MEMBER_ATTR_OPT, AttributesManager.NS_MEMBER_ATTR_VIRT, resourceToGetServicesFrom.getId());
+					new AttributeRowMapper(sess, this, "mem", member), member.getId(), AttributesManager.NS_MEMBER_ATTR_DEF, AttributesManager.NS_MEMBER_ATTR_CORE, AttributesManager.NS_MEMBER_ATTR_OPT, AttributesManager.NS_MEMBER_ATTR_VIRT, resourceToGetServicesFrom.getId());
 
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for resource: {} and services getted from it", resourceToGetServicesFrom);
@@ -3062,12 +3111,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Member member) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-					"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
+					"left join member_resource_attr_values mem_res on id=mem_res.attr_id and mem_res.resource_id=? and member_id=? " +
 					"where namespace in (?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new AttributeRowMapper(sess, this, "mem", null), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
+					new AttributeRowMapper(sess, this, "mem_res", null), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -3077,12 +3126,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, Facility facility, User user) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
-					"left join      user_facility_attr_values    usr    on      attr_names.id=usr.attr_id    and   user_id=? and facility_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("usr_fac") + " from attr_names " +
+					"left join user_facility_attr_values usr_fac on attr_names.id=usr_fac.attr_id and user_id=? and facility_id=? " +
 					"where namespace in (?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new AttributeRowMapper(sess, this, "usr", user, facility), user.getId(), facility.getId(), AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT, AttributesManager.NS_USER_FACILITY_ATTR_VIRT, resource.getId());
+					new AttributeRowMapper(sess, this, "usr_fac", user, facility), user.getId(), facility.getId(), AttributesManager.NS_USER_FACILITY_ATTR_DEF, AttributesManager.NS_USER_FACILITY_ATTR_OPT, AttributesManager.NS_USER_FACILITY_ATTR_VIRT, resource.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -3092,12 +3141,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Resource resource, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
-					"left join      group_resource_attr_values    grp   on      attr_names.id=grp.attr_id    and   grp.group_id=? and grp.resource_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
+					"left join group_resource_attr_values grp_res on attr_names.id=grp_res.attr_id and grp_res.group_id=? and grp_res.resource_id=? " +
 					"where namespace in (?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new AttributeRowMapper(sess, this, "grp", group, resource), group.getId(), resource.getId(), AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF, AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT, AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
+					new AttributeRowMapper(sess, this, "grp_res", group, resource), group.getId(), resource.getId(), AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF, AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT, AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -3108,7 +3157,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			//user and user core attributes
 			return jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
-					"left join      user_attr_values    usr    on      attr_names.id=usr.attr_id    and   user_id=? " +
+					"left join user_attr_values usr on attr_names.id=usr.attr_id and user_id=? " +
 					"where namespace in (?,?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?) ",
@@ -3122,12 +3171,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Host host) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("host") + " from attr_names " +
-					"left join      host_attr_values   host    on      attr_names.id=host.attr_id    and   host_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("hst") + " from attr_names " +
+					"left join host_attr_values hst on attr_names.id=hst.attr_id and host_id=? " +
 					"where namespace in (?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new AttributeRowMapper(sess, this, "host", host), host.getId(), AttributesManager.NS_HOST_ATTR_CORE, AttributesManager.NS_HOST_ATTR_DEF, AttributesManager.NS_HOST_ATTR_OPT, resourceToGetServicesFrom.getId());
+					new AttributeRowMapper(sess, this, "hst", host), host.getId(), AttributesManager.NS_HOST_ATTR_CORE, AttributesManager.NS_HOST_ATTR_DEF, AttributesManager.NS_HOST_ATTR_OPT, resourceToGetServicesFrom.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -3138,7 +3187,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
-					"left join      group_attr_values   grp    on      attr_names.id=grp.attr_id    and   group_id=? " +
+					"left join group_attr_values grp on attr_names.id=grp.attr_id and group_id=? " +
 					"where namespace in (?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
@@ -3163,11 +3212,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Facility facility) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("fac") + " from attr_names " +
 					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-					"left join facility_attr_values on id=facility_attr_values.attr_id and facility_id=? " +
+					"left join facility_attr_values fac on id=fac.attr_id and facility_id=? " +
 					"where namespace in (?,?,?,?)",
-					new AttributeRowMapper(sess, this, "facility_attr_values", facility), service.getId(), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT);
+					new AttributeRowMapper(sess, this, "fac", facility), service.getId(), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT);
 
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for facility: {} and service: {}.", facility, service);
@@ -3179,11 +3228,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("vo_attr_values") + " from attr_names " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("vo") + " from attr_names " +
 					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-					"left join vo_attr_values on id=vo_attr_values.attr_id and vo_id=? " +
+					"left join vo_attr_values vo on id=vo.attr_id and vo_id=? " +
 					"where namespace in (?,?,?,?)",
-					new AttributeRowMapper(sess, this, "vo_attr_values", vo), service.getId(), vo.getId(), AttributesManager.NS_VO_ATTR_DEF, AttributesManager.NS_VO_ATTR_CORE, AttributesManager.NS_VO_ATTR_OPT, AttributesManager.NS_VO_ATTR_VIRT);
+					new AttributeRowMapper(sess, this, "vo", vo), service.getId(), vo.getId(), AttributesManager.NS_VO_ATTR_DEF, AttributesManager.NS_VO_ATTR_CORE, AttributesManager.NS_VO_ATTR_OPT, AttributesManager.NS_VO_ATTR_VIRT);
 
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for vo: {} and service: {}.", vo, service);
@@ -3195,11 +3244,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("res") + " from attr_names " +
 					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-					"left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=? " +
+					"left join resource_attr_values res on id=res.attr_id and res.resource_id=? " +
 					"where namespace in (?,?,?,?)",
-					new AttributeRowMapper(sess, this, "resource_attr_values", resource), service.getId(), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_OPT, AttributesManager.NS_RESOURCE_ATTR_VIRT);
+					new AttributeRowMapper(sess, this, "res", resource), service.getId(), resource.getId(), AttributesManager.NS_RESOURCE_ATTR_DEF, AttributesManager.NS_RESOURCE_ATTR_CORE, AttributesManager.NS_RESOURCE_ATTR_OPT, AttributesManager.NS_RESOURCE_ATTR_VIRT);
 
 		} catch(EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for resource: {} and service {} ", resource, service);
@@ -3220,11 +3269,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			parameters.addValue("serviceIds", serviceIds);
 			parameters.addValue("resourceId", resource.getId());
 			parameters.addValue("namespace", namespace);
-			return this.namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names "
+			return this.namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("res") + " from attr_names "
 					+ "join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id in (:serviceIds) "
-					+ "left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=:resourceId "
+					+ "left join resource_attr_values res on id=res.attr_id and res.resource_id=:resourceId "
 					+ "where namespace in (:namespace)",
-					parameters, new AttributeRowMapper(sess, this, "resource_attr_values", resource));
+					parameters, new AttributeRowMapper(sess, this, "res", resource));
 
 		} catch (EmptyResultDataAccessException ex) {
 			log.debug("None required attributes found for resource: {} and services with id {} ", resource, serviceIds);
@@ -3236,13 +3285,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Resource resource, Member member) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
-
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
 					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-
-					"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
+					"left join member_resource_attr_values mem_res on id=mem_res.attr_id and mem_res.resource_id=? and member_id=? " +
 					"where namespace in (?,?,?)",
-					new AttributeRowMapper(sess, this, "mem", member), service.getId(), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+					new AttributeRowMapper(sess, this, "mem_res", member), service.getId(), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3251,11 +3298,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_grp") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-							"left join member_group_attr_values mem_gr on id=mem.attr_id and mem_gr.group_id=? and member_id=? " +
+							"left join member_group_attr_values mem_grp on id=mem_grp.attr_id and mem_grp.group_id=? and member_id=? " +
 							"where namespace in (?,?,?)",
-					new AttributeRowMapper(sess, this, "mem_gr", member), service.getId(), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
+					new AttributeRowMapper(sess, this, "mem_grp", member), service.getId(), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3264,12 +3311,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resourceToGetServicesFrom, Member member, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
-							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_grp") + " from attr_names " +
+							"left join member_group_attr_values mem_grp on id=mem_grp.attr_id and mem_grp.group_id=? and member_id=? " +
 							"where namespace in (?,?,?) " +
 							"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 							"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new AttributeRowMapper(sess, this, "mem_gr", null), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT, resourceToGetServicesFrom.getId());
+					new AttributeRowMapper(sess, this, "mem_grp", null), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT, resourceToGetServicesFrom.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -3599,7 +3646,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				}
 
 				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
-				if (user.getId() == 3404) System.out.println(user.getDisplayName() + " : "  + attribute);
 
 				if (attribute != null) {
 					// add only if exists
@@ -3948,11 +3994,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Host host) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("host") + " from attr_names " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("hst") + " from attr_names " +
 					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-					"left join      host_attr_values    host   on      id=host.attr_id    and   host_id=? " +
+					"left join host_attr_values hst on id=hst.attr_id and host_id=? " +
 					"where namespace in (?,?,?)",
-					new AttributeRowMapper(sess, this, "host", host), service.getId(), host.getId(), AttributesManager.NS_HOST_ATTR_CORE, AttributesManager.NS_HOST_ATTR_DEF, AttributesManager.NS_HOST_ATTR_OPT);
+					new AttributeRowMapper(sess, this, "hst", host), service.getId(), host.getId(), AttributesManager.NS_HOST_ATTR_CORE, AttributesManager.NS_HOST_ATTR_DEF, AttributesManager.NS_HOST_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
@@ -3964,7 +4010,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("grp") + " from attr_names " +
 					"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-					"left join      group_attr_values    grp   on      id=grp.attr_id    and  group_id=? " +
+					"left join group_attr_values grp on id=grp.attr_id and group_id=? " +
 					"where namespace in (?,?,?)",
 					new AttributeRowMapper(sess, this, "grp", group), service.getId(), group.getId(), AttributesManager.NS_GROUP_ATTR_CORE, AttributesManager.NS_GROUP_ATTR_DEF, AttributesManager.NS_GROUP_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
@@ -3976,13 +4022,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + getAttributeMappingSelectQuery("facility_attr_values") + " from attr_names " +
-					"left join facility_attr_values on attr_names.id=facility_attr_values.attr_id and facility_attr_values.facility_id=? " +
+			return jdbc.query("select " + getAttributeMappingSelectQuery("fac") + " from attr_names " +
+					"left join facility_attr_values fac on attr_names.id=fac.attr_id and fac.facility_id=? " +
 					"where namespace in (?,?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id " +
 					"join resources on resource_services.resource_id=resources.id  and resources.facility_id=?)",
-					new AttributeRowMapper(sess, this, "facility_attr_values", facility), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT, facility.getId());
+					new AttributeRowMapper(sess, this, "fac", facility), facility.getId(), AttributesManager.NS_FACILITY_ATTR_DEF, AttributesManager.NS_FACILITY_ATTR_CORE, AttributesManager.NS_FACILITY_ATTR_OPT, AttributesManager.NS_FACILITY_ATTR_VIRT, facility.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			log.info("None required attributes found for facility: {} and services from it's resources.", facility);
 			return new ArrayList<Attribute>();
@@ -4746,7 +4792,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Object> getAllResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		try {
-			return jdbc.query("select attr_value from resource_attr_values where attr_id=?", new ValueRowMapper(sess, this, attributeDefinition), attributeDefinition.getId());
+			return jdbc.query("select attr_value from resource_attr_values where attr_id=?", new ValueRowMapper(sess, this, null, attributeDefinition), attributeDefinition.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Object>();
 		} catch(RuntimeException ex) {
@@ -4756,7 +4802,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Object> getAllGroupResourceValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		try {
-			return jdbc.query("select attr_value from group_resource_attr_values where attr_id=?", new ValueRowMapper(sess, this, attributeDefinition), attributeDefinition.getId());
+			return jdbc.query("select attr_value from group_resource_attr_values where attr_id=?", new ValueRowMapper(sess, this, null, attributeDefinition), attributeDefinition.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Object>();
 		} catch(RuntimeException ex) {
@@ -4766,7 +4812,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public List<Object> getAllGroupValues(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		try {
-			return jdbc.query("select attr_value from group_attr_values where attr_id=?", new ValueRowMapper(sess, this, attributeDefinition), attributeDefinition.getId());
+			return jdbc.query("select attr_value from group_attr_values where attr_id=?", new ValueRowMapper(sess, this, null, attributeDefinition), attributeDefinition.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Object>();
 		} catch(RuntimeException ex) {

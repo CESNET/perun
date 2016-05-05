@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -108,34 +107,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		assertEquals("both users should be the same",user,secondUser);
 
 	}
-
-	@Test
-	public void getAllRichUsersWithAllNonVirtualAttributes() throws Exception {
-		System.out.println(CLASS_NAME + "getAllUsersWithAllNonVirtualAttributes");
-
-		Attribute attr = new Attribute();
-		attr.setNamespace("urn:perun:user:attribute-def:opt");
-		attr.setFriendlyName("testAttr");
-		attr.setType(String.class.getName());
-		attr.setValue("UserAttrValue");
-		perun.getAttributesManager().createAttribute(sess, attr);
-		perun.getAttributesManager().setAttribute(sess, user, attr);
-
-		List<RichUser> richUsers = new ArrayList<RichUser>();
-		richUsers.addAll(perun.getUsersManagerBl().getAllRichUsersWithAllNonVirtualAttributes(sess));
-
-		assertTrue(richUsers.size() > 0);
-		for (RichUser ru : richUsers) {
-			// make sure we have some attributes (at least CORE !)
-			assertTrue(ru.getUserAttributes().size() > 0);
-			if (ru.getId() == user.getId()) {
-				// make sure we retrieved our attribute with user
-				assertTrue(ru.getUserAttributes().contains(attr));
-			}
-		}
-
-	}
-
 
 	@Test (expected=UserNotExistsException.class)
 	public void getUserByIdWhenUserNotExist() throws Exception {

@@ -1597,20 +1597,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
-	public List<RichUser> getAllRichUsersWithAllNonVirtualAttributes(PerunSession sess) throws InternalErrorException {
-
-		HashMap<User, List<Attribute>> usersWithNonVirtAttrs = usersManagerImpl.getAllRichUsersWithAllNonVirtualAttributes(sess);
-		List<RichUser> richUsersWithAttributes = new ArrayList<RichUser>();
-
-		for (User u : usersWithNonVirtAttrs.keySet()) {
-			RichUser ru = new RichUser(u, null, usersWithNonVirtAttrs.get(u));
-			richUsersWithAttributes.add(ru);
-		}
-
-		return richUsersWithAttributes;
-	}
-
-
 	public void setLogin(PerunSession sess, User user, String loginNamespace, String login) throws InternalErrorException {
 
 		// should always pass, since isLoginAvailable() in ENTRY does the same

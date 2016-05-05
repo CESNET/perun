@@ -971,18 +971,6 @@ public interface UsersManagerBl {
 	List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers, List<String> attrsNames) throws InternalErrorException, UserNotExistsException;
 
 	/**
-	 * Get All RichUsers without UserExtSources and without virtual attributes.
-	 *
-	 * @param sess
-	 * @return list of RichUsers
-	 * @throws InternalErrorException
-	 */
-	// FIXME - this method is totally unused and very specific - bringing complexity to users manager
-	// FIXME - please please remove !!
-	@Deprecated
-	List<RichUser> getAllRichUsersWithAllNonVirtualAttributes(PerunSession sess) throws InternalErrorException;
-
-	/**
 	 * Allow users to manually add login in supported namespace if same login is not reserved
 	 *
 	 * @param sess

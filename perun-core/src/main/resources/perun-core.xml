@@ -236,7 +236,6 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	</bean>
 	<bean id="usersManagerImpl" class="cz.metacentrum.perun.core.impl.UsersManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
-		<constructor-arg ref="attributesManagerImpl" />
 	</bean>
 	<bean id="groupsManagerImpl" class="cz.metacentrum.perun.core.impl.GroupsManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />

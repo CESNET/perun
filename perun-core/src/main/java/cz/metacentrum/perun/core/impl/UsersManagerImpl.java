@@ -105,73 +105,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             }
         };
 
-	private static class UserAndAttributeExtractor implements ResultSetExtractor<HashMap<User, List<Attribute>>> {
-
-		private final PerunSession sess;
-		private final AttributesManagerImpl attributesManager;
-
-		/**
-		 * Sets up parameters for data extractor
-		 *
-		 * @param sess perun session
-		 * @param attributesManager attribute manager
-		 */
-		public UserAndAttributeExtractor(PerunSession sess, AttributesManagerImpl attributesManager) {
-			this.sess = sess;
-			this.attributesManager = attributesManager;
-		}
-
-		public HashMap<User, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
-
-			HashMap<User, List<Attribute>> map = new HashMap<>();
-
-			while (rs.next()) {
-
-				int rowId = rs.getRow();
-
-				User user = UsersManagerImpl.USER_MAPPER.mapRow(rs, rowId);
-
-				if (!map.containsKey(user)) {
-					// first match for user
-					map.put(user, new ArrayList<Attribute>());
-				}
-
-				AttributesManagerImpl.AttributeRowMapper attributeRowMapper = new AttributesManagerImpl.AttributeRowMapper(sess, attributesManager, "usr", user);
-				Attribute attribute = attributeRowMapper.mapRow(rs, rowId);
-
-				if (attribute != null) {
-					// add only if exists
-					if (map.get(user) != null) map.get(user).add(attribute);
-				}
-
-			}
-			return map;
-		}
-	}
-
 	/**
 	 * Constructor.
 	 *
 	 * @param perunPool connection pool
 	 */
-	public UsersManagerImpl(DataSource perunPool, AttributesManagerImpl attrManagerImpl) {
-		this.attrManagerImpl = attrManagerImpl;
+	public UsersManagerImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
-	}
-
-	public HashMap<User, List<Attribute>> getAllRichUsersWithAllNonVirtualAttributes(PerunSession sess) throws InternalErrorException {
-		try {
-			return jdbc.query("select " + userMappingSelectQuery + ", " + AttributesManagerImpl.getAttributeMappingSelectQuery("usr") + " from users " +
-					" join attr_names on attr_names.namespace in (?,?,?) " +
-					" left join user_attr_values usr on usr.user_id=users.id and attr_names.id=usr.attr_id ",
-					new UserAndAttributeExtractor(sess, attrManagerImpl), AttributesManager.NS_USER_ATTR_CORE,
-					AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT);
-		} catch (EmptyResultDataAccessException ex) {
-			return new HashMap<User, List<Attribute>>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
 	}
 
 	public User getUserById(PerunSession sess, int id) throws InternalErrorException, UserNotExistsException {

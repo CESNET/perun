@@ -564,18 +564,6 @@ public interface UsersManagerImplApi {
 	public void deleteUsersReservedLogins(User user);
 
 	/**
-	 * Get All RichUsers without UserExtSources and without virtual attributes.
-	 *
-	 * @param sess
-	 * @return list of richUsers
-	 * @throws InternalErrorException
-	 */
-	// FIXME - this method is totally unused and very specific - bringing complexity to users manager
-	// FIXME - please please remove !!
-	@Deprecated
-	HashMap<User, List<Attribute>> getAllRichUsersWithAllNonVirtualAttributes(PerunSession sess) throws InternalErrorException;
-
-	/**
 	 * Store request of change of user's preferred email address.
 	 * Change in attribute value is not done, until email
 	 * address is verified by link in email notice.
