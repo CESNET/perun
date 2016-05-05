@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,28 +12,20 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -63,6 +56,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
+	private AttributesManagerImpl attrManagerImpl;
 
 	protected static final RowMapper<User> USER_MAPPER = new RowMapper<User>() {
 		public User mapRow(ResultSet rs, int i) throws SQLException {
@@ -111,44 +105,70 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             }
         };
 
-	private static class AttributeAndUserRowMapper<User> implements RowMapper<Pair<User,Attribute>> {
+	private static class UserAndAttributeExtractor implements ResultSetExtractor<HashMap<User, List<Attribute>>> {
 
-		private final RowMapper<Attribute> attributeRowMapper;
-		private final RowMapper<User> userRowMapper;
+		private final PerunSession sess;
+		private final AttributesManagerImpl attributesManager;
 
-		public AttributeAndUserRowMapper(RowMapper<User> userRowMapper, RowMapper<Attribute> attributeRowMapper) {
-			this.userRowMapper = userRowMapper;
-			this.attributeRowMapper = attributeRowMapper;
+		/**
+		 * Sets up parameters for data extractor
+		 *
+		 * @param sess perun session
+		 * @param attributesManager attribute manager
+		 */
+		public UserAndAttributeExtractor(PerunSession sess, AttributesManagerImpl attributesManager) {
+			this.sess = sess;
+			this.attributesManager = attributesManager;
 		}
 
-		public Pair<User, Attribute> mapRow(ResultSet rs, int i) throws SQLException {
-			User user = userRowMapper.mapRow(rs, i);
-			Attribute attribute = attributeRowMapper.mapRow(rs, i);
-			return new Pair<User, Attribute>(user, attribute);
-		}
+		public HashMap<User, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
 
+			HashMap<User, List<Attribute>> map = new HashMap<>();
+
+			while (rs.next()) {
+
+				int rowId = rs.getRow();
+
+				User user = UsersManagerImpl.USER_MAPPER.mapRow(rs, rowId);
+
+				if (!map.containsKey(user)) {
+					// first match for user
+					map.put(user, new ArrayList<Attribute>());
+				}
+
+				AttributesManagerImpl.AttributeRowMapper attributeRowMapper = new AttributesManagerImpl.AttributeRowMapper(sess, attributesManager, "usr", user);
+				Attribute attribute = attributeRowMapper.mapRow(rs, rowId);
+
+				if (attribute != null) {
+					// add only if exists
+					if (map.get(user) != null) map.get(user).add(attribute);
+				}
+
+			}
+			return map;
+		}
 	}
-
-
 
 	/**
 	 * Constructor.
 	 *
 	 * @param perunPool connection pool
 	 */
-	public UsersManagerImpl(DataSource perunPool) {
+	public UsersManagerImpl(DataSource perunPool, AttributesManagerImpl attrManagerImpl) {
+		this.attrManagerImpl = attrManagerImpl;
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
 	}
 
-	public List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException {
-		AttributeAndUserRowMapper<User> attributeAndUserRowMapper = new AttributeAndUserRowMapper<User>(USER_MAPPER, AttributesManagerImpl.getAttributeMapper(null));
+	public HashMap<User, List<Attribute>> getAllRichUsersWithAllNonVirtualAttributes(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery + ", " + AttributesManagerImpl.getAttributeMappingSelectQuery("usr") + " from users " +
-					"left join user_attr_values usr on usr.user_id=users.id " +
-					"left join attr_names on usr.attr_id=attr_names.id", attributeAndUserRowMapper);
+					" join attr_names on attr_names.namespace in (?,?,?) " +
+					" left join user_attr_values usr on usr.user_id=users.id and attr_names.id=usr.attr_id ",
+					new UserAndAttributeExtractor(sess, attrManagerImpl), AttributesManager.NS_USER_ATTR_CORE,
+					AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT);
 		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<Pair<User,Attribute>>();
+			return new HashMap<User, List<Attribute>>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

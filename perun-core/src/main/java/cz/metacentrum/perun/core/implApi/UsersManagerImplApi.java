@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.implApi;
 
+import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -569,7 +570,10 @@ public interface UsersManagerImplApi {
 	 * @return list of richUsers
 	 * @throws InternalErrorException
 	 */
-	List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException;
+	// FIXME - this method is totally unused and very specific - bringing complexity to users manager
+	// FIXME - please please remove !!
+	@Deprecated
+	HashMap<User, List<Attribute>> getAllRichUsersWithAllNonVirtualAttributes(PerunSession sess) throws InternalErrorException;
 
 	/**
 	 * Store request of change of user's preferred email address.

@@ -1597,29 +1597,13 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	}
 
-	public List<RichUser> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException {
-		List<Pair<User, Attribute>> usersWithNonVirtAttrs = usersManagerImpl.getAllRichUsersWithAllNonVirutalAttributes(sess);
-		Map<User,List<Attribute>> sortingMap = new HashMap<User, List<Attribute>>();
+	public List<RichUser> getAllRichUsersWithAllNonVirtualAttributes(PerunSession sess) throws InternalErrorException {
 
-		//User map for sorting users with all their attributes
-		for(Pair<User, Attribute> p: usersWithNonVirtAttrs) {
-			if(sortingMap.containsKey(p.getLeft())) {
-				sortingMap.get(p.getLeft()).add(p.getRight());
-			} else {
-				List<Attribute> attributes = new ArrayList<Attribute>();
-				attributes.add(p.getRight());
-				sortingMap.put(p.getLeft(), attributes);
-			}
-		}
-
-		//Add extSources and VirtualAttributes
+		HashMap<User, List<Attribute>> usersWithNonVirtAttrs = usersManagerImpl.getAllRichUsersWithAllNonVirtualAttributes(sess);
 		List<RichUser> richUsersWithAttributes = new ArrayList<RichUser>();
-		Set<User> usersSet = sortingMap.keySet();
-		for(User u: usersSet) {
-			//Without UserExtSources and VirtualAttributes
-			//List<UserExtSource> ues = getPerunBl().getUsersManagerBl().getUserExtSources(sess, u);
-			List<Attribute> allAttrsOfUser = sortingMap.get(u);
-			RichUser ru = new RichUser(u, null, allAttrsOfUser);
+
+		for (User u : usersWithNonVirtAttrs.keySet()) {
+			RichUser ru = new RichUser(u, null, usersWithNonVirtAttrs.get(u));
 			richUsersWithAttributes.add(ru);
 		}
 
