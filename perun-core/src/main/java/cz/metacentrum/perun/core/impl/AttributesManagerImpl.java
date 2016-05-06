@@ -200,9 +200,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					if (Compatibility.isOracle()) {
 						Clob clob = null;
 						if (attrValuesTableName == null) {
-							rs.getClob("attr_value_text");
+							clob = rs.getClob("attr_value_text");
 						} else {
-							rs.getClob(attrValuesTableName+".attr_value_text");
+							clob = rs.getClob(attrValuesTableName+".attr_value_text");
 						}
 						char[] cbuf = null;
 						if(clob == null) {
@@ -572,7 +572,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						if (attrValueTableName == null) {
 							clob = rs.getClob("attr_value_text");
 						} else {
-							rs.getClob(attrValueTableName+"_attr_value_text");
+							clob = rs.getClob(attrValueTableName+"_attr_value_text");
 						}
 						char[] cbuf = null;
 						if(clob == null) {
@@ -1041,8 +1041,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public List<Attribute> getAttributes(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("usr") + " from attr_names " +
-					"left join      user_attr_values    usr    on      id=usr.attr_id    and   user_id=? " +
-					"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
+							"left join user_attr_values usr on id=usr.attr_id and user_id=? " +
+							"where namespace=? or (namespace in (?,?) and (attr_value is not null or attr_value_text is not null))",
 					new AttributeRowMapper(sess, this, "usr", user), user.getId(),
 					AttributesManager.NS_USER_ATTR_CORE, AttributesManager.NS_USER_ATTR_DEF, AttributesManager.NS_USER_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
