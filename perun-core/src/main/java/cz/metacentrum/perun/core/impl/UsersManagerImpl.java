@@ -12,20 +12,28 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -56,7 +64,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
-	private AttributesManagerImpl attrManagerImpl;
 
 	protected static final RowMapper<User> USER_MAPPER = new RowMapper<User>() {
 		public User mapRow(ResultSet rs, int i) throws SQLException {

@@ -3,7 +3,7 @@
  */
 package cz.metacentrum.perun.core.implApi;
 
-import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.ActionType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -1213,32 +1213,76 @@ public interface AttributesManagerImplApi {
 	 */
 	HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException;
 
-
+	/**
+	 * Get User attributes required by service on specified facility for all allowed users.
+	 *
+	 * @param sess
+	 * @param service Service to get required attributes
+	 * @param facility Facility to get allowed users
+	 * @param resource Resource to get allowed users (todo)
+	 * @return Map of Users (as keys) with their required user attributes (as values)
+	 * @throws InternalErrorException
+	 */
 	HashMap<User, List<Attribute>> getRequiredUserAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Get User-Facility attributes required by service on specified facility for all allowed users.
+	 *
+	 * @param sess
+	 * @param service Service to get required attributes
+	 * @param facility Facility to get allowed users
+	 * @param resource Resource to get allowed users (todo)
+	 * @return Map of Users (as keys) with their required user-facility attributes (as values)
+	 * @throws InternalErrorException
+	 */
 	HashMap<User, List<Attribute>> getRequiredUserFacilityAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Get Member attributes required by service on specified facility for all allowed members.
+	 *
+	 * @param sess
+	 * @param service Service to get required attributes
+	 * @param resource Resource to get allowed members
+	 * @return Map of Members (as keys) with their required member attributes (as values)
+	 * @throws InternalErrorException
+	 */
 	HashMap<Member, List<Attribute>> getRequiredMemberAttributesOfAllowedMembers(PerunSession sess, Service service, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Get Member-Resource attributes required by service on specified facility for all allowed members.
+	 *
+	 * @param sess
+	 * @param service Service to get required attributes
+	 * @param resource Resource to get allowed members
+	 * @return Map of Members (as keys) with their required member-resource attributes (as values)
+	 * @throws InternalErrorException
+	 */
 	HashMap<Member, List<Attribute>> getRequiredMemberResourceAttributesOfAllowedMembers(PerunSession sess, Service service, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Return all user, user_facility, member and member_resource attributes required by service for members allowed on resource
+	 * Get all required attributes for specified service of members allowed on specified facility and resource.
+	 * User, Member, Member-Resource and User-Facility attributes are retrieved.
 	 *
 	 * @param sess
-	 * @param service Service to get required attributes for
-	 * @param facility Facility to specify allowed members
-	 * @param resource Resource to specify allowed members
-	 * @return
+	 * @param service Service to get required attributes
+	 * @param facility Facility for purpose of AttributeMapper only
+	 * @param resource Resource to get allowed members
+	 * @return Map of allowed members (as a keys) and list of required attributes (as values).
 	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
 	 */
 	HashMap<Member, List<Attribute>> getAllRequiredAttributesOfAllowedMembers(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException;
 
 	/**
-	 * Return all user, user_facility attributes required by service for users allowed on facility
+	 * Get all required attributes for specified service of users allowed on specified facility.
+	 * Only User and User-Facility attributes are retrieved.
 	 *
 	 * @param sess
-	 * @param service Service to get required attributes for
-	 * @param facility Facility to specify allowed members
-	 * @return
+	 * @param service Service to get required attributes
+	 * @param facility Facility to get allowed users
+	 * @return Map of allowed users (as a keys) and list of required attributes (as values).
 	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
 	 */
 	HashMap<User, List<Attribute>> getAllRequiredAttributesOfAllowedUsers(PerunSession sess, Service service, Facility facility) throws InternalErrorException;
 
