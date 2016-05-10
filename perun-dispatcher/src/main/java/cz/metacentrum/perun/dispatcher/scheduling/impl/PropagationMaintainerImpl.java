@@ -102,9 +102,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	}
 
 	private void checkFinishedTasks() {
+		/*  no need to spam the log file
+		 * 	
 		for (Task task : schedulingPool.getDoneTasks()) {
 			log.debug("Task " + task.toString() + " is done.");
 		}
+		 */
 	}
 
 	private void rescheduleErrorTasks() {
@@ -287,6 +290,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	private void endStuckTasks() {
 		// list all tasks in processing and planned and check if any have beeen
 		// running for too long.
+		log.info("I am gonna list planned and processing tasks and kill them if necessary...");
+
 		List<Task> suspiciousTasks = schedulingPool.getProcessingTasks();
 		suspiciousTasks.addAll(schedulingPool.getPlannedTasks());
 
@@ -354,10 +359,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	private void rescheduleOldDoneTasks() {
 		// Reschedule SEND tasks in DONE that haven't been running for quite a
 		// while
+		log.info("I am gonna list complete tasks and reschedule if they are too old...");
 
 		for (Task task : schedulingPool.getDoneTasks()) {
 			// skip GEN tasks
-			if (task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE)) {
+			if (task.getExecService() != null && 
+			    task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE)) {
 				log.debug(
 						"Found finished GEN TASK {} that was not running for a while, leaving it as is.",
 						task.toString());
@@ -371,12 +378,14 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 						+ task
 						+ "] data changed. Going to schedule for propagation now.");
 				taskScheduler.scheduleTask(task);
-			} else 	if (task.getEndTime().before(twoDaysAgo)) {
+			} else 	if (task.getEndTime() == null || task.getEndTime().before(twoDaysAgo)) {
 				// reschedule the task
 				log.info("TASK ["
 						+ task
 						+ "] wasn't propagated for more then 2 days. Going to schedule it for propagation now.");
 				taskScheduler.scheduleTask(task);
+			} else {
+				log.info("TASK [" + task + "] has finished recently, leaving it for now.");
 			}
 
 		}
