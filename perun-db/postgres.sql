@@ -1776,6 +1776,7 @@ grant all on pwdreset to perun;
 grant all on security_teams to perun;
 grant all on security_teams_facilities to perun;
 grant all on blacklists to perun;
+grant all on membership_types to perun;
 
 -- set initial Perun DB version
 insert into configurations values ('DATABASE VERSION','3.1.35');
