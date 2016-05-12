@@ -1177,7 +1177,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 			memAttr.addAll(members.get(i).getAttributes());
 
 		}
-		assertNotNull("Unable to get member attrbutes required for service",memAttr);
+		assertNotNull("Unable to get member attributes required for service",memAttr);
 		assertTrue("Only one member attribute should be returned for each member",memAttr.size()==members.size());
 		assertEquals("Wrong attribute returned for 1st member",memAttr.get(0),reqMemAttr);
 		assertEquals("Wrong attribute returned for 2nd member",memAttr.get(1),reqMemAttr);
@@ -1260,7 +1260,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		List<ServiceAttributes> facilities = new ArrayList<ServiceAttributes>();
 		facilities.add(perun.getServicesManager().getDataWithGroups(sess, service, facility));
 		assertNotNull("Unable to get hierarchical data with groups",facilities);
-		assertTrue("Only 1 facility shoud be returned",facilities.size()==1);
+		assertTrue("Only 1 facility should be returned",facilities.size()==1);
 		assertNotNull("returned facility shouldn't be null",facilities.get(0));
 
 		// get all required facility attributes

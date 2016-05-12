@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.implApi;
 
+import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
@@ -561,15 +562,6 @@ public interface UsersManagerImplApi {
 	 * @param user for which get delete reserved logins
 	 */
 	public void deleteUsersReservedLogins(User user);
-
-	/**
-	 * Get All RichUsers without UserExtSources and without virtual attributes.
-	 *
-	 * @param sess
-	 * @return list of richUsers
-	 * @throws InternalErrorException
-	 */
-	List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException;
 
 	/**
 	 * Store request of change of user's preferred email address.

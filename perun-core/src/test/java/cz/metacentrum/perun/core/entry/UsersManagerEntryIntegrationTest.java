@@ -108,17 +108,6 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	}
 
-	@Test
-	public void getAllRichUsersWithAllNonVirutalAttributes() throws Exception {
-		System.out.println(CLASS_NAME + "getAllUsersWithAllNonVirutalAttributes");
-
-		List<RichUser> richUsers = new ArrayList<RichUser>();
-		richUsers.addAll(perun.getUsersManagerBl().getAllRichUsersWithAllNonVirutalAttributes(sess));
-
-		assertTrue(richUsers.size() > 0);
-	}
-
-
 	@Test (expected=UserNotExistsException.class)
 	public void getUserByIdWhenUserNotExist() throws Exception {
 		System.out.println(CLASS_NAME + "getUserByIdWhenUserNotExist");

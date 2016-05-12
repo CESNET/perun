@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -111,26 +112,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
             }
         };
 
-	private static class AttributeAndUserRowMapper<User> implements RowMapper<Pair<User,Attribute>> {
-
-		private final RowMapper<Attribute> attributeRowMapper;
-		private final RowMapper<User> userRowMapper;
-
-		public AttributeAndUserRowMapper(RowMapper<User> userRowMapper, RowMapper<Attribute> attributeRowMapper) {
-			this.userRowMapper = userRowMapper;
-			this.attributeRowMapper = attributeRowMapper;
-		}
-
-		public Pair<User, Attribute> mapRow(ResultSet rs, int i) throws SQLException {
-			User user = userRowMapper.mapRow(rs, i);
-			Attribute attribute = attributeRowMapper.mapRow(rs, i);
-			return new Pair<User, Attribute>(user, attribute);
-		}
-
-	}
-
-
-
 	/**
 	 * Constructor.
 	 *
@@ -139,19 +120,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public UsersManagerImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(perunPool);
-	}
-
-	public List<Pair<User, Attribute>> getAllRichUsersWithAllNonVirutalAttributes(PerunSession sess) throws InternalErrorException {
-		AttributeAndUserRowMapper<User> attributeAndUserRowMapper = new AttributeAndUserRowMapper<User>(USER_MAPPER, AttributesManagerImpl.ATTRIBUTE_MAPPER);
-		try {
-			return jdbc.query("select " + userMappingSelectQuery + ", " + AttributesManagerImpl.getAttributeMappingSelectQuery("usr") + " from users " +
-					"left join user_attr_values usr on usr.user_id=users.id " +
-					"left join attr_names on usr.attr_id=attr_names.id", attributeAndUserRowMapper);
-		} catch (EmptyResultDataAccessException ex) {
-			return new ArrayList<Pair<User,Attribute>>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
 	}
 
 	public User getUserById(PerunSession sess, int id) throws InternalErrorException, UserNotExistsException {
