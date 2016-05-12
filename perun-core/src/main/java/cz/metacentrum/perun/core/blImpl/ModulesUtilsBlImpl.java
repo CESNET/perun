@@ -984,6 +984,61 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	}
 
+	/**
+	 * Shared logic for purpose of login generation
+	 */
+	public static class LoginGenerator {
+
+		/**
+		 * Define joining function for anonymous classes
+		 */
+		public interface LoginGeneratorFunction {
+
+			/**
+			 * Generate login for user using his name
+			 * @param firstName
+			 * @param lastName
+			 * @return generated login
+			 */
+			public String generateLogin(String firstName, String lastName);
+
+		}
+
+		/**
+		 * Generate login for user using his name and joining function
+		 *
+		 * @param user User to get data from
+		 * @param function Function to join fist/lastName to login
+		 * @return generated login
+		 */
+		public String generateLogin(User user, LoginGeneratorFunction function) {
+
+			String firstName = user.getFirstName();
+			String lastName = user.getLastName();
+
+			// get only first part of first name and remove spec. chars
+			if (firstName != null && !firstName.isEmpty()) {
+				firstName = ModulesUtilsBlImpl.normalizeStringForLogin(firstName.split(" ")[0]);
+			}
+
+			// get only last part of last name and remove spec. chars
+			if (lastName != null && !lastName.isEmpty()) {
+				List<String> names = Arrays.asList(lastName.split(" "));
+				lastName = names.get(names.size() - 1);
+				firstName = ModulesUtilsBlImpl.normalizeStringForLogin(lastName.split(" ")[0]);
+			}
+
+			// unable to fill login for users without name or with partial name
+			if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
+				return null;
+			}
+
+			return function.generateLogin(firstName, lastName);
+
+		}
+
+	}
+
 	public PerunBl getPerunBl() {
 		return this.perunBl;
 	}

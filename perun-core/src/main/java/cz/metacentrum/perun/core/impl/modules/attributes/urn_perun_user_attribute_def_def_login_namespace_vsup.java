@@ -12,9 +12,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Class for checking logins uniqueness in the namespace and filling vsup id.
  *
@@ -71,7 +68,18 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 
 		if (generatedNamespaces.contains(attribute.getFriendlyNameParameter())) {
 
-			String login = generateLoginValue(user);
+			ModulesUtilsBlImpl.LoginGenerator generator = new ModulesUtilsBlImpl.LoginGenerator();
+			String login = generator.generateLogin(user, new ModulesUtilsBlImpl.LoginGenerator.LoginGeneratorFunction() {
+				@Override
+				public String generateLogin(String firstName, String lastName) {
+					String login = firstName.substring(0, 1)+lastName.substring(0, (5 <= lastName.length()) ? 5 : lastName.length());
+					if (login.length()>20) {
+						login = login.substring(0, 20);
+					}
+					return login;
+				}
+			});
+
 			if (login == null) return filledAttribute;
 
 			// fill value
@@ -106,48 +114,6 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 			// without value
 			return filledAttribute;
 		}
-
-	}
-
-	/**
-	 * Generate login in login-namespace by using defined rules/format: "first char of firstName + up to 5 chars of lastName"
-	 * Only first part of "firstName" and last part of "lastName" is taken.
-	 * All accented chars are unaccented and all non (a-z,A-Z) chars are removed from name and value is lowered.
-	 *
-	 * @param user User to generate login for
-	 * @return Base part of users login in login-namespace
-	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 */
-	private String generateLoginValue(User user) throws InternalErrorException, WrongAttributeAssignmentException {
-
-		String firstName = user.getFirstName();
-		String lastName = user.getLastName();
-
-		// get only first part of first name and remove spec. chars
-		if (firstName != null && !firstName.isEmpty()) {
-			firstName = ModulesUtilsBlImpl.normalizeStringForLogin(firstName.split(" ")[0]);
-		}
-
-		// get only last part of last name and remove spec. chars
-		if (lastName != null && !lastName.isEmpty()) {
-			List<String> names = Arrays.asList(lastName.split(" "));
-			lastName = names.get(names.size() - 1);
-			firstName = ModulesUtilsBlImpl.normalizeStringForLogin(lastName.split(" ")[0]);
-		}
-
-		// unable to fill login for users without name or with partial name
-		if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
-			return null;
-		}
-
-		String login = firstName.substring(0, 1)+lastName.substring(0, (5 <= lastName.length()) ? 5 : lastName.length());
-
-		if (login.length()>20) {
-			login = login.substring(0, 20);
-		}
-
-		return login;
 
 	}
 
