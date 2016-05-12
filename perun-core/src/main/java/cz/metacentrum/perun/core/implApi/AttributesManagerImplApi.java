@@ -1691,6 +1691,15 @@ public interface AttributesManagerImplApi {
 	void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
 
 	/**
+	 * Remove all non-virtual member-resource attributes assigned to resource
+	 *
+	 * @param sess
+	 * @param resource
+	 * @throws InternalErrorException
+	 */
+	void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
+
+	/**
 	 * Unset particular attribute for the vo.
 	 *
 	 * @param sess perun session
