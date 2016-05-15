@@ -134,7 +134,7 @@
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
+			<artifactId>perun-auditparser</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -144,51 +144,14 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-tasks-lib</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-auditparser</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<!-- DB -->
-
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-dbcp</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc7</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.2.8</version>
-		</dependency>
 
 		<!-- SPRING -->
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
 		</dependency>
 
 		<dependency>

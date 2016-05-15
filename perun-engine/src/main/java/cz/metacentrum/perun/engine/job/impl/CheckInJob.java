@@ -25,7 +25,7 @@ public class CheckInJob implements PerunEngineJob {
 	public void doTheJob() {
 		log.info("Entering CheckInJob: engineManager.checkIn()");
 		//engineManager.checkIn();
-		log.info("CheckInJob: engineManager.checkIn() has completed.");
+		log.info("CheckInJob done: engineManager.checkIn() has completed.");
 	}
 
 	public EngineManager getEngineManager() {

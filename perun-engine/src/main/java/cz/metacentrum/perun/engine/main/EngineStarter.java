@@ -27,7 +27,7 @@ public class EngineStarter {
 
 	public EngineStarter() {
 		try {
-			springCtx = new ClassPathXmlApplicationContext( "classpath:perun-engine.xml", "classpath:perun-engine-scheduler.xml", "classpath:perun-engine-jdbc-local.xml");
+			springCtx = new ClassPathXmlApplicationContext( "classpath:perun-engine.xml", "classpath:perun-engine-scheduler.xml");
 			this.engineManager = springCtx.getBean("engineManager", EngineManager.class);
 		} catch (Exception e) {
 			log.error("Application context loading error.", e);
@@ -45,8 +45,8 @@ public class EngineStarter {
 			// FIXME in local DB but are required by mapper when selecting Task.
 			// engineStarter.engineManager.loadSchedulingPool();
 			//log.info("Gonna loadSchedulingPool from file.");
-			engineStarter.engineManager.startMessaging();
 			log.info("Gonna start Messaging...");
+			engineStarter.engineManager.startMessaging();
 			// FIXME - There is not reason to switch Tasks in local pool because of above FIXME.
 			//log.info("Gonna switch all the unfinished Tasks to ERROR...");
 			//engineStarter.engineManager.switchUnfinishedTasksToERROR();

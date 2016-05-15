@@ -114,6 +114,10 @@ public class ExecService extends PerunBean implements Serializable {
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
 			"id=<").append(getId()).append(">").append(
+			", defaultDelay=<").append(this.getDefaultDelay()).append(">").append(
+			", defaultRecurrence=<").append(this.getDefaultRecurrence()).append(">").append(
+			", enabled=<").append(this.isEnabled()).append(">").append(
+			", script=<").append(script == null ? "\\0" : BeansUtils.createEscaping(script)).append(">").append(
 			", name=<").append(service == null ? "\\0" : BeansUtils.createEscaping(service.getName())).append(">").append(
 			", type=<").append(execServiceType == null ? "\\0" : BeansUtils.createEscaping(execServiceType.toString())).append(">").append(
 			", service=<").append(getService()== null ? "\\0" : getService().serializeToString()).append(">").append(
@@ -130,6 +134,10 @@ public class ExecService extends PerunBean implements Serializable {
 		if(execServiceType != null) exSrvType = execServiceType.toString();
 		return str.append(getClass().getSimpleName()).append(":["
 			).append("id='").append(getId()
+			).append("', defaultDelay='").append(getDefaultDelay()
+			).append("', defaultRecurrence='").append(getDefaultRecurrence()
+			).append("', enabled='").append(isEnabled()
+			).append("', script='").append(script
 			).append("', name='").append(serviceName
 			).append("', type='").append(exSrvType
 			).append("', service='").append(getService()

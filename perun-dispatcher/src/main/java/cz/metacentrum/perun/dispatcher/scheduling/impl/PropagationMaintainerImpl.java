@@ -61,6 +61,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	private TaskScheduler taskScheduler;
 	@Autowired
 	private Perun perun;
+	@Autowired
+	private ResultManager resultManager;
 	/*
 	 * @Autowired private GeneralServiceManager generalServiceManager;
 	 */
@@ -427,6 +429,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 							"Setting GEN dependency task {} to NONE state to regenerate data for completed task {}",
 							taskToBeSetDirty, task);
 					schedulingPool.setTaskStatus(taskToBeSetDirty, TaskStatus.NONE);
+					try {
+						schedulingPool.setQueueForTask(taskToBeSetDirty, null);
+					} catch (InternalErrorException e) {
+						log.error("Could not set destination queue for task {}: {}", task.getId(), e.getMessage());
+					}
 				}
 			}
 		}
@@ -464,9 +471,23 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 	@Override
 	public void closeTasksForEngine(int clientID) {
-		// TODO Auto-generated method stub
-
+		List<Task> tasks = schedulingPool.getTasksForEngine(clientID);
+	
+		// switch all processing tasks to error, remove the engine queue association
+		log.debug("Switching PROCESSING tasks on engine {} to ERROR, the engine went down", clientID);
+		for(Task task: tasks) {
+			if(task.getStatus().equals(TaskStatus.PROCESSING)) {
+				log.debug("switching task {} to ERROR, the engine it was running on went down", task.getId());
+				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+			}
+			try {
+				schedulingPool.setQueueForTask(task, null);
+			} catch (InternalErrorException e) {
+				log.error("Could not remove output queue for task {}: {}", task.getId(), e.getMessage());
+			}
+		}
 	}
+	
 
 	@Override
 	public void onTaskComplete(int taskId, int clientID, String status_s,
@@ -495,6 +516,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		// if we are going to run this task again, make sure to generate up to
 		// date data
 		if (completedTask.getExecService().getExecServiceType().equals(ExecServiceType.SEND)) {
+			try {
+				schedulingPool.setQueueForTask(completedTask, null);
+			} catch (InternalErrorException e) {
+				log.error("Could not set destination queue for task {}: {}", completedTask.getId(), e.getMessage());
+			}
 			this.setAllGenerateDependenciesToNone(completedTask);
 		}
 
@@ -551,6 +577,22 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		}
 	}
 
+	@Override
+	public void onTaskDestinationComplete(int clientID, String string) {
+		if(string == null || string.isEmpty()) {
+			log.error("Could not parse taskresult message from engine " + clientID);
+			return;
+		}
+		
+		try {
+			List<PerunBean> listOfBeans = AuditParser.parseLog(string);
+			TaskResult taskResult = (TaskResult)listOfBeans.get(0);
+			resultManager.insertNewTaskResult(taskResult, clientID);
+		} catch (InternalErrorException e) {
+			log.error("Could not save taskresult message {} from engine " + clientID, string);
+			log.debug("Error storing taskresult message: " + e.getMessage());
+		}
+	}
 	/*
 	 * public TaskManager getTaskManager() { return taskManager; }
 	 * 

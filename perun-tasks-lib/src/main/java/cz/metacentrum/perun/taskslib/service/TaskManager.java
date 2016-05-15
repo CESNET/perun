@@ -28,6 +28,8 @@ public interface TaskManager {
 
 	Task getTaskById(int id, int engineID);
 
+	Task getTaskById(int id);
+
 	List<Task> listAllTasks(int engineID);
 
 	List<Pair<Task, Integer>> listAllTasksAndClients();
@@ -52,7 +54,10 @@ public interface TaskManager {
 
 	void removeTask(int id, int engineID);
 
+	void removeTask(int id);
+
 	int countTasks(int engineID);
 
 	List<Task> listAllTasksNotInState(TaskStatus state, int engineID);
+
 }

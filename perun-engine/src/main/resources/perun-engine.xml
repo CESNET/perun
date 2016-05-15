@@ -17,17 +17,23 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<import resource="classpath:perun-tasks-lib.xml"/>
 	 -->
     <!-- Importing Perun Core... -->
+	<!-- 
     <import resource="classpath:perun-core.xml"/>
     <import resource="classpath:perun-core-jdbc.xml"/>
-
+ 	-->
+ 	
     <!-- Enable @Transactional support -->
+    <!-- 
     <tx:annotation-driven transaction-manager="springTransactionManager"/>
-
+ 	-->
+ 	
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
 
     <!-- Scans for @Repository, @Service and @Component -->
-    <context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
+    <!-- not used anymore
+       | <context:component-scan base-package="cz.metacentrum.perun.taskslib.service.impl"/>
+       +-->
     <context:component-scan base-package="cz.metacentrum.perun.engine"/>
 
 
@@ -87,17 +93,22 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
     <!-- DAOs -->
 
+	<!-- 
     <bean id="engineDao" class="cz.metacentrum.perun.engine.dao.jdbc.EngineDaoJdbc" init-method="initialize">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-
+ 	-->
+ 	
     <!-- These DAOs come from taskslib -->
     <!-- we (re)define them here to differentiate between our local and central database -->
+	<!-- 
     <bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
         <property name="dataSource" ref="dataSourceLocal"/>
     </bean>
-
+	-->
+	
     <!-- and where should these go? -->
+	<!-- 
     <bean id="taskResult" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskResultDaoJdbc">
         <property name="dataSource" ref="dataSource"/>
     </bean>
@@ -113,7 +124,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <bean id="execServiceDependencyDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.ExecServiceDependencyDaoJdbc">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-
+	-->
+	
     <!--
     <bean id="processingRuleDao" class="cz.metacentrum.perun.engine.dao.jdbc.ProcessingRuleDaoJdbc">
       <property name="dataSource" ref="dataSource"/>

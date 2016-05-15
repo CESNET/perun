@@ -16,6 +16,4 @@ public interface EventExecServiceResolver {
 			throws InvalidEventMessageException, ServiceNotExistsException,
 			InternalErrorException, PrivilegeException;
 
-	public void refreshProcessingRules() throws ServiceNotExistsException,
-			InternalErrorException, PrivilegeException;
 }

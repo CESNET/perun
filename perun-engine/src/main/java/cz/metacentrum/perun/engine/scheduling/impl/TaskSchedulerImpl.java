@@ -2,37 +2,24 @@ package cz.metacentrum.perun.engine.scheduling.impl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.engine.model.Pair;
-import cz.metacentrum.perun.engine.scheduling.DenialsResolver;
 import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
-import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
 import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 import cz.metacentrum.perun.engine.scheduling.TaskStatusManager;
-import cz.metacentrum.perun.taskslib.dao.ExecServiceDenialDao;
-import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
  * 
@@ -52,89 +39,30 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	@Autowired
 	private DependenciesResolver dependenciesResolver;
 	@Autowired
-	private Properties propertiesBean;
-	@Autowired
-	private Perun perun;
-	private PerunSession perunSession;
-	@Autowired
-	private DenialsResolver denialsResolver;
-	@Autowired
 	private TaskExecutorEngine taskExecutorEngine;
-	/*
-	 * @Autowired private TaskManager taskManager;
-	 * 
-	 * @Autowired private TaskResultDao taskResultDao;
-	 * 
-	 * @Autowired private PropagationMaintainer propagationMaintainer;
-	 */
 
 	@Override
 	public void propagateService(Task task, Date time)
 			throws InternalErrorException {
-		 log.debug("   Is the execService ID:" + task.getExecServiceId() + " enabled globally?"); 
-		 if (!task.getExecService().isEnabled()) {
-			 schedulingPool.setTaskStatus(task, TaskStatus.DONE);
-			 log.info("Exec service for task {} is globally disabled, setting as done.",
-					 	task.getId());
-			 return;
-		 } else {
-			 log.debug("   Yes, it is globally enabled."); 
-		 }
-		 
-		 // Is the ExecService denied on this Facility? 
-		 // If it is, we drop it and do nothing. 
-		 log.debug("   Is the execService ID:" + task.getExecServiceId() + " denied on facility ID:" + task.getFacilityId() + "?"); 
-		 if(denialsResolver.isExecServiceDeniedOnFacility(task.getExecService(), task.getFacility())) { 
-			 schedulingPool.setTaskStatus(task, TaskStatus.DONE);
-			 log.info("Exec service " + task.getExecServiceId() + " for task " + task.getId() + 
-					 " is denied for facility " + task.getFacilityId() + 
-					 ", setting as done.");
-			 return;
-		 } else {
-			 log.debug("   No, it is not."); 
-		 }
-		 
-		 // check if we have destinations for this task
+
+		// check if we have destinations for this task
 		List<Destination> destinations = task.getDestinations();
-		if (destinations == null || destinations.isEmpty()) {
-			// refetch the destination list from central database
-			log.debug("No destinations for task " + task.toString()
-					+ ", trying to query the database...");
-			try {
-				destinations = perun.getServicesManager().getDestinations(
-						perunSession, task.getExecService().getService(),
-						task.getFacility());
-			} catch (ServiceNotExistsException e) {
-				log.error("No destinations found for task " + task.toString());
-				// TODO: remove the task?
-				return;
-			} catch (FacilityNotExistsException e) {
-				log.error("Facility for task does not exist..."
-						+ task.toString());
-				// TODO: remove the task?
-				return;
-			} catch (PrivilegeException e) {
-				log.error("Privilege error accessing the database: "
-						+ e.getMessage());
-				return;
-			} catch (InternalErrorException e) {
-				log.error("Internal error: " + e.getMessage());
-				return;
-			}
-			task.setDestinations(destinations);
-		}
 		if (task.getExecService().getExecServiceType().equals(ExecServiceType.SEND)
 				&& (destinations == null || destinations.isEmpty())) {
 			log.info("No destinations found for SEND task {}, marking as DONE",
 					task.getId());
 			schedulingPool.setTaskStatus(task, TaskStatus.DONE);
 		} else {
-			schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
-			taskStatusManager.clearTaskStatus(task);
-			task.setSchedule(time);
-			if(task.isPropagationForced()) {
-				// we are in special thread anyway...
-				taskExecutorEngine.runTask(task);
+			if(task.getStatus() == TaskStatus.PROCESSING) {
+				log.warn("Attempt to schedule already processing task {}, ignoring this.", task.getId());
+			} else {
+				schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
+				taskStatusManager.clearTaskStatus(task);
+				task.setSchedule(time);
+				if(task.isPropagationForced()) {
+					// we are in special thread anyway...
+					taskExecutorEngine.runTask(task);
+				}
 			}
 		}
 	}
@@ -149,37 +77,17 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	@Override
 	public void processPool() throws InternalErrorException {
 
-		try {
-			perunSession = perun
-					.getPerunSession(new PerunPrincipal(
-							propertiesBean.getProperty("perun.principal.name"),
-							propertiesBean
-									.getProperty("perun.principal.extSourceName"),
-							propertiesBean
-									.getProperty("perun.principal.extSourceType")));
-		} catch (InternalErrorException e1) {
-			log.error(
-					"Error establishing perun session to check tasks propagation status: ",
-					e1);
-			return;
-		}
-
-		/*
-		 * for (Pair<ExecService, Facility> pair : schedulingPool.emptyPool()) {
-		 * log.debug("Propagating ExecService:Facility : " +
-		 * pair.getLeft().getId() + ":" + pair.getRight().getId());
-		 * propagateService(pair.getLeft(), new
-		 * Date(System.currentTimeMillis()), pair.getRight()); }
-		 */
 		for (Task task : schedulingPool.getNewTasks()) {
 			if(task.isPropagationForced()) {
-				log.info("Skipping normal schedule cycle for task " + task.getId() + 
-						", it is being force-scheduled asynchronously.");
-			} else {
-				log.debug("Propagating ExecService:Facility : "
-						+ task.getExecServiceId() + ":" + task.getFacilityId());
-				propagateService(task, new Date(System.currentTimeMillis()));
+				// this can happen only as a race between this thread and thread created for force-scheduled task
+				log.info("Found force-scheduled task {} during normal schedule cycle, resetting force flag",
+							task.getId());
+				// may not be the best behavior...
+				task.setPropagationForced(false);
 			}
+			log.debug("Propagating task {}, ExecService:Facility : "
+					+ task.getExecServiceId() + ":" + task.getFacilityId(), task.getId());
+			propagateService(task, new Date(System.currentTimeMillis()));
 		}
 	}
 
@@ -490,26 +398,5 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		this.dependenciesResolver = dependenciesResolver;
 	}
 
-	/*
-	 * public TaskResultDao getTaskResultDao() { return taskResultDao; }
-	 * 
-	 * public void setTaskResultDao(TaskResultDao taskResultDao) {
-	 * this.taskResultDao = taskResultDao; }
-	 * 
-	 * public PropagationMaintainer getPropagationMaintainer() { return
-	 * propagationMaintainer; }
-	 * 
-	 * public void setPropagationMaintainer(PropagationMaintainer
-	 * propagationMaintainer) { this.propagationMaintainer =
-	 * propagationMaintainer; }
-	 */
-
-	public Properties getPropertiesBean() {
-		return propertiesBean;
-	}
-
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
-	}
 
 }

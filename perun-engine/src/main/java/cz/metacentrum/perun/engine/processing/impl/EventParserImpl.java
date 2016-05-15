@@ -38,8 +38,6 @@ public class EventParserImpl implements EventParser {
 	@Autowired
 	private DependenciesResolver dependenciesResolver;
 	@Autowired
-	private ExecServiceDao execServiceDao;
-	@Autowired
 	private Properties propertiesBean;
 
 	@Override
@@ -54,12 +52,12 @@ public class EventParserImpl implements EventParser {
 		 * https://projekty.ics.muni.cz/perunv3/trac
 		 * /wiki/PerunEngineDispatcherController event|x|[timestamp][Event
 		 * header][Event data] New format:
-		 * "task|[engine_id]|[task_id][is_forced][exec_service_id][facility]|[destination_list]|[dependency_list]"
+		 * "task|[engine_id]|[task_id][is_forced]|[exec_service]|[facility]|[destination_list]|[dependency_list]"
 		 * 
 		 */
 		// String eventParsingPattern =
 		// "^event\\|([0-9]{1,6})\\|\\[([a-zA-Z0-9: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
-		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\[([0-9]+)\\]\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]\\|\\[(.*)\\]$";
+		String eventParsingPattern = "^task\\|([0-9]{1,6})\\|\\[([0-9]+)\\]\\[([^\\]]+)\\]\\|\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]\\|\\[([^\\|]+)\\]\\|\\[(.*)\\]$";
 		Pattern pattern = Pattern.compile(eventParsingPattern);
 		Matcher matcher = pattern.matcher(event);
 		boolean matchFound = matcher.find();
@@ -89,6 +87,12 @@ public class EventParserImpl implements EventParser {
 			String eventDependencyList = matcher.group(7);
 
 			// check possible enconding
+			if(!eventExecService.startsWith("ExecService")) {
+				eventFacility = new String(Base64.decodeBase64(eventExecService));
+			}
+			if(!eventExecService.startsWith("ExecService")) {
+				throw new InvalidEventMessageException("Wrong exec service: parse exception");
+			}			
 			if(!eventFacility.startsWith("Facility")) {
 				eventFacility = new String(Base64.decodeBase64(eventFacility));
 			}
@@ -125,21 +129,17 @@ public class EventParserImpl implements EventParser {
 								+ eventFacility + "]", e);
 			}
 
-			// fetch execService from DB by id
+			// resolve exec service
+			// deserialize event data
+			listOfBeans = AuditParser.parseLog(eventExecService);
 			try {
-				int execServiceId = Integer.parseInt(eventExecService);
-				execService = execServiceDao.getExecService(execServiceId);
+				execService = (ExecService) listOfBeans.get(0);
 			} catch (Exception e) {
 				throw new InvalidEventMessageException(
-						"Could not resolve execService from event ["
-								+ eventExecService + "]", e);
+						"Could not resolve exec service from event ["
+							+ eventExecService + "]", e);
 			}
-			if (execService == null) {
-				throw new InvalidEventMessageException(
-						"Could not resolve execService from event ["
-								+ eventExecService + "]");
-			}
-
+			
 			// resolve list of destinations
 			listOfBeans = AuditParser.parseLog(eventDestinationList);
 			log.debug("Found list of destination beans: " + listOfBeans);
@@ -192,11 +192,4 @@ public class EventParserImpl implements EventParser {
 		this.propertiesBean = propertiesBean;
 	}
 
-	public ExecServiceDao getExecServiceDao() {
-		return execServiceDao;
-	}
-
-	public void setExecServiceDao(ExecServiceDao execServiceDao) {
-		this.execServiceDao = execServiceDao;
-	}
 }
