@@ -73,13 +73,13 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="queueCapacity" value="1000" />
     </bean>
 
-    <bean id="taskExecutorGenWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+    <bean id="taskExecutorGenWorkers" class="cz.metacentrum.perun.engine.scheduling.impl.MonitoringTaskExecutorImpl">
         <property name="corePoolSize" value="5" />
         <property name="maxPoolSize" value="${engine.thread.gentasks.max}" />
         <property name="queueCapacity" value="2000" />
     </bean>
 
-    <bean id="taskExecutorSendWorkers" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+    <bean id="taskExecutorSendWorkers" class="cz.metacentrum.perun.engine.scheduling.impl.MonitoringTaskExecutorImpl">
         <property name="corePoolSize" value="200" />
         <property name="maxPoolSize" value="${engine.thread.sendtasks.max}" />
         <property name="queueCapacity" value="200000" />

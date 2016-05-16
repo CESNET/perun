@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import cz.metacentrum.perun.engine.scheduling.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -13,14 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.engine.scheduling.DenialsResolver;
-import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
-import cz.metacentrum.perun.engine.scheduling.ExecutorEngineWorker;
-import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
-import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
-import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
-import cz.metacentrum.perun.engine.scheduling.TaskResultListener;
-import cz.metacentrum.perun.engine.scheduling.TaskStatusManager;
 import cz.metacentrum.perun.engine.scheduling.TaskStatus.TaskDestinationStatus;
 import cz.metacentrum.perun.taskslib.dao.ExecServiceDenialDao;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
@@ -44,9 +37,9 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	 * @Autowired private TaskResultDao taskResultDao;
 	 */
 	@Autowired
-	private TaskExecutor taskExecutorGenWorkers;
+	private MonitoringTaskExecutor taskExecutorGenWorkers;
 	@Autowired
-	private TaskExecutor taskExecutorSendWorkers;
+	private MonitoringTaskExecutor taskExecutorSendWorkers;
 	@Autowired
 	private BeanFactory beanFactory;
 	/*
@@ -67,6 +60,8 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	
 	final int MAX_RUNNING_GEN = 20;
 	final int MAX_RUNNING = 1000;
+
+	private int idCounter = 0;
 	
 	@Override
 	public void beginExecuting() {
@@ -222,6 +217,8 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		log.debug("Starting worker for task " + task.getId()
 				+ " and destination " + destination.toString());
 		ExecutorEngineWorker executorEngineWorker = createExecutorEngineWorker();
+		idCounter +=1;
+		executorEngineWorker.setID(idCounter);
 		executorEngineWorker.setTask(task);
 		executorEngineWorker.setFacility(task.getFacility());
 		executorEngineWorker.setExecService(task.getExecService());
@@ -343,19 +340,19 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		this.propertiesBean = propertiesBean;
 	}
 
-	public TaskExecutor getTaskExecutorGenWorkers() {
+	public MonitoringTaskExecutor getTaskExecutorGenWorkers() {
 		return taskExecutorGenWorkers;
 	}
 
-	public void setTaskExecutorGenWorkers(TaskExecutor taskExecutorGenWorkers) {
+	public void setTaskExecutorGenWorkers(MonitoringTaskExecutor taskExecutorGenWorkers) {
 		this.taskExecutorGenWorkers = taskExecutorGenWorkers;
 	}
 
-	public TaskExecutor getTaskExecutorSendWorkers() {
+	public MonitoringTaskExecutor getTaskExecutorSendWorkers() {
 		return taskExecutorSendWorkers;
 	}
 
-	public void setTaskExecutorSendWorkers(TaskExecutor taskExecutorSendWorkers) {
+	public void setTaskExecutorSendWorkers(MonitoringTaskExecutor taskExecutorSendWorkers) {
 		this.taskExecutorSendWorkers = taskExecutorSendWorkers;
 	}
 
