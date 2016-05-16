@@ -176,4 +176,12 @@ public class MonitoringThreadPoolExecutor extends ThreadPoolExecutor {
 		}
 		return message;
 	}
+
+	public CopyOnWriteArraySet<ExecutorEngineWorker> getRunningWorkers() {
+		return runningWorkers;
+	}
+
+	public CopyOnWriteArraySet<ExecutorEngineWorker> getCompletedWorkers() {
+		return completedWorkers;
+	}
 }

@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.engine.AbstractEngineTest;
+import cz.metacentrum.perun.engine.scheduling.ExecutorEngineWorker;
 import cz.metacentrum.perun.engine.scheduling.TaskResultListener;
 import cz.metacentrum.perun.engine.scheduling.impl.ExecutorEngineWorkerImpl;
 import cz.metacentrum.perun.engine.scheduling.impl.MonitoringThreadPoolExecutor;
@@ -33,16 +34,21 @@ import java.util.concurrent.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-controller.xml", "classpath:perun-engine.xml", "classpath:perun-engine-jdbc-local-test.xml" })
 public class MonitoringThreadPoolExecutorTest{
-	ExecutorEngineWorkerImpl test;
-	ExecutorEngineWorkerImpl test2;
+	private ExecutorEngineWorkerImpl test;
+	private ExecutorEngineWorkerImpl test2;
+	private ExecutorEngineWorkerWaiting test_waiting;
 	@Autowired
+	private
 	TaskResultDao taskResultDao;
-	@Autowired Properties propertiesBean;
-	MonitoringThreadPoolExecutor monitoringThreadPoolExecutor;
+	@Autowired
+	private Properties propertiesBean;
+	private MonitoringThreadPoolExecutor monitoringThreadPoolExecutor;
 
 	@Autowired
+	private
 	GeneralServiceManager controller;
 	@Autowired
+	private
 	PerunBl perun;
 
 	/*
@@ -50,26 +56,25 @@ public class MonitoringThreadPoolExecutorTest{
 	 * the perun-dispatcher component)
 	 */
 	@Autowired
+	private
 	TaskDao taskDaoCore;
 	@Autowired TaskDao taskDao;
 
-	PerunSession sess;
-
-	public int engineId = 0;
+	private PerunSession sess;
 
 	// base objects needed as test environment
-	public Facility facility;
-	public Service service;
-	public Destination destination1;
-	public Destination destination2;
-	public Destination destination3;
-	public Destination destination4;
-	public ExecService execService1;
-	public ExecService execService2;
-	public ExecService execService_gen;
+	private Facility facility;
+	private Service service;
+	private Destination destination1;
+	private Destination destination2;
+	private Destination destination3;
+	private Destination destination4;
+	private ExecService execService1;
+	private ExecService execService2;
+	private ExecService execService_gen;
 	public Task task1;
-	public Task task2;
-	public Task task_gen;
+	private Task task2;
+	private Task task_gen;
 
 	@After
 	public void cleanup() throws Exception {
@@ -89,7 +94,7 @@ public class MonitoringThreadPoolExecutorTest{
     public void setup() throws Exception {
 		// determine engine ID
 
-		engineId = Integer.parseInt(propertiesBean.getProperty("engine.unique.id"));
+		int engineId = Integer.parseInt(propertiesBean.getProperty("engine.unique.id"));
 
 		// create session
 
@@ -163,7 +168,7 @@ public class MonitoringThreadPoolExecutorTest{
 		task_gen.setId(taskDaoCore.scheduleNewTask(task_gen, engineId));
 
 
-		BlockingQueue workQueue = new ArrayBlockingQueue(10);
+		BlockingQueue workQueue = new ArrayBlockingQueue(20);
 
 		TaskResultListener taskResultListener = new TaskResultListener() {
 			@Override
@@ -173,7 +178,6 @@ public class MonitoringThreadPoolExecutorTest{
 			@Override
 			public void onTaskDestinationError(Task task, Destination destination, TaskResult result) {
 				fail("Task did not execute successfully. Task: " + task + " ; TaskResult: " + result);
-
 			}
 		};
 
@@ -181,7 +185,7 @@ public class MonitoringThreadPoolExecutorTest{
 		propertiesBean.setProperty("engine.sendscript.path", "/");
 		propertiesBean.setProperty("engine.genscript.path", "/");
 
-		monitoringThreadPoolExecutor = new MonitoringThreadPoolExecutor(12,12,12,TimeUnit.SECONDS,workQueue);
+		monitoringThreadPoolExecutor = new MonitoringThreadPoolExecutor(2,2,2,TimeUnit.SECONDS,workQueue);
 		test = new ExecutorEngineWorkerImpl();
         test.setDestination(destination3);
         test.setExecService(execService2);
@@ -203,10 +207,21 @@ public class MonitoringThreadPoolExecutorTest{
 		test2.setTask(task_gen);
 		test2.setPropertiesBean(propertiesBean);
 		task_gen.setStartTime(new Date());
+
+		test_waiting = new ExecutorEngineWorkerWaiting();
+		test_waiting.setDestination(destination2);
+		test_waiting.setExecService(execService1);
+		test_waiting.setFacility(facility);
+		test_waiting.setID(3);
+		test_waiting.setTaskResultDao(taskResultDao);
+		test_waiting.setResultListener(taskResultListener);
+		test_waiting.setTask(task2);
+		test_waiting.setPropertiesBean(propertiesBean);
+		task2.setStartTime(new Date());
     }
 
     @Test
-    public void executeTest() throws InterruptedException {
+    public void completedTasksTest() throws InterruptedException {
 		monitoringThreadPoolExecutor.execute(test2);
 		monitoringThreadPoolExecutor.execute(test);
 		int i = 0;
@@ -215,5 +230,32 @@ public class MonitoringThreadPoolExecutorTest{
 			i += 1;
 		}
 		assertEquals(0, monitoringThreadPoolExecutor.getActiveCount());
+		assertTrue(monitoringThreadPoolExecutor.getCompletedWorkers().contains(test));
+		assertTrue(monitoringThreadPoolExecutor.getCompletedWorkers().contains(test2));
     }
+
+	@Test
+	public void runningTaskTest() throws InterruptedException {
+		monitoringThreadPoolExecutor.execute(test_waiting);
+		Thread.sleep(100);
+		assertTrue(monitoringThreadPoolExecutor.getRunningWorkers().contains(test_waiting));
+	}
+
+	@Test
+	public void queuedTaskTest() throws InterruptedException {
+		monitoringThreadPoolExecutor.execute(test_waiting);
+		monitoringThreadPoolExecutor.execute(test);
+		monitoringThreadPoolExecutor.execute(test2);
+		assertTrue(monitoringThreadPoolExecutor.getQueue().contains(test2));
+	}
+
+	private class ExecutorEngineWorkerWaiting extends ExecutorEngineWorkerImpl{
+		@Override
+		public void run() {
+			try {
+				Thread.sleep(400);
+			} catch (InterruptedException ignored) {
+			}
+		}
+	}
 }
