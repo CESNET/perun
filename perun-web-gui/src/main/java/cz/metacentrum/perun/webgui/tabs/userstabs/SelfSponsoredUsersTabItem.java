@@ -97,6 +97,8 @@ public class SelfSponsoredUsersTabItem implements TabItem, TabItemWithUrl {
 
 			vp.add(sp);
 
+			session.getUiElements().resizePerunTable(sp, 350, this);
+
 		} else {
 
 			// PERSON TYPE user
@@ -130,6 +132,8 @@ public class SelfSponsoredUsersTabItem implements TabItem, TabItemWithUrl {
 			sp.addStyleName("perun-tableScrollPanel");
 
 			vp.add(sp);
+
+			session.getUiElements().resizePerunTable(sp, 350, this);
 
 		}
 
