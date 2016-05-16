@@ -569,15 +569,15 @@ public class MembersManagerEntry implements MembersManager {
 
 		Iterator<RichMember> richMemberIter = richMembers.iterator();
 		while(richMemberIter.hasNext()) {
-			RichMember rm = richMemberIter.next();
+			RichMember richMember = richMemberIter.next();
 			
 			//if voadmin or voobserver or groupadmin has right to this member, its ok
-			if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, rm) ||
-				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rm) ||
-				AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, rm)) continue;
+			if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, richMember) ||
+				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, richMember) ||
+				AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, richMember)) continue;
 
 			//if not, then try facility admin rights
-			List<Resource> membersResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, rm);
+			List<Resource> membersResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, richMember);
 			boolean found = false;
 			for(Resource resource: membersResources) {
 				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {

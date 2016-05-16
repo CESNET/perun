@@ -86,11 +86,13 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Utils.checkPerunSession(sess);
 
 		RichResource rr = getResourcesManagerBl().getRichResourceById(sess, id);
+                Vo richResourceVo = rr.getVo();
+                Facility richResourceFacility = rr.getFacility();
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, rr.getVo()) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rr.getVo()) &&
-				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, rr.getFacility())) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, richResourceVo) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, richResourceVo) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, richResourceFacility)) {
 			throw new PrivilegeException(sess, "getRichResourceById");
 				}
 
