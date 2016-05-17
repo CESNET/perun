@@ -24,7 +24,7 @@
 
 		<Engine name="Catalina" defaultHost="localhost">
 			<Host name="localhost" appBase="" deployOnStartup="false" autoDeploy="false">
-				<Context path="/perun-rpc" docBase="../perun-rpc.war"/>
+				<Context path="/perun-rpc" docBase="../perun-rpc.war" sessionCookieName="PERUNSESSION" sessionCookiePath="/" />
 			</Host>
 		</Engine>
 
