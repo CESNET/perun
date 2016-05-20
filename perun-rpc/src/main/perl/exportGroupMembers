@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction tableToPrint);
+
+
+sub help {
+	return qq{
+	Prints list of group members. Group is required field. Group can by specified by it's ID or by both it's name and VO.
+	---------------------------------
+	Available options:
+	--groupId      | -g  Group identifier
+	--groupName    | -G  Group name
+	--voId         | -v  VO idetifier
+	--voShortName  | -V  VO short name
+	--orderByName  | -n  order by member's name
+	--batch        | -b  batch
+	--help         | -h  prints this help
+
+	};
+}
+
+our $batch;
+my ($groupId, $groupName, $voId, $voShortName, $sortingFunction);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+"groupId|g=i" => \$groupId,
+"groupName|G=s" => \$groupName,
+"voId|v=i" => \$voId,
+"voShortName|V=s" => \$voShortName,
+"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName",1) },
+"batch|b" => \$batch) || die help;
+
+my $agent = Perun::Agent->new();
+my $groupsAgent = $agent->getGroupsAgent;
+my $attributesAgent = $agent->getAttributesAgent;
+
+#options check
+	 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName",1); }
+unless(defined $groupId) {
+    unless(defined $groupName) { die "ERROR: Group specification required.\n"; }
+    unless(defined $voId) {
+        unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
+        my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
+        $voId = $vo->getId;
+    }
+    my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+    $groupId = $group->getId;
+}
+
+my @richMembers = $groupsAgent->getGroupRichMembers(group => $groupId, pageSize => 0, pageNum => 0);
+unless(@richMembers) { printMessage "No member found", $batch; exit 0; }
+
+#output
+my $table = Text::ASCIITable->new();
+$table->setCols('Name', 'e-mail' );
+
+foreach my $richMember (sort $sortingFunction @richMembers) {
+        my @attributes=$attributesAgent->getAttributes(user => $richMember->getUserId);
+        unless (@attributes) { printMessage "No attrs found",$batch; exit 0; }
+        my $email;
+        foreach my $attribute (@attributes) {
+            if ($attribute->getId == 1361) {
+                $email=$attribute->getValueAsScalar;
+            } 
+        }                
+        $table->addRow($richMember->getDisplayName, $email);
+}
+
+print tableToPrint($table, $batch);
+
