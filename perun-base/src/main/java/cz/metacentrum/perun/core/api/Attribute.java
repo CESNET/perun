@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -14,7 +15,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
 @SuppressWarnings({"RedundantIfStatement", "SimplifiableIfStatement"})
-public class Attribute extends AttributeDefinition {
+public class Attribute extends AttributeDefinition implements Serializable {
 
 	private final static Logger log = LoggerFactory.getLogger(Attribute.class);
 	/**
@@ -43,6 +44,17 @@ public class Attribute extends AttributeDefinition {
 	private String valueModifiedBy;
 
 	public Attribute() {
+	}
+
+	public Attribute(Attribute attribute, boolean copyValue) {
+		super(attribute);
+		if(copyValue) {
+			this.value = attribute.getValue();
+			this.valueCreatedAt = attribute.getValueCreatedAt();
+			this.valueCreatedBy = attribute.getValueCreatedBy();
+			this.valueModifiedAt = attribute.getValueModifiedAt();
+			this.valueModifiedBy = attribute.getValueModifiedBy();
+		}
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 
+import java.io.Serializable;
 
 /**
  * Basic class. All beans (entitties) in Perun must extends this class.
@@ -8,7 +9,7 @@ package cz.metacentrum.perun.core.api;
  * @author Slavek Licehammer glory@ics.muni.cz
  */
 
-public abstract class PerunBean implements Comparable<PerunBean> {
+public abstract class PerunBean implements Comparable<PerunBean>, Serializable {
 	private int id;
 
 	public PerunBean() {
