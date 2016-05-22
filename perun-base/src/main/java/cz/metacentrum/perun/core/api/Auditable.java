@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.api;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.api.BeansUtils;
+
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -11,7 +13,7 @@ import java.util.Date;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public abstract class Auditable extends PerunBean {
+public abstract class Auditable extends PerunBean implements Serializable {
 
 	/**
 	 * Attribute with information about time when it was created.

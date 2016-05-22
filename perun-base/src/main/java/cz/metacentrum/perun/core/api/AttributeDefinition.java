@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.api;
 import cz.metacentrum.perun.core.api.Auditable;
 import cz.metacentrum.perun.core.api.BeansUtils;
 
+import java.io.Serializable;
+
 /**
  * This class represents definition of attribute. All attributes comes from some definition.
  * Attribute definition is attribute without connection to some object.
@@ -12,7 +14,7 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
-public class AttributeDefinition extends Auditable implements Comparable<PerunBean> {
+public class AttributeDefinition extends Auditable implements Comparable<PerunBean>, Serializable {
 
 	/**
 	 * Attribute name, <strong>excluding</strong> the whole namespace.
