@@ -185,6 +185,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="securityTeamsManager" ref="securityTeamsManager"/>
 		<property name="searcher" ref="searcher"/>
 		<property name="auditer" ref="auditer"/>
+		<property name="cacheManager" ref="cacheManager"/>
+		<property name="attributesManagerImpl" ref="attributesManagerImpl"/>
 		<property name="databaseManager" ref="databaseManager"/>
 	</bean>
 
@@ -363,6 +365,11 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="perunPool" ref="dataSource"/>
 	</bean>
 
+	<bean id="cacheManager" class="cz.metacentrum.perun.core.impl.CacheManager" scope="singleton" destroy-method="stopCacheManager">
+		<property name="perunPool" ref="dataSource"/>
+		<constructor-arg ref="localCacheManager" />
+	</bean>
+
 	<bean id="synchronizer" class="cz.metacentrum.perun.core.impl.Synchronizer" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="perun" />
 	</bean>
@@ -396,6 +403,10 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	</bean>
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceXML" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
+	</bean>
+
+	<bean id="localCacheManager" class="org.infinispan.manager.DefaultCacheManager" scope="singleton" >
+		<constructor-arg value="infinispan-config.xml" />
 	</bean>
 
 	<!-- this bean is only for test -->

@@ -302,6 +302,8 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with any user on the facility.
+	 * It may happen that it returns more attributes than it should, because it may return also attributes for users that do not exist
+	 * (see javadoc for removeAllAttributes methods in CacheManager class for more info)
 	 *
 	 * @param sess perun session
 	 * @param facility
@@ -624,6 +626,8 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Get attributes definition (attribute without defined value) with specified namespace.
+	 * It may happen that it returns more attribute definitions than it should, because it may return also definitions for entities that do not exist
+	 * (see javadoc for removeAllAttributes methods in CacheManager class for more info)
 	 *
 	 * @param namespace get only attributes with this namespace
 	 * @return List of attributes
@@ -2159,6 +2163,8 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Get all values for specified resource attribute. Atibute can't be core or virt.
+	 * It may happen that it returns more attribute values than it should, because it may return also values for entities that do not exist
+	 * (see javadoc for removeAllAttributes methods in CacheManager class for more info)
 	 *
 	 * @param sess
 	 * @param attributeDefinition attribute definition, namespace resource
@@ -2170,6 +2176,8 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Get all values for specified group-resource attribute. Atibute can't be core or virt.
+	 * It may happen that it returns more attribute values than it should, because it may return also values for entities that do not exist
+	 * (see javadoc for removeAllAttributes methods in CacheManager class for more info)
 	 *
 	 * @param sess
 	 * @param attributeDefinition attribute definition, namespace group-resource
@@ -2181,6 +2189,8 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Get all values for specified group attribute. Atibute can't be core or virt.
+	 * It may happen that it returns more attribute values than it should, because it may return also values for entities that do not exist
+	 * (see javadoc for removeAllAttributes methods in CacheManager class for more info)
 	 *
 	 * @param sess
 	 * @param attributeDefinition attribute definition, namespace group

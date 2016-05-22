@@ -7,6 +7,13 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="auditer" ref="auditer"/>
+		<property name="cacheManager" ref="cacheManager"/>
+		<property name="nestedTransactionAllowed" value="true"/>
+	</bean>
+
+	<bean id="perunTestTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTestTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="cacheManager" ref="cacheManager"/>
 		<property name="nestedTransactionAllowed" value="true"/>
 	</bean>
 

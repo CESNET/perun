@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Auditer;
+import cz.metacentrum.perun.core.impl.CacheManager;
 
 /**
  * Perun himself.
@@ -107,6 +108,12 @@ public interface Perun {
 	 * @return Auditer/
 	 */
 	public Auditer getAuditer();
+
+	/**
+	 * Gets a cache manager
+	 * @return Cache manager
+	 */
+	public CacheManager getCacheManager();
 
 	/**
 	 * Gets a Messages manager.
