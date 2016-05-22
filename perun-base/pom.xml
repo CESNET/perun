@@ -123,6 +123,18 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-core</artifactId>
+			<version>8.2.1.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-query</artifactId>
+			<version>8.2.1.Final</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

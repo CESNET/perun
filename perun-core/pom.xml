@@ -234,6 +234,16 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-query</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
@@ -268,5 +278,5 @@
 		</profile>
 
 	</profiles>
-	
+
 </project>
