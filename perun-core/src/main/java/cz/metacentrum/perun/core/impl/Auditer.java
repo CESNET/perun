@@ -515,6 +515,14 @@ public class Auditer {
 		}
 	}
 
+	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(id) from auditer_log");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public List<AuditMessage> getMessageForParser(int count) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + ",row_number() over (ORDER BY id DESC) as rownumber from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",

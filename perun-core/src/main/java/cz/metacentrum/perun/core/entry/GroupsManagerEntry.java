@@ -718,11 +718,6 @@ public class GroupsManagerEntry implements GroupsManager {
 	public int getGroupsCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getGroupsCount");
-		}
-
 		return getGroupsManagerBl().getGroupsCount(sess);
 	}
 

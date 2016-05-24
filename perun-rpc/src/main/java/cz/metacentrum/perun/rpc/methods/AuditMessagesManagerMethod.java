@@ -156,6 +156,17 @@ public enum AuditMessagesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Get messages count in auditer_log.
+	 */
+	getAuditerMessagesCount {
+		@Override
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getAuditMessagesManager().getAuditerMessagesCount(ac.getSession());
+		}
+	},
+
+	/*#
 	 * Logs an auditer message.
 	 *
 	 * @param msg String Message to be logged
