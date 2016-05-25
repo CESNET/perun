@@ -80,6 +80,10 @@ sub getDisplayName {
 	return $str;
 }
 
+sub getStatus {
+    return shift->{_status};
+}
+
 sub getCommonArrayRepresentation {
 	my $self = shift;
 	return ($self->{_id}, $self->{_user}->{id}, $self->getDisplayName, $self->{_status});
