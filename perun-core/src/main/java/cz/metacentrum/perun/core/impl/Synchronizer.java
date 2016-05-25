@@ -164,6 +164,20 @@ public class Synchronizer {
 
 	}
 
+	public void removeAllExpiredBans() {
+		if(perunBl.isPerunReadOnly()) {
+			log.debug("This instance is just read only so skip removing expired bans.");
+			return;
+		}
+
+		try {
+			getPerun().getResourcesManagerBl().removeAllExpiredBansOnResources(sess);
+			getPerun().getFacilitiesManagerBl().removeAllExpiredBansOnFacilities(sess);
+		} catch (InternalErrorException ex) {
+			log.error("Synchronizer: removeAllExpiredBans, exception {}", ex);
+		}
+	}
+
 	public void initialize() throws InternalErrorException {
 		String synchronizerPrincipal = "perunSynchronizer";
 		this.sess = perunBl.getPerunSession(new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));

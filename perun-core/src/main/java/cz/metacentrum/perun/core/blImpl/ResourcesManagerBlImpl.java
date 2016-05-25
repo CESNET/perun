@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -22,6 +23,8 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
@@ -123,6 +126,16 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		}	
 		//Remove all resources tags
 		this.removeAllResourcesTagFromResource(sess, resource);
+
+		//Remove all resource bans
+		List<BanOnResource> bansOnResource = this.getBansForResource(sess, resource.getId());
+		for(BanOnResource banOnResource : bansOnResource) {
+			try {
+				this.removeBan(sess, banOnResource.getId());
+			} catch (BanNotExistsException ex) {
+				//it is ok, we just want to remove it anyway
+			}
+		}
 
 		//Because resource will be tottaly deleted, we can also delete all member-resource attributes
 		try {
@@ -644,6 +657,79 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				throw new InternalErrorException("Copying of groups failed.", ex);
 			} catch (WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException("Copying of groups failed.", ex);
+			}
+		}
+	}
+
+	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, BanAlreadyExistsException {
+		if(this.banExists(sess, banOnResource.getMemberId(), banOnResource.getResourceId())) throw new BanAlreadyExistsException(banOnResource);
+		banOnResource = getResourcesManagerImpl().setBan(sess, banOnResource);
+		getPerunBl().getAuditer().log(sess, "Ban {} was set for memberId {} on resourceId {}.", banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId());
+		return banOnResource;
+	}
+
+	public BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		return getResourcesManagerImpl().getBanById(sess, banId);
+	}
+
+	public boolean banExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException {
+		return getResourcesManagerImpl().banExists(sess, memberId, resourceId);
+	}
+
+	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
+		return getResourcesManagerImpl().banExists(sess, banId);
+	}
+
+	public void checkBanExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
+		if(!getResourcesManagerImpl().banExists(sess, memberId, resourceId)) throw new BanNotExistsException("Ban for member " + memberId + " and resource " + resourceId + " not exists!");
+	}
+
+	public void checkBanExists(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		if(!getResourcesManagerImpl().banExists(sess, banId)) throw new BanNotExistsException("Ban with id " + banId + " not exists!");
+	}
+
+	public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
+		return getResourcesManagerImpl().getBan(sess, memberId, resourceId);
+	}
+
+	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException {
+		return getResourcesManagerImpl().getBansForMember(sess, memberId);
+	}
+
+	public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) throws InternalErrorException {
+		return getResourcesManagerImpl().getBansForResource(sess, resourceId);
+	}
+
+	public List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException {
+		return getResourcesManagerImpl().getAllExpiredBansOnResources(sess);
+	}
+
+	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException {
+		banOnResource = getResourcesManagerImpl().updateBan(sess, banOnResource);
+		getPerunBl().getAuditer().log(sess, "Ban {} was updated for memberId {} on resourceId {}.",banOnResource, banOnResource.getMemberId(), banOnResource.getResourceId());
+		return banOnResource;
+	}
+
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		BanOnResource ban = this.getBanById(sess, banId);
+		getResourcesManagerImpl().removeBan(sess, banId);
+		getPerunBl().getAuditer().log(sess, "Ban {} was removed for memberId {} on resourceId {}.",ban, ban.getMemberId(), ban.getResourceId());
+	}
+
+	public void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
+		BanOnResource ban = this.getBan(sess, memberId, resourceId);
+		getResourcesManagerImpl().removeBan(sess, memberId, resourceId);
+		getPerunBl().getAuditer().log(sess, "Ban {} was removed for memberId {} on resourceId {}.",ban, memberId, resourceId);
+	}
+
+	public void removeAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException {
+		List<BanOnResource> expiredBans = this.getAllExpiredBansOnResources(sess);
+		for(BanOnResource expiredBan: expiredBans) {
+			try {
+				this.removeBan(sess, expiredBan.getId());
+			} catch (BanNotExistsException ex) {
+				log.error("Ban {} can't be removed because it not exists yet.",expiredBan);
+				//Skipt this, probably already removed
 			}
 		}
 	}

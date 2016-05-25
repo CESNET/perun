@@ -3,6 +3,29 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.36
+create table "resources_bans" ( id integer not null, member_id integer not null, resource_id integer not null, description varchar(1024), banned_to timestamp not null, created_at timestamp default now() not null, created_by varchar(1024) default user not null, modified_at timestamp default now() not null, modified_by varchar(1024) default user not null, created_by_uid integer, modified_by_uid integer);
+create table "facilities_bans" ( id integer not null, user_id integer not null, facility_id integer not null, description varchar(1024), banned_to timestamp not null, created_at timestamp default now() not null, created_by varchar(1024) default user not null, modified_at timestamp default now() not null, modified_by varchar(1024) default user not null, created_by_uid integer, modified_by_uid integer);
+create sequence "resources_bans_id_seq" maxvalue 9223372036854775807;
+create sequence "facilities_bans_id_seq" maxvalue 9223372036854775807;
+alter table resources_bans add constraint res_bans_pk primary key (id);
+alter table resources_bans add constraint res_bans_u unique (member_id, resource_id);
+alter table resources_bans add constraint res_bans_mem_fk foreign key (member_id) references members (id);
+alter table resources_bans add constraint res_bans_res_fk foreign key (resource_id) references resources (id);
+alter table facilities_bans add constraint fac_bans_pk primary key (id);
+alter table facilities_bans add constraint fac_bans_u unique (user_id, facility_id);
+alter table facilities_bans add constraint fac_bans_usr_fk foreign key (user_id) references users (id);
+alter table facilities_bans add constraint fac_bans_fac_fk foreign key (facility_id) references facilities (id);
+create index idx_fk_res_ban_member on resources_bans (member_id);
+create index idx_fk_res_ban_res on resources_bans (resource_id);
+create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id);
+create index idx_fk_fac_ban_user on facilities_bans (user_id);
+create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
+create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
+grant all on resources_bans to perun;                                                         
+grant all on facilities_bans to perun;
+update configurations set value='3.1.36' where property='DATABASE VERSION';
+
 3.1.35
 alter table users add sponsored_acc char(1) default '0' not null;
 drop index idx_fk_servu_u_ui;

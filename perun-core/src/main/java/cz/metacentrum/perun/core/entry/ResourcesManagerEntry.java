@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -20,6 +21,8 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
@@ -46,6 +49,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import java.util.Iterator;
 
 /**
  *
@@ -793,6 +797,119 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		getResourcesManagerBl().copyGroups(sess, sourceResource, destinationResource);
+	}
+
+	@Override
+	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(banOnResource, "banOnResource");
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+			throw new PrivilegeException(sess, "setBan");
+		}
+
+		return getResourcesManagerBl().setBan(sess, banOnResource);
+	}
+
+	@Override
+	public BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkBanExists(sess, banId);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+			throw new PrivilegeException(sess, "getBanById");
+		}
+
+		return getResourcesManagerBl().getBanById(sess, banId);
+	}
+
+	public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException, PrivilegeException, MemberNotExistsException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, memberId);
+		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, resourceId);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "getBan");
+		}
+
+		return getResourcesManagerBl().getBan(sess, memberId, resourceId);
+	}
+
+	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException, MemberNotExistsException {
+		Utils.checkPerunSession(sess);
+		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, memberId);
+
+		List<BanOnResource> usersBans = getResourcesManagerBl().getBansForMember(sess, memberId);
+		//filtering
+		Iterator<BanOnResource> iterator = usersBans.iterator();
+		while(iterator.hasNext()) {
+			BanOnResource banForFiltering = iterator.next();
+			Resource resource = new Resource();
+			resource.setId(banForFiltering.getResourceId());
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) iterator.remove();
+		}
+
+		return usersBans;
+	}
+
+	public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) throws InternalErrorException, PrivilegeException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, resourceId);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "getBansForResource");
+		}
+
+		return getResourcesManagerBl().getBansForResource(sess, resourceId);
+	}
+
+	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, MemberNotExistsException, BanNotExistsException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		this.getResourcesManagerBl().checkBanExists(sess, banOnResource.getId());
+		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, banOnResource.getMemberId());
+		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, banOnResource.getResourceId());;
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "updateBan");
+		}
+
+		banOnResource = getResourcesManagerBl().updateBan(sess, banOnResource);
+		return banOnResource;
+	}
+
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, PrivilegeException, BanNotExistsException {
+		Utils.checkPerunSession(sess);
+		BanOnResource ban = this.getResourcesManagerBl().getBanById(sess, banId);
+
+		Resource resource = new Resource();
+		resource.setId(ban.getResourceId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "removeBan");
+		}
+
+		getResourcesManagerBl().removeBan(sess, banId);
+	}
+
+	public void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		BanOnResource ban = this.getResourcesManagerBl().getBan(sess, memberId, resourceId);
+
+		Resource resource = new Resource();
+		resource.setId(ban.getResourceId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
+			throw new PrivilegeException(sess, "removeBan");
+		}
+
+		getResourcesManagerBl().removeBan(sess, memberId, resourceId);
 	}
 
 	/**

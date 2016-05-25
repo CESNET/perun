@@ -1084,6 +1084,34 @@ create table blacklists (
 	modified_by_uid integer
 );
 
+create table resources_bans (
+	id integer not null,
+	member_id integer not null,
+	resource_id integer not null,
+	description varchar(1024),
+	banned_to timestamp not null,
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table facilities_bans (
+	id integer not null,
+	user_id integer not null,
+	facility_id integer not null,
+	description varchar(1024),
+	banned_to timestamp not null,
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create sequence attr_names_id_seq;
 create sequence auditer_consumers_id_seq;
 create sequence auditer_log_id_seq;
@@ -1132,6 +1160,8 @@ create sequence res_tags_seq;
 create sequence mailchange_id_seq;
 create sequence pwdreset_id_seq;
 create sequence security_teams_id_seq start with 10 increment by 1;
+create sequence resources_bans_id_seq start with 10 increment by 1;
+create sequence facilities_bans_id_seq start with 10 increment by 1;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz(user_id,role_id);
@@ -1273,6 +1303,12 @@ create index idx_fk_security_teams_facilities_security_team on security_teams_fa
 create index idx_fk_security_teams_facilities_facilities on security_teams_facilities (facility_id);
 create index idx_fk_bllist_user on blacklists (user_id);
 create index idx_fk_bllist_secteam on blacklists (security_team_id);
+create index idx_fk_res_ban_member on resources_bans (member_id);
+create index idx_fk_res_ban_res on resources_bans (resource_id);
+create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id);
+create index idx_fk_fac_ban_user on facilities_bans (user_id);
+create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
+create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1578,6 +1614,16 @@ alter table security_teams_facilities add constraint security_teams_facilities_f
 alter table blacklists add constraint bllist_pk primary key (security_team_id,user_id);
 alter table blacklists add constraint bllist_secteam_fk foreign key (security_team_id) references security_teams (id);
 alter table blacklists add constraint bllist_user_fk foreign key (user_id) references users(id);
+
+alter table resources_bans add constraint res_bans_pk primary key (id);
+alter table resources_bans add constraint res_bans_u unique (member_id, resource_id);
+alter table resources_bans add constraint res_bans_mem_fk foreign key (member_id) references members (id);
+alter table resources_bans add constraint res_bans_res_fk foreign key (resource_id) references resources (id);
+
+alter table facilities_bans add constraint fac_bans_pk primary key (id);
+alter table facilities_bans add constraint fac_bans_u unique (user_id, facility_id);
+alter table facilities_bans add constraint fac_bans_usr_fk foreign key (user_id) references users (id);
+alter table facilities_bans add constraint fac_bans_fac_fk foreign key (facility_id) references facilities (id);
 
 alter table authz add constraint authz_role_fk foreign key (role_id) references roles(id);
 alter table authz add constraint authz_user_fk foreign key (user_id) references users(id);

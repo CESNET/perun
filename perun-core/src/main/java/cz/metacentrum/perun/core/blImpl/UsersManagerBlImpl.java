@@ -404,6 +404,16 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		//Remove user authz
 		AuthzResolverBlImpl.removeAllUserAuthz(sess, user);
 
+		//Remove all users bans
+		List<BanOnFacility> bansOnFacility = getPerunBl().getFacilitiesManagerBl().getBansForUser(sess, user.getId());
+		for(BanOnFacility banOnFacility : bansOnFacility) {
+			try {
+				getPerunBl().getFacilitiesManagerBl().removeBan(sess, banOnFacility.getId());
+			} catch (BanNotExistsException ex) {
+				//it is ok, we just want to remove it anyway
+			}
+		}
+
 		// Finally delete the user
 		if(user.isSpecificUser()) {
 			// Remove all sponsored user authz of his owners

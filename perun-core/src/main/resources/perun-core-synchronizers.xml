@@ -13,6 +13,7 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
 		<task:scheduled-tasks scheduler="scheduler">
 			<task:scheduled ref="synchronizer" method="synchronizeGroups" cron="0 0/5 * * * ?"/> <!-- every 5 minutes -->
 			<task:scheduled ref="synchronizer" method="checkMembersState" cron="0 0 0 * * ?"/> <!-- every day -->
+			<task:scheduled ref="synchronizer" method="removeAllExpiredBans" cron="0 0 0 * * ?"/> <!-- every day -->
 		</task:scheduled-tasks>
 	</beans>
 

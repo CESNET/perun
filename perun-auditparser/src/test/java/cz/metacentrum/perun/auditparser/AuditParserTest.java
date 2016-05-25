@@ -61,6 +61,10 @@ public class AuditParserTest {
 	private SecurityTeam securityTeam2 = new SecurityTeam(2, null, null);
 	private ExecService exService1 = new ExecService();
 	private ExecService exService2 = new ExecService();
+	private BanOnResource banOnResource1 = new BanOnResource(3, new Date(), "neco" , 10, 12);
+	private BanOnResource banOnResource2 = new BanOnResource(4, null, null, 10, 12);
+	private BanOnFacility banOnFacility1 = new BanOnFacility(5, new Date(), "neco", 10, 12);
+	private BanOnFacility banOnFacility2 = new BanOnFacility(6, null, null, 10, 12);
 
 	@Before
 	public void setUp() throws Exception {
@@ -376,6 +380,22 @@ public class AuditParserTest {
 		assertEquals(securityTeam.getName(), ((SecurityTeam) scsInList.get(0)).getName());
 		assertEquals(securityTeam.getDescription(), ((SecurityTeam) scsInList.get(0)).getDescription());
 
+		//FOR BAN ON RESOURCE
+		List<PerunBean> banOnResourceInList = AuditParser.parseLog(banOnResource1.serializeToString());
+		assertEquals(banOnResource1.toString(), ((BanOnResource) banOnResourceInList.get(0)).toString());
+		assertEquals(banOnResource1.getMemberId(), ((BanOnResource) banOnResourceInList.get(0)).getMemberId());
+		assertEquals(banOnResource1.getResourceId(), ((BanOnResource) banOnResourceInList.get(0)).getResourceId());
+		assertEquals(banOnResource1.getDescription(), ((BanOnResource) banOnResourceInList.get(0)).getDescription());
+		assertEquals(banOnResource1.getValidityTo(), ((BanOnResource) banOnResourceInList.get(0)).getValidityTo());
+
+		//FOR BAN ON FACILITY
+		List<PerunBean> banOnFacilityInList = AuditParser.parseLog(banOnFacility1.serializeToString());
+		assertEquals(banOnFacility1.toString(), ((BanOnFacility) banOnFacilityInList.get(0)).toString());
+		assertEquals(banOnFacility1.getUserId(), ((BanOnFacility) banOnFacilityInList.get(0)).getUserId());
+		assertEquals(banOnFacility1.getFacilityId(), ((BanOnFacility) banOnFacilityInList.get(0)).getFacilityId());
+		assertEquals(banOnFacility1.getDescription(), ((BanOnFacility) banOnFacilityInList.get(0)).getDescription());
+		assertEquals(banOnFacility1.getValidityTo(), ((BanOnFacility) banOnFacilityInList.get(0)).getValidityTo());
+
 		//FOR RICHMEMBER
 		RichMember richMember1 = new RichMember(null, member, null);
 		//List<UserExtSource> userExtSources = new ArrayList<UserExtSource>();
@@ -510,6 +530,10 @@ public class AuditParserTest {
 		assertEquals(exService1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(exService1.serializeToString())));
 		assertEquals(securityTeam1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam1.serializeToString())));
 		assertEquals(securityTeam2.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam2.serializeToString())));
+		assertEquals(banOnResource1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(banOnResource1.serializeToString())));
+		assertEquals(banOnResource2.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(banOnResource2.serializeToString())));
+		assertEquals(banOnFacility1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(banOnFacility1.serializeToString())));
+		assertEquals(banOnFacility2.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(banOnFacility2.serializeToString())));
 		//test also some null serializing
 		Resource newResource = new Resource(20, null, null, 5);
 		assertEquals(newResource.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(newResource.serializeToString())));
@@ -527,11 +551,12 @@ public class AuditParserTest {
 			attribute1.serializeToString() + richMember.serializeToString() + richDestination.serializeToString() +
 			richResource.serializeToString() + richUser.serializeToString() + richGroup.serializeToString() +
 			richFacility.serializeToString() + resourceTag1.serializeToString() + exService1.serializeToString() +
-			securityTeam1.serializeToString();
+			securityTeam1.serializeToString() + banOnResource1.serializeToString() + banOnResource2.serializeToString() +
+			banOnFacility1.serializeToString()+ banOnFacility2.serializeToString();
 
 		List<PerunBean> perunBeans = new ArrayList<PerunBean>();
 		perunBeans = AuditParser.parseLog(bigLog);
-		assertEquals(24, perunBeans.size());
+		assertEquals(28, perunBeans.size());
 		assertTrue(perunBeans.contains(user));
 		assertTrue(perunBeans.contains(attribute1));
 		assertTrue(perunBeans.contains(attributeDefinition1));

@@ -32,6 +32,8 @@ host_attr_values
 auditer_consumers
 security_teams_facilities
 blacklists
+resources_bans
+facilities_bans
 service_processing_rule
 service_required_attrs
 specific_user_users

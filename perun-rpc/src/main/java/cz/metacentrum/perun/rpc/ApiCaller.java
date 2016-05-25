@@ -17,6 +17,8 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
+import cz.metacentrum.perun.core.api.BanOnFacility;
+import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.ExtSource;
@@ -281,6 +283,14 @@ public class ApiCaller {
 
 	public SecurityTeam getSecurityTeamById(int id) throws PerunException {
 		return getSecurityTeamsManager().getSecurityTeamById(rpcSession, id);
+	}
+
+	public BanOnFacility getBanOnFacility(int id) throws PerunException {
+		return getFacilitiesManager().getBanById(rpcSession, id);
+	}
+
+	public BanOnResource getBanOnResource(int id) throws PerunException {
+		return getResourcesManager().getBanById(rpcSession, id);
 	}
 
 	public AttributeDefinition getAttributeDefinitionById(int id) throws PerunException {

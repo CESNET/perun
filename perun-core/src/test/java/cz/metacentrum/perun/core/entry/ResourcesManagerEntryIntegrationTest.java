@@ -26,6 +26,8 @@ import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsExceptio
 import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import java.util.ArrayList;
+import java.util.Date;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Integration tests of ResourcesManager.
@@ -1034,6 +1036,243 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		int count = resourcesManager.getResourcesCount(sess);
 		assertTrue(count>0);
+	}
+
+	@Test
+	public void setBan() throws Exception {
+		System.out.println(CLASS_NAME + "setBan");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(new Date());
+
+		BanOnResource returnedBan = resourcesManager.setBan(sess, banOnResource);
+		banOnResource.setId(returnedBan.getId());
+		assertEquals(banOnResource, returnedBan);
+	}
+
+	@Test
+	public void getBanById() throws Exception {
+		System.out.println(CLASS_NAME + "getBanById");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(new Date());
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+
+		BanOnResource returnedBan = resourcesManager.getBanById(sess, banOnResource.getId());
+		assertEquals(banOnResource, returnedBan);
+	}
+
+	@Test
+	public void getBan() throws Exception {
+		System.out.println(CLASS_NAME + "getBan");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(new Date());
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+
+		BanOnResource returnedBan = resourcesManager.getBan(sess, banOnResource.getMemberId(), banOnResource.getResourceId());
+		assertEquals(banOnResource, returnedBan);
+	}
+
+	@Test
+	public void getBansForMember() throws Exception {
+		System.out.println(CLASS_NAME + "getBansForMember");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(new Date());
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+
+		List<BanOnResource> returnedBans = resourcesManager.getBansForMember(sess, banOnResource.getMemberId());
+		assertEquals(banOnResource, returnedBans.get(0));
+	}
+
+	@Test
+	public void getBansForResource() throws Exception {
+		System.out.println(CLASS_NAME + "getBansForResource");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(new Date());
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+
+		List<BanOnResource> returnedBans = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertEquals(banOnResource, returnedBans.get(0));
+	}
+
+	@Test
+	public void updateBan() throws Exception {
+		System.out.println(CLASS_NAME + "updateBan");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(new Date());
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+		banOnResource.setDescription("New description");
+		banOnResource.setValidityTo(new Date(banOnResource.getValidityTo().getTime() + 1000000));
+		resourcesManager.updateBan(sess, banOnResource);
+
+		BanOnResource returnedBan = resourcesManager.getBanById(sess, banOnResource.getId());
+		assertEquals(banOnResource, returnedBan);
+	}
+
+	@Test
+	public void removeBanById() throws Exception {
+		System.out.println(CLASS_NAME + "removeBan");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(new Date());
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+
+		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertTrue(bansOnResource.size() == 1);
+
+		perun.getResourcesManagerBl().removeBan(sess, banOnResource.getId());
+
+		bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertTrue(bansOnResource.isEmpty());
+	}
+
+	@Test
+	public void removeBan() throws Exception {
+		System.out.println(CLASS_NAME + "removeBan");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		banOnResource.setValidityTo(new Date());
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+
+		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertTrue(bansOnResource.size() == 1);
+
+		perun.getResourcesManagerBl().removeBan(sess, banOnResource.getMemberId(), banOnResource.getResourceId());
+
+		bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertTrue(bansOnResource.isEmpty());
+	}
+
+	@Test
+	public void removeExpiredBansIfExist() throws Exception {
+		System.out.println(CLASS_NAME + "removeExpiredBansIfExist");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		Date now = new Date();
+		Date yesterday = new Date(now.getTime() - (1000 * 60 * 60 * 24));
+		banOnResource.setValidityTo(yesterday);
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+
+		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertTrue(bansOnResource.size() == 1);
+
+		perun.getResourcesManagerBl().removeAllExpiredBansOnResources(sess);
+
+		bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertTrue(bansOnResource.isEmpty());
+	}
+
+	@Test
+	public void removeExpiredBansIfNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "removeExpiredBansIfNotExist");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setMemberId(member.getId());
+		banOnResource.setResourceId(resource.getId());
+		banOnResource.setDescription("Popisek");
+		Date now = new Date();
+		Date tommorow = new Date(now.getTime() + (1000 * 60 * 60 * 24));
+		banOnResource.setValidityTo(tommorow);
+		banOnResource = resourcesManager.setBan(sess, banOnResource);
+
+		List<BanOnResource> bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertTrue(bansOnResource.size() == 1);
+
+		perun.getResourcesManagerBl().removeAllExpiredBansOnResources(sess);
+
+		bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
+		assertTrue(bansOnResource.size() == 1);
 	}
 
 	// PRIVATE METHODS -----------------------------------------------------------

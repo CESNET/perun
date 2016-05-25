@@ -1091,6 +1091,34 @@ create table blacklists (
 	modified_by_uid integer
 );
 
+create table resources_bans (
+  id integer not null,
+  member_id integer not null,
+  resource_id integer not null,
+  description nvarchar2(1024),                                                                       
+  banned_to date not null,
+  created_at date default sysdate not null,
+  created_by nvarchar2(1024) default user not null,
+  modified_at date default sysdate not null,
+  modified_by nvarchar2(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
+create table facilities_bans (
+	id integer not null,
+  user_id integer not null,
+  facility_id integer not null,
+  description nvarchar2(1024),                                                                       
+  banned_to date not null,
+  created_at date default sysdate not null,
+  created_by nvarchar2(1024) default user not null,
+  modified_at date default sysdate not null,
+  modified_by nvarchar2(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28 nocache;
 create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28 nocache;
 create sequence AUDITER_LOG_ID_SEQ maxvalue 1.0000E+28 nocache;
@@ -1138,6 +1166,8 @@ create sequence ACTION_TYPES_SEQ maxvalue 1.0000E+28 nocache;
 create sequence RES_TAGS_SEQ maxvalue 1.0000E+28 nocache;
 create sequence MAILCHANGE_ID_SEQ maxvalue 1.0000E+28 nocache;
 create sequence PWDRESET_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence RESOURCES_BANS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence FACILITIES_BANS_ID_SEQ maxvalue 1.0000E+28 nocache;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1273,6 +1303,12 @@ create index IDX_FK_SEC_TEAM_FACS_SEC on security_teams_facilities (security_tea
 create index IDX_FK_SEC_TEAM_FACS_FAC on security_teams_facilities (facility_id);
 create index IDX_FK_BLLIST_USER on blacklists (user_id);
 create index IDX_FK_BLLIST_SECTEAM on blacklists (security_team_id);
+create index IDX_FK_RES_BAN_MEMBER on resources_bans (member_id);
+create index IDX_FK_RES_BAN_RES on resources_bans (resource_id);
+create index IDX_FK_RES_BAN_MEMBER_RES on resources_bans (member_id, resource_id);
+create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
+create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
+create index IDX_FK_FAC_BAN_USER_FAC on facilities_bans (user_id, facility_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
@@ -1534,6 +1570,20 @@ constraint BLLIST_SECTEAM_FK foreign key (security_team_id) references security_
 constraint BLLIST_USER_FK foreign key (user_id) references users(id)
 );
 
+alter table resources_bans add (
+constraint res_bans_pk primary key (id),
+constraint res_bans_u unique(member_id, resource_id),
+constraint res_bans_mem_fk foreign key (member_id) references members (id),
+constraint res_bans_res_fk foreign key (resource_id) references resources (id)
+);
+
+alter table facilities_bans add (
+constraint fac_bans_pk primary key (id),
+constraint fac_bans_u unique(user_id, facility_id),
+constraint fac_bans_usr_fk foreign key (user_id) references users (id),
+constraint fac_bans_fac_fk foreign key (facility_id) references facilities (id)
+);
+
 alter table authz add (
 constraint AUTHZ_ROLE_FK foreign key (role_id) references roles(id),
 constraint AUTHZ_USER_FK foreign key (user_id) references users(id),
@@ -1728,4 +1778,4 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.35');
+insert into configurations values ('DATABASE VERSION','3.1.36');

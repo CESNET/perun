@@ -67,6 +67,8 @@ public class AuditParser {
 				else if(p.getLeft().equals("ResourceTag")) perunBean = createResourceTag(p.getRight());
 				else if(p.getLeft().equals("ExecService")) perunBean = createExecService(p.getRight());
 				else if(p.getLeft().equals("SecurityTeam")) perunBean = createSecurityTeam(p.getRight());
+				else if(p.getLeft().equals("BanOnResource")) perunBean = createBanOnResource(p.getRight());
+				else if(p.getLeft().equals("BanOnFacility")) perunBean = createBanOnFacility(p.getRight());
 				else loger.debug("Object of this type can't be parsed cause there is no such object in parser's branches. ObjectName:" + p.getLeft());
 				if(perunBean != null) listPerunBeans.add(perunBean);
 			} catch (RuntimeException e) {
@@ -504,6 +506,34 @@ public class AuditParser {
 		securityTeam.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		securityTeam.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
 		return securityTeam;
+	}
+
+	private static Ban createBanOnResource(Map<String, String> beanAttr) {
+		if(beanAttr==null) return null;
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setId(Integer.valueOf(beanAttr.get("id")));
+		banOnResource.setMemberId(Integer.valueOf(beanAttr.get("memberId")));
+		banOnResource.setResourceId(Integer.valueOf(beanAttr.get("resourceId")));
+		banOnResource.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
+		Date validityTo;
+		if(beanAttr.get("validityTo").equals("\\0")) validityTo = null;
+		else validityTo = new Date(Long.valueOf(beanAttr.get("validityTo")));
+		banOnResource.setValidityTo(validityTo);
+		return banOnResource;
+	}
+
+	private static Ban createBanOnFacility(Map<String, String> beanAttr) {
+		if(beanAttr==null) return null;
+		BanOnFacility banOnFacility = new BanOnFacility();
+		banOnFacility.setId(Integer.valueOf(beanAttr.get("id")));
+		banOnFacility.setUserId(Integer.valueOf(beanAttr.get("userId")));
+		banOnFacility.setFacilityId(Integer.valueOf(beanAttr.get("facilityId")));
+		banOnFacility.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
+		Date validityTo;
+		if(beanAttr.get("validityTo").equals("\\0")) validityTo = null;
+		else validityTo = new Date(Long.valueOf(beanAttr.get("validityTo")));
+		banOnFacility.setValidityTo(validityTo);
+		return banOnFacility;
 	}
 
 	//--------------------------------------------------------------------------
