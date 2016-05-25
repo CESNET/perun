@@ -493,6 +493,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 							ues.getExtSource().setName("https://extidp.cesnet.cz/idp/shibboleth&authnContextClassRef=urn:cesnet:extidp:authn:"+type);
 						}
 						es.add(ues.getExtSource());
+					} else if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_KERBEROS)) {
+						es.add(ues.getExtSource());
 					}
 				}
 				identity.setIdentities(es);
