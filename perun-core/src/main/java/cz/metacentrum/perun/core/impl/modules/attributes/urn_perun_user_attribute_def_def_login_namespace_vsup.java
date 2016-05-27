@@ -72,7 +72,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 			String login = generator.generateLogin(user, new ModulesUtilsBlImpl.LoginGenerator.LoginGeneratorFunction() {
 				@Override
 				public String generateLogin(String firstName, String lastName) {
-					String login = firstName.substring(0, 1)+lastName.substring(0, (5 <= lastName.length()) ? 5 : lastName.length());
+					String login = firstName.substring(0, 1)+lastName.substring(0, (6 <= lastName.length()) ? 6 : lastName.length());
 					if (login.length()>20) {
 						login = login.substring(0, 20);
 					}
@@ -82,15 +82,15 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 
 			if (login == null) return filledAttribute;
 
-			// fill value
-			int iterator = 0;
-			while (iterator >= 0) {
-				if (iterator > 0) {
+			// fill value - start as login, login2, login3, ....
+			int iterator = 1;
+			while (iterator >= 1) {
+				if (iterator > 1) {
 					int iteratorLength = String.valueOf(iterator).length();
 					if (login.length() + iteratorLength > 20) {
 						// if login+iterator > 20 => crop login & reset iterator
 						login = login.substring(0, login.length()-1);
-						iterator = 0;
+						iterator = 1;
 						filledAttribute.setValue(login);
 					} else {
 						filledAttribute.setValue(login + iterator);
