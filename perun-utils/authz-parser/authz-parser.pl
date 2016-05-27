@@ -67,6 +67,18 @@ while(<>) {
                         }
 		}
         }          
+        
+	if (/^.*this\.([\w]+)\(([^\)]+)\).*$/) {
+		my $calledFunction = $1;
+                $pom=$2; #$2 string inside ()
+                $pom =~ s/\</\&lt\;/;
+                $pom =~ s/\>/\&gt\;/;
+                 
+                if (not $calledFunction =~ /Bl/) {
+                    $authorizations->{$methodName}->{"UNAUTHORIZED"} = $calledFunction."(".$pom.")";  
+		}        
+        }
+
 }
 
 #output
