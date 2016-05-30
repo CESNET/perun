@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.xml.sax.SAXParseException;
 
 
@@ -144,7 +145,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		return xpathParsing(queryForGroup, 0);
 	}
 	
-	private void prepareEnviroment() throws InternalErrorException {
+	protected void prepareEnviroment() throws InternalErrorException {
 		//Get file or uri of xml
 		file = (String) getAttributes().get("file");
 		if(file == null || file.isEmpty()) {
@@ -169,7 +170,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @return List of results, where result is Map<String,String> like <name, value>
 	 * @throws InternalErrorException 
 	 */
-	private List<Map<String,String>> xpathParsing(String query, int maxResults) throws InternalErrorException {
+	protected List<Map<String,String>> xpathParsing(String query, int maxResults) throws InternalErrorException {
 		//Prepare result list
 		List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
 		
@@ -247,7 +248,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @return Map<String,String> like <name,value>
 	 * @throws InternalErrorException 
 	 */
-	private Map<String, String> convertNodeToMap(Node node) throws InternalErrorException {
+	protected Map<String, String> convertNodeToMap(Node node) throws InternalErrorException {
 		Map<String,String> nodeInMap = new HashMap<String,String>();
 		//If node is empty, return null
 		if(node == null) return null;
@@ -286,7 +287,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @return string extracted from node by xpath
 	 * @throws InternalErrorException 
 	 */
-	private String getValueFromXpath(Node node, String xpathExpression) throws InternalErrorException {
+	protected String getValueFromXpath(Node node, String xpathExpression) throws InternalErrorException {
 		//Prepare xpath expression
 		XPathFactory xPathfactory = XPathFactory.newInstance();
 		XPath xpath = xPathfactory.newXPath();
@@ -320,7 +321,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * 
 	 * @throws InternalErrorException 
 	 */
-	private String extractValueByRegex(String value, String regex) throws InternalErrorException {
+	protected String extractValueByRegex(String value, String regex) throws InternalErrorException {
 		//trim value to erase newlines and spaces before and after value
 		value = value.trim();
 		//regex need to be separate to 2 parts (regex) and (replacement) separated by backslash - ex 'regex/replacement'
@@ -356,7 +357,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @throws IOException if there is some input/output error
 	 * @throws InternalErrorException if some variables are not correctly filled
 	 */
-	private InputStream createTwoWaySSLConnection(String uri) throws IOException, InternalErrorException {
+	protected InputStream createTwoWaySSLConnection(String uri) throws IOException, InternalErrorException {
 		if(uri == null || uri.isEmpty()) throw new InternalErrorException("Uri must be filled, can't be null or empty.");
 		
 		/*//KeyStore data
@@ -418,7 +419,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 *
 	 * @return string for xpath, if there is needed, concat is used, if not, string without concet in quotes is returned, empty string if nothing in query
 	 */
-	private String convertToXpathSearchString(String query) {
+	protected String convertToXpathSearchString(String query) {
 		//if query is empty or null, return empty string
 		if(query == null || query.isEmpty()) {
 			return new String();
@@ -479,6 +480,16 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	
 	public void close() throws InternalErrorException {
 		if(con != null) con.disconnect();
+	}
+
+	@JsonIgnore
+	public HttpURLConnection getCon() {
+		return con;
+	}
+
+	@JsonIgnore
+	public void setCon(HttpURLConnection con) {
+		this.con = con;
 	}
 
 	protected Map<String,String> getAttributes() {
