@@ -12,10 +12,8 @@ alter table resources_bans add ( constraint res_bans_pk primary key (id), constr
 alter table facilities_bans add ( constraint fac_bans_pk primary key (id), constraint fac_bans_u unique(user_id, facility_id), constraint fac_bans_usr_fk foreign key (user_id) references users (id), constraint fac_bans_fac_fk foreign key (facility_id) references facilities (id) );
 create index IDX_FK_RES_BAN_MEMBER on resources_bans (member_id);
 create index IDX_FK_RES_BAN_RES on resources_bans (resource_id);
-create index IDX_FK_RES_BAN_MEMBER_RES on resources_bans (member_id, resource_id);
 create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
 create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
-create index IDX_FK_FAC_BAN_USER_FAC on facilities_bans (user_id, facility_id);
 update configurations set value='3.1.36' where property='DATABASE VERSION';
 
 3.1.35

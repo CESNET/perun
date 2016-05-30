@@ -1305,10 +1305,8 @@ create index IDX_FK_BLLIST_USER on blacklists (user_id);
 create index IDX_FK_BLLIST_SECTEAM on blacklists (security_team_id);
 create index IDX_FK_RES_BAN_MEMBER on resources_bans (member_id);
 create index IDX_FK_RES_BAN_RES on resources_bans (resource_id);
-create index IDX_FK_RES_BAN_MEMBER_RES on resources_bans (member_id, resource_id);
 create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
 create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
-create index IDX_FK_FAC_BAN_USER_FAC on facilities_bans (user_id, facility_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
