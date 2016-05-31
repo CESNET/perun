@@ -753,11 +753,6 @@ public class ServicesManagerEntry implements ServicesManager {
 	public int getDestinationsCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getDestinationsCount");
-		}
-
 		return getServicesManagerBl().getDestinationsCount(sess);
 	}
 }

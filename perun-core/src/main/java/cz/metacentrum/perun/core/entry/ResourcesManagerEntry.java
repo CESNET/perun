@@ -518,11 +518,6 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	public int getResourcesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getResourcesCount");
-		}
-
 		return getResourcesManagerBl().getResourcesCount(sess);
 	}
 

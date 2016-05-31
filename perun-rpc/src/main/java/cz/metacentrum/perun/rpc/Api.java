@@ -475,6 +475,7 @@ public class Api extends HttpServlet {
 				perunStatistics.add("VOS: '" + caller.call("vosManager", "getVosCount", des) + "'");
 				perunStatistics.add("RESOURCES: '" + caller.call("resourcesManager", "getResourcesCount", des) + "'");
 				perunStatistics.add("GROUPS: '" + caller.call("groupsManager", "getGroupsCount", des) + "'");
+				perunStatistics.add("AUDITMESSAGES: '" + caller.call("auditMessagesManager", "getAuditerMessagesCount", des) + "'");
 				ser.write(perunStatistics);
 
 				out.close();

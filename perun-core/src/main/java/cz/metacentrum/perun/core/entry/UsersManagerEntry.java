@@ -1080,11 +1080,6 @@ public class UsersManagerEntry implements UsersManager {
 	public int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getUsersCount");
-		}
-
 		return getUsersManagerBl().getUsersCount(sess);
 	}
 

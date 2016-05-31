@@ -472,11 +472,6 @@ public class VosManagerEntry implements VosManager {
 	public int getVosCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getVosCount");
-		}
-
 		return vosManagerBl.getVosCount(sess);
 	}
 

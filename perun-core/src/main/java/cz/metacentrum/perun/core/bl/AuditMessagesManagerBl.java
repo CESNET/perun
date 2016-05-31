@@ -115,4 +115,13 @@ public interface AuditMessagesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void setLastProcessedId(String consumerName, int lastProcessedId) throws InternalErrorException;
+
+	/**
+	 * Get number of messages in auditer log.
+	 *
+	 * @param perunSession
+	 * @return number of messages in auditer log
+	 * @throws InternalErrorException
+	 */
+	int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException;
 }

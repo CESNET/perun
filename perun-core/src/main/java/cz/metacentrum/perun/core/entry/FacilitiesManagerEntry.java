@@ -155,11 +155,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getFacilitiesCount");
-		}
-
 		return getFacilitiesManagerBl().getFacilitiesCount(sess);
 	}
 
