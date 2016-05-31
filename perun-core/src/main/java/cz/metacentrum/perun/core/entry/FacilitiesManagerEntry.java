@@ -514,8 +514,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			}
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByHostname) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByHostname: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -524,8 +524,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			}
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByDestination) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByDestination: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -562,8 +562,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			}
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByHostname) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByHostname: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -572,8 +572,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			}
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByDestination) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByDestination: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -858,8 +858,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 		if(!facilitiesByHostname.isEmpty()) {
 			boolean hasRight = false;
-			for(Facility f: facilitiesByHostname) {
-				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+			for(Facility facilityByHostname: facilitiesByHostname) {
+				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname)) {
 					hasRight = true;
 					break;
 				}
@@ -868,8 +868,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 		if(!facilitiesByDestination.isEmpty()) {
 			boolean hasRight = false;
-			for(Facility f: facilitiesByDestination) {
-				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+			for(Facility facilityByDestination: facilitiesByDestination) {
+				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination)) {
 					hasRight = true;
 					break;
 				}
@@ -957,9 +957,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByHostName(sess, hostname);
 
 		if (!facilities.isEmpty()) {
-			Iterator<Facility> iterator = facilities.iterator();
-			while(iterator.hasNext()) {
-				if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, iterator.next())) iterator.remove();
+			Iterator<Facility> facilityByHostname = facilities.iterator();
+			while(facilityByHostname.hasNext()) {
+				if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname.next())) facilityByHostname.remove();
 			}
 		}
 
@@ -999,9 +999,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		if(contactGroups == null) return new ArrayList<>();
 
-		Iterator<ContactGroup> iter = contactGroups.iterator();
-		while(iter.hasNext()) {
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, iter.next().getFacility())) iter.remove();
+		Iterator<ContactGroup> facilityContactGroup = contactGroups.iterator();
+		while(facilityContactGroup.hasNext()) {
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityContactGroup.next().getFacility())) facilityContactGroup.remove();
 		}
 
 		return contactGroups;
@@ -1015,9 +1015,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		if(contactGroups == null) return new ArrayList<>();
 
-		Iterator<ContactGroup> iter = contactGroups.iterator();
-		while(iter.hasNext()) {
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, iter.next().getFacility())) iter.remove();
+		Iterator<ContactGroup> facilityContactGroup = contactGroups.iterator();
+		while(facilityContactGroup.hasNext()) {
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityContactGroup.next().getFacility())) facilityContactGroup.remove();
 		}
 
 		return contactGroups;
@@ -1031,9 +1031,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		if(contactGroups == null) return new ArrayList<>();
 
-		Iterator<ContactGroup> iter = contactGroups.iterator();
-		while(iter.hasNext()) {
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, iter.next().getFacility())) iter.remove();
+		Iterator<ContactGroup> facilityContactGroup = contactGroups.iterator();
+		while(facilityContactGroup.hasNext()) {
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityContactGroup.next().getFacility())) facilityContactGroup.remove();
 		}
 
 		return contactGroups;
@@ -1077,8 +1077,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Iterator<ContactGroup> iter = contactGroupsToAdd.iterator();
 		while(iter.hasNext()) {
-			ContactGroup cg = iter.next();
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, cg.getFacility())) {
+			ContactGroup contactGroupToAdd = iter.next();
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToAdd.getFacility())) {
 				iter.remove();
 				continue;
 			}
@@ -1108,9 +1108,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Iterator<ContactGroup> iter = contactGroupsToRemove.iterator();
 		while(iter.hasNext()) {
-			ContactGroup cg = iter.next();
+			ContactGroup contactGroupToRemove = iter.next();
 
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, cg.getFacility())) {
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToRemove.getFacility())) {
 				throw new PrivilegeException(sess, "removeFacilityContacts");
 			}
 

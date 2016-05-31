@@ -157,7 +157,7 @@ public class SecurityTeamsManagerEntry implements cz.metacentrum.perun.core.api.
 
 	@Override
 	public void deleteSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, RelationExistsException {
-		deleteSecurityTeam(sess, securityTeam, false);
+		this.deleteSecurityTeam(sess, securityTeam, false);
 	}
 
 	@Override

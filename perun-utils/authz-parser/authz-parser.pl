@@ -19,8 +19,7 @@ use Data::Dumper;
 my $methodName;
 my $authorizations;  #data structure
 
-#my @roles = ("PERUNADMIN", "VOADMIN", "GROUPADMIN", "SELF", "AUTHZRESOLVER", "FACILITYADMIN", "SERVICE");
-my @roles = ("VOADMIN", "GROUPADMIN", "SELF", "AUTHZRESOLVER", "FACILITYADMIN", "SERVICE");
+my @roles = ("UNAUTHORIZED","PERUNADMIN","VOADMIN","VOOBSERVER","GROUPADMIN", "FACILITYADMIN","SELF","SERVICE","REGISTRAR","RPC","ENGINE","SECURITYADMIN","AUTHZRESOLVER","TOPGROUPCREATOR","SPONSOR","SERVICEUSER");
 
 print htmlHeader();
 print tableHeader(@roles);
@@ -28,33 +27,71 @@ print tableHeader(@roles);
 while(<>) {
 
 	#line with method definition
-	if(/^\s*public\s+[^\s]+\s+(\w+\s*\(.*\)).*\{\s*$/) {  #this regex accept line with method
-		$methodName = $1;
+	#if(/^\s*public\s+[^\s]+\s+(\w+\s*\(.*\)).*\{\s*$/) {  #this regex accept line with method
+        if (/^\s*public([^\(]+)\(([^\)]+)\).*$/) {
+                @arr = reverse(split(/\s/,$1)); #last string before ( 
+                $pom=$2; #$2 string inside ()
+                $pom =~ s/\</\&lt\;/;
+                $pom =~ s/\>/\&gt\;/;
+		$methodName = $arr[0]."(".$pom.")";
+		$authorizations->{$methodName}->{"UNAUTHORIZED"} = 1;
 		next;
 	}
 
 
-	if(/AuthzResolver\.isAuthorized/) {
+	if(/AuthzResolver[\w]*\.isAuthorized/) {
 		#get roles and complementary objects and store them into $authorizations data structure
-		my @rolesAndObjects = ($_ =~ /AuthzResolver\.isAuthorized\(\w+,\s*Role\.([^\)]*)\)/g) ;
+		my @rolesAndObjects = ($_ =~ /AuthzResolver[\w]*\.isAuthorized\(\w+,\s*Role\.([^\)]*)\)/g) ;
 		foreach $roleAndObject (@rolesAndObjects) {
 			$roleAndObject =~ /^(\w+)(,\s*(\w+))?/;
 			my $role = $1;
 			my $complementaryObject = $3;
-
+#print "$methodName,ROLE:$role,$complementaryObject\n";
 			#store
-			$authorizations->{$methodName}->{$role} = $complementaryObject;
+                        if (defined ($authorizations->{$methodName}->{$role})) {
+                            if ($authorizations->{$methodName}->{$role} == 1) {
+                                if (defined($complementaryObject)) {
+                                    $authorizations->{$methodName}->{$role} = $complementaryObject;
+                                }
+                            } else {
+                                if (defined($complementaryObject)) {
+                                    $authorizations->{$methodName}->{$role}=$authorizations->{$methodName}->{$role}." & ".$complementaryObject;
+                                }
+                            }
+                        } else {
+                            if (defined($complementaryObject)) {
+                                $authorizations->{$methodName}->{$role} = $complementaryObject;
+                            } else {
+                                $authorizations->{$methodName}->{$role} = 1;
+                            }
+                        }
 		}
-	}
+        }          
+        
+	if (/^.*this\.([\w]+)\(([^\)]+)\).*$/) {
+		my $calledFunction = $1;
+                $pom=$2; #$2 string inside ()
+                $pom =~ s/\</\&lt\;/;
+                $pom =~ s/\>/\&gt\;/;
+                 
+                if (not $calledFunction =~ /Bl/) {
+                    $authorizations->{$methodName}->{"UNAUTHORIZED"} = $calledFunction."(".$pom.")";  
+		}        
+        }
+
 }
 
 #output
-foreach $methodName (keys %$authorizations) {
+foreach $methodName (sort keys %$authorizations) {
+        for my $role (@roles) {
+            if (defined($authorizations->{$methodName}->{$role}) and $role ne "UNAUTHORIZED") { $authorizations->{$methodName}->{"UNAUTHORIZED"} = undef;}
+        }
+             
 	print "<tr><td>$methodName</td>";
 	for my $role (@roles) {
-		if(defined $authorizations->{$methodName}->{$role}) {
+		if(defined($authorizations->{$methodName}->{$role})) {
 			print "<td class='ok'>OK";
-			print ": ",  $authorizations->{$methodName}->{$role};
+			if ($authorizations->{$methodName}->{$role} != 1) {print ": ",  $authorizations->{$methodName}->{$role};}
 			print "</td>";
 		} else {
 			print "<td class='nook'>--</td>";

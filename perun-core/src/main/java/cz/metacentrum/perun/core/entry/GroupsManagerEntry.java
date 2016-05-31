@@ -575,10 +575,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Check access rights for each group for GROUPADMIN
 		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.GROUPADMIN)) {
-			Iterator<Group> i = groups.iterator();
-			while (i.hasNext()) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, i.next())) {
-					i.remove();
+			Iterator<Group> eachGroup = groups.iterator();
+			while (eachGroup.hasNext()) {
+				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, eachGroup.next())) {
+					eachGroup.remove();
 				}
 			}
 			return groups;
@@ -612,10 +612,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Check access rights for each group for GROUPADMIN
 		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.GROUPADMIN)) {
-			Iterator<Group> i = groups.keySet().iterator();
-			while (i.hasNext()) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, i.next())) {
-					i.remove();
+			Iterator<Group> eachGroup = groups.keySet().iterator();
+			while (eachGroup.hasNext()) {
+				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, eachGroup.next())) {
+					eachGroup.remove();
 				}
 			}
 			return groups;
@@ -689,10 +689,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Check access rights for each group for GROUPADMIN
 		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.GROUPADMIN)) {
-			Iterator<Group> i = groups.iterator();
-			while (i.hasNext()) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, i.next())) {
-					i.remove();
+			Iterator<Group> eachGroup = groups.iterator();
+			while (eachGroup.hasNext()) {
+				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, eachGroup.next())) {
+					eachGroup.remove();
 				}
 			}
 			return groups;
@@ -934,10 +934,10 @@ public class GroupsManagerEntry implements GroupsManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
 			    && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
 			    && AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
-			Iterator<RichGroup> i = richGroups.iterator();
-			while (i.hasNext()) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, i.next())) {
-					i.remove();
+			Iterator<RichGroup> groupByName = richGroups.iterator();
+			while (groupByName.hasNext()) {
+				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, groupByName.next())) {
+					groupByName.remove();
 				}
 			}
 		}
@@ -961,10 +961,10 @@ public class GroupsManagerEntry implements GroupsManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
 				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
 				&& AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
-			Iterator<RichGroup> i = richGroups.iterator();
-			while (i.hasNext()) {
-				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, i.next())) {
-					i.remove();
+			Iterator<RichGroup> eachGroup = richGroups.iterator();
+			while (eachGroup.hasNext()) {
+				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, eachGroup.next())) {
+					eachGroup.remove();
 				}
 			}
 		}
