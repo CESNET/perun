@@ -111,29 +111,30 @@ public class EventProcessorImpl implements EventProcessor {
 			if(currentTask == null) {
 				// task.setSourceUpdated(false);
 				schedulingPool.addToPool(task);
-				if(task.isPropagationForced()) {
-					final Task ntask = task;
-					try {
-						taskExecutorEventProcessor.execute(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									taskScheduler.propagateService(ntask, new Date(
-											System.currentTimeMillis()));
-								} catch (InternalErrorException e) {
-									log.error(e.toString());
-								}
-							}
-						});
-					} catch(Exception e) {
-						log.error("Error queuing task to executor: " + e.toString());
-					}
-				}
+				currentTask = task;
 			} else {
 				// currentTask.setSourceUpdated(true);
 				log.debug("Resetting current task destination list to {}", task.getDestinations());
 				currentTask.setDestinations(task.getDestinations());
 				currentTask.setPropagationForced(task.isPropagationForced());
+			}
+			if(currentTask.isPropagationForced()) {
+				final Task ntask = currentTask;
+				try {
+					taskExecutorEventProcessor.execute(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								taskScheduler.propagateService(ntask, new Date(
+										System.currentTimeMillis()));
+							} catch (InternalErrorException e) {
+								log.error(e.toString());
+							}
+						}
+					});
+				} catch(Exception e) {
+					log.error("Error queuing task to executor: " + e.toString());
+				}
 			}
 		}
 		log.debug("POOL SIZE:" + schedulingPool.getSize());

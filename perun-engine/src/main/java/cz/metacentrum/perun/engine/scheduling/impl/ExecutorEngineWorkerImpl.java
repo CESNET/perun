@@ -30,8 +30,6 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 	private final static Logger log = LoggerFactory.getLogger(ExecutorEngineWorkerImpl.class);
 
 	private TaskResultListener resultListener;
-	@Autowired
-	private TaskResultDao taskResultDao;
 	private Task task;
 	private Facility facility;
 	private ExecService execService;
@@ -93,6 +91,9 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 					resultListener.onTaskDestinationError(task, destination, null);
 				} else {
 					resultListener.onTaskDestinationDone(task, destination, null);
+					log.info("GEN task completed. Ret code " + returnCode
+							+ ". STDOUT: {}  STDERR: {}. Task: " + task.getId(),
+							stdout, stderr);
 				}
 
 			} catch (IOException e) {
@@ -146,9 +147,9 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				taskResult.setReturnCode(returnCode);
 				taskResult.setStatus(returnCode == 0 ? TaskResultStatus.DONE : TaskResultStatus.ERROR);
 				taskResult.setTimestamp(new Date(System.currentTimeMillis()));
-
+				taskResult.setService(execService.getService());
+				
 				task.setEndTime(new Date(System.currentTimeMillis()));
-				taskResultDao.insertNewTaskResult(taskResult, getEngineId());
 				if (taskResult.getStatus().equals(TaskResultStatus.ERROR)) {
 					resultListener.onTaskDestinationError(task, destination,
 							taskResult);
@@ -178,12 +179,9 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				taskResult.setDestinationId(destination.getId());
 				taskResult.setStatus(TaskResultStatus.ERROR);
 				taskResult.setTimestamp(new Date(System.currentTimeMillis()));
+				taskResult.setService(execService.getService());
+
 				resultListener.onTaskDestinationError(task, destination, taskResult);
-				try {
-					taskResultDao.insertNewTaskResult(taskResult, getEngineId());
-				} catch (InternalErrorException e1) {
-					log.error(e.toString(), e);
-				}
 			} finally {
 				String ret = returnCode == -1 ? "unknown" : String.valueOf(returnCode);
 
@@ -192,14 +190,6 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 		} else {
 			throw new IllegalArgumentException("Expected ExecService type is SEND or GENERATE.");
 		}
-	}
-
-	public TaskResultDao getTaskResultDao() {
-		return taskResultDao;
-	}
-
-	public void setTaskResultDao(TaskResultDao taskResultDao) {
-		this.taskResultDao = taskResultDao;
 	}
 
 	public Task getTask() {

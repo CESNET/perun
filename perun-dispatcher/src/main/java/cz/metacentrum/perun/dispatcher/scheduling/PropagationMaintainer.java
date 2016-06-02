@@ -24,4 +24,6 @@ public interface PropagationMaintainer {
 
 	void onTaskComplete(int parseInt, int clientID, String status, String string);
 
+	void onTaskDestinationComplete(int clientID, String string);
+
 }

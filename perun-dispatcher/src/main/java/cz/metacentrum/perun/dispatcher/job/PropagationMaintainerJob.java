@@ -35,6 +35,6 @@ public class PropagationMaintainerJob extends QuartzJobBean {
 			throws JobExecutionException {
 		log.info("Entering PropagationMaintainerJob: propagationMaintainer.checkResults().");
 		propagationMaintainer.checkResults();
-		log.info("PropagationMaintainerJob: propagationMaintainer.checkResults() has completed.");
+		log.info("PropagationMaintainerJob done: propagationMaintainer.checkResults() has completed.");
 	}
 }

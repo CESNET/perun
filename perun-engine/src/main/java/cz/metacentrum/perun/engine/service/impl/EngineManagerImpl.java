@@ -28,11 +28,7 @@ public class EngineManagerImpl implements EngineManager {
 	@Autowired
 	private JMSQueueManager jmsQueueManager;
 	@Autowired
-	private Properties propertiesBean;
-	@Autowired
 	private SchedulingPool schedulingPool;
-	@Autowired
-	private TaskManager taskManager;
 
 	@Override
 	public void startMessaging() {
@@ -49,22 +45,15 @@ public class EngineManagerImpl implements EngineManager {
 		return jmsQueueManager;
 	}
 
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
-	}
-
-	public Properties getPropertiesBean() {
-		return propertiesBean;
-	}
-
 	@Override
+	@Deprecated
 	public void loadSchedulingPool() {
-
-		log.info("Loading last state of Tasks from local DB.");
-		// reload all tasks from local DB into pool
-		schedulingPool.reloadTasks(0);
-		log.info("Loading last state of Tasks from local DB is done. Pool contains " + schedulingPool.getSize() + " tasks.");
-
+		/*
+		 * log.info("Loading last state of Tasks from local DB.");
+		 * // reload all tasks from local DB into pool
+		 * schedulingPool.reloadTasks(0);
+		 * log.info("Loading last state of Tasks from local DB is done. Pool contains " + schedulingPool.getSize() + " tasks.");
+		 */
 	}
 
 	@Override
@@ -117,12 +106,5 @@ public class EngineManagerImpl implements EngineManager {
 		this.schedulingPool = schedulingPool;
 	}
 
-	public TaskManager getTaskManager() {
-		return taskManager;
-	}
-
-	public void setTaskManager(TaskManager taskManager) {
-		this.taskManager = taskManager;
-	}
 
 }

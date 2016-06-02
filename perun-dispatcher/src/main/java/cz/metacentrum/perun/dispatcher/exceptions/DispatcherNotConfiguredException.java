@@ -1,11 +1,13 @@
-package cz.metacentrum.perun.engine.exceptions;
+package cz.metacentrum.perun.dispatcher.exceptions;
+
+import cz.metacentrum.perun.dispatcher.exceptions.DispatcherException;
 
 /**
  * Checked version of DispatcherNotConfiguredException.
  * 
  * @author Michal Karm Babacek
  */
-public class DispatcherNotConfiguredException extends EngineException {
+public class DispatcherNotConfiguredException extends DispatcherException {
 
 	private static final long serialVersionUID = 1L;
 

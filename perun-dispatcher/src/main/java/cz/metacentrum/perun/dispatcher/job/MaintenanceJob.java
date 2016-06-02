@@ -26,6 +26,7 @@ public class MaintenanceJob extends QuartzJobBean {
 			throws JobExecutionException {
 		log.debug("Entering MaintenanceJob...");
 		schedulingPool.checkTasksDb();
+		log.debug("MaintenanceJob done.");
 	}
 
 	public SchedulingPool getSchedulingPool() {

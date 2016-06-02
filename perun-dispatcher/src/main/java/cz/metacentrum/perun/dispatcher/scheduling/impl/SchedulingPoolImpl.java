@@ -54,7 +54,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public int addToPool(Task task, DispatcherQueue dispatcherQueue)
 			throws InternalErrorException {
+		int engineId = (dispatcherQueue == null) ? -1 : dispatcherQueue.getClientID();
 		if (task.getId() == 0) {
+			
 			// this task was created new, so we have to check the
 			// ExecService,Facility pair
 			synchronized (tasksByServiceAndFacility) {
@@ -64,7 +66,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 						task.setStatus(TaskStatus.NONE);
 					}
 					try {
-						int id = taskManager.scheduleNewTask(task, dispatcherQueue.getClientID());
+						int id = taskManager.scheduleNewTask(task, engineId);
 						task.setId(id);
 					} catch (InternalErrorException e) {
 						log.error("Error storing task " + task
@@ -111,13 +113,11 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				}
 			}
 			try {
-				Task existingTask = taskManager.getTaskById(task.getId(),
-						dispatcherQueue.getClientID());
+				Task existingTask = taskManager.getTaskById(task.getId());
 				if (existingTask == null) {
-					taskManager.scheduleNewTask(task,
-							dispatcherQueue.getClientID());
+					taskManager.scheduleNewTask(task, engineId);
 				} else {
-					taskManager.updateTask(task, dispatcherQueue.getClientID());
+					taskManager.updateTask(task);
 				}
 			} catch (InternalErrorException e) {
 				log.error("Error storing task " + task + " into database: "
@@ -146,8 +146,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			tasksByServiceAndFacility.remove(new Pair<Integer, Integer>(task.getExecServiceId(),
 					task.getFacilityId()));
 		}
-		taskManager.removeTask(task.getId(), val.getRight().getClientID());
-
+		taskManager.removeTask(task.getId());
 	}
 
 	@Override
@@ -192,7 +191,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	public List<Task> getTasksForEngine(int clientID) {
 		List<Task> result = new ArrayList<Task>();
 		for (Pair<Task, DispatcherQueue> value : tasksById.values()) {
-			if (clientID == value.getRight().getClientID()) {
+			if (value.getRight() != null && clientID == value.getRight().getClientID()) {
 				result.add(value.getLeft());
 			}
 		}
@@ -271,11 +270,11 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if (!pool.get(task.getStatus()).contains(task.getId())) {
 				pool.get(task.getStatus()).add(task);
 			}
+			DispatcherQueue queue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight()); 
 			// XXX should this be synchronized too?
 			tasksById.put(
 					task.getId(),
-					new Pair<Task, DispatcherQueue>(task, dispatcherQueuePool
-							.getDispatcherQueueByClient(pair.getRight())));
+					new Pair<Task, DispatcherQueue>(task, queue));
 			tasksByServiceAndFacility.put(
 					new Pair<Integer, Integer>(task.getExecServiceId(), 
 								task.getFacilityId()), task);
@@ -290,8 +289,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	@Override
-	public void setQueueForTask(Task task, DispatcherQueue queueForTask) {
-		tasksById.get(task.getId()).put(task, queueForTask);
+	public void setQueueForTask(Task task, DispatcherQueue queueForTask) throws InternalErrorException {
+		Pair<Task, DispatcherQueue> pair = tasksById.get(task.getId());
+		if(pair == null) {
+			throw new InternalErrorException("no task by that id");
+		} else {
+			tasksById.get(task.getId()).put(task, queueForTask);
+		}
 	}
 
 	@Override
@@ -309,7 +313,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			log.debug("  checking task " + task.toString());
 			if(taskQueue == null) {
 				log.warn("  there is no task queue for client " + pair.getRight());
-				continue;
+				// continue;
 			}
 			synchronized (tasksById) {
 				Pair<Task, DispatcherQueue> local_pair = tasksById.get(task.getId());

@@ -1,9 +1,12 @@
 package cz.metacentrum.perun.taskslib.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Destination;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Service;
 
 /**
@@ -11,7 +14,12 @@ import cz.metacentrum.perun.core.api.Service;
  * @author Michal Karm Babacek JavaDoc coming soon...
  *
  */
-public class TaskResult {
+public class TaskResult extends PerunBean implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5656828750714418582L;
 
 	public static enum TaskResultStatus {
 		DONE, ERROR, FATAL_ERROR, DENIED, WARN
@@ -79,9 +87,31 @@ public class TaskResult {
 	}
 
 	@Override
+	public String serializeToString() {
+		StringBuilder str = new StringBuilder();
+
+		String dateString;
+		if(timestamp != null) dateString = BeansUtils.getDateFormatter().format(timestamp);
+		else dateString = "\\0";
+
+		return str.append(this.getClass().getSimpleName()).append(":[").append(
+			"id=<").append(getId()).append(">").append(
+			", taskId=<").append(taskId).append(">").append(
+			", destinationId=<").append(destinationId).append(">").append(
+			", errorMessage=<").append(errorMessage== null ? "\\0" : BeansUtils.createEscaping(errorMessage.toString())).append(">").append(
+			", standardMessage=<").append(standardMessage== null ? "\\0" : BeansUtils.createEscaping(standardMessage.toString())).append(">").append(
+			", returnCode=<").append(returnCode).append(">").append(
+			", timestamp=<").append(dateString).append(">").append(
+			", status=<").append(status == null ? "\\0" : BeansUtils.createEscaping(status.toString())).append(">").append(
+			", service=<").append(service == null ? "\\0" : service.serializeToString()).append(">").append(
+			']').toString();
+	}
+
+	@Override
 	public String toString() {
-		return "TaskResult [id=" + id + ", taskId=" + taskId + ", destinationId=" + destinationId + ", errorMessage=" + errorMessage + ", standardMessage=" + standardMessage + ", returnCode="
-			+ returnCode + ", timestamp=" + timestamp + ", status=" + status + ", service=" + service + "]";
+		return "TaskResult:[id='" + id + "', taskId='" + taskId + "', destinationId='" + destinationId + "', errorMessage='" + errorMessage + "', "
+				+ "standardMessage='" + standardMessage + "', returnCode='"
+			+ returnCode + "', timestamp='" + BeansUtils.getDateFormatter().format(timestamp) + "', status='" + status + "', service='" + service + "']";
 	}
 
 	public int getTaskId() {
