@@ -8,38 +8,49 @@ use Perun::Agent;
 use Perun::Common qw(printMessage getSortingFunction tableToPrint);
 
 
+# je potreba udelat obecne tak, aby uzivatel mohl zadavat atributy, ktere chce videt, formou u:d:Organization atp.
+
 sub help {
 	return qq{
-	Prints list of group members. Group is required field. Group can by specified by it's ID or by both it's name and VO.
+	Prints list of group members and values of selected attributes. Group is required field. Group can by specified by it's ID or by both it's name and VO.
 	---------------------------------
 	Available options:
 	--groupId      | -g  Group identifier
 	--groupName    | -G  Group name
 	--voId         | -v  VO idetifier
 	--voShortName  | -V  VO short name
+        --attrList     | -a  list of attributes to print *)
 	--orderByName  | -n  order by member's name
 	--batch        | -b  batch
 	--help         | -h  prints this help
 
+        *) names of attributes are required in short form like
+           u:d:organization = urn:perun:user:attribute-def:def:organization,
+           m:d:organization = urn:perun:member:attribute-def:def:organization
+           u:d:preferredMail = urn:perun:user:attribute-def:def:preferredMail
+           ...
+           default value -a u:d:preferredMail m:d:organization
 	};
 }
 
 our $batch;
-my ($groupId, $groupName, $voId, $voShortName, $sortingFunction);
+my ($groupId, $groupName, $voId, $voShortName, $sortingFunction, @attributes);
 GetOptions("help|h" => sub { print help; exit 0;} ,
 "groupId|g=i" => \$groupId,
 "groupName|G=s" => \$groupName,
 "voId|v=i" => \$voId,
 "voShortName|V=s" => \$voShortName,
+'attrList|am=s@{1,}' => \@attributes,
 "orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName",1) },
 "batch|b" => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $groupsAgent = $agent->getGroupsAgent;
 my $attributesAgent = $agent->getAttributesAgent;
+my $membersAgent = $agent->getMembersAgent;
 
 #options check
-	 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName",1); }
+unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName",1); }
 unless(defined $groupId) {
     unless(defined $groupName) { die "ERROR: Group specification required.\n"; }
     unless(defined $voId) {
@@ -51,23 +62,54 @@ unless(defined $groupId) {
     $groupId = $group->getId;
 }
 
-my @richMembers = $groupsAgent->getGroupRichMembers(group => $groupId, pageSize => 0, pageNum => 0);
+my @statuses = ();
+my $parentGroup=0;
+my @attrs;
+my %attrShort;
+my %entities = ("u"=>"user","m"=>"member");
+my %types = ("d"=>"def","o"=>"opt","v"=>"virt","c"=>"core");
+
+unless(@attributes) {
+    @attributes=("u:d:preferredMail","m:d:organization");
+}
+foreach my $attr (@attributes) {
+    my $attrName="urn:perun:";
+    if ($attr =~ /^(\w)\:(\w)\:(\w+)$/) {
+        $attrName=$attrName.$entities{$1}.":attribute-def:".$types{$2}.":".$3;
+        push (@attrs,$attrName);
+        $attrShort{$attr}=$attrName;
+    } else {    
+        printMessage "Wrong attribute name:$attr", $batch;
+    }
+}
+
+my @richMembers = $membersAgent->getCompleteRichMembers(group => $groupId, attrsNames => [values %attrShort], allowedStatuses => \@statuses, lookingInParentGroup => $parentGroup);
 unless(@richMembers) { printMessage "No member found", $batch; exit 0; }
 
 #output
-my $table = Text::ASCIITable->new();
-$table->setCols('Name', 'e-mail' );
+my $table = Text::ASCIITable->new({utf8=>0});
+#my $table = Text::ASCIITable->new();
+
+$table->setCols('Name', sort keys(%attrShort));
 
 foreach my $richMember (sort $sortingFunction @richMembers) {
-        my @attributes=$attributesAgent->getAttributes(user => $richMember->getUserId);
-        unless (@attributes) { printMessage "No attrs found",$batch; exit 0; }
-        my $email;
-        foreach my $attribute (@attributes) {
-            if ($attribute->getId == 1361) {
-                $email=$attribute->getValueAsScalar;
-            } 
-        }                
-        $table->addRow($richMember->getDisplayName, $email);
+        my @uattributes = $richMember->getUserAttributes;
+        my @mattributes = $richMember->getMemberAttributes; 
+        my @dispAtt;
+        
+        foreach my $shnam (sort keys (%attrShort)) {
+            foreach my $ua (@uattributes) {
+                if ($attrShort{$shnam} eq $ua->getName) {
+                    push (@dispAtt,$ua->getValue);
+                }
+            }      
+            foreach my $ma (@mattributes) {
+                if ($attrShort{$shnam} eq $ma->getName) {
+                    push (@dispAtt,$ma->getValue);
+                }
+            }      
+        }
+        $table->addRow($richMember->getDisplayName,@dispAtt);
 }
 
 print tableToPrint($table, $batch);
