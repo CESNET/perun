@@ -56,6 +56,10 @@ sub getLastName {
        return $str;
 }
 
+sub getStatus {
+        return shift->{_status};
+}
+
 sub getCommonName {
 	my $user = shift->{_user};
 
@@ -78,10 +82,6 @@ sub getDisplayName {
 	$str .= $user->{titleAfter}        if defined $user->{titleAfter};
 
 	return $str;
-}
-
-sub getStatus {
-    return shift->{_status};
 }
 
 sub getCommonArrayRepresentation {
