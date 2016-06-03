@@ -57,8 +57,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
 		registrarSession = perun.getPerunSession(pp);
 
-		// cache expires after 3 minutes from creation
-		requestCache = ExpiringMap.builder().expiration(3, TimeUnit.MINUTES).expirationPolicy(ExpiringMap.ExpirationPolicy.CREATED).build();
+		// cache expires after 5 minutes from creation
+		requestCache = ExpiringMap.builder().expiration(5, TimeUnit.MINUTES).expirationPolicy(ExpiringMap.ExpirationPolicy.CREATED).build();
 
 	}
 
