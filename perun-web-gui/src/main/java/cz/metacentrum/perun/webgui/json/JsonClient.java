@@ -207,7 +207,7 @@ public class JsonClient {
 									// 5 minute timeout
 
 									error.setName("Request Timeout");
-									error.setErrorInfo("Your operation is still processing on server. Please refresh your view (table) to see, if it ended up successfully before trying again.");
+									error.setErrorInfo("Your request couldn't be handled within 5 minutes. Please refresh your view (table) to try it again.");
 
 								} else {
 
