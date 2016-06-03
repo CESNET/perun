@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -31,6 +32,7 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
@@ -43,6 +45,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
+import java.sql.Date;
 import java.util.Map;
 
 /**
@@ -64,6 +67,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	protected final static String resourceTagMappingSelectQuery = "res_tags.id as res_tags_id, res_tags.vo_id as res_tags_vo_id, res_tags.tag_name as res_tags_tag_name, " +
 		"res_tags.created_at as res_tags_created_at, res_tags.created_by as res_tags_created_by, res_tags.modified_by as res_tags_modified_by, " +
 		"res_tags.modified_at as res_tags_modified_at, res_tags.modified_by_uid as res_tags_modified_by_uid, res_tags.created_by_uid as res_tags_created_by_uid";
+
+	protected final static String banOnResourceMappingSelectQuery = "resources_bans.id as res_bans_id, resources_bans.description as res_bans_description, " +
+		"resources_bans.member_id as res_bans_member_id, resources_bans.resource_id as res_bans_resource_id, resources_bans.banned_to as res_bans_validity_to, " +
+		"resources_bans.created_at as res_bans_created_at, resources_bans.created_by as res_bans_created_by, resources_bans.modified_at as res_bans_modified_at, " +
+		"resources_bans.modified_by as res_bans_modified_by, resources_bans.created_by_uid as res_bans_created_by_uid, resources_bans.modified_by_uid as res_bans_modified_by_uid";
 
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -113,6 +121,26 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			richResource.setVo(VosManagerImpl.VO_MAPPER.mapRow(rs, i));
 			richResource.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(rs, i));
 			return richResource;
+		}
+	};
+
+	protected static final RowMapper<BanOnResource> BAN_ON_RESOURCE_MAPPER = new RowMapper<BanOnResource>() {
+		public BanOnResource mapRow(ResultSet rs, int i) throws SQLException {
+			BanOnResource banOnResource = new BanOnResource();
+			banOnResource.setId(rs.getInt("res_bans_id"));
+			banOnResource.setMemberId(rs.getInt("res_bans_member_id"));
+			banOnResource.setResourceId(rs.getInt("res_bans_resource_id"));
+			banOnResource.setDescription(rs.getString("res_bans_description"));
+			banOnResource.setValidityTo(rs.getTimestamp("res_bans_validity_to"));
+			banOnResource.setCreatedAt(rs.getString("res_bans_created_at"));
+			banOnResource.setCreatedBy(rs.getString("res_bans_created_by"));
+			banOnResource.setModifiedAt(rs.getString("res_bans_modified_at"));
+			banOnResource.setModifiedBy(rs.getString("res_bans_modified_by"));
+			if(rs.getInt("res_bans_modified_by_uid") == 0) banOnResource.setModifiedByUid(null);
+			else banOnResource.setModifiedByUid(rs.getInt("res_bans_modified_by_uid"));
+			if(rs.getInt("res_bans_created_by_uid") == 0) banOnResource.setCreatedByUid(null);
+			else banOnResource.setCreatedByUid(rs.getInt("res_bans_created_by_uid"));
+			return banOnResource;
 		}
 	};
 
@@ -715,6 +743,126 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 	public int getResourcesCount(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.queryForInt("select count(*) from resources");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public boolean banExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from resources_bans where id=?", banId);
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException {
+		Utils.notNull(banOnResource.getValidityTo(), "banOnResource.getValidityTo");
+
+		try {
+			int newId = Utils.getNewId(jdbc, "resources_bans_id_seq");
+
+			jdbc.update("insert into resources_bans(id, description, banned_to, member_id, resource_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
+					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+					newId, banOnResource.getDescription(), Compatibility.getDate(banOnResource.getValidityTo().getTime()), banOnResource.getMemberId(), banOnResource.getResourceId(), sess.getPerunPrincipal().getActor(),
+					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+
+			banOnResource.setId(newId);
+
+			return banOnResource;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + banOnResourceMappingSelectQuery + " from resources_bans where id=? ", BAN_ON_RESOURCE_MAPPER, banId);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new BanNotExistsException("Ban with id " + banId + " not exists for any facility.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + banOnResourceMappingSelectQuery + " from resources_bans where member_id=? and resource_id=?", BAN_ON_RESOURCE_MAPPER, memberId, resourceId);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new BanNotExistsException("Ban for user " + memberId + " and resource " + resourceId + " not exists.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where member_id=?", BAN_ON_RESOURCE_MAPPER, memberId);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where resource_id=?", BAN_ON_RESOURCE_MAPPER, resourceId);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnResourceMappingSelectQuery + " from resources_bans where banned_to < " + Compatibility.getSysdate(), BAN_ON_RESOURCE_MAPPER);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException {
+		try {
+			jdbc.update("update resources_bans set description=?, banned_to=?, modified_by=?, modified_by_uid=?, modified_at=" +
+							Compatibility.getSysdate() + " where id=?",
+							banOnResource.getDescription(), Compatibility.getDate(banOnResource.getValidityTo().getTime()), sess.getPerunPrincipal().getActor(),
+							sess.getPerunPrincipal().getUserId(), banOnResource.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+
+		return banOnResource;
+	}
+
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		try {
+			int numAffected = jdbc.update("delete from resources_bans where id=?", banId);
+			if(numAffected != 1) throw new BanNotExistsException("Ban with id " + banId + " can't be remove, because not exists yet.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException {
+		try {
+			int numAffected = jdbc.update("delete from resources_bans where member_id=? and resource_id=?", memberId, resourceId);
+			if(numAffected != 1) throw new BanNotExistsException("Ban for member " + memberId + " and resource " + resourceId + " can't be remove, because not exists yet.");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

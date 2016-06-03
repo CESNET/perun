@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+import cz.metacentrum.perun.core.api.BanOnResource;
 
 public enum ResourcesManagerMethod implements ManagerMethod {
 
@@ -771,6 +773,139 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			return ac.getResourcesManager().getAssignedServices(ac.getSession(),
 					ac.getResourceById(parms.readInt("resource")));
 
+		}
+	},
+
+	/*#
+	 *  Set ban for member on resource.
+	 *
+	 * @param banOnResource BanOnResource JSON object
+	 * @return BanOnResource Created banOnResource
+	 */
+	setBan {
+
+		@Override
+		public BanOnResource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getResourcesManager().setBan(ac.getSession(),
+					parms.read("banOnResource", BanOnResource.class));
+
+		}
+	},
+
+	/*#
+	 *  Get Ban for member on resource by it's id.
+	 *
+	 * @param banId int BanOnResource <code>id</code>
+	 * @return BanOnResource banOnResource
+	 */
+	getBanById {
+
+		@Override
+		public BanOnResource call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getResourcesManager().getBanById(ac.getSession(),
+					parms.readInt("banId"));
+
+		}
+	},
+
+	/*#
+	 *  Get ban by memberId and resource id.
+	 *
+	 * @param memberId int Member <code>id</code>
+	 * @param resourceId int Resource <code>id</code>
+	 * @return BanOnResource banOnResource
+	 */
+	getBan {
+
+		@Override
+		public BanOnResource call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getResourcesManager().getBan(ac.getSession(),
+					parms.readInt("memberId"), parms.readInt("resourceId"));
+
+		}
+	},
+
+	/*#
+	 * Get all bans for member on any resource.
+	 *
+	 * @param memberId int Member <code>id</code>
+	 * @return List<BanOnResource> memberBansOnResources
+	 */
+	getBansForMember {
+
+		@Override
+		public List<BanOnResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getResourcesManager().getBansForMember(ac.getSession(),
+					parms.readInt("memberId"));
+
+		}
+	},
+
+	/*#
+	 * Get all bans for members on the resource.
+	 *
+	 * @param resourceId int Resource <code>id</code>
+	 * @return List<BanOnResource> membersBansOnResource
+	 */
+	getBansForResource {
+
+		@Override
+		public List<BanOnResource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getResourcesManager().getBansForResource(ac.getSession(),
+					parms.readInt("resourceId"));
+
+		}
+	},
+
+	/*#
+	 * Update existing ban (description, validation timestamp)
+	 *
+	 * @param banOnResource BanOnResource JSON object
+	 * @return BanOnResource updated banOnResource
+	 */
+	updateBan {
+
+		@Override
+		public BanOnResource call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			
+			return ac.getResourcesManager().updateBan(ac.getSession(),
+					ac.getBanOnResource(parms.readInt("banOnResource")));
+
+		}
+	},
+
+	/*#
+	 * Remove specific ban by it's id.
+	 *
+	 * @param banId int BanOnResource <code>id</code>
+	 */
+	/*#
+	 * Remove specific ban by memberId and resourceId.
+	 *
+	 * @param memberId int Member <code>id</code>
+	 * @param resourceId int Resource <code>id</code>
+	 */
+	removeBan {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			if(parms.contains("banId")) {
+				ac.getResourcesManager().removeBan(ac.getSession(),
+					parms.readInt("banId"));
+			} else {
+				ac.getResourcesManager().removeBan(ac.getSession(),
+					parms.readInt("memberId"), parms.readInt("resourceId"));
+			}
+			return null;
 		}
 	};
 }

@@ -1052,5 +1052,138 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 					ac.getSecurityTeamById(parms.readInt("securityTeam")));
 			return null;
 		}
+	},
+
+	/*#
+	 *  Set ban for user on facility.
+	 *
+	 * @param banOnFacility BanOnFacility JSON object
+	 * @return BanOnFacility Created banOnFacility
+	 */
+	setBan {
+
+		@Override
+		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getFacilitiesManager().setBan(ac.getSession(),
+					parms.read("banOnFacility", BanOnFacility.class));
+
+		}
+	},
+
+	/*#
+	 *  Get Ban for user on facility by it's id.
+	 *
+	 * @param banId int BanOnFacility <code>id</code>
+	 * @return BanOnFacility banOnFacility
+	 */
+	getBanById {
+
+		@Override
+		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getBanById(ac.getSession(),
+					parms.readInt("banId"));
+
+		}
+	},
+
+	/*#
+	 *  Get ban by userId and facilityId.
+	 *
+	 * @param userId int User <code>id</code>
+	 * @param facilityId int Facility <code>id</code>
+	 * @return BanOnFacility banOnFacility
+	 */
+	getBan {
+
+		@Override
+		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getBan(ac.getSession(),
+					parms.readInt("userId"), parms.readInt("facilityId"));
+
+		}
+	},
+
+	/*#
+	 * Get all bans for user on any facility.
+	 *
+	 * @param userId int User <code>id</code>
+	 * @return List<BanOnFacility> userBansOnFacilities
+	 */
+	getBansForUser {
+
+		@Override
+		public List<BanOnFacility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getBansForUser(ac.getSession(),
+					parms.readInt("userId"));
+
+		}
+	},
+
+	/*#
+	 * Get all bans for user on the facility.
+	 *
+	 * @param facilityId int Facility <code>id</code>
+	 * @return List<BanOnFacility> usersBansOnFacility
+	 */
+	getBansForFacility {
+
+		@Override
+		public List<BanOnFacility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getBansForFacility(ac.getSession(),
+					parms.readInt("facilityId"));
+
+		}
+	},
+
+	/*#
+	 * Update existing ban (description, validation timestamp)
+	 *
+	 * @param banOnFacility BanOnFacility JSON object
+	 * @return BanOnFacility updated banOnFacility
+	 */
+	updateBan {
+
+		@Override
+		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getFacilitiesManager().updateBan(ac.getSession(),
+					ac.getBanOnFacility(parms.readInt("banOnFacility")));
+
+		}
+	},
+
+	/*#
+	 * Remove specific ban by it's id.
+	 *
+	 * @param banId int BanOnFacility <code>id</code>
+	 */
+	/*#
+	 * Remove specific ban by userId and facilityId.
+	 *
+	 * @param userId int User <code>id</code>
+	 * @param facilityId int Facility <code>id</code>
+	 */
+	removeBan {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			if(parms.contains("banId")) {
+				ac.getFacilitiesManager().removeBan(ac.getSession(),
+					parms.readInt("banId"));
+			} else {
+				ac.getFacilitiesManager().removeBan(ac.getSession(),
+					parms.readInt("userId"), parms.readInt("facilityId"));
+			}
+			return null;
+		}
 	};
 }

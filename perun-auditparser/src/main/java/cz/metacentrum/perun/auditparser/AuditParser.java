@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.MessageFormatter;
 
 /**
  *
@@ -72,6 +71,8 @@ public class AuditParser {
 				else if(p.getLeft().equals("ExecService")) perunBean = createExecService(p.getRight());
 				else if(p.getLeft().equals("SecurityTeam")) perunBean = createSecurityTeam(p.getRight());
 				else if(p.getLeft().equals("TaskResult")) perunBean = createTaskResult(p.getRight());
+				else if(p.getLeft().equals("BanOnResource")) perunBean = createBanOnResource(p.getRight());
+				else if(p.getLeft().equals("BanOnFacility")) perunBean = createBanOnFacility(p.getRight());
 				else loger.debug("Object of this type can't be parsed cause there is no such object in parser's branches. ObjectName:" + p.getLeft());
 				if(perunBean != null) listPerunBeans.add(perunBean);
 			} catch (RuntimeException e) {
@@ -520,19 +521,19 @@ public class AuditParser {
 	}
 
 	private static TaskResult createTaskResult(Map<String, String> beanAttr) throws InternalErrorException {
-		if(beanAttr==null) return null;
+		if (beanAttr == null) return null;
 		TaskResult taskResult = new TaskResult();
 		taskResult.setId(Integer.valueOf(beanAttr.get("id")).intValue());
 		taskResult.setTaskId(Integer.valueOf(beanAttr.get("taskId")).intValue());
 		taskResult.setDestinationId(Integer.valueOf(beanAttr.get("destinationId")).intValue());
 		String errorMessage;
-		if(beanAttr.get("errorMessage").equals("\\0")) errorMessage = null;
+		if (beanAttr.get("errorMessage").equals("\\0")) errorMessage = null;
 		else {
 			errorMessage = BeansUtils.eraseEscaping(beanAttr.get("errorMessage"));
 		}
 		taskResult.setErrorMessage(errorMessage);
 		String standardMessage;
-		if(beanAttr.get("standardMessage").equals("\\0")) standardMessage = null;
+		if (beanAttr.get("standardMessage").equals("\\0")) standardMessage = null;
 		else {
 			standardMessage = BeansUtils.eraseEscaping(beanAttr.get("standardMessage"));
 		}
@@ -545,27 +546,56 @@ public class AuditParser {
 		}
 		String status = BeansUtils.eraseEscaping(beanAttr.get("status"));
 		TaskResultStatus st;
-		if(status.equals("\\0")) st = null; 
+		if (status.equals("\\0")) st = null;
 		else {
-			if(status.equals("DENIED")) st = TaskResultStatus.DENIED;
-			else if(status.equals("DONE")) st = TaskResultStatus.DONE;
-			else if(status.equals("ERROR")) st = TaskResultStatus.ERROR;
-			else if(status.equals("FATAL_ERROR")) st = TaskResultStatus.FATAL_ERROR;
-			else if(status.equals("WARN")) st = TaskResultStatus.WARN;
+			if (status.equals("DENIED")) st = TaskResultStatus.DENIED;
+			else if (status.equals("DONE")) st = TaskResultStatus.DONE;
+			else if (status.equals("ERROR")) st = TaskResultStatus.ERROR;
+			else if (status.equals("FATAL_ERROR")) st = TaskResultStatus.FATAL_ERROR;
+			else if (status.equals("WARN")) st = TaskResultStatus.WARN;
 			else st = null;
 		}
 		taskResult.setStatus(st);
 		Service service;
-		if(beanAttr.get("service").equals("\\0")) service = null;
+		if (beanAttr.get("service").equals("\\0")) service = null;
 		else {
 			List<Pair<String, Map<String, String>>> serviceList = beansToMap(beanAttr.get("service"));
-			if(serviceList.size() > 0) {
+			if (serviceList.size() > 0) {
 				service = createService(serviceList.get(0).getRight());
 			} else service = null;
 		}
 		taskResult.setService(service);
 
 		return taskResult;
+
+	}
+
+	private static Ban createBanOnResource(Map<String, String> beanAttr) {
+		if(beanAttr==null) return null;
+		BanOnResource banOnResource = new BanOnResource();
+		banOnResource.setId(Integer.valueOf(beanAttr.get("id")));
+		banOnResource.setMemberId(Integer.valueOf(beanAttr.get("memberId")));
+		banOnResource.setResourceId(Integer.valueOf(beanAttr.get("resourceId")));
+		banOnResource.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
+		Date validityTo;
+		if(beanAttr.get("validityTo").equals("\\0")) validityTo = null;
+		else validityTo = new Date(Long.valueOf(beanAttr.get("validityTo")));
+		banOnResource.setValidityTo(validityTo);
+		return banOnResource;
+	}
+
+	private static Ban createBanOnFacility(Map<String, String> beanAttr) {
+		if(beanAttr==null) return null;
+		BanOnFacility banOnFacility = new BanOnFacility();
+		banOnFacility.setId(Integer.valueOf(beanAttr.get("id")));
+		banOnFacility.setUserId(Integer.valueOf(beanAttr.get("userId")));
+		banOnFacility.setFacilityId(Integer.valueOf(beanAttr.get("facilityId")));
+		banOnFacility.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
+		Date validityTo;
+		if(beanAttr.get("validityTo").equals("\\0")) validityTo = null;
+		else validityTo = new Date(Long.valueOf(beanAttr.get("validityTo")));
+		banOnFacility.setValidityTo(validityTo);
+		return banOnFacility;
 	}
 
 	//--------------------------------------------------------------------------

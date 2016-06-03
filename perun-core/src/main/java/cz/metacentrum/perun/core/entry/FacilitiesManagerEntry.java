@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -27,6 +28,8 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -1169,6 +1172,124 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		this.getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
+	}
+
+	@Override
+	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException, FacilityNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(banOnFacility, "banOnFacility");
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, banOnFacility.getUserId());
+		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, banOnFacility.getFacilityId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "setBan");
+		}
+
+		return getFacilitiesManagerBl().setBan(sess, banOnFacility);
+	}
+
+	@Override
+	public BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		BanOnFacility ban = getFacilitiesManagerBl().getBanById(sess, banId);
+
+		Facility facility = new Facility();
+		facility.setId(ban.getId());
+		
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getBanById");
+		}
+
+		return ban;
+	}
+
+	public BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException, PrivilegeException, UserNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, faclityId);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getBan");
+		}
+		
+		return getFacilitiesManagerBl().getBan(sess, userId, faclityId);
+	}
+
+	public List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+
+		List<BanOnFacility> usersBans = getFacilitiesManagerBl().getBansForUser(sess, userId);
+		//filtering
+		Iterator<BanOnFacility> iterator = usersBans.iterator();
+		while(iterator.hasNext()) {
+			BanOnFacility banForFiltering = iterator.next();
+			Facility facility = new Facility();
+			facility.setId(banForFiltering.getFacilityId());
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) iterator.remove();
+		}
+
+		return usersBans;
+	}
+
+	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, facilityId);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getBansForFacility");
+		}
+
+		return getFacilitiesManagerBl().getBansForFacility(sess, facilityId);
+	}
+
+	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, UserNotExistsException, BanNotExistsException {
+		Utils.checkPerunSession(sess);
+		this.getFacilitiesManagerBl().checkBanExists(sess, banOnFacility.getId());
+		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, banOnFacility.getFacilityId());
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, banOnFacility.getUserId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "updateBan");
+		}
+
+		banOnFacility = getFacilitiesManagerBl().updateBan(sess, banOnFacility);
+		return banOnFacility;
+	}
+
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, PrivilegeException, BanNotExistsException {
+		Utils.checkPerunSession(sess);
+		BanOnFacility ban = this.getFacilitiesManagerBl().getBanById(sess, banId);
+
+		Facility facility = new Facility();
+		facility.setId(ban.getId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "removeBan");
+		}
+
+		getFacilitiesManagerBl().removeBan(sess, banId);
+	}
+
+	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		BanOnFacility ban = this.getFacilitiesManagerBl().getBan(sess, userId, facilityId);
+		
+		Facility facility = new Facility();
+		facility.setId(ban.getId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "removeBan");
+		}
+
+		getFacilitiesManagerBl().removeBan(sess, userId, facilityId);
 	}
 
 	/**

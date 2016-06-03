@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 /**
  * This class provide support for compatibility issues.
@@ -42,6 +44,19 @@ public class Compatibility {
 			return "'now'";
 		} else if (dbType.equals("hsqldb")) {
 			return "current_date";
+		} else {
+			throw new InternalErrorException("unknown DB type");
+		}
+	}
+
+	public static Object getDate(long dateInMiliseconds) throws InternalErrorException {
+		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
+		if (dbType.equals("oracle")) {
+			return new Date(dateInMiliseconds);
+		} else if (dbType.equals("postgresql")) {
+			return new Timestamp(dateInMiliseconds);
+		} else if (dbType.equals("hsqldb")) {
+			return new Timestamp(dateInMiliseconds);
 		} else {
 			throw new InternalErrorException("unknown DB type");
 		}
