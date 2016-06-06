@@ -7,15 +7,15 @@
  */
 
 .mainPanel{
-    min-height:600px;
-    min-width:960px;
+    min-height:700px;
+    min-width:1200px;
     height: 100%;
 }
 
 /* Header */
 .perun-header {
     width: 100%;
-    min-width: 960px;
+    min-width: 1200px;
     height: 64px;
     max-height: 64px;
 }

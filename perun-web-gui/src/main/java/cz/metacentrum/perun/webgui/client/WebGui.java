@@ -55,8 +55,8 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 	private UrlMapper urlMapper;
 
 	// min client height & width
-	static final public int MIN_CLIENT_HEIGHT = 600;  // when changed update .css file too !!
-	static final public int MIN_CLIENT_WIDTH = 980; // when changed update .css file too !!
+	static final public int MIN_CLIENT_HEIGHT = 700;  // when changed update .css file too !!
+	static final public int MIN_CLIENT_WIDTH = 1200; // when changed update .css file too !!
 
 	// perun loaded (is checked when page loads)
 	private boolean perunLoaded = false;
