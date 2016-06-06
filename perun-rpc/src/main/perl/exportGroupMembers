@@ -20,6 +20,7 @@ sub help {
 	--voId         | -v  VO idetifier
 	--voShortName  | -V  VO short name
         --attrList     | -a  list of attributes to print *)
+        --statuses     | -s  list of allowed statuses   **)
 	--orderByName  | -n  order by member's name
 	--batch        | -b  batch
 	--help         | -h  prints this help
@@ -30,17 +31,22 @@ sub help {
            u:d:preferredMail = urn:perun:user:attribute-def:def:preferredMail
            ...
            default value -a u:d:preferredMail m:d:organization
+        **)if parameter -s is not used the default value is 
+           VALID+INVALID+SUSPENDED
+           if parameter -s is used but the list of statuses is empty
+           ALL statuses are listed
 	};
 }
 
 our $batch;
-my ($groupId, $groupName, $voId, $voShortName, $sortingFunction, @attributes);
+my ($groupId, $groupName, $voId, $voShortName, $sortingFunction, @attributes, @statuses);
 GetOptions("help|h" => sub { print help; exit 0;} ,
 "groupId|g=i" => \$groupId,
 "groupName|G=s" => \$groupName,
 "voId|v=i" => \$voId,
 "voShortName|V=s" => \$voShortName,
 'attrList|am=s@{1,}' => \@attributes,
+'statusList|s=s@{0,}' => \@statuses,
 "orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName",1) },
 "batch|b" => \$batch) || die help;
 
@@ -62,9 +68,17 @@ unless(defined $groupId) {
     $groupId = $group->getId;
 }
 
-my @statuses = ();
+unless (defined $statuses[0]) {
+    @statuses=("VALID","INVALID","SUSPENDED");
+}
+if (defined $statuses[0] and $statuses[0] eq "") {
+    @statuses=();
+}
+foreach my $stat (@statuses) {
+    if ($stat ne "VALID" and $stat ne "INVALID" and $stat ne "SUSPENDED" and $stat ne "EXPIRED" and $stat ne "DISABLED") {die "ERROR: wrong status value. \n";}
+}
+
 my $parentGroup=0;
-my @attrs;
 my %attrShort;
 my %entities = ("u"=>"user","m"=>"member");
 my %types = ("d"=>"def","o"=>"opt","v"=>"virt","c"=>"core");
@@ -76,7 +90,6 @@ foreach my $attr (@attributes) {
     my $attrName="urn:perun:";
     if ($attr =~ /^(\w)\:(\w)\:(\w+)$/) {
         $attrName=$attrName.$entities{$1}.":attribute-def:".$types{$2}.":".$3;
-        push (@attrs,$attrName);
         $attrShort{$attr}=$attrName;
     } else {    
         printMessage "Wrong attribute name:$attr", $batch;
@@ -90,7 +103,7 @@ unless(@richMembers) { printMessage "No member found", $batch; exit 0; }
 my $table = Text::ASCIITable->new({utf8=>0});
 #my $table = Text::ASCIITable->new();
 
-$table->setCols('Name', sort keys(%attrShort));
+$table->setCols('Name', 'Status', sort keys(%attrShort));
 
 foreach my $richMember (sort $sortingFunction @richMembers) {
         my @uattributes = $richMember->getUserAttributes;
@@ -109,7 +122,7 @@ foreach my $richMember (sort $sortingFunction @richMembers) {
                 }
             }      
         }
-        $table->addRow($richMember->getDisplayName,@dispAtt);
+        $table->addRow($richMember->getDisplayName,$richMember->getStatus,@dispAtt);
 }
 
 print tableToPrint($table, $batch);
