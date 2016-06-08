@@ -1777,3 +1777,7 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 
 -- set initial Perun DB version
 insert into configurations values ('DATABASE VERSION','3.1.36');
+
+-- insert membership types
+insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
+insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added into subgroup');
