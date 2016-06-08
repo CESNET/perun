@@ -175,17 +175,17 @@ public class AddMemberToResourceTabItem implements TabItem  {
 			}
 
 			// selection of some member will enable continue button
-			selectedMembers.setEvents(new AddRemoveItemsTable.HandleItemsAction() {
+			selectedMembers.setEvents(new AddRemoveItemsTable.HandleItemsAction<RichMember>() {
 				@Override
-				public void onAdd() {
+				public void onAdd(RichMember object) {
 					continueButton.setEnabled(true);
 				}
-			@Override
-			public void onRemove() {
-				if (selectedMembers.getList().size() == 0) {
-					continueButton.setEnabled(false);
+				@Override
+				public void onRemove(RichMember object) {
+					if (selectedMembers.getList().size() == 0) {
+						continueButton.setEnabled(false);
+					}
 				}
-			}
 			});
 
 			// put table in content

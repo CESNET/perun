@@ -127,25 +127,59 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 
 					} else {
 
-						// if not selected myself, continue same way
-						UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose any access to it. Only users associated with service identity can add other users again. If you remove all users connected to the service identity, it will be deleted too!", new ClickHandler() {
-							@Override
-							public void onClick(ClickEvent event) {
-								for (int i = 0; i < list.size(); i++) {
-									// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-									RemoveSpecificUserOwner req;
-									if (i == list.size() - 1) {
-										req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
-									} else {
-										req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
-									}
-									req.removeServiceUser(list.get(i), user);
-
-									// TODO - consider fixing authz in session ?
-
-								}
+						boolean containsMyself = false;
+						for (User user : list) {
+							if (user.getId() == session.getUser().getId()) {
+								containsMyself = true;
 							}
-						});
+						}
+
+						if (containsMyself) {
+
+							// if not selected myself, continue same way
+							UiElements.showDeleteConfirm(list, "<p style=\"color:red;\"><b>You are about to remove yourself from service identity! If you do that, you won't be able to add yourself again. Only users associated with service identity can add other users again.</b></p>" +
+									"<p>Following users will be removed from service identity and they will lose any access to it.</p>", new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent event) {
+									for (int i = 0; i < list.size(); i++) {
+										// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+										RemoveSpecificUserOwner req;
+										if (i == list.size() - 1) {
+											req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+										} else {
+											req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+										}
+										req.removeServiceUser(list.get(i), user);
+
+										// TODO - consider fixing authz in session ?
+
+									}
+								}
+							});
+
+						} else {
+
+							// if not selected myself, continue same way
+							UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose any access to it. Only users associated with service identity can add other users again.", new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent event) {
+									for (int i = 0; i < list.size(); i++) {
+										// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+										RemoveSpecificUserOwner req;
+										if (i == list.size() - 1) {
+											req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+										} else {
+											req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+										}
+										req.removeServiceUser(list.get(i), user);
+
+										// TODO - consider fixing authz in session ?
+
+									}
+								}
+							});
+
+						}
 
 					}
 
@@ -200,7 +234,7 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 				@Override
 				public void onClick(ClickEvent clickEvent) {
 					final ArrayList<User> list = request.getTableSelectedList();
-					UiElements.showDeleteConfirm(list, "Following service identities will be removed from you and you will lose any access to them. Only users associated with service identity can add you again. If you are last user connected to the service identity, it will be deleted too!", new ClickHandler() {
+					UiElements.showDeleteConfirm(list, "Following service identities will be removed from you and you will lose any access to them. Only users associated with service identity can add you again.", new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
 							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
