@@ -382,9 +382,9 @@ public class VOOT {
 		List<Member> members = new ArrayList<Member>();
 
 		try{
-			//if user is not member of group cannot read members of
-			if (!perun.getGroupsManagerBl().isUserMemberOfGroup(session, user, group)) throw new VOOTException("not_a_member");
 			members = perun.getGroupsManagerBl().getGroupMembers(session, group);
+		}catch(PrivilegeException ex){
+			throw new VOOTException("insufficient_privileges");
 		}catch(InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
 		}
