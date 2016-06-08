@@ -888,6 +888,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			log.info("Group synchronization {}: using configuration extSource for membership {}, extSource for members {}", new Object[] {group, membersSource, membersSource.getName()});
 
 			//Get subjects from extSource
+			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupRichMembers(sess, group);
 			List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, source, group);
 
 			//Convert subjects to candidates
@@ -897,7 +898,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			List<Candidate> candidatesToAdd = new ArrayList<>();
 			Map<Candidate, RichMember> membersToUpdate = new HashMap<>();
 			List<RichMember> membersToRemove = new ArrayList<>();
-			categorizeMembersForSynchronization(sess, group, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
+			categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
 
 			//Update members already presented in group
 			updateExistingMembersWhileSynchronization(sess, group, membersToUpdate, overwriteUserAttributesList, lightweightSynchronization);
@@ -1427,8 +1428,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if getting RichMembers without attributes for the group fail
 	 */
-	private void categorizeMembersForSynchronization(PerunSession sess, Group group, List<Candidate> candidates, List<Candidate> candidatesToAdd, Map<Candidate, RichMember> membersToUpdate, List<RichMember> membersToRemove) throws InternalErrorException {
-		List<RichMember> groupMembers = getPerunBl().getGroupsManagerBl().getGroupRichMembers(sess, group);
+	private void categorizeMembersForSynchronization(PerunSession sess, List<RichMember> groupMembers, List<Candidate> candidates, List<Candidate> candidatesToAdd, Map<Candidate, RichMember> membersToUpdate, List<RichMember> membersToRemove) throws InternalErrorException {
 		candidatesToAdd.addAll(candidates);
 		membersToRemove.addAll(groupMembers);
 		//mapping structure for more efficient searching
@@ -1690,6 +1690,15 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		for(Candidate candidate: membersToUpdate.keySet()) {
 			RichMember richMember = membersToUpdate.get(candidate);
 
+			//If member not exists in this moment (somebody remove him before start of updating), skip him and log it
+			try {
+				getPerunBl().getMembersManagerBl().checkMemberExists(sess, richMember);
+			} catch (MemberNotExistsException ex) {
+				//log it and skip this member
+				log.debug("Someone removed member {} from group {} before updating process. Skip him.", richMember, group);
+				continue;
+			}
+
 			//update attributes or skip them if this is lightweight synchronization (without updating attributes for existing members)
 			if(!lightweightSynchronization) {
 				for (String attributeName : candidate.getAttributes().keySet()) {
@@ -1741,7 +1750,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							if(userAttribute.getName().equals(attributeName)) {
 								attributeFound = true;
 								Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), userAttribute.getType());
-								if (subjectAttributeValue != null && !userAttribute.getValue().equals(subjectAttributeValue)) {
+								if (!userAttribute.getValue().equals(subjectAttributeValue)) {
 									log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
 											new Object[] {group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue});
 									userAttribute.setValue(subjectAttributeValue);
@@ -1793,65 +1802,65 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						}
 					}
 				}
+			}
 
-				//Set correct member Status (also skip if this is lightweight version of synchronization)
-				// If the member has expired or disabled status, try to expire/validate him (depending on expiration date)
-				if (richMember.getStatus().equals(Status.DISABLED) || richMember.getStatus().equals(Status.EXPIRED)) {
-					Date now = new Date();
-					Attribute membershipExpiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, richMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
-					if(membershipExpiration.getValue() != null) {
-						try {
-							Date currentMembershipExpirationDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpiration.getValue());
-							if (currentMembershipExpirationDate.before(now)) {
-								//disabled members which are after expiration date will be expired
-								if (richMember.getStatus().equals(Status.DISABLED)) {
-									try {
-										perunBl.getMembersManagerBl().expireMember(sess, richMember);
-										log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
-										log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-									} catch (MemberNotValidYetException e) {
-										log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
-									}
-								}
-							} else {
-								//disabled and expired members which are before expiration date will be validated
+			//Set correct member Status
+			// If the member has expired or disabled status, try to expire/validate him (depending on expiration date)
+			if (richMember.getStatus().equals(Status.DISABLED) || richMember.getStatus().equals(Status.EXPIRED)) {
+				Date now = new Date();
+				Attribute membershipExpiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, richMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+				if(membershipExpiration.getValue() != null) {
+					try {
+						Date currentMembershipExpirationDate = BeansUtils.getDateFormatterWithoutTime().parse((String) membershipExpiration.getValue());
+						if (currentMembershipExpirationDate.before(now)) {
+							//disabled members which are after expiration date will be expired
+							if (richMember.getStatus().equals(Status.DISABLED)) {
 								try {
-									perunBl.getMembersManagerBl().validateMember(sess, richMember);
-									log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
-									log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
-								} catch (WrongAttributeValueException e) {
-									log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
-								} catch (WrongReferenceAttributeValueException e) {
-									log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
+									perunBl.getMembersManagerBl().expireMember(sess, richMember);
+									log.info("Switching member id {} to EXPIRE state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
+									log.debug("Switching member to EXPIRE state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
+								} catch (MemberNotValidYetException e) {
+									log.error("Consistency error while trying to expire member id {}, exception {}", richMember.getId(), e);
 								}
 							}
-						} catch (ParseException ex) {
-							log.error("Group synchronization: memberId {} expiration String cannot be parsed, exception {}.",richMember.getId(), ex);
+						} else {
+							//disabled and expired members which are before expiration date will be validated
+							try {
+								perunBl.getMembersManagerBl().validateMember(sess, richMember);
+								log.info("Switching member id {} to VALID state, due to expiration {}.", richMember.getId(), (String) membershipExpiration.getValue());
+								log.debug("Switching member to VALID state, additional info: membership expiration date='{}', system now date='{}'", currentMembershipExpirationDate, now);
+							} catch (WrongAttributeValueException e) {
+								log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
+							} catch (WrongReferenceAttributeValueException e) {
+								log.error("Error during validating member id {}, exception {}", richMember.getId(), e);
+							}
 						}
+					} catch (ParseException ex) {
+						log.error("Group synchronization: memberId {} expiration String cannot be parsed, exception {}.",richMember.getId(), ex);
 					}
 				}
+			}
 
-				// If the member has INVALID status, try to validate the member
-				try {
-					if (richMember.getStatus().equals(Status.INVALID)) {
-						getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
-					}
-				} catch (WrongAttributeValueException e) {
-					log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
-				} catch (WrongReferenceAttributeValueException e) {
-					log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
+			// If the member has INVALID status, try to validate the member
+			try {
+				if (richMember.getStatus().equals(Status.INVALID)) {
+					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
 				}
+			} catch (WrongAttributeValueException e) {
+				log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
+			} catch (WrongReferenceAttributeValueException e) {
+				log.info("Member id {} will stay in INVALID state, because there was problem with attributes {}.", richMember.getId(), e);
+			}
 
-				// If the member has still DISABLED status, try to validate the member
-				try {
-					if (richMember.getStatus().equals(Status.DISABLED)) {
-						getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
-					}
-				} catch (WrongAttributeValueException e) {
-					log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
-				} catch (WrongReferenceAttributeValueException e) {
-					log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
+			// If the member has still DISABLED status, try to validate the member
+			try {
+				if (richMember.getStatus().equals(Status.DISABLED)) {
+					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
 				}
+			} catch (WrongAttributeValueException e) {
+				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
+			} catch (WrongReferenceAttributeValueException e) {
+				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
 			}
 		}
 	}
@@ -1910,7 +1919,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 				log.info("Group synchronization {}: New member id {} added.", group, member.getId());
 			} catch (AlreadyMemberException e) {
-				throw new ConsistencyErrorException("Trying to add existing member");
+				//This part is ok, it means someone add member before synchronization ends, log it and skip this member
+				log.debug("Member {} was added to group {} before adding process. Skip this member.", member, group);
+				continue;
 			} catch (AttributeValueException e) {
 				// There is a problem with attribute value, so set INVALID status of the member
 				getPerunBl().getMembersManagerBl().invalidateMember(sess, member);
@@ -2014,6 +2025,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			} catch (NotGroupMemberException e) {
 				throw new ConsistencyErrorException("Trying to remove non-existing user");
+			} catch (MemberAlreadyRemovedException ex) {
+				//Member was probably removed before starting of synchronization removing process, log it and skip this member
+				log.debug("Member {} was removed from group {} before removing process. Skip this member.", member, group);
+				continue;
 			}
 		}
 	}

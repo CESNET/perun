@@ -257,6 +257,9 @@ public class MailManagerImpl implements MailManager {
 			} else {
 				jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
 			}
+
+			perun.getAuditer().log(sess, "Sending of Mail ID: {} " + ((enabled) ? " enabled." : " disabled."));
+
 		}
 
 	}
@@ -404,10 +407,10 @@ public class MailManagerImpl implements MailManager {
 			// get mail definition
 			ApplicationMail mail = getMailByParams(form.getId(), app.getType(), mailType);
 			if (mail == null) {
-				log.error("[MAIL MANAGER] Mail not send. Definition (or mail text) for: {} do not exists for VO: "+app.getVo()+" and Group: "+app.getGroup(), mailType.toString());
+				log.error("[MAIL MANAGER] Mail not sent. Definition (or mail text) for: {} do not exists for VO: "+app.getVo()+" and Group: "+app.getGroup(), mailType.toString());
 				return; // mail not found
 			} else if (mail.getSend() == false) {
-				log.info("[MAIL MANAGER] Mail not send. Disabled by VO admin.");
+				log.info("[MAIL MANAGER] Mail not sent. Disabled by VO admin for: " + mail.getMailType() + " / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup());
 				return; // sending this mail is disabled by VO admin
 			}
 			// get app data
@@ -447,7 +450,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {}", message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception: {}", ex);
 				}
@@ -503,7 +506,7 @@ public class MailManagerImpl implements MailManager {
 					message.setTo(email);
 					try {
 						mailSender.send(message);
-						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {}", message.getTo());
+						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception: {}", ex);
 					}
@@ -564,8 +567,8 @@ public class MailManagerImpl implements MailManager {
 										if (newValue != null && !newValue.isEmpty()) {
 											if (!newValue.endsWith("/")) newValue += "/";
 											newValue += namespace + "/registrar/";
-											newValue += "?vo="+app.getVo().getShortName();
-											newValue += ((app.getGroup() != null) ? "&group="+app.getGroup().getName() : "");
+											newValue += "?vo="+getEncodedString(app.getVo().getShortName());
+											newValue += ((app.getGroup() != null) ? "&group="+getEncodedString(app.getGroup().getName()) : "");
 											try {
 												newValue += "&i=" + URLEncoder.encode(i, "UTF-8") + "&m=" + URLEncoder.encode(m, "UTF-8");
 											} catch (UnsupportedEncodingException ex) {
@@ -589,12 +592,12 @@ public class MailManagerImpl implements MailManager {
 									url += "registrar/";
 								}
 
-								if (url != null && !url.isEmpty()) url = url + "?vo=" + app.getVo().getShortName();
+								if (url != null && !url.isEmpty()) url = url + "?vo=" + getEncodedString(app.getVo().getShortName());
 
 
 								if (app.getGroup() != null) {
 									// append group name for
-									if (url != null && !url.isEmpty()) url += "&group=" + app.getGroup().getName();
+									if (url != null && !url.isEmpty()) url += "&group=" + getEncodedString(app.getGroup().getName());
 								}
 
 								// construct whole url
@@ -625,7 +628,7 @@ public class MailManagerImpl implements MailManager {
 
 							try {
 								mailSender.send(message);
-								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {}", message.getTo());
+								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 							} catch (MailException ex) {
 								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception: {}", ex);
 							}
@@ -656,7 +659,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {}", message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception: {}", ex);
 				}
@@ -681,7 +684,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {}", message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
 				}
@@ -737,7 +740,7 @@ public class MailManagerImpl implements MailManager {
 					message.setTo(email);
 					try {
 						mailSender.send(message);
-						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {}", message.getTo());
+						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception: {}", ex);
 					}
@@ -829,6 +832,7 @@ public class MailManagerImpl implements MailManager {
 			sendMessage(app, mailType, reason, null);
 
 		}
+		perun.getAuditer().log(sess, "Mail of Type: {} sent for Application: {}", mailType, app.getId());
 
 	}
 
@@ -925,7 +929,7 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {}", message.getTo());
+			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 		} catch (MailException ex) {
 			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
@@ -1059,7 +1063,7 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {}", message.getTo());
+			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 		} catch (MailException ex) {
 			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
@@ -1423,42 +1427,12 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 
-		// DECIDE PROPER SETTINGS
-
-		// default not member at all
-		boolean isMember = false;
-
-		if (user != null) {
-
-			try {
-
-				Member m = membersManager.getMemberByUser(registrarSession, vo, user);
-				isMember = true;
-				// is member, is invite to group ?
-				if (group != null) {
-					List<Group> g = groupsManager.getMemberGroups(registrarSession, m);
-					if (g.contains(group)) {
-						// user is member of group - can't invite him
-						throw new RegistrarException("User to invite is already member of your group: "+group.getShortName());
-					}
-				} else {
-					throw new RegistrarException("User to invite is already member of your VO:"+vo.getShortName());
-				}
-
-			} catch (Exception ex) {
-				log.error("[MAIL MANAGER] Exception {} when getting member by {} from "+vo.toString(), ex, user);
-			}
-
-		}
-
-		// from here we know, that user is not member of VO and group or is member of VO (by "isMember" variable)
-
 		// replace invitation link
 		if (mailText.contains("{invitationLink}")) {
 			String url = getPerunUrl(vo, group);
 			if (!url.endsWith("/")) url += "/";
 			url += "registrar/";
-			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, url));
+			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, url));
 		}
 
 		// replace invitation link
@@ -1485,7 +1459,7 @@ public class MailManagerImpl implements MailManager {
 					if (url != null && !url.isEmpty()) {
 						if (!url.endsWith("/")) url += "/";
 						url += namespace + "/registrar/";
-						newValue = buildInviteURL(vo, group, isMember, url);
+						newValue = buildInviteURL(vo, group, url);
 					}
 
 				}
@@ -1526,25 +1500,18 @@ public class MailManagerImpl implements MailManager {
 	 *
 	 * @param vo vo to get invite link for
 	 * @param group group if is for group application
-	 * @param isMember if user is member of VO
 	 * @param text base of URL for invitation
 	 * @return full URL to application form
 	 */
-	private String buildInviteURL(Vo vo, Group group, boolean isMember, String text) {
+	private String buildInviteURL(Vo vo, Group group, String text) {
 
 		if (text == null || text.isEmpty()) return "";
 
-		text = text + "?vo=" + vo.getShortName();
+		text += "?vo=" + getEncodedString(vo.getShortName());
 
-		if (isMember && group != null) {
-			// application for group
-			text += "&group="+group.getName();
-		} else if (!isMember && group == null) {
-			// application for VO
-			// ==> no change to URL
-		} else if (!isMember && group != null) {
-			// application for VO+group (redirect)
-			text += "&targetnew=" + text.replace("?", "%3F") + "%26group=" + group.getName() + "&targetexisting=" + text.replace("?", "%3F") + "%26group=" + group.getName();
+		if (group != null) {
+			// application for group too
+			text += "&group="+getEncodedString(group.getName());
 		}
 
 		return text;
@@ -1573,6 +1540,7 @@ public class MailManagerImpl implements MailManager {
 	 *
 	 * {logins} - list of all logins from application
 	 * {membershipExpiration} - membership expiration date
+	 * {mail} - user preferred mail submitted on application or stored in a system
 	 *
 	 * {customMessage} - message passed by admin to mail (e.g. reason of application reject)
 	 * {errors} - include errors which ocured when processing registrar actions
@@ -1822,6 +1790,47 @@ public class MailManagerImpl implements MailManager {
 			mailText = mailText.replace("{membershipExpiration}", expiration);
 		}
 
+		// user mail
+		if (mailText.contains("{mail}")) {
+			String mail = "";
+			if (app.getUser() != null) {
+				try {
+					User u = usersManager.getUserById(registrarSession, app.getUser().getId());
+					Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PREFERRED_MAIL);
+					if (a != null && a.getValue() != null) {
+						// attribute value is string
+						mail = ((String)a.getValue());
+					}
+				} catch (Exception ex) {
+					log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail. {}", ex);
+				}
+			} else {
+
+				for (ApplicationFormItemData d : data) {
+					if ("urn:perun:member:attribute-def:def:mail".equals(d.getFormItem().getPerunDestinationAttribute())) {
+						if (d.getValue() != null && !d.getValue().isEmpty()) {
+							mail = d.getValue();
+							break;
+						}
+					}
+				}
+
+				for (ApplicationFormItemData d : data) {
+					if ("urn:perun:user:attribute-def:def:preferredMail".equals(d.getFormItem().getPerunDestinationAttribute())) {
+						if (d.getValue() != null && !d.getValue().isEmpty()) {
+							mail = d.getValue();
+							break;
+						}
+					}
+				}
+
+
+			}
+
+			// replace by mail or empty
+			mailText = mailText.replace("{mail}", mail);
+		}
+
 		// mail footer
 		if (mailText.contains("{mailFooter}")) {
 			String footer = "";
@@ -1959,10 +1968,10 @@ public class MailManagerImpl implements MailManager {
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
 				text += "registrar/";
-				text += "?vo=" + vo.getShortName() + "&page=apps";
+				text += "?vo=" + getEncodedString(vo.getShortName()) + "&page=apps";
 			}
 			if (group != null) {
-				text += "&group="+group.getName();
+				text += "&group="+getEncodedString(group.getName());
 			}
 			mailText = mailText.replace("{appGuiUrl}", text);
 		}
@@ -1992,8 +2001,8 @@ public class MailManagerImpl implements MailManager {
 					if (newValue != null && !newValue.isEmpty()) {
 						if (!newValue.endsWith("/")) newValue += "/";
 						newValue += namespace + "/registrar/";
-						newValue += "?vo="+vo.getShortName();
-						newValue += ((group != null) ? "&group="+group.getName() : "");
+						newValue += "?vo="+getEncodedString(vo.getShortName());
+						newValue += ((group != null) ? "&group="+getEncodedString(group.getName()) : "");
 						newValue += "&page=apps";
 					}
 
@@ -2087,6 +2096,22 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 		return fedAuthz;
+	}
+
+	/**
+	 * Return URL encoded String in utf-8. If not possible, return original string.
+	 *
+	 * @param s String to encode
+	 * @return URL Encoded string
+	 */
+	private static String getEncodedString(String s) {
+
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (UnsupportedEncodingException ex) {
+			return s;
+		}
+
 	}
 
 }

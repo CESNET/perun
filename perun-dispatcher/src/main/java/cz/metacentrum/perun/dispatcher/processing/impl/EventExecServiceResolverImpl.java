@@ -56,10 +56,6 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 	private static final Logger log = LoggerFactory
 			.getLogger(EventExecServiceResolverImpl.class);
-	private volatile boolean rulesLoaded = false;
-	private Map<ProcessingRule, List<ExecService>> rules = new HashMap<ProcessingRule, List<ExecService>>();
-	@Autowired
-	private ProcessingRuleDao processingRuleDao;
 	@Autowired
 	private Properties dispatcherPropertiesBean;
 	@Autowired
@@ -72,14 +68,6 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 			throws InvalidEventMessageException, ServiceNotExistsException,
 			InternalErrorException, PrivilegeException {
 		log.info("I am going to process event:" + event);
-		/**
-		 * Applied on the first run (the first time it's needed...lazy
-		 * initialization)
-		 */
-		if (!rulesLoaded) {
-			refreshProcessingRules();
-			rulesLoaded = true;
-		}
 
 		/**
 		 * Expected string format as on:
@@ -87,7 +75,7 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 		 * /wiki/PerunEngineDispatcherController event|x|[timestamp][Event
 		 * header][Event data]
 		 */
-		String eventParsingPattern = "^\\[([a-zA-Z0-9: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
+		String eventParsingPattern = "^\\[([a-zA-Z0-9+: ]+)\\]\\[([^\\]]+)\\]\\[(.*)\\]$";
 		Pattern pattern = Pattern.compile(eventParsingPattern);
 		Matcher matcher = pattern.matcher(event);
 		boolean matchFound = matcher.find();
@@ -349,30 +337,6 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 		} else {
 			throw new InvalidEventMessageException("Message[" + event + "]");
 		}
-	}
-
-	@Override
-	public void refreshProcessingRules() throws ServiceNotExistsException,
-			InternalErrorException, PrivilegeException {
-		PerunSession perunSession = perun.getPerunSession(new PerunPrincipal(
-				dispatcherPropertiesBean.getProperty("perun.principal.name"),
-				dispatcherPropertiesBean.getProperty("perun.principal.extSourceName"),
-				dispatcherPropertiesBean.getProperty("perun.principal.extSourceType")));
-		rules.clear();
-		rules.putAll(processingRuleDao.getRules(perunSession));
-	}
-
-	@Override
-	public String toString() {
-		return rules.toString();
-	}
-
-	public ProcessingRuleDao getProcessingRuleDao() {
-		return processingRuleDao;
-	}
-
-	public void setProcessingRuleDao(ProcessingRuleDao processingRuleDao) {
-		this.processingRuleDao = processingRuleDao;
 	}
 
 	public Properties getDispatcherPropertiesBean() {

@@ -56,6 +56,10 @@ sub getLastName {
        return $str;
 }
 
+sub getStatus {
+        return shift->{_status};
+}
+
 sub getCommonName {
 	my $user = shift->{_user};
 

@@ -322,7 +322,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	public void deleteSpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, SpecificUserAlreadyRemovedException {
 		try {
-			jdbc.update("delete from service_user_users where specific_user_id=?", specificUser.getId());
+			jdbc.update("delete from specific_user_users where specific_user_id=?", specificUser.getId());
 			int numAffected = jdbc.update("delete from users where id=?", specificUser.getId());
 			if(numAffected == 0) throw new SpecificUserAlreadyRemovedException("ServiceUser: " + specificUser);
 		} catch (RuntimeException err) {

@@ -119,8 +119,10 @@
 				  gwt-maven-plugin documentation at codehaus.org -->
 				<configuration>
 					<modules>
+						<!-- We use new WUI apps for these
 						<module>cz.metacentrum.perun.webgui.application-form</module>
 						<module>cz.metacentrum.perun.webgui.password-reset</module>
+						-->
 						<module>cz.metacentrum.perun.webgui.perun-web</module>
 					</modules>
 					<runTarget>PerunWeb.html</runTarget>
@@ -244,8 +246,10 @@
 						  gwt-maven-plugin documentation at codehaus.org -->
 						<configuration>
 							<modules>
+								<!-- We use new WUI apps for these
 								<module>cz.metacentrum.perun.webgui.application-form-prod</module>
 								<module>cz.metacentrum.perun.webgui.password-reset-prod</module>
+								-->
 								<module>cz.metacentrum.perun.webgui.perun-web-prod</module>
 							</modules>
 							<runTarget>PerunWeb.html</runTarget>

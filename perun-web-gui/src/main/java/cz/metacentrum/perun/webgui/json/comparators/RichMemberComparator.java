@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.json.comparators;
 
+import cz.metacentrum.perun.webgui.client.resources.Collator;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.RichMember;
 
@@ -79,29 +80,30 @@ public class RichMemberComparator implements Comparator<RichMember>{
 	 * @param o2
 	 * @return
 	 */
-	private int compareByEmail(RichMember o1, RichMember o2)
-	{
+	private int compareByEmail(RichMember o1, RichMember o2) {
+
 		Attribute at1 = o1.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
 		Attribute at2 = o2.getAttribute("urn:perun:user:attribute-def:def:preferredMail");
 
-		if (at1 == null) {
+		if (at1 == null || at1.getValue() == null || "null".equalsIgnoreCase(at1.getValue())) {
 			at1 = o1.getAttribute("urn:perun:member:attribute-def:def:mail");
 		}
-		if (at2 == null) {
+		if (at2 == null || at2.getValue() == null || "null".equalsIgnoreCase(at2.getValue())) {
 			at2 = o2.getAttribute("urn:perun:member:attribute-def:def:mail");
 		}
 
 		String at1value = "";
 		String at2value = "";
 
-		if (at1 != null) {
+		if (at1 != null && at1.getValue() != null && !"null".equalsIgnoreCase(at1.getValue())) {
 			at1value = at1.getValue();
 		}
-		if (at2 != null) {
+		if (at2 != null && at2.getValue() != null && !"null".equalsIgnoreCase(at2.getValue())) {
 			at2value = at2.getValue();
 		}
 
-		return at1value.compareTo(at2value);
+		return Collator.getInstance().compare(at1value, at2value);
+
 	}
 
 	/**
@@ -110,29 +112,30 @@ public class RichMemberComparator implements Comparator<RichMember>{
 	 * @param o2
 	 * @return
 	 */
-	private int compareByOrganization(RichMember o1, RichMember o2)
-	{
+	private int compareByOrganization(RichMember o1, RichMember o2) {
+
 		Attribute at1 = o1.getAttribute("urn:perun:member:attribute-def:def:organization");
 		Attribute at2 = o2.getAttribute("urn:perun:member:attribute-def:def:organization");
 
-		if (at1 == null) {
+		if (at1 == null || at1.getValue() == null || "null".equalsIgnoreCase(at1.getValue())) {
 			at1 = o1.getAttribute("urn:perun:user:attribute-def:def:organization");
 		}
-		if (at2 == null) {
+		if (at2 == null || at2.getValue() == null || "null".equalsIgnoreCase(at2.getValue())) {
 			at2 = o2.getAttribute("urn:perun:user:attribute-def:def:organization");
 		}
 
 		String at1value = "";
 		String at2value = "";
 
-		if (at1 != null) {
+		if (at1 != null && at1.getValue() != null && !"null".equalsIgnoreCase(at1.getValue())) {
 			at1value = at1.getValue();
 		}
-		if (at2 != null) {
+		if (at2 != null && at2.getValue() != null && !"null".equalsIgnoreCase(at2.getValue())) {
 			at2value = at2.getValue();
 		}
 
-		return at1value.compareTo(at2value);
+		return Collator.getInstance().compare(at1value, at2value);
+
 	}
 
 	/**
@@ -141,11 +144,8 @@ public class RichMemberComparator implements Comparator<RichMember>{
 	 * @param o2
 	 * @return
 	 */
-	private int compareByUserFullName(RichMember o1, RichMember o2)
-	{
-		return o1
-			.getUser()
-			.getFullName()
-			.compareToIgnoreCase(o2.getUser().getFullName());
+	private int compareByUserFullName(RichMember o1, RichMember o2) {
+		return Collator.getInstance().compareIgnoreCase(o1.getUser().getFullName(), o2.getUser().getFullName());
 	}
+
 }

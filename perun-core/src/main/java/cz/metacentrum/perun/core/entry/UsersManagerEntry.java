@@ -105,7 +105,8 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().checkUserExists(sess, specificUser);
 		if(!specificUser.isSpecificUser()) throw new SpecificUserExpectedException(specificUser);
 		if(!AuthzResolver.isAuthorized(sess, Role.SELF, specificUser) &&
-			!AuthzResolver.isAuthorized(sess, Role.SPONSOR, specificUser)) {
+			!AuthzResolver.isAuthorized(sess, Role.SPONSOR, specificUser) &&
+			!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			List<Vo> vos = getUsersManagerBl().getVosWhereUserIsMember(sess, specificUser);
 			boolean found = false;
 			for (Vo vo : vos) {
@@ -286,7 +287,8 @@ public class UsersManagerEntry implements UsersManager {
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
+				!AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			throw new PrivilegeException(sess, "getRichUsersFromListOfUsers");
 		}
 
@@ -1077,11 +1079,6 @@ public class UsersManagerEntry implements UsersManager {
 	@Override
 	public int getUsersCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getUsersCount");
-		}
 
 		return getUsersManagerBl().getUsersCount(sess);
 	}

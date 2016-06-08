@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
@@ -13,6 +14,7 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -550,4 +552,118 @@ public interface ResourcesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Get true if any ban for member and resource exists.
+	 *
+	 * @param sess
+	 * @param memberId id of member
+	 * @param resourceId id of resource
+	 * @return true if ban exists
+	 * @throws InternalErrorException
+	 */
+	boolean banExists(PerunSession sess, int memberId, int resourceId) throws InternalErrorException;
+
+	/**
+	 * Get true if any band defined by id exists for any member and resource.
+	 *
+	 * @param sess
+	 * @param banId id of ban
+	 * @return true if ban exists
+	 * @throws InternalErrorException
+	 */
+	boolean banExists(PerunSession sess, int banId) throws InternalErrorException;
+
+	/**
+	 * Set ban for member on resource
+	 *
+	 * @param sess
+	 * @param banOnResource the ban
+	 * @return ban on resource
+	 * @throws InternalErrorException
+	 */
+	BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException;
+
+	/**
+	 * Get Ban for member on resource by it's id
+	 *
+	 * @param sess
+	 * @param banId the ban id
+	 * @return resource ban by it's id
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Get specific resource ban.
+	 *
+	 * @param sess
+	 * @param memberId the member id
+	 * @param resourceId the resource id
+	 * @return specific resource ban
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Get all resources bans for member.
+	 *
+	 * @param sess
+	 * @param memberId the member id
+	 * @return list of bans for member on any resource
+	 * @throws InternalErrorException
+	 */
+	List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException;
+
+	/**
+	 * Get all members bans for resource
+	 *
+	 * @param sess
+	 * @param resourceId the resource id
+	 * @return list of all members bans on resource
+	 * @throws InternalErrorException
+	 */
+	List<BanOnResource> getBansForResource(PerunSession sess, int resourceId) throws InternalErrorException;
+
+	/**
+	 * Get all expired bans on any resource to now date
+	 *
+	 * @param sess
+	 * @return list of expired bans for any resource
+	 * @throws InternalErrorException
+	 */
+	List<BanOnResource> getAllExpiredBansOnResources(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Update description and validity timestamp of specific ban.
+	 *
+	 * @param sess
+	 * @param banOnResource ban to be updated
+	 * @return updated ban
+	 * @throws InternalErrorException
+	 */
+	BanOnResource updateBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException;
+
+	/**
+	 * Remove ban by id from resources bans.
+	 *
+	 * @param sess
+	 * @param banId id of specific ban
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Remove ban by member_id and facility_id
+	 *
+	 * @param sess
+	 * @param memberId the id of member
+	 * @param resourceId the id of resource
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException;
 }

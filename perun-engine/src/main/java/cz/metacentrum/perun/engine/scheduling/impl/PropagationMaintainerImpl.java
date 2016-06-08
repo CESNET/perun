@@ -1,9 +1,7 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import javax.jms.JMSException;
 
@@ -12,36 +10,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.model.Statistics;
 import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
 import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
-import cz.metacentrum.perun.engine.scheduling.TaskResultListener;
 import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 //import cz.metacentrum.perun.engine.scheduling.TaskStatus;
-import cz.metacentrum.perun.engine.scheduling.TaskStatus.TaskDestinationStatus;
 import cz.metacentrum.perun.engine.scheduling.TaskStatusManager;
-import cz.metacentrum.perun.engine.service.EngineManager;
-import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
 import cz.metacentrum.perun.taskslib.model.ExecService;
-import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
-import cz.metacentrum.perun.taskslib.model.TaskResult;
-import cz.metacentrum.perun.taskslib.service.ResultManager;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 @org.springframework.stereotype.Service(value = "propagationMaintainer")
 public class PropagationMaintainerImpl implements PropagationMaintainer {
@@ -68,15 +50,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	@Autowired
 	private TaskStatusManager taskStatusManager;
 	@Autowired
-	private Perun perun;
-	/*
-	 * @Autowired private GeneralServiceManager generalServiceManager;
-	 */
-	@Autowired
-	private Properties propertiesBean;
-	@Autowired
 	private ThreadPoolTaskScheduler scheduler;
-	private PerunSession perunSession;
 
 	/**
 	 * TODO: Improve logic here: i.e.: stuck ExecutorEngine threads vs. Time-Out
@@ -84,19 +58,6 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 */
 	@Override
 	public void checkResults() {
-
-		try {
-			perunSession = perun.getPerunSession(new PerunPrincipal(
-					propertiesBean.getProperty("perun.principal.name"),
-					propertiesBean.getProperty("perun.principal.extSourceName"),
-					propertiesBean.getProperty("perun.principal.extSourceType")));
-		} catch (InternalErrorException e1) {
-			// TODO Auto-generated catch block
-			log.error(
-					"Error establishing perun session to check tasks propagation status: ",
-					e1);
-			return;
-		}
 
 		// checkProcessingTasks();
 
@@ -106,7 +67,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		checkFinishedTasks();
 
-		rescheduleErrorTasks();
+		// M.V. - not rescheduling ERROR tasks in engine, leave it to dispatcher
+		// rescheduleErrorTasks();
 
 		// rescheduleOldDoneTasks();
 
@@ -359,10 +321,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		tasklist = schedulingPool.getErrorTasks();
 		log.debug("There are {} ERROR tasks", tasklist.size());
 		for (Task task : tasklist) {
-			if (task.getRecurrence() > 0) {
-				log.debug("TASK " + task.toString()
-						+ " finished in error, will reschedule");
-				continue;
+
+			if (task.getEndTime() == null) {
+				log.error("RECOVERY FROM INCONSISTENT STATE: ERROR task does not have end_time! Setting end_time to task.getDelay + 1.");
+				// getDelay is in minutes, therefore we multiply it with 60*1000
+				Date endTime = new Date(System.currentTimeMillis()
+						- ((task.getDelay() + 1) * 60000));
+				task.setEndTime(endTime);
 			}
 
 			List<Destination> destinations = taskStatusManager.getTaskStatus(
@@ -396,6 +361,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		}
 	}
 
+
+	@Deprecated
 	private void rescheduleErrorTasks() {
 		// log.info("I am gonna list tasks in ERROR and reschedule if necessary...");
 
@@ -424,56 +391,40 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			}
 			// If DELAY time has passed, we reschedule...
 			if (howManyMinutesAgo >= task.getDelay()) {
-				// check if service is still assigned on facility
 				try {
-					List<Service> assignedServices = perun.getServicesManager()
-							.getAssignedServices(perunSession,
-									task.getFacility());
-					if (assignedServices.contains(task.getExecService()
-							.getService())) {
-						task.setRecurrence(recurrence);
-						ExecService execService = task.getExecService();
-						Facility facility = task.getFacility();
-						log.info("TASK [	"
-								+ task
-								+ "] in ERROR state is going to be rescheduled: taskScheduler.propagateService(execService:ID "
-								+ execService.getId()
-								+ ", new Date(System.currentTimeMillis()), facility:ID "
-								+ facility.getId() + ");");
-						taskScheduler.propagateService(task,
-								new Date(System.currentTimeMillis()));
-						log.info("TASK [" + task
-								+ "] in ERROR state has been rescheduled.");
-
-						// Also (to be sure) reschedule all Tasks that depend on
-						// this Task
-						//
-						// While engine starts in state GEN = ERROR, SEND = DONE
-						// => GEN will be rescheduled but without this SEND will
-						// never be propagated
-						List<Task> dependentTasks = dependenciesResolver
-								.getDependants(task);
-						if (dependentTasks != null) {
-							for (Task dependantTask : dependentTasks) {
-								taskScheduler.propagateService(dependantTask,
-										new Date(System.currentTimeMillis()));
-								log.info(
+					task.setRecurrence(recurrence);
+					ExecService execService = task.getExecService();
+					Facility facility = task.getFacility();
+					log.info("TASK [	"
+							+ task
+							+ "] in ERROR state is going to be rescheduled: taskScheduler.propagateService(execService:ID "
+							+ execService.getId()
+							+ ", new Date(System.currentTimeMillis()), facility:ID "
+							+ facility.getId() + ");");
+					taskScheduler.propagateService(task,
+							new Date(System.currentTimeMillis()));
+					log.info("TASK [" + task
+							+ "] in ERROR state has been rescheduled.");
+					
+					// Also (to be sure) reschedule all Tasks that depend on
+					// this Task
+					//
+					// While engine starts in state GEN = ERROR, SEND = DONE
+					// => GEN will be rescheduled but without this SEND will
+					// never be propagated
+					List<Task> dependentTasks = dependenciesResolver
+							.getDependants(task);
+					if (dependentTasks != null) {
+						for (Task dependantTask : dependentTasks) {
+							taskScheduler.propagateService(dependantTask,
+									new Date(System.currentTimeMillis()));
+									log.info(
 										"{} was rescheduled because it depends on {}",
 										dependantTask, task);
-							}
 						}
-					} else {
-						// delete this tasks (SEND and GEN) because service is
-						// no longer assigned to facility
 					}
-				} catch (FacilityNotExistsException e) {
-					log.error(
-							"Consistency error - found task for non-existing facility. {}",
-							e);
 				} catch (InternalErrorException e) {
 					log.error("{}", e);
-				} catch (PrivilegeException e) {
-					log.error("Consistency error. {}", e);
 				}
 			}
 		}
@@ -757,14 +708,6 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 	public void setTaskScheduler(TaskScheduler taskScheduler) {
 		this.taskScheduler = taskScheduler;
-	}
-
-	public Properties getPropertiesBean() {
-		return propertiesBean;
-	}
-
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
 	}
 
 	public JMSQueueManager getJmsQueueManager() {

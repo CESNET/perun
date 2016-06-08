@@ -55,6 +55,11 @@ public class TaskManagerImpl implements TaskManager {
 	}
 
 	@Override
+	public Task getTaskById(int id) {
+		return taskDao.getTaskById(id);
+	}
+
+	@Override
 	public List<Task> listAllTasks(int engineID) {
 		return taskDao.listAllTasks(engineID);
 	}
@@ -117,6 +122,11 @@ public class TaskManagerImpl implements TaskManager {
 	@Override
 	public void removeTask(int id, int engineID) {
 		taskDao.removeTask(id, engineID);
+	}
+
+	@Override
+	public void removeTask(int id) {
+		taskDao.removeTask(id);
 	}
 
 	@Override

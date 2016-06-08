@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 #enviromental variables
-$ENV{KRB5CCNAME}='FILE:/tmp/krb5cc_perun_registrar';
+$ENV{KRB5CCNAME}='FILE:/tmp/krb5cc_elixir-mailman';
 $ENV{PERUN_URL}='https://perun.metacentrum.cz/krb/rpc/';
 
 use CGI qw(:standard);
@@ -11,7 +11,7 @@ use Crypt::OpenSSL::AES;
 use Crypt::CBC;
 use MIME::Base64::URLSafe;
 use JSON;
-use lib '/opt/perun-cli/lib/';
+use lib '/opt/perun-cli/lib';
 use Perun::Agent;
 use utf8;
 use Encode qw(decode encode);

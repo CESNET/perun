@@ -1109,7 +1109,7 @@ public class Utils {
 	 * Get BigDecimal number like '1024' in Bytes and create better readable
 	 * String with metric value like '1K' where K means KiloBytes.
 	 *
-	 * Use K,M,G,T,P,E like multipliers of 1024.
+	 * Use M,G,T,P,E like multipliers of 1024.
 	 *
 	 * If quota is not dividable by 1024 use B (Bytes) without dividing.
 	 *
@@ -1120,29 +1120,26 @@ public class Utils {
 		if(quota == null) throw new InternalErrorException("Quota in BigDecimal can't be null if we want to convert it to number with metric.");
 		//Prepare variable for result
 		String stringWithMetric;
-		//Try to divide quota to get result module 1024^x = 0 where X is in [B-0,K-1,M-2,G-3,T-4,P-5,E-6]
+		//Try to divide quota to get result module 1024^x = 0 where X is in [K-0,M-1,G-2,T-3,P-4,E-5]
 		//If module is bigger than 0, try x-1
-		if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.E)).toPlainString().contains(".")) {
-			//divide by 1024^6
-			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.E)).toPlainString() + "E";
-		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.P)).toPlainString().contains(".")) {
+		if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.E)).stripTrailingZeros().toPlainString().contains(".")) {
 			//divide by 1024^5
-			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.P)).toPlainString() + "P";
-		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.T)).toPlainString().contains(".")) {
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.E)).stripTrailingZeros().toPlainString() + "E";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.P)).stripTrailingZeros().toPlainString().contains(".")) {
 			//divide by 1024^4
-			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.T)).toPlainString() + "T";
-		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.G)).toPlainString().contains(".")) {
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.P)).stripTrailingZeros().toPlainString() + "P";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.T)).stripTrailingZeros().toPlainString().contains(".")) {
 			//divide by 1024^3
-			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.G)).toPlainString() + "G";
-		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).toPlainString().contains(".")) {
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.T)).stripTrailingZeros().toPlainString() + "T";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.G)).stripTrailingZeros().toPlainString().contains(".")) {
 			//divide by 1024^2
-			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).toPlainString() + "M";
-		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.K)).toPlainString().contains(".")) {
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.G)).stripTrailingZeros().toPlainString() + "G";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).stripTrailingZeros().toPlainString().contains(".")) {
 			//divide by 1024^1
-			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.K)).toPlainString() + "K";
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).stripTrailingZeros().toPlainString() + "M";
 		} else {
-			//can't be diveded by 1024^x where x>0 so let it be in the format like it already is
-			stringWithMetric = quota.toPlainString() + "B";
+			//can't be diveded by 1024^x where x>0 so let it be in the format like it already is, convert it to BigInteger without fractional part
+			stringWithMetric = quota.toBigInteger().toString() + "K";
 		}
 		//return result format with metric
 		return stringWithMetric;

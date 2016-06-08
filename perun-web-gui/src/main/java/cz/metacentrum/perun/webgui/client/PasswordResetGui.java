@@ -120,7 +120,7 @@ public class PasswordResetGui implements EntryPoint {
 				session.setPerunPrincipal(pp);
 
 				// check if user exists
-				if (session.getUser() != null && !pp.getRoles().hasAnyRole() && !session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+				if (session.getUser() != null && !pp.getRoles().hasAnyRole() && !session.getRpcUrl().startsWith("/non/rpc")) {
 					// if not and no role, redraw page body
 					RootLayoutPanel body = RootLayoutPanel.get();
 					loadingBox.hide();
@@ -148,7 +148,7 @@ public class PasswordResetGui implements EntryPoint {
 						// hides the loading box
 						loadingBox.hide();
 
-						if (session.getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+						if (session.getRpcUrl().startsWith("/non/rpc")) {
 
 							// CHALLENGE WITH CAPTCHA
 

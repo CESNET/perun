@@ -2,6 +2,7 @@ package cz.metacentrum.perun.webgui.json.propagationStatsReader;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
@@ -28,7 +29,6 @@ import java.util.Comparator;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class GetFacilityState implements JsonCallback, JsonCallbackTable<FacilityState>, JsonCallbackOracle<FacilityState> {
 
 	// Session
@@ -315,16 +315,37 @@ public class GetFacilityState implements JsonCallback, JsonCallbackTable<Facilit
 	 * Retrieve data from RPC
 	 */
 	public void retrieveData() {
-		JsonClient js = new JsonClient();
+
+		final JsonCallback passToCallback = this;
+
+		JsonPostClient jsp = new JsonPostClient(new JsonCallbackEvents(){
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				passToCallback.onFinished(jso);
+			}
+
+			@Override
+			public void onError(PerunError error) {
+				passToCallback.onError(error);
+			}
+
+			@Override
+			public void onLoadingStart() {
+				passToCallback.onLoadingStart();
+			}
+		});
+
 		if (facilityId != 0 ){
 			// get specific facility
-			js.retrieveData(JSON_URL, "facility="+facilityId, this);
+			jsp.put("facility", new JSONNumber(facilityId));
+			jsp.sendData(JSON_URL);
 		} else if (voId == 0) {
 			// get all facilities where user is admin
-			js.retrieveData("propagationStatsReader/getAllFacilitiesStates", this);
+			jsp.sendNativeData("propagationStatsReader/getAllFacilitiesStates", "{}");
 		} else {
 			// get facilities related to VO
-			js.retrieveData("propagationStatsReader/getAllFacilitiesStates", "vo="+voId, this);
+			jsp.put("vo", new JSONNumber(voId));
+			jsp.sendData("propagationStatsReader/getAllFacilitiesStates");
 		}
 	}
 

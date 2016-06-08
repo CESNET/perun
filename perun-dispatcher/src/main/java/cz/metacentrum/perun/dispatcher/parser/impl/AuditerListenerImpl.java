@@ -44,8 +44,8 @@ public class AuditerListenerImpl implements AuditerListener {
 							}
 							event.setData(message);
 							eventQueue.add(event);
-							Thread.sleep(1000);
 						}
+						Thread.sleep(1000);
 					}
 				} catch (InternalErrorException e) {
 					log.error("Error in AuditerConsumer: " + e.getMessage() + ", trying to recover by getting a new one.");

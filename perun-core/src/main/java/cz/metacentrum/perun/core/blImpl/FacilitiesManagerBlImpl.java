@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
@@ -34,6 +36,8 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
@@ -209,22 +213,9 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	@Override
 	public List<User> getAllowedUsers(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+
 		//Get all facilities resources
-		List<Resource> resources = this.getAssignedResources(sess, facility);
-
-		//Remove all resources which are not in specific VO (if is specific)
-		if(specificVo != null) {
-			Iterator<Resource> iter = resources.iterator();
-			while(iter.hasNext()) {
-				if(specificVo.getId() != iter.next().getVoId()) iter.remove();
-			}
-		}
-
-		//Remove all resources which has not assigned specific service (if is specific)
-		if(specificService != null) {
-			List<Resource> resourcesWhereServiceIsAssigned = getPerunBl().getServicesManagerBl().getAssignedResources(sess, specificService);
-			resources.retainAll(resourcesWhereServiceIsAssigned);
-		}
+		List<Resource> resources = getAssignedResources(sess, facility, specificVo, specificService);
 
 		List<User> users =  new ArrayList<User>();
 		for (Resource resource: resources) {
@@ -236,6 +227,11 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 
 	public List<Resource> getAssignedResources(PerunSession sess, Facility facility) throws InternalErrorException {
 		return getFacilitiesManagerImpl().getAssignedResources(sess, facility);
+	}
+
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+		if (specificVo == null && specificService == null) return getAssignedResources(sess, facility);
+		return getFacilitiesManagerImpl().getAssignedResources(sess, facility, specificVo, specificService);
 	}
 
 	public List<RichResource> getAssignedRichResources(PerunSession sess, Facility facility) throws InternalErrorException {
@@ -279,10 +275,14 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			throw new RelationExistsException("Facility is still used as a resource");
 		}
 
+		//remove hosts
 		List<Host> hosts = this.getHosts(sess, facility);
 		for (Host host: hosts) {
 			this.removeHost(sess, host);
 		}
+
+		//remove destinations
+		getPerunBl().getServicesManagerBl().removeAllDestinations(sess, facility);
 
 		// remove assigned security teams
 		List<SecurityTeam> teams = getAssignedSecurityTeams(sess, facility);
@@ -303,6 +303,16 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 			throw new InternalErrorException(e);
 		} catch (WrongReferenceAttributeValueException e) {
 			throw new InternalErrorException(e);
+		}
+
+		//Remove all facility bans
+		List<BanOnFacility> bansOnFacility = this.getBansForFacility(sess, facility.getId());
+		for(BanOnFacility banOnFacility : bansOnFacility) {
+			try {
+				this.removeBan(sess, banOnFacility.getId());
+			} catch (BanNotExistsException ex) {
+				//it is ok, we just want to remove it anyway
+			}
 		}
 
 		// delete facility
@@ -925,6 +935,79 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	@Override
 	public void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamNotAssignedException, InternalErrorException {
 		getFacilitiesManagerImpl().checkSecurityTeamAssigned(sess, facility, securityTeam);
+	}
+
+	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, BanAlreadyExistsException {
+		if(this.banExists(sess, banOnFacility.getUserId(), banOnFacility.getFacilityId())) throw new BanAlreadyExistsException(banOnFacility);
+		banOnFacility = getFacilitiesManagerImpl().setBan(sess, banOnFacility);
+		getPerunBl().getAuditer().log(sess, "Ban {} was set for userId {} on facilityId {}.", banOnFacility, banOnFacility.getUserId(), banOnFacility.getFacilityId());
+		return banOnFacility;
+	}
+
+	public BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		return getFacilitiesManagerImpl().getBanById(sess, banId);
+	}
+
+	public boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException {
+		return getFacilitiesManagerImpl().banExists(sess, userId, facilityId);
+	}
+
+	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
+		return getFacilitiesManagerImpl().banExists(sess, banId);
+	}
+
+	public void checkBanExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException {
+		if(!banExists(sess, userId, facilityId)) throw new BanNotExistsException("Ban for user " + userId + " and facility " + facilityId + " not exists!");
+	}
+
+	public void checkBanExists(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		if(!banExists(sess, banId)) throw new BanNotExistsException("Ban with id " + banId + " not exists!");
+	}
+
+	public BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException {
+		return getFacilitiesManagerImpl().getBan(sess, userId, faclityId);
+	}
+
+	public List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException {
+		return getFacilitiesManagerImpl().getBansForUser(sess, userId);
+	}
+
+	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException {
+		return getFacilitiesManagerImpl().getBansForFacility(sess, facilityId);
+	}
+
+	public List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException {
+		return getFacilitiesManagerImpl().getAllExpiredBansOnFacilities(sess);
+	}
+
+	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException {
+		banOnFacility = getFacilitiesManagerImpl().updateBan(sess, banOnFacility);
+		getPerunBl().getAuditer().log(sess, "Ban {} was updated for userId {} on facilityId {}.",banOnFacility, banOnFacility.getUserId(), banOnFacility.getFacilityId());
+		return banOnFacility;
+	}
+
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		BanOnFacility ban = this.getBanById(sess, banId);
+		getFacilitiesManagerImpl().removeBan(sess, banId);
+		getPerunBl().getAuditer().log(sess, "Ban {} was removed for userId {} on facilityId {}.",ban, ban.getUserId(), ban.getFacilityId());
+	}
+
+	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException {
+		BanOnFacility ban = this.getBan(sess, userId, facilityId);
+		getFacilitiesManagerImpl().removeBan(sess, userId, facilityId);
+		getPerunBl().getAuditer().log(sess, "Ban {} was removed for userId {} on facilityId {}.",ban, userId, facilityId);
+	}
+
+	public void removeAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException {
+		List<BanOnFacility> expiredBans = this.getAllExpiredBansOnFacilities(sess);
+		for(BanOnFacility expiredBan: expiredBans) {
+			try {
+				this.removeBan(sess, expiredBan.getId());
+			} catch (BanNotExistsException ex) {
+				log.error("Ban {} can't be removed because it not exists yet.",expiredBan);
+				//Skipt this, probably already removed
+			}
+		}
 	}
 
 	/**

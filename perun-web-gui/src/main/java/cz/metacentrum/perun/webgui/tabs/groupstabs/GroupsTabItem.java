@@ -18,10 +18,10 @@ import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroups;
+import cz.metacentrum.perun.webgui.json.groupsManager.GetAllRichGroups;
 import cz.metacentrum.perun.webgui.json.vosManager.GetVos;
-import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
+import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -105,7 +105,14 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		menu.addWidget(UiElements.getRefreshButton(this));
 
 		//call
-		final GetAllGroups groups = new GetAllGroups(voId);
+		ArrayList<String> attrNames = new ArrayList<>();
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationEnabled");
+		attrNames.add("urn:perun:group:attribute-def:def:synchronizationInterval");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationState");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp");
+		attrNames.add("urn:perun:group:attribute-def:def:lastSynchronizationTimestamp");
+		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
+		final GetAllRichGroups groups = new GetAllRichGroups(voId, attrNames);
 		groups.setCheckable(false);
 
 		// listbox
@@ -124,8 +131,8 @@ public class GroupsTabItem implements TabItem, TabItemWithUrl {
 		final TabItem tab = this;
 
 		// groups table
-		CellTable<Group> table = groups.getEmptyTable(new FieldUpdater<Group, String>() {
-			public void update(int index, Group group, String value) {
+		CellTable<RichGroup> table = groups.getEmptyTable(new FieldUpdater<RichGroup, String>() {
+			public void update(int index, RichGroup group, String value) {
 				session.getTabManager().addTab(new GroupDetailTabItem(group));
 				// close group selection tab when group is selected
 				session.getTabManager().closeTab(tab, false);

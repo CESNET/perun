@@ -433,8 +433,8 @@ public class ServicesManagerEntry implements ServicesManager {
 
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByHostname) {
-					if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByHostname: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -444,8 +444,8 @@ public class ServicesManagerEntry implements ServicesManager {
 
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByDestination) {
-					if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByDestination: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(perunSession, Role.FACILITYADMIN, facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -485,8 +485,8 @@ public class ServicesManagerEntry implements ServicesManager {
 
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByHostname) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByHostname: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -496,8 +496,8 @@ public class ServicesManagerEntry implements ServicesManager {
 
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByDestination) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByDestination: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -752,11 +752,6 @@ public class ServicesManagerEntry implements ServicesManager {
 	@Override
 	public int getDestinationsCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getDestinationsCount");
-		}
 
 		return getServicesManagerBl().getDestinationsCount(sess);
 	}

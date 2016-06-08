@@ -2,27 +2,22 @@ package cz.metacentrum.perun.engine.scheduling.impl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.engine.scheduling.DenialsResolver;
 import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
 import cz.metacentrum.perun.engine.scheduling.ExecutorEngineWorker;
-import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
 import cz.metacentrum.perun.engine.scheduling.TaskResultListener;
 import cz.metacentrum.perun.engine.scheduling.TaskStatusManager;
 import cz.metacentrum.perun.engine.scheduling.TaskStatus.TaskDestinationStatus;
-import cz.metacentrum.perun.taskslib.dao.ExecServiceDenialDao;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
@@ -49,21 +44,12 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 	private TaskExecutor taskExecutorSendWorkers;
 	@Autowired
 	private BeanFactory beanFactory;
-	/*
-	 * absolutely do not want this, its a unit testing nightmare
-	 * 
-	 * @Autowired private EngineManager engineManager;
-	 */
-	@Autowired
-	private Properties propertiesBean;
 	@Autowired
 	private DependenciesResolver dependencyResolver;
 	@Autowired
 	private TaskStatusManager taskStatusManager;
 	@Autowired
 	private SchedulingPool schedulingPool;
-	@Autowired
-	private DenialsResolver denialsResolver;
 	
 	final int MAX_RUNNING_GEN = 20;
 	final int MAX_RUNNING = 1000;
@@ -100,9 +86,6 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 			if (task.getSchedule().before(now)) {
 				log.debug("TASK " + task.toString() + " is going to run");
 				runTask(task);
-				if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
-					currentlyRunningGenTasks++;
-				}
 			}
 		}
 		/*
@@ -169,11 +152,6 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		boolean started = false;
 		for (Destination destination : taskStatusManager.getTaskStatus(task)
 				.getWaitingDestinations()) {
-			// check if exec service is enabled for the destination
-			if(denialsResolver.isExecServiceDeniedOnDestination(task.getExecService(), destination.getId())) {
-				log.info("Not starting worker for disabled destination " + destination.toString());
-				continue;
-			}
 			// check if all the dependency destinations are done
 			boolean proceed = true;
 			try {
@@ -200,8 +178,12 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 					log.error("Error setting status for destination {} of task {}",
 							destination, task.toString());
 				}
-				startWorker(task, destination);
-				started = true;
+				try {
+					startWorker(task, destination);
+					started = true;
+				} catch(Exception e) {
+					log.error("Error queuing worker for execution: " + e.toString());
+				}
 			}
 		}
 		if(!started) {
@@ -309,34 +291,12 @@ public class TaskExecutorEngineImpl implements TaskExecutorEngine {
 		return worker;
 	}
 
-	/*
-	 * public TaskManager getTaskManager() { return taskManager; }
-	 * 
-	 * public void setTaskManager(TaskManager taskManager) { this.taskManager =
-	 * taskManager; }
-	 */
-
 	public BeanFactory getBeanFactory() {
 		return beanFactory;
 	}
 
 	public void setBeanFactory(BeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
-	}
-
-	/*
-	 * public EngineManager getEngineManager() { return engineManager; }
-	 * 
-	 * public void setEngineManager(EngineManager engineManager) {
-	 * this.engineManager = engineManager; }
-	 */
-
-	public Properties getPropertiesBean() {
-		return propertiesBean;
-	}
-
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
 	}
 
 	public TaskExecutor getTaskExecutorGenWorkers() {

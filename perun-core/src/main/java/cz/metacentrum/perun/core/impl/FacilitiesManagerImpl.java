@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -28,6 +29,8 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
@@ -70,6 +73,11 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	
 	protected final static String facilityContactsMappingSelectQueryWithAllEntities = facilityContactsMappingSelectQuery + ", " + UsersManagerImpl.userMappingSelectQuery + ", " + 
 	  facilityMappingSelectQuery + ", " + OwnersManagerImpl.ownerMappingSelectQuery + ", " + GroupsManagerImpl.groupMappingSelectQuery;
+
+	protected final static String banOnFacilityMappingSelectQuery = "facilities_bans.id as fac_bans_id, facilities_bans.description as fac_bans_description, " +
+		"facilities_bans.user_id as fac_bans_user_id, facilities_bans.facility_id as fac_bans_facility_id, facilities_bans.banned_to as fac_bans_validity_to, " +
+		"facilities_bans.created_at as fac_bans_created_at, facilities_bans.created_by as fac_bans_created_by, facilities_bans.modified_at as fac_bans_modified_at, " +
+		"facilities_bans.modified_by as fac_bans_modified_by, facilities_bans.created_by_uid as fac_bans_created_by_uid, facilities_bans.modified_by_uid as fac_bans_modified_by_uid";
 
 	public static final RowMapper<Facility> FACILITY_MAPPER = new RowMapper<Facility>() {
 		public Facility mapRow(ResultSet rs, int i) throws SQLException {
@@ -207,6 +215,26 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		public String mapRow(ResultSet rs, int i) throws SQLException {
 
 			return rs.getString("name");
+		}
+	};
+
+	protected static final RowMapper<BanOnFacility> BAN_ON_FACILITY_MAPPER = new RowMapper<BanOnFacility>() {
+		public BanOnFacility mapRow(ResultSet rs, int i) throws SQLException {
+			BanOnFacility banOnFacility = new BanOnFacility();
+			banOnFacility.setId(rs.getInt("fac_bans_id"));
+			banOnFacility.setUserId(rs.getInt("fac_bans_user_id"));
+			banOnFacility.setFacilityId(rs.getInt("fac_bans_facility_id"));
+			banOnFacility.setDescription(rs.getString("fac_bans_description"));
+			banOnFacility.setValidityTo(rs.getTimestamp("fac_bans_validity_to"));
+			banOnFacility.setCreatedAt(rs.getString("fac_bans_created_at"));
+			banOnFacility.setCreatedBy(rs.getString("fac_bans_created_by"));
+			banOnFacility.setModifiedAt(rs.getString("fac_bans_modified_at"));
+			banOnFacility.setModifiedBy(rs.getString("fac_bans_modified_by"));
+			if(rs.getInt("fac_bans_modified_by_uid") == 0) banOnFacility.setModifiedByUid(null);
+			else banOnFacility.setModifiedByUid(rs.getInt("fac_bans_modified_by_uid"));
+			if(rs.getInt("fac_bans_created_by_uid") == 0) banOnFacility.setCreatedByUid(null);
+			else banOnFacility.setCreatedByUid(rs.getInt("fac_bans_created_by_uid"));
+			return banOnFacility;
 		}
 	};
 
@@ -405,6 +433,38 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?",
 					ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+
+		try {
+
+			if (specificVo != null && specificService != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
+						"resource_services.resource_id=resources.id where facility_id=? and vo_id=? and service_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId(), specificService.getId());
+
+			} else if (specificVo != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=? and vo_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId());
+
+			} else if (specificService != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
+						"resource_services.resource_id=resources.id where facility_id=? and service_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificService.getId());
+
+			} else {
+
+				return getAssignedResources(sess, facility);
+
+			}
+
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -982,6 +1042,126 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 							"select security_teams_facilities.facility_id from security_teams_facilities where security_team_id=?" +
 							") " + Compatibility.getAsAlias("assigned_ids")+ " ON facilities.id=assigned_ids.facility_id",
 					FACILITY_MAPPER, securityTeam.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from facilities_bans where user_id=? and facility_id=?", userId, facilityId);
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from facilities_bans where id=?", banId);
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException {
+		Utils.notNull(banOnFacility.getValidityTo(), "banOnFacility.getValidityTo");
+
+		try {
+			int newId = Utils.getNewId(jdbc, "facilities_bans_id_seq");
+
+			jdbc.update("insert into facilities_bans(id, description, banned_to, user_id, facility_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
+					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+					newId, banOnFacility.getDescription(), Compatibility.getDate(banOnFacility.getValidityTo().getTime()), banOnFacility.getUserId(), banOnFacility.getFacilityId(), sess.getPerunPrincipal().getActor(),
+					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+
+			banOnFacility.setId(newId);
+
+			return banOnFacility;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where id=? ", BAN_ON_FACILITY_MAPPER, banId);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new BanNotExistsException("Ban with id " + banId + " not exists for any facility.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where user_id=? and facility_id=?", BAN_ON_FACILITY_MAPPER, userId, faclityId);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new BanNotExistsException("Ban for user " + userId + " and facility " + faclityId + " not exists.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where user_id=?", BAN_ON_FACILITY_MAPPER, userId);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where facility_id=?", BAN_ON_FACILITY_MAPPER, facilityId);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where banned_to < " + Compatibility.getSysdate(), BAN_ON_FACILITY_MAPPER);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException {
+		try {
+			jdbc.update("update facilities_bans set description=?, banned_to=?, modified_by=?, modified_by_uid=?, modified_at=" +
+							Compatibility.getSysdate() + " where id=?",
+							banOnFacility.getDescription(), Compatibility.getDate(banOnFacility.getValidityTo().getTime()), sess.getPerunPrincipal().getActor(),
+							sess.getPerunPrincipal().getUserId(), banOnFacility.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+
+		return banOnFacility;
+	}
+
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		try {
+			int numAffected = jdbc.update("delete from facilities_bans where id=?", banId);
+			if(numAffected != 1) throw new BanNotExistsException("Ban with id " + banId + " can't be remove, because not exists yet.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException {
+		try {
+			int numAffected = jdbc.update("delete from facilities_bans where user_id=? and facility_id=?", userId, facilityId);
+			if(numAffected != 1) throw new BanNotExistsException("Ban for user " + userId + " and facility " + facilityId + " can't be remove, because not exists yet.");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}

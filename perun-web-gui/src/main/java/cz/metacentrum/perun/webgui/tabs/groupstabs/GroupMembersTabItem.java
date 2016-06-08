@@ -295,7 +295,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl{
 					FlexTable panel = new FlexTable();
 					panel.setSize("100%", "150px");
 					HTML label = new HTML();
-					label.setHTML("<h2>Group has more than 1000 members, do you wish to load all of them ?</h2>");
+					label.setHTML("<h2>Group has "+count.getInt()+" members, do you wish to load all of them ?</h2>");
 					CustomButton loadAllMembersButton = new CustomButton("Load all members", SmallIcons.INSTANCE.userGreenIcon(), new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {

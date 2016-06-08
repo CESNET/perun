@@ -36,7 +36,7 @@ public class ProcessPoolJob extends QuartzJobBean {
 		} catch (InternalErrorException e) {
 			log.error(e.toString(), e);
 		}
-		log.info("ProcessPoolJob: taskScheduler.processPool() has completed.");
+		log.info("ProcessPoolJob done: taskScheduler.processPool() has completed.");
 
 	}
 

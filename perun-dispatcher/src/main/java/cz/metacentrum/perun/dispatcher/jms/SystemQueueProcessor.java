@@ -186,7 +186,7 @@ public class SystemQueueProcessor {
 			// destinations
 			// (empty for DONE tasks)
 
-			String[] clientIDsplitter = systemMessagetext.split(":", 5);
+			String[] clientIDsplitter = systemMessagetext.split(":", 3);
 			int clientID = 0;
 			try {
 				clientID = Integer.parseInt(clientIDsplitter[1]);
@@ -199,28 +199,35 @@ public class SystemQueueProcessor {
 			if (clientIDsplitter[0].equalsIgnoreCase("register")) {
 
 				// Do we have this queue already?
-				DispatcherQueue dispatcherQueue = null;
-				dispatcherQueue = dispatcherQueuePool
-						.getDispatcherQueueByClient(clientID);
-				// Yes, so we just reload matching rules...
+				DispatcherQueue dispatcherQueue = dispatcherQueuePool.getDispatcherQueueByClient(clientID);
 				if (dispatcherQueue != null) {
-
+					// Yes, so we just reload matching rules...
 					smartMatcher.reloadRulesFromDBForEngine(clientID);
-
+					// ...and close all tasks that could have been running there
+					propagationMaintainer.closeTasksForEngine(clientID);
+				} else {
 					// No, we have to create the whole JMS queue and load
 					// matching
 					// rules...
-				} else {
 					createDispatcherQueueForClient(clientID);
 				}
 			} else if (clientIDsplitter[0].equalsIgnoreCase("goodbye")) {
 				// engine going down, should mark all tasks as failed
 				propagationMaintainer.closeTasksForEngine(clientID);
+				dispatcherQueuePool.removeDispatcherQueue(clientID);
 			} else if (clientIDsplitter[0].equalsIgnoreCase("task")) {
+				clientIDsplitter = systemMessagetext.split(":", 5);
 				// task complete...
 				propagationMaintainer.onTaskComplete(
 						Integer.parseInt(clientIDsplitter[2]), clientID,
 						clientIDsplitter[3], clientIDsplitter[4]);
+			} else if (clientIDsplitter[0].equalsIgnoreCase("taskresult")) {
+				//clientIDsplitter = systemMessagetext.split(":", 3);
+				// destination complete for task
+				propagationMaintainer.onTaskDestinationComplete(
+						clientID,
+						clientIDsplitter[2]
+						);
 			} else {
 				throw new MessageFormatException(
 						"Client (Perun-Engine) sent a malformed message ["

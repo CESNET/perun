@@ -149,6 +149,8 @@ public interface ServicesManagerBl {
 	/**
 	 * Generates the list of attributes per each member associated with the resources and groups.
 	 *
+	 * Generate also vo-required attributes for service. Add them to the same structure like resource-required attributes.
+	 *
 	 * @param perunSession
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, resources associated with it and members assigned to the resources
@@ -456,6 +458,16 @@ public interface ServicesManagerBl {
 	List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException;
 
 	/**
+	 * Get lists of all destinations for specific Facility
+	 *
+	 * @param perunSession
+	 * @param facility the facility
+	 * @return lists of all destinations for specific Facility
+	 * @throws InternalErrorException
+	 */
+	List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+	/**
 	 * Get list of all rich destinations defined for the facility.
 	 *
 	 * @param perunSession
@@ -495,6 +507,15 @@ public interface ServicesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void removeAllDestinations(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Removes all defined destinations for the facility.
+	 *
+	 * @param perunSession
+	 * @param facility the facility
+	 * @throws InternalErrorException
+	 */
+	void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Check if the service exits.

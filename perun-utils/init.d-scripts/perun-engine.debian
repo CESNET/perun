@@ -14,6 +14,9 @@
 #
 # 14.04.2015 Modified path to perun.conf.custom and log4j to /etc/perun
 # 04.05.2015 Create, chown and delete pidfile in order to allow user "perun" to start/stop the service
+# 24.03.2016 Create /var/run/perun if not exists, will work when started on system boot
+# 24.03.2016 Own logging for perun-engine to /var/log/perun-engine/
+# 04.04.2015 Log stdout/stderr to perun-engine-out.log
 #
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Perun Engine"
@@ -22,7 +25,7 @@ JAR=/home/perun/perun-engine/perun-engine-3.0.1-SNAPSHOT-production.jar
 NAME=perun-engine
 SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid
-LOG4J_CONF=/etc/perun/log4j.xml
+LOG4J_CONF=/etc/perun/log4j-engine.xml
 PERUN_ENGINE_CONF_DIR=/etc/perun/
 DAEMON_USER=perun
 JAVA=`which java`
@@ -58,12 +61,26 @@ do_start () {
 	start-stop-daemon --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
         --pidfile $PIDFILE --chdir $EXEC_DIR --exec $DAEMON --test --background > /dev/null \
         || return 1
+
+	# /var/run is not persistent, create pid directory on first start
+	# is expected to run by root on system startup
+	# if started by perun (service restart), this will fail
+	PID_DIR="/var/run/perun";
+	if [ ! -d $PID_DIR ]; then
+		mkdir $PID_DIR;
+		chown $DAEMON_USER $PID_DIR;
+	fi
+
 	# Create empty pidfile
 	touch $PIDFILE;
 	chown $DAEMON_USER $PIDFILE;
+
+	# Start with output logging, but we need to create log-file first for perun:perun
 	start-stop-daemon --make-pidfile --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
-        --pidfile $PIDFILE --chdir $EXEC_DIR --background --exec $DAEMON -- $DAEMON_OPTS \
+        --pidfile $PIDFILE --chdir $EXEC_DIR --background --no-close --startas /bin/bash -- \
+        -c "exec $DAEMON $DAEMON_OPTS >> /var/log/perun-engine/perun-engine-out.log 2>&1" \
         || return 2
+
 }
 
 # Stop Perun Engine.

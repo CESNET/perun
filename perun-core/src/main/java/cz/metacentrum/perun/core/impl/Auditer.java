@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -406,10 +407,7 @@ public class Auditer {
 		}
 		log.trace("Audit messages was flushed for current transaction.");
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
-			for(AuditerMessage auditerMessage : messages) {
-				log.info("AUDIT: {}", auditerMessage.getMessage());
-				storeMessageToDb(auditerMessage.getOriginaterPerunSession(), auditerMessage.getMessage());
-			}
+			storeMessagesToDb(messages);
 		}
 
 		for(AuditerMessage message: messages) {
@@ -428,10 +426,11 @@ public class Auditer {
 				}
 
 				if(!resolvingMessages.isEmpty()) {
+					List<AuditerMessage> resolvingAuditerMessages = new ArrayList<>();
 					for(String msg : resolvingMessages) {
-						log.info("AUDIT: {}", msg);
-						storeMessageToDb(message.getOriginaterPerunSession(), msg);
+						resolvingAuditerMessages.add(new AuditerMessage(message.getOriginaterPerunSession(), msg));
 					}
+					storeMessagesToDb(resolvingAuditerMessages);
 				}
 			}
 		}
@@ -516,6 +515,14 @@ public class Auditer {
 		}
 	}
 
+	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(id) from auditer_log");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public List<AuditMessage> getMessageForParser(int count) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + ",row_number() over (ORDER BY id DESC) as rownumber from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
@@ -537,10 +544,49 @@ public class Auditer {
 	}
 
 	/**
+	 * Stores the auditer messages to the DB in batch.
+	 *
+	 * @param messages list of AuditerMessages
+	 */
+	public void storeMessagesToDb(final List<AuditerMessage> messages) {
+		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
+			try {
+				jdbc.batchUpdate("insert into auditer_log (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
+						new BatchPreparedStatementSetter() {
+							@Override
+							public void setValues(PreparedStatement ps, int i) throws SQLException {
+								final AuditerMessage auditerMessage = messages.get(i);
+								final String message = auditerMessage.getMessage();
+								final PerunSession session = auditerMessage.getOriginaterPerunSession();
+								log.info("AUDIT: {}", message);
+								try {
+									ps.setInt(1, Utils.getNewId(jdbc, "auditer_log_id_seq"));
+								} catch (InternalErrorException e) {
+									throw new SQLException("Cannot get unique id for new auditer log message ['" + message + "']", e);
+								}
+								ps.setString(2, message);
+								ps.setString(3, session.getPerunPrincipal().getActor());
+								ps.setInt(4, session.getPerunPrincipal().getUserId());
+							}
+
+							@Override
+							public int getBatchSize() {
+								return messages.size();
+							}
+						});
+			} catch (RuntimeException e) {
+				log.error("Cannot store auditer log message in batch for list ['{}'], exception: {}", messages, e);
+			} catch (InternalErrorException e) {
+				log.error("Could not get system date identifier for the DB", e);
+			}
+		}
+	}
+
+	/**
 	 * Store the message to the DB.
 	 *
+	 * @param sess
 	 * @param message
-	 * @throws InternalErrorException
 	 */
 	public void storeMessageToDb(final PerunSession sess, final String message) {
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {

@@ -267,6 +267,8 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
 		final AddRemoveItemsTable<User> itemsTable = new AddRemoveItemsTable<User>(true);
 
+		itemsTable.addItem(session.getUser());
+
 		final VerticalPanel secondTabPanel = new VerticalPanel();
 		secondTabPanel.setSize("100%", "100%");
 		secondTabPanel.setVisible(false);
@@ -298,6 +300,12 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				firstTabLayout.setVisible(true);
 
 				final FindUsers callback = new FindUsers();
+				// Service users can't own another Service or Guest (Sponsored) account.
+				callback.hideService(true);
+				if (userType.getSelectedValue().equals("SPONSORED")) {
+					// Sponsored account can't sponsor another !
+					callback.setHideSponsored(true);
+				}
 
 				// HORIZONTAL MENU
 				TabMenu tabMenu = new TabMenu();
@@ -461,17 +469,21 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				firstTabLayout.getFlexCellFormatter().setVerticalAlignment(2, 0, HasVerticalAlignment.ALIGN_TOP);
 
 				// actions when added items or removed items
-				itemsTable.setEvents(new AddRemoveItemsTable.HandleItemsAction() {
+				itemsTable.setEvents(new AddRemoveItemsTable.HandleItemsAction<User>() {
 					@Override
-					public void onAdd() {
+					public void onAdd(User object) {
 						cb.setEnabled(true);
 					}
-				@Override
-				public void onRemove() {
-					if (itemsTable.getList().isEmpty()) {
-						cb.setEnabled(false);
+					@Override
+					public void onRemove(User object) {
+						if (object.equals(session.getUser())) {
+							itemsTable.addItem(object);
+							UiElements.generateInfo("Can't remove yourself", "<p>You can't remove yourself yet. You wouldn't be able to finish service member configuration. Please remove yourself afterwards.");
+						}
+						if (itemsTable.getList().isEmpty()) {
+							cb.setEnabled(false);
+						}
 					}
-				}
 				});
 
 			}

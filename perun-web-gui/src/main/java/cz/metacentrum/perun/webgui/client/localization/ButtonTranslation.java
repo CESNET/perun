@@ -629,6 +629,9 @@ public interface ButtonTranslation extends Messages {
 	@DefaultMessage("Filter hosts by name")
 	String filterHosts();
 
+	@DefaultMessage("Delete selected Tasks")
+	String deleteTasks();
+
 	/* PERUN ADMIN */
 
 	@DefaultMessage("Refresh list of audit messages")

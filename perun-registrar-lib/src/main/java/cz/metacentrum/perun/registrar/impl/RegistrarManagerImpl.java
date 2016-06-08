@@ -426,7 +426,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("voFormExtensionException", ex);
 				} catch (MissingRequiredDataException ex) {
 					// can't display form
-					result.put("voFormInitialException", ex);
+					result.put("voFormExtensionException", ex);
 				}
 
 			}
@@ -454,7 +454,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("groupFormInitialException", ex);
 				}  catch (MissingRequiredDataException ex) {
 					// can't display form
-					result.put("voFormInitialException", ex);
+					result.put("groupFormInitialException", ex);
 				}
 
 			}
@@ -659,6 +659,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// set new properties back to object & return
 		item.setOrdnum(ordnum);
 		item.setId(itemId);
+		perun.getAuditer().log(user, "Application form item ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has been added");
 		return item;
 
 	}
@@ -736,6 +737,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
+		perun.getAuditer().log(sess, "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has had its items updated.");
 		// return number of updated rows
 		return finalResult;
 
@@ -756,6 +758,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			}
 		}
 
+		perun.getAuditer().log(user, "Application form ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has been updated.");
 		return jdbc.update(
 				"update application_form set automatic_approval=?, automatic_approval_extension=?, module_name=? where id=?",
 				form.isAutomaticApproval() ? "1" : "0", form.isAutomaticApprovalExtension() ? "1" : "0", form.getModuleClassName(), form.getId());
@@ -770,6 +773,8 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		jdbc.update("delete from application_form_items where form_id=? and ordnum=?", form.getId(), ordnum);
 		jdbc.update("update application_form_items set ordnum=ordnum-1 where form_id=? and ordnum>?", form.getId(), ordnum);
+		
+		perun.getAuditer().log(user, "Application form item ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has been deleted");
 
 	}
 
@@ -1060,6 +1065,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (AppState.VERIFIED.equals(app.getState())) throw new RegistrarException("Submitted application can't be deleted. Please reject the application first.");
 			if (AppState.APPROVED.equals(app.getState())) throw new RegistrarException("Approved application can't be deleted. Try to refresh the view to see changes.");
 		}
+		perun.getAuditer().log(sess, "Application ID=" + app.getId() + " voID=" + app.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " has been deleted");
 
 	}
 
@@ -1080,6 +1086,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		// proceed
 		markApplicationVerified(sess, appId);
+		perun.getAuditer().log(sess, "Application ID=" + appId + " voID=" + app.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " has been verified.");
 		// return updated application
 		return getApplicationById(appId);
 
@@ -1159,6 +1166,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// send mail
 		getMailManager().sendMessage(app, MailType.APP_REJECTED_USER, reason, null);
 
+		perun.getAuditer().log(sess, "Application ID=" + app.getId() + " voID=" + app.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " has been rejected.");
 		// return updated application
 		return app;
 
@@ -1195,6 +1203,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			// we skip any exception thrown from here
 			log.error("[REGISTRAR] Exception when validating {} after approving application {}.", member, app);
 		}
+		perun.getAuditer().log(sess, "Application ID=" + appId + " voID=" + app.getVo().getId() + ((app.getGroup() != null) ? (" groupID=" + app.getGroup().getId()) : "") + " was approved.");
 
 		return app;
 	}
@@ -1632,8 +1641,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		try {
 			PerunPrincipal pp = sess.getPerunPrincipal();
-			// sort by ID which respect latest applications
-			return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.id desc", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
+			if (pp.getUser() != null) {
+				return jdbc.query(APP_SELECT + " where user_id=? or (a.created_by=? and extsourcename=?) order by a.id desc", APP_MAPPER, pp.getUserId(), pp.getActor(), pp.getExtSourceName());
+			} else {
+				// sort by ID which respect latest applications
+				return jdbc.query(APP_SELECT + " where a.created_by=? and extsourcename=? order by a.id desc", APP_MAPPER, pp.getActor(), pp.getExtSourceName());
+			}
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Application>();
 		}
@@ -1754,12 +1767,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 						} else {
 							// user isn't member of group
 							regs.clear();
-							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 									new SingleColumnRowMapper<Integer>(Integer.class),
-									AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.NEW.toString()));
-							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+									AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+							regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 									new SingleColumnRowMapper<Integer>(Integer.class),
-									AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
+									AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
 							if (!regs.isEmpty()) {
 								// user have unprocessed application for group
 								throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
@@ -1775,12 +1788,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					if (group != null) {
 						// not member of VO - check for unprocessed applications to Group
 						regs.clear();
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.NEW.toString()));
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and user_id=? and state=?",
+								AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id=? and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), group.getId(), user.getId(), AppState.VERIFIED.toString()));
+								AppType.INITIAL.toString(), vo.getId(), group.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
 						if (!regs.isEmpty()) {
 							// user have unprocessed application for group - can't post more
 							throw new DuplicateRegistrationAttemptException("Initial application for Group: "+group.getName()+" already exists.", actor, extSourceName, regs.get(0));
@@ -1789,12 +1802,12 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					} else {
 						// not member of VO - check for unprocessed applications
 						regs.clear();
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), user.getId(), AppState.NEW.toString()));
-						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and user_id=? and state=?",
+								AppType.INITIAL.toString(), vo.getId(), AppState.NEW.toString(), user.getId(), actor, extSourceName));
+						regs.addAll(jdbc.query("select id from application where apptype=? and vo_id=? and group_id is null and state=? and (user_id=? or (created_by=? and extSourceName=?))",
 								new SingleColumnRowMapper<Integer>(Integer.class),
-								AppType.INITIAL.toString(), vo.getId(), user.getId(), AppState.VERIFIED.toString()));
+								AppType.INITIAL.toString(), vo.getId(), AppState.VERIFIED.toString(), user.getId(), actor, extSourceName));
 						if (!regs.isEmpty()) {
 							// user have unprocessed application for VO - can't post more
 							throw new DuplicateRegistrationAttemptException("Initial application for VO: "+vo.getName()+" already exists.", actor, extSourceName, regs.get(0));
@@ -2629,6 +2642,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		for (Application a : applications) {
 			// if new => skipp user will approve automatically by verifying email
 			if (a.getState().equals(AppState.NEW)) continue;
+
+			// approve applications only for auto-approve forms
+			if (!getFormForGroup(a.getGroup()).isAutomaticApproval()) continue;
 
 			try {
 				registrarManager.approveApplicationInternal(sess, a.getId());

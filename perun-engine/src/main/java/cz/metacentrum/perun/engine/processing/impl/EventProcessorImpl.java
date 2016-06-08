@@ -111,8 +111,16 @@ public class EventProcessorImpl implements EventProcessor {
 			if(currentTask == null) {
 				// task.setSourceUpdated(false);
 				schedulingPool.addToPool(task);
-				if(task.isPropagationForced()) {
-					final Task ntask = task;
+				currentTask = task;
+			} else {
+				// currentTask.setSourceUpdated(true);
+				log.debug("Resetting current task destination list to {}", task.getDestinations());
+				currentTask.setDestinations(task.getDestinations());
+				currentTask.setPropagationForced(task.isPropagationForced());
+			}
+			if(currentTask.isPropagationForced()) {
+				final Task ntask = currentTask;
+				try {
 					taskExecutorEventProcessor.execute(new Runnable() {
 						@Override
 						public void run() {
@@ -124,12 +132,9 @@ public class EventProcessorImpl implements EventProcessor {
 							}
 						}
 					});
+				} catch(Exception e) {
+					log.error("Error queuing task to executor: " + e.toString());
 				}
-			} else {
-				// currentTask.setSourceUpdated(true);
-				log.debug("Resetting current task destination list to {}", task.getDestinations());
-				currentTask.setDestinations(task.getDestinations());
-				currentTask.setPropagationForced(task.isPropagationForced());
 			}
 		}
 		log.debug("POOL SIZE:" + schedulingPool.getSize());

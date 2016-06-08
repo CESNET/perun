@@ -235,7 +235,7 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException {
-		return createMember(sess, vo, extSource, login, new ArrayList<Group>());
+		return this.createMember(sess, vo, extSource, login, new ArrayList<Group>());
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException {
@@ -569,15 +569,15 @@ public class MembersManagerEntry implements MembersManager {
 
 		Iterator<RichMember> richMemberIter = richMembers.iterator();
 		while(richMemberIter.hasNext()) {
-			RichMember rm = richMemberIter.next();
+			RichMember richMember = richMemberIter.next();
 			
 			//if voadmin or voobserver or groupadmin has right to this member, its ok
-			if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, rm) ||
-				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rm) ||
-				AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, rm)) continue;
+			if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, richMember) ||
+				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, richMember) ||
+				AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, richMember)) continue;
 
 			//if not, then try facility admin rights
-			List<Resource> membersResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, rm);
+			List<Resource> membersResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, richMember);
 			boolean found = false;
 			for(Resource resource: membersResources) {
 				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {

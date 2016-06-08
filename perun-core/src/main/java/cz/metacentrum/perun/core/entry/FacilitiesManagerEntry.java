@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
@@ -27,6 +28,8 @@ import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -154,11 +157,6 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getFacilitiesCount");
-		}
 
 		return getFacilitiesManagerBl().getFacilitiesCount(sess);
 	}
@@ -519,8 +517,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			}
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByHostname) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByHostname: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -529,8 +527,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			}
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByDestination) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByDestination: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -567,8 +565,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			}
 			if(!facilitiesByHostname.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByHostname) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByHostname: facilitiesByHostname) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname)) {
 						hasRight = true;
 						break;
 					}
@@ -577,8 +575,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			}
 			if(!facilitiesByDestination.isEmpty()) {
 				boolean hasRight = false;
-				for(Facility f: facilitiesByDestination) {
-					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+				for(Facility facilityByDestination: facilitiesByDestination) {
+					if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination)) {
 						hasRight = true;
 						break;
 					}
@@ -863,8 +861,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 		if(!facilitiesByHostname.isEmpty()) {
 			boolean hasRight = false;
-			for(Facility f: facilitiesByHostname) {
-				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+			for(Facility facilityByHostname: facilitiesByHostname) {
+				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname)) {
 					hasRight = true;
 					break;
 				}
@@ -873,8 +871,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 		if(!facilitiesByDestination.isEmpty()) {
 			boolean hasRight = false;
-			for(Facility f: facilitiesByDestination) {
-				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, f)) {
+			for(Facility facilityByDestination: facilitiesByDestination) {
+				if(AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination)) {
 					hasRight = true;
 					break;
 				}
@@ -962,9 +960,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByHostName(sess, hostname);
 
 		if (!facilities.isEmpty()) {
-			Iterator<Facility> iterator = facilities.iterator();
-			while(iterator.hasNext()) {
-				if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, iterator.next())) iterator.remove();
+			Iterator<Facility> facilityByHostname = facilities.iterator();
+			while(facilityByHostname.hasNext()) {
+				if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByHostname.next())) facilityByHostname.remove();
 			}
 		}
 
@@ -1004,9 +1002,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		if(contactGroups == null) return new ArrayList<>();
 
-		Iterator<ContactGroup> iter = contactGroups.iterator();
-		while(iter.hasNext()) {
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, iter.next().getFacility())) iter.remove();
+		Iterator<ContactGroup> facilityContactGroup = contactGroups.iterator();
+		while(facilityContactGroup.hasNext()) {
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityContactGroup.next().getFacility())) facilityContactGroup.remove();
 		}
 
 		return contactGroups;
@@ -1020,9 +1018,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		if(contactGroups == null) return new ArrayList<>();
 
-		Iterator<ContactGroup> iter = contactGroups.iterator();
-		while(iter.hasNext()) {
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, iter.next().getFacility())) iter.remove();
+		Iterator<ContactGroup> facilityContactGroup = contactGroups.iterator();
+		while(facilityContactGroup.hasNext()) {
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityContactGroup.next().getFacility())) facilityContactGroup.remove();
 		}
 
 		return contactGroups;
@@ -1036,9 +1034,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		if(contactGroups == null) return new ArrayList<>();
 
-		Iterator<ContactGroup> iter = contactGroups.iterator();
-		while(iter.hasNext()) {
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, iter.next().getFacility())) iter.remove();
+		Iterator<ContactGroup> facilityContactGroup = contactGroups.iterator();
+		while(facilityContactGroup.hasNext()) {
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityContactGroup.next().getFacility())) facilityContactGroup.remove();
 		}
 
 		return contactGroups;
@@ -1082,8 +1080,8 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Iterator<ContactGroup> iter = contactGroupsToAdd.iterator();
 		while(iter.hasNext()) {
-			ContactGroup cg = iter.next();
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, cg.getFacility())) {
+			ContactGroup contactGroupToAdd = iter.next();
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToAdd.getFacility())) {
 				iter.remove();
 				continue;
 			}
@@ -1113,9 +1111,9 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Iterator<ContactGroup> iter = contactGroupsToRemove.iterator();
 		while(iter.hasNext()) {
-			ContactGroup cg = iter.next();
+			ContactGroup contactGroupToRemove = iter.next();
 
-			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, cg.getFacility())) {
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, contactGroupToRemove.getFacility())) {
 				throw new PrivilegeException(sess, "removeFacilityContacts");
 			}
 
@@ -1174,6 +1172,124 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		this.getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
+	}
+
+	@Override
+	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException, FacilityNotExistsException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(banOnFacility, "banOnFacility");
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, banOnFacility.getUserId());
+		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, banOnFacility.getFacilityId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "setBan");
+		}
+
+		return getFacilitiesManagerBl().setBan(sess, banOnFacility);
+	}
+
+	@Override
+	public BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		BanOnFacility ban = getFacilitiesManagerBl().getBanById(sess, banId);
+
+		Facility facility = new Facility();
+		facility.setId(ban.getId());
+		
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getBanById");
+		}
+
+		return ban;
+	}
+
+	public BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException, PrivilegeException, UserNotExistsException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+		Facility facility = getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, faclityId);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getBan");
+		}
+		
+		return getFacilitiesManagerBl().getBan(sess, userId, faclityId);
+	}
+
+	public List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException, UserNotExistsException {
+		Utils.checkPerunSession(sess);
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, userId);
+
+		List<BanOnFacility> usersBans = getFacilitiesManagerBl().getBansForUser(sess, userId);
+		//filtering
+		Iterator<BanOnFacility> iterator = usersBans.iterator();
+		while(iterator.hasNext()) {
+			BanOnFacility banForFiltering = iterator.next();
+			Facility facility = new Facility();
+			facility.setId(banForFiltering.getFacilityId());
+			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) iterator.remove();
+		}
+
+		return usersBans;
+	}
+
+	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException, PrivilegeException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, facilityId);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "getBansForFacility");
+		}
+
+		return getFacilitiesManagerBl().getBansForFacility(sess, facilityId);
+	}
+
+	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, UserNotExistsException, BanNotExistsException {
+		Utils.checkPerunSession(sess);
+		this.getFacilitiesManagerBl().checkBanExists(sess, banOnFacility.getId());
+		Facility facility = this.getFacilitiesManagerBl().getFacilityById(sess, banOnFacility.getFacilityId());
+		User user = getPerunBl().getUsersManagerBl().getUserById(sess, banOnFacility.getUserId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "updateBan");
+		}
+
+		banOnFacility = getFacilitiesManagerBl().updateBan(sess, banOnFacility);
+		return banOnFacility;
+	}
+
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, PrivilegeException, BanNotExistsException {
+		Utils.checkPerunSession(sess);
+		BanOnFacility ban = this.getFacilitiesManagerBl().getBanById(sess, banId);
+
+		Facility facility = new Facility();
+		facility.setId(ban.getId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "removeBan");
+		}
+
+		getFacilitiesManagerBl().removeBan(sess, banId);
+	}
+
+	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		BanOnFacility ban = this.getFacilitiesManagerBl().getBan(sess, userId, facilityId);
+		
+		Facility facility = new Facility();
+		facility.setId(ban.getId());
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
+			throw new PrivilegeException(sess, "removeBan");
+		}
+
+		getFacilitiesManagerBl().removeBan(sess, userId, facilityId);
 	}
 
 	/**

@@ -63,6 +63,14 @@ public class TaskStatusManagerImpl implements TaskStatusManager,
 	@Override
 	public void onTaskDestinationDone(Task task, Destination destination,
 			TaskResult result) {
+		if(result != null) {
+			try {
+				jmsQueueManager.reportFinishedDestination(task, destination, result);
+			} catch (JMSException e) {
+				log.error("Failed to report finished task " + task.toString()
+						+ ": " + e.getMessage());
+			}
+		}
 		if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
 			schedulingPool.setTaskStatus(task, cz.metacentrum.perun.taskslib.model.Task.TaskStatus.DONE);
 		} else {
@@ -98,6 +106,14 @@ public class TaskStatusManagerImpl implements TaskStatusManager,
 	@Override
 	public void onTaskDestinationError(Task task, Destination destination,
 			TaskResult result) {
+		if(result != null) {
+			try {
+				jmsQueueManager.reportFinishedDestination(task, destination, result);
+			} catch (JMSException e) {
+				log.error("Failed to report finished task " + task.toString()
+						+ ": " + e.getMessage());
+			}
+		}
 		if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
 			schedulingPool.setTaskStatus(task, cz.metacentrum.perun.taskslib.model.Task.TaskStatus.ERROR);
 		} else {

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.implApi;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -14,11 +15,11 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.HostAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -26,7 +27,6 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
@@ -175,6 +175,20 @@ public interface FacilitiesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Returns all resources assigned to the facility with optionally VO and Service specified.
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param specificVo
+	 * @param specificService
+	 *
+	 * @return list of resources assigned to the facility with optionally filter for VO and Service.
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
 
 	/**
 	 * Returns all rich resources assigned to the facility.
@@ -692,4 +706,117 @@ public interface FacilitiesManagerImplApi {
 	 */
 	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
+	/**
+	 * Get true if any ban for user and facility exists.
+	 * 
+	 * @param sess
+	 * @param userId id of user
+	 * @param facilityId id of facility
+	 * @return true if ban exists
+	 * @throws InternalErrorException 
+	 */
+	boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException;
+
+	/**
+	 * Get true if any band defined by id exists for any user and facility.
+	 *
+	 * @param sess
+	 * @param banId id of ban
+	 * @return true if ban exists
+	 * @throws InternalErrorException
+	 */
+	boolean banExists(PerunSession sess, int banId) throws InternalErrorException;
+
+	/**
+	 * Set ban for user on facility
+	 * 
+	 * @param sess
+	 * @param banOnFacility the ban
+	 * @return ban on facility
+	 * @throws InternalErrorException 
+	 */
+	BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException;
+
+	/**
+	 * Get Ban for user on facility by it's id
+	 *
+	 * @param sess
+	 * @param banId the ban id
+	 * @return facility ban by it's id
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Get specific facility ban.
+	 *
+	 * @param sess
+	 * @param userId the user id
+	 * @param faclityId the facility id
+	 * @return specific facility ban
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Get all facilities bans for user.
+	 *
+	 * @param sess
+	 * @param userId the user id
+	 * @return list of bans for user on any facility
+	 * @throws InternalErrorException
+	 */
+	List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException;
+
+	/**
+	 * Get all users bans for facility
+	 *
+	 * @param sess
+	 * @param facilityId the facility id
+	 * @return list of all users bans on facility
+	 * @throws InternalErrorException
+	 */
+	List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException;
+
+	/**
+	 * Get all expired bans on any facility to now date
+	 *
+	 * @param sess
+	 * @return list of expired bans for any facility
+	 * @throws InternalErrorException
+	 */
+	List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Update description and validity timestamp of specific ban.
+	 *
+	 * @param sess
+	 * @param banOnFacility ban to be updated
+	 * @return updated ban
+	 * @throws InternalErrorException
+	 */
+	BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException;
+
+	/**
+	 * Remove ban by id from facilities bans.
+	 *
+	 * @param sess
+	 * @param banId id of specific ban
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Remove ban by user_id and facility_id.
+	 *
+	 * @param sess
+	 * @param userId the id of user
+	 * @param facilityId the id of facility
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException;
 }

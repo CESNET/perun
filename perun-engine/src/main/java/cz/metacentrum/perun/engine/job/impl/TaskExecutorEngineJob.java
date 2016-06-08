@@ -26,7 +26,7 @@ public class TaskExecutorEngineJob implements PerunEngineJob {
 	public void doTheJob() {
 		log.info("Entering TaskExecutorEngineJob: taskExecutorEngine.beginExecuting().");
 		taskExecutorEngine.beginExecuting();
-		log.info("TaskExecutorEngineJob: taskExecutorEngine.beginExecuting() has completed.");
+		log.info("TaskExecutorEngineJob done: taskExecutorEngine.beginExecuting() has completed.");
 	}
 
 	public TaskExecutorEngine getTaskExecutorEngine() {

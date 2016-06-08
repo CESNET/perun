@@ -338,7 +338,8 @@ public class VosManagerEntry implements VosManager {
 
 		//  Authorization - Vo admin required
 		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, vo)) {
+				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, vo) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.ENGINE)) {
 			throw new PrivilegeException(perunSession, "getDirectRichAdminsWithSpecificAttributes");
 		}
 
@@ -470,11 +471,6 @@ public class VosManagerEntry implements VosManager {
 	@Override
 	public int getVosCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "getVosCount");
-		}
 
 		return vosManagerBl.getVosCount(sess);
 	}

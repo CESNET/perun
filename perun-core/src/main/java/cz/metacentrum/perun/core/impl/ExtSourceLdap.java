@@ -42,6 +42,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	protected final static Logger log = LoggerFactory.getLogger(ExtSourceLdap.class);
 
 	protected DirContext dirContext = null;
+	protected String filteredQuery = null;
 
 	protected DirContext getContext() throws InternalErrorException {
 		if (dirContext == null) {
@@ -150,7 +151,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 			// Now query LDAP again and search for each subject
 			for (String ldapSubjectName : ldapGroupSubjects) {
-				subjects.addAll(this.querySource(null, ldapSubjectName, 0));
+				subjects.addAll(this.querySource(filteredQuery, ldapSubjectName, 0));
 			}
 
 			return subjects;
@@ -187,6 +188,10 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		}
 		if (getAttributes().containsKey("password")) {
 			env.put(Context.SECURITY_CREDENTIALS, (String) getAttributes().get("password"));
+		}
+
+		if (getAttributes().containsKey("filteredQuery")) {
+			filteredQuery = (String) getAttributes().get("filteredQuery");
 		}
 
 		try {

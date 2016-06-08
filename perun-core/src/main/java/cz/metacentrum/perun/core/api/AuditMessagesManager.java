@@ -140,4 +140,14 @@ public interface AuditMessagesManager {
 	 * @throws PrivilegeException
 	 */
 	void setLastProcessedId(PerunSession perunSession, String consumerName, int lastProcessedId) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Get number of messages in auditer log.
+	 *
+	 * @param perunSession
+	 * @return number of messages in auditer log
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException;
 }

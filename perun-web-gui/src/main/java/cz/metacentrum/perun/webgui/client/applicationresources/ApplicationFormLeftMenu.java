@@ -118,7 +118,7 @@ public class ApplicationFormLeftMenu extends Composite{
 	public void addLogoutItem() {
 
 		// if not anonymous identity
-		if (!PerunWebSession.getInstance().getRpcUrl().equals(PerunWebConstants.INSTANCE.perunRpcUrl())) {
+		if (!PerunWebSession.getInstance().getRpcUrl().startsWith("/non/rpc")) {
 
 			int i = menuContents.getRowCount();
 			menuContents.setWidget(i, 0, new Image(SmallIcons.INSTANCE.doorOutIcon()));

@@ -20,28 +20,14 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class PerunInitializer {
 
-	private PerunBl perunBl;
-	private AbstractApplicationContext springCtx;
-	private PerunSession perunSession;
-	private PerunPrincipal perunPrincipal;
-	private BufferedWriter outputWriter;
+	private final PerunBl perunBl;
+	private final AbstractApplicationContext springCtx;
+	private final PerunSession perunSession;
+	private final PerunPrincipal perunPrincipal;
+	private final BufferedWriter outputWriter;
 	private final String consumerName = "ldapcConsumer";
 
-	public PerunInitializer() throws InternalErrorException, FileNotFoundException {
-		//null means STDOUT
-		this(false, null);
-	}
-
-	public PerunInitializer(boolean newVersionOfLDAP) throws InternalErrorException, FileNotFoundException {
-		//null means STDOUT
-		this(newVersionOfLDAP, null);
-	}
-
 	public PerunInitializer(String outputFileName) throws InternalErrorException, FileNotFoundException {
-		this(false, outputFileName);
-	}
-
-	public PerunInitializer(boolean newVersionOfLDAP, String outputFileName) throws InternalErrorException, FileNotFoundException {
 		this.perunPrincipal = new PerunPrincipal("perunLdapInitializer", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		this.springCtx = new ClassPathXmlApplicationContext("perun-core.xml", "perun-core-jdbc.xml", "perun-core-transaction-manager.xml");
 		this.perunBl = springCtx.getBean("perun", PerunBl.class);

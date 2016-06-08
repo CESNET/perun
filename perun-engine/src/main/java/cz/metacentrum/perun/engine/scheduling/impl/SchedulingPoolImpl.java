@@ -36,9 +36,6 @@ public class SchedulingPoolImpl implements SchedulingPool{
 	private Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
 	private Map<Integer, Task> taskIdMap = new ConcurrentHashMap<Integer, Task>();
 
-	@Autowired
-	private TaskManager taskManager;
-
 	/*
 	 * private BufferedWriter out = null; private FileWriter fstream = null;
 	 * 
@@ -67,14 +64,6 @@ public class SchedulingPoolImpl implements SchedulingPool{
 			if (!pool.get(task.getStatus()).contains(task.getId())) {
 				pool.get(task.getStatus()).add(task);
 			}
-		}
-		// XXX should this be synchronized too?
-		task.setSchedule(new Date(System.currentTimeMillis()));
-		try {
-			taskManager.insertTask(task, 0);
-			log.debug("adding task " + task.toString() + " to database");
-		} catch (InternalErrorException e) {
-			log.error("Error storing task into database: " + e.getMessage());
 		}
 		return this.getSize();
 	}
@@ -133,7 +122,6 @@ public class SchedulingPoolImpl implements SchedulingPool{
 				}
 			}
 		}
-		taskManager.updateTask(task, 0);
 	}
 
 	@Override
@@ -163,7 +151,6 @@ public class SchedulingPoolImpl implements SchedulingPool{
 			}
 			taskIdMap.remove(task.getId());
 		}
-		taskManager.removeTask(task.getId(), 0);
 	}
 
 	@Override
@@ -211,20 +198,12 @@ public class SchedulingPoolImpl implements SchedulingPool{
 	}
 
 	@Override
+	@Deprecated
 	public void reloadTasks(int engineID) {
-		this.clearPool();
-		for (Task task : taskManager.listAllTasks(engineID)) {
-			TaskStatus status = task.getStatus();
-			if (status == null) {
-				task.setStatus(TaskStatus.NONE);
-			}
-			if (!pool.get(task.getStatus()).contains(task.getId())) {
-				pool.get(task.getStatus()).add(task);
-			}
-			// XXX should this be synchronized too?
-			taskIdMap.put(task.getId(), task);
-		}
-
+		/*
+		 * this.clearPool();
+		 * 
+		 */
 	}
 
 	private void clearPool() {

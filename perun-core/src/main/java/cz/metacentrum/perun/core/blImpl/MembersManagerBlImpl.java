@@ -24,6 +24,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BanOnResource;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Facility;
@@ -44,6 +45,7 @@ import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
@@ -162,7 +164,16 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			}
 		}
 
-
+		//Remove all members bans
+		List<BanOnResource> bansOnResource = getPerunBl().getResourcesManagerBl().getBansForMember(sess, member.getId());
+		for(BanOnResource banOnResource : bansOnResource) {
+			try {
+				getPerunBl().getResourcesManagerBl().removeBan(sess, banOnResource.getId());
+			} catch (BanNotExistsException ex) {
+				//it is ok, we just want to remove it anyway
+			}
+		}
+		
 		/* TODO this can be used for future optimization. If the user is not asigned to the facility anymore all user-facility attributes (for this facility) can be safely removed.
 			 for (Facility facility: facilitiesBeforeMemberRemove) {
 		// Remove user-facility attributes
@@ -1090,15 +1101,17 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				Status oldStatus = Status.getStatus(member.getStatus().getCode());
+
 				try {
 					((PerunSessionImpl) sess).getPerunBl().getMembersManagerBl().validateMember(sess, member);
 				} catch(Exception ex) {
 					log.info("validateMemberAsync failed. Cause: {}", ex);
 					try {
-						getPerunBl().getAuditer().log(sess, "Validation of {} failed. He stays in {} state.", member, member.getStatus());
-						log.info("Validation of {} failed. He stays in {} state.", member, member.getStatus());
+						getPerunBl().getAuditer().log(sess, "Validation of {} failed. He stays in {} state.", member, oldStatus);
+						log.info("Validation of {} failed. He stays in {} state.", member, oldStatus);
 					} catch(InternalErrorException internalError) {
-						log.error("Store message to auditer failed. message: Validation of {} failed. He stays in {} state. cause: {}", new Object[] {member, member.getStatus(), internalError});
+						log.error("Store message to auditer failed. message: Validation of {} failed. He stays in {} state. cause: {}", new Object[] {member, oldStatus, internalError});
 					}
 				}
 			}
