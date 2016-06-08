@@ -23,14 +23,14 @@ public class AddRemoveItemsTable<T extends JavaScriptObject> extends Composite {
 
 	private ScrollPanel widget = new ScrollPanel();
 	private ArrayList<T> list = new ArrayList<T>();
-	private HandleItemsAction events = new HandleItemsAction() {
+	private HandleItemsAction events = new HandleItemsAction<T>() {
 		@Override
-		public void onAdd() {
+		public void onAdd(T object) {
 			// default empty
 		}
 
 		@Override
-		public void onRemove() {
+		public void onRemove(T object) {
 			// default empty
 		}
 	};
@@ -66,7 +66,7 @@ public class AddRemoveItemsTable<T extends JavaScriptObject> extends Composite {
 		if (list.contains(object)) { return; }
 		list.add(object);
 		buildWidget();
-		events.onAdd();
+		events.onAdd(object);
 	}
 
 	/**
@@ -84,11 +84,11 @@ public class AddRemoveItemsTable<T extends JavaScriptObject> extends Composite {
 			} else {
 				wasAdded = true;
 				list.add(object);
+				events.onAdd(object);
 			}
 		}
 		if (wasAdded) {
 			buildWidget();
-			events.onAdd();
 		}
 
 	}
@@ -101,7 +101,7 @@ public class AddRemoveItemsTable<T extends JavaScriptObject> extends Composite {
 	public void removeItem(T object) {
 		list.remove(object);
 		buildWidget();
-		events.onRemove();
+		events.onRemove(object);
 	}
 
 	/**
@@ -172,17 +172,19 @@ public class AddRemoveItemsTable<T extends JavaScriptObject> extends Composite {
 		return this.list;
 	}
 
-	public interface HandleItemsAction {
+	public interface HandleItemsAction<T> {
 
 		/**
 		 * Action triggered on adding item
+		 * @param object
 		 */
-		public void onAdd();
+		public void onAdd(T object);
 
 		/**
 		 * Action triggered on removing item
+		 * @param object
 		 */
-		public void onRemove();
+		public void onRemove(T object);
 
 	}
 
