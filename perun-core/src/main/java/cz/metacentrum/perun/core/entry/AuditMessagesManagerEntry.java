@@ -12,6 +12,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.WrongRangeOfCountException;
 import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.Utils;
 import java.util.Map;
 
 /**
@@ -117,6 +118,11 @@ public class AuditMessagesManagerEntry implements AuditMessagesManager {
 		}
 
 		getAuditMessagesManagerBl().setLastProcessedId(consumerName, lastProcessedId);
+	}
+
+	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(perunSession);
+		return getAuditMessagesManagerBl().getAuditerMessagesCount(perunSession);
 	}
 
 	/**

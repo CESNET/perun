@@ -62,6 +62,11 @@ sub setUserId
 	return;
 }
 
+sub getStatus {
+    my $self = shift;
+    return $self->{_status};
+}
+
 sub getCommonArrayRepresentation {
 	my $member = shift;
 	return ($member->getId, $member->getUserId);

@@ -2,34 +2,24 @@ package cz.metacentrum.perun.engine.scheduling.impl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.engine.model.Pair;
 import cz.metacentrum.perun.engine.scheduling.DependenciesResolver;
-import cz.metacentrum.perun.engine.scheduling.PropagationMaintainer;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
+import cz.metacentrum.perun.engine.scheduling.TaskExecutorEngine;
 import cz.metacentrum.perun.engine.scheduling.TaskScheduler;
 import cz.metacentrum.perun.engine.scheduling.TaskStatusManager;
-import cz.metacentrum.perun.taskslib.dao.TaskResultDao;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
  * 
@@ -40,8 +30,7 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 // @Transactional
 public class TaskSchedulerImpl implements TaskScheduler {
 
-	private final static Logger log = LoggerFactory
-			.getLogger(TaskSchedulerImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(TaskSchedulerImpl.class);
 
 	@Autowired
 	private SchedulingPool schedulingPool;
@@ -50,61 +39,31 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	@Autowired
 	private DependenciesResolver dependenciesResolver;
 	@Autowired
-	private Properties propertiesBean;
-	@Autowired
-	private Perun perun;
-
-	private PerunSession perunSession;
-
-	/*
-	 * @Autowired private TaskManager taskManager;
-	 * 
-	 * @Autowired private TaskResultDao taskResultDao;
-	 * 
-	 * @Autowired private PropagationMaintainer propagationMaintainer;
-	 */
+	private TaskExecutorEngine taskExecutorEngine;
 
 	@Override
 	public void propagateService(Task task, Date time)
 			throws InternalErrorException {
+
 		// check if we have destinations for this task
 		List<Destination> destinations = task.getDestinations();
-		if (destinations == null || destinations.isEmpty()) {
-			// refetch the destination list from central database
-			log.debug("No destinations for task " + task.toString()
-					+ ", trying to query the database...");
-			try {
-				destinations = perun.getServicesManager().getDestinations(
-						perunSession, task.getExecService().getService(),
-						task.getFacility());
-			} catch (ServiceNotExistsException e) {
-				log.error("No destinations found for task " + task.toString());
-				// TODO: remove the task?
-				return;
-			} catch (FacilityNotExistsException e) {
-				log.error("Facility for task does not exist..."
-						+ task.toString());
-				// TODO: remove the task?
-				return;
-			} catch (PrivilegeException e) {
-				log.error("Privilege error accessing the database: "
-						+ e.getMessage());
-				return;
-			} catch (InternalErrorException e) {
-				log.error("Internal error: " + e.getMessage());
-				return;
-			}
-			task.setDestinations(destinations);
-		}
 		if (task.getExecService().getExecServiceType().equals(ExecServiceType.SEND)
 				&& (destinations == null || destinations.isEmpty())) {
 			log.info("No destinations found for SEND task {}, marking as DONE",
 					task.getId());
 			schedulingPool.setTaskStatus(task, TaskStatus.DONE);
 		} else {
-			schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
-			taskStatusManager.clearTaskStatus(task);
-			task.setSchedule(time);
+			if(task.getStatus() == TaskStatus.PROCESSING) {
+				log.warn("Attempt to schedule already processing task {}, ignoring this.", task.getId());
+			} else {
+				schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
+				taskStatusManager.clearTaskStatus(task);
+				task.setSchedule(time);
+				if(task.isPropagationForced()) {
+					// we are in special thread anyway...
+					taskExecutorEngine.runTask(task);
+				}
+			}
 		}
 	}
 
@@ -118,31 +77,16 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	@Override
 	public void processPool() throws InternalErrorException {
 
-		try {
-			perunSession = perun
-					.getPerunSession(new PerunPrincipal(
-							propertiesBean.getProperty("perun.principal.name"),
-							propertiesBean
-									.getProperty("perun.principal.extSourceName"),
-							propertiesBean
-									.getProperty("perun.principal.extSourceType")));
-		} catch (InternalErrorException e1) {
-			log.error(
-					"Error establishing perun session to check tasks propagation status: ",
-					e1);
-			return;
-		}
-
-		/*
-		 * for (Pair<ExecService, Facility> pair : schedulingPool.emptyPool()) {
-		 * log.debug("Propagating ExecService:Facility : " +
-		 * pair.getLeft().getId() + ":" + pair.getRight().getId());
-		 * propagateService(pair.getLeft(), new
-		 * Date(System.currentTimeMillis()), pair.getRight()); }
-		 */
 		for (Task task : schedulingPool.getNewTasks()) {
-			log.debug("Propagating ExecService:Facility : "
-					+ task.getExecServiceId() + ":" + task.getFacilityId());
+			if(task.isPropagationForced()) {
+				// this can happen only as a race between this thread and thread created for force-scheduled task
+				log.info("Found force-scheduled task {} during normal schedule cycle, resetting force flag",
+							task.getId());
+				// may not be the best behavior...
+				task.setPropagationForced(false);
+			}
+			log.debug("Propagating task {}, ExecService:Facility : "
+					+ task.getExecServiceId() + ":" + task.getFacilityId(), task.getId());
 			propagateService(task, new Date(System.currentTimeMillis()));
 		}
 	}
@@ -454,26 +398,5 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		this.dependenciesResolver = dependenciesResolver;
 	}
 
-	/*
-	 * public TaskResultDao getTaskResultDao() { return taskResultDao; }
-	 * 
-	 * public void setTaskResultDao(TaskResultDao taskResultDao) {
-	 * this.taskResultDao = taskResultDao; }
-	 * 
-	 * public PropagationMaintainer getPropagationMaintainer() { return
-	 * propagationMaintainer; }
-	 * 
-	 * public void setPropagationMaintainer(PropagationMaintainer
-	 * propagationMaintainer) { this.propagationMaintainer =
-	 * propagationMaintainer; }
-	 */
-
-	public Properties getPropertiesBean() {
-		return propertiesBean;
-	}
-
-	public void setPropertiesBean(Properties propertiesBean) {
-		this.propertiesBean = propertiesBean;
-	}
 
 }

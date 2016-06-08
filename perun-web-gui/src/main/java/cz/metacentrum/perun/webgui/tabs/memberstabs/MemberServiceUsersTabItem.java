@@ -5,13 +5,15 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.resources.*;
-import cz.metacentrum.perun.webgui.json.usersManager.GetServiceUsersByUser;
-import cz.metacentrum.perun.webgui.json.usersManager.GetUsersByServiceUser;
+import cz.metacentrum.perun.webgui.json.usersManager.GetSpecificUsersByUser;
+import cz.metacentrum.perun.webgui.json.usersManager.GetUsersBySpecificUser;
 import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
  * Displays members service identities or associated users for service members.
@@ -53,10 +55,17 @@ public class MemberServiceUsersTabItem implements TabItem {
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
+		// MENU
+		TabMenu menu = new TabMenu();
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
+
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		if (member.getUser().isServiceUser()) {
 
 			// request
-			final GetUsersByServiceUser request = new GetUsersByServiceUser(member.getUserId());
+			final GetUsersBySpecificUser request = new GetUsersBySpecificUser(member.getUserId());
 			request.setCheckable(false);
 
 			// table
@@ -80,8 +89,9 @@ public class MemberServiceUsersTabItem implements TabItem {
 
 		} else {
 
-			final GetServiceUsersByUser request = new GetServiceUsersByUser(member.getUserId());
+			final GetSpecificUsersByUser request = new GetSpecificUsersByUser(member.getUserId());
 			request.setCheckable(false);
+			request.setHideSponsored(true);
 
 			// table
 			CellTable<User> table;

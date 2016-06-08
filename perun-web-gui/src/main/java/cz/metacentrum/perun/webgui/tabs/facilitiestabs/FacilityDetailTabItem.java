@@ -122,26 +122,6 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
 		int column = 3;
-		if (JsonUtils.isExtendedInfoVisible()) {
-			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+facility.getId()+"</span>");
-			column++;
-			menu.setHTML(0, column, "&nbsp;");
-			menu.getFlexCellFormatter().setWidth(0, column, "25px");
-			column++;
-		}
-		menu.setHTML(0, column, "&nbsp;");
-		menu.getFlexCellFormatter().setWidth(0, column, "25px");
-		column++;
-		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+facility.getDescription()+"&nbsp;</span>");
-
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
 
 		final JsonCallbackEvents events = new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
@@ -162,8 +142,23 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 				session.getTabManager().addTabToCurrentTab(new EditFacilityDetailsTabItem(facility, events));
 			}
 		});
-		dp.add(change);
-		change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+		menu.setWidget(0, column, change);
+
+		column++;
+
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
+
+		if (JsonUtils.isExtendedInfoVisible()) {
+			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+facility.getId()+"</span>");
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+		}
+
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+facility.getDescription()+"&nbsp;</span>");
 
 		dp.add(menu);
 		vp.add(dp);
@@ -179,6 +174,8 @@ public class FacilityDetailTabItem implements TabItem, TabItemWithUrl{
 		tabPanel.add(new FacilityDestinationsTabItem(facility), "Services destinations");
 		tabPanel.add(new FacilityHostsTabItem(facility), "Hosts");
 		tabPanel.add(new FacilityManagersTabItem(facility), "Managers");
+		tabPanel.add(new FacilitySecurityTeamsTabItem(facility), "Security teams");
+		tabPanel.add(new FacilityBlacklistTabItem(facility), "Blacklist");
 		tabPanel.add(new FacilityOwnersTabItem(facility), "Owners");
 
 		// Resize must be called after page fully displays

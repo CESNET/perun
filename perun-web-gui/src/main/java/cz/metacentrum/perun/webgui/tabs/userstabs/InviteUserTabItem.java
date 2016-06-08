@@ -29,7 +29,7 @@ public class InviteUserTabItem implements TabItem {
 
 	private PerunWebSession session = PerunWebSession.getInstance();
 
-	private Label titleWidget = new Label("Invite user");
+	private Label titleWidget = new Label("Invite member");
 	private SimplePanel contentWidget = new SimplePanel();
 
 	private VirtualOrganization vo;
@@ -77,7 +77,12 @@ public class InviteUserTabItem implements TabItem {
 		ft.setWidth("350px");
 		ft.setStyleName("inputFormFlexTable");
 
-		ft.setHTML(0, 0, "Person you are inviting will receive an email with link to VO's application form. You can setup email template in: Vo manager (advanced) -> Application form -> Notifications.");
+		if (groupId == 0) {
+			ft.setHTML(0, 0, "Person you are inviting will receive an email with link to VOs application form. You can set up an email template in: Vo manager (advanced) -> Application form -> Notifications.");
+		} else {
+			ft.setHTML(0, 0, "Person you are inviting will receive an email with link to groups application form. You can set up an email template in: Group manager (advanced) -> Application form -> Notifications.");
+		}
+
 		ft.getFlexCellFormatter().setColSpan(0, 0, 2);
 		ft.getFlexCellFormatter().addStyleName(0, 0, "inputFormInlineComment");
 

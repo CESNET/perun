@@ -3920,6 +3920,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
+
+	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
+		try {
+			jdbc.update("delete from member_resource_attr_values where resource_id=?", resource.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
 	
 	public boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
 		try {
@@ -4408,7 +4416,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	 * @return name of attribute module
 	 */
 	private String attributeNameToModuleName(String attributeName) {
-		return ATTRIBUTES_MODULES_PACKAGE + "." + attributeName.replaceAll(":|-", "_");
+		return ATTRIBUTES_MODULES_PACKAGE + "." + attributeName.replaceAll(":|-|[.]", "_");
 	}
 
 	/**
@@ -4787,7 +4795,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		
 		//if specific module not exists or attribute has no parameter, find the common one
 		moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());
-		return getAttributesModule(sess, moduleName);
+		Object attributeModule = getAttributesModule(sess, moduleName);
+		if(attributeModule == null) log.debug("Attribute module not found. Module name={}", moduleName);
+		return attributeModule;
 	}
 
 	/**
@@ -4811,7 +4821,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return module;
 		} catch(ClassNotFoundException ex) {
 			//attrribute module don't exist
-			log.debug("Attribute module not found. Module name={}", moduleName);
 			return null;
 		} catch(InstantiationException ex) {
 			throw new InternalErrorException("Attribute module " + moduleName + " cannot be instaciated.", ex);
@@ -4940,7 +4949,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDisplayName("User title after");
 		attributes.add(attr);
 
-		//User.titleAfter
+		//User.serviceUser
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_CORE);
 		attr.setType(Boolean.class.getName());
@@ -5091,8 +5100,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDisplayName("Last Synchronization timestamp");
 		attributes.add(attr);
 
+		if(perun.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");
+
 		for(AttributeDefinition attribute : attributes) {
-			if(!checkAttributeExistsForInitialize(attribute)) createAttributeExistsForInitialize(attribute);
+			if(!checkAttributeExistsForInitialize(attribute)) {
+				if(perun.isPerunReadOnly()) {
+					throw new InternalErrorException("There is missing required attribute " + attribute + " and can't be created because this instance is read only.");
+				} else {
+					createAttributeExistsForInitialize(attribute);
+				}
+			}
 		}
 		log.debug("AttributesManagerImpl initialize ended.");
 	}

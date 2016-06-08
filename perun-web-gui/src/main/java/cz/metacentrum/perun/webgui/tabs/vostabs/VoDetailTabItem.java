@@ -114,16 +114,46 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
 		int column = 3;
+
+		if (session.isVoAdmin(voId)) {
+
+			final JsonCallbackEvents events = new JsonCallbackEvents() {
+				@Override
+				public void onFinished(JavaScriptObject jso) {
+					// set VO and redraw tab
+					vo = jso.cast();
+					open();
+					draw();
+				}
+			};
+
+			CustomButton change = new CustomButton("", "Edit VO name", SmallIcons.INSTANCE.applicationFormEditIcon());
+			change.addClickHandler(new ClickHandler(){
+				public void onClick(ClickEvent event) {
+					session.getTabManager().addTabToCurrentTab(new EditVoDetailsTabItem(vo, events));
+				}
+			});
+			menu.setWidget(0, column, change);
+
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+
+		}
+
 		if (JsonUtils.isExtendedInfoVisible()) {
 			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getId()+"</span>");
 			column++;
 			menu.setHTML(0, column, "&nbsp;");
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
+
+			menu.setHTML(0, column, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getShortName()+"</span>");
+
 		}
 
-		menu.setHTML(0, column, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+vo.getShortName()+"</span>");
-
+		/*
 		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
@@ -132,6 +162,8 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		});
 		dp.add(cb);
 		cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
+
+
 
 		final JsonCallbackEvents events = new JsonCallbackEvents() {
 			@Override
@@ -143,7 +175,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 			}
 		};
 
-		CustomButton change = new CustomButton("", "Edit VO details", SmallIcons.INSTANCE.applicationFormEditIcon());
+		CustomButton change = new CustomButton("", "Edit VO name", SmallIcons.INSTANCE.applicationFormEditIcon());
 		change.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new EditVoDetailsTabItem(vo, events));
@@ -153,6 +185,7 @@ public class VoDetailTabItem implements TabItem, TabItemWithUrl{
 		if (!session.isVoAdmin(voId)) change.setEnabled(false);
 		dp.add(change);
 		change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+		*/
 
 		dp.add(menu);
 		vp.add(dp);

@@ -82,6 +82,40 @@ public class Api extends HttpServlet {
 		}
 	}
 
+	protected String getActor(HttpServletRequest req, Deserializer des) throws InternalErrorException {
+
+		String actor = null;
+
+		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
+			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
+				actor = (String) req.getRemoteUser();
+			}
+		} else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
+			actor = (String) req.getAttribute("SSL_CLIENT_S_DN");
+		} else if (req.getAttribute("EXTSOURCE") != null) {
+			String extSourceName = (String) req.getAttribute("EXTSOURCE");
+			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
+				actor = (String) req.getRemoteUser();
+			} else if (req.getAttribute("ENV_REMOTE_USER") != null && !((String) req.getAttribute("ENV_REMOTE_USER")).isEmpty()) {
+				actor = (String) req.getAttribute("ENV_REMOTE_USER");
+			} else if (extSourceName.equals(cz.metacentrum.perun.core.api.ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
+				// LOCAL EXTSOURCE - If ExtSource is LOCAL then generate REMOTE_USER name on the fly
+				actor = (String) Long.toString(System.currentTimeMillis());
+			}
+		}
+
+		if (des != null && actor != null) {
+			List<String> powerUsers = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.rpc.powerusers").split("[ \t]*,[ \t]*")));
+			if (powerUsers.contains(actor) && des.contains("delegatedLogin")) {
+				// Rewrite the remoteUser and extSource
+				actor = (String) des.readString("delegatedLogin");
+			}
+		}
+
+		return actor;
+
+	}
+
 	protected PerunPrincipal setupPerunPrincipal(HttpServletRequest req, Deserializer des) throws InternalErrorException, RpcException, UserNotExistsException {
 		String extSourceLoaString = null;
 		String extLogin = null;
@@ -355,8 +389,13 @@ public class Api extends HttpServlet {
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
 				// Store the current session
 				req.getSession(true).setAttribute(APICALLER, caller);
-			} else if (!caller.getSession().getPerunPrincipal().getExtSourceName().equals(this.getExtSourceName(req, des))) {
+			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getExtSourceName(), this.getExtSourceName(req, des))) {
 				// If the user is coming from the URL protected by different authN mechanism, destroy and create session again
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
+				req.getSession(true).setAttribute(APICALLER, caller);
+			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), this.getActor(req, des)) &&
+					!caller.getSession().getPerunPrincipal().getExtSourceName().equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
+				// prevent cookie stealing (if remote user changed, rebuild session)
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
 				req.getSession(true).setAttribute(APICALLER, caller);
 			}
@@ -436,8 +475,9 @@ public class Api extends HttpServlet {
 				perunStatistics.add("VOS: '" + caller.call("vosManager", "getVosCount", des) + "'");
 				perunStatistics.add("RESOURCES: '" + caller.call("resourcesManager", "getResourcesCount", des) + "'");
 				perunStatistics.add("GROUPS: '" + caller.call("groupsManager", "getGroupsCount", des) + "'");
+				perunStatistics.add("AUDITMESSAGES: '" + caller.call("auditMessagesManager", "getAuditerMessagesCount", des) + "'");
 				ser.write(perunStatistics);
-				
+
 				out.close();
 				return;
 			}

@@ -13,6 +13,7 @@ sub help {
 	Available options:
 	--groupId     | -g group id
 	--name        | -n new name for the group
+        --dsc         | -d new description for the group
 	--batch       | -b batch
 	--help        | -h prints this help
 
@@ -20,10 +21,12 @@ sub help {
 }
 
 our $batch;
-my ($groupId, $name);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+my ($groupId, $name, $dsc);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,
+"batch|b" => \$batch,
 "groupId|g=i" => \$groupId,
- "name|n=s" => \$name ) || die help();
+"dsc|d=s" => \$dsc,
+"name|n=s" => \$name ) || die help();
 
 # Check options
 unless (defined($groupId)) { die "ERROR: groupId is required \n";}
@@ -37,7 +40,9 @@ if (defined($name)) {
 	unless ($name !~ /^\s*$/) { die "ERROR: name cannot be empty string\n";}
 	$group->setName($name);
 }
-
+if (defined($dsc)) {
+        $group->setDescription($dsc);
+}
 
 $group = $groupsAgent->updateGroup(group => $group);
 

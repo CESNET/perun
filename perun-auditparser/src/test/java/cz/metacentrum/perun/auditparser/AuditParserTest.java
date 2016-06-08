@@ -2,11 +2,10 @@ package cz.metacentrum.perun.auditparser;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.taskslib.model.ExecService;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
+import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -14,14 +13,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AuditParserTest {
@@ -32,7 +27,7 @@ public class AuditParserTest {
 	private final String textMismatch = "!@#$%^<<&*()_+<\\><:{[}][]{>} sd";
 	private final String CLASS_NAME = "AuditMessagesManagerEntry";
 	private AuditMessage createdAuditMessage = new AuditMessage();
-	private final User user = new User(5, textMismatch,textMismatch, textMismatch, textMismatch, textMismatch, false);
+	private final User user = new User(5, textMismatch,textMismatch, textMismatch, textMismatch, textMismatch, false, false);
 	private final ExtSource extSource = new ExtSource(9, textMismatch, textMismatch);
 	private final UserExtSource userExtSource1 = new UserExtSource(12, extSource, textMismatch, user.getId(), 133);
 	private final UserExtSource userExtSource2 = new UserExtSource(15, extSource, textMismatch, user.getId(), 156);
@@ -64,9 +59,15 @@ public class AuditParserTest {
 	private RichFacility richFacility;
 	private ResourceTag resourceTag1 = new ResourceTag(5, "cosi" , 2);
 	private ResourceTag resourceTag2 = new ResourceTag(8, null, 5);
-
+	private SecurityTeam securityTeam1 = new SecurityTeam(1, "jmeno", "popis");
+	private SecurityTeam securityTeam2 = new SecurityTeam(2, null, null);
 	private ExecService exService1 = new ExecService();
 	private ExecService exService2 = new ExecService();
+	private TaskResult taskResult1 = new TaskResult();
+	private BanOnResource banOnResource1 = new BanOnResource(3, new Date(), "neco" , 10, 12);
+	private BanOnResource banOnResource2 = new BanOnResource(4, null, null, 10, 12);
+	private BanOnFacility banOnFacility1 = new BanOnFacility(5, new Date(), "neco", 10, 12);
+	private BanOnFacility banOnFacility2 = new BanOnFacility(6, null, null, 10, 12);
 
 	@Before
 	public void setUp() throws Exception {
@@ -107,6 +108,15 @@ public class AuditParserTest {
 		exService2.setId(20);
 		exService2.setService(null);
 		exService2.setExecServiceType(null);
+		taskResult1.setId(1);
+		taskResult1.setDestinationId(2);
+		taskResult1.setErrorMessage("error");
+		taskResult1.setReturnCode(3);
+		taskResult1.setService(service);
+		taskResult1.setStandardMessage("nothing");
+		taskResult1.setTaskId(10);
+		taskResult1.setStatus(TaskResultStatus.DONE);
+		taskResult1.setTimestamp(new Date());
 	}
 
 	@Test
@@ -217,7 +227,8 @@ public class AuditParserTest {
 		System.out.println(CLASS_NAME + ":sameObjectBeforeAndAfterSerializing");
 
 		//FOR USER
-		User user = new User(8, null, textMismatch, null, textMismatch, null, true);
+		User user = new User(8, null, textMismatch, null, textMismatch, null, true, true);
+		
 		List<PerunBean> userInList = AuditParser.parseLog(user.serializeToString());
 		assertEquals(user.toString(), ((User) userInList.get(0)).toString());
 		assertEquals(user.getFirstName(), ((User) userInList.get(0)).getFirstName());
@@ -374,6 +385,35 @@ public class AuditParserTest {
 		assertEquals(candidate1.getAttributes(), ((Candidate) candidate1InList.get(0)).getAttributes());
 		assertEquals(candidate2.getAttributes(), ((Candidate) candidate2InList.get(0)).getAttributes());
 
+		//FOR SECURITY TEAM
+		SecurityTeam securityTeam = new SecurityTeam(18, textMismatch, textMismatch);
+		List<PerunBean> scsInList = AuditParser.parseLog(securityTeam.serializeToString());
+		assertEquals(securityTeam.toString(), ((SecurityTeam) scsInList.get(0)).toString());
+		assertEquals(securityTeam.getName(), ((SecurityTeam) scsInList.get(0)).getName());
+		assertEquals(securityTeam.getDescription(), ((SecurityTeam) scsInList.get(0)).getDescription());
+
+		//FOR TASK RESULT
+		List<PerunBean> trList = AuditParser.parseLog(taskResult1.serializeToString());
+		TaskResult taskResult2 = (TaskResult)trList.get(0);
+		assertEquals(taskResult1.toString(), taskResult2.toString());
+		
+
+		//FOR BAN ON RESOURCE
+		List<PerunBean> banOnResourceInList = AuditParser.parseLog(banOnResource1.serializeToString());
+		assertEquals(banOnResource1.toString(), ((BanOnResource) banOnResourceInList.get(0)).toString());
+		assertEquals(banOnResource1.getMemberId(), ((BanOnResource) banOnResourceInList.get(0)).getMemberId());
+		assertEquals(banOnResource1.getResourceId(), ((BanOnResource) banOnResourceInList.get(0)).getResourceId());
+		assertEquals(banOnResource1.getDescription(), ((BanOnResource) banOnResourceInList.get(0)).getDescription());
+		assertEquals(banOnResource1.getValidityTo(), ((BanOnResource) banOnResourceInList.get(0)).getValidityTo());
+
+		//FOR BAN ON FACILITY
+		List<PerunBean> banOnFacilityInList = AuditParser.parseLog(banOnFacility1.serializeToString());
+		assertEquals(banOnFacility1.toString(), ((BanOnFacility) banOnFacilityInList.get(0)).toString());
+		assertEquals(banOnFacility1.getUserId(), ((BanOnFacility) banOnFacilityInList.get(0)).getUserId());
+		assertEquals(banOnFacility1.getFacilityId(), ((BanOnFacility) banOnFacilityInList.get(0)).getFacilityId());
+		assertEquals(banOnFacility1.getDescription(), ((BanOnFacility) banOnFacilityInList.get(0)).getDescription());
+		assertEquals(banOnFacility1.getValidityTo(), ((BanOnFacility) banOnFacilityInList.get(0)).getValidityTo());
+
 		//FOR RICHMEMBER
 		RichMember richMember1 = new RichMember(null, member, null);
 		//List<UserExtSource> userExtSources = new ArrayList<UserExtSource>();
@@ -506,6 +546,13 @@ public class AuditParserTest {
 		assertEquals(userExtSource1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(userExtSource1.serializeToString())));
 		assertEquals(resourceTag1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(resourceTag1.serializeToString())));
 		assertEquals(exService1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(exService1.serializeToString())));
+		assertEquals(securityTeam1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam1.serializeToString())));
+		assertEquals(securityTeam2.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(securityTeam2.serializeToString())));
+		assertEquals(taskResult1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(taskResult1.serializeToString())));
+		assertEquals(banOnResource1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(banOnResource1.serializeToString())));
+		assertEquals(banOnResource2.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(banOnResource2.serializeToString())));
+		assertEquals(banOnFacility1.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(banOnFacility1.serializeToString())));
+		assertEquals(banOnFacility2.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(banOnFacility2.serializeToString())));
 		//test also some null serializing
 		Resource newResource = new Resource(20, null, null, 5);
 		assertEquals(newResource.toString(), BeansUtils.eraseEscaping(BeansUtils.replacePointyBracketsByApostrophe(newResource.serializeToString())));
@@ -522,11 +569,14 @@ public class AuditParserTest {
 			owner.serializeToString() + service.serializeToString() + attributeDefinition1.serializeToString() +
 			attribute1.serializeToString() + richMember.serializeToString() + richDestination.serializeToString() +
 			richResource.serializeToString() + richUser.serializeToString() + richGroup.serializeToString() +
-			richFacility.serializeToString() + resourceTag1.serializeToString() + exService1.serializeToString();
+			richFacility.serializeToString() + resourceTag1.serializeToString() + exService1.serializeToString() +
+			securityTeam1.serializeToString() + taskResult1.serializeToString() + banOnResource1.serializeToString() +
+			banOnResource2.serializeToString() + banOnFacility1.serializeToString()+ banOnFacility2.serializeToString();
 
 		List<PerunBean> perunBeans = new ArrayList<PerunBean>();
 		perunBeans = AuditParser.parseLog(bigLog);
-		assertEquals(23, perunBeans.size());
+		assertEquals(29, perunBeans.size());
+
 		assertTrue(perunBeans.contains(user));
 		assertTrue(perunBeans.contains(attribute1));
 		assertTrue(perunBeans.contains(attributeDefinition1));
@@ -550,6 +600,8 @@ public class AuditParserTest {
 		assertTrue(perunBeans.contains(richFacility));
 		assertTrue(perunBeans.contains(resourceTag1));
 		assertTrue(perunBeans.contains(exService1));
+		assertTrue(perunBeans.contains(securityTeam1));
+		assertTrue(perunBeans.contains(taskResult1));
 	}
 
 	private AttributeDefinition getAttributeDefinition1() {

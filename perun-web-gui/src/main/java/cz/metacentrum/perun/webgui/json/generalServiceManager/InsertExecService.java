@@ -8,7 +8,6 @@ import com.google.gwt.json.client.JSONString;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
-import cz.metacentrum.perun.webgui.model.Owner;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Service;
 
@@ -47,13 +46,12 @@ public class InsertExecService {
 	 * Creates exec service in DB and associate it with service
 	 *
 	 * @param service service to associate with
-	 * @param owner owner of exec service
 	 * @param type type of exec service (SEND, GENERATE)
 	 * @param enabled true if exec service is enabled
 	 * @param delayNum default delay
 	 * @param scriptPath path to propagation scripts
 	 */
-	public void addExecService(Service service, Owner owner, String type, Boolean enabled, int delayNum, String scriptPath) {
+	public void addExecService(Service service, String type, Boolean enabled, int delayNum, String scriptPath) {
 
 		// TODO - test input
 		// test arguments
@@ -77,7 +75,6 @@ public class InsertExecService {
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("execService", exec);
-		jsonQuery.put("owner", new JSONNumber(owner.getId()));
 
 		// new events
 		JsonCallbackEvents newEvents = new JsonCallbackEvents(){

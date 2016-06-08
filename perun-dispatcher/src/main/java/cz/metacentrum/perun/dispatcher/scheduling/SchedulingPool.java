@@ -48,7 +48,7 @@ public interface SchedulingPool {
 
 	DispatcherQueue getQueueForTask(Task task) throws InternalErrorException;
 
-	void setQueueForTask(Task task, DispatcherQueue queueForTask);
+	void setQueueForTask(Task task, DispatcherQueue queueForTask) throws InternalErrorException;
 
 	void setTaskStatus(Task task, TaskStatus status);
 
@@ -65,5 +65,7 @@ public interface SchedulingPool {
 	void clear();
 
 	void reloadTasks();
+
+	void checkTasksDb();
 
 }

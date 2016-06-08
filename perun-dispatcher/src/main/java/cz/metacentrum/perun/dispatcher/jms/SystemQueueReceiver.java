@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "systemQueueReceiver")
 public class SystemQueueReceiver implements Runnable {
@@ -85,12 +85,21 @@ public class SystemQueueReceiver implements Runnable {
 				Thread.sleep(periodicity);
 			} catch (JMSException e) {
 				log.error(e.toString(), e);
+				systemQueueProcessor.stopProcessingSystemMessages();
+				systemQueueProcessor.startProcessingSystemMessages();
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException ex) {
+					log.error(ex.toString(), ex);
+					stop();
+				}
 			} catch (InterruptedException e) {
 				log.error(e.toString(), e);
+				stop();
 			} catch (Exception e) {
 				log.error(e.toString(), e);
+				stop();
 			}
-			// TODO: Close connection and restart SystemQueueProcessor?
 		}
 		try {
 			messageConsumer.close();

@@ -180,8 +180,13 @@ public class GetFormItemsWithPrefilledValues implements JsonCallback {
 			String missingItems = "<p>";
 			if (error.getFormItems() != null) {
 				for (int i = 0; i < error.getFormItems().length(); i++) {
-					missingItems += ApplicationMessages.INSTANCE.missingIDPAttribute();
-					missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
+					String fedAttrName = error.getFormItems().get(i).getFormItem().getFederationAttribute();
+					if (fedAttrName.equals("displayName") || fedAttrName.equals("cn") || fedAttrName.equals("givenName") || fedAttrName.equals("sn")) {
+						missingItems += ApplicationMessages.INSTANCE.cantResolveIDPNameAttribute(fedAttrName);
+					} else {
+						missingItems += ApplicationMessages.INSTANCE.missingIDPAttribute();
+						missingItems += error.getFormItems().get(i).getFormItem().getFederationAttribute();
+					}
 					missingItems += "<br />";
 				}
 			}

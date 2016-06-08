@@ -1,8 +1,10 @@
 package cz.metacentrum.perun.core.implApi;
 
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceAlreadyAssignedException;
@@ -28,13 +30,14 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @param perunSession
 	 * @param extSource
+	 * @param attributes
 	 *
 	 * @return ExtSource object with newly associated ID.
 	 *
 	 * @throws InternalErrorException
 	 * @throws ExtSourceExistsException
 	 */
-	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException;
+	ExtSource createExtSource(PerunSession perunSession, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException;
 
 	/**
 	 * Deletes an external source.
@@ -86,6 +89,18 @@ public interface ExtSourcesManagerImplApi {
 	List<ExtSource> getVoExtSources(PerunSession perunSession, Vo vo) throws InternalErrorException;
 
 	/**
+	 * Get list of external sources associated with the GROUP.
+	 *
+	 * @param perunSession
+	 * @param group
+	 *
+	 * @return list of external sources associated with the VO
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<ExtSource> getGroupExtSources(PerunSession perunSession, Group group) throws InternalErrorException;
+
+	/**
 	 * Get list of all external sources.
 	 *
 	 * @param perunSession
@@ -109,6 +124,18 @@ public interface ExtSourcesManagerImplApi {
 	void addExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
 
 	/**
+	 * Associate external source definition with the GROUP.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param source
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtSourceAlreadyAssignedException
+	 */
+	void addExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException;
+
+	/**
 	 * Remove association of the external source from the VO.
 	 *
 	 * @param perunSession
@@ -120,6 +147,19 @@ public interface ExtSourcesManagerImplApi {
 	 * @throws ExtSourceAlreadyRemovedException if there are 0 rows affected by remove in DB
 	 */
 	void removeExtSource(PerunSession perunSession, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
+
+	/**
+	 * Remove association of the external source from the GROUP.
+	 *
+	 * @param perunSession
+	 * @param group
+	 * @param source
+	 *
+	 * @throws InternalErrorException
+	 * @throws ExtSourceAlreadyRemovedException when 0 rows affected by removing from DB
+	 * @throws ExtSourceNotAssignedException
+	 */
+	void removeExtSource(PerunSession perunSession, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException;
 
 	/**
 	 * Get all users' id associate with the provided ExtSource
@@ -162,4 +202,12 @@ public interface ExtSourcesManagerImplApi {
 	 * @param sess
 	 */
 	void loadExtSourcesDefinitions(PerunSession sess);
+
+	/**
+	 * Gets attributes for external source.
+	 *
+	 * @param extSource	External Source
+	 * @return			Map of attributes for external source
+	 */
+	public Map<String,String> getAttributes(ExtSource extSource);
 }

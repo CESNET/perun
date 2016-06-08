@@ -20,6 +20,7 @@ import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.mail.MailException;
@@ -105,7 +106,8 @@ public class MailManagerImpl implements MailManager {
 	}
 
 	@Override
-	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException {
+	@Transactional(rollbackFor = Exception.class)
+	public Integer addMail(PerunSession sess, ApplicationForm form, ApplicationMail mail) throws PerunException, DuplicateKeyException {
 
 		if (form.getGroup() != null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, form.getVo()) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, form.getGroup())) {
@@ -129,6 +131,12 @@ public class MailManagerImpl implements MailManager {
 		}
 
 		log.info("[MAIL MANAGER] Mail notification definition created: {}", mail);
+		if (form.getGroup() != null) {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} added for Group ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+		} else {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} added for VO ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
+		}
+
 
 		return id;
 
@@ -147,10 +155,18 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 
+		ApplicationMail mail = getMailById(sess, id);
+
 		int result = jdbc.update("delete from application_mails where id=?", id);
 		if (result == 0) throw new InternalErrorException("Mail notification with id="+id+" doesn't exists!");
 		if (result == 1) log.info("[MAIL MANAGER] Mail notification with id={} deleted", id);
 		if (result > 1) throw new ConsistencyErrorException("There is more than one mail notification with id="+id);
+
+		if (form.getGroup() != null) {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} removed for Group ID: {}.", id, mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+		} else {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} removed for VO ID: {}.", id, mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
+		}
 
 	}
 
@@ -206,6 +222,8 @@ public class MailManagerImpl implements MailManager {
 	@Transactional(rollbackFor=Exception.class)
 	public void updateMailById(PerunSession sess, ApplicationMail mail) throws PerunException {
 
+		ApplicationForm form = registrarManager.getFormById(sess, mail.getFormId());
+
 		// update sending (enabled / disabled)
 		jdbc.update("update application_mails set send=? where id=?", mail.getSend() ? "1" : "0", mail.getId());
 
@@ -216,6 +234,12 @@ public class MailManagerImpl implements MailManager {
 			MailText text = mail.getMessage(loc);
 			jdbc.update("insert into application_mail_texts(mail_id,locale,subject,text) values (?,?,?,?)",
 					mail.getId(), loc.toString(), text.getSubject(), text.getText());
+		}
+
+		if (form.getGroup() != null) {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} updated for Group ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getGroup().getId());
+		} else {
+			perun.getAuditer().log(sess, "Mail ID: {} of Type: {} updated for VO ID: {}.", mail.getId(), mail.getMailType()+"/"+mail.getAppType(), form.getVo().getId());
 		}
 
 	}
@@ -233,6 +257,9 @@ public class MailManagerImpl implements MailManager {
 			} else {
 				jdbc.update("update application_mails set send=? where id=?", enabled, mail.getId());
 			}
+
+			perun.getAuditer().log(sess, "Sending of Mail ID: {} " + ((enabled) ? " enabled." : " disabled."));
+
 		}
 
 	}
@@ -279,7 +306,12 @@ public class MailManagerImpl implements MailManager {
 		ApplicationForm formTo = registrarManager.getFormForVo(toVo);
 		List<ApplicationMail> mails = getApplicationMails(sess, formFrom);
 		for (ApplicationMail mail : mails) {
-			addMail(sess, formTo, mail);
+			// to start transaction
+			try {
+				registrarManager.getMailManager().addMail(sess, formTo, mail);
+			} catch (DuplicateKeyException ex) {
+				log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
+			}
 		}
 
 	}
@@ -302,7 +334,12 @@ public class MailManagerImpl implements MailManager {
 
 			List<ApplicationMail> mails = getApplicationMails(sess, groupForm);
 			for (ApplicationMail mail : mails) {
-				addMail(sess, voForm, mail);
+				// to start transaction
+				try {
+					registrarManager.getMailManager().addMail(sess, voForm, mail);
+				} catch (DuplicateKeyException ex) {
+					log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
+				}
 			}
 
 		} else {
@@ -313,7 +350,12 @@ public class MailManagerImpl implements MailManager {
 
 			List<ApplicationMail> mails = getApplicationMails(sess, voForm);
 			for (ApplicationMail mail : mails) {
-				addMail(sess, groupForm, mail);
+				// to start transaction
+				try {
+					registrarManager.getMailManager().addMail(sess, groupForm, mail);
+				} catch (DuplicateKeyException ex) {
+					log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
+				}
 			}
 
 		}
@@ -323,8 +365,11 @@ public class MailManagerImpl implements MailManager {
 	@Override
 	public void copyMailsFromGroupToGroup(PerunSession sess, Group fromGroup, Group toGroup) throws PerunException {
 
+		Vo fromVO = perun.getVosManagerBl().getVoById(registrarSession, fromGroup.getVoId());
+
 		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, fromGroup) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup)) {
+				!AuthzResolver.isAuthorized(sess, Role.VOADMIN, fromGroup) &&
+				!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, fromVO)) {
 			throw new PrivilegeException(sess, "copyMailsFromGroupToGroup");
 		}
 		if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, toGroup) &&
@@ -336,7 +381,12 @@ public class MailManagerImpl implements MailManager {
 		ApplicationForm formTo = registrarManager.getFormForGroup(toGroup);
 		List<ApplicationMail> mails = getApplicationMails(sess, formFrom);
 		for (ApplicationMail mail : mails) {
-			addMail(sess, formTo, mail);
+			// to start transaction
+			try {
+				registrarManager.getMailManager().addMail(sess, formTo, mail);
+			} catch (DuplicateKeyException ex) {
+				log.info("[MAIL MANAGER] Mail notification of type {} skipped while copying (was already present).", mail.getMailType()+"/"+mail.getAppType());
+			}
 		}
 
 	}
@@ -357,10 +407,10 @@ public class MailManagerImpl implements MailManager {
 			// get mail definition
 			ApplicationMail mail = getMailByParams(form.getId(), app.getType(), mailType);
 			if (mail == null) {
-				log.error("[MAIL MANAGER] Mail not send. Definition (or mail text) for: {} do not exists for VO: "+app.getVo()+" and Group: "+app.getGroup(), mailType.toString());
+				log.error("[MAIL MANAGER] Mail not sent. Definition (or mail text) for: {} do not exists for VO: "+app.getVo()+" and Group: "+app.getGroup(), mailType.toString());
 				return; // mail not found
 			} else if (mail.getSend() == false) {
-				log.info("[MAIL MANAGER] Mail not send. Disabled by VO admin.");
+				log.info("[MAIL MANAGER] Mail not sent. Disabled by VO admin for: " + mail.getMailType() + " / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup());
 				return; // sending this mail is disabled by VO admin
 			}
 			// get app data
@@ -400,7 +450,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {}", message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_CREATED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_CREATED_USER failed because of exception: {}", ex);
 				}
@@ -456,7 +506,7 @@ public class MailManagerImpl implements MailManager {
 					message.setTo(email);
 					try {
 						mailSender.send(message);
-						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {}", message.getTo());
+						log.info("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: APP_CREATED_VO_ADMIN failed because of exception: {}", ex);
 					}
@@ -517,8 +567,8 @@ public class MailManagerImpl implements MailManager {
 										if (newValue != null && !newValue.isEmpty()) {
 											if (!newValue.endsWith("/")) newValue += "/";
 											newValue += namespace + "/registrar/";
-											newValue += "?vo="+app.getVo().getShortName();
-											newValue += ((app.getGroup() != null) ? "&group="+app.getGroup().getName() : "");
+											newValue += "?vo="+getEncodedString(app.getVo().getShortName());
+											newValue += ((app.getGroup() != null) ? "&group="+getEncodedString(app.getGroup().getName()) : "");
 											try {
 												newValue += "&i=" + URLEncoder.encode(i, "UTF-8") + "&m=" + URLEncoder.encode(m, "UTF-8");
 											} catch (UnsupportedEncodingException ex) {
@@ -542,12 +592,12 @@ public class MailManagerImpl implements MailManager {
 									url += "registrar/";
 								}
 
-								if (url != null && !url.isEmpty()) url = url + "?vo=" + app.getVo().getShortName();
+								if (url != null && !url.isEmpty()) url = url + "?vo=" + getEncodedString(app.getVo().getShortName());
 
 
 								if (app.getGroup() != null) {
 									// append group name for
-									if (url != null && !url.isEmpty()) url += "&group=" + app.getGroup().getName();
+									if (url != null && !url.isEmpty()) url += "&group=" + getEncodedString(app.getGroup().getName());
 								}
 
 								// construct whole url
@@ -578,7 +628,7 @@ public class MailManagerImpl implements MailManager {
 
 							try {
 								mailSender.send(message);
-								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {}", message.getTo());
+								log.info("[MAIL MANAGER] Sending mail: MAIL_VALIDATION to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 							} catch (MailException ex) {
 								log.error("[MAIL MANAGER] Sending mail: MAIL_VALIDATION failed because of exception: {}", ex);
 							}
@@ -609,7 +659,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {}", message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_APPROVED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_APPROVED_USER failed because of exception: {}", ex);
 				}
@@ -634,7 +684,7 @@ public class MailManagerImpl implements MailManager {
 				try {
 					// send mail
 					mailSender.send(message);
-					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {}", message.getTo());
+					log.info("[MAIL MANAGER] Sending mail: APP_REJECTED_USER to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 				} catch (MailException ex) {
 					log.error("[MAIL MANAGER] Sending mail: APP_REJECTED_USER failed because of exception: {}", ex);
 				}
@@ -690,7 +740,7 @@ public class MailManagerImpl implements MailManager {
 					message.setTo(email);
 					try {
 						mailSender.send(message);
-						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {}", message.getTo());
+						log.info("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN to: {} / appID: " + app.getId() + " / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 					} catch (MailException ex) {
 						log.error("[MAIL MANAGER] Sending mail: APP_ERROR_VO_ADMIN failed because of exception: {}", ex);
 					}
@@ -782,6 +832,7 @@ public class MailManagerImpl implements MailManager {
 			sendMessage(app, mailType, reason, null);
 
 		}
+		perun.getAuditer().log(sess, "Mail of Type: {} sent for Application: {}", mailType, app.getId());
 
 	}
 
@@ -790,7 +841,7 @@ public class MailManagerImpl implements MailManager {
 
 		if (group == null) {
 			if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-			    !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
+					!AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
 				throw new PrivilegeException(sess, "sendInvitation");
 			}
 		} else {
@@ -878,7 +929,7 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {}", message.getTo());
+			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 		} catch (MailException ex) {
 			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
@@ -1012,7 +1063,7 @@ public class MailManagerImpl implements MailManager {
 
 		try {
 			mailSender.send(message);
-			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {}", message.getTo());
+			log.info("[MAIL MANAGER] Sending mail: USER_INVITE to: {} / " + app.getVo() + " / " + app.getGroup(), message.getTo());
 		} catch (MailException ex) {
 			log.error("[MAIL MANAGER] Sending mail: USER_INVITE failed because of exception: {}", ex);
 			throw new RegistrarException("Unable to send e-mail.", ex);
@@ -1376,42 +1427,12 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 
-		// DECIDE PROPER SETTINGS
-
-		// default not member at all
-		boolean isMember = false;
-
-		if (user != null) {
-
-			try {
-
-				Member m = membersManager.getMemberByUser(registrarSession, vo, user);
-				isMember = true;
-				// is member, is invite to group ?
-				if (group != null) {
-					List<Group> g = groupsManager.getMemberGroups(registrarSession, m);
-					if (g.contains(group)) {
-						// user is member of group - can't invite him
-						throw new RegistrarException("User to invite is already member of your group: "+group.getShortName());
-					}
-				} else {
-					throw new RegistrarException("User to invite is already member of your VO:"+vo.getShortName());
-				}
-
-			} catch (Exception ex) {
-				log.error("[MAIL MANAGER] Exception {} when getting member by {} from "+vo.toString(), ex, user);
-			}
-
-		}
-
-		// from here we know, that user is not member of VO and group or is member of VO (by "isMember" variable)
-
 		// replace invitation link
 		if (mailText.contains("{invitationLink}")) {
 			String url = getPerunUrl(vo, group);
 			if (!url.endsWith("/")) url += "/";
 			url += "registrar/";
-			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, isMember, url));
+			mailText = mailText.replace("{invitationLink}", buildInviteURL(vo, group, url));
 		}
 
 		// replace invitation link
@@ -1438,7 +1459,7 @@ public class MailManagerImpl implements MailManager {
 					if (url != null && !url.isEmpty()) {
 						if (!url.endsWith("/")) url += "/";
 						url += namespace + "/registrar/";
-						newValue = buildInviteURL(vo, group, isMember, url);
+						newValue = buildInviteURL(vo, group, url);
 					}
 
 				}
@@ -1479,25 +1500,18 @@ public class MailManagerImpl implements MailManager {
 	 *
 	 * @param vo vo to get invite link for
 	 * @param group group if is for group application
-	 * @param isMember if user is member of VO
 	 * @param text base of URL for invitation
 	 * @return full URL to application form
 	 */
-	private String buildInviteURL(Vo vo, Group group, boolean isMember, String text) {
+	private String buildInviteURL(Vo vo, Group group, String text) {
 
 		if (text == null || text.isEmpty()) return "";
 
-		text = text + "?vo=" + vo.getShortName();
+		text += "?vo=" + getEncodedString(vo.getShortName());
 
-		if (isMember && group != null) {
-			// application for group
-			text += "&group="+group.getName();
-		} else if (!isMember && group == null) {
-			// application for VO
-			// ==> no change to URL
-		} else if (!isMember && group != null) {
-			// application for VO+group (redirect)
-			text += "&targetnew=" + text.replace("?", "%3F") + "%26group=" + group.getName() + "&targetexisting=" + text.replace("?", "%3F") + "%26group=" + group.getName();
+		if (group != null) {
+			// application for group too
+			text += "&group="+getEncodedString(group.getName());
 		}
 
 		return text;
@@ -1526,6 +1540,7 @@ public class MailManagerImpl implements MailManager {
 	 *
 	 * {logins} - list of all logins from application
 	 * {membershipExpiration} - membership expiration date
+	 * {mail} - user preferred mail submitted on application or stored in a system
 	 *
 	 * {customMessage} - message passed by admin to mail (e.g. reason of application reject)
 	 * {errors} - include errors which ocured when processing registrar actions
@@ -1599,6 +1614,21 @@ public class MailManagerImpl implements MailManager {
 					}
 				}
 			}
+
+			if (nameText.isEmpty()) {
+				User user = null;
+				if (app.getUser() != null) {
+					user = app.getUser();
+				} else {
+					try {
+						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					} catch (Exception ex) {
+						// user not found is ok
+					}
+				}
+				if (user != null) nameText = user.getDisplayName();
+			}
+
 			mailText = mailText.replace("{displayName}", nameText);
 		}
 
@@ -1613,6 +1643,21 @@ public class MailManagerImpl implements MailManager {
 					}
 				}
 			}
+
+			if (nameText.isEmpty()) {
+				User user = null;
+				if (app.getUser() != null) {
+					user = app.getUser();
+				} else {
+					try {
+						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					} catch (Exception ex) {
+						// user not found is ok
+					}
+				}
+				if (user != null) nameText = user.getFirstName();
+			}
+
 			mailText = mailText.replace("{firstName}", nameText);
 		}
 
@@ -1627,7 +1672,23 @@ public class MailManagerImpl implements MailManager {
 					}
 				}
 			}
+
+			if (nameText.isEmpty()) {
+				User user = null;
+				if (app.getUser() != null) {
+					user = app.getUser();
+				} else {
+					try {
+						user = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, app.getExtSourceName(), app.getCreatedBy());
+					} catch (Exception ex) {
+						// user not found is ok
+					}
+				}
+				if (user != null) nameText = user.getLastName();
+			}
+
 			mailText = mailText.replace("{lastName}", nameText);
+
 		}
 
 		// replace exceptions
@@ -1727,6 +1788,47 @@ public class MailManagerImpl implements MailManager {
 			}
 			// replace by date or empty
 			mailText = mailText.replace("{membershipExpiration}", expiration);
+		}
+
+		// user mail
+		if (mailText.contains("{mail}")) {
+			String mail = "";
+			if (app.getUser() != null) {
+				try {
+					User u = usersManager.getUserById(registrarSession, app.getUser().getId());
+					Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PREFERRED_MAIL);
+					if (a != null && a.getValue() != null) {
+						// attribute value is string
+						mail = ((String)a.getValue());
+					}
+				} catch (Exception ex) {
+					log.error("[MAIL MANAGER] Error thrown when getting preferred mail param for mail. {}", ex);
+				}
+			} else {
+
+				for (ApplicationFormItemData d : data) {
+					if ("urn:perun:member:attribute-def:def:mail".equals(d.getFormItem().getPerunDestinationAttribute())) {
+						if (d.getValue() != null && !d.getValue().isEmpty()) {
+							mail = d.getValue();
+							break;
+						}
+					}
+				}
+
+				for (ApplicationFormItemData d : data) {
+					if ("urn:perun:user:attribute-def:def:preferredMail".equals(d.getFormItem().getPerunDestinationAttribute())) {
+						if (d.getValue() != null && !d.getValue().isEmpty()) {
+							mail = d.getValue();
+							break;
+						}
+					}
+				}
+
+
+			}
+
+			// replace by mail or empty
+			mailText = mailText.replace("{mail}", mail);
 		}
 
 		// mail footer
@@ -1866,10 +1968,10 @@ public class MailManagerImpl implements MailManager {
 			if (text != null && !text.isEmpty()) {
 				if (!text.endsWith("/")) text += "/";
 				text += "registrar/";
-				text += "?vo=" + vo.getShortName() + "&page=apps";
+				text += "?vo=" + getEncodedString(vo.getShortName()) + "&page=apps";
 			}
 			if (group != null) {
-				text += "&group="+group.getName();
+				text += "&group="+getEncodedString(group.getName());
 			}
 			mailText = mailText.replace("{appGuiUrl}", text);
 		}
@@ -1899,8 +2001,8 @@ public class MailManagerImpl implements MailManager {
 					if (newValue != null && !newValue.isEmpty()) {
 						if (!newValue.endsWith("/")) newValue += "/";
 						newValue += namespace + "/registrar/";
-						newValue += "?vo="+vo.getShortName();
-						newValue += ((group != null) ? "&group="+group.getName() : "");
+						newValue += "?vo="+getEncodedString(vo.getShortName());
+						newValue += ((group != null) ? "&group="+getEncodedString(group.getName()) : "");
 						newValue += "&page=apps";
 					}
 
@@ -1994,6 +2096,22 @@ public class MailManagerImpl implements MailManager {
 			}
 		}
 		return fedAuthz;
+	}
+
+	/**
+	 * Return URL encoded String in utf-8. If not possible, return original string.
+	 *
+	 * @param s String to encode
+	 * @return URL Encoded string
+	 */
+	private static String getEncodedString(String s) {
+
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (UnsupportedEncodingException ex) {
+			return s;
+		}
+
 	}
 
 }

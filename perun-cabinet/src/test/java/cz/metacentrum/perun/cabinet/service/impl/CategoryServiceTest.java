@@ -24,7 +24,7 @@ public class CategoryServiceTest extends BaseIntegrationTest {
 
 	@Test
 	public void createCategoryTest() throws Exception {
-		System.out.println("createCategoryTest()");
+		System.out.println("CategoryService.createCategoryTest");
 
 		Category c = new Category(null, "Patent3", 7.0);
 		int id = categoryService.createCategory(c);
@@ -36,7 +36,7 @@ public class CategoryServiceTest extends BaseIntegrationTest {
 
 	@Test
 	public void updateCategoryTest() throws Exception {
-		System.out.println("updateCategoryTest()");
+		System.out.println("CategoryService.updateCategoryTest");
 
 		Double oldRank = c1.getRank();
 		c1.setRank(2.0);
@@ -49,7 +49,7 @@ public class CategoryServiceTest extends BaseIntegrationTest {
 
 	@Test
 	public void findAllCategoriesTest() throws Exception {
-		System.out.println("findAllCategoriesTest()");
+		System.out.println("CategoryService.findAllCategoriesTest");
 
 		List<Category> categories = categoryService.findAllCategories();
 		assertTrue("There should be at least 1 category.",categories.size() > 0);
@@ -57,8 +57,8 @@ public class CategoryServiceTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void findCategorByIdTest() throws Exception {
-		System.out.println("findCategorByIdTest()");
+	public void findCategoryByIdTest() throws Exception {
+		System.out.println("CategoryService.findCategoryByIdTest");
 
 		Category c2 = categoryService.findCategoryById(c1.getId());
 		assertEquals("Original and retrieved Category by ID: "+c1.getId()+" are not same.", c1, c2);
@@ -67,7 +67,7 @@ public class CategoryServiceTest extends BaseIntegrationTest {
 
 	@Test
 	public void getCountTest() throws Exception {
-		System.out.println("getCountTest()");
+		System.out.println("CategoryService.getCountTest");
 
 		int count = categoryService.getCount();
 		assertTrue("There should be some Categories but was "+count, count > 0);
@@ -76,7 +76,7 @@ public class CategoryServiceTest extends BaseIntegrationTest {
 
 	@Test (expected=DataIntegrityViolationException.class)
 		public void deleteCategoryWhenPublicationExistsTest() throws Exception {
-			System.out.println("deleteCategoryWhenPublicationExistsTest()");
+			System.out.println("CategoryService.deleteCategoryWhenPublicationExistsTest");
 
 			categoryService.deleteCategoryById(c1.getId());
 			// should throw exception
@@ -85,7 +85,7 @@ public class CategoryServiceTest extends BaseIntegrationTest {
 
 	@Test
 	public void deleteCategoryTest() throws Exception {
-		System.out.println("deleteCategoryTest()");
+		System.out.println("CategoryService.deleteCategoryTest");
 
 		Category c = new Category(null, "Patent4", 1.0);
 		int id = categoryService.createCategory(c);

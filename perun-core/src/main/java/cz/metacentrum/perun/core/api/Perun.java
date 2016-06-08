@@ -14,6 +14,14 @@ import cz.metacentrum.perun.core.impl.Auditer;
 public interface Perun {
 
 	/**
+	 * True if this instance of perun is read only.
+	 * False if not.
+	 *
+	 * @return true or false (readOnly or not)
+	 */
+	public boolean isPerunReadOnly();
+
+	/**
 	 * Gets a (possibly cached) Perun session.
 	 * @throws InternalErrorException raised when session cannot be created.
 	 * @param actor identification of the actor, who will perform operations.
@@ -104,6 +112,12 @@ public interface Perun {
 	 * @return Messages manager
 	 */
 	public RTMessagesManager getRTMessagesManager();
+
+	/**
+	 * Gets a Security teams manager.
+	 * @return Security teams manager
+	 */
+	public SecurityTeamsManager getSecurityTeamsManager();
 
 	/**
 	 * Gets a Searcher.

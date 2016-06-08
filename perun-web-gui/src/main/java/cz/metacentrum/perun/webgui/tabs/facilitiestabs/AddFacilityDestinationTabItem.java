@@ -94,6 +94,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 		type.addItem("URL","url");
 		type.addItem("MAIL","email");
 		type.addItem("SIGNED MAIL","semail");
+		type.addItem("SERVICE SPECIFIC","service-specific");
 
 		final ListBoxWithObjects<Service> services = new ListBoxWithObjects<Service>();
 		final CheckBox useHosts = new CheckBox(WidgetTranslation.INSTANCE.useFacilityHostnames(), false);
@@ -182,7 +183,7 @@ public class AddFacilityDestinationTabItem implements TabItem {
 					return false;
 				}
 				// check as email
-				if (type.getSelectedIndex() > 3) {
+				if (type.getSelectedIndex() > 3 && type.getSelectedIndex() < 6) {
 					if (!JsonUtils.isValidEmail(destination.getSuggestBox().getText().trim())) {
 						destination.setError("Not valid email address.");
 						return false;
@@ -230,6 +231,8 @@ public class AddFacilityDestinationTabItem implements TabItem {
 					destinationLabel.getElement().setInnerHTML("<strong>Mail:</strong>");
 				} else if (type.getSelectedIndex() == 5) {
 					destinationLabel.getElement().setInnerHTML("<strong>Signed mail:</strong>");
+				} else if (type.getSelectedIndex() == 6) {
+					destinationLabel.getElement().setInnerHTML("<strong>Service specific:</strong>");
 				}
 
 				// run validation

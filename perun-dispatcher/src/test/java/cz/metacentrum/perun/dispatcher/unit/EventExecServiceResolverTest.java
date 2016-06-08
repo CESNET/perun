@@ -7,57 +7,46 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.dispatcher.TestBase;
-import cz.metacentrum.perun.dispatcher.TestDataSourcePopulator;
+import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import cz.metacentrum.perun.dispatcher.exceptions.InvalidEventMessageException;
 import cz.metacentrum.perun.dispatcher.model.Event;
 import cz.metacentrum.perun.dispatcher.processing.EventExecServiceResolver;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
+import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 
- * 
- * @author michal
- * 
+ *
+ * @author Michal Voců
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public final class EventExecServiceResolverTest extends TestBase {
-	private final static Logger log = LoggerFactory
-			.getLogger(EventExecServiceResolverTest.class);
+public class EventExecServiceResolverTest extends AbstractDispatcherTest {
 
-	@Autowired
-	private TestDataSourcePopulator testDataPopulator;
 	@Autowired
 	private EventExecServiceResolver eventExecServiceResolver;
 
 	@Test
-	public void parseEventTest() throws ServiceNotExistsException,
-			InvalidEventMessageException, InternalErrorException,
-			PrivilegeException {
+	public void parseEventTest() throws ServiceNotExistsException, InvalidEventMessageException, InternalErrorException, PrivilegeException {
+		System.out.println("EventExecServiceResolver.parseEventTest()");
 
-		String messages[] = { testDataPopulator.getMember1()
-				.serializeToString()
-				+ " added to "
-				+ testDataPopulator.getGroup1().serializeToString() + ".",
+		String message = member1.serializeToString() + " added to " + group1.serializeToString() + ".";
 
-		};
+		Event event = new Event();
+		event.setTimeStamp(System.currentTimeMillis());
+		event.setHeader("portishead");
+		event.setData(message);
+		List<Pair<List<ExecService>, Facility>> resolvedServices = eventExecServiceResolver.parseEvent(event.toString());
 
-		for (String message : messages) {
+		Assert.assertTrue("We should resolved only one facility-service", resolvedServices.size() == 1);
 
-			Event event = new Event();
-			event.setTimeStamp(System.currentTimeMillis());
-			event.setHeader("portishead");
-			event.setData(message);
-			List<Pair<List<ExecService>, Facility>> resolvedServices = eventExecServiceResolver
-					.parseEvent(event.toString());
+		Pair<List<ExecService>, Facility> resolved = resolvedServices.get(0);
+		Assert.assertTrue("We should have 2 exec services", resolved.getLeft().size() == 2);
+		Assert.assertTrue("Our exec service 1 is missing", resolved.getLeft().contains(execservice1));
+		Assert.assertTrue("Our exec service 2 is missing", resolved.getLeft().contains(execservice2));
+		Assert.assertEquals("Facility from test is not the same", facility1, resolved.getRight());
 
-			for (Pair<List<ExecService>, Facility> service : resolvedServices) {
-				log.debug("Resolved: " + service.toString());
-			}
-		}
 	}
+
 }

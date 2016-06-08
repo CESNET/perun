@@ -3,14 +3,13 @@ package cz.metacentrum.perun.rpc.methods;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
 import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -22,7 +21,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 * Creates a new service.
 	 *
 	 * @param service Service JSON object
-	 * @param owner int Owner <code>id</code>
 	 * @return Service Created Service
 	 */
 	createService {
@@ -32,8 +30,31 @@ public enum ServicesManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			return ac.getServicesManager().createService(ac.getSession(),
-					parms.read("service", Service.class),
-					ac.getOwnerById(parms.readInt("owner")));
+					parms.read("service", Service.class));
+		}
+	},
+
+	/*#
+	 * Creates a new service.
+	 *
+	 * @param name String Service name
+	 * @param scriptPath String Path to the service script. Usually "./service_name".
+	 * @param defaultDelay int Default delay in minutes before service propagation repeat. Usually 10 minutes.
+	 * @param enabled boolean TRUE if Service should be enabled globally, FALSE for disabled. Usually TRUE.
+	 * @return Service Created Service
+	 */
+	createCompleteService {
+
+		@Override
+		public Service call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getGeneralServiceManager().createCompleteService(ac.getSession(),
+					parms.readString("name"),
+					parms.readString("scriptPath"),
+					parms.readInt("defaultDelay"),
+					parms.readBoolean("enabled")
+			);
 		}
 	},
 
@@ -278,19 +299,19 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 |                      +...
 	 .                      +...
 	 .
-	.
-		</pre>
-		*
-		*/
-		getDataWithGroups {
+	 .
+	 </pre>
+	 *
+	 */
+	getDataWithGroups {
 
-			@Override
-			public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
-				return ac.getServicesManager().getDataWithGroups(ac.getSession(),
-						ac.getServiceById(parms.readInt("service")),
-						ac.getFacilityById(parms.readInt("facility")));
-			}
-		},
+		@Override
+		public ServiceAttributes call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getServicesManager().getDataWithGroups(ac.getSession(),
+					ac.getServiceById(parms.readInt("service")),
+					ac.getFacilityById(parms.readInt("facility")));
+		}
+	},
 
 	/*#
 	 * Generates the list of attributes per each member associated with the resources and groups in vos.
@@ -862,23 +883,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns owner of a Service.
-	 *
-	 * @param service int Service <code>id</code>
-	 * @return Owner Owner
-	 */
-	getOwner {
-
-		@Override
-		public Owner call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
-			return ac.getServicesManager().getOwner(ac.getSession(),
-					ac.getServiceById(parms.readInt("service")));
-		}
-	},
-
-	/*#
 	 * List all destinations for all facilities which are joined by resources to the VO.
 	 *
 	 * @param vo int VO <code>id</code>
@@ -919,6 +923,21 @@ public enum ServicesManagerMethod implements ManagerMethod {
 
 			return ac.getServicesManager().getAssignedServices(ac.getSession(),
 					ac.getFacilityById(parms.readInt("facility")));
+		}
+	},
+
+	/*#
+	 * Lists resources assigned to service.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @return List<Resource> List of resources
+	 */
+	getAssignedResources {
+
+		@Override
+		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getServicesManager().getAssignedResources(ac.getSession(),
+					ac.getServiceById(parms.readInt("service")));
 		}
 	};
 }

@@ -14,7 +14,7 @@ public class MUStrategyTest {
 	
 	@Test
 	public void getHttpRequest() {
-		println 'getHttpRequest()'
+		println 'MUStrategyTest.getHttpRequest'
 
         PublicationSystem ps = new PublicationSystem();
         ps.setLoginNamespace("mu");
@@ -30,7 +30,7 @@ public class MUStrategyTest {
 
 	@Test
 	public void parseResponse() {
-		println 'parseResponse()'
+		println 'MUStrategyTest.parseResponse'
 		
 		List<Publication> publications = muStrategy.parseResponse(muPublicationsResponse);
 		
@@ -67,7 +67,7 @@ public class MUStrategyTest {
 	
 	@Test
 	public void parseResponseArrayIndexOutOfBound() {
-		System.out.println("parseResponseArrayIndexOutOfBound");
+		System.out.println("MUStrategyTest.parseResponseArrayIndexOutOfBound");
 		
 		List<Publication> publications = muStrategy.parseResponse(arrayIndexOutOfBoundsResponse2);
 		
@@ -77,7 +77,7 @@ public class MUStrategyTest {
 	
 	@Test
 	public void buildRequestKeyfile() {
-		println 'buildRequestKeyfile()'
+		println 'MUStrategyTest.buildRequestKeyfile'
 		
 		String result = muStrategy.buildRequestKeyfile(39700, 2008, 2010);
 		
@@ -89,7 +89,7 @@ public class MUStrategyTest {
 	
 	@Test
 	public void buildYearsCriteria() {
-		println 'buildYearsCriteria()'
+		println 'MUStrategyTest.buildYearsCriteria'
 		
 		String keyfile = muStrategy.buildYearsCriteria(2008, 2010);
 		String expected = "<PUBL_AUTOR UCO=\"uco\"/>  and (<PUBL_ROK ROK=\"2008\"/> or "+

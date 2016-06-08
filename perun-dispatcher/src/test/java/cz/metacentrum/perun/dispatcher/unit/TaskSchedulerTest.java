@@ -3,28 +3,32 @@ package cz.metacentrum.perun.dispatcher.unit;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.IfProfileValue;
 
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.dispatcher.TestBase;
 
-public class TaskSchedulerTest extends TestBase {
-	private final static Logger log = LoggerFactory
-			.getLogger(TaskSchedulerTest.class);
+/**
+ *
+ * @author Michal Voců
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
+public class TaskSchedulerTest extends AbstractDispatcherTest {
 
-	@Autowired
-	Destination destination1;
+	private final static Logger log = LoggerFactory.getLogger(TaskSchedulerTest.class);
+
+	Destination destination1 = new Destination(1, "par_dest1", "host", "PARALLEL");
 
 	@IfProfileValue(name = "perun.test.groups", values = ("xxx"))
 	@Test
 	public void sendToEngineTest() {
+		System.out.println("TaskScheduler.sendToEngine()");
+
 		StringBuilder destinations_s = new StringBuilder("");
 		destinations_s.append(destination1.serializeToString());
 		destinations_s.append("");
@@ -33,8 +37,7 @@ public class TaskSchedulerTest extends TestBase {
 		List<PerunBean> listOfBeans;
 		List<Destination> destinationList = new ArrayList<Destination>();
 		try {
-			listOfBeans = AuditParser
-					.parseLog(destination1.serializeToString());
+			listOfBeans = AuditParser.parseLog(destination1.serializeToString());
 			log.debug("Found list of destination beans: " + listOfBeans);
 			for (PerunBean bean : listOfBeans) {
 				destinationList.add((Destination) bean);
@@ -43,4 +46,5 @@ public class TaskSchedulerTest extends TestBase {
 			log.error("Could not resolve destination from destination list");
 		}
 	}
+
 }

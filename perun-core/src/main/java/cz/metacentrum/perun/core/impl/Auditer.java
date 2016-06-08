@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -177,6 +178,7 @@ public class Auditer {
 		}
 	}
 
+	
 	/**
 	 * Log message.
 	 * Message is stored in actual transaction. If no transaction is active message will be immediatelly flushed out.
@@ -187,11 +189,15 @@ public class Auditer {
 	public void log(PerunSession sess, String message) throws InternalErrorException {
 		if(TransactionSynchronizationManager.isActualTransactionActive()) {
 			log.trace("Auditer stores audit message to current transaction. Message: {}.", message);
-			List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.getResource(this);
-			if(messages == null) {
-				messages = new ArrayList<AuditerMessage>();
-				TransactionSynchronizationManager.bindResource(this, messages);
+			List<List<List<AuditerMessage>>> topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
+			if (topLevelTransactions == null) {
+				newTopLevelTransaction();
+				topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
 			}
+			// pick last top-level messages chain
+			List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
+			// pick last messages in that chain
+			List<AuditerMessage> messages = transactionChain.get(transactionChain.size() - 1);
 			messages.add(new AuditerMessage(sess, message));
 		} else {
 			this.storeMessageToDb(sess, message);
@@ -310,26 +316,100 @@ public class Auditer {
 	}
 
 	/**
-	 * Imidiately flushes stored message for specified transaction into the log
+	 * Initialize new lists for sotring Audit messages.
 	 *
-	 * @param transaction
 	 */
-	public void flush() {
-		List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.unbindResourceIfPossible(this);
-		if(messages == null) {
-			log.trace("No message to flush");
+	public void newTopLevelTransaction() {
+		List<List<List<AuditerMessage>>> topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
+		
+		// prepare new messages chain
+		List<List<AuditerMessage>> transactionChain = new ArrayList<>();
+		List<AuditerMessage> messages = new ArrayList<>();
+		transactionChain.add(messages);
+		if (topLevelTransactions == null) {
+			// there is no other top-level messages
+			topLevelTransactions = new ArrayList<>();
+			topLevelTransactions.add(transactionChain);
+			TransactionSynchronizationManager.bindResource(this, topLevelTransactions);
+		} else {
+			topLevelTransactions.add(transactionChain);
+		}
+	}
+		
+	/**
+	 * Creates new list for saving auditer messages of a new nested transactions.
+	 * 
+	 */
+	public void newNestedTransaction() {
+		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
+		List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
+		List<AuditerMessage> messages = new ArrayList<>();
+		transactionChain.add(messages);
+	}
+	
+	/**
+	 * Flush auditer messages of the last messages to the store of the outer transaction.
+	 * There should be at least one nested transaction.
+	 * 
+	 */
+	public void flushNestedTransaction() {
+		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
+		List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
+		if (transactionChain.size() < 2) {
+			log.trace("No messages to flush");
 			return;
 		}
-
-		log.trace("Audit messages was flushed for current transaction.");
-		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
-			for(AuditerMessage auditerMessage : messages) {
-				log.info("AUDIT: {}", auditerMessage.getMessage());
-				storeMessageToDb(auditerMessage.getOriginaterPerunSession(), auditerMessage.getMessage());
-			}
+		List<AuditerMessage> messagesToFlush = transactionChain.get(transactionChain.size() - 1);
+		
+		transactionChain.get(transactionChain.size() - 2).addAll(messagesToFlush);
+		List<AuditerMessage> messages = transactionChain.remove(transactionChain.size() - 1);
+	}
+	
+	/**
+	 * Erases the auditer messages for the last transaction.
+	 * 
+	 */
+	public void cleanNestedTransation() {
+		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
+		List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
+		if (transactionChain.isEmpty()) {
+			log.trace("No messages to clean");
+			return;
+		}
+		List<AuditerMessage> messages = transactionChain.remove(transactionChain.size() - 1);
+	}
+	
+	/**
+	 * Imidiately flushes stored message for last top-level transaction into the log
+	 *
+	 */
+	public void flush() {
+		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
+		if (topLevelTransactions.isEmpty()) {
+			log.trace("No messages to flush");
+			return;
+		}
+		List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
+		if (transactionChain.isEmpty()) {
+			log.trace("No messages to flush");
+			topLevelTransactions.remove(topLevelTransactions.size() - 1);
+			return;
+		}
+		
+		if (transactionChain.size() != 1) {
+			log.error("There should be only one list of messages while flushing representing the most outer transaction.");
 		}
 
-		//TODO: Co kdyz se zpravy prohazi a prvne se vyresi zprava ktera prisla az jako druha?
+		List<AuditerMessage> messages = transactionChain.get(0);
+		topLevelTransactions.remove(topLevelTransactions.size() - 1);
+		if (topLevelTransactions.isEmpty()) {
+			TransactionSynchronizationManager.unbindResourceIfPossible(this);
+		}
+		log.trace("Audit messages was flushed for current transaction.");
+		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
+			storeMessagesToDb(messages);
+		}
+
 		for(AuditerMessage message: messages) {
 			for(VirtualAttributesModuleImplApi virtAttrModuleImplApi : registeredAttributesModules) {
 				List<String> resolvingMessages = new ArrayList<String>();
@@ -346,28 +426,54 @@ public class Auditer {
 				}
 
 				if(!resolvingMessages.isEmpty()) {
+					List<AuditerMessage> resolvingAuditerMessages = new ArrayList<>();
 					for(String msg : resolvingMessages) {
-						log.info("AUDIT: {}", msg);
-						storeMessageToDb(message.getOriginaterPerunSession(), msg);
+						resolvingAuditerMessages.add(new AuditerMessage(message.getOriginaterPerunSession(), msg));
 					}
+					storeMessagesToDb(resolvingAuditerMessages);
 				}
 			}
 		}
 	}
 
+	/**
+	 * All prepared auditer messages in the last top-level transaction are erased without storing into db.
+	 * Mostly wanted while rollbacking.
+	 * 
+	 */
 	public void clean() {
-		List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.unbindResourceIfPossible(this);
-		log.trace("Audit messages erased for current transaction. {}", messages);
+		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
+		if (topLevelTransactions.isEmpty()) {
+			log.trace("No messages to clean");
+			return;
+		}
+		
+		List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
+		if (transactionChain.isEmpty()) {
+			log.trace("No messages to clean");
+		}
+		
+		if (transactionChain.size() != 1) {
+			log.error("There should be only one list of messages while cleaning.");
+		}
+
+		topLevelTransactions.remove(topLevelTransactions.size() - 1);
+		
+		if (topLevelTransactions.isEmpty()) {
+			TransactionSynchronizationManager.unbindResourceIfPossible(this);
+		}
 	}
 
 	/**
-	 * Get stored (not flushed) messages for current transaction. Messages remains stored.
+	 * Get stored (not flushed) messages for current transaction. Messages remain stored.
 	 *
 	 * @return list of messages
 	 */
 	public List<AuditerMessage> getMessages() {
-		List<AuditerMessage> messages = (List<AuditerMessage>) TransactionSynchronizationManager.getResource(this);
-		if(messages == null) return new ArrayList<AuditerMessage>();
+		List<List<List<AuditerMessage>>> topLevelTransactions = getTopLevelTransactions();
+		List<List<AuditerMessage>> transactionChain = topLevelTransactions.get(topLevelTransactions.size() - 1);
+		if (transactionChain.isEmpty()) return new ArrayList<>();
+		List<AuditerMessage> messages = transactionChain.get(transactionChain.size() - 1);
 		return messages;
 	}
 
@@ -409,6 +515,14 @@ public class Auditer {
 		}
 	}
 
+	public int getAuditerMessagesCount(PerunSession perunSession) throws InternalErrorException {
+		try {
+			return jdbc.queryForInt("select count(id) from auditer_log");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public List<AuditMessage> getMessageForParser(int count) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + auditMessageMappingSelectQuery + " from (select " + auditMessageMappingSelectQuery + ",row_number() over (ORDER BY id DESC) as rownumber from auditer_log) "+Compatibility.getAsAlias("temp")+" where rownumber <= ?",
@@ -419,12 +533,60 @@ public class Auditer {
 			throw new InternalErrorException(err);
 		}
 	}
+	
+	private List<List<List<AuditerMessage>>> getTopLevelTransactions() {
+		List<List<List<AuditerMessage>>> topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
+		if (topLevelTransactions == null) {
+			newTopLevelTransaction();
+			topLevelTransactions = (List<List<List<AuditerMessage>>>) TransactionSynchronizationManager.getResource(this);
+		}
+		return topLevelTransactions;
+	}
+
+	/**
+	 * Stores the auditer messages to the DB in batch.
+	 *
+	 * @param messages list of AuditerMessages
+	 */
+	public void storeMessagesToDb(final List<AuditerMessage> messages) {
+		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {
+			try {
+				jdbc.batchUpdate("insert into auditer_log (id, msg, actor, created_at, created_by_uid) values (?,?,?," + Compatibility.getSysdate() + ",?)",
+						new BatchPreparedStatementSetter() {
+							@Override
+							public void setValues(PreparedStatement ps, int i) throws SQLException {
+								final AuditerMessage auditerMessage = messages.get(i);
+								final String message = auditerMessage.getMessage();
+								final PerunSession session = auditerMessage.getOriginaterPerunSession();
+								log.info("AUDIT: {}", message);
+								try {
+									ps.setInt(1, Utils.getNewId(jdbc, "auditer_log_id_seq"));
+								} catch (InternalErrorException e) {
+									throw new SQLException("Cannot get unique id for new auditer log message ['" + message + "']", e);
+								}
+								ps.setString(2, message);
+								ps.setString(3, session.getPerunPrincipal().getActor());
+								ps.setInt(4, session.getPerunPrincipal().getUserId());
+							}
+
+							@Override
+							public int getBatchSize() {
+								return messages.size();
+							}
+						});
+			} catch (RuntimeException e) {
+				log.error("Cannot store auditer log message in batch for list ['{}'], exception: {}", messages, e);
+			} catch (InternalErrorException e) {
+				log.error("Could not get system date identifier for the DB", e);
+			}
+		}
+	}
 
 	/**
 	 * Store the message to the DB.
 	 *
+	 * @param sess
 	 * @param message
-	 * @throws InternalErrorException
 	 */
 	public void storeMessageToDb(final PerunSession sess, final String message) {
 		synchronized (LOCK_DB_TABLE_AUDITER_LOG) {

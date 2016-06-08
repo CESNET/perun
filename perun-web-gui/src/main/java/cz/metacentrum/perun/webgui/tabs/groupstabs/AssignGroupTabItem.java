@@ -85,6 +85,7 @@ public class AssignGroupTabItem implements TabItem {
 
 		// menu
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// callback
 		final GetRichResources callback = new GetRichResources(group.getVoId());
@@ -94,6 +95,9 @@ public class AssignGroupTabItem implements TabItem {
 				for (RichResource rr : resources) {
 					callback.removeFromTable(rr);
 				}
+				ArrayList<RichResource> temp = new ArrayList<RichResource>();
+				temp.addAll(callback.getList());
+				callback.setList(temp);
 			}
 		});
 		CellTable<RichResource> table = callback.getTable();
@@ -112,7 +116,7 @@ public class AssignGroupTabItem implements TabItem {
 			}
 		}, ButtonTranslation.INSTANCE.filterResources());
 
-		// buttton
+		// button
 		final CustomButton assignButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToSelectedResources());
 		assignButton.addClickHandler(new ClickHandler(){
 			@Override

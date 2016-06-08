@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -28,6 +29,14 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     private String file = null;
     private String query = null;
     private String[] header = null;
+
+    private static PerunBlImpl perunBl;
+
+    // filled by spring (perun-core.xml)
+    public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+        perunBl = perun;
+        return perun;
+    }
 
     @Override
     public List<Map<String, String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
@@ -282,4 +291,8 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         }
         return lineAsMap;
     }
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
+	}
 }

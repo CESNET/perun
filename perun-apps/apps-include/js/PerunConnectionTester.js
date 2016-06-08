@@ -8,8 +8,12 @@ $(document).ready(function() {
 
 
 function reloadMsg() {
-    alert("Data connection lost. Click OK to relad the page.");
-    window.location.reload();
+    alert("Data connection lost. Click OK to reload the page.");
+    reload();
+}
+
+function reload() {
+    window.location.reload(true);
 }
 
 
@@ -29,21 +33,21 @@ function executeQuery() {
                 401: function() {
                     reloadMsg();
                 },
-		302: function() {
-		    window.location.reload();
-		},
-		0: function() {
-		    window.location.reload();
-		}
+                302: function() {
+                    reload()
+                },
+                0: function() {
+                    reload()
+                }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 0) {
-		  window.location.reload();
-		} else if (jqXHR.status == 302) {
-		  window.location.reload();
-		} else {
-		  reloadMsg();
-		}
+                    reload()
+                } else if (jqXHR.status == 302) {
+                            reload()
+                } else {
+                  reloadMsg();
+                }
             }
         });
 }

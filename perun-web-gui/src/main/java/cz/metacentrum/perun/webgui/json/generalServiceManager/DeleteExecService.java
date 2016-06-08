@@ -90,7 +90,7 @@ public class DeleteExecService {
 		String errorMsg = "";
 
 		if(execServiceId == 0){
-			errorMsg += "Wrong paramter 'exec service ID'.\n";
+			errorMsg += "Wrong parameter 'exec service ID'.\n";
 			result = false;
 		}
 

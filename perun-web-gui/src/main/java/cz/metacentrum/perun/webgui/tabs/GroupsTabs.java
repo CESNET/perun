@@ -83,6 +83,18 @@ public class GroupsTabs {
 			return true;
 		}
 
+		if (tab.equals(GroupExtSourcesTabItem.URL))
+		{
+			session.getTabManager().addTab(GroupExtSourcesTabItem.load(parameters), open);
+			return true;
+		}
+
+		if (tab.equals(AddGroupExtSourceTabItem.URL))
+		{
+			session.getTabManager().addTab(AddGroupExtSourceTabItem.load(parameters), open);
+			return true;
+		}
+
 		return false;
 
 	}

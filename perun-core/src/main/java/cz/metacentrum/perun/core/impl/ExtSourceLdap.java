@@ -19,6 +19,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,17 +37,26 @@ import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
  */
 public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
-	private Map<String, String> mapping;
+	protected Map<String, String> mapping;
 
-	private final static Logger log = LoggerFactory.getLogger(ExtSourceLdap.class);
+	protected final static Logger log = LoggerFactory.getLogger(ExtSourceLdap.class);
 
-	private DirContext dirContext = null;
+	protected DirContext dirContext = null;
+	protected String filteredQuery = null;
 
 	protected DirContext getContext() throws InternalErrorException {
 		if (dirContext == null) {
 			initContext();
 		}
 		return dirContext;
+	}
+
+	private static PerunBlImpl perunBl;
+
+	// filled by spring (perun-core.xml)
+	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+		perunBl = perun;
+		return perun;
 	}
 
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
@@ -141,7 +151,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 			// Now query LDAP again and search for each subject
 			for (String ldapSubjectName : ldapGroupSubjects) {
-				subjects.addAll(this.querySource(null, ldapSubjectName, 0));
+				subjects.addAll(this.querySource(filteredQuery, ldapSubjectName, 0));
 			}
 
 			return subjects;
@@ -178,6 +188,10 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		}
 		if (getAttributes().containsKey("password")) {
 			env.put(Context.SECURITY_CREDENTIALS, (String) getAttributes().get("password"));
+		}
+
+		if (getAttributes().containsKey("filteredQuery")) {
+			filteredQuery = (String) getAttributes().get("filteredQuery");
 		}
 
 		try {
@@ -390,6 +404,10 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	public List<Map<String, String>> findSubjects(String searchString, int maxResults) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		// We can call original implementation, since LDAP always return whole entry and not just login
 		return findSubjectsLogins(searchString, maxResults);
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 
 }

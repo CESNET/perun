@@ -17,9 +17,9 @@ import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.usersManager.GetServiceUsersByUser;
-import cz.metacentrum.perun.webgui.json.usersManager.GetUsersByServiceUser;
-import cz.metacentrum.perun.webgui.json.usersManager.RemoveServiceUserOwner;
+import cz.metacentrum.perun.webgui.json.usersManager.GetSpecificUsersByUser;
+import cz.metacentrum.perun.webgui.json.usersManager.GetUsersBySpecificUser;
+import cz.metacentrum.perun.webgui.json.usersManager.RemoveSpecificUserOwner;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -72,7 +72,7 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 			this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+": Associated users");
 
 			// request
-			final GetUsersByServiceUser request = new GetUsersByServiceUser(userId);
+			final GetUsersBySpecificUser request = new GetUsersBySpecificUser(userId);
 			final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(request);
 
 			// menu
@@ -80,8 +80,10 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 			vp.add(menu);
 			vp.setCellHeight(menu, "30px");
 
+			menu.addWidget(UiElements.getRefreshButton(this));
+
 			// buttons
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
 				public void onClick(ClickEvent clickEvent) {
 					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
 				}
@@ -106,11 +108,11 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 									public void onClick(ClickEvent event) {
 										for (int i = 0; i < list.size(); i++) {
 											// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-											RemoveServiceUserOwner req;
+											RemoveSpecificUserOwner req;
 											if (i == list.size() - 1) {
-												req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+												req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
 											} else {
-												req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+												req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
 											}
 											req.removeServiceUser(list.get(i), user);
 
@@ -125,25 +127,59 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 
 					} else {
 
-						// if not selected myself, continue same way
-						UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose any access to it. Only users associated with service identity can add other users again. If you remove all users connected to the service identity, it will be deleted too!", new ClickHandler() {
-							@Override
-							public void onClick(ClickEvent event) {
-								for (int i = 0; i < list.size(); i++) {
-									// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-									RemoveServiceUserOwner req;
-									if (i == list.size() - 1) {
-										req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
-									} else {
-										req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
-									}
-									req.removeServiceUser(list.get(i), user);
-
-									// TODO - consider fixing authz in session ?
-
-								}
+						boolean containsMyself = false;
+						for (User user : list) {
+							if (user.getId() == session.getUser().getId()) {
+								containsMyself = true;
 							}
-						});
+						}
+
+						if (containsMyself) {
+
+							// if not selected myself, continue same way
+							UiElements.showDeleteConfirm(list, "<p style=\"color:red;\"><b>You are about to remove yourself from service identity! If you do that, you won't be able to add yourself again. Only users associated with service identity can add other users again.</b></p>" +
+									"<p>Following users will be removed from service identity and they will lose any access to it.</p>", new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent event) {
+									for (int i = 0; i < list.size(); i++) {
+										// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+										RemoveSpecificUserOwner req;
+										if (i == list.size() - 1) {
+											req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+										} else {
+											req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+										}
+										req.removeServiceUser(list.get(i), user);
+
+										// TODO - consider fixing authz in session ?
+
+									}
+								}
+							});
+
+						} else {
+
+							// if not selected myself, continue same way
+							UiElements.showDeleteConfirm(list, "Following users will be removed from service identity and they will lose any access to it. Only users associated with service identity can add other users again.", new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent event) {
+									for (int i = 0; i < list.size(); i++) {
+										// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+										RemoveSpecificUserOwner req;
+										if (i == list.size() - 1) {
+											req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+										} else {
+											req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+										}
+										req.removeServiceUser(list.get(i), user);
+
+										// TODO - consider fixing authz in session ?
+
+									}
+								}
+							});
+
+						}
 
 					}
 
@@ -174,19 +210,23 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 
 			vp.add(sp);
 
+			session.getUiElements().resizePerunTable(sp, 350, this);
+
 		} else {
 
 			// PERSON TYPE user
 			this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(user.getFullNameWithTitles().trim())+": Service identities");
 
 			// request
-			final GetServiceUsersByUser request = new GetServiceUsersByUser(userId);
+			final GetSpecificUsersByUser request = new GetSpecificUsersByUser(userId);
 			final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(request);
+			request.setHideSponsored(true);
 
 			// menu
 			TabMenu menu = new TabMenu();
 			vp.add(menu);
 			vp.setCellHeight(menu, "30px");
+			menu.addWidget(UiElements.getRefreshButton(this));
 
 			final CustomButton removeUserButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove service identity from "+user.getFullName());
 			menu.addWidget(removeUserButton);
@@ -194,17 +234,17 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 				@Override
 				public void onClick(ClickEvent clickEvent) {
 					final ArrayList<User> list = request.getTableSelectedList();
-					UiElements.showDeleteConfirm(list, "Following service identities will be removed from you and you will lose any access to them. Only users associated with service identity can add you again. If you are last user connected to the service identity, it will be deleted too!", new ClickHandler() {
+					UiElements.showDeleteConfirm(list, "Following service identities will be removed from you and you will lose any access to them. Only users associated with service identity can add you again.", new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
 							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
 							for (int i=0; i<list.size(); i++ ) {
-								RemoveServiceUserOwner req;
+								RemoveSpecificUserOwner req;
 								// if last, refresh
 								if(i == list.size() - 1) {
-									req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
+									req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, refreshEvents));
 								} else {
-									req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+									req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
 								}
 								req.removeServiceUser(user, list.get(i));
 
@@ -234,6 +274,8 @@ public class SelfServiceUsersTabItem implements TabItem, TabItemWithUrl {
 			sp.addStyleName("perun-tableScrollPanel");
 
 			vp.add(sp);
+
+			session.getUiElements().resizePerunTable(sp, 350, this);
 
 		}
 

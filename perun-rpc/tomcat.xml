@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<!-- This is a simple config for running Perun in embedded Tomcat of Maven Tomcat7 plugin
+     It has no affect on production use (when war is deployed to own Tomcat -->
+
+<Server port="8005" shutdown="SHUTDOWN">
+
+	<Listener className="org.apache.catalina.core.JasperListener" />
+	<Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+	<Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+	<Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+	<GlobalNamingResources>
+		<Resource name="UserDatabase" auth="Container"
+		          type="org.apache.catalina.UserDatabase"
+		          description="User database that can be updated and saved"
+		          factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+		          pathname="conf/tomcat-users.xml" />
+	</GlobalNamingResources>
+
+	<Service name="Catalina">
+
+		<Connector port="8009" protocol="AJP/1.3" address="127.0.0.1" tomcatAuthentication="false" URIEncoding="UTF-8" packetSize="36000" />
+
+		<Engine name="Catalina" defaultHost="localhost">
+			<Host name="localhost" appBase="" deployOnStartup="false" autoDeploy="false">
+				<Context path="/perun-rpc" docBase="../perun-rpc.war" sessionCookieName="PERUNSESSION" sessionCookiePath="/" />
+			</Host>
+		</Engine>
+
+	</Service>
+</Server>

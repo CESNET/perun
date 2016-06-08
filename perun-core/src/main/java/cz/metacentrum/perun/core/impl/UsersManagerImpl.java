@@ -33,7 +33,8 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.exceptions.ServiceUserOwnerAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
  * UsersManager implementation.
@@ -53,7 +54,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	protected final static String userMappingSelectQuery = "users.id as users_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
 		"users.middle_name as users_middle_name, users.title_before as users_title_before, users.title_after as users_title_after, " +
 		"users.created_at as users_created_at, users.created_by as users_created_by, users.modified_by as users_modified_by, users.modified_at as users_modified_at, " +
-		"users.service_acc as users_service_acc, users.created_by_uid as users_created_by_uid, users.modified_by_uid as users_modified_by_uid";
+		"users.sponsored_acc as users_sponsored_acc, users.service_acc as users_service_acc, users.created_by_uid as users_created_by_uid, users.modified_by_uid as users_modified_by_uid";
 
 	protected final static String userExtSourceMappingSelectQuery = "user_ext_sources.id as user_ext_sources_id, user_ext_sources.login_ext as user_ext_sources_login_ext, " +
 		"user_ext_sources.user_id as user_ext_sources_user_id, user_ext_sources.loa as user_ext_sources_loa, user_ext_sources.created_at as user_ext_sources_created_at, user_ext_sources.created_by as user_ext_sources_created_by, " +
@@ -68,6 +69,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			return new User(rs.getInt("users_id"), rs.getString("users_first_name"), rs.getString("users_last_name"),
 					rs.getString("users_middle_name"), rs.getString("users_title_before"), rs.getString("users_title_after"),
 					rs.getString("users_created_at"), rs.getString("users_created_by"), rs.getString("users_modified_at"), rs.getString("users_modified_by"), rs.getBoolean("users_service_acc"),
+					rs.getBoolean("users_sponsored_acc"),
 					rs.getInt("users_created_by_uid") == 0 ? null : rs.getInt("users_created_by_uid"), rs.getInt("users_modified_by_uid") == 0 ? null : rs.getInt("users_modified_by_uid"));
 		}
 	};
@@ -93,6 +95,21 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 					rs.getInt("ues_modified_by_uid") == 0 ? null : rs.getInt("ues_modified_by_uid"));
 		}
 	};
+
+        protected static final ResultSetExtractor<List<Pair<User,String>>> USERBLACKLIST_EXTRACTOR = new ResultSetExtractor<List<Pair<User,String>>>(){
+            @Override
+            public List<Pair<User,String>> extractData(ResultSet rs) throws SQLException{
+                List<Pair<User, String>> result = new ArrayList<>();
+
+                int row = 0;
+                while(rs.next()){
+                    result.add(new Pair<User, String>(USER_MAPPER.mapRow(rs, row), rs.getString("description")));
+                    row++;
+                }
+
+                return result;
+            }
+        };
 
 	private static class AttributeAndUserRowMapper<User> implements RowMapper<Pair<User,Attribute>> {
 
@@ -206,10 +223,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException {
+	public List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery +
-					" from users, service_user_users where users.id=service_user_users.service_user_id and service_user_users.status='0' and service_user_users.user_id=?", USER_MAPPER, user.getId());
+					" from users, specific_user_users where users.id=specific_user_users.specific_user_id and specific_user_users.status='0' and specific_user_users.user_id=?", USER_MAPPER, user.getId());
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
 			return new ArrayList<User>();
@@ -218,10 +235,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public List<User> getUsersByServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException {
+	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery +
-					" from users, service_user_users where users.id=service_user_users.user_id and service_user_users.status='0' and service_user_users.service_user_id=?", USER_MAPPER, serviceUser.getId());
+					" from users, specific_user_users where users.id=specific_user_users.user_id and specific_user_users.status='0' and specific_user_users.specific_user_id=? " +
+					" and specific_user_users.type=?", USER_MAPPER, specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
 			return new ArrayList<User>();
@@ -230,47 +248,49 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, ServiceUserOwnerAlreadyRemovedException {
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, SpecificUserOwnerAlreadyRemovedException {
 		try {
-			int numAffected = jdbc.update("delete from service_user_users where user_id=? and service_user_id=?", user.getId(), serviceUser.getId());
-			if(numAffected == 0) throw new ServiceUserOwnerAlreadyRemovedException("ServiceUser-Owner: " + user + " , ServiceUser: " + serviceUser);
+			int numAffected = jdbc.update("delete from specific_user_users where user_id=? and specific_user_id=? and specific_user_users.type=?",
+					user.getId(), specificUser.getId(),specificUser.getMajorSpecificType().getSpecificUserType());
+			if(numAffected == 0) throw new SpecificUserOwnerAlreadyRemovedException("SpecificUser-Owner: " + user + " , SpecificUser: " + specificUser);
 
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
 	}
 
-	public void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
+	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException {
 		try {
-			jdbc.update("insert into service_user_users(user_id,service_user_id,status,created_by_uid,modified_at) values (?,?,'0',?," + Compatibility.getSysdate() + ")",
-					user.getId(), serviceUser.getId(), sess.getPerunPrincipal().getUserId());
+			jdbc.update("insert into specific_user_users(user_id,specific_user_id,status,created_by_uid,modified_at,type) values (?,?,'0',?," + Compatibility.getSysdate() + ",?)",
+					user.getId(), specificUser.getId(), sess.getPerunPrincipal().getUserId(), specificUser.getMajorSpecificType().getSpecificUserType());
 
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
 	}
 
-	public void enableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
+	public void enableOwnership(PerunSession sess, User user, User specificUser) throws InternalErrorException {
 		try {
-			jdbc.update("update service_user_users set status='0', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and service_user_id=?",
-					sess.getPerunPrincipal().getUserId(), user.getId(), serviceUser.getId());
+			jdbc.update("update specific_user_users set status='0', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
+					sess.getPerunPrincipal().getUserId(), user.getId(), specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (RuntimeException er) {
 			throw new InternalErrorException(er);
 		}
 	}
 
-	public void disableOwnership(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
+	public void disableOwnership(PerunSession sess, User user, User specificUser) throws InternalErrorException {
 		try {
-			jdbc.update("update service_user_users set status='1', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and service_user_id=?",
-					sess.getPerunPrincipal().getUserId(), user.getId(), serviceUser.getId());
+			jdbc.update("update specific_user_users set status='1', modified_at=" + Compatibility.getSysdate() + ", modified_by_uid=? where user_id=? and specific_user_id=? and type=?",
+					sess.getPerunPrincipal().getUserId(), user.getId(), specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (RuntimeException er) {
 			throw new InternalErrorException(er);
 		}
 	}
 
-	public boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
+	public boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from service_user_users where user_id=? and service_user_id=?", user.getId(), serviceUser.getId());
+			return 1 == jdbc.queryForInt("select 1 from specific_user_users where user_id=? and specific_user_id=? and type=?",
+					user.getId(), specificUser.getId(), specificUser.getMajorSpecificType().getSpecificUserType());
 		} catch (EmptyResultDataAccessException e) {
 			return false;
 		} catch (RuntimeException e) {
@@ -278,10 +298,10 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public List<User> getServiceUsers(PerunSession sess) throws InternalErrorException {
+	public List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + userMappingSelectQuery +
-					"  from users where users.service_acc='1'", USER_MAPPER);
+					"  from users where users.service_acc='1' or users.sponsored_acc='1'", USER_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			// Return empty list
 			return new ArrayList<User>();
@@ -292,7 +312,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserAlreadyRemovedException {
 		try {
-			jdbc.update("delete from service_user_users where user_id=?", user.getId());
+			jdbc.update("delete from specific_user_users where user_id=?", user.getId());
 			int numAffected = jdbc.update("delete from users where id=?", user.getId());
 			if(numAffected == 0) throw new UserAlreadyRemovedException("User: " + user);
 		} catch (RuntimeException err) {
@@ -300,11 +320,11 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public void deleteServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException, ServiceUserAlreadyRemovedException {
+	public void deleteSpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, SpecificUserAlreadyRemovedException {
 		try {
-			jdbc.update("delete from service_user_users where service_user_id=?", serviceUser.getId());
-			int numAffected = jdbc.update("delete from users where id=?", serviceUser.getId());
-			if(numAffected == 0) throw new ServiceUserAlreadyRemovedException("ServiceUser: " + serviceUser);
+			jdbc.update("delete from specific_user_users where specific_user_id=?", specificUser.getId());
+			int numAffected = jdbc.update("delete from users where id=?", specificUser.getId());
+			if(numAffected == 0) throw new SpecificUserAlreadyRemovedException("ServiceUser: " + specificUser);
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -314,12 +334,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		try {
 			int newId = Utils.getNewId(jdbc, "users_id_seq");
 			char serviceAcc = '0';
+			char sponsoredAcc = '0';
 			if (user.isServiceUser()) {
 				serviceAcc = '1';
 			}
-			jdbc.update("insert into users(id,first_name,last_name,middle_name,title_before,title_after,created_by,modified_by,service_acc,created_by_uid,modified_by_uid)" +
-					" values (?,?,?,?,?,?,?,?,?,?,?)", newId, user.getFirstName(), user.getLastName(), user.getMiddleName(),
-					user.getTitleBefore(), user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), "" + serviceAcc, sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+			if (user.isSponsoredUser()) {
+				sponsoredAcc = '1';
+			}
+			jdbc.update("insert into users(id,first_name,last_name,middle_name,title_before,title_after,created_by,modified_by,service_acc,sponsored_acc,created_by_uid,modified_by_uid)" +
+					" values (?,?,?,?,?,?,?,?,?,?,?,?)", newId, user.getFirstName(), user.getLastName(), user.getMiddleName(),
+					user.getTitleBefore(), user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), "" + serviceAcc, "" + sponsoredAcc,
+					sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
 			user.setId(newId);
 
 			return user;
@@ -778,8 +803,8 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		// the searchString is already lower cased
 		try {
 			return jdbc.query("select " + userMappingSelectQuery + " from users " +
-					" where coalesce(lower(users.title_before), '%') like ? and lower(users.first_name) like ? and coalesce(lower(users.middle_name),'%') like ? and " +
-					"lower(users.last_name) like ?  and coalesce(lower(users.title_after), '%') like ?",
+					" where coalesce(lower("+Compatibility.convertToAscii("users.title_before")+"), '%') like ? and lower("+Compatibility.convertToAscii("users.first_name")+") like ? and coalesce(lower("+Compatibility.convertToAscii("users.middle_name")+"),'%') like ? and " +
+					"lower("+Compatibility.convertToAscii("users.last_name")+") like ? and coalesce(lower("+Compatibility.convertToAscii("users.title_after")+"), '%') like ?",
 					USER_MAPPER, titleBefore, firstName, middleName, lastName, titleAfter);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<User>();
@@ -844,7 +869,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public boolean userExists(PerunSession sess, User user) throws InternalErrorException {
 		Utils.notNull(user, "user");
 		try {
-			return 1 == jdbc.queryForInt("select 1 from users where id=? and service_acc=?", user.getId(), user.isServiceUser() ? "1" : "0");
+			return 1 == jdbc.queryForInt("select 1 from users where id=? and service_acc=? and sponsored_acc=?", user.getId(), user.isServiceUser() ? "1" : "0", user.isSponsoredUser() ? "1" : "0");
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -1161,15 +1186,28 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				if(Character.toString(ch).equals("á")){sb.append("a");f=true;}
 				if(Character.toString(ch).equals("Ó")){sb.append("O");f=true;}
 				if(Character.toString(ch).equals("ě")){sb.append("e");f=true;}
+				if(Character.toString(ch).equals("Ě")){sb.append("E");f=true;}
 				if(Character.toString(ch).equals("š")){sb.append("s");f=true;}
+				if(Character.toString(ch).equals("Š")){sb.append("S");f=true;}
 				if(Character.toString(ch).equals("č")){sb.append("c");f=true;}
+				if(Character.toString(ch).equals("Č")){sb.append("C");f=true;}
 				if(Character.toString(ch).equals("ř")){sb.append("r");f=true;}
+				if(Character.toString(ch).equals("Ř")){sb.append("R");f=true;}
 				if(Character.toString(ch).equals("ž")){sb.append("z");f=true;}
+				if(Character.toString(ch).equals("Ž")){sb.append("Z");f=true;}
 				if(Character.toString(ch).equals("ý")){sb.append("y");f=true;}
+				if(Character.toString(ch).equals("Ý")){sb.append("Y");f=true;}
 				if(Character.toString(ch).equals("í")){sb.append("i");f=true;}
+				if(Character.toString(ch).equals("Í")){sb.append("I");f=true;}
 				if(Character.toString(ch).equals("ó")){sb.append("o");f=true;}
 				if(Character.toString(ch).equals("ú")){sb.append("u");f=true;}
+				if(Character.toString(ch).equals("Ú")){sb.append("u");f=true;}
 				if(Character.toString(ch).equals("ů")){sb.append("u");f=true;}
+				if(Character.toString(ch).equals("Ů")){sb.append("U");f=true;}
+				if(Character.toString(ch).equals("Ň")){sb.append("N");f=true;}
+				if(Character.toString(ch).equals("ň")){sb.append("n");f=true;}
+				if(Character.toString(ch).equals("Ť")){sb.append("T");f=true;}
+				if(Character.toString(ch).equals("ť")){sb.append("t");f=true;}
 				if(Character.toString(ch).equals(" ")){sb.append(" ");f=true;}
 
 				if(!f){

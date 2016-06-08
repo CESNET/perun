@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -25,8 +26,11 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
@@ -36,6 +40,8 @@ import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import java.util.HashSet;
@@ -62,11 +68,16 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		"hosts.created_at as hosts_created_at, hosts.created_by as hosts_created_by, hosts.modified_by as hosts_modified_by, hosts.modified_at as hosts_modified_at, " +
 		"hosts.created_by_uid as hosts_created_by_uid, hosts.modified_by_uid as hosts_modified_by_uid";
 
-	protected final static String facilityContactsMappingSelectQuery = " facility_contacts.facility_id as fc_id, facility_contacts.contact_group_name as fc_contact_group_name, " +
+	protected final static String facilityContactsMappingSelectQuery = " facility_contacts.facility_id as fc_id, facility_contacts.name as fc_name, " +
 	    "facility_contacts.owner_id as fc_owner_id, facility_contacts.user_id as fc_user_id, facility_contacts.group_id as fc_group_id";
 	
 	protected final static String facilityContactsMappingSelectQueryWithAllEntities = facilityContactsMappingSelectQuery + ", " + UsersManagerImpl.userMappingSelectQuery + ", " + 
 	  facilityMappingSelectQuery + ", " + OwnersManagerImpl.ownerMappingSelectQuery + ", " + GroupsManagerImpl.groupMappingSelectQuery;
+
+	protected final static String banOnFacilityMappingSelectQuery = "facilities_bans.id as fac_bans_id, facilities_bans.description as fac_bans_description, " +
+		"facilities_bans.user_id as fac_bans_user_id, facilities_bans.facility_id as fac_bans_facility_id, facilities_bans.banned_to as fac_bans_validity_to, " +
+		"facilities_bans.created_at as fac_bans_created_at, facilities_bans.created_by as fac_bans_created_by, facilities_bans.modified_at as fac_bans_modified_at, " +
+		"facilities_bans.modified_by as fac_bans_modified_by, facilities_bans.created_by_uid as fac_bans_created_by_uid, facilities_bans.modified_by_uid as fac_bans_modified_by_uid";
 
 	public static final RowMapper<Facility> FACILITY_MAPPER = new RowMapper<Facility>() {
 		public Facility mapRow(ResultSet rs, int i) throws SQLException {
@@ -126,8 +137,8 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 			contactGroup.setFacility(facility);
 
 			//set Name
-			String contactGroupName = rs.getString("fc_contact_group_name");
-			contactGroup.setContactGroupName(contactGroupName);
+			String name = rs.getString("fc_name");
+			contactGroup.setName(name);
 
 			//if exists set owner
 			List<Owner> owners = new ArrayList<>();
@@ -203,7 +214,27 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	private static final RowMapper<String> FACILITY_CONTACT_NAMES_MAPPER = new RowMapper<String>() {
 		public String mapRow(ResultSet rs, int i) throws SQLException {
 
-			return rs.getString("contact_group_name");
+			return rs.getString("name");
+		}
+	};
+
+	protected static final RowMapper<BanOnFacility> BAN_ON_FACILITY_MAPPER = new RowMapper<BanOnFacility>() {
+		public BanOnFacility mapRow(ResultSet rs, int i) throws SQLException {
+			BanOnFacility banOnFacility = new BanOnFacility();
+			banOnFacility.setId(rs.getInt("fac_bans_id"));
+			banOnFacility.setUserId(rs.getInt("fac_bans_user_id"));
+			banOnFacility.setFacilityId(rs.getInt("fac_bans_facility_id"));
+			banOnFacility.setDescription(rs.getString("fac_bans_description"));
+			banOnFacility.setValidityTo(rs.getTimestamp("fac_bans_validity_to"));
+			banOnFacility.setCreatedAt(rs.getString("fac_bans_created_at"));
+			banOnFacility.setCreatedBy(rs.getString("fac_bans_created_by"));
+			banOnFacility.setModifiedAt(rs.getString("fac_bans_modified_at"));
+			banOnFacility.setModifiedBy(rs.getString("fac_bans_modified_by"));
+			if(rs.getInt("fac_bans_modified_by_uid") == 0) banOnFacility.setModifiedByUid(null);
+			else banOnFacility.setModifiedByUid(rs.getInt("fac_bans_modified_by_uid"));
+			if(rs.getInt("fac_bans_created_by_uid") == 0) banOnFacility.setCreatedByUid(null);
+			else banOnFacility.setCreatedByUid(rs.getInt("fac_bans_created_by_uid"));
+			return banOnFacility;
 		}
 	};
 
@@ -338,9 +369,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	public List<Integer> getOwnersIds(PerunSession sess, Facility facility) throws InternalErrorException {
+	public List<Owner> getOwners(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {
-			return jdbc.query("select id from owners, facility_owners where owners.id=owner_id and facility_id=?", Utils.ID_MAPPER, facility.getId());
+			return jdbc.query("select "+OwnersManagerImpl.ownerMappingSelectQuery+" from owners left join facility_owners on owners.id = facility_owners.owner_id where facility_id=?", OwnersManagerImpl.OWNER_MAPPER, facility.getId());
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -402,6 +433,38 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		try {
 			return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?",
 					ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Resource> getAssignedResources(PerunSession sess, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException {
+
+		try {
+
+			if (specificVo != null && specificService != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
+						"resource_services.resource_id=resources.id where facility_id=? and vo_id=? and service_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId(), specificService.getId());
+
+			} else if (specificVo != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=? and vo_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificVo.getId());
+
+			} else if (specificService != null) {
+
+				return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resource_services join resources on " +
+						"resource_services.resource_id=resources.id where facility_id=? and service_id=?",
+						ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId(), specificService.getId());
+
+			} else {
+
+				return getAssignedResources(sess, facility);
+
+			}
+
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -599,7 +662,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	public List<Facility> getFacilitiesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + facilityMappingSelectQuery + " from facilities, authz where authz.user_id=? and " +
-					"authz.role_id=(select id from roles where name=?) and authz.facility_id=facilities.id",
+							"authz.role_id=(select id from roles where name=?) and authz.facility_id=facilities.id",
 					FACILITY_MAPPER, user.getId(), Role.FACILITYADMIN.getRoleName());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -650,21 +713,21 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	// FACILITY CONTACTS METHODS
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(user, "user");
-		if(contactGroupName == null || contactGroupName.isEmpty()) {
+		if(name == null || name.isEmpty()) {
 			throw new InternalErrorException("ContactGroupName can't be null or empty.");
 		}
 
 		ContactGroup contactGroup;
 		try {
-			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, user_id) " +
-					"values (?,?,?)", facility.getId(), contactGroupName, user.getId());
+			jdbc.update("insert into facility_contacts(facility_id, name, user_id) " +
+					"values (?,?,?)", facility.getId(), name, user.getId());
 			RichUser ru = new RichUser(user, null);
 			List<RichUser> rulist = new ArrayList<>();
 			rulist.add(ru);
-			contactGroup = new ContactGroup(contactGroupName, facility, new ArrayList<Group>(), new ArrayList<Owner>(), rulist);
+			contactGroup = new ContactGroup(name, facility, new ArrayList<Group>(), new ArrayList<Owner>(), rulist);
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -675,20 +738,20 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(owner, "owner");
-		if(contactGroupName == null || contactGroupName.isEmpty()) {
+		if(name == null || name.isEmpty()) {
 			throw new InternalErrorException("ContactGroupName can't be null or empty.");
 		}
 
 		ContactGroup contactGroup;
 		try {
-			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, owner_id) " +
-					"values (?,?,?)", facility.getId(), contactGroupName, owner.getId());
+			jdbc.update("insert into facility_contacts(facility_id, name, owner_id) " +
+					"values (?,?,?)", facility.getId(), name, owner.getId());
 			List<Owner> ownlist = new ArrayList<>();
 			ownlist.add(owner);
-			contactGroup = new ContactGroup(contactGroupName, facility, new ArrayList<Group>(), ownlist, new ArrayList<RichUser>());
+			contactGroup = new ContactGroup(name, facility, new ArrayList<Group>(), ownlist, new ArrayList<RichUser>());
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -699,20 +762,20 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+	public ContactGroup addFacilityContact(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
 		Utils.notNull(facility, "facility");
 		Utils.notNull(group, "group");
-		if(contactGroupName == null || contactGroupName.isEmpty()) {
+		if(name == null || name.isEmpty()) {
 			throw new InternalErrorException("ContactGroupName can't be null or empty.");
 		}
 
 		ContactGroup contactGroup;
 		try {
-			jdbc.update("insert into facility_contacts(facility_id, contact_group_name, group_id) " +
-					"values (?,?,?)", facility.getId(), contactGroupName, group.getId());
+			jdbc.update("insert into facility_contacts(facility_id, name, group_id) " +
+					"values (?,?,?)", facility.getId(), name, group.getId());
 			List<Group> grplist = new ArrayList<>();
 			grplist.add(group);
-			contactGroup = new ContactGroup(contactGroupName, facility, grplist, new ArrayList<Owner>(), new ArrayList<RichUser>());
+			contactGroup = new ContactGroup(name, facility, grplist, new ArrayList<Owner>(), new ArrayList<RichUser>());
 			log.info("Facility contact {} created", contactGroup);
 
 		} catch(RuntimeException ex) {
@@ -787,22 +850,22 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException {
+	public ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException {
 		try {
 			List<ContactGroup> contactGroups = jdbc.query("select " + facilityContactsMappingSelectQueryWithAllEntities + " from facility_contacts " +
 			  "left join facilities on facilities.id=facility_contacts.facility_id " +
 			  "left join owners on owners.id=facility_contacts.owner_id " +
 			  "left join users on users.id=facility_contacts.user_id " +
 			  "left join groups on groups.id=facility_contacts.group_id " +
-			  "where facility_contacts.facility_id=? and facility_contacts.contact_group_name=?", FACILITY_CONTACT_MAPPER, facility.getId(), contactGroupName);
+			  "where facility_contacts.facility_id=? and facility_contacts.name=?", FACILITY_CONTACT_MAPPER, facility.getId(), name);
 			contactGroups = mergeContactGroups(contactGroups);
 			if(contactGroups.size() == 1) {
 				return contactGroups.get(0);
 			} else {
-				throw new InternalErrorException("Merging group contacts for facility " + facility + " and contact name " + contactGroupName + " failed, more than 1 object returned " + contactGroupName);
+				throw new InternalErrorException("Merging group contacts for facility " + facility + " and contact name " + name + " failed, more than 1 object returned " + name);
 			}
 		} catch (EmptyResultDataAccessException ex) {
-			throw new FacilityContactNotExistsException(facility, contactGroupName);
+			throw new FacilityContactNotExistsException(facility, name);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -811,7 +874,7 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	@Override
 	public List<String> getAllContactGroupNames(PerunSession sess) throws InternalErrorException {
 		try {
-			return jdbc.query("select distinct contact_group_name from facility_contacts", FACILITY_CONTACT_NAMES_MAPPER);
+			return jdbc.query("select distinct name from facility_contacts", FACILITY_CONTACT_NAMES_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<>();
 		} catch (RuntimeException e) {
@@ -820,23 +883,23 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
-		if(!facilityContactExists(sess, facility, contactGroupName, owner)) throw new FacilityContactNotExistsException(facility, contactGroupName, owner);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, name, owner)) throw new FacilityContactNotExistsException(facility, name, owner);
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException, FacilityContactNotExistsException {
-		if(!facilityContactExists(sess, facility, contactGroupName, user)) throw new FacilityContactNotExistsException(facility, contactGroupName, user);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, name, user)) throw new FacilityContactNotExistsException(facility, name, user);
 	}
 
 	@Override
-	public void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException, FacilityContactNotExistsException {
-		if(!facilityContactExists(sess, facility, contactGroupName, group)) throw new FacilityContactNotExistsException(facility, contactGroupName, group);
+	public void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException, FacilityContactNotExistsException {
+		if(!facilityContactExists(sess, facility, name, group)) throw new FacilityContactNotExistsException(facility, name, group);
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and owner_id=?", facility.getId(), contactGroupName, owner.getId());
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and owner_id=?", facility.getId(), name, owner.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -844,9 +907,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and user_id=?", facility.getId(), contactGroupName, user.getId());
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and user_id=?", facility.getId(), name, user.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -854,9 +917,9 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-	private boolean facilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+	private boolean facilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
 		try {
-			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and contact_group_name=? and group_id=?", facility.getId(), contactGroupName, group.getId());
+			return 1 == jdbc.queryForInt("select 1 from facility_contacts where facility_id=? and name=? and group_id=?", facility.getId(), name, group.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
@@ -895,32 +958,230 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException {
 		try {
-			jdbc.update("delete from facility_contacts where facility_id=? and owner_id=? and contact_group_name=?", facility.getId(), owner.getId(), contactGroupName);
-			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Owner: " + owner, facility, contactGroupName);
+			jdbc.update("delete from facility_contacts where facility_id=? and owner_id=? and name=?", facility.getId(), owner.getId(), name);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Owner: " + owner, facility, name);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException {
 		try {
-			jdbc.update("delete from facility_contacts where facility_id=? and user_id=? and contact_group_name=?", facility.getId(), user.getId(), contactGroupName);
-			log.info("Facility contact deleted. Facility: {}, ContactName: {}, User: " + user, facility, contactGroupName);
+			jdbc.update("delete from facility_contacts where facility_id=? and user_id=? and name=?", facility.getId(), user.getId(), name);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, User: " + user, facility, name);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
 	}
 
 	@Override
-	public void removeFacilityContact(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException {
+	public void removeFacilityContact(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException {
 		try {
-			jdbc.update("delete from facility_contacts where facility_id=? and group_id=? and contact_group_name=?", facility.getId(), group.getId(), contactGroupName);
-			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Group: " + group, facility, contactGroupName);
+			jdbc.update("delete from facility_contacts where facility_id=? and group_id=? and name=?", facility.getId(), group.getId(), name);
+			log.info("Facility contact deleted. Facility: {}, ContactName: {}, Group: " + group, facility, name);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + SecurityTeamsManagerImpl.securityTeamMappingSelectQuery +
+							" from security_teams inner join (" +
+							"select security_teams_facilities.security_team_id from security_teams_facilities where facility_id=?" +
+							") " + Compatibility.getAsAlias("assigned_ids")+ " ON security_teams.id=assigned_ids.security_team_id",
+					SecurityTeamsManagerImpl.SECURITY_TEAM_MAPPER, facility.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			jdbc.update("insert into security_teams_facilities(security_team_id, facility_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
+					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+					securityTeam.getId(), facility.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			jdbc.update("delete from security_teams_facilities where security_team_id=? and facility_id=?",
+					securityTeam.getId(), facility.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamAlreadyAssignedException {
+		if (isSecurityTeamAssigned(sess, facility, securityTeam)) {
+			throw new SecurityTeamAlreadyAssignedException(securityTeam);
+		}
+	}
+
+	@Override
+	public void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, SecurityTeamNotAssignedException {
+		if (!isSecurityTeamAssigned(sess, facility, securityTeam)) {
+			throw new SecurityTeamNotAssignedException(securityTeam);
+		}
+	}
+
+	public List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + facilityMappingSelectQuery +
+							" from facilities inner join (" +
+							"select security_teams_facilities.facility_id from security_teams_facilities where security_team_id=?" +
+							") " + Compatibility.getAsAlias("assigned_ids")+ " ON facilities.id=assigned_ids.facility_id",
+					FACILITY_MAPPER, securityTeam.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from facilities_bans where user_id=? and facility_id=?", userId, facilityId);
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public boolean banExists(PerunSession sess, int banId) throws InternalErrorException {
+		try {
+			return 1 == jdbc.queryForInt("select 1 from facilities_bans where id=?", banId);
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException {
+		Utils.notNull(banOnFacility.getValidityTo(), "banOnFacility.getValidityTo");
+
+		try {
+			int newId = Utils.getNewId(jdbc, "facilities_bans_id_seq");
+
+			jdbc.update("insert into facilities_bans(id, description, banned_to, user_id, facility_id, created_by, created_at,modified_by,modified_at,created_by_uid,modified_by_uid) " +
+					"values (?,?,?,?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+					newId, banOnFacility.getDescription(), Compatibility.getDate(banOnFacility.getValidityTo().getTime()), banOnFacility.getUserId(), banOnFacility.getFacilityId(), sess.getPerunPrincipal().getActor(),
+					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());
+
+			banOnFacility.setId(newId);
+
+			return banOnFacility;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where id=? ", BAN_ON_FACILITY_MAPPER, banId);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new BanNotExistsException("Ban with id " + banId + " not exists for any facility.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where user_id=? and facility_id=?", BAN_ON_FACILITY_MAPPER, userId, faclityId);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new BanNotExistsException("Ban for user " + userId + " and facility " + faclityId + " not exists.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where user_id=?", BAN_ON_FACILITY_MAPPER, userId);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where facility_id=?", BAN_ON_FACILITY_MAPPER, facilityId);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + banOnFacilityMappingSelectQuery + " from facilities_bans where banned_to < " + Compatibility.getSysdate(), BAN_ON_FACILITY_MAPPER);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<>();
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException {
+		try {
+			jdbc.update("update facilities_bans set description=?, banned_to=?, modified_by=?, modified_by_uid=?, modified_at=" +
+							Compatibility.getSysdate() + " where id=?",
+							banOnFacility.getDescription(), Compatibility.getDate(banOnFacility.getValidityTo().getTime()), sess.getPerunPrincipal().getActor(),
+							sess.getPerunPrincipal().getUserId(), banOnFacility.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+
+		return banOnFacility;
+	}
+
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException {
+		try {
+			int numAffected = jdbc.update("delete from facilities_bans where id=?", banId);
+			if(numAffected != 1) throw new BanNotExistsException("Ban with id " + banId + " can't be remove, because not exists yet.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException {
+		try {
+			int numAffected = jdbc.update("delete from facilities_bans where user_id=? and facility_id=?", userId, facilityId);
+			if(numAffected != 1) throw new BanNotExistsException("Ban for user " + userId + " and facility " + facilityId + " can't be remove, because not exists yet.");
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	private boolean isSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
+		try {
+			int number = jdbc.queryForInt("select 1 from security_teams_facilities where security_team_id=? and facility_id=?", securityTeam.getId(), facility.getId());
+			if (number == 1) {
+				return true;
+			} else if (number > 1) {
+				throw new ConsistencyErrorException("Security team " + securityTeam + " is assigned multiple to facility " + facility);
+			}
+			return false;
+		} catch(EmptyResultDataAccessException ex) {
+			return false;
+		} catch(RuntimeException e) {
+			throw new InternalErrorException(e);
+		} catch (ConsistencyErrorException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 
@@ -949,12 +1210,24 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 					first = false;
 				} else {
 					ContactGroup cp = contactGroupIter.next();
+					//if same facility and same name merge them
 					if(contactGroup.equalsGroup(cp)) {
-						contactGroup.getGroups().addAll(cp.getGroups());
-						contactGroup.getUsers().addAll(cp.getUsers());
-						contactGroup.getOwners().addAll(cp.getOwners());
-					}
+						List<Group> groups = new ArrayList<>();
+						groups.addAll(contactGroup.getGroups());
+						groups.addAll(cp.getGroups());
+						contactGroup.setGroups(groups);
+						List<Owner> owners = new ArrayList<>();
+						owners.addAll(contactGroup.getOwners());
+						owners.addAll(cp.getOwners());
+						contactGroup.setOwners(owners);
+						List<RichUser> users = new ArrayList<>();
+						users.addAll(contactGroup.getUsers());
+						users.addAll(cp.getUsers());
+						contactGroup.setUsers(users);
+					// if not, skip this one for another round
+					} else continue;
 				}
+				//remove used groups of contacts
 				contactGroupIter.remove();
 			}
 			mergedContactGroups.add(contactGroup);

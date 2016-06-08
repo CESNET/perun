@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.cabinet.strategy.impl
 
-import java.util.List
-
-import groovy.xml.XmlUtil
 import org.apache.http.HttpResponse
 import org.apache.http.NameValuePair
 import org.apache.http.client.methods.HttpGet
@@ -77,7 +74,6 @@ class OBD30Strategy implements IFindPublicationsStrategy {
 				//required properties
 				Publication publication = new Publication()
                 publication.setExternalId(it.'@id'.toInteger())
-                publication.setIsbn((it.isbn.text()) ? it.isbn.text() : "")
                 publication.setYear((it.rok.text()) ? it.rok.text().toInteger() : 0)
 
                 // use TITLE in original language
@@ -86,6 +82,13 @@ class OBD30Strategy implements IFindPublicationsStrategy {
                         publication.setTitle((it.nazev.text()) ? it.nazev.text() : "")
                     }
                 }
+
+				String source = (it.zdroj_nazev.text()) ? it.zdroj_nazev.text() : ""
+				String source_year = (it.rocnik.text()) ? it.rocnik.text() : ""
+				String issue = (it.cislo.text()) ? it.cislo.text() : ""
+				String pages = (it.strany.text()) ? it.strany.text() : ""
+				String isbn = (it.isbn.text()) ? it.isbn.text() : ""
+				String issn = (it.issn.text()) ? it.issn.text() : ""
 
 				List<Author> authors = new ArrayList<Author>()
 
@@ -117,8 +120,16 @@ class OBD30Strategy implements IFindPublicationsStrategy {
 				}
 				main += publication.getTitle() + ". "
 				main += (publication.getYear()) ? publication.getYear()+". " : ""
-				main += (publication.getIsbn()) ? "ISBN: "+publication.getIsbn()+"." : ""
+
+				main += (source) ? source+"," : "";
+				main += (source_year) ? " roč. "+source_year+"," : "";
+				main += (issue) ? " č. "+issue+"," : "";
+				main += (pages) ? " s. "+pages+"," : "";
+				main += (isbn) ? " ISBN: "+isbn+"." : ""
+				main += (issn) ? " ISSN: "+issn+"." : ""
 				publication.setMain(main)
+
+				publication.setIsbn((isbn && issn) ? (isbn + " / " + issn) : ((isbn) ? isbn : ((issn) ? issn : "")))
 
 				result.add(publication)
 

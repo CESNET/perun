@@ -135,6 +135,14 @@ $objectExamples{"Candidate"} = "{ \"id\" : 0 , \"serviceUser\" : false , \"first
 $objectExamples{"List&lt;Candidate&gt;"} = $listPrepend . $objectExamples{"Candidate"} . $listAppend;
 $objectExamples{"List<Candidate>"} = $objectExamples{"List&lt;Candidate&gt;"};
 
+$objectExamples{"SecurityTeam"} = "{ \"id\" : 924 , \"name\" : \"CSIRT\" , \"description\" : \"My CSIRT\" }";
+$objectExamples{"List&lt;SecurityTeam&gt;"} = $listPrepend . $objectExamples{"SecurityTeam"} . $listAppend;
+$objectExamples{"List<SecurityTeam>"} = $objectExamples{"List&lt;SecurityTeam&gt;"};
+
+$objectExamples{"Pair<User,String>"} = "{ \"left\" : " . $objectExamples{"User"} ." , \"right\" : \"Some reason\" }";
+$objectExamples{"List&lt;Pair&lt;User,String&gt;&gt;"} = $listPrepend . $objectExamples{"Pair<User,String>"} . $listAppend;
+$objectExamples{"List<Pair<User,String>>"} = $objectExamples{"List&lt;Pair&lt;User,String&gt;&gt;"};
+
 # SUB HELP
 # help info
 sub help {

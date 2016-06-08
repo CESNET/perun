@@ -83,45 +83,68 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return getUsersManagerImpl().getUsersByExtSourceTypeAndLogin(perunSession, extSourceType, login);
 	}
 
-	public List<User> getServiceUsersByUser(PerunSession sess, User user) throws InternalErrorException {
-		return getUsersManagerImpl().getServiceUsersByUser(sess, user);
+	public List<User> getSpecificUsersByUser(PerunSession sess, User user) throws InternalErrorException {
+		return getUsersManagerImpl().getSpecificUsersByUser(sess, user);
 	}
 
-	public List<User> getUsersByServiceUser(PerunSession sess, User serviceUser) throws InternalErrorException {
-		return getUsersManagerImpl().getUsersByServiceUser(sess, serviceUser);
+	public List<User> getUsersBySpecificUser(PerunSession sess, User specificUser) throws InternalErrorException {
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
+		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
+		return getUsersManagerImpl().getUsersBySpecificUser(sess, specificUser);
 	}
 
-	public void removeServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationNotExistsException, ServiceUserMustHaveOwnerException, ServiceUserOwnerAlreadyRemovedException {
-		List<User> serviceUserOwners = this.getUsersByServiceUser(sess, serviceUser);
-		if(!serviceUserOwners.remove(user)) throw new RelationNotExistsException("User is not the active owner of the service user.");
+	public void removeSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationNotExistsException, SpecificUserMustHaveOwnerException, SpecificUserOwnerAlreadyRemovedException {
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
+		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
+		if (user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
 
-		if(!getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser)) {
-			throw new RelationNotExistsException("User has no relationship to serviceUser.");
+		List<User> specificUserOwners = this.getUsersBySpecificUser(sess, specificUser);
+		if(!specificUserOwners.remove(user)) throw new RelationNotExistsException("User is not the active owner of the specificUser.");
+
+		if(!getUsersManagerImpl().specificUserOwnershipExists(sess, user, specificUser)) {
+			throw new RelationNotExistsException("User has no relationship to specificUser.");
 		}
 
-		getPerunBl().getAuditer().log(sess, "{} ownership was disabled for serviceUser {}.", user, serviceUser);
-		getUsersManagerImpl().disableOwnership(sess, user, serviceUser);
+		try {
+			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.unsetRole(sess, user, specificUser, Role.SPONSOR);
+		} catch (UserNotAdminException ex) {
+			throw new InternalErrorException("Can't remove role of sponsor for user " + user + " and sponsored user " + specificUser);
+		}
+
+		getPerunBl().getAuditer().log(sess, "{} ownership was disabled for specificUser {}.", user, specificUser);
+		getUsersManagerImpl().disableOwnership(sess, user, specificUser);
 	}
 
-	public void addServiceUserOwner(PerunSession sess, User user, User serviceUser) throws InternalErrorException, RelationExistsException {
-		List<User> serviceUserOwners = this.getUsersByServiceUser(sess, serviceUser);
-		if(serviceUserOwners.remove(user)) throw new RelationExistsException("User is already the active owner of service user.");
+	public void addSpecificUserOwner(PerunSession sess, User user, User specificUser) throws InternalErrorException, RelationExistsException {
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
+		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
+		if (user.getMajorSpecificType().equals(SpecificUserType.SERVICE)) throw new InternalErrorException("Service user can`t own another account (service or guest)!" + user);
+		List<User> specificUserOwners = this.getUsersBySpecificUser(sess, specificUser);
+		if(specificUserOwners.remove(user)) throw new RelationExistsException("User is already the active owner of specific user.");
 
-		if(getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser)) {
-			getUsersManagerImpl().enableOwnership(sess, user, serviceUser);
-			getPerunBl().getAuditer().log(sess, "{} ownership was enabled for serviceUser {}.", user, serviceUser);
+		if(getUsersManagerImpl().specificUserOwnershipExists(sess, user, specificUser)) {
+			getUsersManagerImpl().enableOwnership(sess, user, specificUser);
+			getPerunBl().getAuditer().log(sess, "{} ownership was enabled for specificUser {}.", user, specificUser);
 		} else {
-			getPerunBl().getAuditer().log(sess, "{} was added to owners of {}.", user, serviceUser);
-			getUsersManagerImpl().addServiceUserOwner(sess, user, serviceUser);
+			getPerunBl().getAuditer().log(sess, "{} was added to owners of {}.", user, specificUser);
+			getUsersManagerImpl().addSpecificUserOwner(sess, user, specificUser);
+		}
+
+		try {
+			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.setRole(sess, user, specificUser, Role.SPONSOR);
+		} catch (AlreadyAdminException ex) {
+			throw new InternalErrorException("User " + user + " is already sponsor of sponsored user " + specificUser);
 		}
 	}
 
-	public boolean serviceUserOwnershipExists(PerunSession sess, User user, User serviceUser) throws InternalErrorException {
-		return getUsersManagerImpl().serviceUserOwnershipExists(sess, user, serviceUser);
+	public boolean specificUserOwnershipExists(PerunSession sess, User user, User specificUser) throws InternalErrorException {
+		if(specificUser.isServiceUser() && specificUser.isSponsoredUser()) throw new InternalErrorException("We are not support specific and sponsored users together yet.");
+		if(specificUser.getMajorSpecificType().equals(SpecificUserType.NORMAL)) throw new InternalErrorException("Incorrect type of specification for specific user!" + specificUser);
+		return getUsersManagerImpl().specificUserOwnershipExists(sess, user, specificUser);
 	}
 
-	public List<User> getServiceUsers(PerunSession sess) throws InternalErrorException {
-		return getUsersManagerImpl().getServiceUsers(sess);
+	public List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException {
+		return getUsersManagerImpl().getSpecificUsers(sess);
 	}
 
 	public User getUserById(PerunSession sess, int id) throws InternalErrorException, UserNotExistsException {
@@ -189,18 +212,18 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return richUsers;
 	}
 
-	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedServiceUsers) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getAllRichUsers(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
 		List<User> users = new ArrayList<User>();
 		users.addAll(this.getUsers(sess));
-		if(!includedServiceUsers) users.removeAll(this.getServiceUsers(sess));
+		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		return richUsers;
 	}
 
-	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers) throws InternalErrorException, UserNotExistsException {
 		List<User> users = new ArrayList<User>();
 		users.addAll(this.getUsers(sess));
-		if(!includedServiceUsers) users.removeAll(this.getServiceUsers(sess));
+		if(!includedSpecificUsers) users.removeAll(this.getSpecificUsers(sess));
 		List<RichUser> richUsers = this.convertUsersToRichUsers(sess, users);
 		List<RichUser> richUsersWithAttributes = this.convertRichUsersToRichUsersWithAttributes(sess, richUsers);
 		return richUsersWithAttributes;
@@ -276,11 +299,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return user;
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException  {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException  {
 		this.deleteUser(sess, user, false);
 	}
 
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, ServiceUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
@@ -301,6 +324,12 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			} else {
 				throw new RelationExistsException("User has still some facilities contacts: " + userContactGroups);
 			}
+		}
+
+		if (getPerunBl().getSecurityTeamsManagerBl().isUserBlacklisted(sess, user) && forceDelete) {
+			getPerunBl().getSecurityTeamsManagerBl().removeUserFromAllBlacklists(sess, user);
+		} else if (getPerunBl().getSecurityTeamsManagerBl().isUserBlacklisted(sess, user) && !forceDelete) {
+			throw new RelationExistsException("User is blacklisted by some security team. Deletion would cause loss of this information.");
 		}
 
 		// First delete all associated external sources to the user
@@ -375,9 +404,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		//Remove user authz
 		AuthzResolverBlImpl.removeAllUserAuthz(sess, user);
 
+		//Remove all users bans
+		List<BanOnFacility> bansOnFacility = getPerunBl().getFacilitiesManagerBl().getBansForUser(sess, user.getId());
+		for(BanOnFacility banOnFacility : bansOnFacility) {
+			try {
+				getPerunBl().getFacilitiesManagerBl().removeBan(sess, banOnFacility.getId());
+			} catch (BanNotExistsException ex) {
+				//it is ok, we just want to remove it anyway
+			}
+		}
+
 		// Finally delete the user
-		if(user.isServiceUser()) {
-			getUsersManagerImpl().deleteServiceUser(sess, user);
+		if(user.isSpecificUser()) {
+			// Remove all sponsored user authz of his owners
+			if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
+			getUsersManagerImpl().deleteSpecificUser(sess, user);
 		} else {
 			getUsersManagerImpl().deleteUser(sess, user);
 		}
@@ -661,8 +702,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// Create Attribute
 		try {
-			AttributeDefinition attributeDefinitition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
-			Attribute attribute = new Attribute(attributeDefinitition);
+			AttributeDefinition attributeDefinition = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + loginNamespace);
+			Attribute attribute = new Attribute(attributeDefinition);
 
 			attribute.setValue(login);
 
@@ -1092,6 +1133,35 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				}
 				kerberosLoginsAttr.setValue(kerberosLogins);
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+			} else if (loginNamespace.equals("sagrid")) {
+
+				List<String> kerberosLogins = new ArrayList<String>();
+
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "SAGRID");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@SAGRID");
+				ues.setLoa(0);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					kerberosLogins.add(userLogin + "@SAGRID");
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+				// Store also Kerberos logins
+				Attribute kerberosLoginsAttr;
+				try {
+					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					}
+				} catch (AttributeNotExistsException e) {
+					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				}
+				kerberosLoginsAttr.setValue(kerberosLogins);
+				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -1515,15 +1585,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 	}
 
-	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedServiceUsers, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
+	public List<RichUser> getAllRichUsersWithAttributes(PerunSession sess, boolean includedSpecificUsers, List<String> attrsName) throws InternalErrorException, UserNotExistsException {
 
 		List<User> users = getUsers(sess);
-		// optionally exclude service users
-		if (!includedServiceUsers) {
+		// optionally exclude specific users
+		if (!includedSpecificUsers) {
 			Iterator<User> it = users.iterator();
 			while (it.hasNext()) {
 				User u = it.next();
-				if (u.isServiceUser()) {
+				if (u.isSpecificUser()) {
 					it.remove();
 				}
 			}
@@ -1616,6 +1686,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		// store attribute
 		getPerunBl().getAttributesManagerBl().setAttribute(sess, user, a);
+
+		getUsersManagerImpl().removeAllPreferredEmailChangeRequests(sess, user);
 
 		return email;
 

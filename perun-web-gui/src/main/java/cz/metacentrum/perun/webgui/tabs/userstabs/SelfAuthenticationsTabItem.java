@@ -7,6 +7,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
@@ -14,9 +15,12 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetLogins;
+import cz.metacentrum.perun.webgui.json.usersManager.GetUserExtSources;
+import cz.metacentrum.perun.webgui.json.usersManager.RemoveUserExtSource;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
+import cz.metacentrum.perun.webgui.model.UserExtSource;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
@@ -89,9 +93,19 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 		ScrollPanel vp = new ScrollPanel();
 		vp.setSize("100%","100%");
 
+		final VerticalPanel innerVp = new VerticalPanel();
+		innerVp.setSize("100%", "100%");
+
+		final TabMenu menu = new TabMenu();
+		innerVp.add(menu);
+		innerVp.setCellHeight(menu, "30px");
+
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		final FlexTable layout = new FlexTable();
 		layout.setSize("100%","100%");
-		vp.add(layout);
+		vp.add(innerVp);
+		innerVp.add(layout);
 
 		layout.setStyleName("perun-table");
 		vp.setStyleName("perun-tableScrollPanel");
@@ -109,7 +123,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 		certHeader.getFlexCellFormatter().setStyleName(0, 1, "subsection-heading");
 		layout.setWidget(3, 0, certHeader);
 
-		layout.setHTML(4, 0, "To <strong>add certificate</strong> please visit <a href=\""+ Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator &gt;&gt;</a> and select \"Connect with your IGTF digital certificate\" option.<br />&nbsp;");
+		layout.setHTML(4, 0, "To <strong>add certificate</strong> please visit <a href=\""+ Utils.getIdentityConsolidatorLink(false)+"\" target=\"_blank\">identity consolidator &gt;&gt;</a> and select \"Using personal certificate\" option.<br />&nbsp;");
 
 		FlexTable sshHeader = new FlexTable();
 		sshHeader.setWidget(0, 0, new Image(LargeIcons.INSTANCE.serverKeyIcon()));
@@ -153,19 +167,25 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 						if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
 							FlexTable fw = new FlexTable();
 							fw.addStyleName("padding-vertical");
-							CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
+
+							CustomButton cb = new CustomButton("Change password…", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 								public void onClick(ClickEvent event) {
 									session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
 								}
 							});
-							CustomButton cb2 = new CustomButton("Reset password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
+							CustomButton cb2 = new CustomButton("Reset password…", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 								public void onClick(ClickEvent event) {
 									// OPEN PASSWORD RESET APPLICATION ON SAME SERVER
 									Window.open("" + Utils.getPasswordResetLink(a.getFriendlyNameParameter()), "_blank", "");
 								}
 							});
 							fw.setWidget(0, 0, cb);
-							fw.setWidget(0, 1, cb2);
+							if (!user.isServiceUser()) {
+								fw.setWidget(0, 1, cb2);
+							} else {
+								cb.setText("Reset password…");
+							}
+
 							loginsTable.setWidget(row, 2, fw);
 						}
 						row++;
@@ -196,23 +216,42 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 		certTable .getFlexCellFormatter().setWidth(0, 0, "150px");
 		layout.setWidget(5, 0, certTable);
 
-		final GetListOfAttributes attrs = new GetListOfAttributes(new JsonCallbackEvents(){
+		final GetUserExtSources ueses = new GetUserExtSources(userId);
+		ueses.setEvents(new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso) {
-				ArrayList<Attribute> list = JsonUtils.jsoAsList(jso);
+				ArrayList<UserExtSource> list = JsonUtils.jsoAsList(jso);
 				if (list != null && !list.isEmpty()) {
-					for (Attribute a : list) {
-						if (a.getValueAsMap().keySet() != null && !a.getValueAsMap().keySet().isEmpty()) {
-							String result = "";
-							for (String s : a.getValueAsMap().keySet()) {
-								result += "<p><strong>";
-								result += s+"</strong><br/>";
-								result += "<i>Issuer: "+a.getValueAsMap().get(s)+"</i></p>";
-							}
-							certTable.setHTML(0, 1, result);
-						} else {
-							certTable.setHTML(0, 1, notSet);
+					boolean found = false;
+					FlexTable tab = new FlexTable();
+					int i = 0; // rowcounter
+					for (final UserExtSource a : list) {
+						if (a.getExtSource().getType().equals("cz.metacentrum.perun.core.impl.ExtSourceX509")) {
+							found = true;
+							tab.setHTML(i++, 0, "<strong>"+a.getLogin()+"</strong>");
+							tab.setHTML(i++, 0, "Issuer: " + a.getExtSource().getName());
+							CustomButton removeButton = new CustomButton("Remove", SmallIcons.INSTANCE.deleteIcon(), new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent event) {
+									RemoveUserExtSource remove = new RemoveUserExtSource(new JsonCallbackEvents(){
+										@Override
+										public void onFinished(JavaScriptObject jso) {
+											// reload whole tab
+											ueses.retrieveData();
+										}
+									});
+									remove.removeUserExtSource(userId, a.getId());
+								}
+							});
+							// add button to table
+							tab.getFlexCellFormatter().setRowSpan(i-2, 1, 2);
+							tab.setWidget(i-2, 1, removeButton);
 						}
+					}
+					if (found) {
+						certTable.setWidget(0, 1, tab);
+					} else {
+						certTable.setHTML(0, 1, notSet);
 					}
 				} else {
 					certTable.setHTML(0, 1, notSet);
@@ -228,13 +267,12 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 			certTable.setWidget(0, 1, new Image(AjaxLoaderImage.SMALL_IMAGE_URL));
 		}
 		});
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("urn:perun:user:attribute-def:virt:userCertDNs");
-		Map<String,Integer> ids = new HashMap<String,Integer>();
-		ids.put("user", userId);
-		attrs.getListOfAttributes(ids, list);
+		ueses.retrieveData();
 
 		// Kerberos and SSH table
+
+		Map<String, Integer> ids = new HashMap<>();
+		ids.put("user", userId);
 
 		final PerunAttributeTableWidget table = new PerunAttributeTableWidget(ids);
 		table.setDark(true);

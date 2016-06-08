@@ -153,6 +153,27 @@ public class TableSorter<T> {
 	 * Returns sorted list of objects
 	 *
 	 * @param list of objects to be sorted
+	 * @return ArrayList<T> sorted list of objects by their Names
+	 * or FullNames (for Member/User/RichMember)
+	 */
+	public ArrayList<T> sortByLeft(ArrayList<T> list){
+		if(list == null) return null;
+		Collections.sort(list, new Comparator<T>(){
+			public int compare(T o1, T o2) {
+				Collator customCollator = Collator.getInstance();
+				Pair<User,String> o11 = ((Pair<User,String>) o1);
+				Pair<User,String> o22 = ((Pair<User,String>) o2);
+				return customCollator.compare(o11.getLeft().getFullName(), o22.getLeft().getFullName());
+			}
+		});
+		return list;
+
+	}
+
+	/**
+	 * Returns sorted list of objects
+	 *
+	 * @param list of objects to be sorted
 	 * @return ArrayList<T> sorted list of objects by their hostname (Hosts)
 	 */
 	public ArrayList<T> sortByHostname(ArrayList<T> list){

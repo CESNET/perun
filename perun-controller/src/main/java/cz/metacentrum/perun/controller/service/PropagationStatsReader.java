@@ -142,4 +142,14 @@ public interface PropagationStatsReader {
 	 */	
 	List<ServiceState> getFacilityServicesState(PerunSession sess, Facility facility) throws InternalErrorException, ServiceNotExistsException, PrivilegeException;
 
+	/**
+	 * Delete Task and it's TaskResults. Use this method only before deleting whole Facility.
+	 *
+	 * @param sess PerunSession
+	 * @param task Task to delete
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	void deleteTask(PerunSession sess, Task task) throws InternalErrorException, PrivilegeException;
+
 }

@@ -125,15 +125,6 @@ public class ServiceDetailTabItem implements TabItem, TabItemWithUrl{
 		// TODO - waiting for time, when service will have description param
 		//menu.setHTML(0, 3, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+service.getDescription()+"</span>");
 
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
-
 		dp.add(menu);
 		vp.add(dp);
 		vp.setCellHeight(dp, "30px");

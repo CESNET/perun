@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import cz.metacentrum.perun.dispatcher.dao.RulesDao;
 
 /**
- * 
+ * DAO layer for loading routing rules which map events to engines.
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
  */
 @Transactional
 public class RulesDaoJdbc extends JdbcDaoSupport implements RulesDao {
@@ -24,8 +24,7 @@ public class RulesDaoJdbc extends JdbcDaoSupport implements RulesDao {
 
 		public EngineRules mapRow(ResultSet rs, int i) throws SQLException {
 			EngineRules engineRules = new EngineRules();
-			// Integer clientID = rs.getInt("engine_id");
-			Integer clientID = 2;
+			Integer clientID = rs.getInt("engine_id");
 			engineRules.setEngineID(clientID);
 			engineRules.setRoutingRules(loadRoutingRulesForEngine(clientID));
 			return engineRules;

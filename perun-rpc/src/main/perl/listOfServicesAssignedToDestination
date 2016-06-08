@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint);
+use Perun::beans::Destination;
+use Perun::beans::Facility;
+
+sub help {
+	return qq{
+	Prints list of services assigned to Destination.
+	---------------------------------------------------------------
+	Available options:
+	--destination   | -D  destination name
+	--batch         | -b  batch
+	--help          | -h  prints this help
+	};
+}
+
+
+my ($destination, $batch);
+GetOptions("help|h" => sub { print help; exit 0; } ,
+"destination|D=s" => \$destination,
+"batch|b" => \$batch) || die help;
+
+#options check
+unless(defined $destination) { die "ERROR: destination is required\n";}
+
+my $agent = Perun::Agent->new();
+
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $servicesAgent = $agent->getServicesAgent;
+
+my @facilities = $facilitiesAgent->getFacilitiesByDestination(destination => $destination);
+unless(@facilities) { printMessage "No facilities found", $batch; exit 0;}
+
+my %services;
+#relevant services
+while (@facilities) {
+    my $facility=shift(@facilities);
+    my @servs=$servicesAgent->getAssignedServices(facility => $facility->getId());
+    unless (@servs) { printMessage "No service found", $batch; exit 0;}
+
+    while (@servs) {
+        my $serv=shift(@servs);
+        my @dests=$servicesAgent->getDestinations(service => $serv->getId(),facility => $facility->getId());
+        while (@dests) {
+            my $dest=shift(@dests);
+            if ($dest->getDestination() eq $destination) {
+                $services{$serv->getName()}=1;
+            }
+        }
+    }
+} 
+
+#output
+
+my $table = Text::ASCIITable->new();
+$table->setCols('Service for '.$destination);
+
+foreach my $service (sort keys (%services)) {
+    $table->addRow($service);
+}
+
+print tableToPrint($table, $batch);

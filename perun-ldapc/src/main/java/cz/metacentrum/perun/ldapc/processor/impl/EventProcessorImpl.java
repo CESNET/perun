@@ -12,6 +12,7 @@ import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AuditMessage;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
@@ -22,6 +23,7 @@ import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +73,8 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	Group parentGroup;
 	Vo vo;
 	User user;
-	User serviceUser;
+	User specificUser;
+	Facility facility;
 	cz.metacentrum.perun.core.api.Attribute attribute;
 	AttributeDefinition attributeDef;
 	UserExtSource userExtSource;
@@ -93,9 +97,14 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	private Pattern validatedPattern = Pattern.compile(" validated.$");
 	private Pattern otherStateOfMemberPattern = Pattern.compile("expired.$|disabled.$|invalidated.$|suspended #");
 	//Attributes patterns
-	private Pattern setPattern = Pattern.compile(" set for User:\\[(.*)\\]");
-	private Pattern removePattern = Pattern.compile(" removed for User:\\[(.*)\\]");
-	private Pattern allAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)\\]");
+	private Pattern facilitySetPattern = Pattern.compile(" set for Facility:\\[(.*)\\]");
+	private Pattern facilityRemovePattern = Pattern.compile(" removed for Facility:\\[(.*)\\]");
+	private Pattern facilityAllAttrsRemovedPattern = Pattern.compile("All attributes removed for Facility:\\[(.*)\\]");
+
+	private Pattern userSetPattern = Pattern.compile(" set for User:\\[(.*)\\]");
+	private Pattern userRemovePattern = Pattern.compile(" removed for User:\\[(.*)\\]");
+	private Pattern userAllAttrsRemovedPattern = Pattern.compile("All attributes removed for User:\\[(.*)\\]");
+
 	private Pattern userUidNamespace = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":uid-namespace:");
 	private Pattern userLoginNamespace = Pattern.compile(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:");
 	//UserExtSources patterns
@@ -143,6 +152,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 						Thread.sleep(sleepTime);
 						sleepTime+=sleepTime;
 					}
+
+					//If there are no messages, sleep for 1 sec and then try it again
+					if(messages == null) Thread.sleep(1000);
 				} while(messages == null);
 				//If new messages exist, resolve them all
 				Iterator<AuditMessage> messagesIter = messages.iterator();
@@ -225,8 +237,12 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 *   -> 11.2) if there is message with creating user => create user in LDAP
 	 *   -> 11.3) if there is message with updating user => update user in LDAP
 	 *   -> 11.4) if there is message with removing all attribute from user => remove all attributes from user in LDAP (only removeable attributes)
-	 * -> 12) in all other cases
-	 *   -> 12.1) always => only log some information
+	 * -> 12) FACILITY and ATTRIBUTE exist
+	 *   -> 12.1) if there is message with setting attribute to facility => set Attribute to resources (assigned to facility) in LDAP
+	 * -> 13) FACILITY and ATTRIBUTE_DEF exist
+	 *   -> 13.1) if there is message with removing attribute from facility => remove Attribute from resources (assigned to facility) in LDAP
+	 * -> 14) in all other cases
+	 *   -> 14.1) always => only log some information
 	 *
 	 * @param msg message which need to be parse and resolve
 	 * @param idOfMessage id of paring/resolving message
@@ -252,11 +268,11 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		emptyAndFillPerunBeans(listOfBeans);
 
 		//Log debug data for looking in messages
-		log.debug("MessageNumber=" + idOfMessage + " -- OBJECTS: " + this.member + '/' + this.group + '/' + this.parentGroup + '/' + this.vo + '/'
+		log.debug("MessageNumber=" + idOfMessage + " -- OBJECTS: " + this.member + '/' + this.group + '/' + this.facility + "/" + this.parentGroup + '/' + this.vo + '/'
 				+ this.resource + '/' + this.user + '/' + this.attribute + '/' + this.attributeDef + '/' + this.userExtSource);
 
-		//If service user is the only one user in message, so behavior will be same for him like for any other user!
-		if(this.serviceUser != null && this.user == null) this.user = this.serviceUser;
+		//If specific user is the only one user in message, so behavior will be same for him like for any other user!
+		if(this.specificUser != null && this.user == null) this.user = this.specificUser;
 
 		//------------------------------------------------------------------
 		//-----------------OPERATIONS ON FILLED OBJECTS---------------------
@@ -435,7 +451,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 
 			// 9) IF USER AND ATTRIBUTE WERE FOUND, TRY TO WORK WITH USER-ATTR SPECIFIC OPERATIONS (LIKE SET USER ATTRIBUTES)
 		} else if(this.user != null && this.attribute != null) {
-			Matcher set = setPattern.matcher(msg);
+			Matcher set = userSetPattern.matcher(msg);
 
 			// 9.1) SOME USER ATTRIBUTE WILL BE PROBABLY SET (IF IT IS ONE OF SPECIFIC ATTRIBUTES)
 			if(set.find()) {
@@ -475,8 +491,13 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute("userCertificateSubject", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					} else {
-						Set<String> certSubjects =((Map) this.attribute.getValue()).keySet();
-						String[] subjectsArray = Arrays.copyOf(certSubjects.toArray(), certSubjects.toArray().length, String[].class);
+						Set<String> certSubjectsWithPrefixes =((Map) this.attribute.getValue()).keySet();
+						Set<String> certSubjectsWithoutPrefixes = new HashSet<>();
+						//remove prefixes from certificates
+						for(String key: certSubjectsWithPrefixes) {
+							certSubjectsWithoutPrefixes.add(key.replaceFirst("^[0-9]+[:]", ""));
+						}
+						String[] subjectsArray = Arrays.copyOf(certSubjectsWithoutPrefixes.toArray(), certSubjectsWithoutPrefixes.toArray().length, String[].class);
 						ldapConnector.updateUsersCertSubjects(String.valueOf(this.user.getId()), subjectsArray);
 					}
 				//USER LIBRARY IDs WILL BE SET (special method for updating)
@@ -525,7 +546,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 
 			// 10) IF USER AND ATTRIBTUE DEFINITION WERE FOUND, TRY TO WORK WITH USER-ATTRDEF SPECIFIC OPERATIONS
 		} else if(this.user != null && attributeDef != null) {
-			Matcher remove = removePattern.matcher(msg);
+			Matcher remove = userRemovePattern.matcher(msg);
 			// 10.1) REMOVE SPECIFIC USER ATTRIBUTE
 			if(remove.find() &&  ldapConnector.userExist(this.user)) {
 				Matcher uidMatcher = userUidNamespace.matcher(this.attributeDef.getName());
@@ -571,7 +592,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			Matcher deleted = deletedPattern.matcher(msg);
 			Matcher created = createdPattern.matcher(msg);
 			Matcher updated = updatedPattern.matcher(msg);
-			Matcher removedAllAttrs = allAttrsRemovedPattern.matcher(msg);
+			Matcher removedAllAttrs = userAllAttrsRemovedPattern.matcher(msg);
 			// 11.1) DELETE USER
 			if(deleted.find()) {
 				ldapConnector.deleteUser(this.user);
@@ -629,7 +650,60 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				}
 			}
 
-			// 12) IN OTHER CASES
+			//12) IF FACILITY AND ATTRIBUTE TO SET WAS FOUND
+		} else if(this.facility != null && attribute != null) {
+			Matcher set = facilitySetPattern.matcher(msg);
+
+			// 12.1) SOME FACILITY ATTRIBUTE WILL BE PROBABLY SET (IF IT IS ONE OF SPECIFIC ATTRIBUTES)
+			if(set.find()) {
+				//EntityID WILL BE SET
+				if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID")) {
+					try {
+						List<Resource> resources = Rpc.FacilitiesManager.getAssignedResources(ldapcManager.getRpcCaller(), this.facility);
+						//this mean change of attribute entityID in all assigned resources
+						if(this.attribute.getValue() != null) {
+							for(Resource res: resources) {
+								updateResourceAttribute("entityID", (String) this.attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, res);
+							}
+						} else {
+							for(Resource res: resources) {
+								if(ldapConnector.resourceAttributeExist(res, "entityID")) {
+									updateResourceAttribute("entityID", null, LdapOperation.REMOVE_ATTRIBUTE, res);
+								}
+							}
+						}
+					} catch (FacilityNotExistsException ex) {
+						//this probably means that facility is already removed, so also resources are removed and we just delete them in some other message
+						//so skip it just log
+						log.debug("Try to get resources from facility, but facility just not exists. Skip it!");
+					} catch (PrivilegeException e) {
+						throw new InternalErrorException("There are no privilegies for getting all assigned resources of facility" + this.facility, e);
+					}
+				}
+			}
+			//13) IF FACILITY AND ATTRIBUTE DEF TO REMOVE WAS FOUND
+		} else if(this.facility != null && attributeDef != null) {
+			Matcher remove = facilityRemovePattern.matcher(msg);
+			// 13.1) REMOVE SPECIFIC FACILITY ATTRIBUTE
+			if(remove.find()) {
+				if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID")) {
+					try {
+						List<Resource> resources = Rpc.FacilitiesManager.getAssignedResources(ldapcManager.getRpcCaller(), this.facility);
+						for(Resource res: resources) {
+							if(ldapConnector.resourceAttributeExist(res, "entityID")) {
+								updateResourceAttribute("entityID", null, LdapOperation.REMOVE_ATTRIBUTE, res);
+							}
+						}
+					} catch (FacilityNotExistsException ex) {
+						//this probably means that facility is already removed, so also resources are removed and we just delete them in some other message
+						//so skip it just log
+						log.debug("Try to get resources from facility, but facility just not exists. Skip it!");
+					} catch (PrivilegeException e) {
+						throw new InternalErrorException("There are no privilegies for getting all assigned resources of facility" + this.facility, e);
+					}
+				}
+			}
+		  // 14) IN OTHER CASES
 		} else {
 			log.debug("Nothing to resolve for message with number : " + idOfMessage);
 		}
@@ -1093,7 +1167,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 * @param resource resource in message
 	 * @param member member in message
 	 * @param user user in message
-	 * @param serviceUser serviceUser in message
+	 * @param specificUser specificUser in message
 	 * @param attributeDef attributeDefinition in message
 	 * @param attribute attribute in message
 	 * @param userExtSource userExtSource in message
@@ -1108,10 +1182,11 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		parentGroup = null;
 		vo = null;
 		user = null;
-		serviceUser = null;
+		specificUser = null;
 		attribute = null;
 		attributeDef = null;
 		userExtSource = null;
+		facility = null;
 
 		//If there is no usefull object, exit method
 		if(listOfBeans == null) return;
@@ -1128,9 +1203,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				else throw new InternalErrorException("More than one vo come to method parserMessages!");
 			} else if(perunBean instanceof User) {
 				User u = (User) perunBean;
-				if(u.isServiceUser()) {
-					if(this.serviceUser == null) this.serviceUser = u;
-					else throw new InternalErrorException("More than one serviceUser come to method parseMessages!");
+				if(u.isServiceUser() || u.isSponsoredUser()) {
+					if(this.specificUser == null) this.specificUser = u;
+					else throw new InternalErrorException("More than one specificUser come to method parseMessages!");
 				} else {
 					if(this.user == null) this.user = u;
 					else throw new InternalErrorException("More than one user come to method parseMessages!");
@@ -1147,6 +1222,9 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 			} else if(perunBean instanceof Resource) {
 				if(this.resource == null) this.resource = (Resource) perunBean;
 				else throw new InternalErrorException("More than one Resource come to method parseMessages!");
+			} else if(perunBean instanceof Facility) {
+				if(this.facility == null) this.facility = (Facility) perunBean;
+				else throw new InternalErrorException("More than one Facility come to method parseMessages!");
 			}
 		}
 	}

@@ -10,6 +10,7 @@ import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabManager;
 import cz.metacentrum.perun.webgui.tabs.facilitiestabs.FacilityDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.groupstabs.GroupDetailTabItem;
+import cz.metacentrum.perun.webgui.tabs.securitytabs.SecurityTeamDetailTabItem;
 import cz.metacentrum.perun.webgui.tabs.vostabs.VoDetailTabItem;
 
 import java.util.ArrayList;
@@ -43,6 +44,8 @@ public class PerunWebSession {
 	private boolean facilityAdmin = false;
 	private boolean voObserver = false; // is not vo admin
 	private boolean self = false; // is not admin
+	private boolean securityAdmin = false;
+	private boolean sponsor = false; // sponsor
 
 	// User roles constants
 	static public final String PERUN_ADMIN_PRINCIPAL_ROLE = "PERUNADMIN";
@@ -51,12 +54,16 @@ public class PerunWebSession {
 	static public final String FACILITY_ADMIN_PRINCIPAL_ROLE = "FACILITYADMIN";
 	static public final String USER_ROLE = "SELF";
 	static public final String VO_OBSERVER_PRINCIPAL_ROLE = "VOOBSERVER";
+	static public final String SECURITY_ADMIN_PRINCIPAL_ROLE = "SECURITYADMIN";
 
 	// Entities which can the user edit
 	private ArrayList<Integer> editableGroups = new ArrayList<Integer>();
 	private ArrayList<Integer> editableVos = new ArrayList<Integer>();
 	private ArrayList<Integer> editableFacilities = new ArrayList<Integer>();
 	private ArrayList<Integer> editableUsers = new ArrayList<Integer>();
+	private ArrayList<Integer> editableSecTeams = new ArrayList<Integer>();
+	private ArrayList<Integer> editableSponsoredUsers = new ArrayList<Integer>();
+
 
 	// entities which user can view (Observer role)
 	private ArrayList<Integer> viewableVos = new ArrayList<Integer>();
@@ -66,6 +73,7 @@ public class PerunWebSession {
 	private Group activeGroup;
 	private Facility activeFacility;
 	private User activeUser;
+	private SecurityTeam activeSecurityTeam;
 
 	// History of entities which user edited
 	private ArrayList<GeneralObject> entitiesHistoryList = new ArrayList<GeneralObject>();
@@ -82,8 +90,7 @@ public class PerunWebSession {
 	 * Returns the instance of PerunWebSession
 	 */
 
-	static public PerunWebSession getInstance()
-	{
+	static public PerunWebSession getInstance() {
 		if(INSTANCE == null){
 			INSTANCE = new PerunWebSession();
 		}
@@ -100,35 +107,31 @@ public class PerunWebSession {
 	 * Returns the URL of the RPC
 	 * @return URL
 	 */
-	public String getRpcUrl()
-	{
+	public String getRpcUrl() {
+
 		if(!rpcUrl.isEmpty()){
 			return rpcUrl;
 		}
 
 		String rpcType = getRpcServer();
 		if(rpcType == null){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrl();
-			return rpcUrl;
+			UiElements.generateAlert("Unable to find Perun server", "Path to Perun server can't be determined, you" +
+					"probably used wrong URL.");
 		}
 
-		if(rpcType.equals("krb")){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlKrb();
-		}else if (rpcType.equals("fed")){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlFed();
-		}else if (rpcType.equals("cert")) {
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlCert();
-		}else if (rpcType.equals("einfra")){
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrlKrbEinfra();
-		}else{
-			rpcUrl = PerunWebConstants.INSTANCE.perunRpcUrl();
+		String modifier = PerunWebConstants.INSTANCE.perunRpcUrlModifier();
+		if (modifier == null || modifier.equalsIgnoreCase("${gui.url.modifier}")) {
+			rpcUrl = "/"+rpcType+"/rpc/jsonp/";
+		} else {
+			rpcUrl = "/"+rpcType+"/rpc"+modifier+"/jsonp/";
 		}
+
 		return rpcUrl;
+
 	}
 
 	/**
-	 * Returns RPC type: default, krb, cert, fed
-	 * RPC type should be included in PerunWeb*.html
+	 * Returns RPC type determined as first part of path in current page URL.
 	 *
 	 * @return RPC type
 	 */
@@ -136,14 +139,14 @@ public class PerunWebSession {
 		return $wnd.RPC_SERVER;
 	}-*/;
 
-		/**
-		 * Returns the UI elements
-		 *
-		 * @return return class which contains UI elements - menus,log,pages,tabs
-		 */
-		public UiElements getUiElements() {
-			return this.uiElements;
-		}
+	/**
+	 * Returns the UI elements
+	 *
+	 * @return return class which contains UI elements - menus,log,pages,tabs
+	 */
+	public UiElements getUiElements() {
+		return this.uiElements;
+	}
 
 	/**
 	 * Sets the UI elements handler class.
@@ -337,13 +340,72 @@ public class PerunWebSession {
 	 * TRUE for PerunAdmin too.
 	 *
 	 * @param id ID of Facility to check admin status for
-	 * @return true if user is Facility's admin
+	 * @return true if user is Facility admin
 	 */
 	public boolean isFacilityAdmin(int id){
 		if (this.perunAdmin) {
 			return this.perunAdmin;
 		} else if (this.facilityAdmin) {
 			return editableFacilities.contains(id);
+		}
+		return false;
+	}
+
+	/**
+	 * True if the user is security admin.
+	 * TRUE for PerunAdmin too.
+	 *
+	 * @return true if security admin
+	 */
+	public boolean isSecurityAdmin(){
+		if (this.perunAdmin) {
+			return this.perunAdmin;
+		}
+		return this.securityAdmin;
+	}
+
+	/**
+	 * True if the user is security admin of a specified SecurityTeam.
+	 * TRUE for PerunAdmin too.
+	 *
+	 * @param id ID of SecurityTeam to check admin status for
+	 * @return true if user is SecurityTeams admin
+	 */
+	public boolean isSecurityAdmin(int id){
+		if (this.perunAdmin) {
+			return this.perunAdmin;
+		} else if (this.securityAdmin) {
+			return editableSecTeams.contains(id);
+		}
+		return false;
+	}
+
+	/**
+	 * True if the user is Sponsor.
+	 * TRUE for PerunAdmin too.
+	 *
+	 * @return true if Sponsor
+	 */
+	public boolean isSponsor(){
+
+		if (this.perunAdmin) {
+			return this.perunAdmin;
+		}
+		return this.sponsor;
+	}
+
+	/**
+	 * True if the user is sponsor of a specified user.
+	 * TRUE for PerunAdmin too.
+	 *
+	 * @param id ID of sponsored user to check sponsorship status for
+	 * @return true if user is Users sponsor
+	 */
+	public boolean isSponsor(int id){
+		if (this.perunAdmin) {
+			return this.perunAdmin;
+		} else if (this.sponsor) {
+			return editableSponsoredUsers.contains(id);
 		}
 		return false;
 	}
@@ -414,6 +476,24 @@ public class PerunWebSession {
 	}
 
 	/**
+	 * Add a SecurityTeam, which user can edit
+	 *
+	 * @param secTeamId SecurityTeam, which can user edit
+	 */
+	public void addEditableSecurityTeam(int secTeamId){
+		if (!this.editableSecTeams.contains(secTeamId)) this.editableSecTeams.add(secTeamId);
+	}
+
+	/**
+	 * Add a SponsoredUser, which user can edit
+	 *
+	 * @param sponsoredUser SponsoredUser, which can user edit
+	 */
+	public void addEditableSponsoredUsers(int sponsoredUser){
+		if (!this.editableSponsoredUsers.contains(sponsoredUser)) this.editableSponsoredUsers.add(sponsoredUser);
+	}
+
+	/**
 	 * Add a User, which user can edit
 	 *
 	 * @param userId User, which can user edit
@@ -430,7 +510,6 @@ public class PerunWebSession {
 	public ArrayList<Integer> getEditableGroups() {
 		return editableGroups;
 	}
-
 
 	/**
 	 * Return list of editable vos IDs
@@ -450,7 +529,6 @@ public class PerunWebSession {
 		return viewableVos;
 	}
 
-
 	/**
 	 * Return list of editable facilities IDs
 	 *
@@ -459,6 +537,25 @@ public class PerunWebSession {
 	public ArrayList<Integer> getEditableFacilities() {
 		return editableFacilities;
 	}
+
+	/**
+	 * Return list of editable security team IDs
+	 *
+	 * @return sec teams
+	 */
+	public ArrayList<Integer> getEditableSecurityTeams() {
+		return editableSecTeams;
+	}
+
+	/**
+	 * Return list of editable sponsored users IDs
+	 *
+	 * @return sponsored users
+	 */
+	public ArrayList<Integer> getEditableSponsoredUsers() {
+		return editableSponsoredUsers;
+	}
+
 
 	/**
 	 * Return list of editable users IDs
@@ -495,6 +592,16 @@ public class PerunWebSession {
 	public Facility getActiveFacility() {
 		return activeFacility;
 	}
+
+	/**
+	 * Returns SecurityTeam, which user currently edits
+	 *
+	 * @return SecurityTeam
+	 */
+	public SecurityTeam getActiveSecurityTeam() {
+		return activeSecurityTeam;
+	}
+
 
 	/**
 	 * Returns User, which user currently edits
@@ -586,6 +693,18 @@ public class PerunWebSession {
 	}
 
 	/**
+	 * Sets currently active SecurityTeam (refresh links in menu)
+	 *
+	 * @param securityTeam SecurityTeam which user is editing now
+	 */
+	public void setActiveSecurityTeam(SecurityTeam securityTeam) {
+		this.activeSecurityTeam = securityTeam;
+		addObjectToEntitiesHistory(securityTeam.cast());
+		getUiElements().getMenu().setMenuTabItem(MainMenu.SECURITY_ADMIN, new SecurityTeamDetailTabItem(securityTeam));
+		getUiElements().getMenu().updateLinks(MainMenu.SECURITY_ADMIN);
+	}
+
+	/**
 	 * Sets currently active User (SELF role) (refresh links in menu)
 	 *
 	 * @param user User which user is editing now
@@ -606,10 +725,10 @@ public class PerunWebSession {
 	public void setActiveVoId(final int voId) {
 		new GetEntityById(PerunEntity.VIRTUAL_ORGANIZATION, voId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso)
-		{
-			VirtualOrganization vo = jso.cast();
-			setActiveVo(vo);
-		}
+			{
+				VirtualOrganization vo = jso.cast();
+				setActiveVo(vo);
+			}
 		}).retrieveData();
 	}
 
@@ -623,10 +742,10 @@ public class PerunWebSession {
 	{
 		new GetEntityById(PerunEntity.GROUP, groupId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso)
-		{
-			Group group = jso.cast();
-			setActiveGroup(group);
-		}
+			{
+				Group group = jso.cast();
+				setActiveGroup(group);
+			}
 		}).retrieveData();
 	}
 
@@ -639,10 +758,26 @@ public class PerunWebSession {
 	public void setActiveFacilityId(int facilityId) {
 		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso)
-		{
-			Facility f = jso.cast();
-			setActiveFacility(f);
-		}
+			{
+				Facility f = jso.cast();
+				setActiveFacility(f);
+			}
+		}).retrieveData();
+	}
+
+	/**
+	 * Sets currently active SecurityTeam (refresh links in menu)
+	 * when only ID is provided.
+	 *
+	 * @param securityTeamId ID of SecTeam which user is editing now
+	 */
+	public void setActiveSecurityTeamId(int securityTeamId) {
+		new GetEntityById(PerunEntity.SECURITY_TEAM, securityTeamId, new JsonCallbackEvents(){
+			public void onFinished(JavaScriptObject jso)
+			{
+				SecurityTeam f = jso.cast();
+				setActiveSecurityTeam(f);
+			}
 		}).retrieveData();
 	}
 
@@ -662,6 +797,7 @@ public class PerunWebSession {
 		this.groupAdmin = roles.hasRole(GROUP_ADMIN_PRINCIPAL_ROLE);
 		this.self = roles.hasRole(USER_ROLE);
 		this.voObserver = roles.hasRole(VO_OBSERVER_PRINCIPAL_ROLE);
+		this.securityAdmin = roles.hasRole(SECURITY_ADMIN_PRINCIPAL_ROLE);
 
 		JsArrayInteger array = roles.getEditableEntities("VOADMIN", "Vo");
 		for (int i=0; i<array.length(); i++) {
@@ -682,6 +818,14 @@ public class PerunWebSession {
 		JsArrayInteger array5 = roles.getEditableEntities("VOOBSERVER", "Vo");
 		for (int i=0; i<array5.length(); i++) {
 			addViewableVo(array5.get(i));
+		}
+		JsArrayInteger array6 = roles.getEditableEntities("SECURITYADMIN", "SecurityTeam");
+		for (int i=0; i<array6.length(); i++) {
+			addEditableSecurityTeam(array6.get(i));
+		}
+		JsArrayInteger array7 = roles.getEditableEntities("SPONSOR", "SponsoredUser");
+		for (int i=0; i<array7.length(); i++) {
+			addEditableSponsoredUsers(array7.get(i));
 		}
 
 	}
@@ -714,6 +858,12 @@ public class PerunWebSession {
 		}
 		if (facilityAdmin) {
 			result += "; FacilityManager="+editableFacilities;
+		}
+		if (securityAdmin) {
+			result += "; SecurityAdmin="+editableSecTeams;
+		}
+		if (sponsor) {
+			result += "; Sponsor="+editableSponsoredUsers;
 		}
 
 		return result;

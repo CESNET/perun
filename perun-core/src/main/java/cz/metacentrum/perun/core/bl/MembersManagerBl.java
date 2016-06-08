@@ -5,22 +5,27 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
@@ -54,27 +59,28 @@ public interface MembersManagerBl {
 	void deleteAllMembers(PerunSession sess, Vo vo) throws InternalErrorException, MemberAlreadyRemovedException;
 
 	/**
-	 * Creates a new member from candidate which is prepared for creating serviceUser
-	 * In list serviceUserOwners can't be serviceUser, only normal users are allowed.
+	 * Creates a new member from candidate which is prepared for creating specificUser
+	 * In list specificUserOwners can't be specific user, only normal users and sponsored users are allowed.
 	 * <strong>This method runs WITHOUT synchronization. If validation is needed, need to call concrete validateMember method (validateMemberAsync recommended).</strong>
 	 *
 	 * @param sess
 	 * @param vo
-	 * @param candidate prepared future serviceUser
-	 * @param serviceUserOwners list of users who own serviceUser (can't be empty or contain service user)
-	 * @return newly created member (of service User)
-	 * @throws InternalErrorException if serviceUserOwners is empty or if unexpected exception occur
+	 * @param candidate prepared future specificUser
+	 * @param specificUserOwners list of users who own specificUser (can't be empty or contain specific user)
+	 * @param specificUserType type of specific user (service or sponsored)
+	 * @return newly created member (of specific User)
+	 * @throws InternalErrorException if specificUserOwners is empty or if unexpected exception occur
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 * @throws GroupNotExistsException
 	 */
-	Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
-	 * Creates a new member from candidate which is prepared for creating serviceUser
-	 * In list serviceUserOwners can't be serviceUser, only normal users are allowed.
+	 * Creates a new member from candidate which is prepared for creating specificUser
+	 * In list specificUserOwners can't be specific user, only normal users and sponsored users are allowed.
 	 *
 	 * Also add this member to groups in list.
 	 *
@@ -82,18 +88,19 @@ public interface MembersManagerBl {
 	 *
 	 * @param sess
 	 * @param vo
-	 * @param candidate prepared future serviceUser
-	 * @param serviceUserOwners list of users who own serviceUser (can't be empty or contain service user)
+	 * @param candidate prepared future specificUser
+	 * @param specificUserOwners list of users who own specificUser (can't be empty or contain specific user)
+	 * @param specificUserType type of specific user (service or sponsored)
 	 * @param groups list of groups where member will be added too
-	 * @return newly created member (of service User)
-	 * @throws InternalErrorException if serviceUserOwners is empty or if unexpected exception occur
+	 * @return newly created member (of specific User)
+	 * @throws InternalErrorException if specificUserOwners is empty or if unexpected exception occur
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws AlreadyMemberException
 	 * @throws ExtendMembershipException
 	 * @throws GroupNotExistsException
 	 */
-	Member createServiceMember(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createSpecificMember(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
@@ -117,7 +124,7 @@ public interface MembersManagerBl {
 	 */
 	public Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, String login, Candidate candidate) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
-/**
+	/**
 	 * Creates a new member and sets all member's attributes from the candidate.
 	 * It can be called in synchronous or asynchronous mode
 	 * Also stores the associated user if doesn't exist. This method is used by the registrar.
@@ -238,7 +245,7 @@ public interface MembersManagerBl {
 	 * @param sess
 	 * @param vo
 	 * @param candidate
-	 * @param serviceUser (true if it is serviceUser, false if not)
+	 * @param specificUserType (Normal or service or sponsored)
 	 *
 	 * @return newly created members
 	 * @throws InternalErrorException
@@ -249,7 +256,7 @@ public interface MembersManagerBl {
 	 * @throws GroupNotExistsException
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, Candidate)
 	 */
-	Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
@@ -261,8 +268,9 @@ public interface MembersManagerBl {
 	 * @param sess
 	 * @param vo
 	 * @param candidate
-	 * @param serviceUser (true if it is serviceUser, false if not)
+	 * @param SpecificUserType (Normal or service or sponsored)
 	 * @param groups list of groups where member will be added too
+	 * @param overwriteUserAttributes list of user attributes names which will be overwrite instead of merged
 	 *
 	 * @return newly created members
 	 * @throws InternalErrorException
@@ -273,23 +281,23 @@ public interface MembersManagerBl {
 	 * @throws GroupNotExistsException
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, Candidate)
 	 */
-	Member createMember(PerunSession sess, Vo vo, boolean serviceUser, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
-	 * Creates Service Member.
-	 * This method creates service member and then validate it <strong>Synchronously</strong>
+	 * Creates Specific Member.
+	 * This method creates specific member and then validate it <strong>Synchronously</strong>
 	 *
-	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createServiceMember(PerunSession, Vo, Candidate, List<User>)
+	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createSpecificMember(PerunSession, Vo, Candidate, List<User>)
 	 */
-	Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
-	 * Creates Service Member and add him also to all groups in list.
-	 * This method creates service member and then validate it <strong>Synchronously</strong>
+	 * Creates Specific Member and add him also to all groups in list.
+	 * This method creates specific member and then validate it <strong>Synchronously</strong>
 	 *
-	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createServiceMember(PerunSession, Vo, Candidate, List<User>)
+	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createSpecificMember(PerunSession, Vo, Candidate, List<User>)
 	 */
-	Member createServiceMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> serviceUserOwners, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+	Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates member. Runs synchronously.
@@ -302,6 +310,12 @@ public interface MembersManagerBl {
 	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
 	 */
 	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+
+	/**
+	 * Creates member. Runs synchronously. Add member also to all groups in list.
+	 * @see cz.metacentrum.perun.core.bl.MembersManagerBl#createMember(PerunSession, Vo, boolean, Candidate)
+	 */
+	Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Creates a new member from user.
@@ -340,6 +354,27 @@ public interface MembersManagerBl {
 	 * @throws GroupNotExistsException
 	 */
 	Member createMember(PerunSession sess, Vo vo, User user, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
+
+	/**
+	 * Create new member from user by login and ExtSource.
+	 *
+	 * Also add this member to groups in list.
+	 *
+	 * <strong>This method runs asynchronously</strong>
+	 *
+	 * @param sess
+	 * @param vo
+	 * @param extSource
+	 * @param login
+	 * @param groups list of groups where member will be added too
+	 * @return newly created member
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws AlreadyMemberException
+	 * @throws ExtendMembershipException
+	 */
+	Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException;
 
 	/**
 	 * Update member in underlaying data source. Member is find by id. Other java attributes are updated.

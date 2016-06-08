@@ -57,8 +57,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
 		registrarSession = perun.getPerunSession(pp);
 
-		// cache expires after 3 minutes from creation
-		requestCache = ExpiringMap.builder().expiration(3, TimeUnit.MINUTES).expirationPolicy(ExpiringMap.ExpirationPolicy.CREATED).build();
+		// cache expires after 5 minutes from creation
+		requestCache = ExpiringMap.builder().expiration(5, TimeUnit.MINUTES).expirationPolicy(ExpiringMap.ExpirationPolicy.CREATED).build();
 
 	}
 
@@ -379,7 +379,7 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		try {
 			extSource = perun.getExtSourcesManagerBl().getExtSourceByName(registrarSession, extSourceName);
 		} catch (ExtSourceNotExistsException ex) {
-			extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource);
+			extSource = perun.getExtSourcesManager().createExtSource(registrarSession, extSource, null);
 		}
 
 		UserExtSource ues = new UserExtSource();
@@ -492,6 +492,8 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 							String type = ues.getLogin().split("@")[1].split("\\.")[0];
 							ues.getExtSource().setName("https://extidp.cesnet.cz/idp/shibboleth&authnContextClassRef=urn:cesnet:extidp:authn:"+type);
 						}
+						es.add(ues.getExtSource());
+					} else if (ues.getExtSource().getType().equals(ExtSourcesManagerEntry.EXTSOURCE_KERBEROS)) {
 						es.add(ues.getExtSource());
 					}
 				}

@@ -147,6 +147,16 @@ public enum VosManagerMethod implements ManagerMethod {
 	 * @throw VoNotExistsException When <code>id</code> of VO doesn't match any existing VO.
 	 * @return List<Candidate> List of Candidates
 	 */
+	/*#
+	 * Find candidates for Group. Candidates can be used to create new VO and Group members. Candidates are searched
+	 * in Groups external sources (if available). Candidates, which are already members of VO are never
+	 * returned even if they match searchString.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param searchString String Text to search by
+	 * @throw GroupNotExistsException When <code>id</code> of Group doesn't match any existing Group.
+	 * @return List<Candidate> List of Candidates
+	 */
 	findCandidates {
 		@Override
 		public List<Candidate> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -155,7 +165,11 @@ public enum VosManagerMethod implements ManagerMethod {
 						ac.getVoById(parms.readInt("vo")),
 						parms.readString("searchString"),
 						parms.readInt("maxNumOfResults"));
-			} else {
+			}  else if (parms.contains("group")) {
+				return ac.getVosManager().findCandidates(ac.getSession(),
+						ac.getGroupById(parms.readInt("group")),
+						parms.readString("searchString"));
+			}else {
 				return ac.getVosManager().findCandidates(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						parms.readString("searchString"));

@@ -58,6 +58,7 @@ function fillFederations(federations) {
     var federationsFriendly = [];
     for (var id in federations) {
         federationsFriendly[id] = {};
+        federationsFriendly[id]["id"] = federations[id].id;
         federationsFriendly[id]["name"] = federations[id].extSource.name;   //default 
         federationsFriendly[id]["login"] = federations[id].login;           //default
         if (federations[id].extSource.name.split("/")[2] == 'extidp.cesnet.cz') {   //if is extIdp
@@ -80,8 +81,20 @@ function fillFederations(federations) {
     federationsTable.addColumn({type: "number", title: "#"});
     federationsTable.addColumn({type: "text", title: "Federated identities", name: "name"});
     federationsTable.addColumn({type: "text", title: "Login", name: "login"});
+    federationsTable.addColumn({type: "button", title:"", btnText:"remove", btnType:"danger", btnId:"id", btnName:"removeFed"});
     federationsTable.setValues(federationsFriendly);
     $("#federations-table").html(federationsTable.draw());
+
+    $('#federations-table button[id^="removeFed-"]').click(function() {
+        var fedId = parseInt(this.id.split('-')[1]);
+        var loadImage = new LoadImage($("#federations-table"), "auto");
+
+        callPerunPost("usersManager", "removeUserExtSource", {user: user.id, userExtSource: fedId}, function () {
+            loadIdentities(user);
+            loadImage.hide();
+            (flowMessager.newMessage("Federated identity", "was removed successfully", "success")).draw();
+        });
+    });
 }
 
 function fillCertificates(certificates) {
@@ -93,6 +106,7 @@ function fillCertificates(certificates) {
     var certificatesFriendly = [];
     for (var id in certificates) {
         certificatesFriendly[id] = {};
+        certificatesFriendly[id]["id"] = certificates[id].id;
         certificatesFriendly[id]["name"] = certificates[id].extSource.name;
         var login = decodeURIComponent((certificates[id].login).replace(/\\x/g, '%'));
         certificatesFriendly[id]["login"] = login;
@@ -102,8 +116,20 @@ function fillCertificates(certificates) {
     certificatesTable.addColumn({type: "number", title: "#"});
     certificatesTable.addColumn({type: "text", title: "Issuer", name: "name"});
     certificatesTable.addColumn({type: "text", title: "Identity", name: "login"});
+    certificatesTable.addColumn({type: "button", title:"", btnText:"remove", btnType:"danger", btnId:"id", btnName:"removeCert"});
     certificatesTable.setValues(certificatesFriendly);
     $("#certificates-table").html(certificatesTable.draw());
+
+    $('#certificates-table button[id^="removeCert-"]').click(function() {
+        var certId = parseInt(this.id.split('-')[1]);
+        var loadImage = new LoadImage($("#certificates-table"), "auto");
+
+        callPerunPost("usersManager", "removeUserExtSource", {user: user.id, userExtSource: certId}, function () {
+            loadIdentities(user);
+            loadImage.hide();
+            (flowMessager.newMessage("Certificate", "was removed successfully", "success")).draw();
+        });
+    });
 }
 
 

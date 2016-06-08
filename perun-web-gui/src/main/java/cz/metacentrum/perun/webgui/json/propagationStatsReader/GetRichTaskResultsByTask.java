@@ -120,7 +120,11 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		destinationColumn.setSortable(true);
 		columnSortHandler.setComparator(destinationColumn, new Comparator<TaskResult>(){
 			public int compare(TaskResult o1, TaskResult o2) {
-				return o1.getDestination().getDestination().compareToIgnoreCase((o2.getDestination().getDestination()))+new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				int comp = o1.getDestination().getDestination().compareToIgnoreCase((o2.getDestination().getDestination()));
+				if (comp == 0) {
+					return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				}
+				return comp;
 			}
 		});
 
@@ -135,7 +139,11 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		typeColumn.setSortable(true);
 		columnSortHandler.setComparator(typeColumn, new Comparator<TaskResult>(){
 			public int compare(TaskResult o1, TaskResult o2) {
-				return o1.getDestination().getType().compareToIgnoreCase(o2.getDestination().getType())+new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				int comp = o1.getDestination().getType().compareToIgnoreCase((o2.getDestination().getType()));
+				if (comp == 0) {
+					return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				}
+				return comp;
 			}
 		});
 
@@ -148,7 +156,11 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		servColumn.setSortable(true);
 		columnSortHandler.setComparator(servColumn, new Comparator<TaskResult>() {
 			public int compare(TaskResult o1, TaskResult o2) {
-				return o1.getService().getName().compareToIgnoreCase(o2.getService().getName())+new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				int comp = o1.getService().getName().compareToIgnoreCase((o2.getService().getName()));
+				if (comp == 0) {
+					return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				}
+				return comp;
 			}
 		});
 
@@ -163,7 +175,11 @@ public class GetRichTaskResultsByTask implements JsonCallback, JsonCallbackTable
 		statusColumn.setSortable(true);
 		columnSortHandler.setComparator(statusColumn, new Comparator<TaskResult>(){
 			public int compare(TaskResult o1, TaskResult o2) {
-				return o1.getStatus().compareToIgnoreCase(o2.getStatus())+new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				int comp = o1.getStatus().compareToIgnoreCase(o2.getStatus());
+				if (comp == 0) {
+					return new Date((long)o2.getTimestampNative()).compareTo(new Date((long)o1.getTimestampNative()));
+				}
+				return comp;
 			}
 		});
 

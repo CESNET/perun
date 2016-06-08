@@ -164,4 +164,54 @@ sub getAllowedUsers
 	return Perun::Common::callManagerMethod('getAllowedUsers', '[]User', @_);
 }
 
+sub addFacilityContacts
+{
+        return Perun::Common::callManagerMethod('addFacilityContacts','[]ContactGroup',@_);
+}
+
+sub addFacilityContact
+{
+        return Perun::Common::callManagerMethod('addFacilityContact','ContactGroup',@_);
+}
+
+sub removeFacilityContacts
+{
+        return Perun::Common::callManagerMethod('removeFacilityContacts','',@_);
+}
+
+sub removeFacilityContact
+{
+        return Perun::Common::callManagerMethod('removeFacilityContact','',@_);
+}
+
+sub getAllContactGroupNames
+{
+        return Perun::Common::callManagerMethod('getAllContactGroupNames','[]string',@_);
+}
+
+sub getFacilityContactGroup
+{
+        return Perun::Common::callManagerMethod('getFacilityContactGroup','ContactGroup',@_);
+}
+
+sub getFacilityContactGroups
+{
+        return Perun::Common::callManagerMethod('getFacilityContactGroups','[]ContactGroup',@_);
+}
+
+sub assignSecurityTeam
+{
+        return Perun::Common::callManagerMethod('assignSecurityTeam','SecurityTeam',@_);
+}
+
+sub removeSecurityTeam
+{
+        return Perun::Common::callManagerMethod('removeSecurityTeam','',@_);
+}
+
+sub getAssignedSecurityTeams
+{
+        return Perun::Common::callManagerMethod('getAssignedSecurityTeams','[]SecurityTeam',@_);
+}
+
 1;

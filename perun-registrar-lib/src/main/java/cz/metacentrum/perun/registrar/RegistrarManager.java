@@ -86,6 +86,16 @@ public interface RegistrarManager {
 	ApplicationForm getFormForGroup(Group group) throws PerunException;
 
 	/**
+	 * Gets an application form for a given Id.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param id ID of application form to get
+	 * @return registration form
+	 * @throws PerunException
+	 */
+	ApplicationForm getFormById(PerunSession sess, int id) throws PerunException;
+
+	/**
 	 * Adds a new item to a form.
 	 *
 	 * @param user            the user that adds the items

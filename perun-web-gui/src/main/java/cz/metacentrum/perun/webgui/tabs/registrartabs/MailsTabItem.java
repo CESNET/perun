@@ -159,8 +159,10 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 		firstTabPanel.add(menu);
 		firstTabPanel.setCellHeight(menu, "30px");
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		// add button
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addMail(), new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addMail(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new CreateMailTabItem(vo, group, form));
 			}
@@ -218,7 +220,7 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 
 		// for VO only
 		if (group == null) {
-			menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.mailFooterButton(), ButtonTranslation.INSTANCE.editMailFooter(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler(){
+			menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.mailFooterButton()+"…", ButtonTranslation.INSTANCE.editMailFooter(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler(){
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new EditMailFooterTabItem(vo));
 				}
@@ -228,13 +230,13 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 		CustomButton copy;
 
 		if (group == null) {
-			copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton(), ButtonTranslation.INSTANCE.copyMailsFromVo(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
+			copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromVoButton()+"…", ButtonTranslation.INSTANCE.copyMailsFromVo(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new CopyMailsTabItem(voId, 0));
 				}
 			});
 		} else {
-			copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromGroupButton(), ButtonTranslation.INSTANCE.copyMailsFromGroup(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
+			copy = new CustomButton(ButtonTranslation.INSTANCE.copyFromGroupButton()+"…", ButtonTranslation.INSTANCE.copyMailsFromGroup(), SmallIcons.INSTANCE.copyIcon(), new ClickHandler(){
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new CopyMailsTabItem(group.getVoId(), groupId));
 				}

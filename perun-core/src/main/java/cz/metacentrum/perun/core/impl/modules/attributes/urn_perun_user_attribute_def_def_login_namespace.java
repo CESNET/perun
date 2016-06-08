@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.lang.String;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -19,10 +18,11 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
 /**
- * Class for checking logins uniqueness in the namespace
+ * Class for checking logins uniqueness in the namespace and filling namespaces
  *
  * @author Michal Prochazka  &lt;michalp@ics.muni.cz&gt;
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
+ *
  * @date 3.6.2011 11:02:22
  */
 public class urn_perun_user_attribute_def_def_login_namespace extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
@@ -30,20 +30,29 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace.class);
 
 	/**
-	 * Checks if the user's login is unique in the namespace
-	 * organization
+	 * Checks if the user's login is unique in the namespace organization
+	 *
+	 * @param sess PerunSession
+	 * @param user User to check attribute for
+	 * @param attribute Attribute to check value to
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
+	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException
 	 */
+	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
 		String userLogin = (String) attribute.getValue();
 		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be null");
-		if(!userLogin.matches("^[a-zA-Z0-9][-A-z0-9_.@/]*$")) throw new WrongAttributeValueException(attribute, user, "Wrong format. ^[A-z0-9][-A-z0-9_.@/]*$ expected.");
 
+		//Check attribute regex
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "^[a-zA-Z0-9_][-A-z0-9_.@/]*$");
 		//Check if user login is permitted or not permitted
 		sess.getPerunBl().getModulesUtilsBl().checkUnpermittedUserLogins(attribute);
 
 		// Get all users who have set attribute urn:perun:member:attribute-def:def:login-namespace:[login-namespace], with the value.
 		List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
+
 		usersWithSameLogin.remove(user); //remove self
 		if (!usersWithSameLogin.isEmpty()) {
 			if(usersWithSameLogin.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated Login detected." +  attribute + " " + usersWithSameLogin);
@@ -58,8 +67,15 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	}
 
 	/**
-	 * Filling implemented only for namespaces configured in /etc/perun/perun.properties
-	 * as property: "perun.loginNamespace.generated"
+	 * Filling implemented for:
+	 * - namespaces configured in /etc/perun/perun.properties as property: "perun.loginNamespace.generated"
+	 *
+	 * @param perunSession PerunSession
+	 * @param user User to fill attribute for
+	 * @param attribute Attribute to fill value to
+	 * @return Filled attribute
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
 	 */
 	@Override
 	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
@@ -90,11 +106,10 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 			// without value
 			return filledAttribute;
 		}
-
 	}
 
 	/**
-	 *  Fill login-namespace attribute with generated value.
+	 * Fill login-namespace attribute with generated value.
 	 * 	Format is: "firstName.lastName[number]" where number is opt and start with 1 when same login is already present.
 	 * 	All accented chars are unaccented and all non (a-z,A-Z) chars are removed from name and value is lowercased.
 	 *
@@ -161,5 +176,4 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		attr.setDescription("Login namespace.");
 		return attr;
 	}*/
-
 }

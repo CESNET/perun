@@ -378,7 +378,11 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			Authorship auth = parms.read("authorship", Authorship.class);
 			if (ac.getCabinetManager().authorshipExists(auth)) {
 				// exists - return existing
-				return ac.getCabinetManager().findAuthorshipsByFilter(auth).get(0);
+				// we must take only unique params, when called multiple time from GUI and entry was created by somebody else
+				Authorship filterAuthorship = new Authorship();
+				filterAuthorship.setPublicationId(auth.getPublicationId());
+				filterAuthorship.setUserId(auth.getUserId());
+				return ac.getCabinetManager().findAuthorshipsByFilter(filterAuthorship).get(0);
 				// pubId and userId are unique and checked before, so we can safely return first and only authorship.
 			} else {
 				int id = ac.getCabinetManager().createAuthorship(ac.getSession(), parms.read("authorship", Authorship.class));

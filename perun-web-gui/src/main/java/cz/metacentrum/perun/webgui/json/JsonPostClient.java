@@ -205,7 +205,9 @@ public class JsonPostClient {
 
 						// if null - finished
 						if (jso == null) {
-							session.getUiElements().setLogText("Response NULL.");
+							if (session.getUiElements() != null) {
+								session.getUiElements().setLogText("Response NULL.");
+							}
 							runningRequests.remove(requestUrl);
 							onRequestFinished(null);
 							return;
@@ -215,15 +217,20 @@ public class JsonPostClient {
 						PerunError error = (PerunError) jso;
 						if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
 							// not error, OK
-							session.getUiElements().setLogText("Response not NULL, not ERROR.");
+							if (session.getUiElements() != null) {
+								session.getUiElements().setLogText("Response not NULL, not ERROR.");
+							}
 							runningRequests.remove(requestUrl);
 							onRequestFinished(jso);
 							return;
 						}
 
 						// triggers onError
-						session.getUiElements().setLogText("Response ERROR.");
+						if (session.getUiElements() != null) {
+							session.getUiElements().setLogText("Response ERROR.");
+						}
 						error.setRequestURL(requestUrl);
+						error.setRequest(perunRequest);
 						error.setPostData(payload);
 						runningRequests.remove(requestUrl);
 						onRequestError(error);
@@ -238,6 +245,7 @@ public class JsonPostClient {
 						error.setErrorInfo("Server responded with HTTP error: " + resp.getStatusCode() + " - " + resp.getStatusText());
 						error.setObjectType("PerunError");
 						error.setPostData(payload);
+						error.setRequest(perunRequest);
 						error.setRequestURL(requestUrl);
 
 						if (resp.getStatusCode() == 401 || resp.getStatusCode() == 403) {
@@ -281,7 +289,9 @@ public class JsonPostClient {
 
 															// if null - finished
 															if (result == null) {
-																session.getUiElements().setLogText("Response NULL.");
+																if (session.getUiElements() != null) {
+																	session.getUiElements().setLogText("Response NULL.");
+																}
 																runningRequests.remove(requestUrl);
 																onRequestFinished(null);
 																return;
@@ -291,15 +301,20 @@ public class JsonPostClient {
 															PerunError error = (PerunError) result;
 															if ("".equalsIgnoreCase(error.getErrorId()) && "".equalsIgnoreCase(error.getErrorInfo())) {
 																// not error, OK
-																session.getUiElements().setLogText("Response not NULL, not ERROR.");
+																if (session.getUiElements() != null) {
+																	session.getUiElements().setLogText("Response not NULL, not ERROR.");
+																}
 																runningRequests.remove(requestUrl);
 																onRequestFinished(result);
 																return;
 															}
 
 															// triggers onError
-															session.getUiElements().setLogText("Response ERROR.");
+															if (session.getUiElements() != null) {
+																session.getUiElements().setLogText("Response ERROR.");
+															}
 															error.setRequestURL(requestUrl);
+															error.setRequest(perunRequest);
 															error.setPostData(payload);
 															runningRequests.remove(requestUrl);
 															onRequestError(error);
@@ -424,7 +439,9 @@ public class JsonPostClient {
 
 		if (jso != null) {
 			PerunError e = (PerunError) jso;
-			session.getUiElements().setLogErrorText("Error while sending request: " + e.getName());
+			if (session.getUiElements() != null) {
+				session.getUiElements().setLogErrorText("Error while sending request: " + e.getName());
+			}
 			if (!hidden) {
 				// creates a alert box
 				JsonErrorHandler.alertBox(e);
@@ -432,7 +449,9 @@ public class JsonPostClient {
 			events.onError(e);
 		} else {
 			PerunError e = (PerunError) JsonUtils.parseJson("{\"errorId\":\"0\",\"name\":\"Cross-site request\",\"type\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteType() + "\",\"message\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteText() + "\"}").cast();
-			session.getUiElements().setLogErrorText("Error while sending request: The response was null or cross-site request.");
+			if (session.getUiElements() != null) {
+				session.getUiElements().setLogErrorText("Error while sending request: The response was null or cross-site request.");
+			}
 			if (!hidden) {
 				// creates a alert box
 				JsonErrorHandler.alertBox(e);

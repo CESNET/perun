@@ -194,7 +194,7 @@ public class GetApplicationsForVo implements JsonCallback, JsonCallbackTable<App
 			}
 		});
 		table.addColumn(stateColumn, "State");
-		table.setColumnWidth(stateColumn, "80px");
+		table.setColumnWidth(stateColumn, "120px");
 
 		Column<Application, String> extSourceColumn = JsonUtils.addColumn(
 				new ClickableTextCell() {

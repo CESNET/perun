@@ -70,6 +70,7 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 
 		// create widget for menu on page
 		TabMenu tabMenu = new TabMenu();
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
 
 		// get services
 		final GetServices services = new GetServices();
@@ -85,7 +86,7 @@ public class ServicesTabItem implements TabItem, TabItemWithUrl{
 		});
 
 		// create button
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createService(), new ClickHandler() {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createService(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				session.getTabManager().addTabToCurrentTab(new CreateServiceTabItem());

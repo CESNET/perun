@@ -125,37 +125,6 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
 		int column = 3;
-		if (JsonUtils.isExtendedInfoVisible()) {
-			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+group.getId()+"</span>");
-			column++;
-			menu.setHTML(0, column, "&nbsp;");
-			menu.getFlexCellFormatter().setWidth(0, column, "25px");
-			column++;
-		}
-
-		String text = (((RichGroup)group).isSyncEnabled()) ? "Enabled" : "Disabled";
-
-		text += (((RichGroup)group).getAuthoritativeGroup().equals("1")) ? " / Authoritative" : "";
-
-		menu.setHTML(0, column, "<strong>Sync:</strong><br/><span class=\"inputFormInlineComment\">"+text+"</span>");
-
-		column++;
-
-		menu.setHTML(0, column, "&nbsp;");
-		menu.getFlexCellFormatter().setWidth(0, column, "25px");
-
-		column++;
-
-		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+group.getDescription()+"&nbsp;</span>");
-
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 50px; top: 5px;");
 
 		CustomButton change;
 		if (group.isCoreGroup()) {
@@ -170,9 +139,31 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 				session.getTabManager().addTabToCurrentTab(new EditGroupDetailsTabItem(group, events));
 			}
 		});
+		menu.setWidget(0, column, change);
+		column++;
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
 
-		dp.add(change);
-		change.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
+		if (JsonUtils.isExtendedInfoVisible()) {
+			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+group.getId()+"</span>");
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+		}
+
+		/*
+		String text = (((RichGroup)group).isSyncEnabled()) ? "Enabled" : "Disabled";
+
+		text += (((RichGroup)group).getAuthoritativeGroup().equals("1")) ? " / Authoritative" : "";
+
+		menu.setHTML(0, column, "<strong>Sync:</strong><br/><span class=\"inputFormInlineComment\">"+text+"</span>");
+
+		column++;
+		*/
+
+		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+group.getDescription()+"&nbsp;</span>");
 
 		dp.add(menu);
 		vp.add(dp);
@@ -193,6 +184,10 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		if (!group.isCoreGroup()) {
 			// core groups can't have managers
 			tabPanel.add(new GroupManagersTabItem(group), "Managers");
+		}
+		if (!group.isCoreGroup()) {
+			// core groups can't have ext sources
+			tabPanel.add(new GroupExtSourcesTabItem(group), "External sources");
 		}
 
 		// Resize must be called after page fully displays

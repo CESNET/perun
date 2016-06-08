@@ -13,13 +13,13 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,43 +30,31 @@ import java.util.regex.Pattern;
  */
 public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	private Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]");
-	private Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]");
-	private Pattern extSourceTypeX509 = Pattern.compile("cz.metacentrum.perun.core.impl.ExtSourceX509");
-	private Pattern userAttributeSet = Pattern.compile("Attribute:\\[(.*)\\] set for User:\\[(.*)\\]");
-	private Pattern userCertDNs = Pattern.compile("friendlyName=<userCertDNs>");
-	private Pattern userAttributeRemoved = Pattern.compile("AttributeDefinition:\\[(.*)\\] removed for User:\\[(.*)\\]");
+	private final Pattern addUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] added to User:\\[(.*)\\]");
+	private final Pattern removeUserExtSource = Pattern.compile("UserExtSource:\\[(.*)\\] removed from User:\\[(.*)\\]");
+	private final Pattern extSourceTypeX509 = Pattern.compile("cz.metacentrum.perun.core.impl.ExtSourceX509");
+	private final Pattern userAttributeSet = Pattern.compile("Attribute:\\[(.*)\\] set for User:\\[(.*)\\]");
+	private final Pattern userAttributeRemoved = Pattern.compile("AttributeDefinition:\\[(.*)\\] removed for User:\\[(.*)\\]");
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
-		Map<String, String> userCertDNs = new LinkedHashMap<String, String>();
-
-		Attribute attrUserCertDNs = null;
-		try {
-			attrUserCertDNs = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
-		} catch(AttributeNotExistsException ex) {
-			throw new InternalErrorException("userCertDNs attribute for " + user + " not exist.", ex);
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new InternalErrorException("userCertDNs attribute bad assignment.", ex);
-		}
-
-		if(attrUserCertDNs.getValue() != null) {
-			userCertDNs.putAll((LinkedHashMap<String,String>) attrUserCertDNs.getValue());
-		}
-
+		Map<String, String> userCertDNs = new LinkedHashMap<>();
+		
+		//IMPORTANT: sort this list before returning it (in the future), it is better for next comparing
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 
+		//Prepare also prefix number
+		int i=1;
 		for(UserExtSource uES: userExtSources) {
 			if(uES.getExtSource() != null) {
 				String login = uES.getLogin();
 				String type = uES.getExtSource().getType();
 				String name = uES.getExtSource().getName();
 
-				if(type != null && login != null && name != null) {
-					if(type.equals(ExtSourcesManager.EXTSOURCE_X509)) {
-						if(!userCertDNs.containsKey(login)) userCertDNs.put(login, name);
-					}
+				if(type != null && login != null && name != null && type.equals(ExtSourcesManager.EXTSOURCE_X509)) {
+					userCertDNs.put(i + ":" + login, name);
+					i++;
 				}
 			}
 		}
@@ -88,7 +76,6 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 		Matcher removeUserExtSourceMatcher = removeUserExtSource.matcher(message);
 		Matcher userAttributeSetMatcher = userAttributeSet.matcher(message);
 		Matcher userAttributeRemovedMatcher = userAttributeRemoved.matcher(message);
-		Matcher userCertDNsMatcher = userCertDNs.matcher(message);
 
 		if(extSourceTypeX509Matcher.find()) {
 			if(addUserExtSourceMatcher.find() || removeUserExtSourceMatcher.find()) {
@@ -99,33 +86,9 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 					resolvingMessages.add(messageAttributeSet);
 				}
 			}
-		} else if(userCertDNsMatcher.find()) {
-			if(userAttributeSetMatcher.find()) {
-				user = getUserFromMessage(message);
-				if(user != null) {
-					attrVirtUserCertDNs = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
-					String messageAttributeSet = attrVirtUserCertDNs.serializeToString() + " set for " + user.serializeToString() + ".";
-					resolvingMessages.add(messageAttributeSet);
-				}
-			} else if(userAttributeRemovedMatcher.find()) {
-				user = getUserFromMessage(message);
-				if(user != null) {
-					attrVirtUserCertDNs = perunSession.getPerunBl().getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
-					AttributeDefinition attrVirtUserCertDNsDefinition = (AttributeDefinition) attrVirtUserCertDNs;
-					String messageAttributeRemoved = attrVirtUserCertDNsDefinition + " removed for " + user.serializeToString() + ".";
-					resolvingMessages.add(messageAttributeRemoved);
-				}
-			}
 		}
 
 		return resolvingMessages;
-	}
-
-	@Override
-	public List<String> getStrongDependencies() {
-		List<String> strongDependencies = new ArrayList<String>();
-		strongDependencies.add(AttributesManager.NS_USER_ATTR_DEF + ":userCertDNs");
-		return strongDependencies;
 	}
 
 	public AttributeDefinition getAttributeDefinition() {

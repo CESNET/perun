@@ -5,9 +5,11 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -20,14 +22,20 @@ import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.Utils;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +46,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 
 	final static Logger log = LoggerFactory.getLogger(ServicesManagerBlImpl.class);
 	private PerunBl perunBl;
+	Map<String,String> perunNamespaces = null;
 
 	public static final String A_E_namespace_minGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID";
 	public static final String A_E_namespace_maxGID = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID";
@@ -50,6 +59,12 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public static final String A_F_googleGroupName_namespace = AttributesManager.NS_FACILITY_ATTR_DEF + ":googleGroupNameNamespace";
 	private static final String A_E_usedGids = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":usedGids";
 
+	//Often used patterns
+	public static final Pattern quotaWithMetricsPattern = Pattern.compile("^([0-9]+([.][0-9]+)?[KMGTPE]?):([0-9]+([.][0-9]+)?[KMGTPE]?)$");
+	public static final Pattern quotaWithoutMetricsPattern = Pattern.compile("^([0-9]+)(:)([0-9]+)$");
+	public static final Pattern numberPattern = Pattern.compile("[0-9]+([.][0-9]+)?");
+	public static final Pattern letterPattern = Pattern.compile("[A-Z]");
+
 	public final static List<String> reservedNamesForUnixGroups = Arrays.asList("root", "daemon", "tty", "bin", "sys", "sudo", "nogroup",
 	          "hadoop", "hdfs", "mapred", "yarn", "hsqldb", "derby", "jetty", "hbase", "zookeeper", "users");
 	public final static List<String> unpermittedNamesForUserLogins = Arrays.asList("arraysvcs", "at", "backup", "bin", "daemon", "Debian-exim", "flexlm", "ftp", "games",
@@ -59,6 +74,13 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		        "sys", "uucp", "uuidd", "www-data", "wwwrun", "zenssh", "tomcat6", "tomcat7", "tomcat8",
 		        "nn", "dn", "rm", "nm", "sn", "jn", "jhs", "http", "yarn", "hdfs", "mapred", "hadoop", "hsqldb", "derby",
 		        "jetty", "hbase", "zookeeper", "hive", "hue");
+
+	//Definition of K = KB, M = MB etc.
+	public static final long M = 1024;
+	public static final long G = M * 1024;
+	public static final long T = G * 1024;
+	public static final long P = T * 1024;
+	public static final long E = P * 1024;
 
 	public ModulesUtilsBlImpl() {
 	}
@@ -481,14 +503,36 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		return groupNameNamespaces;
 	}
 
-	public void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws WrongAttributeValueException {
+	public void checkReservedUnixGroupNames(Attribute groupNameAttribute) throws InternalErrorException, WrongAttributeValueException {
 		if(groupNameAttribute == null) return;
-		if(reservedNamesForUnixGroups.contains(groupNameAttribute.getValue())) throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
+		checkPerunNamespacesMap();
+
+		String reservedNames = perunNamespaces.get(groupNameAttribute.getFriendlyName() + ":reservedNames");
+		if (reservedNames != null) {
+			List<String> reservedNamesList = Arrays.asList(reservedNames.split("\\s*,\\s*"));
+			if (reservedNamesList.contains(groupNameAttribute.getValue()))
+				throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
+		} else {
+			//Property not found in our attribute map, so we will use the default hardcoded values instead
+			if (reservedNamesForUnixGroups.contains(groupNameAttribute.getValue()))
+				throw new WrongAttributeValueException(groupNameAttribute, "This groupName is reserved.");
+		}
 	}
 
-	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws WrongAttributeValueException {
+	public void checkUnpermittedUserLogins(Attribute loginAttribute) throws InternalErrorException, WrongAttributeValueException {
 		if(loginAttribute == null) return;
-		if(unpermittedNamesForUserLogins.contains(loginAttribute.getValue())) throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+		checkPerunNamespacesMap();
+
+		String unpermittedNames = perunNamespaces.get(loginAttribute.getFriendlyName() + ":reservedNames");
+		if (unpermittedNames != null) {
+			List<String> unpermittedNamesList = Arrays.asList(unpermittedNames.split("\\s*,\\s*"));
+			if (unpermittedNamesList.contains(loginAttribute.getValue()))
+				throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+		} else {
+			//Property not found in our attribute map, so we will use the default hardcoded values instead
+			if (unpermittedNamesForUserLogins.contains(loginAttribute.getValue()))
+				throw new WrongAttributeValueException(loginAttribute, "This login is not permitted.");
+		}
 	}
 
 	@Override
@@ -579,7 +623,314 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		if (!match.matches()) {
 			throw new WrongAttributeValueException(attribute, "Bad shell attribute format " + shell);
 		}
+	}
 
+	public void checkAttributeRegex(Attribute attribute, String defaultRegex) throws InternalErrorException, WrongAttributeValueException {
+		if (attribute == null || attribute.getValue() == null) throw new InternalErrorException("Attribute or it's value is null.");
+		String attributeValue = (String) attribute.getValue();
+		checkPerunNamespacesMap();
+
+		String regex = perunNamespaces.get(attribute.getFriendlyName() + ":regex");
+		if (regex != null) {
+			//Check if regex is valid
+			try {
+				Pattern.compile(regex);
+			} catch (PatternSyntaxException e) {
+				log.error("Regex pattern \"" + regex + "\" from \"" + attribute.getFriendlyName() + ":regex\"" + " property of perun-namespaces.properties file is invalid.");
+				throw new InternalErrorException("Regex pattern \"" + regex + "\" from \"" + attribute.getFriendlyName() + ":regex\"" + " property of perun-namespaces.properties file is invalid.");
+			}
+			if(!attributeValue.matches(regex)) {
+				throw new WrongAttributeValueException(attribute, "Wrong format. Regex: \"" + regex +"\" expected for this attribute:");
+			}
+		} else {
+			//Regex property not found in our attribute map, so use the default hardcoded regex
+			if (defaultRegex == null) return;
+			if (!attributeValue.matches(defaultRegex)) {
+				throw new WrongAttributeValueException(attribute, "Wrong format. Regex: \"" + defaultRegex +"\" expected for this attribute:");
+			}
+		}
+	}
+
+	/**
+	 * Internal protected method.
+	 * Checks this.perunNamespaces map, which is always initialized as null.
+	 * If null, it tries to load the configuration into this map from a perun-namespaces.properties file.
+	 * If the file does not exist, it creates an empty HashMap, so it's not null anymore.
+	 */
+	protected void checkPerunNamespacesMap() {
+		if (perunNamespaces == null) {
+			try {
+				perunNamespaces = BeansUtils.getAllPropertiesFromCustomConfiguration("perun-namespaces.properties");
+			} catch (InternalErrorException e) {
+				perunNamespaces = new HashMap<>();
+			}
+		}
+	}
+
+	@Override
+	public Map<String, Pair<BigDecimal, BigDecimal>> checkAndTransferQuotas(Attribute quotasAttribute, PerunBean firstPlaceholder, PerunBean secondPlaceholder, boolean withMetrics) throws InternalErrorException, WrongAttributeValueException {
+		//firstPlaceholder can't be null
+		if(firstPlaceholder == null) throw new InternalErrorException("Missing first mandatory placeHolder (PerunBean).");
+		//Quotas attribute must exists with not null value
+		if(quotasAttribute == null || quotasAttribute.getValue() == null) throw new InternalErrorException("Attribute quotas for checking and transfering can't be null.");
+		
+		//Prepare result container and value of attribute
+		Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotas = new HashMap<>();
+		Map<String, String> defaultQuotasMap = (Map<String, String>) quotasAttribute.getValue();
+
+		//List to test if all paths are unique (/var/log and /var/log/ are the same so these two paths are not unique)
+		List<String> uniquePaths = new ArrayList<>();
+		for(String path: defaultQuotasMap.keySet()) {
+			//null is not correct path for volume on File System
+			if(path == null || path.isEmpty()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "The path of some volume where quota should be set is null.");
+
+			//testing if path is unique
+			String canonicalPath;
+			try {
+				canonicalPath = new URI(path).normalize().getPath();
+				if(!canonicalPath.endsWith("/")) canonicalPath = canonicalPath.concat("/");
+			} catch (URISyntaxException ex) {
+				throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Path '" + path + "' is not correct form.");
+			}
+
+			if(uniquePaths.contains(canonicalPath)) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Paths are not unique, there are two same paths: " + path);
+			else uniquePaths.add(canonicalPath);
+
+			String quota = defaultQuotasMap.get(path);
+			//quota can't be null, if exists in attribute, must be set in some way
+			if(quota == null) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "The quota of some volume where quota should be set is null.");
+
+			//check format of quota parameter (for data with metrics, for count of files without metrics)
+			Matcher quotaMatcher;
+			if(withMetrics) {
+				quotaMatcher = ModulesUtilsBlImpl.quotaWithMetricsPattern.matcher(quota);
+				if(!quotaMatcher.matches()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Format of quota in quotas attribute is not correct.");
+			} else {
+				quotaMatcher = ModulesUtilsBlImpl.quotaWithoutMetricsPattern.matcher(quota);
+				if(!quotaMatcher.matches()) throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "Format of quota in quotas attribute is not correct.");
+			}
+
+			//Parse quotas to variables
+			String softQuota = quotaMatcher.group(1);
+			String hardQuota = quotaMatcher.group(3);
+
+			//Parse number pattern and letter pattern from whole quotas
+
+			//SoftQuotaNumber
+			BigDecimal softQuotaAfterTransfer;
+			BigDecimal hardQuotaAfterTransfer;
+			//special behavior with metrics
+			if(withMetrics) {
+				String softQuotaNumber = null;
+				Matcher numberMatcher = numberPattern.matcher(softQuota);
+				if(!numberMatcher.find()) throw new ConsistencyErrorException("Matcher can't find number in softQuota '" + softQuota + "' in attribute " + quotasAttribute);
+				softQuotaNumber = numberMatcher.group();
+
+				//SoftQuotaLetter
+				String softQuotaLetter = null;
+				Matcher letterMatcher = letterPattern.matcher(softQuota);
+				//in this case no letter means default and default is G
+				if(!letterMatcher.find()) softQuotaLetter = "G";
+				else softQuotaLetter = letterMatcher.group();
+
+				//HardQuotaNumber
+				String hardQuotaNumber = null;
+				numberMatcher = numberPattern.matcher(hardQuota);
+				if(!numberMatcher.find()) throw new ConsistencyErrorException("Matcher can't find number in hardQuota '" + hardQuota + "' in attribute " + quotasAttribute);
+				hardQuotaNumber = numberMatcher.group();
+
+				//HardQuotaLetter
+				String hardQuotaLetter;
+				letterMatcher = letterPattern.matcher(hardQuota);
+				//in this case no letter means default and default is G
+				if(!letterMatcher.find()) hardQuotaLetter = "G";
+				else hardQuotaLetter = letterMatcher.group();
+
+				//Prepare whole big decimal numbers
+				softQuotaAfterTransfer = new BigDecimal(softQuotaNumber);
+				hardQuotaAfterTransfer = new BigDecimal(hardQuotaNumber);
+
+				//multiplying for softQuota
+				switch (softQuotaLetter) {
+					case "K":
+						break; //K is basic metric, no need to multiply it
+					case "G":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(G));
+						break;
+					case "M":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(M));
+						break;
+					case "T":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(T));
+						break;
+					case "P":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(P));
+						break;
+					case "E":
+						softQuotaAfterTransfer = softQuotaAfterTransfer.multiply(BigDecimal.valueOf(E));
+						break;
+					default:
+						throw new ConsistencyErrorException("There is not allowed character in soft quota letter '" + softQuotaLetter + "'.");
+				}
+
+				//multiplying for softQuota
+				switch (hardQuotaLetter) {
+					case "K":
+						break; //K is basic metric, no need to multiply it
+					case "G":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(G));
+						break;
+					case "M":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(M));
+						break;
+					case "T":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(T));
+						break;
+					case "P":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(P));
+						break;
+					case "E":
+						hardQuotaAfterTransfer = hardQuotaAfterTransfer.multiply(BigDecimal.valueOf(E));
+						break;
+					default:
+						throw new ConsistencyErrorException("There is not allowed character in hard quota letter '" + hardQuotaLetter + "'.");
+				}
+			//easy way without metrics
+			} else {
+				softQuotaAfterTransfer = new BigDecimal(softQuota);
+				hardQuotaAfterTransfer = new BigDecimal(hardQuota);
+			}
+
+			//test comparing softQuota and hardQuota (softQuota must be less or equals than hardQuota, 0 means unlimited)
+			//1] if softQuota is unlimited, but hardQuota not = exception
+			if(softQuotaAfterTransfer.compareTo(BigDecimal.valueOf(0)) == 0 && hardQuotaAfterTransfer.compareTo(BigDecimal.valueOf(0)) != 0) {
+				throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "SoftQuota is set to unlimited (0) but hardQuota is limited to '" + hardQuota + "'.");
+			//2] if hardQuota is not unlimited but still it is less then softQuota = exception
+			} else if(hardQuotaAfterTransfer.compareTo(BigDecimal.valueOf(0)) != 0 && hardQuotaAfterTransfer.compareTo(softQuotaAfterTransfer) < 0) {
+				throw new WrongAttributeValueException(quotasAttribute, firstPlaceholder, secondPlaceholder, "One of quotas is not correct. HardQuota '" + hardQuota + "' is less then softQuota '" + softQuota + "'.");
+			}
+			//other cases are ok
+
+			transferedQuotas.put(canonicalPath, new Pair(softQuotaAfterTransfer, hardQuotaAfterTransfer));
+		}
+
+		return transferedQuotas;
+	}
+
+	@Override
+	public Map<String, String> transferQuotasBackToAttributeValue(Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotasMap, boolean withMetrics) throws InternalErrorException {
+		Map<String, String> attributeQuotasValue = new HashMap<>();
+		//if null or empty, return empty attribute value map for quotas
+		if(transferedQuotasMap == null || transferedQuotasMap.isEmpty()) return attributeQuotasValue;
+
+		//every path with quotas transfer step by step
+		for(String path: transferedQuotasMap.keySet()) {
+			Pair<BigDecimal, BigDecimal> quotas =  transferedQuotasMap.get(path);
+			BigDecimal softQuotaBD = quotas.getLeft();
+			BigDecimal hardQuotaBD = quotas.getRight();
+
+			//Divide decimal till it is still natural number
+			//Soft Quota
+			String softQuota = "0";
+			//Zero means unlimited, stay the same
+			if(softQuotaBD.compareTo(BigDecimal.ZERO) != 0) {
+				if(withMetrics) softQuota = Utils.bigDecimalBytesToReadableStringWithMetric(softQuotaBD);
+				else softQuota = softQuotaBD.toPlainString();
+			}
+			//Hard Quota
+			String hardQuota = "0";
+			//Zero means unlimited, stay the same
+			if(hardQuotaBD.compareTo(BigDecimal.ZERO) != 0) {
+				if(withMetrics) hardQuota = Utils.bigDecimalBytesToReadableStringWithMetric(hardQuotaBD);
+				else hardQuota = hardQuotaBD.toPlainString();
+			}
+
+			//add softQuota and hardQuota to result (50T:60T)
+			attributeQuotasValue.put(path, softQuota + ":" + hardQuota);
+		}
+		return attributeQuotasValue;
+	}
+
+	@Override
+	public Map<String,Pair<BigDecimal, BigDecimal>> mergeMemberAndResourceTransferedQuotas(Map<String, Pair<BigDecimal, BigDecimal>> firstQuotas, Map<String, Pair<BigDecimal, BigDecimal>> secondQuotas) {
+		//if one of them is empty, return the other one (even if it is empty too)
+		if(firstQuotas.isEmpty()) return secondQuotas;
+		if(secondQuotas.isEmpty()) return firstQuotas;
+
+		Map<String,Pair<BigDecimal, BigDecimal>> mergedTransferedQuotas = new HashMap<>();
+		//first go through firstQuotas values
+		for(String path: firstQuotas.keySet()) {
+			Pair<BigDecimal, BigDecimal> newValue;
+			Pair<BigDecimal, BigDecimal> firstQuotasValue = firstQuotas.get(path);
+			Pair<BigDecimal, BigDecimal> secondQuotasValue = secondQuotas.get(path);
+
+			//if there is no values for merge, use them
+			if(secondQuotasValue == null) {
+				newValue = firstQuotasValue;
+				mergedTransferedQuotas.put(path, newValue);
+			//if there are values to merge, merge them
+			} else {
+				BigDecimal softQuota;
+				BigDecimal hardQuota;
+				//merge softQuota
+				if(firstQuotasValue.getLeft().compareTo(new BigDecimal("0")) == 0 || secondQuotasValue.getLeft().compareTo(new BigDecimal("0")) == 0) softQuota = new BigDecimal("0");
+				else {
+					if(firstQuotasValue.getLeft().compareTo(secondQuotasValue.getLeft()) >= 0) softQuota = firstQuotasValue.getLeft();
+					else softQuota = secondQuotasValue.getLeft();
+				}
+				//merge hardQuota
+				if(firstQuotasValue.getRight().compareTo(new BigDecimal("0")) == 0 || secondQuotasValue.getRight().compareTo(new BigDecimal("0")) == 0) hardQuota = new BigDecimal("0");
+				else {
+					if(firstQuotasValue.getRight().compareTo(secondQuotasValue.getRight()) >= 0) hardQuota = firstQuotasValue.getRight();
+					else hardQuota = secondQuotasValue.getRight();
+				}
+				//set new merged values
+				newValue = new Pair(softQuota, hardQuota);
+				mergedTransferedQuotas.put(path, newValue);
+				//remove them from second quotas (they are not unique)
+				secondQuotas.remove(path);
+			}
+		}
+		//save rest of values from secondQuotas (only unique in second quotas are still there, not exists in first quotas)
+		for(String path: secondQuotas.keySet()) {
+			mergedTransferedQuotas.put(path, secondQuotas.get(path));
+		}
+
+		return mergedTransferedQuotas;
+	}
+
+	public Map<String, Pair<BigDecimal, BigDecimal>> countUserFacilityQuotas(List<Map<String, Pair<BigDecimal, BigDecimal>>> allUserQuotas) {
+		Map<String, Pair<BigDecimal, BigDecimal>> resultTransferredQuotas = new HashMap<>();
+		//for every transfered map of merged quotas count one result transfered map
+		for(Map<String, Pair<BigDecimal, BigDecimal>> mapValue : allUserQuotas) {
+			//for every path in one transfered map
+			for(String pathKey: mapValue.keySet()) {
+				//if path not exists in result map, add it with it's values
+				if(!resultTransferredQuotas.containsKey(pathKey)) {
+					resultTransferredQuotas.put(pathKey, mapValue.get(pathKey));
+				//if path already exists in result map, sum their quotas together
+				} else {
+					Pair<BigDecimal, BigDecimal> quotasValue1 = resultTransferredQuotas.get(pathKey);
+					Pair<BigDecimal, BigDecimal> quotasValue2 = mapValue.get(pathKey);
+					//for soft quota (left part of pair)
+					BigDecimal softQuota = BigDecimal.ZERO;
+					if(quotasValue1.getLeft().compareTo(BigDecimal.ZERO) != 0 && quotasValue2.getLeft().compareTo(BigDecimal.ZERO) != 0) {
+						softQuota = quotasValue1.getLeft().add(quotasValue2.getLeft());
+					}
+					//for hard quota (right part of pair)
+					BigDecimal hardQuota = BigDecimal.ZERO;
+					if(quotasValue1.getRight().compareTo(BigDecimal.ZERO) != 0 && quotasValue2.getRight().compareTo(BigDecimal.ZERO) != 0) {
+						hardQuota = quotasValue1.getRight().add(quotasValue2.getRight());
+					}
+					//create new pair of summed numbers
+					Pair<BigDecimal, BigDecimal> finalQuotasValue = new Pair(softQuota, hardQuota);
+					//add new summed pair to the result map
+					resultTransferredQuotas.put(pathKey, finalQuotasValue);
+				}
+			}
+		}
+		//return result map
+		return resultTransferredQuotas;
 	}
 
 	public PerunBl getPerunBl() {

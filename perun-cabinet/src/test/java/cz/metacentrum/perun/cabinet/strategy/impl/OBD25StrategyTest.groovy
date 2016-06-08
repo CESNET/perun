@@ -14,7 +14,7 @@ class OBD25StrategyTest {
 
 	@Test
 	public void testGetRequestParams() {
-		println 'getRequestParams()'
+		println 'OBD25StrategyTest.getRequestParams'
 		
 		String kodAutora = '20692'
 		int yearSince = 2009
@@ -28,7 +28,7 @@ class OBD25StrategyTest {
 
 	@Test
 	public void testParseResponse() {
-		println 'parseResponse()'
+		println 'OBD25StrategyTest.parseResponse'
 		
 		List<Publication> publications = obdStrategy.parseResponse(obd25Response2)
 		

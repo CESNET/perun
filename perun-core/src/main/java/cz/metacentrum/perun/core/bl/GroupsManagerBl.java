@@ -5,6 +5,7 @@ import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
@@ -21,6 +22,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -780,7 +782,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws MemberAlreadyRemovedException if there is at least one member who need to be deleted, but DB returns 0 affected rows
 	 */
-	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, MemberAlreadyRemovedException;
+	List<String> synchronizeGroup(PerunSession sess, Group group) throws InternalErrorException, MemberAlreadyRemovedException, AttributeNotExistsException, WrongAttributeAssignmentException, ExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Synchronize the group with external group. It checks if the synchronization of the same group is already in progress.
@@ -800,7 +802,7 @@ public interface GroupsManagerBl {
 	void synchronizeGroups(PerunSession sess) throws InternalErrorException;
 
 	/**
-	 * Returns all member's groups. Except members and administrators groups.
+	 * Returns all members groups. Except 'members' group.
 	 *
 	 * @param sess
 	 * @param member
@@ -843,16 +845,6 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException;
-
-	/**
-	 * Returns all member's groups which are assigned to at least one resource. Except members and administrators groups.
-	 *
-	 * @param sess
-	 * @param member
-	 * @return
-	 * @throws InternalErrorException
-	 */
-	List<Group> getMemberGroupsForResources(PerunSession sess, Member member) throws InternalErrorException;
 
 	/**
 	 * Returns all groups which have set the attribute with the value. Searching only def and opt attributes.
@@ -1032,4 +1024,15 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeValueException 
 	 */
 	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+
+	/**
+	 * Get all groups in specific vo with assigned extSource
+	 *
+	 * @param sess
+	 * @param source
+	 * @param vo
+	 * @return l
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
 }

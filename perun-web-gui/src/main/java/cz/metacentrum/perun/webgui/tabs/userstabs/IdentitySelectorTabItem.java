@@ -11,7 +11,7 @@ import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.usersManager.GetServiceUsersByUser;
+import cz.metacentrum.perun.webgui.json.usersManager.GetSpecificUsersByUser;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -101,7 +101,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
 		if (session.getEditableUsers().size() > 1) {
 			// user has service identities
-			GetServiceUsersByUser call = new GetServiceUsersByUser(session.getUser().getId(), new JsonCallbackEvents(){
+			GetSpecificUsersByUser call = new GetSpecificUsersByUser(session.getUser().getId(), new JsonCallbackEvents(){
 				@Override
 				public void onFinished(JavaScriptObject jso) {
 					ArrayList<User> list = JsonUtils.jsoAsList(jso);
@@ -109,6 +109,7 @@ public class IdentitySelectorTabItem implements TabItem, TabItemWithUrl {
 
 						int row = 0;
 						for (User u : list) {
+							if (u.isSponsoredUser()) continue;
 							final User u2 = u;
 							innerTable.setWidget(row, 0, new Image(LargeIcons.INSTANCE.userRedIcon()));
 							Anchor userName = new Anchor();

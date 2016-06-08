@@ -31,7 +31,7 @@ public class ProcessPoolJob implements PerunEngineJob {
 		} catch (InternalErrorException e) {
 			log.error(e.toString(), e);
 		}
-		log.info("ProcessPoolJob: taskScheduler.processPool() has completed.");
+		log.info("ProcessPoolJob done: taskScheduler.processPool() has completed.");
 	}
 
 	public TaskScheduler getTaskScheduler() {

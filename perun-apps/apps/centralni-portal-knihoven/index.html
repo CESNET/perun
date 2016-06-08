@@ -79,7 +79,7 @@
                             <div class="page-header"><h2>Spojené identity</h2></div>
                             <div id="identities-table-fed"></div>
                             <p>
-                                <a href="/ic-fed/index-fed-cs.html?target=/current/">
+                                <a class="resolve-url" href="/authz/ic/?target_url=/current/">
                                     <button class="btn btn-primary" id="new-identity">
                                         Spojit novou externí identitu
                                     </button>
@@ -98,6 +98,21 @@
             </div> <!-- whole content -->
 
         </div> <!-- main container -->
+
+
+        <div id="flowMessager">
+            <!-- contend loaded by JavaScript -->
+        </div>
+
+
+        <noscript>
+            <div class="modal">
+                <div class="modal-body">
+                    <h3>Javascript is disabled</h3>
+                    <p>This site will not work correctly because your browser is blocking JavaScript. Please enable JavaScript and reload page.</p>
+                </div>
+            </div>
+        </noscript>
 
         <script src="//code.jquery.com/jquery-latest.min.js"></script>
         <script>window.jQuery || document.write('<script src="/apps-include/js/vendor/jquery-1.11.1.min.js"><\/script>')</script>

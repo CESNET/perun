@@ -139,10 +139,10 @@ public class FacilityManagersTabItem implements TabItem, TabItemWithUrl{
 			sp.setWidget(fillContentGroups(adminGroups, menu));
 		}
 
-		menu.addWidget(2, new HTML("<strong>Select mode: </strong>"));
-		menu.addWidget(3, box);
-		menu.addWidget(4, new Image(SmallIcons.INSTANCE.helpIcon()));
-		menu.addWidget(5, new HTML("<strong>People with privilege to manage this facility in Perun. They aren't automatically \"roots\" on machine.</strong>"));
+		menu.addWidget(3, new HTML("<strong>Select mode: </strong>"));
+		menu.addWidget(4, box);
+		menu.addWidget(5, new Image(SmallIcons.INSTANCE.helpIcon()));
+		menu.addWidget(6, new HTML("<strong>People with privilege to manage this facility in Perun. They aren't automatically \"roots\" on machine.</strong>"));
 
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
@@ -174,14 +174,16 @@ public class FacilityManagersTabItem implements TabItem, TabItemWithUrl{
 			table = jsonCallback.getTable();
 		}
 
-		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToFacility(), new ClickHandler() {
+		menu.addWidget(0, UiElements.getRefreshButton(this));
+
+		menu.addWidget(1, TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerToFacility(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityManagerTabItem(facility), true);
 			}
 		}));
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerFromFacility());
-		menu.addWidget(1, removeButton);
+		menu.addWidget(2, removeButton);
 		removeButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				final ArrayList<User> list = jsonCallback.getTableSelectedList();
@@ -225,14 +227,16 @@ public class FacilityManagersTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToFacility(), new ClickHandler() {
+		menu.addWidget(0, UiElements.getRefreshButton(this));
+
+		menu.addWidget(1, TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerGroupToFacility(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityManagerGroupTabItem(facility, JsonCallbackEvents.refreshTableEvents(jsonCallback)), true);
 			}
 		}));
 
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeManagerGroupFromFacility());
-		menu.addWidget(1, removeButton);
+		menu.addWidget(2, removeButton);
 		removeButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {
 				final ArrayList<Group> list = jsonCallback.getTableSelectedList();

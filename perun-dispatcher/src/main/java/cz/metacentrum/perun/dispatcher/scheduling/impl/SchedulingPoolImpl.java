@@ -31,7 +31,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			.getLogger(SchedulingPoolImpl.class);
 
 	private Map<Integer, Pair<Task, DispatcherQueue>> tasksById = new ConcurrentHashMap<Integer, Pair<Task, DispatcherQueue>>();
-	private Map<Pair<ExecService, Facility>, Task> tasksByServiceAndFacility = new ConcurrentHashMap<Pair<ExecService, Facility>, Task>();
+	private Map<Pair<Integer, Integer>, Task> tasksByServiceAndFacility = new ConcurrentHashMap<Pair<Integer, Integer>, Task>();
 	private Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(
 			TaskStatus.class);
 
@@ -54,17 +54,19 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	@Override
 	public int addToPool(Task task, DispatcherQueue dispatcherQueue)
 			throws InternalErrorException {
+		int engineId = (dispatcherQueue == null) ? -1 : dispatcherQueue.getClientID();
 		if (task.getId() == 0) {
+			
 			// this task was created new, so we have to check the
 			// ExecService,Facility pair
 			synchronized (tasksByServiceAndFacility) {
-				if (!tasksByServiceAndFacility.containsKey(new Pair<ExecService, Facility>(task.getExecService(), task.getFacility()))) {
+				if (!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()))) {
 					log.debug("Adding new task to pool " + task);
 					if (null == task.getStatus()) {
 						task.setStatus(TaskStatus.NONE);
 					}
 					try {
-						int id = taskManager.scheduleNewTask(task, dispatcherQueue.getClientID());
+						int id = taskManager.scheduleNewTask(task, engineId);
 						task.setId(id);
 					} catch (InternalErrorException e) {
 						log.error("Error storing task " + task
@@ -73,8 +75,8 @@ public class SchedulingPoolImpl implements SchedulingPool {
 								"Could not assign id to newly created task", e);
 					}
 					tasksByServiceAndFacility.put(
-							new Pair<ExecService, Facility>(task
-									.getExecService(), task.getFacility()),
+							new Pair<Integer, Integer>(task
+									.getExecServiceId(), task.getFacilityId()),
 							task);
 					tasksById.put(task.getId(),
 							new Pair<Task, DispatcherQueue>(task,
@@ -99,7 +101,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 						task.setStatus(TaskStatus.NONE);
 					}
 					tasksById.put(task.getId(), new Pair<Task, DispatcherQueue>(task, dispatcherQueue));
-					tasksByServiceAndFacility.put(new Pair<ExecService, Facility>(task.getExecService(), task.getFacility()), task);
+					tasksByServiceAndFacility.put(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()), task);
 					List<Task> list = pool.get(task.getStatus());
 					if(list == null) {
 						log.info("Making new list for task status " + task.getStatus().toString());
@@ -111,13 +113,11 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				}
 			}
 			try {
-				Task existingTask = taskManager.getTaskById(task.getId(),
-						dispatcherQueue.getClientID());
+				Task existingTask = taskManager.getTaskById(task.getId());
 				if (existingTask == null) {
-					taskManager.scheduleNewTask(task,
-							dispatcherQueue.getClientID());
+					taskManager.scheduleNewTask(task, engineId);
 				} else {
-					taskManager.updateTask(task, dispatcherQueue.getClientID());
+					taskManager.updateTask(task);
 				}
 			} catch (InternalErrorException e) {
 				log.error("Error storing task " + task + " into database: "
@@ -143,17 +143,16 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		synchronized (pool) {
 			pool.get(task.getStatus()).remove(task);
 			val = tasksById.remove(task.getId());
-			tasksByServiceAndFacility.remove(new Pair(task.getExecService(),
-					task.getFacility()));
+			tasksByServiceAndFacility.remove(new Pair<Integer, Integer>(task.getExecServiceId(),
+					task.getFacilityId()));
 		}
-		taskManager.removeTask(task.getId(), val.getRight().getClientID());
-
+		taskManager.removeTask(task.getId());
 	}
 
 	@Override
 	public Task getTask(ExecService execService, Facility facility) {
-		return tasksByServiceAndFacility.get(new Pair<ExecService, Facility>(
-				execService, facility));
+		return tasksByServiceAndFacility.get(new Pair<Integer, Integer>(
+				execService.getId(), facility.getId()));
 	}
 
 	@Override
@@ -171,16 +170,18 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		TaskStatus old = task.getStatus();
 		task.setStatus(status);
 		// move task to the appropriate place
-		if (!old.equals(status)) {
-			if(pool.get(old) != null) {
-				pool.get(old).remove(task);
-			} else {
-				log.warn("task unknown by status");
-			}
-			if(pool.get(status) != null) {
-				pool.get(status).add(task);
-			} else {
-				log.error("no task pool for status " + status.toString());
+		synchronized(pool) {
+			if (!old.equals(status)) {
+				if(pool.get(old) != null) {
+					pool.get(old).remove(task);
+				} else {
+					log.warn("task unknown by status");
+				}
+				if(pool.get(status) != null) {
+					pool.get(status).add(task);
+				} else {
+					log.error("no task pool for status " + status.toString());
+				}
 			}
 		}
 		taskManager.updateTask(task);
@@ -190,7 +191,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	public List<Task> getTasksForEngine(int clientID) {
 		List<Task> result = new ArrayList<Task>();
 		for (Pair<Task, DispatcherQueue> value : tasksById.values()) {
-			if (clientID == value.getRight().getClientID()) {
+			if (value.getRight() != null && clientID == value.getRight().getClientID()) {
 				result.add(value.getLeft());
 			}
 		}
@@ -199,27 +200,37 @@ public class SchedulingPoolImpl implements SchedulingPool {
 
 	@Override
 	public List<Task> getWaitingTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.NONE));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.NONE));
+		}
 	}
 
 	@Override
 	public List<Task> getDoneTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.DONE));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.DONE));
+		}
 	}
 
 	@Override
 	public List<Task> getErrorTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
+		}
 	}
 
 	@Override
 	public List<Task> getProcessingTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
+		}
 	}
 
 	@Override
 	public List<Task> getPlannedTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
+		}
 	}
 
 	@Override
@@ -259,14 +270,14 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if (!pool.get(task.getStatus()).contains(task.getId())) {
 				pool.get(task.getStatus()).add(task);
 			}
+			DispatcherQueue queue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight()); 
 			// XXX should this be synchronized too?
 			tasksById.put(
 					task.getId(),
-					new Pair<Task, DispatcherQueue>(task, dispatcherQueuePool
-							.getDispatcherQueueByClient(pair.getRight())));
+					new Pair<Task, DispatcherQueue>(task, queue));
 			tasksByServiceAndFacility.put(
-					new Pair<ExecService, Facility>(task.getExecService(), task
-							.getFacility()), task);
+					new Pair<Integer, Integer>(task.getExecServiceId(), 
+								task.getFacilityId()), task);
 			// TODO: what about possible duplicates?
 			log.debug("Added task " + task.toString() + " belonging to queue " + pair.getRight());
 		}
@@ -278,8 +289,95 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	@Override
-	public void setQueueForTask(Task task, DispatcherQueue queueForTask) {
-		tasksById.get(task.getId()).put(task, queueForTask);
+	public void setQueueForTask(Task task, DispatcherQueue queueForTask) throws InternalErrorException {
+		Pair<Task, DispatcherQueue> pair = tasksById.get(task.getId());
+		if(pair == null) {
+			throw new InternalErrorException("no task by that id");
+		} else {
+			tasksById.get(task.getId()).put(task, queueForTask);
+		}
+	}
+
+	@Override
+	public void checkTasksDb() {
+		log.debug("Going to cross-check tasks in database...");
+		for (Pair<Task, Integer> pair : taskManager.listAllTasksAndClients()) {
+			Task task = pair.getLeft();
+			DispatcherQueue taskQueue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight());
+			TaskStatus status = task.getStatus();
+			if (status == null) {
+				task.setStatus(TaskStatus.NONE);
+			}
+			Task local_task = null;
+			TaskStatus local_status = null;
+			log.debug("  checking task " + task.toString());
+			if(taskQueue == null) {
+				log.warn("  there is no task queue for client " + pair.getRight());
+				// continue;
+			}
+			synchronized (tasksById) {
+				Pair<Task, DispatcherQueue> local_pair = tasksById.get(task.getId());
+				if(local_pair != null) {
+					local_task = local_pair.getLeft();
+				}
+				if(local_task == null) {
+					local_task = tasksByServiceAndFacility.get(new Pair<Integer,Integer>(
+							task.getExecServiceId(),
+							task.getFacilityId()));						
+				}
+				if(local_task == null) {
+					for (TaskStatus sts : TaskStatus.class.getEnumConstants()) {
+						List<Task> tasklist = pool.get(sts);
+						if(tasklist != null) {
+							local_task = tasklist.get(task.getId());
+						}
+						if(local_task != null) {
+							local_status = sts;
+							break;
+						}
+					}
+				}
+			}
+			if(local_task == null) {
+				try {
+					log.debug("  task not found in any of local structures, adding fresh");
+					addToPool(task, taskQueue);
+				} catch(InternalErrorException e) {
+					log.error("Error adding task to the local structures: " + e.getMessage());
+				}
+			} else {
+				synchronized(tasksById) {
+					if(!tasksById.containsKey(local_task.getId())) {
+						log.debug("  task not known by id, adding");
+						tasksById.put(local_task.getId(), 
+								new Pair<Task, DispatcherQueue>(local_task, taskQueue));
+					}
+					if(!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(
+							local_task.getExecServiceId(), local_task.getFacilityId()))) {
+						log.debug("  task not known by ExecService and Facility, adding");
+						tasksByServiceAndFacility.put(
+								new Pair<Integer, Integer>(
+										local_task.getExecServiceId(), 
+										local_task.getFacilityId()), 
+								task);
+						
+					}
+					if(local_status != null && local_status != local_task.getStatus()) {
+						log.debug("  task listed with wrong status, removing");
+						if(pool.get(local_status) != null) {
+							pool.get(local_status).remove(local_task.getId());
+						} else {
+							log.error("  no task list for status " + local_status);
+						}
+					}
+					if(pool.get(local_task.getStatus()) != null &&
+							!pool.get(local_task.getStatus()).contains(local_task)) {
+						log.debug("  task not listed with its status, adding");
+						pool.get(local_task.getStatus()).add(local_task);
+					}
+				}
+			}
+		}
 	}
 
 }

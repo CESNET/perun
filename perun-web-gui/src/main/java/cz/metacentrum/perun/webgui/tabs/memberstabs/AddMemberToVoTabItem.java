@@ -108,9 +108,9 @@ public class AddMemberToVoTabItem implements TabItem, TabItemWithUrl {
 		mainTab.setCellHeight(tabMenu, "30px");
 
 		addCandidatesButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedCandidateToVo());
-		inviteCandidatesButton = new CustomButton("Invite user(s)", SmallIcons.INSTANCE.emailIcon());
+		inviteCandidatesButton = new CustomButton("Invite selected", SmallIcons.INSTANCE.emailIcon());
 
-		final FindCandidatesOrUsersToAddToVo findAll = new FindCandidatesOrUsersToAddToVo(voId, "");
+		final FindCandidatesOrUsersToAddToVo findAll = new FindCandidatesOrUsersToAddToVo(voId, 0, "");
 
 		final CustomButton searchButton = new CustomButton("Search", SmallIcons.INSTANCE.findIcon());
 

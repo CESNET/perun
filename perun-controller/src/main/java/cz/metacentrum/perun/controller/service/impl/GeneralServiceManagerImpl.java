@@ -6,20 +6,22 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
+import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -73,12 +75,12 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public int insertExecService(PerunSession perunSession, ExecService execService, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException {
+	public int insertExecService(PerunSession perunSession, ExecService execService) throws InternalErrorException, PrivilegeException, ServiceExistsException {
 		Service service = null;
 		try {
 			service = servicesManager.getServiceByName(perunSession, execService.getService().getName());
 		} catch (ServiceNotExistsException e) {
-			service = servicesManager.createService(perunSession, execService.getService(), owner);
+			service = servicesManager.createService(perunSession, execService.getService());
 		}
 		execService.setService(service);
 		return execServiceDao.insertExecService(execService);
@@ -96,8 +98,13 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public void banExecServiceOnFacility(PerunSession sess, ExecService execService, Facility facility) throws InternalErrorException {
-		execServiceDenialDao.banExecServiceOnFacility(execService.getId(), facility.getId());
+	@Transactional(rollbackFor = Exception.class)
+	public void banExecServiceOnFacility(PerunSession sess, ExecService execService, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException {
+		try {
+			execServiceDenialDao.banExecServiceOnFacility(execService.getId(), facility.getId());
+		} catch (DuplicateKeyException ex) {
+			throw new ServiceAlreadyBannedException(execService.getService(), facility);
+		}
 		sess.getPerun().getAuditer().log(sess, "{} {} on {}", BAN_SERVICE, execService, facility);
 	}
 
@@ -139,7 +146,7 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 	}
 
 	@Override
-	public void freeDenialOfExecServiceOnFacility(PerunSession sess, ExecService execService, Facility facility) throws InternalErrorException{
+	public void freeDenialOfExecServiceOnFacility(PerunSession sess, ExecService execService, Facility facility) throws InternalErrorException {
 		execServiceDenialDao.freeDenialOfExecServiceOnFacility(execService.getId(), facility.getId());
 		sess.getPerun().getAuditer().log(sess, "{} {} on {}", FREE_DEN_OF_EXECSERVICE, execService, facility);
 	}
@@ -295,5 +302,48 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 
 	public ServicesManager getServicesManager() {
 		return servicesManager;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public Service createCompleteService(PerunSession perunSession, String serviceName, String scriptPath, int defaultDelay, boolean enabled) throws InternalErrorException, PrivilegeException, ServiceExistsException {
+
+		if (!AuthzResolver.isAuthorized(perunSession, Role.PERUNADMIN)) {
+			throw new PrivilegeException(perunSession, "createCompleteService");
+		}
+
+		Service service = null;
+
+		try {
+			service = servicesManager.getServiceByName(perunSession, serviceName);
+			if (service != null) {
+				throw new ServiceExistsException(service);
+			}
+		} catch (ServiceNotExistsException e) {
+			service = new Service();
+			service.setName(serviceName);
+			service = servicesManager.createService(perunSession, service);
+		}
+
+		ExecService genExecService = new ExecService();
+		genExecService.setService(service);
+		genExecService.setDefaultDelay(defaultDelay);
+		genExecService.setEnabled(enabled);
+		genExecService.setScript(scriptPath);
+		genExecService.setExecServiceType(ExecServiceType.GENERATE);
+		genExecService.setId(execServiceDao.insertExecService(genExecService));
+
+		ExecService sendExecService = new ExecService();
+		sendExecService.setService(service);
+		sendExecService.setDefaultDelay(defaultDelay);
+		sendExecService.setEnabled(enabled);
+		sendExecService.setScript(scriptPath);
+		sendExecService.setExecServiceType(ExecServiceType.SEND);
+		sendExecService.setId(execServiceDao.insertExecService(sendExecService));
+
+		this.createDependency(sendExecService, genExecService);
+
+		return service;
+
 	}
 }

@@ -71,6 +71,8 @@ public class MemberApplicationsTabItem implements TabItem {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		// set proper request
 		if (session.isVoAdmin(member.getVoId())) {
 			applicationsRequest = new GetApplicationsForMember(memberId, 0);
@@ -79,10 +81,13 @@ public class MemberApplicationsTabItem implements TabItem {
 			applicationsRequest = new GetApplicationsForMember(memberId, groupId);
 		} else if (session.isVoObserver(member.getVoId())) {
 			applicationsRequest = new GetApplicationsForMember(memberId, 0);
-			applicationsRequest.setCheckable(false);
 		}
 
+		applicationsRequest.setCheckable(false);
+
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
+
+		/*
 
 		// verify button
 		final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
@@ -185,6 +190,7 @@ public class MemberApplicationsTabItem implements TabItem {
 		menu.addWidget(reject);
 		menu.addWidget(delete);
 
+		*/
 
 		menu.addFilterWidget(new ExtendedSuggestBox(applicationsRequest.getOracle()), new PerunSearchEvent() {
 			@Override
@@ -206,6 +212,7 @@ public class MemberApplicationsTabItem implements TabItem {
 
 		vp.add(sp);
 
+		/*
 		verify.setEnabled(false);
 		approve.setEnabled(false);
 		reject.setEnabled(false);
@@ -217,6 +224,7 @@ public class MemberApplicationsTabItem implements TabItem {
 			JsonUtils.addTableManagedButton(applicationsRequest, table, reject);
 			JsonUtils.addTableManagedButton(applicationsRequest, table, delete);
 		}
+		*/
 
 		this.contentWidget.setWidget(vp);
 

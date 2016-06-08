@@ -113,8 +113,8 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		} else {
 			text += app.getCreatedBy();
 		}
-		text += " <strong>from:</strong> " + app.getExtSourceName()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
-		text += " <strong>at: </strong> " + app.getCreatedAt().split("\\.")[0];
+		text += " <strong>from External Source:</strong> " + app.getExtSourceName()+" <strong>with Level of Assurance:</strong> " + app.getExtSourceLoa();
+		text += " <strong>on: </strong> " + app.getCreatedAt().split("\\.")[0];
 		ft.setHTML(row, 0, text);
 		ft.setCellSpacing(5);
 
@@ -128,11 +128,11 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 		if (app.getState().equalsIgnoreCase("APPROVED")) {
 			row++;
-			ft.setHTML(row, 0, "<strong>Approved by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>at: </strong> " + app.getModifiedAt().split("\\.")[0]);
+			ft.setHTML(row, 0, "<strong>Approved by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>on: </strong> " + app.getModifiedAt().split("\\.")[0]);
 		}
 		if (app.getState().equalsIgnoreCase("REJECTED")) {
 			row++;
-			ft.setHTML(row, 0, "<strong>Rejected by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>at: </strong> " + app.getModifiedAt().split("\\.")[0]);
+			ft.setHTML(row, 0, "<strong>Rejected by:</strong> " + ((app.getModifiedBy().equalsIgnoreCase("perunRegistrar")) ? "automatically" : Utils.convertCertCN(app.getModifiedBy())) + " <strong>on: </strong> " + app.getModifiedAt().split("\\.")[0]);
 		}
 
 		// for extension in VO if not approved or rejected
@@ -176,24 +176,23 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 
 		// only NEW apps can be Verified
 		if (app.getState().equals("NEW")) {
-
-			// verify button
-			final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
-			verify.setEnabled(session.isPerunAdmin());
-			menu.addWidget(verify);
-			verify.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, new JsonCallbackEvents() {
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							app = jso.cast();
-							draw();
-						}
-					}));
-					request.verifyApplication(appId);
-				}
-			});
-
+			if (session.isPerunAdmin()) {
+				// verify button
+				final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
+				menu.addWidget(verify);
+				verify.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						HandleApplication request = new HandleApplication(JsonCallbackEvents.disableButtonEvents(verify, new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								app = jso.cast();
+								draw();
+							}
+						}));
+						request.verifyApplication(appId);
+					}
+				});
+			}
 		}
 
 		// only VERIFIED apps can be approved/rejected
@@ -385,8 +384,8 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 
-		menu.addWidget(new HTML("<strong>TYPE: </strong>"+app.getType()));
-		menu.addWidget(new HTML("<strong>STATE: </strong>"+app.getState()));
+		menu.addWidget(new HTML("<strong>TYPE: </strong>"+Application.getTranslatedType(app.getType())));
+		menu.addWidget(new HTML("<strong>STATE: </strong>"+Application.getTranslatedState(app.getState())));
 
 		GetApplicationDataById data = new GetApplicationDataById(appId);
 		data.retrieveData();
@@ -395,7 +394,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		vp.add(sp);
 		vp.setCellHorizontalAlignment(sp, HasHorizontalAlignment.ALIGN_CENTER);
 
-		session.getUiElements().resizePerunTable(sp, 400);
+		session.getUiElements().resizePerunTable(sp, 400, this);
 
 		this.contentWidget.setWidget(vp);
 		return getWidget();

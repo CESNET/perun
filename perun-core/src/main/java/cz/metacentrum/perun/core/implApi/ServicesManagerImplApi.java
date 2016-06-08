@@ -2,12 +2,10 @@ package cz.metacentrum.perun.core.implApi;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
@@ -43,7 +41,7 @@ public interface ServicesManagerImplApi {
 	 * @param service
 	 * @return new service
 	 */
-	Service createService(PerunSession perunSession, Service service, Owner owner) throws InternalErrorException;
+	Service createService(PerunSession perunSession, Service service) throws InternalErrorException;
 
 	/** Deletes the service.
 	 *
@@ -377,6 +375,16 @@ public interface ServicesManagerImplApi {
 	List<Destination> getDestinations(PerunSession perunSession) throws InternalErrorException;
 
 	/**
+	 * Get lists of all destinations for specific Facility
+	 *
+	 * @param perunSession
+	 * @param facility the facility
+	 * @return lists of all destinations for specific Facility
+	 * @throws InternalErrorException
+	 */
+	List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
+
+	/**
 	 * Get list of all rich destinations defined for the facility.
 	 *
 	 * @param perunSession
@@ -418,16 +426,13 @@ public interface ServicesManagerImplApi {
 	void removeAllDestinations(PerunSession perunSession, Service service, Facility facility) throws InternalErrorException;
 
 	/**
-	 * Returns id of the owner of the service.
+	 * Removes all defined destinations for the facility.
 	 *
 	 * @param perunSession
-	 * @param service
-	 *
-	 * @return id of owner of specified service
-	 *
+	 * @param facility the facility
 	 * @throws InternalErrorException
 	 */
-	int getOwnerId(PerunSession perunSession, Service service) throws InternalErrorException;
+	void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	@Deprecated
 	int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException;

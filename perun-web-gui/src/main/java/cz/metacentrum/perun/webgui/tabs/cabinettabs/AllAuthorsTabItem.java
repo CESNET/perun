@@ -5,6 +5,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllAuthors;
@@ -13,6 +14,7 @@ import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
 
@@ -56,6 +58,12 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 		VerticalPanel vp = new VerticalPanel();
 		vp.getElement().setAttribute("style", "padding-top: 5px;");
 		vp.setSize("100%", "100%");
+
+		// MENU
+		TabMenu menu = new TabMenu();
+		vp.add(menu);
+		vp.setCellHeight(menu, "30px");
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		FindAllAuthors callback = new FindAllAuthors();
 		CellTable<Author> table = callback.getTable(new FieldUpdater<Author, String>() {

@@ -27,7 +27,7 @@ public class PerunServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findOwnersIntegrationTest() throws InternalErrorException, PrivilegeException, CabinetException {
-		System.out.println("findOwnersIntegrationTest()");
+		System.out.println("PerunServiceImpl.findOwnersIntegrationTest");
 
 		Owner owner = new Owner();
 		owner.setName("cabinetOwner");
@@ -45,7 +45,7 @@ public class PerunServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findUserByNameIntegrationTest() throws Exception {
-		System.out.println("findLoginNamespacesByUserIntegrationTest()");
+		System.out.println("PerunServiceImpl.findLoginNamespacesByUserIntegrationTest");
 
 		List<User> users = perun.getUsersManager().findUsersByName(sess, "", "", "", "cabinetTestUser", "");
 		assertNotNull(users);
@@ -54,7 +54,7 @@ public class PerunServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void findAuthorById() throws Exception {
-		System.out.println("findAuthorById()");
+		System.out.println("PerunServiceImpl.findAuthorById");
 
 		Author auth = authorService.findAuthorByUserId(USER_ID);
 		assertNotNull(auth);
@@ -63,7 +63,7 @@ public class PerunServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void getAuthorsCount() throws Exception {
-		System.out.println("getAuthorsCount()");
+		System.out.println("PerunServiceImpl.getAuthorsCount");
 
 		int count = perunService.getUsersCount(sess);
 		assertTrue("Authors count should be > 0", count > 0);

@@ -4,14 +4,13 @@ import java.util.List;
 
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyBannedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -108,15 +107,13 @@ public interface GeneralServiceManager {
 	 *
 	 * @param perunSession
 	 * @param execService execService to insert
-	 * @param owner if the parent service doesn't exist it will be created with this owner
 	 * @return a new execService id
 	 *
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
-	 * @throws OwnerNotExistsException
 	 * @throws ServiceExistsException
 	 */
-	public int insertExecService(PerunSession perunSession, ExecService execService, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException;
+	public int insertExecService(PerunSession perunSession, ExecService execService) throws InternalErrorException, PrivilegeException, ServiceExistsException;
 
 	/**
 	 * Updates the ExecService as well as the parent Service.
@@ -145,8 +142,9 @@ public interface GeneralServiceManager {
 	 * @param execService The execService to be banned on the facility
 	 * @param facility The facility on which we want to ban the execService
 	 * @throws InternalErrorException
+	 * @throws ServiceAlreadyBannedException
 	 */
-	public void banExecServiceOnFacility(PerunSession perunSession, ExecService execService, Facility facility) throws InternalErrorException;
+	public void banExecServiceOnFacility(PerunSession perunSession, ExecService execService, Facility facility) throws InternalErrorException, ServiceAlreadyBannedException;
 
 	/**
 	 * Bans execService on destination.
@@ -360,7 +358,24 @@ public interface GeneralServiceManager {
 	 * @throws FacilityNotExistsException
 	 * @throws InternalErrorException
 	 */
-	List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException ;
+	List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException;
 
+	/**
+	 * Creates 2 ExecServices, first one has type GENERATE, second one has type SEND. 
+	 * Method also creates dependency of SEND service on GENERATE service.
+	 *
+	 * @param perunSession
+	 * @param serviceName name of the service
+	 * @param scriptPath path to the gen/send script
+	 * @param defaultDelay
+	 * @param enabled
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException The method can be executed only by 
+	 * PERUNADMIN user, otherwise the PrivilegeException is thrown.
+	 * @throws ServiceExistsException Exception is thrown when you're trying
+	 * to create a service that already exists
+	 * @return Service Created service with <code>id</code> set.
+	 */
+	Service createCompleteService(PerunSession perunSession, String serviceName, String scriptPath, int defaultDelay, boolean enabled) throws InternalErrorException, PrivilegeException, ServiceExistsException;
 
 }

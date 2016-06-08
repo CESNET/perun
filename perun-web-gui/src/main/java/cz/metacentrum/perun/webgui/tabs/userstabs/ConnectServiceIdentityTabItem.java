@@ -12,7 +12,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.usersManager.AddServiceUserOwner;
+import cz.metacentrum.perun.webgui.json.usersManager.AddSpecificUserOwner;
 import cz.metacentrum.perun.webgui.json.usersManager.FindCompleteRichUsers;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -97,7 +97,7 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 		// add button
 		final CustomButton addButton;
 
-		if (user.isServiceUser()) {
+		if (user.isServiceUser() || user.isSponsoredUser()) {
 			addButton = new CustomButton("Connect", "Add selected users to this identity",SmallIcons.INSTANCE.addIcon());
 		} else {
 			addButton = new CustomButton("Connect", "Add selected identities to user",SmallIcons.INSTANCE.addIcon());
@@ -112,7 +112,12 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 		final FindCompleteRichUsers call = new FindCompleteRichUsers("", null);
 		if (user.isServiceUser()) {
 			call.hideService(true);
-		} else {
+		}
+		if (user.isSponsoredUser()) {
+			call.hideSponsored(true);
+			call.hideService(true);
+		}
+		if (!user.isSpecificUser()) {
 			call.hidePerson(true);
 		}
 
@@ -137,23 +142,22 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 				ArrayList<User> list = call.getTableSelectedList();
 				for (int i = 0; i < list.size(); i++) {
 					// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-					AddServiceUserOwner req;
+					AddSpecificUserOwner req;
 					if (i == list.size() - 1) {
-						req = new AddServiceUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
+						req = new AddSpecificUserOwner(JsonCallbackEvents.closeTabDisableButtonEvents(addButton, tab));
 					} else {
-						req = new AddServiceUserOwner(JsonCallbackEvents.disableButtonEvents(addButton));
+						req = new AddSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(addButton));
 					}
-					if (user.isServiceUser()) {
+					if (user.isServiceUser() || user.isSponsoredUser()) {
 						// service user adds user
-						req.addServiceUser(list.get(i), user);
+						req.addSpecificUser(list.get(i), user);
 					} else {
 						// user adds service users
-						req.addServiceUser(user, list.get(i));
+						req.addSpecificUser(user, list.get(i));
 					}
 				}
 			}
 		});
-
 
 		FieldUpdater<User, String> fieldUpdater = null;
 		if (session.isPerunAdmin()) {
@@ -191,7 +195,6 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 	public ImageResource getIcon() {
 		return SmallIcons.INSTANCE.addIcon();
 	}
-
 
 	@Override
 	public int hashCode() {
@@ -242,13 +245,11 @@ public class ConnectServiceIdentityTabItem implements TabItem, TabItemWithUrl {
 		return URL;
 	}
 
-	public String getUrlWithParameters()
-	{
+	public String getUrlWithParameters() {
 		return UsersTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + userId;
 	}
 
-	static public ConnectServiceIdentityTabItem load(Map<String, String> parameters)
-	{
+	static public ConnectServiceIdentityTabItem load(Map<String, String> parameters) {
 		int uid = Integer.parseInt(parameters.get("id"));
 		return new ConnectServiceIdentityTabItem(uid);
 	}

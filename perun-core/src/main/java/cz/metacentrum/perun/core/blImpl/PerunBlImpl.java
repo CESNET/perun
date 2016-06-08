@@ -7,6 +7,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.AuditMessagesManager;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.DatabaseManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessagesManager;
 import cz.metacentrum.perun.core.api.ResourcesManager;
 import cz.metacentrum.perun.core.api.Searcher;
+import cz.metacentrum.perun.core.api.SecurityTeamsManager;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.UsersManager;
@@ -42,6 +44,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.bl.SearcherBl;
+import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
 import cz.metacentrum.perun.core.bl.ServicesManagerBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.bl.VosManagerBl;
@@ -67,6 +70,7 @@ public class PerunBlImpl implements PerunBl {
 	private OwnersManager ownersManager = null;
 	private AuditMessagesManager auditMessagesManager = null;
 	private RTMessagesManager rtMessagesManager = null;
+	private SecurityTeamsManager securityTeamsManager = null;
 	private Searcher searcher = null;
 
 	private ModulesUtilsBl modulesUtilsBl = null;
@@ -83,6 +87,7 @@ public class PerunBlImpl implements PerunBl {
 	private OwnersManagerBl ownersManagerBl = null;
 	private AuditMessagesManagerBl auditMessagesManagerBl = null;
 	private RTMessagesManagerBl rtMessagesManagerBl = null;
+	private SecurityTeamsManagerBl securityTeamsManagerBl = null;
 	private AuthzResolverBl authzResolverBl = null;
 	private SearcherBl searcherBl = null;
 
@@ -173,6 +178,14 @@ public class PerunBlImpl implements PerunBl {
 
 	public void setRTMessagesManager(RTMessagesManager rtMessagesManager) {
 		this.rtMessagesManager = rtMessagesManager;
+	}
+
+	public SecurityTeamsManager getSecurityTeamsManager() {
+		return securityTeamsManager;
+	}
+
+	public void setSecurityTeamsManager(SecurityTeamsManager securityTeamsManager) {
+		this.securityTeamsManager = securityTeamsManager;
 	}
 
 	public void setVosManager(VosManager vosManager) {
@@ -363,6 +376,14 @@ public class PerunBlImpl implements PerunBl {
 		this.ownersManagerBl = ownersManagerBl;
 	}
 
+	public SecurityTeamsManagerBl getSecurityTeamsManagerBl() {
+		return securityTeamsManagerBl;
+	}
+
+	public void setSecurityTeamsManagerBl(SecurityTeamsManagerBl securityTeamsManagerBl) {
+		this.securityTeamsManagerBl = securityTeamsManagerBl;
+	}
+
 	public Auditer getAuditer() {
 		return this.auditer;
 	}
@@ -387,22 +408,28 @@ public class PerunBlImpl implements PerunBl {
 		this.searcherBl = searcherBl;
 	}
 
+	@Override
+	public boolean isPerunReadOnly() {
+		return BeansUtils.isPerunReadOnly();
+	}
+
 	/**
 	 * Call managers' initialization methods
 	 */
 	public void initialize() throws InternalErrorException {
 		this.extSourcesManagerBl.initialize(this.getPerunSession());
+		this.auditer.initialize();
 	}
 
 	/**
 	 * Creates a Perun instance.
 	 * <p/>
 	 * Uses {@link org.springframework.context.support.ClassPathXmlApplicationContext#ClassPathXmlApplicationContext(String...)}
-	 * to load files perun-beans.xml and  perun-datasources.xml from CLASSPATH.
+	 * to load files perun-core.xml and  perun-core-jdbc.xml from CLASSPATH.
 	 * <p/>
 	 * <h3>Web applications</h3>
 	 * <p>In web applications, use {@link org.springframework.web.context.WebApplicationContext} to either load
-	 * the same files, or load just  perun-beans.xml and provide your own definition of {@link javax.sql.DataSource}
+	 * the same files, or load just  perun-core.xml and provide your own definition of {@link javax.sql.DataSource}
 	 * with id dataSource.</p>
 	 * <p>The use {link org.springframework.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext}
 	 * to retrieve the context, i.e. add to web.xml the following:</p>
@@ -412,7 +439,7 @@ public class PerunBlImpl implements PerunBl {
 	 * &lt;/listener&gt;
 	 * &lt;context-param&gt;
 	 *   &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-	 *   &lt;param-value&gt;classpath:perun-beans.xml,classpath:perun-datasources.xml&lt;/param-value&gt;
+	 *   &lt;param-value&gt;classpath:perun-core.xml,classpath:perun-core-jdbc.xml&lt;/param-value&gt;
 	 * &lt;/context-param&gt;
 	 * </pre>
 	 * and in servlets use this code:
@@ -430,7 +457,7 @@ public class PerunBlImpl implements PerunBl {
 	 *
 	 * Put following code in your Spring Application Context xml file:
 	 *
-	 *     <import resource="classpath:perun-beans.xml"/>
+	 *     <import resource="classpath:perun-core.xml"/>
 	 *
 	 *
 	 * @return Perun instance
@@ -454,6 +481,7 @@ public class PerunBlImpl implements PerunBl {
 			"extSourcesManager='" + extSourcesManager + "', " +
 			"attributesManager='" + attributesManager + "', " +
 			"rtMessagesManager='" + rtMessagesManager + "', " +
+			"securityTeamsManager='" + securityTeamsManager + "', " +
 			"searcher='" + searcher + "', " +
 			"servicesManager='" + servicesManager + "']";
 	}

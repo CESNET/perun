@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
@@ -30,15 +29,12 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 @org.springframework.stereotype.Service(value = "schedulingPool")
 // Spring 3.0 default...
 @Scope(value = "singleton")
-public class SchedulingPoolImpl implements SchedulingPool, TaskResultListener {
+public class SchedulingPoolImpl implements SchedulingPool{
 
 	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
 
 	private Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
 	private Map<Integer, Task> taskIdMap = new ConcurrentHashMap<Integer, Task>();
-
-	@Autowired
-	private TaskManager taskManager;
 
 	/*
 	 * private BufferedWriter out = null; private FileWriter fstream = null;
@@ -69,40 +65,42 @@ public class SchedulingPoolImpl implements SchedulingPool, TaskResultListener {
 				pool.get(task.getStatus()).add(task);
 			}
 		}
-		// XXX should this be synchronized too?
-		task.setSchedule(new Date(System.currentTimeMillis()));
-		try {
-			taskManager.insertTask(task, 0);
-			log.debug("adding task " + task.toString() + " to database");
-		} catch (InternalErrorException e) {
-			log.error("Error storing task into database: " + e.getMessage());
-		}
 		return this.getSize();
 	}
 
 	@Override
 	public List<Task> getPlannedTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.PLANNED));
+		}
 	}
 
 	@Override
 	public List<Task> getNewTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.NONE));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.NONE));
+		}
 	}
 
 	@Override
 	public List<Task> getProcessingTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.PROCESSING));
+		}
 	}
 
 	@Override
 	public List<Task> getErrorTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.ERROR));
+		}
 	}
 
 	@Override
 	public List<Task> getDoneTasks() {
-		return new ArrayList<Task>(pool.get(TaskStatus.DONE));
+		synchronized(pool) {
+			return new ArrayList<Task>(pool.get(TaskStatus.DONE));
+		}
 	}
 
 	@Override
@@ -110,11 +108,20 @@ public class SchedulingPoolImpl implements SchedulingPool, TaskResultListener {
 		TaskStatus old = task.getStatus();
 		task.setStatus(status);
 		// move task to the appropriate place
-		if (!old.equals(status)) {
-			pool.get(old).remove(task);
-			pool.get(status).add(task);
+		synchronized(pool) {
+			if (!old.equals(status)) {
+				if(pool.get(old) != null) {
+					pool.get(old).remove(task);
+				} else {
+					log.warn("Task " + task.getId() + "not known by old status");
+				}
+				if(pool.get(status) != null) {
+					pool.get(status).add(task);
+				} else {
+					log.error("No task pool for status " + status.toString());
+				}
+			}
 		}
-		taskManager.updateTask(task, 0);
 	}
 
 	@Override
@@ -144,7 +151,6 @@ public class SchedulingPoolImpl implements SchedulingPool, TaskResultListener {
 			}
 			taskIdMap.remove(task.getId());
 		}
-		taskManager.removeTask(task.getId(), 0);
 	}
 
 	@Override
@@ -192,20 +198,12 @@ public class SchedulingPoolImpl implements SchedulingPool, TaskResultListener {
 	}
 
 	@Override
+	@Deprecated
 	public void reloadTasks(int engineID) {
-		this.clearPool();
-		for (Task task : taskManager.listAllTasks(engineID)) {
-			TaskStatus status = task.getStatus();
-			if (status == null) {
-				task.setStatus(TaskStatus.NONE);
-			}
-			if (!pool.get(task.getStatus()).contains(task.getId())) {
-				pool.get(task.getStatus()).add(task);
-			}
-			// XXX should this be synchronized too?
-			taskIdMap.put(task.getId(), task);
-		}
-
+		/*
+		 * this.clearPool();
+		 * 
+		 */
 	}
 
 	private void clearPool() {
@@ -214,22 +212,6 @@ public class SchedulingPoolImpl implements SchedulingPool, TaskResultListener {
 		for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
 			pool.put(status, new ArrayList<Task>());
 		}
-	}
-
-	// implementation of TaskResultListener interface
-	// - meant for GEN tasks
-	// - does not take into account destinations, once the method is called, the
-	// task status is set accordingly
-	@Override
-	public void onTaskDestinationDone(Task task, Destination destination,
-			TaskResult result) {
-		this.setTaskStatus(task, TaskStatus.DONE);
-	}
-
-	@Override
-	public void onTaskDestinationError(Task task, Destination destination,
-			TaskResult result) {
-		this.setTaskStatus(task, TaskStatus.ERROR);
 	}
 
 	/*

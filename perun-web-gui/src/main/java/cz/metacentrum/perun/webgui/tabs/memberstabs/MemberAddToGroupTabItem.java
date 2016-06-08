@@ -74,6 +74,10 @@ public class MemberAddToGroupTabItem implements TabItem {
 			@Override
 			public void searchFor(String text) {
 				groups.filterTable(text);
+				if (groups.getList().size() == 1) {
+					// select if filtered result is single group
+					groups.getSelectionModel().setSelected(groups.getList().get(0), true);
+				}
 			}
 		}, "Filter groups by name");
 

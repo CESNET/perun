@@ -26,4 +26,11 @@ public class Collator {
 		return o1.localeCompare(o2);
 	}-*/;
 
+	/**
+	 * Compares two strings in localized way ignoring case
+	 */
+	public final native int compareIgnoreCase(String o1, String o2) /*-{
+		return o1.toLocaleLowerCase().localeCompare(o2.toLocaleLowerCase());
+	}-*/;
+
 }

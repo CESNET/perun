@@ -1,10 +1,7 @@
 package cz.metacentrum.perun.webgui.json.membersManager;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
@@ -63,8 +60,7 @@ public class CreateMember {
 	 * @param candidate candidate to be member
 	 *
 	 */
-	public void createMember(final int voId, Group group, final Candidate candidate)
-	{
+	public void createMember(final int voId, Group group, final Candidate candidate) {
 
 		this.voId = voId;
 		this.group = group;
@@ -72,6 +68,12 @@ public class CreateMember {
 
 		// test arguments
 		if(!this.testAdding()){
+			return;
+		}
+
+		if (!session.isVoAdmin(voId)) {
+			// GROUP ADMIN HAVE OWN PROCESSING
+			createMemberAsGroupAdmin(voId, group, candidate);
 			return;
 		}
 
@@ -101,6 +103,77 @@ public class CreateMember {
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
 		jspc.sendData(JSON_URL, prepareJSONObject());
+
+	}
+
+	/**
+	 * Attempts to create member in VO from candidate for Group admin
+	 *
+	 * @param voId vo where member should be created
+	 * @param group where member should be created
+	 * @param candidate candidate to be member
+	 *
+	 */
+	public void createMemberAsGroupAdmin(final int voId, Group group, final Candidate candidate) {
+
+		this.voId = voId;
+		this.group = group;
+		this.candidate = candidate;
+
+		// test arguments
+		if(!this.testAdding()){
+			return;
+		}
+
+		// new events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Creating member: " + candidate.getDisplayName() + " failed.");
+				events.onError(error);
+			};
+
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("Member "+ candidate.getDisplayName() +" created !");
+				events.onFinished(jso);
+			};
+
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
+
+		// create whole JSON query
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("vo", new JSONNumber(voId));
+
+		if (group != null) {
+			// GROUP OBJECT
+			JSONObject oldGroup = new JSONObject(group);
+			// RECONSTRUCT OBJECT
+			JSONObject newGroup = new JSONObject();
+			newGroup.put("id", oldGroup.get("id"));
+			// fake new group short name as name in order to update
+			newGroup.put("name", oldGroup.get("name"));
+			newGroup.put("shortName", oldGroup.get("shortName"));
+			newGroup.put("description", oldGroup.get("description"));
+			newGroup.put("voId", oldGroup.get("voId"));
+			newGroup.put("parentGroupId", oldGroup.get("parentGroupId"));
+			newGroup.put("beanName", oldGroup.get("beanName"));
+
+			JSONArray arr = new JSONArray();
+			arr.set(0, newGroup);
+			jsonQuery.put("groups", arr);
+		}
+
+		if (candidate != null) {
+			ExtSource source = candidate.getUserExtSource().getExtSource();
+			jsonQuery.put("extSource", new JSONNumber(source.getId()));
+			jsonQuery.put("login", new JSONString(candidate.getUserExtSource().getLogin()));
+		}
+
+		// sending data
+		JsonPostClient jspc = new JsonPostClient(newEvents);
+		jspc.sendData(JSON_URL, jsonQuery);
 
 	}
 
@@ -195,7 +268,7 @@ public class CreateMember {
 		String errorMsg = "";
 
 		if(voId == 0){
-			errorMsg += "Wrong 'Vo' parametr.\n";
+			errorMsg += "Wrong 'Vo' parameter.\n";
 			result = false;
 		}
 

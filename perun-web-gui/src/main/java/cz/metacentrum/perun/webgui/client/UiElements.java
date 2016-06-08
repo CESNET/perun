@@ -30,10 +30,7 @@ import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.userstabs.SelfDetailTabItem;
-import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
-import cz.metacentrum.perun.webgui.widgets.BreadcrumbsWidget;
-import cz.metacentrum.perun.webgui.widgets.Confirm;
-import cz.metacentrum.perun.webgui.widgets.LogoutButton;
+import cz.metacentrum.perun.webgui.widgets.*;
 
 import java.util.*;
 
@@ -70,7 +67,6 @@ public class UiElements {
 	// pending requests widget displayed in menu
 	//private GetPendingRequests pendingRequests;
 
-	// tabs
 	private int tabCount = 0;
 	private HashMap<Integer, Widget> allTabs = new HashMap<Integer, Widget>(); // key is UNIQUE ID, value is content widget
 	private ArrayList<Integer> tabsHistory = new ArrayList<Integer>(); // History of opened tabs (UNIQUE ID)
@@ -737,16 +733,16 @@ public class UiElements {
 	 * @param visible true = show log / false = hide log
 	 */
 	private native void setLogVisible(boolean visible)/*-{
-        var logHeight = 200;
-        var logBottomSpace = 30;
+		var logHeight = 200;
+		var logBottomSpace = 30;
 
-        if (visible) {
-            $wnd.jQuery("#perun-log").animate({ bottom: logBottomSpace + "px"}, 'fast');
-        }
-        else {
-            $wnd.jQuery("#perun-log").animate({ bottom: (-logHeight - 10) + "px" }, 'fast');
-        }
-    }-*/;
+		if (visible) {
+			$wnd.jQuery("#perun-log").animate({ bottom: logBottomSpace + "px"}, 'fast');
+		}
+		else {
+			$wnd.jQuery("#perun-log").animate({ bottom: (-logHeight - 10) + "px" }, 'fast');
+		}
+	}-*/;
 
 	/**
 	 * Adds log entry into the devel log widget.
@@ -864,18 +860,18 @@ public class UiElements {
 	 */
 	public native void setStatus(String text)/*-{
 
-        clearTimeout($wnd.hideStatusTimeout);
+		clearTimeout($wnd.hideStatusTimeout);
 
-        $wnd.jQuery("#perun-status").text(text);
-        $wnd.jQuery("#perun-status").animate({ top: "0px" }, 200);
+		$wnd.jQuery("#perun-status").text(text);
+		$wnd.jQuery("#perun-status").animate({ top: "0px" }, 200);
 
-        // after a while, hide it
-        $wnd.hideStatusTimeout = setTimeout(function () {
-            $wnd.jQuery("#perun-status").animate({ top: "-300px" }, 500);
-            $wnd.jQuery("#perun-status").text("");
-        }, 5000);
+		// after a while, hide it
+		$wnd.hideStatusTimeout = setTimeout(function () {
+			$wnd.jQuery("#perun-status").animate({ top: "-300px" }, 500);
+			$wnd.jQuery("#perun-status").text("");
+		}, 5000);
 
-    }-*/;
+	}-*/;
 
 	/**
 	 * Returns the MainMenu class
@@ -1352,7 +1348,7 @@ public class UiElements {
         /* Chrome 19+, Firefox 14+, Explorer 9+ */
 
         /* Opera and IE8 fallback */
-		if (isOperaBeforeFifteen() || isExplorerBeforeNine()) {
+		if (isExplorerBeforeNine()) {
 
 			// autoresize
 			UiElements.addResizeCommand(new Command() {
@@ -1408,27 +1404,27 @@ public class UiElements {
 
 	public static native boolean isOperaBeforeFifteen() /*-{
 
-        if (typeof opera != "undefined") {
-            //do stuffs, for example
-            return ($wnd.opera.version().indexOf("15.") == -1);
-        }
-        return false;
+		if (typeof opera != "undefined") {
+			//do stuffs, for example
+			return ($wnd.opera.version().indexOf("15.") == -1);
+		}
+		return false;
 
-    }-*/;
+	}-*/;
 
 	public static native boolean isExplorerBeforeNine() /*-{
 
-        if (navigator.appName.indexOf("Internet Explorer") != -1) {
-            var number = navigator.appVersion.match(/MSIE ([\d.]+)/)[1];
-            if (number != null) {
-                if (number < 9.0) {
-                    return true;
-                }
-            }
-        }
-        return false;
+		if (navigator.appName.indexOf("Internet Explorer") != -1) {
+			var number = navigator.appVersion.match(/MSIE ([\d.]+)/)[1];
+			if (number != null) {
+				if (number < 9.0) {
+					return true;
+				}
+			}
+		}
+		return false;
 
-    }-*/;
+	}-*/;
 
 	/**
 	 * Changes the position of tab headers - when more tabs than page width
@@ -1438,37 +1434,37 @@ public class UiElements {
 	 */
 	public static native void moveTabs(int position, boolean absolute) /*-{
 
-        // get current
-        var left;
-        var newLeft;
+		// get current
+		var left;
+		var newLeft;
 
-        if (absolute) {
-            newLeft = position;
-            left = 30;
-        } else {
-            left = parseInt($wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left"), 10);
-            newLeft = left + position;
-        }
+		if (absolute) {
+			newLeft = position;
+			left = 30;
+		} else {
+			left = parseInt($wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left"), 10);
+			newLeft = left + position;
+		}
 
-        // if wrong value
-        if (newLeft > 30) {
+		// if wrong value
+		if (newLeft > 30) {
 
-            // if already 0
-            if (left == 30) {
-                return;
-            }
+			// if already 0
+			if (left == 30) {
+				return;
+			}
 
-            // if higher - move to 0
-            newLeft = 30;
-        }
+			// if higher - move to 0
+			newLeft = 30;
+		}
 
-        // update - without animation
-        //$wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left", newLeft + "px");
+		// update - without animation
+		//$wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left", newLeft + "px");
 
-        // update - with animation
-        $wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().animate({ left: newLeft }, 'fast');
+		// update - with animation
+		$wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().animate({ left: newLeft }, 'fast');
 
-    }-*/;
+	}-*/;
 
 	/**
 	 * Return tabs offset
@@ -1477,10 +1473,10 @@ public class UiElements {
 	 */
 	public static native int getTabsLeftOffset() /*-{
 
-        // get current
-        return parseInt($wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left"), 10);
+		// get current
+		return parseInt($wnd.jQuery(".mainTabPanel .gwt-TabLayoutPanelTabs").first().css("left"), 10);
 
-    }-*/;
+	}-*/;
 
 
 	/**
@@ -1516,10 +1512,14 @@ public class UiElements {
 		// process roles to display
 		String roles = "";
 		// only self
-		if (session.isSelf() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin() || session.isFacilityAdmin() || session.isVoObserver())) {
+		if (session.isSelf() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin() || session.isFacilityAdmin() || session.isVoObserver() || session.isSecurityAdmin())) {
 			roles += "SELF";
-		} else if (session.isPerunAdmin()) {
+		} else if (session.isPerunAdmin() && !session.isSecurityAdmin()) {
 			roles += "PERUN ADMIN";
+		} else if (session.isPerunAdmin() && session.isSecurityAdmin()) {
+			roles += "PERUN / SECURITY ADMIN";
+		} else if (session.isSecurityAdmin() && !(session.isVoAdmin() || session.isFacilityAdmin() || session.isGroupAdmin())) {
+			roles += "SECURITY ADMIN ";
 		} else if (session.isVoObserver() && !(session.isVoAdmin() || session.isFacilityAdmin() || session.isGroupAdmin())) {
 			roles += "VO OBSERVER";
 		} else {
@@ -1533,6 +1533,9 @@ public class UiElements {
 			}
 			if (session.isFacilityAdmin()) {
 				roles += "FACILITY/";
+			}
+			if (session.isSecurityAdmin()) {
+				roles += "SECURITY/";
 			}
 
 			if (roles.length() >= 1) {
@@ -1679,12 +1682,18 @@ public class UiElements {
 
 				int clientHeight = (Window.getClientHeight() > WebGui.MIN_CLIENT_HEIGHT) ? Window.getClientHeight() : WebGui.MIN_CLIENT_HEIGHT;
 				int height = clientHeight - panel.getAbsoluteTop() - freeSpace;
+
+				// correction for overlay tabs since they are smaller
+				TabItem overlayTab = PerunWebSession.getInstance().getTabManager().getActiveOverlayTab();
+				if (overlayTab != null && overlayTab.equals(tabItem)) {
+					height = height - 40;
+				}
 				if (height > 0) {
 					panel.setHeight(height + "px");
 				}
 
                 /* WE CAN SET WIDTH BY CSS NOW */
-				if (isOperaBeforeFifteen() || isExplorerBeforeNine()) {
+				if (isExplorerBeforeNine()) {
                     /* Opera and IE8 fallback */
 					if (resizeWidth) {
 						int clientWidth = (Window.getClientWidth() > WebGui.MIN_CLIENT_WIDTH) ? Window.getClientWidth() : WebGui.MIN_CLIENT_WIDTH;
@@ -1813,7 +1822,10 @@ public class UiElements {
 	 */
 	static public void runResizeCommands(boolean allTabs) {
 
-		final Iterator<Command> resizeIterator = resizeCommands.iterator();
+		Set<Command> commands = new HashSet<>();
+		commands.addAll(resizeCommands);
+		final Iterator<Command> resizeIterator = commands.iterator();
+
 		Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
 			@Override
 			public boolean execute() {
@@ -1836,24 +1848,28 @@ public class UiElements {
 
 		// RUN ALL
 		if (allTabs) {
-			for (Map.Entry<TabItem, Set<Command>> entry : resizeCommandsForTabs.entrySet()) {
+			HashMap<TabItem, Set<Command>> commandsForTab = new HashMap<>();
+			commandsForTab.putAll(resizeCommandsForTabs);
 
-				final Iterator<Command> iterator = entry.getValue().iterator();
-				Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
-					@Override
-					public boolean execute() {
-						if (iterator.hasNext()) {
-							iterator.next().execute();
-							return true;
+			for (Map.Entry<TabItem, Set<Command>> entry : commandsForTab.entrySet()) {
+				if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+					final Iterator<Command> iterator = entry.getValue().iterator();
+					Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
+						@Override
+						public boolean execute() {
+							if (iterator.hasNext()) {
+								iterator.next().execute();
+								return true;
+							}
+							return false;
 						}
-						return false;
-					}
-				});
+					});
 				/*
 				for (Command command : entry.getValue()) {
 					Scheduler.get().scheduleDeferred(command);
 				}
 				*/
+				}
 			}
 			// if all, exits
 			return;
@@ -1871,20 +1887,26 @@ public class UiElements {
 	 * @param tab tab to trigger resize commands for
 	 */
 	static public void runResizeCommands(TabItem tab) {
-		Set<Command> commandQueue = resizeCommandsForTabs.get(tab);
-		if (commandQueue != null) {
+		Set<Command> commandQueue = new HashSet<>();
+		if (resizeCommandsForTabs.get(tab) != null) {
+			commandQueue.addAll(resizeCommandsForTabs.get(tab));
+		}
+		if (!commandQueue.isEmpty()) {
 
 			final Iterator<Command> resizeIterator = commandQueue.iterator();
-			Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
-				@Override
-				public boolean execute() {
-					if (resizeIterator.hasNext()) {
-						resizeIterator.next().execute();
-						return true;
+			if (resizeIterator != null) {
+				Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
+					@Override
+					public boolean execute() {
+						if (resizeIterator.hasNext()) {
+							Command command = resizeIterator.next();
+							if (command != null) command.execute();
+							return true;
+						}
+						return false;
 					}
-					return false;
-				}
-			});
+				});
+			}
 
 			/*
 			// run resize queue for each tab
@@ -1927,5 +1949,19 @@ public class UiElements {
 	public BreadcrumbsWidget getBreadcrumbs() {
 		return this.breadcrumbs;
 	}
+
+	public static cz.metacentrum.perun.webgui.widgets.CustomButton getRefreshButton(final TabItem tabToRefres) {
+		cz.metacentrum.perun.webgui.widgets.CustomButton cb = new cz.metacentrum.perun.webgui.widgets.CustomButton("", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				tabToRefres.draw();
+			}
+		});
+		cb.setTitle("Refresh page content");
+		return cb;
+
+	}
+
+
 
 }

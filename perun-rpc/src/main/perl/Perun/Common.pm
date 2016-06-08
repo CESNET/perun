@@ -5,8 +5,7 @@ use Exporter;
 @EXPORT_OK = ('tableToPrint', 'printMessage', 'getSortingFunction', 'printTable');
 
 use strict;
-# FIXME: rozbilo to cestinu na prihlaskach
-#binmode STDOUT, ":utf8";
+binmode STDOUT, ":utf8";
 
 use Hash::Util;
 use Scalar::Util 'blessed';
@@ -42,6 +41,8 @@ use Perun::beans::NotifReceiver;
 use Perun::beans::NotifRegex;
 use Perun::beans::NotifTemplateMessage;
 use Perun::beans::NotifTemplate;
+use Perun::beans::ContactGroup;
+use Perun::beans::SecurityTeam;
 
 sub newEmptyBean
 {
@@ -223,7 +224,7 @@ return @arr;
 			return;
 		}
 
-		my $table = Text::ASCIITable->new({reportErrors => 0});
+		my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 		$table->setCols($objects[0]->getCommonArrayRepresentationHeading);
 
 		for(sort $sortingFunction @objects) {

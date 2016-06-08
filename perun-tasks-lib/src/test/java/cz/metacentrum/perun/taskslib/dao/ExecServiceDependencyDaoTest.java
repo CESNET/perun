@@ -29,7 +29,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
@@ -42,7 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Michal Karm Babacek
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-tasks-lib-applicationcontext.xml", "classpath:perun-datasources.xml", "classpath:perun-beans.xml", "classpath:perun-transaction-manager.xml" })
+@ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-core-jdbc.xml", "classpath:perun-core-transaction-manager.xml", "classpath:perun-tasks-lib.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
 @Transactional
 public class ExecServiceDependencyDaoTest {
@@ -100,13 +99,11 @@ public class ExecServiceDependencyDaoTest {
 		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
 
 		try {
-			testService1.setId(servicesManager.createService(perunSession, testService1, testOwner).getId());
-			testService2.setId(servicesManager.createService(perunSession, testService2, testOwner).getId());
+			testService1.setId(servicesManager.createService(perunSession, testService1).getId());
+			testService2.setId(servicesManager.createService(perunSession, testService2).getId());
 		} catch (InternalErrorException e) {
 			log.error(e.toString());
 		} catch (PrivilegeException e) {
-			log.error(e.toString());
-		} catch (OwnerNotExistsException e) {
 			log.error(e.toString());
 		} catch (ServiceExistsException e) {
 			log.error(e.toString());
@@ -157,6 +154,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testIsThereDependency() {
+		System.out.println("ExecServiceDependencyDao.isThereDependency");
+
 		try {
 
 			log.debug("testIsThereDependency: Testing...");
@@ -170,6 +169,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testCreateDependency() {
+		System.out.println("ExecServiceDependencyDao.createDependency");
+
 		try {
 
 			log.debug("testCreateDependency: Testing...");
@@ -184,6 +185,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testRemoveDependency() {
+		System.out.println("ExecServiceDependencyDao.removeDependency");
+
 		try {
 
 			log.debug("testRemoveDependency: Testing...");
@@ -201,6 +204,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testListExecServicesDependingOn() {
+		System.out.println("ExecServiceDependencyDao.listExecServicesDependingOn");
+
 		try {
 
 			log.debug("testListExecServicesDependingOn: Testing...");
@@ -230,6 +235,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testListExecServicesThisExecServiceDependsOn() {
+		System.out.println("ExecServiceDependencyDao.listExecServicesThisExecServiceDependsOn");
+
 		try {
 
 			log.debug("testListExecServicesThisExecServiceDependsOn: Testing...");
@@ -259,6 +266,8 @@ public class ExecServiceDependencyDaoTest {
 
 	@Test
 	public void testListExecServicesThisExecServiceDependsOnWithType() {
+		System.out.println("ExecServiceDependencyDao.listExecServicesThisExecServiceDependsOnWithType");
+
 		try {
 
 			log.debug("testListExecServicesThisExecServiceDependsOn: Testing...");

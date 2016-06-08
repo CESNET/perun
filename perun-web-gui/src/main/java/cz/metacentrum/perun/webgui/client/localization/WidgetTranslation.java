@@ -39,7 +39,7 @@ public interface WidgetTranslation extends Messages {
 
 	/* REST - CHECKBOX WIDGETS*/
 
-	@DefaultMessage("Show expired / disabled members")
+	@DefaultMessage("Show also expired / disabled members")
 	String showDisabledMembers();
 
 	@DefaultMessage("Show also members with expired / disabled membership")

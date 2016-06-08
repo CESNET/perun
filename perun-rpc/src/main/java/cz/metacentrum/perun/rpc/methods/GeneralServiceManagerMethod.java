@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.rpc.methods;
 
-
 import cz.metacentrum.perun.controller.model.ServiceForGUI;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -96,14 +95,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * Inserts an exec service.
 	 *
 	 * @param execService ExecService JSON object
-	 * @param owner int Owner <code>id</code>
 	 * @return int new ExecService <code>id</code>
 	 */
 	insertExecService {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getGeneralServiceManager().insertExecService(ac.getSession(),
-					parms.read("execService", ExecService.class),
-					ac.getOwnerById(parms.readInt("owner")));
+					parms.read("execService", ExecService.class));
 		}
 	},
 
@@ -138,6 +135,7 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 *
 	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
+	 * @throw ServiceAlreadyBannedException When service is already banned on facility.
 	 */
 	banExecServiceOnFacility {
 	    public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -296,11 +294,11 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates a dependency.
+	 * Creates a dependency of one ExecService on other.
 	 * The execService can not be executed if any of the execServices it depends on is in an unstable (not terminal) state.
 	 *
-	 * @param dependantExecService int DependantExecService <code>id</code>
-	 * @param execService int ExecService <code>id</code>
+	 * @param execService int ExecService <code>id</code> to create dependency for
+	 * @param dependantExecService int ExecService <code>id</code> to depend on
 	 */
 	createDependency {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {

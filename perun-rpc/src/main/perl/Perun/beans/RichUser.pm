@@ -27,6 +27,14 @@ sub getId {
 	return shift->{_id};
 }
 
+sub setId
+{
+        my $self = shift;
+        $self->{_id} = shift;
+
+        return;
+}
+
 sub getUserAttributes {
 	return shift->{_userAttributes};
 }

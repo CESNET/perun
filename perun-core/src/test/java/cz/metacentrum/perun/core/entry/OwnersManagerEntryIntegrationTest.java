@@ -16,14 +16,16 @@ import cz.metacentrum.perun.core.api.OwnersManager;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 
 /**
+ * Integration tests of OwnersManager.
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
-
 public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private OwnersManager ownersManagerEntry;
-	private final String CLASS_NAME = "OwnersManagerEntry.";
+	private final String CLASS_NAME = "OwnersManager.";
 	private Owner createdOwner;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -38,7 +40,7 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	 */
 	@Test
 	public void testCreateOwner() throws Exception {
-		System.out.println(CLASS_NAME + "createOwner()");
+		System.out.println(CLASS_NAME + "createOwner");
 
 		final String umpalumpa = "Umpalumpa";
 		final String contact = "umpalumpa@johny.depp";
@@ -58,21 +60,19 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	 */
 	@Test(expected=OwnerNotExistsException.class)
 	public void testDeleteOwner() throws Exception {
-		System.out.println(CLASS_NAME + "deleteOwner()");
+		System.out.println(CLASS_NAME + "deleteOwner");
 
 		ownersManagerEntry.deleteOwner(sess, createdOwner, true);
 
 		ownersManagerEntry.getOwnerById(sess, createdOwner.getId());
 	}
 
-
-
 	/**
 	 * Test method for {@link cz.metacentrum.perun.core.entry.OwnersManagerEntry#getOwnerById(cz.metacentrum.perun.core.api.PerunSession, int)}.
 	 */
 	@Test
 	public void testGetOwnerById() throws Exception {
-		System.out.println(CLASS_NAME + "getOwnerById()");
+		System.out.println(CLASS_NAME + "getOwnerById");
 
 		final Owner result = ownersManagerEntry.getOwnerById(sess, createdOwner.getId());
 
@@ -84,7 +84,7 @@ public class OwnersManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	 */
 	@Test
 	public void testGetOwners() throws Exception {
-		System.out.println(CLASS_NAME + "getOwners()");
+		System.out.println(CLASS_NAME + "getOwners");
 
 		final List<Owner> owners = ownersManagerEntry.getOwners(sess);
 

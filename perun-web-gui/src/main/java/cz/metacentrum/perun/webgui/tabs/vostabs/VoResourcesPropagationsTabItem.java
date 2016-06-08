@@ -1,8 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.vostabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
@@ -11,7 +9,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
-import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
@@ -110,37 +108,32 @@ public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 		final FlexTable help = new FlexTable();
 		help.setCellPadding(4);
 		help.setWidth("100%");
-		help.setHTML(0, 0, "<strong>Color&nbsp;notation:</strong>");
-		help.getFlexCellFormatter().setWidth(0, 0, "100px");
-		help.setHTML(0, 1, "<strong>OK</strong>");
-		help.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER);
-		help.getFlexCellFormatter().setWidth(0, 1, "50px");
-		help.getFlexCellFormatter().setStyleName(0, 1, "green");
-		help.setHTML(0, 2, "<strong>Error</strong>");
-		help.getFlexCellFormatter().setWidth(0, 2, "50px");
-		help.getFlexCellFormatter().setStyleName(0, 2, "red");
+
+		final CustomButton cb = UiElements.getRefreshButton(this);
+		help.setWidget(0, 0, cb);
+		help.getFlexCellFormatter().setWidth(0, 0, "80px");
+		help.setHTML(0, 1, "<strong>Color&nbsp;notation:</strong>");
+		help.getFlexCellFormatter().setWidth(0, 1, "100px");
+		help.setHTML(0, 2, "<strong>OK</strong>");
 		help.getFlexCellFormatter().setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_CENTER);
-		help.setHTML(0, 3, "<strong>Not&nbsp;determined</strong>");
+		help.getFlexCellFormatter().setWidth(0, 2, "50px");
+		help.getFlexCellFormatter().setStyleName(0, 2, "green");
+		help.setHTML(0, 3, "<strong>Error</strong>");
 		help.getFlexCellFormatter().setWidth(0, 3, "50px");
+		help.getFlexCellFormatter().setStyleName(0, 3, "red");
 		help.getFlexCellFormatter().setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_CENTER);
-		help.getFlexCellFormatter().setStyleName(0, 3, "notdetermined");
+		help.setHTML(0, 4, "<strong>Not&nbsp;determined</strong>");
+		help.getFlexCellFormatter().setWidth(0, 4, "50px");
+		help.getFlexCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER);
+		help.getFlexCellFormatter().setStyleName(0, 4, "notdetermined");
 		/*
-			 help.setHTML(0, 4, "<strong>Processing</strong>");
-			 help.getFlexCellFormatter().setWidth(0, 4, "50px");
-			 help.getFlexCellFormatter().setStyleName(0, 4, "yellow");
-			 help.getFlexCellFormatter().setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_CENTER);
+			 help.setHTML(0, 5, "<strong>Processing</strong>");
+			 help.getFlexCellFormatter().setWidth(0, 5, "50px");
+			 help.getFlexCellFormatter().setStyleName(0, 5, "yellow");
+			 help.getFlexCellFormatter().setHorizontalAlignment(0, 5, HasHorizontalAlignment.ALIGN_CENTER);
 			 */
 
-		final CustomButton cb = new CustomButton(ButtonTranslation.INSTANCE.refreshButton(), ButtonTranslation.INSTANCE.refreshPropagationResults(), SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().reloadTab(tab);
-			}
-		});
-
-		help.setWidget(0, 5, cb);
-		help.getFlexCellFormatter().setWidth(0, 5, "200px");
-
-		help.setHTML(0, 6, "&nbsp;");
+		help.setHTML(0, 5, "&nbsp;");
 		help.getFlexCellFormatter().setWidth(0, 6, "50%");
 
 		mainTab.add(help);
@@ -298,10 +291,10 @@ public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 				}
 
 				// set counters
-				help.setHTML(0, 1, "<strong>Ok&nbsp;("+okCounter+")</strong>");
-				help.setHTML(0, 2, "<strong>Error&nbsp;("+errorCounter+")</strong>");
-				help.setHTML(0, 3, "<strong>Not&nbsp;determined&nbsp;("+notDeterminedCounter+")</strong>");
-				//help.setHTML(0, 4, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
+				help.setHTML(0, 2, "<strong>Ok&nbsp;("+okCounter+")</strong>");
+				help.setHTML(0, 3, "<strong>Error&nbsp;("+errorCounter+")</strong>");
+				help.setHTML(0, 4, "<strong>Not&nbsp;determined&nbsp;("+notDeterminedCounter+")</strong>");
+				//help.setHTML(0, 5, "<strong>Processing&nbsp;(" + procesingCounter + ")</strong>");
 
 			}
 		}); // get for all facilities for VO

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -141,15 +142,6 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
 			menu.setWidget(0, column, a);
 		}
 
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
-
 		dp.add(menu);
 		vp.add(dp);
 		vp.setCellHeight(dp, "30px");
@@ -165,6 +157,11 @@ public class MemberDetailTabItem implements TabItem, TabItemWithUrl {
 			tabPanel.add(new MemberServiceUsersTabItem(member, groupId), "Associated users");
 		} else {
 			tabPanel.add(new MemberServiceUsersTabItem(member, groupId), "Service identities");
+		}
+		if (member.getUser().isSponsoredUser()) {
+			tabPanel.add(new MemberSponsoredUsersTabItem(member, groupId), "Sponsors");
+		} else if (!member.getUser().isSponsoredUser() && !member.getUser().isServiceUser()) {
+			tabPanel.add(new MemberSponsoredUsersTabItem(member, groupId), "Sponsored users");
 		}
 
 		// Resize must be called after page fully displays

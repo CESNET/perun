@@ -111,6 +111,26 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
 		int column = 3;
+
+		CustomButton cb = new CustomButton("", "Edit exec service", SmallIcons.INSTANCE.applicationFormEditIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				session.getTabManager().addTabToCurrentTab(new EditExecServiceTabItem(execService, new JsonCallbackEvents(){
+					@Override
+					public void onFinished(JavaScriptObject jso) {
+						execService = jso.cast();
+						open();
+						draw();
+					}
+				}));
+			}
+		});
+		menu.setWidget(0, column, cb);
+		column++;
+		menu.setHTML(0, column, "&nbsp;");
+		menu.getFlexCellFormatter().setWidth(0, column, "25px");
+		column++;
+
 		if (JsonUtils.isExtendedInfoVisible()) {
 			menu.setHTML(0, column, "<strong>ID:</strong><br/><span class=\"inputFormInlineComment\">"+execService.getId()+"</span>");
 			column++;
@@ -141,22 +161,6 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 		// TODO - waiting for time, when service will have description param
 		//menu.setHTML(0, 3, "<strong>Short&nbsp;name:</strong><br/><span class=\"inputFormInlineComment\">"+service.getDescription()+"</span>");
-
-		CustomButton cb = new CustomButton("", "Edit exec service", SmallIcons.INSTANCE.applicationFormEditIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				session.getTabManager().addTabToCurrentTab(new EditExecServiceTabItem(execService, new JsonCallbackEvents(){
-					@Override
-					public void onFinished(JavaScriptObject jso) {
-						execService = jso.cast();
-						open();
-						draw();
-					}
-				}));
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
 
 		dp.add(menu);
 		vp.add(dp);
@@ -202,6 +206,7 @@ public class ViewExecServiceTabItem implements TabItem, TabItemWithUrl{
 
 		// MAIN MENU
 		TabMenu tabMenu = new TabMenu();
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
 
 		// callback
 		final ListExecServicesThisExecServiceDependsOn callback = new ListExecServicesThisExecServiceDependsOn(execServiceId);

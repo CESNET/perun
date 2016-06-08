@@ -18,26 +18,37 @@ $(document).ready(function () {
 });
 
 var vo;
+var template;
 function loadVo() {
     callPerun("vosManager", "getVoByShortName", {shortName: voConfiguration.SHORT_NAME}, function (voResult) {
         if (!voResult) {
-            (flowMessager.newMessage("Data", "can't be loaded.", "danger")).draw();
+            (flowMessager.newMessage("Vo", "can't be loaded.", "danger")).draw();
             return;
         }
         vo = voResult;
 
-        var hash = document.location.hash.substring(1).split("&")[1];
-        showVo();
-        if (hash != undefined && hash != "vo") {
-            showGroup(hash);
-        }
+        callPerun("groupsManager", "getGroupByName", { "vo" : vo.id , "name" : voConfiguration.TEMPLATE_NAME }, function (group) {
+            if (!group) {
+                (flowMessager.newMessage("Template Group", "can't be loaded.", "danger")).draw();
+                return;
+            }
+            template = group;
+
+            var hash = document.location.hash.substring(1).split("&")[1];
+            showVo();
+            if (hash != undefined && hash != "vo") {
+                showGroup(hash);
+            }
+        });
+
     });
+
 }
 
 //require loaded global vo variable
 function showVo() {
     if (!vo) {
-        (flowMessager.newMessage("Can not show data", "because there was an error with communication", "error")).draw();
+        (flowMessager.newMessage("Can not show data", "because there was an error with communication", "danger")).draw();
         return;
     }
     if (!innerTabs.containsTab("vo")) {
@@ -62,9 +73,6 @@ function addVoTab(vo) {
     content += '  <div class="btn-group">';
     content += '    <button class="btn btn-primary" data-toggle="modal" data-target="#createGroupInVo">Create Group</button>';
     content += '  </div>';
-    content += '  <div class="btn-group">';
-    content += '    <button class="btn btn-primary" data-toggle="modal" data-target="#inviteUser">Invite User</button>';
-    content += '  </div>';
     content += '</div>';
     content += '<div id="groupsTable"></div>';
     voTab.addContent(content);
@@ -72,17 +80,12 @@ function addVoTab(vo) {
     var voAuthz = new Authorization(roles, vo, null);
     var buttons = voTab.place.find('.btn-toolbar');
     voAuthz.addObject(buttons.find('button[data-target^=#createGroupInVo]'), ["PERUNADMIN", "VOADMIN", "TOPGROUPCREATOR"]);
-    voAuthz.addObject(buttons.find('button[data-target^=#inviteUser]'), ["PERUNADMIN", "VOADMIN", "TOPGROUPCREATOR"]);
     voAuthz.addObject(voTab.place.find('.groupsTable'), ["PERUNADMIN", "VOOBSERVER", "VOADMIN", "GROUPADMIN", "TOPGROUPCREATOR"]);
     voAuthz.check();
 
     var createGroupModal = new Modal("Create group", "createGroupInVo", voTab.place);
     createGroupModal.init();
     fillModalCreateGroup(createGroupModal, vo);
-
-    var inviteUserModal = new Modal("Invite user to " + vo.name, "inviteUser", voTab.place);
-    inviteUserModal.init();
-    fillModalInviteUser(inviteUserModal, vo);
 }
 
 function createGroupInVo(form, vo) {
@@ -91,12 +94,47 @@ function createGroupInVo(form, vo) {
     var newGroup = {name: name.val(), description: description.val()};
     callPerunPost("groupsManager", "createGroup", {vo: vo.id, group: newGroup},
     function (createdGroup) {
-        innerTabs.place.find("#vo .modal").modal('hide');
-        (flowMessager.newMessage(createdGroup.shortName, "group was created succesfuly", "success")).draw();
-        addGroupToAllVoGroups(createdGroup);
-        addGroupAdminRole(createdGroup.id, vo.id);
-        fillGroups(allVoGroups);
-        showGroup(createdGroup.id);
+
+        callPerunPost("registrarManager", "createApplicationForm", {group: createdGroup.id},
+            function (none) {
+
+                var copyForm = callPerunPost("registrarManager", "copyForm", {
+                    fromGroup: template.id,
+                    toGroup: createdGroup.id
+                });
+                var copyMails = callPerunPost("registrarManager", "copyMails", {
+                    fromGroup: template.id,
+                    toGroup: createdGroup.id
+                });
+                var getForm = callPerun("registrarManager", "getApplicationForm", {
+                    group: createdGroup.id
+                });
+                $.when(copyForm, copyMails, getForm).done(success(createdGroup));
+
+                function success(createdGroup) {
+                    return function (none0, none1, formResp) {
+                        form = formResp[0];
+                        form.automaticApproval = true;
+                        form.automaticApprovalExtension = true;
+                        callPerunPost("registrarManager", "updateForm", {form: form},
+                            function (updatedForm) {
+                                if (!updatedForm) {
+                                    (flowMessager.newMessage("Internal error", "Group "+newGroup.name+" was created but settings of group failed.", "danger")).draw();
+                                    return;
+                                }
+                                innerTabs.place.find("#vo .modal").modal('hide');
+                                (flowMessager.newMessage(createdGroup.shortName, "group was created succesfuly", "success")).draw();
+                                name.val("");
+                                description.val("");
+                                addGroupToAllVoGroups(createdGroup);
+                                addGroupAdminRole(createdGroup.id, vo.id);
+                                fillGroups(allVoGroups);
+                                showGroup(createdGroup.id);
+                            });
+                    }
+                }
+            });
+
     }, function (error) {
         switch (error.name) {
             case "GroupExistsException":
@@ -109,15 +147,6 @@ function createGroupInVo(form, vo) {
     });
 }
 
-function inviteUser(form, vo) {
-    var email = form.find("input#email");
-    callPerunPost("registrarManager", "sendInvitation", {voId: vo.id, email: email.val(), language: "en"}, function() {
-        innerTabs.place.find("#vo .modal").modal('hide');
-        (flowMessager.newMessage("Invitation", "successfully sent to " + email.val(), "success")).draw();
-        email.val("");
-    });
-}
-
 function fillVoInfo(vo) {
     if (!vo) {
         (flowMessager.newMessage("Vo", "can't be fill.", "danger")).draw();
@@ -125,26 +154,6 @@ function fillVoInfo(vo) {
     }
     $("#vo-name").text(vo.name);
     //$('#groupsManagerLink > span').text(vo.shortName);
-}
-
-function fillModalInviteUser(modal, vo) {
-    modal.clear();
-
-    var html;
-    html = '          <form role="form">';
-    html += '            <div class="form-group">';
-    html += '              <label for="email">User\'s e-mail</label>';
-    html += '              <input type="email" class="form-control" id="email" placeholder="Users e-Mail" autofocus>';
-    html += '            </div>';
-    html += '            <button type="submit" class="btn btn-primary">Invite User</button>';
-    html += '          </form>';
-    modal.addBody(html);
-
-    var inviteUserForm = modal.self.find("form");
-    inviteUserForm.submit(function (event) {
-        event.preventDefault();
-        inviteUser(inviteUserForm, vo);
-    });
 }
 
 function afterLogout() {

@@ -15,10 +15,14 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.bl.SearcherBl;
 
 /**
+ * Integration tests of Searcher
+ *
  * @author Michal Šťava <stavamichal@gmail.com>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-
 public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
+
+	private final static String CLASS_NAME = "Searcher.";
 
 	// these are in DB only when needed and must be setUp"type"() in right order before use !!
 	private User user1;                             // our User
@@ -61,7 +65,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getUsersForIntegerValue() throws Exception {
-		System.out.println("Searcher.getUsersForIntegerValue");
+		System.out.println(CLASS_NAME + "getUsersForIntegerValue");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(integerAttr.getName(), "100");
 		AttributeDefinition attrDef = sess.getPerun().getAttributesManager().getAttributeDefinition(sess, integerAttr.getName());
@@ -74,7 +78,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getUsersForStringValue() throws Exception {
-		System.out.println("Searcher.getUsersForStringValue");
+		System.out.println(CLASS_NAME + "getUsersForStringValue");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(stringAttr.getName(), "UserStringAttribute test value");
 		List<User> users = new ArrayList<User>();
@@ -85,7 +89,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getUsersForListValue() throws Exception {
-		System.out.println("Searcher.getUsersForListValue");
+		System.out.println(CLASS_NAME + "getUsersForListValue");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(listAttr.getName(), "ttribute2");
 		List<User> users = new ArrayList<User>();
@@ -96,7 +100,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getUsersForCoreAttribute() throws Exception {
-		System.out.println("Searcher.getUsersForCoreAttribute");
+		System.out.println(CLASS_NAME + "getUsersForCoreAttribute");
 		Attribute attr = perun.getAttributesManagerBl().getAttribute(sess, user1, "urn:perun:user:attribute-def:core:id");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(attr.getName(), attr.getValue().toString());
@@ -108,7 +112,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getUsersForMapValue() throws Exception {
-		System.out.println("Searcher.getUsersForMapValue");
+		System.out.println(CLASS_NAME + "getUsersForMapValue");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(mapAttr.getName(), "UserLargeAttribute=test value");
 		List<User> users = new ArrayList<User>();
@@ -119,7 +123,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getMembersForIntegerValue() throws Exception {
-		System.out.println("Searcher.getUsersForIntegerValue");
+		System.out.println(CLASS_NAME + "getUsersForIntegerValue");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(integerAttr.getName(), "100");
 		AttributeDefinition attrDef = sess.getPerun().getAttributesManager().getAttributeDefinition(sess, integerAttr.getName());
@@ -132,7 +136,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getMembersForStringValue() throws Exception {
-		System.out.println("Searcher.getUsersForStringValue");
+		System.out.println(CLASS_NAME + "getUsersForStringValue");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(stringAttr.getName(), "UserStringAttribute test value");
 		List<Member> members = new ArrayList<>();
@@ -143,7 +147,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getMembersForListValue() throws Exception {
-		System.out.println("Searcher.getUsersForListValue");
+		System.out.println(CLASS_NAME + "getUsersForListValue");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(listAttr.getName(), "ttribute2");
 		List<Member> members = new ArrayList<>();
@@ -154,7 +158,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getMembersForCoreAttribute() throws Exception {
-		System.out.println("Searcher.getUsersForCoreAttribute");
+		System.out.println(CLASS_NAME + "getUsersForCoreAttribute");
 		Attribute attr = perun.getAttributesManagerBl().getAttribute(sess, user1, "urn:perun:user:attribute-def:core:id");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(attr.getName(), attr.getValue().toString());
@@ -166,7 +170,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getMembersForMapValue() throws Exception {
-		System.out.println("Searcher.getUsersForMapValue");
+		System.out.println(CLASS_NAME + "getUsersForMapValue");
 		Map<String, String> attributesWithSearchingValues = new HashMap<String, String>();
 		attributesWithSearchingValues.put(mapAttr.getName(), "UserLargeAttribute=test value");
 		List<Member> members = new ArrayList<>();
@@ -177,7 +181,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	@Test
 	public void getMembersByExpiration() throws Exception {
-		System.out.println("Searcher.getMembersByExpiration");
+		System.out.println(CLASS_NAME + "getMembersByExpiration");
 
 		// setup required attribute if not exists
 		try {
@@ -257,7 +261,7 @@ public class SearcherEntryIntegrationTest extends AbstractPerunIntegrationTest {
 		assertNotNull("unable to create testing Vo",returnedVo);
 		assertEquals("both VOs should be the same",newVo,returnedVo);
 		ExtSource newExtSource = new ExtSource(extSourceName, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource);
+		ExtSource es = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
 		// get real external source from DB
 		perun.getExtSourcesManager().addExtSource(sess, returnedVo, es);
 		// add real ext source to our VO

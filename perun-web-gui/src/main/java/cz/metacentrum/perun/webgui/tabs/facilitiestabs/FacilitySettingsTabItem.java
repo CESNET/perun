@@ -1,12 +1,14 @@
 package cz.metacentrum.perun.webgui.tabs.facilitiestabs;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -17,6 +19,7 @@ import cz.metacentrum.perun.webgui.client.resources.*;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
+import cz.metacentrum.perun.webgui.json.attributesManager.GetAttributesV2;
 import cz.metacentrum.perun.webgui.json.attributesManager.GetRequiredAttributesV2;
 import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
@@ -38,19 +41,17 @@ import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Tab for setting attributes for specified services on facility
- *
- * also:
- *
+ * Tab for setting attributes for specified services on facility also:
  * FACILITY ADMIN / PERUN ADMIN - Create facility wizard - page 2
  *
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
+public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -73,13 +74,21 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	private boolean hide = false;
 
 	private int lastServiceId = 0;
+	private int indexInList = 1;
 	private boolean lastCheckBoxValue = true;
+
+	final VerticalPanel vp = new VerticalPanel();
+	ScrollPanel sp = new ScrollPanel();
+	ScrollPanel sp2 = new ScrollPanel();
+	// if required table is displayed
+	boolean required = true;
 
 	/**
 	 * Creates a tab instance
+	 *
 	 * @param facility facility to get services from
 	 */
-	public FacilitySettingsTabItem(Facility facility){
+	public FacilitySettingsTabItem(Facility facility) {
 		this.facility = facility;
 		this.facilityId = facility.getId();
 	}
@@ -89,135 +98,178 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	 *
 	 * @param facilityId
 	 */
-	public FacilitySettingsTabItem(int facilityId){
+	public FacilitySettingsTabItem(int facilityId) {
 		this.facilityId = facilityId;
-		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
+		new GetEntityById(PerunEntity.FACILITY, facilityId, new JsonCallbackEvents() {
+			public void onFinished(JavaScriptObject jso) {
 				facility = jso.cast();
 			}
 		}).retrieveData();
 	}
 
-	public boolean isPrepared(){
+	public boolean isPrepared() {
 		return !(facility == null);
 	}
 
 	public void hideServicesSwitch(boolean hide) {
 		this.hide = hide;
 		lastCheckBoxValue = !hide;
+		indexInList = 0;
 	}
 
 	public Widget draw() {
 
 		// set title
-		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName())+": Service settings");
+		titleWidget.setText(Utils.getStrippedStringWithEllipsis(facility.getName()) + ": Service settings");
 
 		// content
-		VerticalPanel vp = new VerticalPanel();
-		vp.setSize("100%","100%");
+		vp.setSize("100%", "100%");
+		vp.clear();
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
 
 		// Get Attributes method
 		final GetRequiredAttributesV2 reqAttrs = new GetRequiredAttributesV2();
+		final GetAttributesV2 attrs = new GetAttributesV2();
+		attrs.getFacilityAttributes(facilityId);
 
 		// get empty table
 		final CellTable<Attribute> table = reqAttrs.getEmptyTable();
+		final CellTable<Attribute> table2 = attrs.getEmptyTable();
+		sp.setWidget(table);
+		sp2.setWidget(table2);
 
 		// ids to retrieve data from rpc
-		final Map<String,Integer> ids = new HashMap<String, Integer>();
-		ids.put("facility",facility.getId());
+		final Map<String, Integer> ids = new HashMap<String, Integer>();
+		ids.put("facility", facility.getId());
 
 		// service switcher checkbox
 		final CheckBox switchServicesChb = new CheckBox(WidgetTranslation.INSTANCE.offerAvailableServicesOnly(), false);
 		switchServicesChb.setValue(lastCheckBoxValue); // selected by default - unselected if switch hidden
 		switchServicesChb.setTitle(WidgetTranslation.INSTANCE.offerAvailableServicesOnlyTitle());
-
 		// services listbox
 		final ListBoxWithObjects<Service> servList = new ListBoxWithObjects<Service>();
+
 		// on change of service update table
 		servList.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
-				if (switchServicesChb.getValue() == true && servList.getSelectedIndex() > 0) {
-					// if service selected
-					ids.put("service",servList.getSelectedObject().getId());
-					lastServiceId = servList.getSelectedObject().getId();
-				} else if (switchServicesChb.getValue() == false) {
-					ids.put("service",servList.getSelectedObject().getId());
-					lastServiceId = servList.getSelectedObject().getId();
-				} else {
+				if (servList.getSelectedIndex() == 0) {
+					// show all facility attributes
+					attrs.retrieveData();
+					setTable(false);
+					lastServiceId = 0;
+					indexInList = 0;
+					return;
+				}
+				if (switchServicesChb.getValue() == true && servList.getSelectedIndex() == 1) {
+					// show required attrs for all assigned services
 					ids.remove("service");
 					lastServiceId = 0;
+					indexInList = 1;
+				} else if ((switchServicesChb.getValue() == true && servList.getSelectedIndex() > 1)
+						|| (switchServicesChb.getValue() == false && servList.getSelectedIndex() > 0)) {
+					// show required attrs for selected service
+					// >0 when listing all services
+					// >1 when listing assigned services
+					ids.put("service", servList.getSelectedObject().getId());
+					lastServiceId = servList.getSelectedObject().getId();
 				}
+				// load req attrs
 				reqAttrs.setIds(ids);
 				reqAttrs.clearTable();
 				reqAttrs.retrieveData();
+				setTable(true);
 			}
 		});
 
 		// event which fills the listbox and call getRequiredAttributes
-		JsonCallbackEvents event = new JsonCallbackEvents(){
-			public void onFinished(JavaScriptObject jso){
-				if (switchServicesChb.getValue() == false) servList.removeAllOption();
+		final JsonCallbackEvents event = new JsonCallbackEvents() {
+			public void onFinished(JavaScriptObject jso) {
 				servList.clear();
 				ArrayList<Service> srv = JsonUtils.jsoAsList(jso);
 				srv = new TableSorter<Service>().sortByName(srv);
-				for (int i=0; i<srv.size(); i++){
-					servList.addItem(srv.get(i)); // fill listbox
+				for (int i = 0; i < srv.size(); i++) {
+					servList.addItem(srv.get(i));
 				}
+				// no services available - load all facility attrs
 				if (servList.isEmpty()) {
-					servList.addItem("No service available");
-					((AjaxLoaderImage)table.getEmptyTableWidget()).loadingFinished();
+					servList.addNotSelectedOption();
+					lastServiceId = 0;
+					indexInList = 0;
+					attrs.retrieveData();
+					setTable(false);
 					return;
 				}
+				// offer only available
 				if (switchServicesChb.getValue() == true) {
+					servList.addNotSelectedOption();
 					servList.addAllOption();
 					if (lastServiceId == 0) {
-						servList.setSelectedIndex(0);
-						ids.remove("service"); // remove if present - we use all as default
-					} else {
-						for (Service s : servList.getAllObjects()) {
-							if (s.getId() == lastServiceId) {
-								servList.setSelected(s, true);
-								ids.put("service", lastServiceId);
-								break;
-							}
+						if (indexInList == 1) {
+							// all
+							servList.setSelectedIndex(1);
+						} else if (indexInList == 0) {
+							// not selected - load all fac attrs
+							servList.setSelectedIndex(0);
+							attrs.retrieveData();
+							setTable(false);
+							return;
 						}
 					}
 				} else {
+					// offer all services
+					servList.addNotSelectedOption();
 					if (lastServiceId == 0) {
-						ids.put("service", servList.getSelectedObject().getId());
-					} else {
-						for (Service s : servList.getAllObjects()) {
-							if (s.getId() == lastServiceId) {
-								servList.setSelected(s, true);
-								ids.put("service", lastServiceId);
-								break;
-							}
+						// if no service selected, load all fac attrs
+						servList.setSelectedIndex(0);
+						attrs.retrieveData();
+						setTable(false);
+						return;
+					}
+				}
+
+				// if some service was selected
+				if (lastServiceId != 0) {
+					ids.remove("service"); // remove service since we can't be sure, it was loaded again
+					servList.setSelectedIndex(1); // either all or first service in a list
+					for (Service s : servList.getAllObjects()) {
+						if (s.getId() == lastServiceId) {
+							// if found, select it
+							servList.setSelected(s, true);
+							ids.put("service", lastServiceId);
+							break;
 						}
 					}
 				}
+				// get required attrs for service
 				reqAttrs.clearTable();
 				reqAttrs.setIds(ids);
 				reqAttrs.retrieveData();
+				setTable(true);
 			}
+
 			@Override
 			public void onError(PerunError error) {
 				servList.clear();
-				((AjaxLoaderImage)table.getEmptyTableWidget()).loadingError(error);
+				if (required) {
+					((AjaxLoaderImage) table.getEmptyTableWidget()).loadingError(error);
+				} else {
+					((AjaxLoaderImage) table2.getEmptyTableWidget()).loadingError(error);
+				}
 				servList.addItem("Error while loading");
 			}
+
 			@Override
 			public void onLoadingStart() {
 				servList.removeAllOption();
+				servList.removeNotSelectedOption();
 				servList.clear();
 				servList.addItem("Loading...");
 			}
 		};
-
 		final GetServices allServices = new GetServices(event);
-		final GetFacilityAssignedServices assignedServices = new GetFacilityAssignedServices(facility.getId(),event);
+		final GetFacilityAssignedServices assignedServices = new GetFacilityAssignedServices(facility.getId(), event);
 
 		// if hide and unchecked or just unchecked
 		if (!lastCheckBoxValue) {
@@ -229,13 +281,15 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		// Save changes button
 		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
 		final JsonCallbackEvents refreshEvents = JsonCallbackEvents.refreshTableEvents(reqAttrs);
+		final JsonCallbackEvents refreshEvents2 = JsonCallbackEvents.refreshTableEvents(attrs);
 		final JsonCallbackEvents saveChangesButtonEvent = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents);
+		final JsonCallbackEvents saveChangesButtonEvent2 = JsonCallbackEvents.disableButtonEvents(saveChangesButton, refreshEvents2);
 		saveChangesButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = reqAttrs.getTableSelectedList();
+				ArrayList<Attribute> list = (required) ? reqAttrs.getTableSelectedList() : attrs.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					SetAttributes request = new SetAttributes(saveChangesButtonEvent);
-					request.setAttributes(ids, reqAttrs.getTableSelectedList());
+					SetAttributes request = new SetAttributes((required) ? saveChangesButtonEvent : saveChangesButtonEvent2);
+					request.setAttributes(ids, list);
 				}
 			}
 		});
@@ -243,20 +297,21 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		// Remove attr button
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeAttributes());
 		final JsonCallbackEvents removeButtonEvent = JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvents);
+		final JsonCallbackEvents removeButtonEvent2 = JsonCallbackEvents.disableButtonEvents(removeButton, refreshEvents2);
 		removeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				ArrayList<Attribute> list = reqAttrs.getTableSelectedList();
+				ArrayList<Attribute> list = (required) ? reqAttrs.getTableSelectedList() : attrs.getTableSelectedList();
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
-					Map<String, Integer> ids = new HashMap<String,Integer>();
+					Map<String, Integer> ids = new HashMap<String, Integer>();
 					ids.put("facility", facilityId);
-					RemoveAttributes request = new RemoveAttributes(removeButtonEvent);
+					RemoveAttributes request = new RemoveAttributes((required) ? removeButtonEvent : removeButtonEvent2);
 					request.removeAttributes(ids, list);
 				}
 			}
 		});
 
 		// switch serv checkbox
-		switchServicesChb.addClickHandler(new ClickHandler(){
+		switchServicesChb.addClickHandler(new ClickHandler() {
 			// load proper set of services on click
 			public void onClick(ClickEvent event) {
 				lastCheckBoxValue = switchServicesChb.getValue();
@@ -269,14 +324,15 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 		});
 
 		// allow to set new (currently unused facility attribute)
-		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				Map<String, Integer> ids = new HashMap<String, Integer>();
 				ids.put("facility", facility.getId());
-				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, reqAttrs.getList()), true);
+				session.getTabManager().addTabToCurrentTab(new SetNewAttributeTabItem(ids, (required) ? reqAttrs.getList() : attrs.getList()), true);
 			}
 		});
 
+		menu.addWidget(UiElements.getRefreshButton(this));
 		menu.addWidget(saveChangesButton);
 		menu.addWidget(setNewAttributeButton);
 		menu.addWidget(removeButton);
@@ -309,19 +365,46 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 
 		// add a class to the table and wrap it into scroll panel
 		table.addStyleName("perun-table");
-		ScrollPanel sp = new ScrollPanel(table);
+		table.setWidth("100%");
+		table2.addStyleName("perun-table");
+		table2.setWidth("100%");
 		sp.addStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizePerunTable(sp, 350, this);
+		sp2.addStyleName("perun-tableScrollPanel");
+		session.getUiElements().resizePerunTable(sp2, 350, this);
 
 		// add menu and the table to the main panel
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
-		vp.add(sp);
 
-		session.getUiElements().resizePerunTable(sp, 350, this);
-
+		// default is required attributes
+		setTable(true);
 		this.contentWidget.setWidget(vp);
 
 		return getWidget();
+	}
+
+	private void setTable(boolean required) {
+
+		if (vp.getWidgetCount() == 2) {
+			vp.remove(1);
+		}
+		if (required) {
+			vp.add(sp);
+
+		} else {
+			vp.add(sp2);
+		}
+
+		this.required = required;
+
+		Scheduler.get().scheduleDeferred(new Command() {
+			@Override
+			public void execute() {
+				UiElements.runResizeCommandsForCurrentTab();
+			}
+		});
+
 	}
 
 	public Widget getWidget() {
@@ -361,7 +444,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
 		session.getUiElements().getBreadcrumbs().setLocation(facility, "Services settings", getUrlWithParameters());
-		if(facility != null) {
+		if (facility != null) {
 			session.setActiveFacility(facility);
 		} else {
 			session.setActiveFacilityId(facilityId);
@@ -380,8 +463,7 @@ public class FacilitySettingsTabItem implements TabItem, TabItemWithUrl{
 
 	public final static String URL = "settings";
 
-	public String getUrl()
-	{
+	public String getUrl() {
 		return URL;
 	}
 

@@ -48,6 +48,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 	static private final String URL_APP_MAIL = "registrarManager/getApplicationMailById";
 	static private final String URL_APP = "registrarManager/getApplicationById";
 
+	static private final String URL_SECURITY_TEAM = "securityTeamsManager/getSecurityTeamById";
+
 	/**
 	 * New callback instance
 	 *
@@ -131,6 +133,8 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 			js.retrieveData(URL_APP_MAIL, param, this);
 		}  else if (PerunEntity.APPLICATION.equals(entity)) {
 			js.retrieveData(URL_APP, param, this);
+		}  else if (PerunEntity.SECURITY_TEAM.equals(entity)) {
+			js.retrieveData(URL_SECURITY_TEAM, param, this);
 		}  else {
 
 			// UNSUPPORTED COMBINATION

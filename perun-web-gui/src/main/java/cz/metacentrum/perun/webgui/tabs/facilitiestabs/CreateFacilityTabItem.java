@@ -469,7 +469,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			innerContent.setCellHeight(menu, "30px");
 
 			// add button
-			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addNewOwners());
+			CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addNewOwners());
 			addButton.addClickHandler(new ClickHandler(){
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new AddFacilityOwnerTabItem(facility), true);
@@ -1027,6 +1027,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			type.addItem("URL","url");
 			type.addItem("MAIL","email");
 			type.addItem("SIGNED MAIL","semail");
+			type.addItem("SERVICE SPECIFIC","service-specific");
 
 			destination.getSuggestOracle().clear();
 			for (Host h : newFacilityHosts) {
@@ -1052,7 +1053,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 						return false;
 					}
 					// check as email
-					if (type.getSelectedIndex() > 3) {
+					if (type.getSelectedIndex() > 3 && type.getSelectedIndex() < 6) {
 						if (!JsonUtils.isValidEmail(destination.getSuggestBox().getText().trim())) {
 							destination.setError("Not valid email address.");
 							return false;
@@ -1100,6 +1101,8 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 						destinationLabel.getElement().setInnerHTML("<strong>Mail:</strong>");
 					} else if (type.getSelectedIndex() == 5) {
 						destinationLabel.getElement().setInnerHTML("<strong>Signed mail:</strong>");
+					} else if (type.getSelectedIndex() == 6) {
+						destinationLabel.getElement().setInnerHTML("<strong>Service specific:</strong>");
 					}
 
 				}
@@ -1298,7 +1301,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 					}
 				});
 
-				CustomButton createResource = new CustomButton("Create new resource", SmallIcons.INSTANCE.addIcon());
+				CustomButton createResource = new CustomButton("Create new resource…", SmallIcons.INSTANCE.addIcon());
 				createResource.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
@@ -1315,7 +1318,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 
 			} else {
 
-				CustomButton createResource = new CustomButton("Create new resource", SmallIcons.INSTANCE.addIcon());
+				CustomButton createResource = new CustomButton("Create new resource…", SmallIcons.INSTANCE.addIcon());
 				createResource.addClickHandler(new ClickHandler() {
 					@Override
 					public void onClick(ClickEvent clickEvent) {
@@ -1371,7 +1374,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			table = jsonCallback.getTable();
 		}
 
-		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerToFacility(), new ClickHandler() {
+		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerToFacility(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityManagerTabItem(facility), true);
 			}
@@ -1422,7 +1425,7 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addManagerGroupToFacility(), new ClickHandler() {
+		menu.addWidget(0, TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addManagerGroupToFacility(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityManagerGroupTabItem(facility, JsonCallbackEvents.refreshTableEvents(jsonCallback)), true);
 			}

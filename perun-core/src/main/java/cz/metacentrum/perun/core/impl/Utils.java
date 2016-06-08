@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
+import java.math.BigDecimal;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,9 @@ public class Utils {
 	private static final Pattern titleBeforePattern = Pattern.compile("^([\\p{L}]+[.])|(et)$");
 	private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");
 	private static final Pattern lastNamePattern = Pattern.compile("^([\\p{L}-']+)|([\\p{L}][.])$");
+	
+	private static final String userPhoneAttribute = "urn:perun:user:attribute-def:def:phone";
+	private static final String memberPhoneAttribute = "urn:perun:member:attribute-def:def:phone";
 	
 	/**
 	 * Replaces dangerous characters.
@@ -742,7 +747,15 @@ public class Utils {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
-		message.setSubject("[Perun] New email address verification");
+
+		String instanceName = "Perun";
+		try {
+			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
+		} catch (InternalErrorException ex) {
+			// this is not a reason not to send notification
+		}
+
+		message.setSubject("["+instanceName+"] New email address verification");
 
 		// get validation link params
 		String i = Integer.toString(changeId, Character.MAX_RADIX);
@@ -758,11 +771,11 @@ public class Utils {
 			// use default if unknown rpc path
 			String path = "/gui/";
 
-			if (urlObject.getPath().contains("/krb/rpc/")) {
+			if (urlObject.getPath().contains("/krb/")) {
 				path = "/krb/gui/";
-			} else if (urlObject.getPath().contains("/fed/rpc/")) {
+			} else if (urlObject.getPath().contains("/fed/")) {
 				path = "/fed/gui/";
-			} else if (urlObject.getPath().contains("/cert/rpc/")) {
+			} else if (urlObject.getPath().contains("/cert/")) {
 				path = "/cert/gui/";
 			}
 
@@ -783,7 +796,7 @@ public class Utils {
 				"\n\nTo confirm this change please use link below:\n\n"+link+"\n\n" +
 				"Message is automatically generated." +
 				"\n----------------------------------------------------------------" +
-				"\nPerun - User and Resource Management System";
+				"\nPerun - Identity & Access Management System";
 
 			message.setText(text);
 
@@ -818,7 +831,15 @@ public class Utils {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
-		message.setSubject("[Perun] Password reset in namespace: "+namespace);
+
+		String instanceName = "Perun";
+		try {
+			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
+		} catch (InternalErrorException ex) {
+			// this is not a reason not to send notification
+		}
+
+		message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
 
 		// get validation link params
 		String i = cipherInput(String.valueOf(user.getId()), false);
@@ -845,7 +866,7 @@ public class Utils {
 					"\n\nPlease visit the link below, where you can set new password:\n\n"+link+"\n\n" +
 					"Message is automatically generated." +
 					"\n----------------------------------------------------------------" +
-					"\nPerun - User and Resource Management System";
+					"\nPerun - Identity & Access Management System";
 
 			message.setText(text);
 
@@ -877,7 +898,15 @@ public class Utils {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
-		message.setSubject("[Perun] Password reset in namespace: "+namespace);
+
+		String instanceName = "Perun";
+		try {
+			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
+		} catch (InternalErrorException ex) {
+			// this is not a reason not to send notification
+		}
+
+		message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
 
 		// get validation link params
 		String i = cipherInput(String.valueOf(user.getId()), false);
@@ -885,11 +914,11 @@ public class Utils {
 
 			// Build message
 			String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
-					"\n\nThis message is automatically sent to all your email addresses registered in Perun in order to prevent malicious password reset without your knowledge.\n\n" +
-					"If you didn't request / perform password reset, please notify your VO administrator and support at "+BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom")+" to resolve this security issue.\n\n" +
+					"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious password reset without your knowledge.\n\n" +
+					"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom")+" to resolve this security issue.\n\n" +
 					"Message is automatically generated." +
 					"\n----------------------------------------------------------------" +
-					"\nPerun - User and Resource Management System";
+					"\nPerun - Identity & Access Management System";
 
 			message.setText(text);
 
@@ -938,4 +967,191 @@ public class Utils {
 
 	}
 
+	/**
+	 * Checks whether the destination is not null and is of the right type.
+	 *
+	 * @param destination destination to check
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException if destination is null
+	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongPatternException if destination is not of the right type
+	 */
+	public static void checkDestinationType(Destination destination) throws InternalErrorException, WrongPatternException  {
+		if (destination == null) {
+			throw new InternalErrorException("Destination is null.");
+		}
+		String destinationType = destination.getType();
+		if ((!destinationType.equals(Destination.DESTINATIONHOSTTYPE)
+				&& (!destinationType.equals(Destination.DESTINATIONEMAILTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONSEMAILTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONURLTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONUSERHOSTTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONUSERHOSTPORTTYPE))
+				&& (!destinationType.equals(Destination.DESTINATIONSERVICESPECIFICTYPE)))) {
+			throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
+		}
+	}
+	
+	/**
+	 * Sends SMS to the phone number of a user with the given message.
+	 * The phone number is taken from the user attribute urn:perun:user:attribute-def:def:phone.
+	 * 
+	 * @param sess session
+	 * @param user receiver of the message
+	 * @param message sms message to send
+	 * @throws InternalErrorException when the attribute value cannot be found or is broken
+	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException when the actor has not right to get the attribute
+	 * @throws cz.metacentrum.perun.core.api.exceptions.UserNotExistsException when given user does not exist
+	 */
+	public static void sendSMS(PerunSession sess, User user, String message) throws InternalErrorException, PrivilegeException, UserNotExistsException {
+		if (user == null) {
+			throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("user is null");
+		}
+		if (message == null) {
+			throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException("message is null");
+		}
+		String telNumber;
+		try {
+			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, user, userPhoneAttribute).getValue();
+		} catch (AttributeNotExistsException ex ) {
+			log.info("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
+			throw new InternalErrorException("The attribute " + userPhoneAttribute + " has not been found.", ex);
+		} catch (WrongAttributeAssignmentException ex) {
+			log.info("Sendig SMS with text \"" + message + "\" to user " + user + "failed: cannot get tel. number." );
+			throw new InternalErrorException("The attribute " + userPhoneAttribute + " has not been found in user attributes.", ex);
+		}
+		sendSMS(telNumber, message);
+	}
+	
+	/**
+	 * Sends SMS to the phone number of a member with the given message.
+	 * The phone number is taken from the user attribute urn:perun:member:attribute-def:def:phone.
+	 * 
+	 * @param sess session
+	 * @param member receiver of the message
+	 * @param message sms message to send
+	 * @throws InternalErrorException when the attribute value cannot be found or is broken
+	 * @throws cz.metacentrum.perun.core.api.exceptions.PrivilegeException when the actor has not right to get the attribute
+	 * @throws cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException when given member does not exist
+	 */
+	public static void sendSMS(PerunSession sess, Member member, String message) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
+		String telNumber;
+		try {
+			telNumber = (String) sess.getPerun().getAttributesManager().getAttribute(sess, member, memberPhoneAttribute).getValue();
+		} catch (AttributeNotExistsException ex) {
+			log.info("Sendig SMS with text \"" + message + "\" to member " + member + " failed: cannot get tel. number." );
+			throw new InternalErrorException("The attribute " + memberPhoneAttribute + " has not been found.", ex);
+		} catch (WrongAttributeAssignmentException ex) {
+			log.info("Sendig SMS with text \"" + message + "\" to member " + member + " failed: cannot get tel. number." );
+			throw new InternalErrorException("The attribute " + memberPhoneAttribute + " has not been found in user attributes.", ex);
+		}
+		sendSMS(telNumber, message);
+	}
+	
+	/**
+	 * Sends SMS to the phone number with the given message.
+	 * The sending provides external program for sending sms.
+	 * Its path is saved in the perun property perun.sms.program.
+	 * 
+	 * @param telNumber phone number of the receiver
+	 * @param message sms message to send
+	 * @throws InternalErrorException when there is something wrong with external program
+	 * @throws IllegalArgumentException when the phone or message has a wrong format
+	 */
+	public static void sendSMS(String telNumber, String message) throws InternalErrorException {
+		log.info("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + ".");
+		
+		try {
+			// create properties list
+			List<String> processProperties = new ArrayList<>();
+			// pass the location of external program for sending sms
+			processProperties.add(BeansUtils.getPropertyFromConfiguration("perun.sms.program"));			
+			// pass program options
+			processProperties.add("-p");
+			processProperties.add(telNumber);
+			processProperties.add("-m");
+			processProperties.add(message);
+			// execute
+			ProcessBuilder pb = new ProcessBuilder(processProperties);			
+			Process process;
+			process = pb.start();
+			int exitValue;
+			try {
+				exitValue = process.waitFor();
+			} catch (InterruptedException ex) {
+				String errMsg = "The external process for sending sms was interrupted.";
+				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				throw new InternalErrorException(errMsg, ex);
+			}
+			
+			// handle response
+			if (exitValue == 0) {
+				// successful
+				log.info("SMS with text \"" + message + "\" to tel. number " + telNumber + " successfully sent.");
+			} else if ((exitValue == 1) || (exitValue == 2)) {
+				// users fault
+				String errMsg = getStringFromInputStream(process.getErrorStream());
+				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				throw new cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException(errMsg);
+			} else if (exitValue > 2) {
+				// internal fault
+				String errMsg = getStringFromInputStream(process.getErrorStream());
+				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+				throw new InternalErrorException(errMsg);
+			}
+			
+		} catch (IOException ex) {
+			log.info("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
+			throw new InternalErrorException("Cannot access the sms external application.", ex);
+		}
+		
+	}
+
+	/**
+	 * Get BigDecimal number like '1024' in Bytes and create better readable
+	 * String with metric value like '1K' where K means KiloBytes.
+	 *
+	 * Use M,G,T,P,E like multipliers of 1024.
+	 *
+	 * If quota is not dividable by 1024 use B (Bytes) without dividing.
+	 *
+	 * @param quota in big natural number
+	 * @return string with number and metric
+	 */
+	public static String bigDecimalBytesToReadableStringWithMetric(BigDecimal quota) throws InternalErrorException {
+		if(quota == null) throw new InternalErrorException("Quota in BigDecimal can't be null if we want to convert it to number with metric.");
+		//Prepare variable for result
+		String stringWithMetric;
+		//Try to divide quota to get result module 1024^x = 0 where X is in [K-0,M-1,G-2,T-3,P-4,E-5]
+		//If module is bigger than 0, try x-1
+		if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.E)).stripTrailingZeros().toPlainString().contains(".")) {
+			//divide by 1024^5
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.E)).stripTrailingZeros().toPlainString() + "E";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.P)).stripTrailingZeros().toPlainString().contains(".")) {
+			//divide by 1024^4
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.P)).stripTrailingZeros().toPlainString() + "P";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.T)).stripTrailingZeros().toPlainString().contains(".")) {
+			//divide by 1024^3
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.T)).stripTrailingZeros().toPlainString() + "T";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.G)).stripTrailingZeros().toPlainString().contains(".")) {
+			//divide by 1024^2
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.G)).stripTrailingZeros().toPlainString() + "G";
+		} else if(!quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).stripTrailingZeros().toPlainString().contains(".")) {
+			//divide by 1024^1
+			stringWithMetric = quota.divide(BigDecimal.valueOf(ModulesUtilsBlImpl.M)).stripTrailingZeros().toPlainString() + "M";
+		} else {
+			//can't be diveded by 1024^x where x>0 so let it be in the format like it already is, convert it to BigInteger without fractional part
+			stringWithMetric = quota.toBigInteger().toString() + "K";
+		}
+		//return result format with metric
+		return stringWithMetric;
+	}
+	
+	private static String getStringFromInputStream(InputStream is) throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		StringBuilder out = new StringBuilder();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			out.append(line);
+		}
+		return out.toString();
+	}
 }

@@ -153,6 +153,9 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("<h2>Your IDP doesn`t provide data required by application form.</h2><h2>Please contact your IDP to resolve this issue or try to log-in with different IDP.</h2>")
 	String missingDataFromIDP();
 
+	@DefaultMessage("<strong>Can`t reconstruct {0}. Missing IDP attributes: displayName, cn, givenName, sn.</strong>")
+	String cantResolveIDPNameAttribute(String attrName);
+
 	@DefaultMessage("<strong>Missing IDP attribute: </strong>")
 	String missingIDPAttribute();
 
@@ -162,8 +165,8 @@ public interface ApplicationMessages extends Messages {
 	@DefaultMessage("<h2>You are already member of VO.</h2>")
 	String alreadyVoMember();
 
-	@DefaultMessage("Membership in group {0} cannot be extended. It last as long as membership in VO {1}.")
-	String groupMembershipCantBeExtended(String groupName, String voName);
+	@DefaultMessage("You are already member of {0}.")
+	String groupMembershipCantBeExtended(String groupName);
 
 	@DefaultMessage("Processing...")
 	String processing();

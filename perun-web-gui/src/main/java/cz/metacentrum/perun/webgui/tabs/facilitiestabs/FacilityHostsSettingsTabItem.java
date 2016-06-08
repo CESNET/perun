@@ -191,9 +191,11 @@ public class FacilityHostsSettingsTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		menu.addWidget(saveChangesButton);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				Map<String, Integer> ids = new HashMap<String, Integer>();

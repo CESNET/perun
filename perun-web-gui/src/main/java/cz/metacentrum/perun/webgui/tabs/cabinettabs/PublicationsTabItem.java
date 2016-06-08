@@ -74,15 +74,6 @@ public class PublicationsTabItem implements TabItem, TabItemWithUrl{
 		menu.setHTML(0, 2, "&nbsp;");
 		menu.getFlexCellFormatter().setWidth(0, 2, "25px");
 
-		CustomButton cb = new CustomButton("", "Refresh page content", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent clickEvent) {
-				tabPanel.getSelectedTabItem().draw();
-			}
-		});
-		dp.add(cb);
-		cb.getElement().setAttribute("style", "position: absolute; right: 5px; top: 5px;");
-
 		dp.add(menu);
 		firstTabPanel.add(dp);
 		firstTabPanel.setCellHeight(dp, "30px");

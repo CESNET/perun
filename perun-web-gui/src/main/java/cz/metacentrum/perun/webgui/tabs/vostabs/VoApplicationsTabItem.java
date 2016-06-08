@@ -100,7 +100,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		// request
 		final GetApplicationsForVo applicationsRequest = new GetApplicationsForVo(vo.getId());
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(applicationsRequest);
-		if (!session.isVoAdmin(voId)) applicationsRequest.setCheckable(false);
+		applicationsRequest.setCheckable(false);
 
 		this.titleWidget.setText(Utils.getStrippedStringWithEllipsis(vo.getName())+": "+"applications");
 
@@ -112,6 +112,11 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		TabMenu menu = new TabMenu();
 		firstTabPanel.add(menu);
 		firstTabPanel.setCellHeight(menu, "30px");
+
+		// refresh
+		menu.addWidget(UiElements.getRefreshButton(this));
+
+		/*
 
 		// verify button
 		final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
@@ -215,6 +220,8 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		menu.addWidget(reject);
 		menu.addWidget(delete);
 
+		*/
+
 		// FILTER
 		menu.addWidget(new HTML("<strong>State: </strong>"));
 
@@ -224,7 +231,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew(), "NEW");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateVerified(), "VERIFIED");
-		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
+		stateListBox.addItem("Pending", "NEW,VERIFIED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
 		stateListBox.setSelectedIndex(selectedIndex);
@@ -260,6 +267,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
 
+		/*
 		verify.setEnabled(false);
 		approve.setEnabled(false);
 		reject.setEnabled(false);
@@ -273,6 +281,7 @@ public class VoApplicationsTabItem implements TabItem, TabItemWithUrl{
 		if (session.isPerunAdmin()) {
 			JsonUtils.addTableManagedButton(applicationsRequest, table, verify);
 		}
+		*/
 
 		session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);

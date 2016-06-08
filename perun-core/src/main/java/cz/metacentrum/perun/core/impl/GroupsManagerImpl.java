@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,6 +18,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
@@ -261,7 +263,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	public List<User> getGroupUsers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from groups_members join members on members.id=member_id join " +
-					"users on members.user_id=users.id where group_id=? order by "+Compatibility.orderByBinary("users.last_name")+", " +
+					"users on members.user_id=users.id where group_id=? order by " + Compatibility.orderByBinary("users.last_name") + ", " +
 					Compatibility.orderByBinary("users.first_name"), UsersManagerImpl.USER_MAPPER, group.getId());
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -389,12 +391,13 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	public Member addMember(PerunSession sess, Group group, Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
-		//TODO already member exception
 		member.setMembershipType(type);
 		try {
 			jdbc.update("insert into groups_members (group_id, member_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid, membership_type, source_group_id) " +
 					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?,?,?)", group.getId(),
 					member.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(), type.getCode(), sourceGroupId);
+		} catch(DuplicateKeyException ex) {
+			throw new AlreadyMemberException(member);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -421,20 +424,9 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
-
-	public List<Integer> getMemberGroupsIds(PerunSession sess, Member member, Vo vo) throws InternalErrorException {
-		try {
-			return jdbc.query("select groups.id as id from groups_members join groups on groups_members.group_id = groups.id " +
-					"where groups.vo_id=? and groups_members.member_id=?",
-					Utils.ID_MAPPER, vo.getId(), member.getId());
-		} catch(RuntimeException ex) {
-			throw new InternalErrorException(ex);
-		}
-	}
-
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + groupMappingSelectQuery + " from groups_members join groups on groups_members.group_id = groups.id " +
+			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups_members join groups on groups_members.group_id = groups.id " +
 					" where groups_members.member_id=?",
 					GROUP_MAPPER, member.getId());
 		} catch (EmptyResultDataAccessException e) {
@@ -442,21 +434,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-	}
-
-	public List<Integer> getMemberGroupsIdsForResources(PerunSession sess, Member member, Vo vo) throws InternalErrorException {
-		/*XXX New DB implementation ...
-		//FIXME Where can I get the resource?
-		try {
-		jdbc.query("select groups_members.group_id as id from groups_members join groups_resources on groups_members.group_id = groups_resources.group_id " +
-		"where groups_members.member_id=? and groups_resources.resource_id=?",
-		Utils.ID_MAPPER, member.getId(), resource.getId());
-		} catch(RuntimeException ex) {
-		throw new InternalErrorException(ex);
-		}
-		*/
-		//FIXME delete this method after removing grouper
-		throw new InternalErrorException("Unsupported method");
 	}
 
 	public List<Group> getGroupsByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException {
@@ -668,6 +645,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			return jdbc.queryForInt("select count(*) from groups");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + groupMappingSelectQuery +
+					" from group_ext_sources g_exts inner join groups on g_exts.group_id=groups.id " +
+					" where g_exts.ext_source_id=? and groups.vo_id=?", GROUP_MAPPER, source.getId(), vo.getId());
+
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 }

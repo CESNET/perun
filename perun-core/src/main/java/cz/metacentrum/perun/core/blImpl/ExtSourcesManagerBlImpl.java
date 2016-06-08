@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -27,6 +28,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ParserException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl;
@@ -54,9 +56,9 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		this.extSourcesManagerImpl.initialize(sess);
 	}
 
-	public ExtSource createExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException {
+	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException {
 		getPerunBl().getAuditer().log(sess, "{} created.", extSource);
-		return getExtSourcesManagerImpl().createExtSource(sess, extSource);
+		return getExtSourcesManagerImpl().createExtSource(sess, extSource, attributes);
 	}
 
 	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException {
@@ -76,12 +78,23 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		return getExtSourcesManagerImpl().getVoExtSources(sess, vo);
 	}
 
+	@Override
+	public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws InternalErrorException {
+		return getExtSourcesManagerImpl().getGroupExtSources(sess, group);
+	}
+
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException {
 		return getExtSourcesManagerImpl().getExtSources(sess);
 	}
 	public void addExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
 		getExtSourcesManagerImpl().addExtSource(sess, vo, source);
 		getPerunBl().getAuditer().log(sess, "{} added to {}.", source, vo);
+	}
+
+	@Override
+	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceAlreadyAssignedException {
+		getExtSourcesManagerImpl().addExtSource(sess, group, source);
+		getPerunBl().getAuditer().log(sess, "{} added to {}.", source, group);
 	}
 
 	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException {
@@ -94,7 +107,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			extSource.setName(extSourceName);
 			extSource.setType(extSourceType);
 			try {
-				return this.createExtSource(sess, extSource);
+				return this.createExtSource(sess, extSource, null);
 			} catch (ExtSourceExistsException e1) {
 				throw new ConsistencyErrorException("Creating existing extSource", e1);
 			}
@@ -102,8 +115,19 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	public void removeExtSource(PerunSession sess, Vo vo, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		List<Group> groupsWithAssignedExtSource = getPerunBl().getGroupsManagerBl().getGroupsWithAssignedExtSourceInVo(sess, source, vo);
+		for(Group group: groupsWithAssignedExtSource) {
+			getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
+		}
+
 		getExtSourcesManagerImpl().removeExtSource(sess, vo, source);
 		getPerunBl().getAuditer().log(sess, "{} removed from {}.", source, vo);
+	}
+
+	@Override
+	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		getExtSourcesManagerImpl().removeExtSource(sess, group, source);
+		getPerunBl().getAuditer().log(sess, "{} removed from {}.", source, group);
 	}
 
 	public List<User> getInvalidUsers(PerunSession sess, ExtSource source) throws InternalErrorException {
@@ -163,7 +187,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 	}
 
 	@Override
-	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException  {
+	public Candidate getCandidate(PerunSession sess, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
 		// New Canddate
 		Candidate candidate = new Candidate();
 
@@ -215,6 +239,18 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			}
 		}
 
+		//Set sponsored user
+		if(subject.get("isSponsoredUser") == null) {
+			candidate.setSponsoredUser(false);
+		} else {
+			String isSponsoredUser = subject.get("isSponsoredUser");
+			if(isSponsoredUser.equals("true")) {
+				candidate.setSponsoredUser(true);
+			} else {
+				candidate.setSponsoredUser(false);
+			}
+		}
+
 		// Additional userExtSources
 		List<UserExtSource> additionalUserExtSources = new ArrayList<UserExtSource>();
 
@@ -231,11 +267,17 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				String[] userExtSourceRaw =  subject.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
 				log.debug("Processing additionalUserExtSource {}",  subject.get(attrName));
 
+				//Check if the array has at least 3 parts, this is protection against outOfBoundException
+				if(userExtSourceRaw.length < 3) {
+					throw new InternalErrorException("There is missing some mandatory part of additional user extSource value when processing it - '" + attrName + "'");
+				}
+
 				String additionalExtSourceName = userExtSourceRaw[0];
 				String additionalExtSourceType = userExtSourceRaw[1];
 				String additionalExtLogin = userExtSourceRaw[2];
-				int additionalExtLoa = -1;
-				if (userExtSourceRaw[3] != null) {
+				int additionalExtLoa = 0;
+				//Loa is not mandatory argument
+				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
 					try {
 						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
 					} catch (NumberFormatException e) {
@@ -257,16 +299,13 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 						try {
 							// Create new one if not exists
 							additionalExtSource = new ExtSource(additionalExtSourceName, additionalExtSourceType);
-							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, additionalExtSource);
+							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, additionalExtSource, null);
 						} catch (ExtSourceExistsException e1) {
 							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
 						}
 					}
-					if (additionalExtLoa != -1) {
-						additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
-					} else {
-						additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLogin));
-					}
+					//add additional user extSource
+					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
 				}
 			}
 		}
@@ -277,7 +316,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		return candidate;
 	}
 
-	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException,ExtSourceUnsupportedOperationException {
+	public Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException {
 		if(login == null || login.isEmpty()) throw new InternalErrorException("Login can't be empty or null.");
 		if(subjectData == null || subjectData.isEmpty()) throw new InternalErrorException("Subject data can't be null or empty, at least login there must exists.");
 
@@ -320,6 +359,18 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 			}
 		}
 
+		//Set sponsored user
+		if(subjectData.get("isSponsoredUser") == null) {
+			candidate.setSponsoredUser(false);
+		} else {
+			String isSponsoredUser = subjectData.get("isSponsoredUser");
+			if(isSponsoredUser.equals("true")) {
+				candidate.setSponsoredUser(true);
+			} else {
+				candidate.setSponsoredUser(false);
+			}
+		}
+
 		// Additional userExtSources
 		List<UserExtSource> additionalUserExtSources = new ArrayList<UserExtSource>();
 
@@ -336,11 +387,17 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 				String[] userExtSourceRaw =  subjectData.get(attrName).split("\\|"); // Entry contains extSourceName|extSourceType|extLogin[|LoA]
 				log.debug("Processing additionalUserExtSource {}",  subjectData.get(attrName));
 
+				//Check if the array has at least 3 parts, this is protection against outOfBoundException
+				if(userExtSourceRaw.length < 3) {
+					throw new InternalErrorException("There is missing some mandatory part of additional user extSource value when processing it - '" + attrName + "'");
+				}
+
 				String additionalExtSourceName = userExtSourceRaw[0];
 				String additionalExtSourceType = userExtSourceRaw[1];
 				String additionalExtLogin = userExtSourceRaw[2];
-				int additionalExtLoa = -1;
-				if (userExtSourceRaw[3] != null) {
+				int additionalExtLoa = 0;
+				//Loa is not mandatory argument
+				if (userExtSourceRaw.length>3 && userExtSourceRaw[3] != null) {
 					try {
 						additionalExtLoa = Integer.parseInt(userExtSourceRaw[3]);
 					} catch (NumberFormatException e) {
@@ -362,16 +419,13 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 						try {
 							// Create new one if not exists
 							additionalExtSource = new ExtSource(additionalExtSourceName, additionalExtSourceType);
-							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(perunSession, additionalExtSource);
+							additionalExtSource = getPerunBl().getExtSourcesManagerBl().createExtSource(perunSession, additionalExtSource, null);
 						} catch (ExtSourceExistsException e1) {
 							throw new ConsistencyErrorException("Creating existin extSource: " + additionalExtSourceName);
 						}
 					}
-					if (additionalExtLoa != -1) {
-						additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
-					} else {
-						additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLogin));
-					}
+					//add additional user extSource
+					additionalUserExtSources.add(new UserExtSource(additionalExtSource, additionalExtLoa, additionalExtLogin));
 				}
 			}
 		}
@@ -382,7 +436,19 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		return candidate;
 	}
 
+	@Override
+	public void checkExtSourceAssignedToVo(PerunSession sess, ExtSource extSource, int voId) throws InternalErrorException, ExtSourceNotAssignedException, VoNotExistsException {
+		Vo vo = getPerunBl().getVosManagerBl().getVoById(sess, voId);
+		List<ExtSource> voExtSources = getPerunBl().getExtSourcesManagerBl().getVoExtSources(sess, vo);
+
+		if(!voExtSources.contains(extSource)) throw new ExtSourceNotAssignedException("ExtSource " + extSource + " is not assigned to vo " + vo);
+	}
+
 	public void loadExtSourcesDefinitions(PerunSession sess) {
 		getExtSourcesManagerImpl().loadExtSourcesDefinitions(sess);
+	}
+
+	public Map<String, String> getAttributes(ExtSource extSource) {
+		return getExtSourcesManagerImpl().getAttributes(extSource);
 	}
 }

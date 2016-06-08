@@ -1,6 +1,3 @@
-/**
- *
- */
 package cz.metacentrum.perun.core.impl;
 
 import java.sql.Connection;
@@ -12,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.tomcat.dbcp.dbcp.DriverManagerConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +27,19 @@ import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceSql.class);
-	private static Map<String, String> attributeNameMapping;
+	private static final Map<String, String> attributeNameMapping = new HashMap<>();
 	private Connection con;
 	private boolean isOracle = false;
 
-	public ExtSourceSql() {
-		attributeNameMapping = new HashMap<String, String>();
+	private static PerunBlImpl perunBl;
+
+	// filled by spring (perun-core.xml)
+	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+		perunBl = perun;
+		return perun;
+	}
+
+	static {
 		attributeNameMapping.put("m", "urn:perun:member");
 		attributeNameMapping.put("u", "urn:perun:user");
 		attributeNameMapping.put("f", "urn:perun:facility");
@@ -45,9 +50,12 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		attributeNameMapping.put("mr", "urn:perun:member_resource");
 		attributeNameMapping.put("uf", "urn:perun:user_facility");
 		attributeNameMapping.put("gr", "urn:perun:group_resource");
-
 		attributeNameMapping.put("o", ":attribute-def:opt:");
 		attributeNameMapping.put("d", ":attribute-def:def:");
+	}
+
+
+	public ExtSourceSql() {
 	}
 
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException {
@@ -256,5 +264,9 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 				throw new InternalErrorException(e);
 			}
 		}
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 /**
  * This class provide support for compatibility issues.
@@ -42,6 +44,19 @@ public class Compatibility {
 			return "'now'";
 		} else if (dbType.equals("hsqldb")) {
 			return "current_date";
+		} else {
+			throw new InternalErrorException("unknown DB type");
+		}
+	}
+
+	public static Object getDate(long dateInMiliseconds) throws InternalErrorException {
+		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
+		if (dbType.equals("oracle")) {
+			return new Date(dateInMiliseconds);
+		} else if (dbType.equals("postgresql")) {
+			return new Timestamp(dateInMiliseconds);
+		} else if (dbType.equals("hsqldb")) {
+			return new Timestamp(dateInMiliseconds);
 		} else {
 			throw new InternalErrorException("unknown DB type");
 		}
@@ -86,11 +101,11 @@ public class Compatibility {
 		try {
 			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
-				return "";
+				return " "+aliasName;
 			} else if (dbType.equals("postgresql")) {
 				return "as "+aliasName;
 			} else {
-				return "";
+				return " "+aliasName;
 			}
 		} catch (InternalErrorException ex) {
 			return "";
@@ -133,9 +148,10 @@ public class Compatibility {
 		try {
 			String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 			if (dbType.equals("oracle")) {
-				return "convert("+columnName+", 'US7ASCII', 'UTF8')"; // DESTINATION / SOURCE
+				// convert column type to VARCHAR2 from (N)VARCHAR2 and modify encoding from UTF to US7ASCII
+				return "to_char(convert("+columnName+", 'US7ASCII', 'UTF8'))"; // DESTINATION / SOURCE
 			} else if (dbType.equals("postgresql")) {
-				return "unaccent("+columnName+")";   // SOURCE  / DESTINATION
+				return "unaccent("+columnName+")";
 			} else if (dbType.equals("hsqldb")){
 				return "translate("+columnName+", 'ÁÇÉÍÓÚÀÈÌÒÙÚÂÊÎÔÛÃÕËÜŮŘřáçéíóúàèìòùâêîôûãõëüů', 'ACEIOUUAEIOUAEIOUAOEUURraceiouaeiouaeiouaoeuu')";
 			} else {

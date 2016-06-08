@@ -40,6 +40,16 @@ public interface LdapConnector {
 	 */
 	public void createResource(Resource resource) throws InternalErrorException;
 
+	/**
+	 * Return true if resource attribute with ldapAttributeName in ldap exists.
+	 *
+	 * @param resource resource in perun
+	 * @param ldapAttributeName name of user ldap attribute
+	 * @return true if attribute in ldap exists, false if not
+	 * @throws InternalErrorException if ldapAttributeName is null
+	 */
+	public boolean resourceAttributeExist(Resource resource, String ldapAttributeName) throws InternalErrorException;
+
 	//---------------------GROUP METHODS------------------------------------------
 	/**
 	 * Add group to LDAP.

@@ -184,16 +184,15 @@ public class GetApplicationDataById implements JsonCallback{
 					// 0 = label or shortname
 					if (item.getFormItem().getType().startsWith("FROM_FEDERATION_HIDDEN")) {
 						// hidden
-						ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong> <i>(FED. HIDDEN)</i>");
+						ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong><br /><i>(value provided by external source)</i>");
 					} else if (item.getFormItem().getType().startsWith("FROM_FEDERATION_SHOW")) {
 						// show
-						ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong> <i>(FEDERATION)</i>");
+						ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong><br /><i>(value provided by external source)</i>");
 					} else {
-						// others
 						ft.setHTML(i, 0, "<strong>" + gen.getLabelOrShortname() + "</strong>");
 					}
 
-					// value
+					// 1 = value
 					ft.setWidget(i, 1, new HTML(item.getValue()));
 
 					// format

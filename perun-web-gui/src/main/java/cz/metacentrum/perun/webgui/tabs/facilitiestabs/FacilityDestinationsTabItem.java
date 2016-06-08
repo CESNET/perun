@@ -113,8 +113,10 @@ public class FacilityDestinationsTabItem implements TabItem, TabItemWithUrl{
 		vp.add(sp);
 		session.getUiElements().resizePerunTable(sp, 350, this);
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		// buttons
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addDestination(), new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addDestination(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AddFacilityDestinationTabItem(facility));
 			}

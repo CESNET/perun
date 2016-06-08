@@ -47,8 +47,7 @@ public class AddExtSource {
 	 * @param voId ID of VO, where should be ext source added
 	 * @param extSourceId ID of external source to be added
 	 */
-	public void addExtSource(final int voId,final int extSourceId)
-	{
+	public void addExtSource(final int voId,final int extSourceId) {
 
 		this.voId = voId;
 		this.extSourceId = extSourceId;
@@ -71,6 +70,46 @@ public class AddExtSource {
 
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("External source: "+ extSourceId +" successfully added to Vo: "+ voId);
+				events.onFinished(jso);
+			};
+
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+
+		};
+
+		// create request
+		JsonPostClient request = new JsonPostClient(newEvents);
+		request.sendData(JSON_URL, jsonQuery);
+
+	}
+
+	/**
+	 * Attempts to add external source to Group in DB - make RPC call
+	 *
+	 * @param groupId ID of Group, where should be ext source added
+	 * @param extSourceId ID of external source to be added
+	 */
+	public void addGroupExtSource(final int groupId,final int extSourceId) {
+
+		this.extSourceId = extSourceId;
+
+		// create whole JSON query
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("source", new JSONNumber(extSourceId));
+		jsonQuery.put("group", new JSONNumber(groupId));
+
+		// local events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Adding external source: " + extSourceId + " to group: " + groupId + " failed.");
+				events.onError(error);
+			};
+
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("External source: "+ extSourceId +" successfully added to group: "+ groupId);
 				events.onFinished(jso);
 			};
 

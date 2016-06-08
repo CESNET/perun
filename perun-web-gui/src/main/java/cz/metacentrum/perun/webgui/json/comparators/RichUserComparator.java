@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.json.comparators;
 
+import cz.metacentrum.perun.webgui.client.resources.Collator;
 import cz.metacentrum.perun.webgui.model.Attribute;
 import cz.metacentrum.perun.webgui.model.User;
 
@@ -72,14 +73,14 @@ public class RichUserComparator implements Comparator<User>{
 		String at1value = "";
 		String at2value = "";
 
-		if (at1 != null) {
+		if (at1 != null && at1.getValue() != null && !"null".equalsIgnoreCase(at1.getValue())) {
 			at1value = at1.getValue();
 		}
-		if (at2 != null) {
+		if (at2 != null && at2.getValue() != null && !"null".equalsIgnoreCase(at2.getValue())) {
 			at2value = at2.getValue();
 		}
 
-		return at1value.compareTo(at2value);
+		return Collator.getInstance().compare(at1value, at2value);
 	}
 
 	/**
@@ -96,14 +97,14 @@ public class RichUserComparator implements Comparator<User>{
 		String at1value = "";
 		String at2value = "";
 
-		if (at1 != null) {
+		if (at1 != null && at1.getValue() != null && !"null".equalsIgnoreCase(at1.getValue())) {
 			at1value = at1.getValue();
 		}
-		if (at2 != null) {
+		if (at2 != null && at2.getValue() != null && !"null".equalsIgnoreCase(at2.getValue())) {
 			at2value = at2.getValue();
 		}
 
-		return at1value.compareTo(at2value);
+		return Collator.getInstance().compare(at1value, at2value);
 	}
 
 }

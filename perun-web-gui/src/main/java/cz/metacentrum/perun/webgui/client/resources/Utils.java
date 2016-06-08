@@ -22,7 +22,9 @@ public class Utils {
 	public static final String GROUP_SHORT_NAME_MATCHER = "^[- a-zA-Z.0-9_]+$";
 	public static final String VO_SHORT_NAME_MATCHER = "^[-a-zA-Z0-9_.]+$";
 	public static final String ATTRIBUTE_FRIENDLY_NAME_MATCHER = "^[-a-zA-Z0-9.]+([:][-a-zA-Z0-9.]+)?$";
-	public static final String LOGIN_VALUE_MATCHER = "^[a-zA-Z0-9][-A-z0-9_.@/]*$";
+	public static final String LOGIN_VALUE_MATCHER = "^[a-zA-Z0-9_][-A-z0-9_.@/]*$";
+
+	public static final String SERVICE_NAME_TO_SCRIP_PATH_MATCHER= "[^a-zA-Z0-9-_]+";
 
 	/**
 	 * Return stripped string with ellipsis of custom length
@@ -81,34 +83,15 @@ public class Utils {
 			// always use URL of machine, where GUI runs
 			String baseUrl = Window.Location.getProtocol() + "//" + Window.Location.getHost();
 
-			// FIXME - production consolidator is still using old URL scheme
-			final String URL_KRB = baseUrl + "/perun-identity-consolidator-krb/";
-			final String URL_FED = baseUrl + "/perun-identity-consolidator-fed/";
-			final String URL_CERT = baseUrl + "/perun-identity-consolidator-cert/";
-			String rpc = "";
-			String link = "";
-
-			if (PerunWebSession.getInstance().getRpcServer() != null) {
-				rpc = PerunWebSession.getInstance().getRpcServer();
-			}
-
-			if (rpc.equalsIgnoreCase("krb")) {
-				link = URL_KRB;
-			} else if (rpc.equalsIgnoreCase("fed")) {
-				link = URL_FED;
-			} else if (rpc.equalsIgnoreCase("cert")) {
-				link = URL_CERT;
-			} else {
-				// KRB AS BACKUP - "default"
-				link = URL_KRB;
-			}
+			String url = baseUrl + "/" + PerunWebSession.getInstance().getRpcServer() + "/ic/";
 
 			if (target) {
 				// FIXME - ENCODE QUERY STRING 2 TIMES BECAUSE OF CONSOLIDATOR APP
-				link += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() +  URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString()));
+				url += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() +  URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString()));
 			}
 
-			return link;
+			return url;
+
 		}
 
 	}
@@ -141,29 +124,14 @@ public class Utils {
 			// always use URL of machine, where GUI runs
 			String baseUrl = Window.Location.getProtocol() + "//" + Window.Location.getHost();
 
-			// FIXME - production consolidator is still using old URL scheme
-			final String URL_KRB = baseUrl + "/perun-identity-consolidator-krb/";
-			final String URL_FED = baseUrl + "/perun-identity-consolidator-fed/";
-			final String URL_CERT = baseUrl + "/perun-identity-consolidator-cert/";
-			String link = "";
-
-			if (authz.equalsIgnoreCase("krb")) {
-				link = URL_KRB;
-			} else if (authz.equalsIgnoreCase("fed")) {
-				link = URL_FED;
-			} else if (authz.equalsIgnoreCase("cert")) {
-				link = URL_CERT;
-			} else {
-				// KRB AS BACKUP - "default"
-				link = URL_KRB;
-			}
+			String url = baseUrl + "/" + authz + "/ic/";
 
 			if (target) {
 				// FIXME - ENCODE QUERY STRING 2 TIMES BECAUSE OF CONSOLIDATOR APP
-				link += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() + URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString()));
+				url += "?target_url=" + Window.Location.getProtocol() + "//" + Window.Location.getHost() + Window.Location.getPath() + URL.encodeQueryString(URL.encodeQueryString(Window.Location.getQueryString()));
 			}
 
-			return link;
+			return url;
 		}
 
 	}
@@ -1173,6 +1141,8 @@ public class Utils {
 		orgs.put("@linkedin.extidp.cesnet.cz", "LinkedIn");
 		orgs.put("@twitter.extidp.cesnet.cz", "Twitter");
 		orgs.put("@seznam.extidp.cesnet.cz", "Seznam");
+		orgs.put("@github.extidp.cesnet.cz", "GitHub");
+		orgs.put("@orcid.extidp.cesnet.cz", "OrcID");
 
 		if (orgs.get(name) != null) {
 			return orgs.get(name);

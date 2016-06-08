@@ -93,13 +93,14 @@ public class ResourceAssignedGroupsTabItem implements TabItem, TabItemWithUrl{
 		vp.setSize("100%", "100%");
 
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 
 		final GetAssignedGroups resourceGroups = new GetAssignedGroups(resourceId);
 
 
 		final JsonCallbackEvents localEvents = JsonCallbackEvents.refreshTableEvents(resourceGroups);
 
-		CustomButton assignGroupButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.assignGroupToResource(), new ClickHandler() {
+		CustomButton assignGroupButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.assignGroupToResource(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTabToCurrentTab(new AssignGroupTabItem(resource), true);
 			}

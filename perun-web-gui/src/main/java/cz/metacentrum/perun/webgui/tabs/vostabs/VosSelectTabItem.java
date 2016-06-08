@@ -7,6 +7,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
@@ -67,13 +68,14 @@ public class VosSelectTabItem implements TabItem, TabItemWithUrl {
 		getVos.setCheckable(false);
 
 		TabMenu tabMenu = new TabMenu();
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
 		// add menu to the main panel
 		firstTabPanel.add(tabMenu);
 		firstTabPanel.setCellHeight(tabMenu, "30px");
 
 		if (session.isVoAdmin()) {
 			// do not display to VO observer
-			tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createVo(), new ClickHandler() {
+			tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createVo(), new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
 					session.getTabManager().addTabToCurrentTab(new CreateVoTabItem());

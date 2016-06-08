@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.*;
 
 import java.util.ArrayList;
@@ -221,7 +222,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			if (parms.contains("service")) {
 				service = ac.getServiceById(parms.readInt("service"));
 			}
-			return ac.getFacilitiesManager().getAllowedGroups(ac.getSession(),facility, vo, service);
+			return ac.getFacilitiesManager().getAllowedGroups(ac.getSession(), facility, vo, service);
 		}
 	},
 
@@ -590,11 +591,11 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
-					parms.readBoolean("onlyDirectAdmins"));
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getFacilitiesManager().getAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+						ac.getFacilityById(parms.readInt("facility")));
 			}
 		}
 	},
@@ -661,13 +662,13 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 
 			if(parms.contains("onlyDirectAdmins")) {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")),
-					parms.readList("specificAttributes", String.class),
-					parms.readBoolean("allUserAttributes"),
-					parms.readBoolean("onlyDirectAdmins"));
+						ac.getFacilityById(parms.readInt("facility")),
+						parms.readList("specificAttributes", String.class),
+						parms.readBoolean("allUserAttributes"),
+						parms.readBoolean("onlyDirectAdmins"));
 			} else {
 				return ac.getFacilitiesManager().getRichAdmins(ac.getSession(),
-					ac.getFacilityById(parms.readInt("facility")));
+						ac.getFacilityById(parms.readInt("facility")));
 			}
 		}
 	},
@@ -888,16 +889,16 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 		public List<ContactGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("owner")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-				  ac.getOwnerById(parms.readInt("owner")));
+						ac.getOwnerById(parms.readInt("owner")));
 			} else if(parms.contains("user")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-				  ac.getUserById(parms.readInt("user")));
+						ac.getUserById(parms.readInt("user")));
 			} else if(parms.contains("group")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-				  ac.getGroupById(parms.readInt("group")));
+						ac.getGroupById(parms.readInt("group")));
 			} else if(parms.contains("facility")) {
 				return ac.getFacilitiesManager().getFacilityContactGroups(ac.getSession(),
-				  ac.getFacilityById(parms.readInt("facility")));
+						ac.getFacilityById(parms.readInt("facility")));
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "owner or user or group or facility");
 			}
@@ -908,17 +909,17 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 * Get contact group for the facility and the name.
 	 *
 	 * @param facility int Facility <code>id</code>
-	 * @param contactGroupName String name of the contact group
+	 * @param name String name of the contact group
 	 * @return ContactGroup contactGroup for the facility and the name
 	 */
 	getFacilityContactGroup {
 		@Override
 		public ContactGroup call(ApiCaller ac, Deserializer parms) throws PerunException {
-			if(parms.contains("facility") && parms.contains("contactGroupName")) {
+			if(parms.contains("facility") && parms.contains("name")) {
 				return ac.getFacilitiesManager().getFacilityContactGroup(ac.getSession(),
-				  ac.getFacilityById(parms.readInt("facility")), parms.readString("contactGroupName"));
+						ac.getFacilityById(parms.readInt("facility")), parms.readString("name"));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and contactGroupName");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility and name");
 			}
 		}
 	},
@@ -999,6 +1000,189 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			ac.getFacilitiesManager().removeFacilityContact(ac.getSession(),
 					parms.read("contactGroupToRemove", ContactGroup.class));
 
+			return null;
+		}
+	},
+
+	/*#
+	 * Return assigned security teams for specific facility
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @return List<SecurityTeam> assigned security teams fot given facility
+	 * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
+	 */
+	getAssignedSecurityTeams {
+		@Override
+		public List<SecurityTeam> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getAssignedSecurityTeams(ac.getSession(), ac.getFacilityById(parms.readInt("facility")));
+		}
+	},
+
+	/*#
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param securityTeam int SecurityTeam <code>id</code>
+	 * @throw SecurityTeamAlreadyAssignedException When SecurityTeam with given <code>id</code> is already assigned.
+	 * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
+	 * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
+	 */
+	assignSecurityTeam {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getFacilitiesManager().assignSecurityTeam(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+					ac.getSecurityTeamById(parms.readInt("securityTeam")));
+			return null;
+		}
+	},
+
+	/*#
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param facility int Facility <code>id</code>
+	 * @param securityTeam int SecurityTeam <code>id</code>
+	 * @throw SecurityTeamNotAssignedException When SecurityTeam with given <code>id</code> is not assigned.
+	 * @throw SecurityTeamNotExistsException When SecurityTeam with given <code>id</code> doesn't exists.
+	 * @throw FacilityNotExistsException When Facility with given <code>id</code> doesn't exists.
+	 */
+	removeSecurityTeam {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getFacilitiesManager().removeSecurityTeam(ac.getSession(), ac.getFacilityById(parms.readInt("facility")),
+					ac.getSecurityTeamById(parms.readInt("securityTeam")));
+			return null;
+		}
+	},
+
+	/*#
+	 *  Set ban for user on facility.
+	 *
+	 * @param banOnFacility BanOnFacility JSON object
+	 * @return BanOnFacility Created banOnFacility
+	 */
+	setBan {
+
+		@Override
+		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getFacilitiesManager().setBan(ac.getSession(),
+					parms.read("banOnFacility", BanOnFacility.class));
+
+		}
+	},
+
+	/*#
+	 *  Get Ban for user on facility by it's id.
+	 *
+	 * @param banId int BanOnFacility <code>id</code>
+	 * @return BanOnFacility banOnFacility
+	 */
+	getBanById {
+
+		@Override
+		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getBanById(ac.getSession(),
+					parms.readInt("banId"));
+
+		}
+	},
+
+	/*#
+	 *  Get ban by userId and facilityId.
+	 *
+	 * @param userId int User <code>id</code>
+	 * @param facilityId int Facility <code>id</code>
+	 * @return BanOnFacility banOnFacility
+	 */
+	getBan {
+
+		@Override
+		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getBan(ac.getSession(),
+					parms.readInt("userId"), parms.readInt("facilityId"));
+
+		}
+	},
+
+	/*#
+	 * Get all bans for user on any facility.
+	 *
+	 * @param userId int User <code>id</code>
+	 * @return List<BanOnFacility> userBansOnFacilities
+	 */
+	getBansForUser {
+
+		@Override
+		public List<BanOnFacility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getBansForUser(ac.getSession(),
+					parms.readInt("userId"));
+
+		}
+	},
+
+	/*#
+	 * Get all bans for user on the facility.
+	 *
+	 * @param facilityId int Facility <code>id</code>
+	 * @return List<BanOnFacility> usersBansOnFacility
+	 */
+	getBansForFacility {
+
+		@Override
+		public List<BanOnFacility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getFacilitiesManager().getBansForFacility(ac.getSession(),
+					parms.readInt("facilityId"));
+
+		}
+	},
+
+	/*#
+	 * Update existing ban (description, validation timestamp)
+	 *
+	 * @param banOnFacility BanOnFacility JSON object
+	 * @return BanOnFacility updated banOnFacility
+	 */
+	updateBan {
+
+		@Override
+		public BanOnFacility call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getFacilitiesManager().updateBan(ac.getSession(),
+					ac.getBanOnFacility(parms.readInt("banOnFacility")));
+
+		}
+	},
+
+	/*#
+	 * Remove specific ban by it's id.
+	 *
+	 * @param banId int BanOnFacility <code>id</code>
+	 */
+	/*#
+	 * Remove specific ban by userId and facilityId.
+	 *
+	 * @param userId int User <code>id</code>
+	 * @param facilityId int Facility <code>id</code>
+	 */
+	removeBan {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			if(parms.contains("banId")) {
+				ac.getFacilitiesManager().removeBan(ac.getSession(),
+					parms.readInt("banId"));
+			} else {
+				ac.getFacilitiesManager().removeBan(ac.getSession(),
+					parms.readInt("userId"), parms.readInt("facilityId"));
+			}
 			return null;
 		}
 	};

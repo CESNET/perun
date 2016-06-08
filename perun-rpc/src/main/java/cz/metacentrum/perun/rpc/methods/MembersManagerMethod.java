@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.SpecificUserType;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -36,46 +37,50 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates a new member from candidate which is prepared for creating serviceUser.
+	 * Creates a new member from candidate which is prepared for creating specificUser.
 	 *
-	 * In list serviceUserOwners can't be serviceUser, only normal users are allowed.
+	 * In list specificUserOwners can't be specificUser, only normal users are allowed.
 	 * <strong>This method runs asynchronously</strong>
 	 *
 	 * @param vo int VO <code>id</code>
-	 * @param candidate Candidate prepared future serviceUser
-	 * @param serviceUserOwners List<User> List of users who own serviceUser (can't be empty or contain serviceUser)
-	 * @return Member newly created member (of service User)
+	 * @param candidate Candidate prepared future specificUser
+	 * @param specificUserType String Type of user: SERVICE or SPONSORED
+	 * @param specificUserOwners List<User> List of users who own specificUser (can't be empty or contain specificUser)
+	 * @return Member newly created member (of specific User)
 	 */
 	/*#
-	 * Creates a new member from candidate which is prepared for creating serviceUser.
+	 * Creates a new member from candidate which is prepared for creating specificUser.
 	 *
 	 * This method also add user to all groups in list.
-	 * In list serviceUserOwners can't be serviceUser, only normal users are allowed.
+	 * In list specificUserOwners can't be specificUser, only normal users are allowed.
 	 * Empty list of groups is ok, the behavior is then same like in the method without list of groups.
 	 * <strong>This method runs asynchronously</strong>
 	 *
 	 * @param vo int VO ID
-	 * @param candidate Candidate prepared future serviceUser
-	 * @param serviceUserOwners List<User> List of users who own serviceUser (can't be empty or contain serviceUser)
+	 * @param candidate Candidate prepared future specificUser
+	 * @param specificUserType String Type of user: SERVICE or SPONSORED
+	 * @param specificUserOwners List<User> List of users who own specificUser (can't be empty or contain specificUser)
 	 * @param groups List<Group> List of groups where member need to be add too (must be from the same vo)
-	 * @return Member newly created member (of service User)
+	 * @return Member newly created member (of specific User)
 	 */
-	createServiceMember {
+	createSpecificMember {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
 			if (parms.contains("groups") ) {
-				return ac.getMembersManager().createServiceMember(ac.getSession(),
+				return ac.getMembersManager().createSpecificMember(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						parms.read("candidate", Candidate.class),
-						parms.readList("serviceUserOwners", User.class),
+						parms.readList("specificUserOwners", User.class),
+						SpecificUserType.valueOf(parms.readString("specificUserType")),
 						parms.readList("groups", Group.class));
 			} else {
-				return ac.getMembersManager().createServiceMember(ac.getSession(),
+				return ac.getMembersManager().createSpecificMember(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						parms.read("candidate", Candidate.class),
-						parms.readList("serviceUserOwners", User.class));
+						parms.readList("specificUserOwners", User.class),
+						SpecificUserType.valueOf(parms.readString("specificUserType")));
 			}
 		}
 	},
@@ -173,6 +178,19 @@ public enum MembersManagerMethod implements ManagerMethod {
 					return ac.getMembersManager().createMember(ac.getSession(),
 							ac.getVoById(parms.readInt("vo")),
 							ac.getUserById(parms.readInt("user")));
+				}
+			} else if(parms.contains("extSource") && parms.contains("vo") && parms.contains("login")) {
+				if (parms.contains("groups")) {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getExtSourceById(parms.readInt("extSource")),
+							parms.readString("login"),
+							parms.readList("groups", Group.class));
+				} else {
+					return ac.getMembersManager().createMember(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							ac.getExtSourceById(parms.readInt("extSource")),
+							parms.readString("login"));
 				}
 			} else {
 				if (parms.contains("groups")) {

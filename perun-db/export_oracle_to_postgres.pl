@@ -120,7 +120,6 @@ while (@tabulky) {
 	if ($tbl eq "auditer_log") {
 		$tsel=$tsel." where created_at>sysdate-10 order by created_at";
 	}
-
 	SEL:  my $colval = $dbh->prepare($tsel);
 	$colval->execute();
 	my $val;
@@ -134,7 +133,7 @@ while (@tabulky) {
 				$tval=$tval."null,";
 			} else {
 				if ($columns{$column} eq "NUMBER") {$tval=$tval.$$val[$ii].",";}
-				if ($columns{$column} eq "VARCHAR2") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
+				if ($columns{$column} eq "VARCHAR2" or $columns{$column} eq "NVARCHAR2") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
 				if ($columns{$column} eq "CHAR") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
 				if ($columns{$column} eq "CLOB") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
 				if ($columns{$column} eq "DATE") {$tval=$tval."timestamp '".$$val[$ii]."',";}

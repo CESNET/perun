@@ -193,7 +193,7 @@ public class GetApplicationsForGroup implements JsonCallback, JsonCallbackTable<
 			}
 		});
 		table.addColumn(stateColumn, "State");
-		table.setColumnWidth(stateColumn, "60px");
+		table.setColumnWidth(stateColumn, "120px");
 
 		Column<Application, String> extSourceColumn = JsonUtils.addColumn(
 				new ClickableTextCell() {

@@ -192,20 +192,24 @@ public class EventProcessorImpl implements EventProcessor {
 						task.setDestinations(null);
 						// signal that task needs to regenerate data
 						task.setSourceUpdated(true);
+						task.setPropagationForced(false);
+						task.setRecurrence(0);
 					} else {
 						// no such task yet, create one
 						task = new Task();
 						task.setFacility(facility);
 						task.setExecService(execService);
 						task.setStatus(TaskStatus.NONE);
-						task.setRecurrence(execService.getDefaultRecurrence());
+						task.setRecurrence(0);
 						task.setSchedule(new Date(System.currentTimeMillis()));
 						task.setSourceUpdated(false);
+						task.setPropagationForced(false);
 						schedulingPool.addToPool(task, dispatcherQueue);
 						log.debug("  Created new task and added to the pool.");
 					}
-					final Task task_final = task;
 					if (event.getData().contains("force propagation:")) {
+						task.setPropagationForced(true);
+						final Task task_final = task;
 						// expedite task processing
 						taskExecutor.execute(new Runnable() {
 							@Override

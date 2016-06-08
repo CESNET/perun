@@ -75,6 +75,10 @@ public class JsonErrorHandler {
 		}
 		final String status = s;
 
+		final TextBox boxSubject = new TextBox();
+		boxSubject.setValue("Reported error: " + error.getRequest().getManager() + "/" + error.getRequest().getMethod() + " (" +error.getErrorId() + ")");
+		boxSubject.setWidth("100%");
+
 		final TextArea messageTextBox = new TextArea();
 		messageTextBox.setSize("335px", "100px");
 
@@ -83,7 +87,10 @@ public class JsonErrorHandler {
 
 			public void onClick(ClickEvent event) {
 
-				String text = error.getErrorId() + " - " + error.getName() + "\n";
+				String text = messageTextBox.getText() + "\n\n";
+				text += "-------------------------------------\n";
+				text += "Technical details: \n\n";
+				text += error.getErrorId() + " - " + error.getName() + "\n";
 				text += error.getErrorInfo() + "\n\n";
 				text += "Perun instance: " + Utils.perunInstanceName()+ "\n";
 				text += "Request: " + error.getRequestURL() + "\n";
@@ -99,9 +106,7 @@ public class JsonErrorHandler {
 							PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
 
 				}
-
-				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion() + "\n\n";
-				text += "Message: " + messageTextBox.getText();
+				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion();
 
 				final String finalText = text;
 
@@ -135,7 +140,11 @@ public class JsonErrorHandler {
 					}
 				});
 
-				msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "ERROR " + error.getErrorId() + ": " + error.getRequestURL(), text);
+				if (boxSubject.getValue().isEmpty()) {
+					msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, "Reported error: " + error.getRequest().getManager() + "/" + error.getRequest().getMethod() + " (" +error.getErrorId() + ")", text);
+				} else {
+					msg.sendMessage(SendMessageToRt.DEFAULT_QUEUE, boxSubject.getValue(), text);
+				}
 
 			}
 		};
@@ -144,8 +153,10 @@ public class JsonErrorHandler {
 		baseLayout.setStyleName("alert-box-table");
 		baseLayout.setWidth("350px");
 		baseLayout.setHTML(0, 0, "<p>You can provide any message for this error report (e.g. describing what you tried to do). When you are done, click on send button.");
-		baseLayout.setHTML(1, 0, "<strong>Message:</strong>");
-		baseLayout.setWidget(2, 0, messageTextBox);
+		baseLayout.setHTML(1, 0, "<strong>Subject:</strong>");
+		baseLayout.setWidget(2, 0, boxSubject);
+		baseLayout.setHTML(3, 0, "<strong>Message:</strong>");
+		baseLayout.setWidget(4, 0, messageTextBox);
 
 		// box definition
 		final Confirm conf = new Confirm(WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), baseLayout, sendReportHandler, WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), true);
@@ -312,6 +323,8 @@ public class JsonErrorHandler {
 				text += " is already manager of Facility: " + error.getFacility().getName();
 			} else if (error.getGroup() != null) {
 				text += " is already manager of Group: " + error.getGroup().getName();
+			} else if (error.getSecurityTeam() != null) {
+				text += " is already manager of SecurityTeam: " + error.getSecurityTeam().getName();
 			}
 			return text;
 
@@ -605,7 +618,7 @@ public class JsonErrorHandler {
 
 			return "Can't add user to this group. User must be member of parent group first.";
 
-		} else if ("NotServiceUserExpectedException".equalsIgnoreCase(errorName)) {
+		} else if ("NotSpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 
 			return "Operation can't be done. Expected person type of user, but service type was provided instead.";
 
@@ -682,6 +695,14 @@ public class JsonErrorHandler {
 			// FIXME - must contain also resource
 			return error.getErrorInfo();
 
+		} else if ("SecurityTeamAlreadyAssignedException".equalsIgnoreCase(errorName)) {
+
+			if (error.getSecurityTeam() != null) {
+				return "SecurityTeam <i>" + error.getSecurityTeam().getName() + "</i> is already assigned to facility.";
+			} else {
+				return "Same SecurityTeam is already assigned to facility.";
+			}
+
 		} else if ("ServiceAlreadyAssignedException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - must contain also resource
@@ -689,6 +710,14 @@ public class JsonErrorHandler {
 				return "Service " + error.getService().getName() + " is already assigned to resource.";
 			} else {
 				return "Same service is already assigned to resource.";
+			}
+
+		} else if ("ServiceAlreadyBannedException".equalsIgnoreCase(errorName)) {
+
+			if (error.getService() != null && error.getFacility() != null) {
+				return "Service " + error.getService().getName() + " is already banned on facility "+error.getFacility().getName()+".";
+			} else {
+				return "Same service is already banned on facility.";
 			}
 
 		} else if ("ServiceExistsException".equalsIgnoreCase(errorName)) {
@@ -729,21 +758,21 @@ public class JsonErrorHandler {
 
 			return "Same service was already deleted.";
 
-		} else if ("ServiceUserExpectedException".equalsIgnoreCase(errorName)) {
+		} else if ("SpecificUserExpectedException".equalsIgnoreCase(errorName)) {
 
-			return "Operation can't be done. Expected service type of user, but person type was provided instead.";
+			return "Operation can't be done. Expected specific type of user, but person type was provided instead.";
 
-		} else if ("ServiceUserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+		} else if ("SpecificUserAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Same service user was already removed from user.";
+			return "Same specific user was already removed from user.";
 
-		} else if ("ServiceUserOwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
+		} else if ("SpecificUserOwnerAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
-			return "Same user was already removed from owners of service user.";
+			return "Same user was already removed from owners of specific user.";
 
-		} else if ("ServiceUserMustHaveOwnerException".equalsIgnoreCase(errorName)) {
+		} else if ("SpecificUserMustHaveOwnerException".equalsIgnoreCase(errorName)) {
 
-			return "Service type user must have at least 1 person type user assigned, which is responsible for it.";
+			return "Specific type user must have at least 1 person type user assigned, which is responsible for it.";
 
 		} else if ("SpaceNotAllowedException".equalsIgnoreCase(errorName)) {
 

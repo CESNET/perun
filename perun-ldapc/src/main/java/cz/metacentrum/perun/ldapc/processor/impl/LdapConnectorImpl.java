@@ -52,10 +52,6 @@ public class LdapConnectorImpl implements LdapConnector {
 		// Create the objectclass to add
 		Attribute objClasses = new BasicAttribute("objectClass");
 		objClasses.add("top");
-		//use this object class only in old version of perun ldap
-		if(!ldapProperties.isThisNewVersionOfLdap()) {
-			objClasses.add("groupOfUniqueNames");
-		}
 		objClasses.add("perunResource");
 
 		// Add attributes
@@ -98,10 +94,6 @@ public class LdapConnectorImpl implements LdapConnector {
 		// Create the objectclass to add
 		Attribute objClasses = new BasicAttribute("objectClass");
 		objClasses.add("top");
-		//use this object class only in old version of perun ldap
-		if(!ldapProperties.isThisNewVersionOfLdap()) {
-			objClasses.add("groupOfUniqueNames");
-		}
 		objClasses.add("perunGroup");
 
 		// Add attributes
@@ -305,6 +297,8 @@ public class LdapConnectorImpl implements LdapConnector {
 		attributes.put("perunUserId", String.valueOf(user.getId()));
 		if(user.isServiceUser()) attributes.put("isServiceUser", "1");
 		else attributes.put("isServiceUser", "0");
+		if(user.isSponsoredUser()) attributes.put("isSponsoredUser", "1");
+		else attributes.put("isSponsoredUser", "0");
 
 		// Create the entry
 		try {
@@ -370,6 +364,19 @@ public class LdapConnectorImpl implements LdapConnector {
 		try {
 			setLdapAttributeName(ldapAttributeName);
 			o = ldapTemplate.lookup(getUserDN(String.valueOf(user.getId())), new UserPerunUserAttributeContextMapper());
+		} catch (NameNotFoundException ex) {
+			return false;
+		}
+		if(o == null) return false;
+		return true;
+	}
+
+	public boolean resourceAttributeExist(Resource resource, String ldapAttributeName) throws InternalErrorException {
+		if(ldapAttributeName == null) throw new InternalErrorException("ldapAttributeName can't be null.");
+		Object o = null;
+		try {
+			setLdapAttributeName(ldapAttributeName);
+			o = ldapTemplate.lookup(getResourceDN(String.valueOf(resource.getVoId()), String.valueOf(resource.getId())), new ResourcePerunResourceAttributeContextMapper());
 		} catch (NameNotFoundException ex) {
 			return false;
 		}
@@ -566,6 +573,19 @@ public class LdapConnectorImpl implements LdapConnector {
 		public String[] mapFromContext(Object ctx) {
 			DirContextAdapter context = (DirContextAdapter)ctx;
 			String[] s=context.getStringAttributes("uniqueMember");
+			return s;
+		}
+	}
+
+	/**
+	 * Resource attribute 'any' context Mapper (the name of attribute is in variable 'ldapAttributeName'
+	 *
+	 * Context mapper is used for choosing concrete attribute.
+	 */
+	private class ResourcePerunResourceAttributeContextMapper implements ContextMapper {
+		public String mapFromContext(Object ctx) {
+			DirContextAdapter context = (DirContextAdapter)ctx;
+			String s=context.getStringAttribute(getLdapAttributeName());
 			return s;
 		}
 	}

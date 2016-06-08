@@ -24,7 +24,7 @@ public class urn_perun_user_attribute_def_def_mailaliasesGenericMail extends Use
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		String attributeValue = null;
 
-		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "User generic mail for mailaliases can't be set to null.");
+		if(attribute.getValue() == null) return;
 		else attributeValue = (String) attribute.getValue();
 
 		Matcher emailMatcher = Utils.emailPattern.matcher(attributeValue);

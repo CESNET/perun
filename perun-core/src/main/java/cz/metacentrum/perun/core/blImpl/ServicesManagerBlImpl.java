@@ -67,15 +67,15 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		this.servicesManagerImpl = servicesManagerImpl;
 	}
 
-	public Service createService(PerunSession sess, Service service, Owner owner) throws InternalErrorException, ServiceExistsException {
+	public Service createService(PerunSession sess, Service service) throws InternalErrorException, ServiceExistsException {
 		//check if service with same name exists in perun
 		try {
 			Service s = getServicesManagerImpl().getServiceByName(sess, service.getName());
 			throw new ServiceExistsException(s);
 		} catch(ServiceNotExistsException ex) { /* OK */ }
 
-		getPerunBl().getAuditer().log(sess, "{} created. {}.", service, owner);
-		return getServicesManagerImpl().createService(sess, service, owner);
+		getPerunBl().getAuditer().log(sess, "{} created.", service);
+		return getServicesManagerImpl().createService(sess, service);
 	}
 
 	public void deleteService(PerunSession sess, Service service) throws InternalErrorException, RelationExistsException, ServiceAlreadyRemovedException {
@@ -165,6 +165,14 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
 		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
+		
+		//Add there also voRequiredAttributes for service
+		try {
+			Vo resourceVo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
+			resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resourceVo));
+		} catch (VoNotExistsException ex) {
+			throw new ConsistencyErrorException("There is missing Vo for existing resource " + resource);
+		}
 
 		ServiceAttributes membersAbstractSA = new ServiceAttributes();
 		Map<Member, ServiceAttributes> memberAttributes = new HashMap<Member, ServiceAttributes>();
@@ -280,7 +288,6 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
 
-
 		ServiceAttributes allResourcesServiceAttributes = new ServiceAttributes();
 		List<Resource> facilityResources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		facilityResources.retainAll(getAssignedResources(sess, service));
@@ -292,10 +299,16 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 
 		ServiceAttributes allUsersServiceAttributes = new ServiceAttributes();
 		List<User> facilityUsers = getPerunBl().getFacilitiesManagerBl().getAllowedUsers(sess, facility, null, service);
+
+		// get attributes for all users at once !
+		HashMap<User, List<Attribute>> userFacilityAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, facilityUsers);
+		HashMap<User, List<Attribute>> userAttributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facilityUsers);
+
 		for (User user : facilityUsers) {
 			ServiceAttributes userServiceAttributes = new ServiceAttributes();
-			userServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, user));
-			userServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, user));
+			// Depending on a service requirements we might get null user or user-facility attributes
+			if (userAttributes.get(user) != null) userServiceAttributes.addAttributes(userAttributes.get(user));
+			if (userFacilityAttributes.get(user) != null) userServiceAttributes.addAttributes(userFacilityAttributes.get(user));
 			allUsersServiceAttributes.addChildElement(userServiceAttributes);
 		}
 
@@ -535,6 +548,10 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		return destinations;
 	}
 
+	public List<Destination> getDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+		return getServicesManagerImpl().getDestinations(perunSession, facility);
+	}
+
 	public List<RichDestination> getAllRichDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException{
 		return getServicesManagerImpl().getAllRichDestinations(perunSession, facility);
 	}
@@ -553,21 +570,17 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		getPerunBl().getAuditer().log(sess, "All destinations removed from {} and {}.", service, facility);
 	}
 
+	public void removeAllDestinations(PerunSession perunSession, Facility facility) throws InternalErrorException {
+		getServicesManagerImpl().removeAllDestinations(perunSession, facility);
+		getPerunBl().getAuditer().log(perunSession, "All destinations removed from {} for all services.", facility);
+	}
+
 	public void checkServiceExists(PerunSession sess, Service service) throws InternalErrorException, ServiceNotExistsException {
 		getServicesManagerImpl().checkServiceExists(sess, service);
 	}
 
 	public void checkServicesPackageExists(PerunSession sess, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException {
 		getServicesManagerImpl().checkServicesPackageExists(sess, servicesPackage);
-	}
-
-	public Owner getOwner(PerunSession sess, Service service) throws InternalErrorException {
-		int ownerId = getServicesManagerImpl().getOwnerId(sess, service);
-		try {
-			return getPerunBl().getOwnersManagerBl().getOwnerById(sess, ownerId);
-		} catch(OwnerNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
-		}
 	}
 
 	public int getDestinationIdByName(PerunSession sess, String name) throws InternalErrorException, DestinationNotExistsException {

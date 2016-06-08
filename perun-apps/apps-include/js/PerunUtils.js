@@ -94,7 +94,9 @@ function callPerunPost(manager, method, args, callBack, perunError, perunComplet
         success: function (data, textStatus, jqXHR)
         {
             if (!data) {
-                callBack();
+                if (callBack) {
+                    callBack();
+                }
             } else if (typeof data.errorId !== "undefined") {
                 if (perunError) {
                     perunError(data);
@@ -156,9 +158,16 @@ $(document).ready(function () {
     //replace url parts url depends on actual
     $('.resolve-url').each(function(i) {
         $(this).attr("href",$(this).attr("href").replace("/authz/", "/" + getAuthz() + "/"));
-        var topFolder = window.location.pathname.split("/")[1];
+
+        var topFolder;
+        if (configuration.TOP_FOLDER == null) {
+            topFolder = window.location.pathname.split("/")[1];
+        } else {
+            topFolder = configuration.TOP_FOLDER;
+        }
+
         $(this).attr("href",$(this).attr("href").replace("/apps/", "/" + topFolder + "/"));
-        $(this).attr("href",$(this).attr("href").replace("/current/", window.location));
+        $(this).attr("href",$(this).attr("href").replace("/current/", encodeURIComponent(window.location)));
     })
 });
 
@@ -192,6 +201,9 @@ function callBackAfter(after) {
 }
 
 
+function isNumber(obj) {
+    return !isNaN(parseFloat(obj))
+}
 
 
 function unAccent(str) {

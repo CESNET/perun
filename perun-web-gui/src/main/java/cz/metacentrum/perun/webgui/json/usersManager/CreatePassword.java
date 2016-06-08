@@ -59,8 +59,7 @@ public class CreatePassword {
 	 * @param namespace defined login in namespace
 	 * @param pass password to set
 	 */
-	public void createPassword(int userId, String login, String namespace, String pass)
-	{
+	public void createPassword(int userId, String login, String namespace, String pass) {
 
 		this.userId = userId;
 		this.namespace = namespace;
@@ -95,7 +94,7 @@ public class CreatePassword {
 			@Override
 			public void onFinished(JavaScriptObject jso) {
 				JsonPostClient jspc = new JsonPostClient(newEvents);
-				jspc.sendData(JSON_URL_VALIDATE_AND_SET_USER_EXT_SOURCE, prepareJSONObject());
+				jspc.sendData(JSON_URL_VALIDATE_AND_SET_USER_EXT_SOURCE, validateCallJSON());
 			};
 			@Override
 			public void onLoadingStart() {
@@ -145,19 +144,38 @@ public class CreatePassword {
 
 		// final events
 		final JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			@Override
 			public void onError(PerunError error) {
 				session.getUiElements().setLogErrorText("Creating password failed.");
 				events.onError(error); // custom events
 			};
-
+			@Override
 			public void onFinished(JavaScriptObject jso) {
 				session.getUiElements().setLogSuccessText("Password created successfully.");
 				events.onFinished(jso);
 			};
 		};
 
+		// validate event
+		JsonCallbackEvents validateEvent = new JsonCallbackEvents(){
+			@Override
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Creating password failed.");
+				events.onError(error); // custom events
+			};
+			@Override
+			public void onFinished(JavaScriptObject jso) {
+				JsonPostClient jspc = new JsonPostClient(newEvents);
+				jspc.sendData(JSON_URL_VALIDATE_AND_SET_USER_EXT_SOURCE, validateCallJSON());
+			};
+			@Override
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
+
 		// sending data
-		JsonPostClient jspc = new JsonPostClient(newEvents);
+		JsonPostClient jspc = new JsonPostClient(validateEvent);
 		jspc.sendData(JSON_URL_RESERVE_RANDOM, prepareJSONObject());
 
 	}
@@ -168,8 +186,8 @@ public class CreatePassword {
 	 *
 	 * @return true/false for continue/stop
 	 */
-	private boolean testAdding()
-	{
+	private boolean testAdding() {
+
 		boolean result = true;
 		String errorMsg = "";
 
@@ -202,18 +220,28 @@ public class CreatePassword {
 	}
 
 	/**
-	 * Prepares a JSON object
+	 * Prepares a JSON object for password reservation.
 	 *
 	 * @return JSONObject the whole query
 	 */
-	private JSONObject prepareJSONObject()
-	{
-
-		// create whole JSON query
+	private JSONObject prepareJSONObject() {
 		JSONObject jsonQuery = new JSONObject();
 		jsonQuery.put("user", new JSONNumber(userId));
 		jsonQuery.put("namespace", new JSONString(namespace));
 		jsonQuery.put("password", new JSONString(pass));
+		jsonQuery.put("login", new JSONString(login));
+		return jsonQuery;
+	}
+
+	/**
+	 * Prepares a JSON object for validation request.
+	 *
+	 * @return JSONObject the whole query
+	 */
+	private JSONObject validateCallJSON() {
+		JSONObject jsonQuery = new JSONObject();
+		jsonQuery.put("user", new JSONNumber(userId));
+		jsonQuery.put("namespace", new JSONString(namespace));
 		jsonQuery.put("login", new JSONString(login));
 		return jsonQuery;
 	}

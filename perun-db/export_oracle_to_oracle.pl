@@ -136,7 +136,7 @@ while (@tabulky) {
 				$tval=$tval."null,";
 			} else {
 				if ($columns{$column} eq "NUMBER") {$tval=$tval.$$val[$ii].",";}
-				if ($columns{$column} eq "VARCHAR2") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
+				if ($columns{$column} eq "VARCHAR2" or $columns{$column} eq "NVARCHAR2") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
 				if ($columns{$column} eq "CHAR") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
 				if ($columns{$column} eq "CLOB") {$$val[$ii] =~ s/'/''/g; $tval=$tval."'".$$val[$ii]."',";}
 				if ($columns{$column} eq "DATE") {$tval=$tval."to_date('".$$val[$ii]."','YYYY-MM-DD HH24:MI:SS.D'),";}

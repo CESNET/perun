@@ -44,9 +44,10 @@ public class urn_perun_resource_attribute_def_def_unixGroupName_namespace extend
 		if(groupName == null) {
 			// if this is resource, its not ok
 			throw new WrongAttributeValueException(attribute, "Attribute groupName-namespace for resourece can't be null.");
-		}else if(!groupName.matches("^[-_.a-zA-Z0-9]+$")){
-			throw new WrongAttributeValueException(attribute,"GroupName attributte content invalid characters. Allowed are only letters, numbers and characters _ and -.");
 		}
+
+		//Check attribute regex
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "^[-_.a-zA-Z0-9]+$");
 
 		//Check reserved unix group names
 		sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);

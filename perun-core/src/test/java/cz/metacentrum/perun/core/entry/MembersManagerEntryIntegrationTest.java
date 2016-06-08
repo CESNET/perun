@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,12 +27,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
+ * Integration tests for MembersManager
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
-	private static final String MEMBERS_MANAGER_ENTRY = "MembersManagerEntry";
+	private static final String CLASS_NAME = "MembersManager.";
 	private static final String EXT_SOURCE_NAME = "MembersManagerEntryExtSource";
 	private Vo createdVo = null;
 	private ExtSource extSource = new ExtSource(0, EXT_SOURCE_NAME, ExtSourcesManager.EXTSOURCE_INTERNAL);
@@ -50,7 +52,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	@Before
 	public void setUp() throws Exception {
 
-		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource);
+		extSource = perun.getExtSourcesManager().createExtSource(sess, extSource, null);
 
 		usersManagerEntry = perun.getUsersManager();
 		attributesManagerEntry = perun.getAttributesManager();
@@ -92,7 +94,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMember() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMemberSync()");
+		System.out.println(CLASS_NAME + "createMemberSync");
 
 		final Member m;
 		//createdMember should be initialized in setUp method. if not, do it on my own
@@ -107,10 +109,10 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMemberFromCandidateInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+		System.out.println(CLASS_NAME + "createMember");
 
 		//Create vo and groups
-		
+
 		//g3in1 - direct, g1 indirect
 		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
 
@@ -134,7 +136,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		//test if member is in vo and also in defined groups
 		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));
 		List<Group> returnedGroups = perun.getGroupsManagerBl().getMemberGroups(sess, member);
-		
+
 		assertTrue(returnedGroups.contains(g1));
 		assertTrue(!returnedGroups.contains(g2));
 		assertTrue(returnedGroups.contains(g3ing1));
@@ -145,7 +147,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void findCompleteRichMembers() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".findCompleteRichMembers()");
+		System.out.println(CLASS_NAME + "findCompleteRichMembers");
 
 		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
 
@@ -161,7 +163,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMemberFromUserInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+		System.out.println(CLASS_NAME + "createMember");
 
 		//get user of existing member
 		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
@@ -182,7 +184,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMemberFromCandidateWithExtSourceInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+		System.out.println(CLASS_NAME + "createMember");
 
 		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
 
@@ -216,7 +218,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createMemberFromCandidateWithExtSourceAndLoaInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createMember()");
+		System.out.println(CLASS_NAME + "createMember");
 
 		//g3in1 - direct, g1 indirect
 		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
@@ -251,7 +253,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void createServiceMemberFromCandidateInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".createServiceMember()");
+		System.out.println(CLASS_NAME + "createServiceMember");
 
 		//g3in1 - direct, g1 indirect
 		List<Group> groups = new ArrayList<>(Arrays.asList(g3ing1));
@@ -269,12 +271,12 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		candidate.setTitleAfter("");
 		UserExtSource ues = new UserExtSource(new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal"), extLogin);
 		candidate.setUserExtSource(ues);
-		candidate.setAttributes(new HashMap<String,String>());
+		candidate.setAttributes(new HashMap<String, String>());
 
-		List<User> serviceUserOwners = new ArrayList<>();
-		serviceUserOwners.add(perun.getUsersManagerBl().getUserByMember(sess, createdMember));
+		List<User> specificUserOwners = new ArrayList<>();
+		specificUserOwners.add(perun.getUsersManagerBl().getUserByMember(sess, createdMember));
 
-		Member member = perun.getMembersManager().createServiceMember(sess, createdVo, candidate, serviceUserOwners, groups);
+		Member member = perun.getMembersManager().createSpecificMember(sess, createdVo, candidate, specificUserOwners, SpecificUserType.SERVICE, groups);
 
 		//test if member is in vo and also in defined groups
 		assertTrue(perun.getMembersManagerBl().getMembers(sess, createdVo).contains(member));
@@ -289,77 +291,77 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void createMemeberWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".createMemberSyncWhenVoNotExists()");
+	public void createMemeberWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "createMemberSyncWhenVoNotExists");
 
-			membersManagerEntry.createMember(sess, new Vo(), candidate);
+		membersManagerEntry.createMember(sess, new Vo(), candidate);
 
-		}
+	}
 
 	@Test (expected=AlreadyMemberException.class)
-		public void createMemeberWhenAlreadyMember() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".createMemberSyncWhenAlreadyMember()");
+	public void createMemeberWhenAlreadyMember() throws Exception {
+		System.out.println(CLASS_NAME + "createMemberSyncWhenAlreadyMember");
 
-			membersManagerEntry.createMember(sess, createdVo, candidate);
-			// shouldn't add member twice
+		membersManagerEntry.createMember(sess, createdVo, candidate);
+		// shouldn't add member twice
 
-		}
+	}
 
 	@Test
 	public void getMemberById() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberById()");
+		System.out.println(CLASS_NAME + "getMemberById");
 
 
 		final Member m = membersManagerEntry.getMemberById(sess,
 				createdMember.getId());
 
-		assertNotNull("unable to get member",m);
-		assertEquals("returned member is not same as stored",createdMember.getId(), m.getId());
+		assertNotNull("unable to get member", m);
+		assertEquals("returned member is not same as stored", createdMember.getId(), m.getId());
 
 	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void getMemberByIdWhenMemberNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByIdWhenMemberNotExists()");
+	public void getMemberByIdWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByIdWhenMemberNotExists");
 
-			membersManagerEntry.getMemberById(sess, 0);
-			// shouldn't find member with ID 0
+		membersManagerEntry.getMemberById(sess, 0);
+		// shouldn't find member with ID 0
 
-		}
+	}
 
 	@Test
 	public void getMemberByExtAuth() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByExtAuth()");
+		System.out.println(CLASS_NAME + "getMemberByExtAuth");
 
 		final Member expectedMember = membersManagerEntry.getMemberByUserExtSource(sess, createdVo, ues);
-		assertNotNull("unable to return member by Ext auth",expectedMember);
-		assertEquals("created and returned member is not the same",createdMember, expectedMember);
+		assertNotNull("unable to return member by Ext auth", expectedMember);
+		assertEquals("created and returned member is not the same", createdMember, expectedMember);
 
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getMemberByExtAuthWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByExtAuthWhenVoNotExists()");
+	public void getMemberByExtAuthWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByExtAuthWhenVoNotExists");
 
-			membersManagerEntry.getMemberByUserExtSource(sess, new Vo(), ues);
-			// shouldn't find VO
+		membersManagerEntry.getMemberByUserExtSource(sess, new Vo(), ues);
+		// shouldn't find VO
 
-		}
+	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void getMemberByExtAuthWhenMemberNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByExtAuthWhenMemberNotExists()");
+	public void getMemberByExtAuthWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByExtAuthWhenMemberNotExists");
 
-			final UserExtSource ues2 = ues;
-			ues2.setLogin("neexistuje");
-			membersManagerEntry.getMemberByUserExtSource(sess, createdVo, ues2);
-			// shouldn't find Member
+		final UserExtSource ues2 = ues;
+		ues2.setLogin("neexistuje");
+		membersManagerEntry.getMemberByUserExtSource(sess, createdVo, ues2);
+		// shouldn't find Member
 
-		}
+	}
 
 	@Test
 	public void getMemberByUser() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUser()");
+		System.out.println(CLASS_NAME + "getMemberByUser");
 
 		final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
 
@@ -370,60 +372,60 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getMemberByUserWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUserWhenVoNotExists()");
+	public void getMemberByUserWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByUserWhenVoNotExists");
 
-			final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
+		final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
 
-			membersManagerEntry.getMemberByUser(sess, new Vo(), u);
-			// shouldn't find VO
-
-		}
-
-	@Test (expected=MemberNotExistsException.class)
-		public void getMemberByUserWhenMemberNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUserWhenMemberNotExists()");
-
-			final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
-			membersManagerEntry.deleteMember(sess, createdMember);
-			membersManagerEntry.getMemberByUser(sess, createdVo, u);
-			// shouldn't find member
-
-		}
-
-	@Test (expected=UserNotExistsException.class)
-		public void getMemberByUserWhenUserNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberByUserWhenUserNotExists()");
-
-			final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
-			u.setId(0);
-			membersManagerEntry.getMemberByUser(sess, createdVo, u);
-			// shouldn't find user
-
-		}
-
-	@Test
-	public void getMemberVo() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberVo()");
-
-		Vo vo = membersManagerEntry.getMemberVo(sess, createdMember);
-		assertNotNull("unable to get VO by member",vo);
-		assertEquals("saved and returned member's Vo is not the same",vo , createdVo);
+		membersManagerEntry.getMemberByUser(sess, new Vo(), u);
+		// shouldn't find VO
 
 	}
 
 	@Test (expected=MemberNotExistsException.class)
-		public void getMemberVoWhenMemberNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMemberVoWhenMemberNotExists()");
+	public void getMemberByUserWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByUserWhenMemberNotExists");
 
-			membersManagerEntry.getMemberVo(sess, new Member());
-			// shouldn't find Member
+		final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
+		membersManagerEntry.deleteMember(sess, createdMember);
+		membersManagerEntry.getMemberByUser(sess, createdVo, u);
+		// shouldn't find member
 
-		}
+	}
+
+	@Test (expected=UserNotExistsException.class)
+	public void getMemberByUserWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByUserWhenUserNotExists");
+
+		final User u = perun.getUsersManager().getUserByUserExtSource(sess, ues);
+		u.setId(0);
+		membersManagerEntry.getMemberByUser(sess, createdVo, u);
+		// shouldn't find user
+
+	}
+
+	@Test
+	public void getMemberVo() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberVo");
+
+		Vo vo = membersManagerEntry.getMemberVo(sess, createdMember);
+		assertNotNull("unable to get VO by member", vo);
+		assertEquals("saved and returned member's Vo is not the same", vo, createdVo);
+
+	}
+
+	@Test (expected=MemberNotExistsException.class)
+	public void getMemberVoWhenMemberNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberVoWhenMemberNotExists");
+
+		membersManagerEntry.getMemberVo(sess, new Member());
+		// shouldn't find Member
+
+	}
 
 	@Test
 	public void getMembersCount() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersCount()");
+		System.out.println(CLASS_NAME + "getMembersCount");
 
 		final int count = membersManagerEntry.getMembersCount(sess, createdVo);
 		assertTrue("testing VO should have only 1 member", count == 1);
@@ -431,17 +433,17 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getMembersCountWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersCountWhenVoNotExists()");
+	public void getMembersCountWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersCountWhenVoNotExists");
 
-			membersManagerEntry.getMembersCount(sess, new Vo());
-			// shouldn't find VO
+		membersManagerEntry.getMembersCount(sess, new Vo());
+		// shouldn't find VO
 
-		}
+	}
 
 	@Test
 	public void getMembersCountByStatus() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersCountByStatus()");
+		System.out.println(CLASS_NAME + "getMembersCountByStatus");
 
 		final int count = membersManagerEntry.getMembersCount(sess, createdVo, Status.SUSPENDED);
 		assertTrue("testing VO should have 0 members with SUSPENDED status", count == 0);
@@ -452,7 +454,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void getMembers() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembers()");
+		System.out.println(CLASS_NAME + "getMembers");
 
 		List<Member> members = membersManagerEntry.getMembers(sess, createdVo);
 		assertTrue("should return only 1 member",members.size() == 1);
@@ -461,39 +463,39 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test (expected=VoNotExistsException.class)
-		public void getMembersWhenVoNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersWhenVoNotExists()");
+	public void getMembersWhenVoNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersWhenVoNotExists");
 
-			membersManagerEntry.getMembers(sess, new Vo());
-			// shouldn't find VO
+		membersManagerEntry.getMembers(sess, new Vo());
+		// shouldn't find VO
 
-		}
+	}
 
 	@Test
 	public void getMembersByUser() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersByUser()");
+		System.out.println(CLASS_NAME + "getMembersByUser");
 
 		final User u = perun.getUsersManager().getUserByMember(sess, createdMember);
 		List<Member> members = membersManagerEntry.getMembersByUser(sess, u);
-		assertNotNull("unable to return members by user",members);
-		assertTrue("should return 1 member by user",members.contains(createdMember));
+		assertNotNull("unable to return members by user", members);
+		assertTrue("should return 1 member by user", members.contains(createdMember));
 
 	}
 
 	@Test (expected=UserNotExistsException.class)
-		public void getMembersByUserWhenUserNotExists() throws Exception {
-			System.out.println(MEMBERS_MANAGER_ENTRY + ".getMembersByUserWhenUserNotExists()");
+	public void getMembersByUserWhenUserNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getMembersByUserWhenUserNotExists");
 
-			final User u = perun.getUsersManager().getUserByMember(sess, createdMember);
-			u.setId(0);
-			membersManagerEntry.getMembersByUser(sess, u);
-			// shouldn't find user
+		final User u = perun.getUsersManager().getUserByMember(sess, createdMember);
+		u.setId(0);
+		membersManagerEntry.getMembersByUser(sess, u);
+		// shouldn't find user
 
-		}
+	}
 
 	@Test(expected=MemberNotExistsException.class)
 	public void deleteMember() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".deleteMember()");
+		System.out.println(CLASS_NAME + "deleteMember");
 
 		//ensure that the test-member already exists..
 		assertNotNull(membersManagerEntry.getMemberById(sess, createdMember.getId()));
@@ -505,7 +507,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test(expected=MemberNotExistsException.class)
 	public void deleteMemberWhenMemberNotExists() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".deleteMemberWhenMemberNotExists()");
+		System.out.println(CLASS_NAME + "deleteMemberWhenMemberNotExists");
 
 		membersManagerEntry.deleteMember(sess, new Member());
 
@@ -513,7 +515,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test(expected=MemberNotExistsException.class)
 	public void deleteAllMembers() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".deleteAllMembers()");
+		System.out.println(CLASS_NAME + "deleteAllMembers");
 
 		//ensure that the test-member already exists..
 		assertNotNull(membersManagerEntry.getMemberById(sess, createdMember.getId()));
@@ -524,7 +526,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test(expected=VoNotExistsException.class)
 	public void deleteAllMembersWhenVoNotExists() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".deleteAllMembersWhenVoNotExists()");
+		System.out.println(CLASS_NAME + "deleteAllMembersWhenVoNotExists");
 
 		membersManagerEntry.deleteAllMembers(sess, new Vo());
 
@@ -532,7 +534,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipToParticularDate() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipToParticularDate()");
+		System.out.println(CLASS_NAME + "extendMembershipToParticularDate");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -567,7 +569,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipBy10Days() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipBy10Days()");
+		System.out.println(CLASS_NAME + "extendMembershipBy10Days");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -599,7 +601,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipInGracePeriod() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipInGracePeriod()");
+		System.out.println(CLASS_NAME + "extendMembershipInGracePeriod");
 
 		// Period will be set to the next day
 		Calendar calendar = Calendar.getInstance();
@@ -640,7 +642,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipOutsideGracePeriod() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipOutsideGracePeriod()");
+		System.out.println(CLASS_NAME + "extendMembershipOutsideGracePeriod");
 
 		// Set period to three months later
 		Calendar calendar = Calendar.getInstance();
@@ -681,7 +683,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForMemberWithSufficientLoa() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForMemberWithSufficientLoa()");
+		System.out.println(CLASS_NAME + "extendMembershipForMemberWithSufficientLoa");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -725,7 +727,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForMemberWithInsufficientLoa() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForMemberWithInsufficientLoa()");
+		System.out.println(CLASS_NAME + "extendMembershipForMemberWithInsufficientLoa");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -766,7 +768,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void extendMembershipForDefinedLoaAllowed() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForDefinedLoaAllowed()");
+		System.out.println(CLASS_NAME + "extendMembershipForDefinedLoaAllowed");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -816,7 +818,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void canExtendMembershipForDefinedLoaNotAllowed() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".extendMembershipForDefinedLoaNotAllowed()");
+		System.out.println(CLASS_NAME + "extendMembershipForDefinedLoaNotAllowed");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -850,9 +852,55 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void canExtendMembershipForDefinedLoaNotAllowedAndServiceUser() throws Exception {
+		System.out.println(CLASS_NAME + "extendMembershipForDefinedLoaNotAllowedAndServiceUser");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(MembersManager.membershipDoNotExtendLoaKeyName, "0");
+		extendMembershipRules.put(MembersManager.membershipPeriodLoaKeyName, "1|+1m.");
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set LOA 1 for member
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
+		UserExtSource uesService = new UserExtSource(es, "abc");
+		uesService.setLoa(0);
+
+		User user = usersManagerEntry.getUserByMember(sess, createdMember);
+		//usersManagerEntry.addUserExtSource(sess, user, ues);
+
+		Candidate serviceCandidate = new Candidate();
+		serviceCandidate.setServiceUser(true);
+		serviceCandidate.setFirstName("");
+		serviceCandidate.setLastName("");
+		serviceCandidate.setId(0);
+		serviceCandidate.setUserExtSource(uesService);
+		serviceCandidate.setAttributes(new HashMap<String,String>());
+
+		Member serviceMember = perun.getMembersManager().createSpecificMember(sess, createdVo, serviceCandidate, Arrays.asList(user), SpecificUserType.SERVICE);
+
+		// Try to extend membership
+		membersManagerEntry.extendMembership(sess, serviceMember);
+
+		Attribute membershipAttributeFirst = attributesManagerEntry.getAttribute(sess, serviceMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+
+		assertNotNull("membership attribute must be set", membershipAttributeFirst);
+		assertNotNull("membership attribute value must be set", membershipAttributeFirst.getValue());
+
+		// Try to extend membership - must pass since user is service user
+		assertTrue(membersManagerEntry.canExtendMembership(sess, serviceMember));
+
+	}
+
+	@Test
 	// It extend membership and try to extend it again, it must decline another expiration
 	public void canExtendMembershipInGracePeriod() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".canExtendMembershipInGracePeriod()");
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriod");
 
 		// Set membershipExpirationRules attribute
 		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
@@ -885,10 +933,139 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertFalse(membersManagerEntry.canExtendMembership(sess, createdMember));
 	}
 
+
+	@Test
+	public void canExtendMembershipInGracePeriodRelativeDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriodRelativeDate");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "+6m");
+		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set expiration date to tomorrow (one day after grace period begun)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 1);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Attribute mebershipExpiration = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
+		mebershipExpiration.setValue(format.format(today.getTime()));
+		attributesManagerEntry.setAttribute(sess, createdMember, mebershipExpiration);
+
+		// Check if enviroment is set properly
+		mebershipExpiration = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		assertNotNull("membership attribute must be set", mebershipExpiration);
+		assertNotNull("membership attribute value must be set", mebershipExpiration.getValue());
+		extendMembershipRulesAttribute = attributesManagerEntry.getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules");
+		assertNotNull("membership rules must be set", extendMembershipRulesAttribute);
+		assertNotNull("membership rules value must be set", extendMembershipRulesAttribute.getValue());
+
+		// Check if membership can be extended
+		assertTrue(membersManagerEntry.canExtendMembership(sess, createdMember));
+	}
+
+	@Test
+	public void canExtendMembershipOutOfGracePeriodRelativeDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipOutOfGracePeriodRelativeDate");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "+6m");
+		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set expiration date to three days after. (one day untill grace period begins)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 3);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Attribute mebershipExpiration = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
+		mebershipExpiration.setValue(format.format(today.getTime()));
+		attributesManagerEntry.setAttribute(sess, createdMember, mebershipExpiration);
+
+		// Check if enviroment is set properly
+		mebershipExpiration = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		assertNotNull("membership attribute must be set", mebershipExpiration);
+		assertNotNull("membership attribute value must be set", mebershipExpiration.getValue());
+		extendMembershipRulesAttribute = attributesManagerEntry.getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules");
+		assertNotNull("membership rules must be set", extendMembershipRulesAttribute);
+		assertNotNull("membership rules value must be set", extendMembershipRulesAttribute.getValue());
+
+		// Check if membership can be extended
+		assertFalse(membersManagerEntry.canExtendMembership(sess, createdMember));
+	}
+
+	@Test
+	public void canExtendMembershipInGracePeriodAbsoluteDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipInGracePeriodAbsoluteDate");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set expiration date to tomorrow (one day after grace period begun)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 1);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Attribute mebershipExpiration = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
+		mebershipExpiration.setValue(format.format(today.getTime()));
+		attributesManagerEntry.setAttribute(sess, createdMember, mebershipExpiration);
+
+		// Check if enviroment is set properly
+		mebershipExpiration = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		assertNotNull("membership attribute must be set", mebershipExpiration);
+		assertNotNull("membership attribute value must be set", mebershipExpiration.getValue());
+		extendMembershipRulesAttribute = attributesManagerEntry.getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules");
+		assertNotNull("membership rules must be set", extendMembershipRulesAttribute);
+		assertNotNull("membership rules value must be set", extendMembershipRulesAttribute.getValue());
+
+		// Check if membership can be extended
+		assertTrue(membersManagerEntry.canExtendMembership(sess, createdMember));
+	}
+
+	@Test
+	public void canExtendMembershipOutOfGracePeriodAbsoluteDate() throws Exception {
+		System.out.println(CLASS_NAME + "canExtendMembershipOutOfGracePeriodAbsoluteDate");
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipPeriodKeyName, "1.1.");
+		extendMembershipRules.put(MembersManager.membershipGracePeriodKeyName, "2d");
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		// Set expiration date to three days after. (one day untill grace period begins)
+		Calendar today = Calendar.getInstance();
+		today.add(Calendar.DATE, 3);
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Attribute mebershipExpiration = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":membershipExpiration"));
+		mebershipExpiration.setValue(format.format(today.getTime()));
+		attributesManagerEntry.setAttribute(sess, createdMember, mebershipExpiration);
+
+		// Check if enviroment is set properly
+		mebershipExpiration = attributesManagerEntry.getAttribute(sess, createdMember, AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+		assertNotNull("membership attribute must be set", mebershipExpiration);
+		assertNotNull("membership attribute value must be set", mebershipExpiration.getValue());
+		extendMembershipRulesAttribute = attributesManagerEntry.getAttribute(sess, createdVo, AttributesManager.NS_VO_ATTR_DEF + ":membershipExpirationRules");
+		assertNotNull("membership rules must be set", extendMembershipRulesAttribute);
+		assertNotNull("membership rules value must be set", extendMembershipRulesAttribute.getValue());
+
+		// Check if membership can be extended
+		assertFalse(membersManagerEntry.canExtendMembership(sess, createdMember));
+	}
+
 	@Test
 	// It checks if user with insufficient LoA won't be allowed in to the VO
 	public void canBeMemberLoaNotAllowed() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".canBeMemberLoaNotAllowed()");
+		System.out.println(CLASS_NAME + "canBeMemberLoaNotAllowed");
 
 		String loa = "1";
 
@@ -905,12 +1082,52 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// Try to extend membership
 		assertFalse(membersManagerEntry.canBeMember(sess, createdVo, user, loa));
+
+	}
+
+	@Test
+	// It checks if service user can be member independent of his LoA
+	public void canBeMemberLoaNotAllowedServiceUser() throws Exception {
+		System.out.println(CLASS_NAME + "canBeMemberLoaNotAllowedServiceUser");
+
+		String loa = "1";
+
+		// Set membershipExpirationRules attribute
+		HashMap<String, String> extendMembershipRules = new LinkedHashMap<String, String>();
+		extendMembershipRules.put(MembersManager.membershipDoNotAllowLoaKeyName, loa);
+
+		Attribute extendMembershipRulesAttribute = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_VO_ATTR_DEF+":membershipExpirationRules"));
+		extendMembershipRulesAttribute.setValue(extendMembershipRules);
+
+		attributesManagerEntry.setAttribute(sess, createdVo, extendMembershipRulesAttribute);
+
+		User user = usersManagerEntry.getUserByMember(sess, createdMember);
+
+		// Set LOA 1 for member
+		ExtSource es = perun.getExtSourcesManagerBl().getExtSourceByName(sess, EXT_SOURCE_NAME);
+		UserExtSource uesService = new UserExtSource(es, "abc");
+		uesService.setLoa(1);
+
+		Candidate serviceCandidate = new Candidate();
+		serviceCandidate.setServiceUser(true);
+		serviceCandidate.setFirstName("");
+		serviceCandidate.setLastName("");
+		serviceCandidate.setId(0);
+		serviceCandidate.setUserExtSource(uesService);
+		serviceCandidate.setAttributes(new HashMap<String,String>());
+
+		Member serviceMember = perun.getMembersManager().createSpecificMember(sess, createdVo, serviceCandidate, Arrays.asList(user), SpecificUserType.SERVICE);
+		User serviceUser = usersManagerEntry.getUserByMember(sess, serviceMember);
+
+		// Must return true even if loa is not allowed
+		assertTrue(membersManagerEntry.canBeMember(sess, createdVo, serviceUser, loa));
+
 	}
 
 	@Test
 	// It checks if user with sufficient LoA will be allowed in to the VO
 	public void canBeMemberLoaAllowed() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".canBeMemberLoaAllowed()");
+		System.out.println(CLASS_NAME + "canBeMemberLoaAllowed");
 
 		String loa = "1";
 
@@ -932,7 +1149,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	@Test
 	public void findMembersInGroup() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".findMembersInGroup()");
+		System.out.println(CLASS_NAME + "findMembersInGroup");
 		Member member = setUpMember(createdVo);
 		Member member2 = setUpMember2(createdVo);
 		groupsManagerEntry.addMember(sess, createdGroup, member);
@@ -960,7 +1177,7 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	@Ignore
 	@Test
 	public void findMembersByName() throws Exception {
-		System.out.println(MEMBERS_MANAGER_ENTRY + ".findMembersByName()");
+		System.out.println(CLASS_NAME + "findMembersByName");
 
 		List<Member> members = membersManagerEntry.findMembersByName(sess, "Pepa Z Depa");
 

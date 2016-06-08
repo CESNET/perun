@@ -102,6 +102,18 @@ public interface AttributesManagerBl {
 	void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Remove all non-virtual member-resource attributes assigned to resource
+	 *
+	 * @param sess
+	 * @param resource
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+	/**
 	 * Get all virtual attributes associated with the member-resource attributes.
 	 *
 	 * @param sess perun session
@@ -2910,7 +2922,6 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeValueException
 	 */
 	void removeAllUserFacilityAttributes(PerunSession sess, User user) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
-
 
 	/**
 	 * Unset particular attribute for the user. Core attributes can't be removed this way.

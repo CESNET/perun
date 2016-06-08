@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpException;
 import org.slf4j.Logger;
@@ -36,6 +37,14 @@ import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourceISMU.class);
+
+	private static PerunBlImpl perunBl;
+
+	// filled by spring (perun-core.xml)
+	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+		perunBl = perun;
+		return perun;
+	}
 
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
@@ -115,7 +124,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 				// Each line looks like:
 				// UCO  ;;          ;"title before. title before. firstName lastName, title after
-				// 39642;;080adf9c6c;"RNDr. Igor Peterlík, Ph.D."
+				// 39700;;“RNDr. Michal Procházka";Procházka;Michal;
 
 				// Parse the line
 				String[] entries = line.split(";");
@@ -128,15 +137,15 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 				if (login.isEmpty()) login = null;
 				map.put("login", login);
 
-				String name = entries[3];
+				String name = entries[2];
 				// Remove "" from name
 				name.replaceAll("^\"|\"$", "");
 				// entries[3] contains name of the user, so parse it to get titleBefore, firstName, lastName and titleAfter in separate fields
 				map.putAll(Utils.parseCommonName(name));
 
-				// Add additional userExtSource for MU IdP
+				// Add additional userExtSource for MU IdP with loa 2
 				map.put(ExtSourcesManagerImpl.USEREXTSOURCEMAPPING + "1",
-						"https://idp2.ics.muni.cz/idp/shibboleth|cz.metacentrum.perun.core.impl.ExtSourceIdp|" + login + "@muni.cz");
+						"https://idp2.ics.muni.cz/idp/shibboleth|cz.metacentrum.perun.core.impl.ExtSourceIdp|" + login + "@muni.cz|2");
 
 				subjects.add(map);
 			}
@@ -156,5 +165,9 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

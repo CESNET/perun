@@ -29,7 +29,7 @@ public class ThanksServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void createThanksTest() throws Exception {
-		System.out.println("createThanksTest()");
+		System.out.println("ThanksServiceImpl.createThanksTest");
 
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
@@ -52,7 +52,7 @@ public class ThanksServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void createThanksWhenExistsByIDTest() throws Exception {
-		System.out.println("createThanksWhenExistsByIDTest()");
+		System.out.println("ThanksServiceImpl.createThanksWhenExistsByIDTest");
 
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
@@ -73,7 +73,7 @@ public class ThanksServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void createThanksWhenExistsByOwnerAndPublicationTest() throws Exception {
-		System.out.println("createThanksWhenExistsByOwnerAndPublicationTest()");
+		System.out.println("ThanksServiceImpl.createThanksWhenExistsByOwnerAndPublicationTest");
 
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
@@ -95,7 +95,7 @@ public class ThanksServiceImplTest extends BaseIntegrationTest {
 
 	@Test
 	public void deleteThanksTest() throws Exception {
-		System.out.println("deleteThanksTest()");
+		System.out.println("ThanksServiceImpl.deleteThanksTest");
 
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());

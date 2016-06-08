@@ -66,6 +66,10 @@ public class EventProcessorImpl implements EventProcessor {
 			log.error(e.toString());
 		}
 
+		if(task == null) {
+			return;
+		}
+		
 		// FIXME: Disabled because it can cause race condition. See RT#33803
 		if (false) {
 			// if (event.contains("forceit")) { // TODO: Move string constant to
@@ -94,29 +98,47 @@ public class EventProcessorImpl implements EventProcessor {
 				});
 			}
 			log.debug("POOL SIZE:" + schedulingPool.getSize());
-		} else {
+		} 
 
-			log.debug("\t Facility[" + task.getFacility() + "]");
-			log.debug("\t Resolved ExecService[" + task.getExecService() + "]");
+		log.debug("\t Facility[" + task.getFacility() + "]");
+		log.debug("\t Resolved ExecService[" + task.getExecService() + "]");
 
-			if (task != null && task.getFacility() != null
-					&& task.getExecService() != null) {
-				// log.debug("ADD to POOL: ExecService[" +
-				// results.getLeft().getId() + "] : Facility[" +
-				// results.getRight() + "]");
-				Task currentTask = schedulingPool.getTaskById(task.getId());
-				if(currentTask == null) {
-					// task.setSourceUpdated(false);
-					schedulingPool.addToPool(task);
-				} else {
-					// currentTask.setSourceUpdated(true);
-					log.debug("Resetting current task destination list to {}", task.getDestinations());
-					currentTask.setDestinations(task.getDestinations());
+		if (task.getFacility() != null && task.getExecService() != null) {
+			// log.debug("ADD to POOL: ExecService[" +
+			// results.getLeft().getId() + "] : Facility[" +
+			// results.getRight() + "]");
+			Task currentTask = schedulingPool.getTaskById(task.getId());
+			if(currentTask == null) {
+				// task.setSourceUpdated(false);
+				schedulingPool.addToPool(task);
+				currentTask = task;
+			} else {
+				// currentTask.setSourceUpdated(true);
+				log.debug("Resetting current task destination list to {}", task.getDestinations());
+				currentTask.setDestinations(task.getDestinations());
+				currentTask.setPropagationForced(task.isPropagationForced());
+			}
+			if(currentTask.isPropagationForced()) {
+				final Task ntask = currentTask;
+				try {
+					taskExecutorEventProcessor.execute(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								taskScheduler.propagateService(ntask, new Date(
+										System.currentTimeMillis()));
+							} catch (InternalErrorException e) {
+								log.error(e.toString());
+							}
+						}
+					});
+				} catch(Exception e) {
+					log.error("Error queuing task to executor: " + e.toString());
 				}
 			}
-			log.debug("POOL SIZE:" + schedulingPool.getSize());
-
 		}
+		log.debug("POOL SIZE:" + schedulingPool.getSize());
+
 		log.info("Current pool size AFTER event processing:"
 				+ schedulingPool.getSize());
 	}

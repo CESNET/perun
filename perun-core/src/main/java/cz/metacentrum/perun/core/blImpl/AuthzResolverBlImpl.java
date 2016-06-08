@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
@@ -33,6 +34,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
@@ -161,6 +163,11 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				// Facility admin and resource, get facility id from resource and check if the user is facility admin
 				if (beanName.equals(Resource.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Facility.class.getSimpleName(), ((Resource) complementaryObject).getFacilityId());
+				}
+			} else if (role.equals(Role.SECURITYADMIN)) {
+				// Security admin, check if security admin is admin of the SecurityTeam
+				if (beanName.equals(SecurityTeam.class.getSimpleName())) {
+					return sess.getPerunPrincipal().getRoles().hasRole(role, SecurityTeam.class.getSimpleName(), ((SecurityTeam) complementaryObject).getId());
 				}
 			} else if (role.equals(Role.GROUPADMIN) || role.equals(Role.TOPGROUPCREATOR)) {
 				// Group admin can see some of the date of the VO
@@ -427,7 +434,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			if(roles.contains(Role.FACILITYADMIN)) {
 				if(isAuthorized(sess, Role.FACILITYADMIN, resource)) return true;
 			}
-			if(roles.contains(Role.GROUPADMIN)); {
+			if(roles.contains(Role.GROUPADMIN)) {
 				List<Group> groupsFromResource = getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 				for(Group g: groupsFromResource) {
 					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
@@ -529,7 +536,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess perun session
 	 * @param user the user for setting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin  )
 	 * @param complementaryObjects objects for which role will be set
 	 *
 	 * @throws InternalErrorException
@@ -567,7 +574,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 *
 	 * @param sess perun session
 	 * @param user the user for setting role
-	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator )
+	 * @param role role of user in a session ( perunadmin | voadmin | groupadmin | self | facilityadmin | voobserver | topgroupcreator | securityadmin )
 	 * @param complementaryObject object for which role will be set
 	 *
 	 * @throws InternalErrorException
@@ -825,6 +832,24 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				} else {
 					throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 				}
+			} else if(role.equals(Role.SECURITYADMIN)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set SecurityAdmin rights without SecurityTeam.");
+				} else if(complementaryObject instanceof SecurityTeam) {
+					if(user != null) addAdmin(sess, (SecurityTeam) complementaryObject, user);
+					else addAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
+				}
+			} else if(role.equals(Role.SPONSOR)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't set SponsoredUser rights without user.");
+				} else if(complementaryObject instanceof User) {
+					if(user != null) addAdmin(sess, (User) complementaryObject, user);
+					else addAdmin(sess, (User) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for SponsoredUser: " + complementaryObject);
+				}
 			} else {
 				throw new InternalErrorException("Not supported role: " + role);
 			}
@@ -879,6 +904,24 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				} else {
 					throw new InternalErrorException("Not supported complementary object for FacilityAdmin: " + complementaryObject);
 				}
+			} else if(role.equals(Role.SECURITYADMIN)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't unset SecurityAdmin rights without Security this way.");
+				} else if(complementaryObject instanceof SecurityTeam) {
+					if(user != null) removeAdmin(sess, (SecurityTeam) complementaryObject, user);
+					else removeAdmin(sess, (SecurityTeam) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for VoObserver: " + complementaryObject);
+				}
+			} else if(role.equals(Role.SPONSOR)) {
+				if(complementaryObject == null) {
+					throw new InternalErrorException("Not supported operation, can't unset Sponsor rights without User this way.");
+				} else if(complementaryObject instanceof User) {
+					if(user != null) removeAdmin(sess, (User) complementaryObject, user);
+					else removeAdmin(sess, (User) complementaryObject, authorizedGroup);
+				} else {
+					throw new InternalErrorException("Not supported complementary object for Sponsor: " + complementaryObject);
+				}
 			} else {
 				throw new InternalErrorException("Not supported role: " + role);
 			}
@@ -932,6 +975,16 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 	 */
 	public static boolean isFacilityAdmin(PerunSession sess) {
 		return sess.getPerunPrincipal().getRoles().hasRole(Role.FACILITYADMIN);
+	}
+
+	/**
+	 * Returns true if the perun principal inside the perun session is security admin.
+	 *
+	 * @param sess perun session
+	 * @return true if the perun principal is security admin.
+	 */
+	public static boolean isSecurityAdmin(PerunSession sess) {
+		return sess.getPerunPrincipal().getRoles().hasRole(Role.SECURITYADMIN);
 	}
 
 	/**
@@ -1103,11 +1156,23 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 							}
 						}
 					}
+
+					if (beanName.equals(SecurityTeam.class.getSimpleName())) {
+						for (Integer beanId : sess.getPerunPrincipal().getRoles().get(role).get(beanName)) {
+							try {
+								complementaryObjects.add(perunBlImpl.getSecurityTeamsManagerBl().getSecurityTeamById(sess, beanId));
+							} catch (SecurityTeamNotExistsException e) {
+								//this is ok, securityTeam was probably deleted but still exists in user session, only log it
+								log.debug("SecurityTeam not find by id {} but still exists in user session when getComplementaryObjectsForRole method was called.", beanId);
+							}
+						}
+					}
+
 				}
 			}
 		}
 
-			return complementaryObjects;
+		return complementaryObjects;
 	}
 
 	/**
@@ -1206,6 +1271,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		authzResolverImpl.removeAllUserAuthz(sess, user);
 	}
 
+	public static void removeAllSponsoredUserAuthz(PerunSession sess, User sponsoredUser) throws InternalErrorException {
+		authzResolverImpl.removeAllSponsoredUserAuthz(sess, sponsoredUser);
+	}
+
 	public static void removeAllAuthzForGroup(PerunSession sess, Group group) throws InternalErrorException {
 		authzResolverImpl.removeAllAuthzForGroup(sess, group);
 	}
@@ -1222,6 +1291,10 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		authzResolverImpl.removeAllAuthzForService(sess, service);
 	}
 
+	public static void removeAllAuthzForSecurityTeam(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+		authzResolverImpl.removeAllAuthzForSecurityTeam(sess, securityTeam);
+	}
+
 	public static void addAdmin(PerunSession sess, Facility facility, User user) throws InternalErrorException, AlreadyAdminException {
 		authzResolverImpl.addAdmin(sess, facility, user);
 	}
@@ -1236,6 +1309,22 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 
 	public static void removeAdmin(PerunSession sess, Facility facility, Group group) throws InternalErrorException, GroupNotAdminException {
 		authzResolverImpl.removeAdmin(sess, facility, group);
+	}
+
+	public static void addAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addAdmin(sess, sponsoredUser, user);
+	}
+
+	public static void addAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addAdmin(sess, sponsoredUser, group);
+	}
+
+	public static void removeAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, UserNotAdminException {
+		authzResolverImpl.removeAdmin(sess, sponsoredUser, user);
+	}
+
+	public static void removeAdmin(PerunSession sess, User sponsoredUser, Group group) throws InternalErrorException, GroupNotAdminException {
+		authzResolverImpl.removeAdmin(sess, sponsoredUser, group);
 	}
 
 	public static void addAdmin(PerunSession sess, Group group, User user) throws InternalErrorException, AlreadyAdminException {
@@ -1262,12 +1351,28 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		authzResolverImpl.addAdmin(sess, vo, group);
 	}
 
+	public static void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addAdmin(sess, securityTeam, user);
+	}
+
+	public static void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, AlreadyAdminException {
+		authzResolverImpl.addAdmin(sess, securityTeam, group);
+	}
+
 	public static void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException {
 		authzResolverImpl.removeAdmin(sess, vo, user);
 	}
 
 	public static void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException {
 		authzResolverImpl.removeAdmin(sess, vo, group);
+	}
+
+	public static void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws InternalErrorException, UserNotAdminException {
+		authzResolverImpl.removeAdmin(sess, securityTeam, user);
+	}
+
+	public static void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, GroupNotAdminException {
+		authzResolverImpl.removeAdmin(sess, securityTeam, group);
 	}
 
 	public static void addObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException {

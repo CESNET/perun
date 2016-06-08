@@ -18,14 +18,15 @@ create table users (
 	first_name varchar(64),
 	last_name varchar(64),
 	middle_name varchar(64),
-	title_before varchar(20),
-	title_after varchar(20),
+	title_before varchar(40),
+	title_after varchar(40),
 	created_at timestamp  default now not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now not null,
 	modified_by varchar(1024) default user not null,
 	status char(1) default '0' not null,
 	service_acc char(1) default '0' not null,
+	sponsored_acc char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -156,7 +157,7 @@ create table facility_owners (
 );
 
 create table facility_contacts (
-	contact_group_name varchar(128) not null,
+	name varchar(128) not null,
 	facility_id integer not null,
 	owner_id integer,
 	user_id integer,
@@ -307,9 +308,11 @@ create table authz (
 	service_id integer,
 	resource_id integer,
 	service_principal_id integer,
+	sponsored_user_id integer,
 	created_by_uid integer,
 	modified_by_uid integer,
-	authorized_group_id integer
+	authorized_group_id integer,
+	security_team_id integer
 );
 
 create table hosts (
@@ -355,7 +358,6 @@ create table auditer_consumers (
 create table services (
 	id integer not null,
 	name varchar(128) not null,
-	owner_id integer,
 	created_at timestamp default now not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now not null,
@@ -389,12 +391,13 @@ create table service_required_attrs (
 	modified_by_uid integer
 );
 
-create table service_user_users (
+create table specific_user_users (
 	user_id integer not null,
-	service_user_id integer not null,
+	specific_user_id integer not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	modified_at timestamp default now not null,
+	type varchar(20) default 'service' not null,
 	status char(1) default '0' not null
 );
 
@@ -792,6 +795,17 @@ create table vo_ext_sources (
 	modified_by_uid integer
 );
 
+create table group_ext_sources (
+	group_id integer not null,
+	ext_source_id integer not null,
+	created_at timestamp default now() not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now() not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create table user_ext_sources (
 	id integer not null,
 	user_id integer not null,
@@ -1035,6 +1049,69 @@ create table pwdreset (
 	created_by_uid integer
 );
 
+create table security_teams (
+	id integer not null,
+	name varchar(128) not null,
+	description varchar(1024),
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table security_teams_facilities (
+	security_team_id integer not null,
+	facility_id integer not null,
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table blacklists (
+	security_team_id integer not null,
+	user_id integer not null,
+	description varchar(1024),
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table resources_bans (
+	id integer not null,
+	member_id integer not null,
+	resource_id integer not null,
+	description varchar(1024),
+	banned_to timestamp not null,
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table facilities_bans (
+	id integer not null,
+	user_id integer not null,
+	facility_id integer not null,
+	description varchar(1024),
+	banned_to timestamp not null,
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create sequence attr_names_id_seq;
 create sequence auditer_consumers_id_seq;
 create sequence auditer_log_id_seq;
@@ -1045,7 +1122,7 @@ create sequence facilities_id_seq;
 create sequence groups_id_seq;
 create sequence hosts_id_seq;
 create sequence members_id_seq;
-create sequence owners_id_seq;
+create sequence owners_id_seq start with 1 increment by 1;
 create sequence processing_rules_id_seq start with 10 increment by 1;
 create sequence resources_id_seq;
 create sequence routing_rules_id_seq start with 10 increment by 1;
@@ -1082,6 +1159,9 @@ create sequence action_types_seq;
 create sequence res_tags_seq;
 create sequence mailchange_id_seq;
 create sequence pwdreset_id_seq;
+create sequence security_teams_id_seq start with 10 increment by 1;
+create sequence resources_bans_id_seq start with 10 increment by 1;
+create sequence facilities_bans_id_seq start with 10 increment by 1;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz(user_id,role_id);
@@ -1092,13 +1172,14 @@ create index idx_fk_usrex_usersrc on user_ext_sources(ext_sources_id);
 create index idx_fk_mem_user on members(user_id);
 create index idx_fk_mem_vo on members(vo_id);
 create index idx_fk_host_fac on hosts(facility_id);
-create index idx_fk_serv_ow on services(owner_id);
 create index idx_fk_exsrv_srv on exec_services(service_id);
 create index idx_fk_dest_srv on facility_service_destinations(service_id);
 create index idx_fk_dest_fac on facility_service_destinations(facility_id);
 create index idx_fk_dest_destc on facility_service_destinations(destination_id);
 create index idx_fk_vousrsrc_usrsrc on vo_ext_sources(ext_sources_id);
 create index idx_fk_vousrsrc_vos on vo_ext_sources(vo_id);
+create index idx_fk_groupsrc_src on group_ext_sources(ext_source_id);
+create index idx_fk_groupsrc_group on group_ext_sources(group_id);
 create index idx_fk_usrcatt_usrc on ext_sources_attributes(ext_sources_id);
 create index idx_fk_attnam_attnam on attr_names(default_attr_id);
 create index idx_fk_rsrc_fac on resources(facility_id);
@@ -1135,6 +1216,7 @@ create index idx_fk_taskres_eng on tasks_results(engine_id);
 create index idx_fk_srvden_exsrv on service_denials(exec_service_id);
 create index idx_fk_srvden_fac on service_denials(facility_id);
 create index idx_fk_srvden_dest on service_denials(destination_id);
+create unique index idx_srvden_u ON service_denials(exec_service_id,facility_id,destination_id);
 create index idx_fk_srvdep_exsrv on service_dependencies(exec_service_id);
 create index idx_fk_srvdep_depexsrv on service_dependencies(dependency_id);
 create index idx_fk_srvreqattr_srv on service_required_attrs(service_id);
@@ -1168,12 +1250,14 @@ create index idx_fk_authz_group on authz(group_id);
 create index idx_fk_authz_service on authz(service_id);
 create index idx_fk_authz_res on authz(resource_id);
 create index idx_fk_authz_ser_princ on authz(service_principal_id);
-create unique index idx_authz_u2 on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id);
+create index idx_fk_authz_sec_team on authz(security_team_id);
+create index idx_fk_authz_sponsoru_team on authz(sponsored_user_id);
+create unique index idx_authz_u2 on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id, security_team_id, sponsored_user_id);
 create index idx_fk_faccont_fac on facility_contacts(facility_id);
 create index idx_fk_faccont_usr on facility_contacts(user_id);
 create index idx_fk_faccont_own on facility_contacts(owner_id);
 create index idx_fk_faccont_grp on facility_contacts(group_id);
-create unique index idx_faccont_u2 ON facility_contacts (user_id, owner_id, group_id, facility_id, contact_group_name);
+create unique index idx_faccont_u2 ON facility_contacts (user_id, owner_id, group_id, facility_id, name);
 create index idx_fk_grres_gr on groups_resources(group_id);
 create index idx_fk_grres_res on groups_resources(resource_id);
 create index idx_fk_grpmem_gr on groups_members(group_id);
@@ -1203,8 +1287,8 @@ create index idx_fk_pn_tmplrgx_rgx on pn_template_regex(regex_id);
 create index idx_fk_pn_tmplrgx_tmpl on pn_template_regex(template_id);
 create index idx_fk_pn_rgxobj_rgx on pn_regex_object(regex_id);
 create index idx_fk_pn_rgxobj_obj on pn_regex_object(object_id);
-create index idx_fk_servu_u_ui on service_user_users(user_id);
-create index idx_fk_servu_u_sui on service_user_users(service_user_id);
+create index idx_fk_specifu_u_ui on specific_user_users(user_id);
+create index idx_fk_specifu_u_sui on specific_user_users(specific_user_id);
 create index idx_fk_grp_grp_gid on groups_groups(group_id);
 create index idx_fk_grp_grp_pgid on groups_groups(parent_group_id);
 create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
@@ -1215,6 +1299,16 @@ create index idx_fk_tags_res_tags on tags_resources(tag_id);
 create index idx_fk_tags_res_res on tags_resources(resource_id);
 create index idx_fk_mailchange_user_id on mailchange(user_id);
 create index idx_fk_pwdreset_user_id on pwdreset(user_id);
+create index idx_fk_security_teams_facilities_security_team on security_teams_facilities (security_team_id);
+create index idx_fk_security_teams_facilities_facilities on security_teams_facilities (facility_id);
+create index idx_fk_bllist_user on blacklists (user_id);
+create index idx_fk_bllist_secteam on blacklists (security_team_id);
+create index idx_fk_res_ban_member on resources_bans (member_id);
+create index idx_fk_res_ban_res on resources_bans (resource_id);
+create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id);
+create index idx_fk_fac_ban_user on facilities_bans (user_id);
+create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
+create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1250,7 +1344,6 @@ alter table hosts add constraint host_fac_fk foreign key(facility_id) references
 
 alter table services add constraint serv_pk primary key(id);
 alter table services add constraint serv_u unique(name);
-alter table services add constraint serv_ow_fk foreign key (owner_id) references owners(id);
 
 alter table exec_services add constraint exsrv_pk primary key(id);
 alter table exec_services add constraint exsrv_srv_fk foreign key (service_id) references services(id);
@@ -1310,6 +1403,10 @@ alter table groups add constraint grn_nam_vo_parentg_u unique (name,vo_id,parent
 alter table groups add constraint grp_vos_fk foreign key (vo_id) references vos(id);
 alter table groups add constraint grp_grp_fk foreign key (parent_group_id) references groups(id);
 
+alter table group_ext_sources add constraint groupsrc_pk primary key (group_id,ext_source_id);
+alter table group_ext_sources add constraint groupsrc_src_fk foreign key(ext_source_id) references ext_sources(id);
+alter table group_ext_sources add constraint groupsrc_groups_fk foreign key(group_id) references groups(id);
+
 alter table member_resource_attr_values add constraint memrav_mem_fk foreign key (member_id) references members(id);
 alter table member_resource_attr_values add constraint memrav_rsrc_fk foreign key (resource_id) references resources(id);
 alter table member_resource_attr_values add constraint memrav_accattnam_fk foreign key (attr_id) references attr_names(id);
@@ -1329,7 +1426,7 @@ alter table service_denials add constraint srvden_pk primary key (id);
 alter table service_denials add constraint srvden_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table service_denials add constraint srvden_fac_fk foreign key (facility_id) references facilities(id);
 alter table service_denials add constraint srvden_dest_fk foreign key (destination_id) references destinations(id);
-alter table service_denials add constraint srvden_u unique(exec_service_id,facility_id,destination_id);
+alter table service_denials add constraint srvden_u check(exec_service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)));
 
 alter table service_dependencies add constraint srvdep_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table service_dependencies add constraint srvdep_depexsrv_fk foreign key (dependency_id) references exec_services(id);
@@ -1466,10 +1563,10 @@ alter table pn_regex_object add constraint pn_rgxobj_pk primary key (id);
 alter table pn_regex_object add constraint pn_rgxobj_rgx_fk foreign key (regex_id) references pn_regex(id);
 alter table pn_regex_object add constraint pn_rgxobj_obj_fk foreign key (object_id) references pn_object(id);
 
-alter table service_user_users add constraint acc_servu_u_pk primary key (user_id,service_user_id);
-alter table service_user_users add constraint acc_servu_u_uid_fk foreign key (user_id) references users(id);
-alter table service_user_users add constraint acc_servu_u_suid_fk foreign key (service_user_id) references users(id);
-alter table service_user_users add constraint servu_u_status_chk check (status in ('0','1'));
+alter table specific_user_users add constraint acc_specifu_u_pk primary key (user_id,specific_user_id);
+alter table specific_user_users add constraint acc_specifu_u_uid_fk foreign key (user_id) references users(id);
+alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id);
+alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
 
 alter table groups_groups add constraint grp_grp_pk primary key (group_id,parent_group_id);
 alter table groups_groups add constraint grp_grp_gid_fk foreign key (group_id) references groups(id);
@@ -1480,7 +1577,7 @@ alter table action_types add constraint actiontyp_u unique (action_type);
 alter table action_types add constraint actiontyp_at_chk check (action_type in ('read','write'));
 
 alter table attributes_authz add constraint attrauthz_pk primary key (attr_id,role_id,action_type_id);
-alter table attributes_authz add constraint attrauthz_attr_fk foreign key (attr_id) references attr_names (id);
+alter table attributes_authz add constraint attrauthz_attr_fk foreign key (attr_id) references attr_names(id);
 alter table attributes_authz add constraint attrauthz_role_fk foreign key (role_id) references roles(id);
 alter table attributes_authz add constraint attrauthz_actiontyp_fk foreign key (action_type_id) references action_types(id);
 
@@ -1495,12 +1592,12 @@ alter table tags_resources add constraint tags_res_res_fk foreign key (resource_
 alter table tasks add constraint task_pk primary key (id);
 alter table tasks add constraint task_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table tasks add constraint task_fac_fk foreign key (facility_id) references facilities(id);
-alter table tasks add constraint task_eng_fk foreign key (engine_id) references engines (id);
+alter table tasks add constraint task_eng_fk foreign key (engine_id) references engines(id);
 alter table tasks add constraint task_stat_chk check (status in ('NONE','OPEN','PLANNED','PROCESSING','DONE','ERROR'));
 
 alter table tasks_results add constraint taskres_task_fk foreign key (task_id) references tasks(id);
 alter table tasks_results add constraint taskres_dest_fk foreign key (destination_id) references destinations(id);
-alter table tasks_results add constraint taskres_eng_fk foreign key (engine_id) references engines (id);
+alter table tasks_results add constraint taskres_eng_fk foreign key (engine_id) references engines(id);
 alter table tasks_results add constraint taskres_stat_chk check (status in ('DONE','ERROR','FATAL_ERROR','DENIED'));
 
 alter table facility_contacts add constraint faccont_fac_fk foreign key (facility_id) references facilities(id);
@@ -1509,8 +1606,28 @@ alter table facility_contacts add constraint faccont_own_fk foreign key (owner_i
 alter table facility_contacts add constraint faccont_grp_fk foreign key (group_id) references groups(id);
 alter table facility_contacts add constraint faccont_usr_own_grp_chk check ((user_id is not null and owner_id is null and group_id is null) or (user_id is null and owner_id is not null and group_id is null) or (user_id is null and owner_id is null and group_id is not null));
 
+alter table security_teams add constraint security_teams_pk primary key (id);
+alter table security_teams_facilities add constraint security_teams_facilities_pk primary key (security_team_id, facility_id);
+alter table security_teams_facilities add constraint security_teams_facilities_security_team_fk foreign key (security_team_id) references security_teams(id);
+alter table security_teams_facilities add constraint security_teams_facilities_facilities_fk foreign key (facility_id) references facilities(id);
+
+alter table blacklists add constraint bllist_pk primary key (security_team_id,user_id);
+alter table blacklists add constraint bllist_secteam_fk foreign key (security_team_id) references security_teams (id);
+alter table blacklists add constraint bllist_user_fk foreign key (user_id) references users(id);
+
+alter table resources_bans add constraint res_bans_pk primary key (id);
+alter table resources_bans add constraint res_bans_u unique (member_id, resource_id);
+alter table resources_bans add constraint res_bans_mem_fk foreign key (member_id) references members (id);
+alter table resources_bans add constraint res_bans_res_fk foreign key (resource_id) references resources (id);
+
+alter table facilities_bans add constraint fac_bans_pk primary key (id);
+alter table facilities_bans add constraint fac_bans_u unique (user_id, facility_id);
+alter table facilities_bans add constraint fac_bans_usr_fk foreign key (user_id) references users (id);
+alter table facilities_bans add constraint fac_bans_fac_fk foreign key (facility_id) references facilities (id);
+
 alter table authz add constraint authz_role_fk foreign key (role_id) references roles(id);
 alter table authz add constraint authz_user_fk foreign key (user_id) references users(id);
+alter table authz add constraint authz_sponsu_fk foreign key (sponsored_user_id) references users(id);
 alter table authz add constraint authz_authz_group_fk foreign key (authorized_group_id) references groups(id);
 alter table authz add constraint authz_vo_fk foreign key (vo_id) references vos(id);
 alter table authz add constraint authz_fac_fk foreign key (facility_id) references facilities(id);
@@ -1519,6 +1636,7 @@ alter table authz add constraint authz_group_fk foreign key (group_id) reference
 alter table authz add constraint authz_service_fk foreign key (service_id) references services(id);
 alter table authz add constraint authz_res_fk foreign key (resource_id) references resources(id);
 alter table authz add constraint authz_ser_princ_fk foreign key (service_principal_id) references service_principals(id);
+alter table authz add constraint authz_sec_team_fk foreign key (security_team_id) references security_teams(id);
 alter table authz add constraint authz_user_serprinc_autgrp_chk check ((user_id is not null and service_principal_id is null and authorized_group_id is null) or (user_id is null and service_principal_id is not null and authorized_group_id is null) or (user_id is null and service_principal_id is null and authorized_group_id is not null));
 alter table configurations add constraint config_pk primary key (property);
 alter table configurations add constraint config_prop_chk check (property in ('DATABASE VERSION'));
@@ -1526,4 +1644,3 @@ alter table mailchange add constraint mailchange_pk primary key (id);
 alter table mailchange add constraint mailchange_u_fk foreign key (user_id) references users(id);
 alter table pwdreset add constraint pwdreset_pk primary key (id);
 alter table pwdreset add constraint pwdreset_u_fk foreign key (user_id) references users(id);
-

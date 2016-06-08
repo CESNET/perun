@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.bl;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BanOnFacility;
 import cz.metacentrum.perun.core.api.ContactGroup;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -15,10 +16,13 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichFacility;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -36,6 +40,8 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -255,6 +261,20 @@ public interface FacilitiesManagerBl {
 	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Returns all resources assigned to the facility with optionally VO and Service specified
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param specificVo
+	 * @param specificService
+	 *
+	 * @return list of resources assigned to the facility
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getAssignedResources(PerunSession perunSession, Facility facility, Vo specificVo, Service specificService) throws InternalErrorException;
+
+	/**
 	 * Returns all rich resources assigned to the facility with VO property filled
 	 *
 	 * @param perunSession
@@ -371,6 +391,17 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Facility> getAssignedFacilities(PerunSession sess, Service service) throws InternalErrorException;
+
+	/**
+	 * Get facilities where the security team is assigned
+	 *
+	 * @param sess
+	 * @param securityTeam
+	 * @return
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
 	 * Returns all facilities which have set the attribute with the value. Searching only def and opt attributes.
@@ -829,21 +860,20 @@ public interface FacilitiesManagerBl {
 	 * @param facility
 	 * @return list of ContactGroups for the facility
 	 * @throws InternalErrorException
-	 * @throws FacilityContactNotExistsException
 	 */
-	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException, FacilityContactNotExistsException;
+	List<ContactGroup> getFacilityContactGroups(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Get contact group for the facility and the contact group name
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @return contactGroup for the facility and the contact group name
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException;
+	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException;
 
 	/**
 	 * Get all exist contact group names.
@@ -918,17 +948,47 @@ public interface FacilitiesManagerBl {
 	void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) throws InternalErrorException;
 
 	/**
+	 * Return all security teams which specific facility trusts
+	 *
+	 * @param sess
+	 * @param facility specific facility
+	 * @return list of assigned security teams
+	 * @throws InternalErrorException
+	 */
+	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 */
+	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 */
+	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
 	 * Check if facility contact for the user already exists.
 	 * Throw exception info not.
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @param user
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, User user) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, User user) throws InternalErrorException, FacilityContactNotExistsException;
 
 	/**
 	 * Check if facility contact for the group already exists.
@@ -936,12 +996,12 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @param group
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Group group) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Group group) throws InternalErrorException, FacilityContactNotExistsException;
 
 	/**
 	 * Check if facility contact for the owner already exists.
@@ -949,10 +1009,186 @@ public interface FacilitiesManagerBl {
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @param owner
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	void checkFacilityContactExists(PerunSession sess, Facility facility, String contactGroupName, Owner owner) throws InternalErrorException, FacilityContactNotExistsException;
+	void checkFacilityContactExists(PerunSession sess, Facility facility, String name, Owner owner) throws InternalErrorException, FacilityContactNotExistsException;
+
+	/**
+	 * Check if security team is <b>not</b> assigned to facility.
+	 * Throw exception info is.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws SecurityTeamAlreadyAssignedException
+	 */
+	void checkSecurityTeamNotAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamAlreadyAssignedException, InternalErrorException;
+
+	/**
+	 * Check if security team is assigned to facility.
+	 * Throw exception info not.
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws SecurityTeamNotAssignedException
+	 */
+	void checkSecurityTeamAssigned(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws SecurityTeamNotAssignedException, InternalErrorException;
+
+	/**
+	 * Set ban for user on facility
+	 *
+	 * @param sess
+	 * @param banOnFacility the ban
+	 * @return ban on facility
+	 * @throws InternalErrorException
+	 * @throws BanAlreadyExistsException
+	 *
+	 */
+	BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, BanAlreadyExistsException;
+
+	/**
+	 * Get Ban for user on facility by it's id
+	 *
+	 * @param sess
+	 * @param banId the ban id
+	 * @return facility ban by it's id
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Get true if any ban for user and facility exists.
+	 *
+	 * @param sess
+	 * @param userId id of user
+	 * @param facilityId id of facility
+	 * @return true if ban exists
+	 * @throws InternalErrorException
+	 */
+	boolean banExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException;
+
+	/**
+	 * Get true if any band defined by id exists for any user and facility.
+	 *
+	 * @param sess
+	 * @param banId id of ban
+	 * @return true if ban exists
+	 * @throws InternalErrorException
+	 */
+	boolean banExists(PerunSession sess, int banId) throws InternalErrorException;
+
+	/**
+	 * Check if ban already exists.
+	 *
+	 * Throw exception if no.
+	 *
+	 * @param sess
+	 * @param userId user id
+	 * @param facilityId facility id
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	void checkBanExists(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Check if ban already exists.
+	 *
+	 * Throw exception if no.
+	 *
+	 * @param sess
+	 * @param banId ban id
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	void checkBanExists(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Get specific facility ban.
+	 *
+	 * @param sess
+	 * @param userId the user id
+	 * @param faclityId the facility id
+	 * @return specific facility ban
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Get all facilities bans for user.
+	 *
+	 * @param sess
+	 * @param userId the user id
+	 * @return list of bans for user on any facility
+	 * @throws InternalErrorException
+	 */
+	List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException;
+
+	/**
+	 * Get all users bans for facility
+	 *
+	 * @param sess
+	 * @param facilityId the facility id
+	 * @return list of all users bans on facility
+	 * @throws InternalErrorException
+	 */
+	List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException;
+
+	/**
+	 * Get all expired bans on any facility to now date
+	 *
+	 * @param sess
+	 * @return list of expired bans for any facility
+	 * @throws InternalErrorException
+	 */
+	List<BanOnFacility> getAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException;
+
+	/**
+	 * Update description and validity timestamp of specific ban.
+	 *
+	 * @param sess
+	 * @param banOnFacility ban to be updated
+	 * @return updated ban
+	 * @throws InternalErrorException
+	 */
+	BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException;
+
+	/**
+	 * Remove ban by id from facilities bans.
+	 *
+	 * @param sess
+	 * @param banId id of specific ban
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Remove ban by user_id and facility_id.
+	 *
+	 * @param sess
+	 * @param userId the id of user
+	 * @param facilityId the id of facility
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 */
+	void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException;
+
+	/**
+	 * Remove all expired bans on facilities to now date.
+	 *
+	 * Get all expired bans and remove them one by one with auditing process.
+	 * This method is for purpose of removing expired bans using some cron tool.
+	 *
+	 * @param sess
+	 * @throws InternalErrorException
+	 */
+	void removeAllExpiredBansOnFacilities(PerunSession sess) throws InternalErrorException;
 }

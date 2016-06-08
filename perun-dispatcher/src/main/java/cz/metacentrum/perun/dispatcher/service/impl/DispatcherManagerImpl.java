@@ -143,9 +143,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
 			try {
 				int numRows = resultManager.clearOld(queue.getClientID(), 3);
 				log.debug("Cleaned {} old task results for engine {}", numRows, queue.getClientID());
-			} catch (InternalErrorException e) {
-				log.warn("Error cleaning old task results for engine {} : {}", 
-						queue.getClientID(), e.toString());
+			} catch (Throwable e) {
+				log.error("Error cleaning old task results for engine {} : {}", queue.getClientID(), e);
 			}
 		}
 	}

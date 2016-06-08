@@ -26,7 +26,7 @@ public class PropagationMaintainerJob implements PerunEngineJob {
 	public void doTheJob() {
 		log.info("Entering PropagationMaintainerJob: propagationMaintainer.checkResults().");
 		propagationMaintainer.checkResults();
-		log.info("PropagationMaintainerJob: propagationMaintainer.checkResults() has completed.");
+		log.info("PropagationMaintainerJob done: propagationMaintainer.checkResults() has completed.");
 	}
 
 	public PropagationMaintainer getPropagationMaintainer() {

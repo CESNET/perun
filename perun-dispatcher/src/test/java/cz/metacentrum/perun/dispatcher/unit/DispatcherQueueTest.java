@@ -1,14 +1,19 @@
 package cz.metacentrum.perun.dispatcher.unit;
 
+import cz.metacentrum.perun.dispatcher.AbstractDispatcherTest;
 import org.junit.Test;
 
-import cz.metacentrum.perun.dispatcher.TestBase;
-
-public final class DispatcherQueueTest extends TestBase {
+/**
+ *
+ * @author Michal Voců
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
+public class DispatcherQueueTest extends AbstractDispatcherTest {
 
 	@Test
 	public void sendEventTest() {
-
+		// TODO - fix the printed name to manager it tests
+		System.out.println("DispatcherQueue.sendEventTest()");
 	}
 
 }

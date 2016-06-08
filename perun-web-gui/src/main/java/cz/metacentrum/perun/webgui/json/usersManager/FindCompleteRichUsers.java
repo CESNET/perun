@@ -57,6 +57,7 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 	private ArrayList<String> attributes = new ArrayList<String>();
 	private boolean hideService = false;
 	private boolean hidePerson = false;
+	private boolean hideSponsored = false;
 	private boolean withoutVo = false;
 	private int voId = 0;
 
@@ -165,6 +166,8 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 			public String getValue(User user) {
 				if (user.isServiceUser()) {
 					return "Service";
+				} else if (user.isSponsoredUser()) {
+					return "Sponsored";
 				} else {
 					return "Person";
 				}
@@ -174,7 +177,22 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 		serviceColumn.setSortable(true);
 		columnSortHandler.setComparator(serviceColumn, new Comparator<User>() {
 			public int compare(User o1, User o2) {
-				return String.valueOf(o1.isServiceUser()).compareToIgnoreCase(String.valueOf(o2.isServiceUser()));  // sort by name without titles
+
+				String type1 = "Person";
+				if (o1.isServiceUser()) {
+					type1 = "Service";
+				} else if (o1.isSponsoredUser()) {
+					type1 = "Sponsored";
+				}
+
+				String type2 = "Person";
+				if (o2.isServiceUser()) {
+					type2 = "Service";
+				} else if (o2.isSponsoredUser()) {
+					type2 = "Sponsored";
+				}
+
+				return type1.compareTo(type2);
 			}
 		});
 
@@ -356,7 +374,9 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 		for (User u : list) {
 			if (hideService && u.isServiceUser())  {
 				// if service hidden, skip service users
-			} else if (hidePerson && !u.isServiceUser()) {
+			} else if (hideSponsored && u.isSponsoredUser()) {
+				// if sponsored hidden, skip sponsored users
+			} else if (hidePerson && !u.isSpecificUser()) {
 				// if person hidden, skip person
 			} else {
 				addToTable(u);
@@ -415,6 +435,14 @@ public class FindCompleteRichUsers implements JsonCallback, JsonCallbackTable<Us
 
 	public void hidePerson(boolean hidePerson) {
 		this.hidePerson = hidePerson;
+	}
+
+	public boolean isHideSponsored() {
+		return hideSponsored;
+	}
+
+	public void hideSponsored(boolean hideSponsored) {
+		this.hideSponsored = hideSponsored;
 	}
 
 	public void findWithoutVo(boolean without, int voId) {

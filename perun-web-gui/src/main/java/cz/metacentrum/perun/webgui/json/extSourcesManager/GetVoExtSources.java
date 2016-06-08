@@ -320,4 +320,12 @@ public class GetVoExtSources implements JsonCallback, JsonCallbackTable<ExtSourc
 		this.oracle = oracle;
 	}
 
+	public void setEvents(JsonCallbackEvents events) {
+		this.events = events;
+	}
+
+	public MultiSelectionModel<ExtSource> getSelectionModel() {
+		return this.selectionModel;
+	}
+
 }

@@ -107,9 +107,11 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 
 		// HORIZONTAL MENU
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 		firstTabPanel.add(menu);
 		firstTabPanel.setCellHeight(menu, "30px");
 
+		/*
 		// verify button
 		final CustomButton verify = TabMenu.getPredefinedButton(ButtonType.VERIFY, ButtonTranslation.INSTANCE.verifyApplication());
 		verify.addClickHandler(new ClickHandler() {
@@ -211,6 +213,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 		menu.addWidget(approve);
 		menu.addWidget(reject);
 		menu.addWidget(delete);
+		*/
 
 		// FILTER
 		menu.addWidget(new HTML("<strong>State: </strong>"));
@@ -220,7 +223,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 		stateListBox.addItem(WidgetTranslation.INSTANCE.listboxAll(), "");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew(), "NEW");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateVerified(), "VERIFIED");
-		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateNew()+" + "+ObjectTranslation.INSTANCE.applicationStateVerified(), "NEW,VERIFIED");
+		stateListBox.addItem("Pending", "NEW,VERIFIED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateApproved(), "APPROVED");
 		stateListBox.addItem(ObjectTranslation.INSTANCE.applicationStateRejected(), "REJECTED");
 		stateListBox.setSelectedIndex(selectedIndex);
@@ -260,6 +263,7 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 		session.getUiElements().resizePerunTable(sp, 100);
 		firstTabPanel.add(sp);
 
+		/*
 		verify.setEnabled(false);
 		approve.setEnabled(false);
 		reject.setEnabled(false);
@@ -279,9 +283,12 @@ public class GroupApplicationsTabItem implements TabItem, TabItemWithUrl {
 
 		} else {
 
-			applicationsRequest.setCheckable(false);
+
 
 		}
+
+		*/
+		applicationsRequest.setCheckable(false);
 
 		this.contentWidget.setWidget(firstTabPanel);
 		return getWidget();

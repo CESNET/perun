@@ -42,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Michal Karm Babacek
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-tasks-lib-applicationcontext.xml", "classpath:perun-datasources.xml", "classpath:perun-beans.xml", "classpath:perun-transaction-manager.xml" })
+@ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-core-jdbc.xml", "classpath:perun-core-transaction-manager.xml", "classpath:perun-tasks-lib.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
 @Transactional
 public class ExecServiceDenialDaoTest {
@@ -94,8 +94,8 @@ public class ExecServiceDenialDaoTest {
 		testService2 = new Service();
 		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
 
-		testService1.setId(servicesManager.createService(perunSession, testService1, testOwner).getId());
-		testService2.setId(servicesManager.createService(perunSession, testService2, testOwner).getId());
+		testService1.setId(servicesManager.createService(perunSession, testService1).getId());
+		testService2.setId(servicesManager.createService(perunSession, testService2).getId());
 
 		// Testing Destination #1
 		testDestinationId1 = Utils.getNewId(jdbcTemplate, "destinations_id_seq");
@@ -141,6 +141,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testIsExecServiceDeniedOnFacility() {
+		System.out.println("ExecServiceDenialDao.isExecServiceDeniedOnFacility");
+
 		try {
 
 			log.debug("testIsExecServiceDeniedOnFacility: Testing...");
@@ -154,6 +156,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testIsExecServiceDeniedOnDestination() {
+		System.out.println("ExecServiceDenialDao.isExecServiceDeniedOnDestination");
+
 		try {
 
 			log.debug("testIsExecServiceDeniedOnDestination: Testing...");
@@ -167,6 +171,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testBanExecServiceOnFacility() {
+		System.out.println("ExecServiceDenialDao.banExecServiceOnFacility");
+
 		try {
 
 			log.debug("testBanExecServiceOnFacility: Inserting a new denial...");
@@ -181,6 +187,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testBanExecServiceOnDestination() {
+		System.out.println("ExecServiceDenialDao.banExecServiceOnDestination");
+
 		try {
 
 			log.debug("testBanExecServiceOnDestination: Inserting a new denial...");
@@ -195,6 +203,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testListDenialsForFacility() {
+		System.out.println("ExecServiceDenialDao.listDenialsForFacility");
+
 		try {
 
 			log.debug("testListDenialsForFacility: Inserting a new denial...");
@@ -230,6 +240,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testListDenialsForDestination() {
+		System.out.println("ExecServiceDenialDao.listDenialsForDestination");
+
 		try {
 
 			log.debug("testListDenialsForDestination: Inserting a new denial...");
@@ -265,6 +277,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testFreeAllDenialsOnFacility() {
+		System.out.println("ExecServiceDenialDao.freeAllDenialsOnFacility");
+
 		try {
 
 			log.debug("testFreeAllDenialsOnFacility: Inserting a new denial...");
@@ -283,6 +297,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testFreeAllDenialsOnDestination() {
+		System.out.println("ExecServiceDenialDao.freeAllDenialsOnDestination");
+
 		try {
 
 			log.debug("testFreeAllDenialsOnDestination: Inserting a new denial...");
@@ -301,6 +317,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testFreeDenialOfExecServiceOnFacility() {
+		System.out.println("ExecServiceDenialDao.freeDenialOfExecServiceOnFacility");
+
 		try {
 
 			log.debug("testFreeDenialOfExecServiceOnFacility: Inserting a new denial...");
@@ -319,6 +337,8 @@ public class ExecServiceDenialDaoTest {
 
 	@Test
 	public void testFreeDenialOfExecServiceOnDestination() {
+		System.out.println("ExecServiceDenialDao.freeDenialOfExecServiceOnDestination");
+
 		try {
 
 			log.debug("testFreeDenialOfExecServiceOnDestination: Inserting a new denial...");

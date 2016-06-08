@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 
+import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.taskslib.model.Task;
+import cz.metacentrum.perun.taskslib.model.TaskResult;
 
 /**
  * 
@@ -168,8 +170,19 @@ public class JMSQueueManager {
 				+ task.getId() + ":" + task.getStatus().toString() + ":"
 				+ destinations);
 		// + ":" + task.getId() + ":DONE:Destinations []");
+		message.setJMSPriority(6);
 		producer.send(message);
 		log.debug("Task result message [" + message.getText()
+				+ "] has been sent...");
+	}
+
+	public void reportFinishedDestination(Task task, Destination destination, TaskResult result) throws JMSException {
+		TextMessage message = session.createTextMessage("taskresult:"
+				+ propertiesBean.getProperty("engine.unique.id") + ":"
+				+ (result == null ? "" : result.serializeToString()));
+		message.setJMSPriority(2);
+		producer.send(message);
+		log.debug("Task destination result message [" + message.getText()
 				+ "] has been sent...");
 	}
 
@@ -210,5 +223,6 @@ public class JMSQueueManager {
 			TaskExecutor taskExecutorMessageProcess) {
 		this.taskExecutorMessageProcess = taskExecutorMessageProcess;
 	}
+
 
 }

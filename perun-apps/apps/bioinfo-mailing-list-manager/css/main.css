@@ -1,0 +1,95 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 27.8.2014, 21:32:51
+    Author     : Ondrej
+*/
+body {
+  background-color: #f5f5f5;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+#header {
+  background-color: #00529b;
+  color: #fff;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding: 0px 20px;
+}
+#header .logo {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+#header .title {
+  font-style: italic;
+}
+#header .title img {
+  margin-top: -5px;
+  margin-bottom: -5px;
+}
+#menu .nav-pills > .active > a,
+#menu .nav-pills > .active > a:hover,
+#menu .nav-pills > .active > a:focus {
+  background-color: #00529b;
+}
+#menu .nav-pills > .active > a i,
+#menu .nav-pills > .active > a:hover i,
+#menu .nav-pills > .active > a:focus i {
+  color: #fff;
+}
+#menu .nav-pills > li > a:hover,
+#menu .nav-pills > li > a:focus {
+  background-color: #e6e6e6;
+}
+#menu .nav-stacked > li.divider {
+  margin: 6px 0px;
+  border-bottom: 1px solid #ddd;
+}
+#menu i {
+  color: #333;
+}
+#content h1,
+#content h2,
+#content h3,
+#content h4,
+#content h5,
+#content h6 {
+  margin-top: 20px;
+}
+#content .page-header {
+  border-bottom-color: #ddd;
+}
+#content dl dd,
+#content dl dt {
+  margin-bottom: 4px;
+}
+#content table tbody {
+  background-color: #fff;
+}
+#content #profile {
+  position: relative;
+}
+#content #profile .dropdown-menu {
+  min-width: 100px;
+}
+#content #profile .dropdown-menu a[data-value] {
+  cursor: pointer;
+}
+@media (max-width: 480px) {
+  #content #profile .btn-group {
+    position: static;
+  }
+  #content #profile .btn-group .dropdown-menu.multi-level {
+    position: absolute;
+    left: 0px;
+  }
+}

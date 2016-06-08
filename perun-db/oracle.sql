@@ -1,4 +1,4 @@
--- database version 3.1.25 (don't forget to update insert statement at the end of file)
+-- database version 3.1.36 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -27,14 +27,15 @@ create table users (
 	first_name nvarchar2(64),
 	last_name nvarchar2(64),
 	middle_name nvarchar2(64),
-	title_before nvarchar2(20),
-	title_after nvarchar2(20),
+	title_before nvarchar2(40),
+	title_after nvarchar2(40),
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
 	modified_by nvarchar2(1024) default user not null,
 	status char(1) default '0' not null,
 	service_acc char(1) default '0' not null,
+	sponsored_acc char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -165,7 +166,7 @@ create table facility_owners (
 );
 
 create table facility_contacts (
-	contact_group_name nvarchar2(128) not null,
+	name nvarchar2(128) not null,
 	facility_id integer not null,
 	owner_id integer,
 	user_id integer,
@@ -316,9 +317,11 @@ create table authz (
 	service_id integer,
 	resource_id integer,
 	service_principal_id integer,
+	sponsored_user_id integer,
 	created_by_uid integer,
 	modified_by_uid integer,
-	authorized_group_id integer
+	authorized_group_id integer,
+	security_team_id integer
 );
 
 create table hosts (
@@ -364,7 +367,6 @@ create table auditer_consumers (
 create table services (
 	id integer not null,
 	name nvarchar2(128) not null,
-	owner_id integer,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -398,13 +400,14 @@ create table service_required_attrs (
 	modified_by_uid integer
 );
 
-create table service_user_users (
+create table specific_user_users (
 	user_id integer not null,
-	service_user_id integer not null,
+	specific_user_id integer not null,
 	created_by_uid integer,
 	modified_by_uid integer,
 	modified_at date default sysdate not null,
-	status char(1) default '0' not null
+	status char(1) default '0' not null,
+	type varchar(20) default 'service' not null,
 );
 
 create table exec_services (
@@ -801,6 +804,17 @@ create table vo_ext_sources (
 	modified_by_uid integer
 );
 
+create table "group_ext_sources" (
+	group_id integer not null,
+	ext_source_id integer not null,
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create table user_ext_sources (
 	id integer not null,
 	user_id integer not null,
@@ -1042,53 +1056,118 @@ create table pwdreset (
 	created_by_uid integer
 );
 
-create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28;
-create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28;
-create sequence AUDITER_LOG_ID_SEQ maxvalue 1.0000E+28;
-create sequence DESTINATIONS_ID_SEQ maxvalue 1.0000E+28;
-create sequence EXEC_SERVICES_ID_SEQ maxvalue 1.0000E+28;
-create sequence EXT_SOURCES_ID_SEQ maxvalue 1.0000E+28;
-create sequence FACILITIES_ID_SEQ maxvalue 1.0000E+28;
-create sequence GROUPS_ID_SEQ maxvalue 1.0000E+28;
-create sequence HOSTS_ID_SEQ maxvalue 1.0000E+28;
-create sequence MEMBERS_ID_SEQ maxvalue 1.0000E+28;
-create sequence OWNERS_ID_SEQ maxvalue 1.0000E+28;
-create sequence PROCESSING_RULES_ID_SEQ maxvalue 1.0000E+28;
-create sequence RESOURCES_ID_SEQ maxvalue 1.0000E+28;
-create sequence ROUTING_RULES_ID_SEQ maxvalue 1.0000E+28;
-create sequence SERVICES_ID_SEQ maxvalue 1.0000E+28;
-create sequence SERVICE_DENIALS_ID_SEQ maxvalue 1.0000E+28;
-create sequence SERVICE_PACKAGES_ID_SEQ maxvalue 1.0000E+28;
-create sequence TASKS_ID_SEQ maxvalue 1.0000E+28;
-create sequence TASKS_RESULTS_ID_SEQ maxvalue 1.0000E+28;
-create sequence USERS_ID_SEQ maxvalue 1.0000E+28;
-create sequence USER_EXT_SOURCES_ID_SEQ maxvalue 1.0000E+28;
-create sequence VOS_ID_SEQ maxvalue 1.0000E+28;
-create sequence CABINET_PUBLICATIONS_ID_SEQ maxvalue 1.0000E+28;
-create sequence CABINET_PUB_SYS_ID_SEQ maxvalue 1.0000E+28;
-create sequence CABINET_AUTHORSHIPS_ID_SEQ maxvalue 1.0000E+28;
-create sequence CABINET_THANKS_ID_SEQ maxvalue 1.0000E+28;
-create sequence CABINET_CATEGORIES_ID_SEQ maxvalue 1.0000E+28;
-create sequence ROLES_ID_SEQ maxvalue 1.0000E+28;
-create sequence SERVICE_PRINCIPALS_ID_SEQ maxvalue 1.0000E+28;
-create sequence APPLICATION_FORM_ID_SEQ maxvalue 1.0000E+28;
-create sequence APPLICATION_FORM_ITEMS_ID_SEQ maxvalue 1.0000E+28;
-create sequence APPLICATION_ID_SEQ maxvalue 1.0000E+28;
-create sequence APPLICATION_DATA_ID_SEQ maxvalue 1.0000E+28;
-create sequence APPLICATION_MAILS_ID_SEQ maxvalue 1.0000E+28;
-create sequence PN_OBJECT_ID_SEQ maxvalue 1.0000E+28;
-create sequence PN_POOL_MESSAGE_ID_SEQ maxvalue 1.0000E+28;
-create sequence PN_RECEIVER_ID_SEQ maxvalue 1.0000E+28;
-create sequence PN_REGEX_ID_SEQ maxvalue 1.0000E+28;
-create sequence PN_TEMPLATE_ID_SEQ maxvalue 1.0000E+28;
-create sequence PN_AUDIT_MESSAGE_ID_SEQ maxvalue 1.0000E+28;
-create sequence PN_TEMPLATE_REGEX_SEQ maxvalue 1.0000E+28;
-create sequence PN_TEMPLATE_MESSAGE_ID_SEQ maxvalue 1.0000E+28;
-create sequence PN_REGEX_OBJECT_SEQ maxvalue 1.0000E+28;
-create sequence ACTION_TYPES_SEQ maxvalue 1.0000E+28;
-create sequence RES_TAGS_SEQ maxvalue 1.0000E+28;
-create sequence MAILCHANGE_ID_SEQ maxvalue 1.0000E+28;
-create sequence PWDRESET_ID_SEQ maxvalue 1.0000E+28;
+create table security_teams (
+	id integer not null,
+	name nvarchar2(128) not null,
+	description nvarchar2(1024),
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table security_teams_facilities (
+	security_team_id integer not null,
+	facility_id integer not null,
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table blacklists (
+	security_team_id integer not null,
+	user_id integer not null,
+	description nvarchar2(1024),
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table resources_bans (
+  id integer not null,
+  member_id integer not null,
+  resource_id integer not null,
+  description nvarchar2(1024),                                                                       
+  banned_to date not null,
+  created_at date default sysdate not null,
+  created_by nvarchar2(1024) default user not null,
+  modified_at date default sysdate not null,
+  modified_by nvarchar2(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
+create table facilities_bans (
+	id integer not null,
+  user_id integer not null,
+  facility_id integer not null,
+  description nvarchar2(1024),                                                                       
+  banned_to date not null,
+  created_at date default sysdate not null,
+  created_by nvarchar2(1024) default user not null,
+  modified_at date default sysdate not null,
+  modified_by nvarchar2(1024) default user not null,
+  created_by_uid integer,
+  modified_by_uid integer
+);
+
+create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence AUDITER_LOG_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence DESTINATIONS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence EXEC_SERVICES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence EXT_SOURCES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence FACILITIES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence GROUPS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence HOSTS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence MEMBERS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence OWNERS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PROCESSING_RULES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence RESOURCES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence ROUTING_RULES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence SERVICES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence SERVICE_DENIALS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence SERVICE_PACKAGES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence TASKS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence TASKS_RESULTS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence USERS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence USER_EXT_SOURCES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence VOS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence CABINET_PUBLICATIONS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence CABINET_PUB_SYS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence CABINET_AUTHORSHIPS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence CABINET_THANKS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence CABINET_CATEGORIES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence ROLES_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence SERVICE_PRINCIPALS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence APPLICATION_FORM_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence APPLICATION_FORM_ITEMS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence APPLICATION_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence APPLICATION_DATA_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence APPLICATION_MAILS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_OBJECT_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_POOL_MESSAGE_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_RECEIVER_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_REGEX_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_TEMPLATE_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_AUDIT_MESSAGE_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_TEMPLATE_REGEX_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_TEMPLATE_MESSAGE_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PN_REGEX_OBJECT_SEQ maxvalue 1.0000E+28 nocache;
+create sequence ACTION_TYPES_SEQ maxvalue 1.0000E+28 nocache;
+create sequence RES_TAGS_SEQ maxvalue 1.0000E+28 nocache;
+create sequence MAILCHANGE_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence PWDRESET_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence RESOURCES_BANS_ID_SEQ maxvalue 1.0000E+28 nocache;
+create sequence FACILITIES_BANS_ID_SEQ maxvalue 1.0000E+28 nocache;
 
 create index idx_namespace on attr_names(namespace);
 create index idx_authz_user_role_id on authz (user_id,role_id);
@@ -1099,13 +1178,14 @@ create index IDX_FK_USREX_USERSRC on user_ext_sources(ext_sources_id);
 create index IDX_FK_MEM_USER on members(user_id);
 create index IDX_FK_MEM_VO on members(vo_id);
 create index IDX_FK_HOST_FAC on hosts(facility_id);
-create index IDX_FK_SERV_OW on services(owner_id);
 create index IDX_FK_EXSRV_SRV on exec_services(service_id);
 create index IDX_FK_DEST_SRV on facility_service_destinations(service_id);
 create index IDX_FK_DEST_FAC on facility_service_destinations(facility_id);
 create index IDX_FK_DEST_DESTC on facility_service_destinations(destination_id);
 create index IDX_FK_VOUSRSRC_USRSRC on vo_ext_sources(ext_sources_id);
 create index IDX_FK_VOUSRSRC_VOS on vo_ext_sources(vo_id);
+create index IDX_FK_GROUPSRC_SRC on group_ext_sources(ext_source_id);
+create index IDX_FK_GROUPSRC_GROUP on group_ext_sources(group_id);
 create index IDX_FK_USRCATT_USRC on ext_sources_attributes(ext_sources_id);
 create index IDX_FK_ATTNAM_ATTNAM on attr_names(default_attr_id);
 create index IDX_FK_RSRC_FAC on resources(facility_id);
@@ -1178,6 +1258,8 @@ create index IDX_FK_AUTHZ_GROUP on authz(group_id);
 create index IDX_FK_AUTHZ_SERVICE on authz(service_id);
 create index IDX_FK_AUTHZ_RES on authz(resource_id);
 create index IDX_FK_AUTHZ_SER_PRINC on authz(service_principal_id);
+create index IDX_FK_AUTHZ_SPONSORU_TEAM on authz(sponsored_user_id);
+create index IDX_FK_AUTHZ_SEC_TEAM on authz(security_team_id);
 create index IDX_FK_GRRES_GR on groups_resources(group_id);
 create index IDX_FK_GRRES_RES on groups_resources(resource_id);
 create index IDX_FK_GRPMEM_GR on groups_members(group_id);
@@ -1205,8 +1287,8 @@ create index IDX_FK_PN_TMPLRGX_RGX on pn_template_regex(regex_id);
 create index IDX_FK_PN_TMPLRGX_TMPL on pn_template_regex(template_id);
 create index IDX_FK_PN_RGXOBJ_RGX on pn_regex_object(regex_id);
 create index IDX_FK_PN_RGXOBJ_OBJ on pn_regex_object(object_id);
-create index IDX_FK_SERVU_U_UI on service_user_users(user_id);
-create index IDX_FK_SERVU_U_SUI on service_user_users(service_user_id);
+create index IDX_FK_SPECIFU_U_UI on specific_user_users(user_id);
+create index IDX_FK_SPECIFU_U_SUI on specific_user_users(specific_user_id);
 create index IDX_FK_GRP_GRP_GID on groups_groups(group_id);
 create index IDX_FK_GRP_GRP_PGID on groups_groups(parent_group_id);
 create index IDX_FK_ATTRAUTHZ_ACTIONTYP on attributes_authz(action_type_id);
@@ -1217,6 +1299,14 @@ create index IDX_FK_TAGS_RES_TAGS on tags_resources(tag_id);
 create index IDX_FK_TAGS_RES_RES on tags_resources(resource_id);
 create index IDX_FK_MAILCHANGE_USER_ID on mailchange(user_id);
 create index IDX_FK_PWDRESET_USER_ID on pwdreset(user_id);
+create index IDX_FK_SEC_TEAM_FACS_SEC on security_teams_facilities (security_team_id);
+create index IDX_FK_SEC_TEAM_FACS_FAC on security_teams_facilities (facility_id);
+create index IDX_FK_BLLIST_USER on blacklists (user_id);
+create index IDX_FK_BLLIST_SECTEAM on blacklists (security_team_id);
+create index IDX_FK_RES_BAN_MEMBER on resources_bans (member_id);
+create index IDX_FK_RES_BAN_RES on resources_bans (resource_id);
+create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
+create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
@@ -1253,8 +1343,7 @@ constraint HOST_FAC_FK foreign key(facility_id) references facilities(id)
 );
 alter table services add (
 constraint SERV_PK primary key(id),
-constraint SERV_U unique(name),
-constraint SERV_OW_FK foreign key (owner_id) references owners(id)
+constraint SERV_U unique(name)
 );
 alter table exec_services add (
 constraint EXSRV_PK primary key(id),
@@ -1327,6 +1416,11 @@ constraint GRP_PK primary key (id),
 constraint GRP_NAM_VO_PARENTG_U unique (name,vo_id,parent_group_id),
 constraint GRP_VOS_FK foreign key (vo_id) references vos(id),
 constraint GRP_GRP_FK foreign key (parent_group_id) references groups(id)
+);
+alter table group_ext_sources add (
+constraint GROUPSRC_PK primary key (group_id,ext_source_id),
+constraint GROUPSRC_SRC_FK foreign key(ext_source_id) references ext_sources(id),
+constraint GROUPSRC_GROUPS_FK foreign key(group_id) references groups(id)
 );
 alter table member_resource_attr_values add (
 constraint MEMRAV_MEM_FK foreign key (member_id) references members(id),
@@ -1458,6 +1552,36 @@ alter table service_principals add (
 constraint SER_PRINC_PK primary key (id)
 );
 
+alter table security_teams add (
+constraint SEC_TEAM_PK primary key (id)
+);
+
+alter table security_teams_facilities add (
+constraint SEC_TEAM_FACS_PK primary key (security_team_id, facility_id),
+constraint SEC_TEAM_FACS_SEC_FK foreign key (security_team_id) references security_teams(id),
+constraint SEC_TEAM_FACS_FAC_FK foreign key (facility_id) references facilities(id)
+);
+
+alter table blacklists add (
+constraint BLLIST_PK primary key (security_team_id,user_id),
+constraint BLLIST_SECTEAM_FK foreign key (security_team_id) references security_teams (id),
+constraint BLLIST_USER_FK foreign key (user_id) references users(id)
+);
+
+alter table resources_bans add (
+constraint res_bans_pk primary key (id),
+constraint res_bans_u unique(member_id, resource_id),
+constraint res_bans_mem_fk foreign key (member_id) references members (id),
+constraint res_bans_res_fk foreign key (resource_id) references resources (id)
+);
+
+alter table facilities_bans add (
+constraint fac_bans_pk primary key (id),
+constraint fac_bans_u unique(user_id, facility_id),
+constraint fac_bans_usr_fk foreign key (user_id) references users (id),
+constraint fac_bans_fac_fk foreign key (facility_id) references facilities (id)
+);
+
 alter table authz add (
 constraint AUTHZ_ROLE_FK foreign key (role_id) references roles(id),
 constraint AUTHZ_USER_FK foreign key (user_id) references users(id),
@@ -1469,17 +1593,18 @@ constraint AUTHZ_GROUP_FK foreign key (group_id) references groups(id),
 constraint AUTHZ_SERVICE_FK foreign key (service_id) references services(id),
 constraint AUTHZ_RES_FK foreign key (resource_id) references resources(id),
 constraint AUTHZ_SER_PRINC_FK foreign key (service_principal_id) references service_principals(id),
+constraint AUTHZ_SEC_TEAM_FK foreign key (security_team_id) references security_teams(id),
 constraint AUTHZ_USER_SERPRINC_AUTGRP_CHK check (decode(user_id,null,0,1)+decode(service_principal_id,null,0,1)+decode(authorized_group_id,null,0,1) = 1),
-constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id)
+constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id,security_team_id)
 );
 
 alter table facility_contacts add (
-constraint FACCONT_FAC_FK foreign key (facility_id) references facilities(id);
-constraint FACCONT_USR_FK foreign key (user_id) references users(id);
-constraint FACCONT_OWN_FK foreign key (owner_id) references owners(id);
-constraint FACCONT_GRP_FK foreign key (group_id) references groups(id);
+constraint FACCONT_FAC_FK foreign key (facility_id) references facilities(id),
+constraint FACCONT_USR_FK foreign key (user_id) references users(id),
+constraint FACCONT_OWN_FK foreign key (owner_id) references owners(id),
+constraint FACCONT_GRP_FK foreign key (group_id) references groups(id),
 constraint FACCONT_USR_OWN_GRP_CHK check (decode(user_id,null,0,1)+decode(owner_id,null,0,1)+decode(group_id,null,0,1) = 1),
-constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,contact_group_name)
+constraint FACCONT_U2 unique (user_id,owner_id,group_id,facility_id,name)
 );
 
 alter table groups_resources add (
@@ -1597,11 +1722,11 @@ constraint PN_RGXOBJ_RGX_FK foreign key (regex_id) references pn_regex(id),
 constraint PN_RGXOBJ_OBJ_FK foreign key (object_id) references pn_object(id)
 );
 
-alter table service_user_users add (
-constraint ACC_SERVU_U_PK primary key (user_id,service_user_id),
-constraint ACC_SERVU_U_UID_FK foreign key (user_id) references users(id),
-constraint ACC_SERVU_U_SUID_FK foreign key (service_user_id) references users(id),
-constraint SERVU_U_STATUS_CHK check (status in ('0','1'))
+alter table specific_user_users add (
+constraint ACC_SPECIFU_U_PK primary key (user_id,specific_user_id),
+constraint ACC_SPECIFU_U_UID_FK foreign key (user_id) references users(id),
+constraint ACC_SPECIFU_U_SUID_FK foreign key (specific_user_id) references users(id),
+constraint SPECIFU_U_STATUS_CHK check (status in ('0','1'))
 );
 
 alter table groups_groups add (
@@ -1651,4 +1776,8 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.26');
+insert into configurations values ('DATABASE VERSION','3.1.36');
+
+-- insert membership types
+insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
+insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added into subgroup');

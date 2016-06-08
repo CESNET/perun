@@ -133,11 +133,12 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 
 		// ADD, REMOVE menu
 		TabMenu menu = new TabMenu();
+		menu.addWidget(UiElements.getRefreshButton(this));
 		// FILTER MENU
 		final TabMenu filterMenu = new TabMenu();
 		filterMenu.setVisible(false); // not visible at start
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new Publication", new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new Publication", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTab(new AddPublicationsTabItem(user));
 			}

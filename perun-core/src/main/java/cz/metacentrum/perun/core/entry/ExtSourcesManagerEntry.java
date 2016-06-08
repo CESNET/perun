@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
@@ -55,7 +57,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		throw new InternalErrorRuntimeException("Unsupported method!");
 	}
 
-	public ExtSource createExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceExistsException, PrivilegeException {
+	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -65,7 +67,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 
 		Utils.notNull(extSource, "extSource");
 
-		return getExtSourcesManagerBl().createExtSource(sess, extSource);
+		return getExtSourcesManagerBl().createExtSource(sess, extSource, attributes);
 	}
 
 	public void deleteExtSource(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException, PrivilegeException, ExtSourceAlreadyRemovedException {
@@ -73,7 +75,7 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-			throw new PrivilegeException(sess, "createExtSource");
+			throw new PrivilegeException(sess, "deleteExtSource");
 		}
 
 		getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
@@ -119,6 +121,22 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		return getExtSourcesManagerBl().getVoExtSources(sess, vo);
 	}
 
+	@Override
+	public List<ExtSource> getGroupExtSources(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
+				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getGroupExtSources");
+		}
+
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		return getExtSourcesManagerBl().getGroupExtSources(sess, group);
+	}
+
 	public List<ExtSource> getExtSources(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -143,7 +161,23 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().addExtSource(sess, vo, source);
 	}
 
-	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException {
+	@Override
+	public void addExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceAlreadyAssignedException, ExtSourceNotAssignedException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)) {
+			throw new PrivilegeException(sess, "addExtSource");
+		}
+
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+		getExtSourcesManagerBl().checkExtSourceExists(sess, source);
+		getExtSourcesManagerBl().checkExtSourceAssignedToVo(sess, source, group.getVoId());
+
+		getExtSourcesManagerBl().addExtSource(sess, group, source);
+	}
+
+	public ExtSource checkOrCreateExtSource(PerunSession sess, String extSourceName, String extSourceType) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		//TODO Authorization
@@ -166,6 +200,21 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(sess, source);
 
 		getExtSourcesManagerBl().removeExtSource(sess, vo, source);
+	}
+
+	@Override
+	public void removeExtSource(PerunSession sess, Group group, ExtSource source) throws InternalErrorException, PrivilegeException, GroupNotExistsException, ExtSourceNotExistsException, ExtSourceNotAssignedException, ExtSourceAlreadyRemovedException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)) {
+			throw new PrivilegeException(sess, "removeExtSource");
+		}
+
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+		getExtSourcesManagerBl().checkExtSourceExists(sess, source);
+
+		getExtSourcesManagerBl().removeExtSource(sess, group, source);
 	}
 
 	public List<User> getInvalidUsers(PerunSession sess, ExtSource source) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException {
@@ -253,5 +302,16 @@ public class ExtSourcesManagerEntry implements ExtSourcesManager {
 		getExtSourcesManagerBl().checkExtSourceExists(perunSession, source);
 
 		return getExtSourcesManagerBl().getCandidate(perunSession, subjectData, source, subjectData.get("login"));
+	}
+
+	public Map<String, String> getAttributes(PerunSession sess, ExtSource extSource) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "getAttributes");
+		}
+		getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
+		return getExtSourcesManagerBl().getAttributes(extSource);
 	}
 }

@@ -40,9 +40,10 @@ public class urn_perun_group_attribute_def_def_unixGroupName_namespace extends G
 		if(groupName == null) {
 			// if this is group attribute, its ok
 			return;
-		}else if(!groupName.matches("^[-._a-zA-Z0-9]+$")){
-			throw new WrongAttributeValueException(attribute,"GroupName attributte content invalid characters. Allowed are only letters, numbers and characters _ and -.");
 		}
+
+		//Check attribute regex
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "^[-._a-zA-Z0-9]+$");
 
 		//Check reserved unix group names
 		sess.getPerunBl().getModulesUtilsBl().checkReservedUnixGroupNames(attribute);

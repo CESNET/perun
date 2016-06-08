@@ -101,6 +101,8 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
+		menu.addWidget(UiElements.getRefreshButton(this));
+
 		final ListBoxWithObjects<RichMember> memberListBox = new ListBoxWithObjects<>();
 		final ListBoxWithObjects<Service> serviceListBox = new ListBoxWithObjects<>();
 
@@ -317,7 +319,7 @@ public class ResourceMemberSettingsTabItem implements TabItem, TabItemWithUrl {
 		});
 
 		// add set new to menu
-		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
+		CustomButton setNewAttributeButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.setNewAttributes(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				Map<String, Integer> ids = new HashMap<String, Integer>();
 				ids.put("resource", resourceId);

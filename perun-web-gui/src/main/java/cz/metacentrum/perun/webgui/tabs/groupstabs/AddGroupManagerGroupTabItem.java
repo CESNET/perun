@@ -108,10 +108,11 @@ public class AddGroupManagerGroupTabItem implements TabItem {
 		final ListBoxWithObjects<VirtualOrganization> box = new ListBoxWithObjects<VirtualOrganization>();
 
 		// pass empty items to menu to ensure drawing of rest
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
 		tabMenu.addWidget(new HTML(""));
 		tabMenu.addWidget(new HTML(""));
-		tabMenu.addWidget(2, new HTML("<strong>Select VO:</strong>"));
-		tabMenu.addWidget(3, box);
+		tabMenu.addWidget(3, new HTML("<strong>Select VO:</strong>"));
+		tabMenu.addWidget(4, box);
 
 		// get the table
 		final ScrollPanel sp = new ScrollPanel();
@@ -152,7 +153,7 @@ public class AddGroupManagerGroupTabItem implements TabItem {
 		}
 
 		final TabItem tab = this;
-		tabMenu.addWidget(1, TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
+		tabMenu.addWidget(2, TabMenu.getPredefinedButton(ButtonType.CANCEL, "", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent clickEvent) {
 				if (refreshEvents != null) refreshEvents.onFinished(null);
@@ -198,7 +199,7 @@ public class AddGroupManagerGroupTabItem implements TabItem {
 		});
 
 		final CustomButton addButton = TabMenu.getPredefinedButton(ButtonType.ADD, ButtonTranslation.INSTANCE.addSelectedManagersGroupToGroup());
-		tabMenu.addWidget(0, addButton);
+		tabMenu.addWidget(1, addButton);
 		final TabItem tab = this;
 		addButton.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event) {

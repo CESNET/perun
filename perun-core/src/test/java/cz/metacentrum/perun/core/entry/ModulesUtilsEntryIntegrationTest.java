@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
@@ -18,42 +17,32 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MembersManager;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
+ * Integration tests of ModulesUtils
+ *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-
 public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTest {
 
 	private ModulesUtilsBl modulesUtilsBl;
-	private final static String MODULES_UTILS_ENTRY = "ModulesUtilsBl.";
+	private final static String CLASS_NAME = "ModulesUtilsBl.";
 
 	// these are in DB only when setUp"Type"() and must be used in correct (this) order
 	private Vo vo;
@@ -75,7 +64,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void haveTheSameAttributeWithTheSameNamespace1ForResource() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace1()");
+		System.out.println(CLASS_NAME + "haveTheSameAttributeWithTheSameNamespace1");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -92,7 +81,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void haveTheSameAttributeWithTheSameNamespace2ForResource() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace2()");
+		System.out.println(CLASS_NAME + "haveTheSameAttributeWithTheSameNamespace2");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -111,7 +100,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void haveTheSameAttributeWithTheSameNamespace3ForResource() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace3()");
+		System.out.println(CLASS_NAME + "haveTheSameAttributeWithTheSameNamespace3");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -127,7 +116,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void haveTheSameAttributeWithTheSameNamespace1ForGroup() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace1ForGroup()");
+		System.out.println(CLASS_NAME + "haveTheSameAttributeWithTheSameNamespace1ForGroup");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -145,7 +134,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void haveTheSameAttributeWithTheSameNamespace2ForGroup() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace2ForGroup()");
+		System.out.println(CLASS_NAME + "haveTheSameAttributeWithTheSameNamespace2ForGroup");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -165,7 +154,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void haveTheSameAttributeWithTheSameNamespace3ForGroup() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "haveTheSameAttributeWithTheSameNamespace3ForGroup()");
+		System.out.println(CLASS_NAME + "haveTheSameAttributeWithTheSameNamespace3ForGroup");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -182,7 +171,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getCommonGIDOfResourcesWithSameNameInSameNamespace() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "getCommonGIDOfResourcesWithSameNameInSameNamespace()");
+		System.out.println(CLASS_NAME + "getCommonGIDOfResourcesWithSameNameInSameNamespace");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -207,7 +196,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getCommonGIDOfGroupsWithSameNameInSameNamespace() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "getCommonGIDOfGroupsWithSameNameInSameNamespace()");
+		System.out.println(CLASS_NAME + "getCommonGIDOfGroupsWithSameNameInSameNamespace");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -233,7 +222,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getFreeGID() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "getFreeGID()");
+		System.out.println(CLASS_NAME + "getFreeGID");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -269,7 +258,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void checkIfGIDIsWithinRange() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "checkIfGIDIsWithinRange");
+		System.out.println(CLASS_NAME + "checkIfGIDIsWithinRange");
 
 		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
 		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
@@ -298,7 +287,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void haveRightToWriteAttributeInAnyGroupOrResource() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "haveRightToWriteAttributeInAnyGroupOrResource");
+		System.out.println(CLASS_NAME + "haveRightToWriteAttributeInAnyGroupOrResource");
 
 		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
 		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
@@ -321,7 +310,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getListOfResourceGIDsFromListOfGroupGIDs() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "getListOfResourceGIDsFromListOfGroupGIDs");
+		System.out.println(CLASS_NAME + "getListOfResourceGIDsFromListOfGroupGIDs");
 
 		List<Attribute> groupAttr = new ArrayList<Attribute>();
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
@@ -341,7 +330,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getListOfGroupGIDsFromListOfResourceGIDs() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "getListOfGroupGIDsFromListOfResourceGIDs");
+		System.out.println(CLASS_NAME + "getListOfGroupGIDsFromListOfResourceGIDs");
 
 		List<Attribute> resourceAttr = new ArrayList<Attribute>();
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
@@ -361,7 +350,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace");
+		System.out.println(CLASS_NAME + "getSetOfGIDNamespacesWhereFacilitiesHasTheSameGroupNameNamespace");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -388,7 +377,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace");
+		System.out.println(CLASS_NAME + "getSetOfGroupNameNamespacesWhereFacilitiesHasTheSameGIDNamespace");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -415,7 +404,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void checkReservedNames() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "checkReservedNames");
+		System.out.println(CLASS_NAME + "checkReservedNames");
 
 		String goodName = "cokoliv";
 		String badName = "sys";
@@ -440,7 +429,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void getUnixGroupNameAndGIDNamespaceAttributeWithNotNullValue() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "getUnixGroupNameAndGIDNamespaceAttributeWithNotNullValue");
+		System.out.println(CLASS_NAME + "getUnixGroupNameAndGIDNamespaceAttributeWithNotNullValue");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -462,7 +451,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void isGroupUnixGIDNamespaceFillable() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "isGroupUnixGIDNamespaceFillable");
+		System.out.println(CLASS_NAME + "isGroupUnixGIDNamespaceFillable");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -498,7 +487,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void isNameOfEmailValid() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "isNameOfEmailValid");
+		System.out.println(CLASS_NAME + "isNameOfEmailValid");
 
 		assertTrue(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "user@domain.com"));
 		assertTrue(modulesUtilsBl.isNameOfEmailValid((PerunSessionImpl) sess, "first.second@domain.second.com"));
@@ -508,7 +497,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test
 	public void testShellValue() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "testShellValue()");
+		System.out.println(CLASS_NAME + "testShellValue");
 
 		Attribute attr = new Attribute();
 		String shell = "/bin/csh";
@@ -518,7 +507,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test(expected=WrongAttributeValueException.class)
 	public void testShellValueWrongFormat() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "testShellValueWrongFormat()");
+		System.out.println(CLASS_NAME + "testShellValueWrongFormat");
 
 		Attribute attr = new Attribute();
 		String shell = "/bin/bash/";
@@ -528,7 +517,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 	@Test(expected=WrongAttributeValueException.class)
 	public void testShellValueWrongFormatInvalidCharacter() throws Exception {
-		System.out.println(MODULES_UTILS_ENTRY + "testShellValueWrongFormatInvalidCharacter()");
+		System.out.println(CLASS_NAME + "testShellValueWrongFormatInvalidCharacter");
 
 		Attribute attr = new Attribute();
 		String shell = "/\n";
@@ -578,13 +567,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Service service = new Service();
 		service.setName("AttributesManagerTestService");
 
-		Owner owner = new Owner();
-		owner.setName("AttrManagerTestServiceOwner");
-		owner.setContact("AttrManagTestContact");
-		owner.setType(OwnerType.technical);
-
-		perun.getOwnersManager().createOwner(sess, owner);
-		perun.getServicesManager().createService(sess, service, owner);
+		perun.getServicesManager().createService(sess, service);
 
 		return service;
 
@@ -1041,4 +1024,5 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		attribute.setValue("Testing value");
 		return attribute;
 	}
+
 }

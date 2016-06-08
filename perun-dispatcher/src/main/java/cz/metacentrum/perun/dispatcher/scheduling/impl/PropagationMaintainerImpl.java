@@ -61,6 +61,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	private TaskScheduler taskScheduler;
 	@Autowired
 	private Perun perun;
+	@Autowired
+	private ResultManager resultManager;
 	/*
 	 * @Autowired private GeneralServiceManager generalServiceManager;
 	 */
@@ -102,9 +104,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	}
 
 	private void checkFinishedTasks() {
+		/*  no need to spam the log file
+		 * 	
 		for (Task task : schedulingPool.getDoneTasks()) {
 			log.debug("Task " + task.toString() + " is done.");
 		}
+		 */
 	}
 
 	private void rescheduleErrorTasks() {
@@ -120,6 +125,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			}
 			int howManyMinutesAgo = (int) (System.currentTimeMillis() - task
 					.getEndTime().getTime()) / 1000 / 60;
+			if(howManyMinutesAgo < 0) {
+				log.error("RECOVERY FROM INCONSISTENT STATE: ERROR task appears to have ended in future.");
+				Date endTime = new Date(System.currentTimeMillis()
+						- ((task.getDelay() + 1) * 60000));
+				task.setEndTime(endTime);
+				howManyMinutesAgo = task.getDelay() + 1;
+			}
 			log.info("TASK [" + task + "] in ERROR state completed "
 					+ howManyMinutesAgo + " minutes ago.");
 			// XXX - apparently this is not what the authors had in mind,
@@ -134,13 +146,26 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			// }
 			// task.setRecurrence(recurrence);
 			// If DELAY time has passed, we reschedule...
-			if (howManyMinutesAgo >= task.getDelay()) {
+			int recurrence = task.getRecurrence() + 1;
+			if(recurrence > task.getExecService().getDefaultRecurrence() &&
+					howManyMinutesAgo < 60 * 12 &&
+					!task.isSourceUpdated()) {
+				log.info("TASK [ " + task + "] in ERROR state has no more retries, bailing out.");
+			} else if (howManyMinutesAgo >= recurrence * task.getDelay() ||
+					task.isSourceUpdated()) {
 				// check if service is still assigned on facility
 				try {
 					List<Service> assignedServices = perun.getServicesManager().getAssignedServices(perunSession, task.getFacility());
 					if (assignedServices.contains(task.getExecService().getService())) {
 						ExecService execService = task.getExecService();
 						Facility facility = task.getFacility();
+						if(recurrence > execService.getDefaultRecurrence()) {
+							// this ERROR task is rescheduled for being here too long
+							task.setRecurrence(0);
+							task.setDestinations(null);
+							log.info("TASK id " + task.getId() + " is in ERROR state long enough, ");
+						}
+						task.setRecurrence(recurrence);
 						log.info("TASK ["
 								+ task
 								+ "] in ERROR state is going to be rescheduled: taskScheduler.propagateService(execService:ID "
@@ -267,6 +292,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	private void endStuckTasks() {
 		// list all tasks in processing and planned and check if any have beeen
 		// running for too long.
+		log.info("I am gonna list planned and processing tasks and kill them if necessary...");
+
 		List<Task> suspiciousTasks = schedulingPool.getProcessingTasks();
 		suspiciousTasks.addAll(schedulingPool.getPlannedTasks());
 
@@ -334,10 +361,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	private void rescheduleOldDoneTasks() {
 		// Reschedule SEND tasks in DONE that haven't been running for quite a
 		// while
+		log.info("I am gonna list complete tasks and reschedule if they are too old...");
 
 		for (Task task : schedulingPool.getDoneTasks()) {
 			// skip GEN tasks
-			if (task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE)) {
+			if (task.getExecService() != null && 
+			    task.getExecService().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE)) {
 				log.debug(
 						"Found finished GEN TASK {} that was not running for a while, leaving it as is.",
 						task.toString());
@@ -351,12 +380,14 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 						+ task
 						+ "] data changed. Going to schedule for propagation now.");
 				taskScheduler.scheduleTask(task);
-			} else 	if (task.getEndTime().before(twoDaysAgo)) {
+			} else 	if (task.getEndTime() == null || task.getEndTime().before(twoDaysAgo)) {
 				// reschedule the task
 				log.info("TASK ["
 						+ task
 						+ "] wasn't propagated for more then 2 days. Going to schedule it for propagation now.");
 				taskScheduler.scheduleTask(task);
+			} else {
+				log.info("TASK [" + task + "] has finished recently, leaving it for now.");
 			}
 
 		}
@@ -398,6 +429,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 							"Setting GEN dependency task {} to NONE state to regenerate data for completed task {}",
 							taskToBeSetDirty, task);
 					schedulingPool.setTaskStatus(taskToBeSetDirty, TaskStatus.NONE);
+					try {
+						schedulingPool.setQueueForTask(taskToBeSetDirty, null);
+					} catch (InternalErrorException e) {
+						log.error("Could not set destination queue for task {}: {}", task.getId(), e.getMessage());
+					}
 				}
 			}
 		}
@@ -435,9 +471,23 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 	@Override
 	public void closeTasksForEngine(int clientID) {
-		// TODO Auto-generated method stub
-
+		List<Task> tasks = schedulingPool.getTasksForEngine(clientID);
+	
+		// switch all processing tasks to error, remove the engine queue association
+		log.debug("Switching PROCESSING tasks on engine {} to ERROR, the engine went down", clientID);
+		for(Task task: tasks) {
+			if(task.getStatus().equals(TaskStatus.PROCESSING)) {
+				log.debug("switching task {} to ERROR, the engine it was running on went down", task.getId());
+				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+			}
+			try {
+				schedulingPool.setQueueForTask(task, null);
+			} catch (InternalErrorException e) {
+				log.error("Could not remove output queue for task {}: {}", task.getId(), e.getMessage());
+			}
+		}
 	}
+	
 
 	@Override
 	public void onTaskComplete(int taskId, int clientID, String status_s,
@@ -466,6 +516,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		// if we are going to run this task again, make sure to generate up to
 		// date data
 		if (completedTask.getExecService().getExecServiceType().equals(ExecServiceType.SEND)) {
+			try {
+				schedulingPool.setQueueForTask(completedTask, null);
+			} catch (InternalErrorException e) {
+				log.error("Could not set destination queue for task {}: {}", completedTask.getId(), e.getMessage());
+			}
 			this.setAllGenerateDependenciesToNone(completedTask);
 		}
 
@@ -474,6 +529,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			// set destination list to null to refetch them later
 			completedTask.setDestinations(null);
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.DONE);
+			completedTask.setRecurrence(0);
 			log.debug("TASK {} reported as DONE", completedTask.toString());
 			// for GEN tasks, signal SENDs that source data are updated
 			if(completedTask.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
@@ -483,9 +539,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 					if (dependantTask != null && dependantService.getExecServiceType().equals(ExecServiceType.SEND)) {
 						dependantTask.setSourceUpdated(false);
 					}
+					if(completedTask.isPropagationForced() && dependantTask.isPropagationForced()) {
+						log.debug("Going to force schedule dependant task " + dependantTask.getId());
+						taskScheduler.scheduleTask(dependantTask);
+					}
 				}
-			}
-			
+			} 
+			completedTask.setPropagationForced(false);
 		} else {
 			if (string.isEmpty()) {
 				// weird - task is in error and no destinations reported as
@@ -517,6 +577,26 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		}
 	}
 
+	@Override
+	public void onTaskDestinationComplete(int clientID, String string) {
+		if(string == null || string.isEmpty()) {
+			log.error("Could not parse taskresult message from engine " + clientID);
+			return;
+		}
+		
+		try {
+			List<PerunBean> listOfBeans = AuditParser.parseLog(string);
+			if(!listOfBeans.isEmpty()) {
+				TaskResult taskResult = (TaskResult)listOfBeans.get(0);
+				resultManager.insertNewTaskResult(taskResult, clientID);
+			} else {
+				log.error("No TaskResult bean found in message {} from engine {}", string, clientID);
+			}
+		} catch (InternalErrorException e) {
+			log.error("Could not save taskresult message {} from engine " + clientID, string);
+			log.debug("Error storing taskresult message: " + e.getMessage());
+		}
+	}
 	/*
 	 * public TaskManager getTaskManager() { return taskManager; }
 	 * 

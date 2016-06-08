@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.api;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityContactNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityExistsException;
@@ -20,6 +22,9 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostExistsException;
@@ -405,6 +410,19 @@ public interface FacilitiesManager {
 	 * @throws ServiceNotExistsException
 	 */
 	List<Facility> getAssignedFacilities(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceNotExistsException;
+
+	/**
+	 * Get facilities where security team is assigned.
+	 *
+	 * @param sess
+	 * @param securityTeam
+	 * @return
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws SecurityTeamNotExistsException
+	 */
+	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException;
 
 	/**
 	 * List hosts of Facility.
@@ -880,12 +898,12 @@ public interface FacilitiesManager {
 	 *
 	 * @param sess
 	 * @param facility
-	 * @param contactGroupName
+	 * @param name
 	 * @return contactGroup for the facility and the contact group name
 	 * @throws InternalErrorException
 	 * @throws FacilityContactNotExistsException
 	 */
-	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String contactGroupName) throws InternalErrorException, FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException;
+	ContactGroup getFacilityContactGroup(PerunSession sess, Facility facility, String name) throws InternalErrorException, FacilityContactNotExistsException, PrivilegeException, FacilityNotExistsException;
 
 	/**
 	 * Get all exist contact group names.
@@ -951,4 +969,145 @@ public interface FacilitiesManager {
 	 * @throws GroupNotExistsException 
 	 */
 	void removeFacilityContact(PerunSession sess, ContactGroup contactGroupToRemove) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, OwnerNotExistsException, UserNotExistsException, GroupNotExistsException;
+
+	/**
+	 * return assigned security teams for specific facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @return assigned security teams fot given facility
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
+	 * @throws FacilityNotExistsException
+	 */
+	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+
+	/**
+	 * Assign given security team to given facility (means the facility trusts the security team)
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
+	 * @throws FacilityNotExistsException
+	 * @throws SecurityTeamNotExistsException
+	 * @throws SecurityTeamAlreadyAssignedException
+	 */
+	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException, SecurityTeamAlreadyAssignedException;
+
+	/**
+	 * Remove (Unassign) given security team from given facility
+	 *
+	 * @param sess
+	 * @param facility
+	 * @param securityTeam
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException can do only PerunAdmin or FacilityAdmin of the facility
+	 * @throws FacilityNotExistsException
+	 * @throws SecurityTeamNotExistsException
+	 * @throws SecurityTeamNotAssignedException
+	 */
+	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException, SecurityTeamNotAssignedException;
+
+	/**
+	 * Set ban for user on facility.
+	 * 
+	 * @param sess
+	 * @param banOnFacility the ban
+	 * @return ban on facility
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws BanAlreadyExistsException
+	 * @throws UserNotExistsException
+	 * @throws FacilityNotExistsException
+	 */
+	BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException, UserNotExistsException, FacilityNotExistsException;
+
+	/**
+	 * Get Ban for user on facility by it's id
+	 *
+	 * @param sess
+	 * @param banId the id of ban
+	 * @return facility ban by it's id
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 * @throws PrivilegeException
+	 */
+	BanOnFacility getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException;
+
+	/**
+	 * Get ban by userId and facilityId.
+	 *
+	 * @param sess
+	 * @param userId the id of user
+	 * @param faclityId the id of facility
+	 * @return specific ban for user on facility
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 * @throws FacilityNotExistsException
+	 */
+	BanOnFacility getBan(PerunSession sess, int userId, int faclityId) throws InternalErrorException, BanNotExistsException, PrivilegeException, UserNotExistsException, FacilityNotExistsException;
+
+	/**
+	 * Get all bans for user on any facility.
+	 *
+	 * @param sess
+	 * @param userId the id of user
+	 * @return list of bans for user on any facility
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 */
+	List<BanOnFacility> getBansForUser(PerunSession sess, int userId) throws InternalErrorException, UserNotExistsException;
+
+	/**
+	 * Get all bans for users on the facility
+	 *
+	 * @param sess
+	 * @param facilityId the id of facility
+	 * @return list of bans for all users on the facility
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws FacilityNotExistsException
+	 */
+	List<BanOnFacility> getBansForFacility(PerunSession sess, int facilityId) throws InternalErrorException, PrivilegeException, FacilityNotExistsException;
+
+	/**
+	 * Update existing ban (description and validation timestamp)
+	 *
+	 * @param sess
+	 * @param banOnFacility the existing ban
+	 * @return updated ban
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws FacilityNotExistsException
+	 * @throws UserNotExistsException
+	 * @throws BanNotExistsException
+	 */
+	BanOnFacility updateBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, UserNotExistsException, BanNotExistsException;
+
+	/**
+	 * Remove existing ban by it's id.
+	 *
+	 * @param sess
+	 * @param banId the id of ban
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 * @throws PrivilegeException
+	 */
+	void removeBan(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException;
+
+	/**
+	 * Remove existing ban by id of user and facility.
+	 *
+	 * @param sess
+	 * @param userId the id of user
+	 * @param facilityId the id of facility
+	 * @throws InternalErrorException
+	 * @throws BanNotExistsException
+	 * @throws PrivilegeException
+	 */
+	void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException, PrivilegeException;
 }

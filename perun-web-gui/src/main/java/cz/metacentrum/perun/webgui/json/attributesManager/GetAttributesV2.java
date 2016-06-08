@@ -518,4 +518,13 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 		return this.ids;
 	}
 
+	/**
+	 * Returns selection model of table
+	 *
+	 * @return selection model
+	 */
+	public MultiSelectionModel<Attribute> getSelectionModel() {
+		return selectionModel;
+	}
+
 }

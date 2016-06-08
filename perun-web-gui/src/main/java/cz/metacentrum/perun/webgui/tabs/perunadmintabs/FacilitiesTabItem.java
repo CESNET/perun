@@ -71,6 +71,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 
 		// TAB MENU
 		TabMenu tabMenu = new TabMenu();
+		tabMenu.addWidget(UiElements.getRefreshButton(this));
 
 		// get RICH facilities request
 		final GetFacilities facilities = new GetFacilities(true);
@@ -83,7 +84,7 @@ public class FacilitiesTabItem implements TabItem, TabItemWithUrl{
 		});
 
 		// add new facility button
-		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
+		tabMenu.addWidget(TabMenu.getPredefinedButton(ButtonType.CREATE, true, ButtonTranslation.INSTANCE.createFacility(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				session.getTabManager().addTab(new CreateFacilityTabItem());
 			}

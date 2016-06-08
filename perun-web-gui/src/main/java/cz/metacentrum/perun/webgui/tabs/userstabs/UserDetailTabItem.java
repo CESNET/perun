@@ -137,6 +137,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		final SimplePanel sp5 = new SimplePanel(); // Publications
 		final SimplePanel sp6 = new SimplePanel(); // Certificates, logins, passwords
 		final SimplePanel sp7 = new SimplePanel(); // Service identities
+		final SimplePanel sp8 = new SimplePanel(); // Sponsored users
 
 		session.getUiElements().resizeSmallTabPanel(tabPanel, 100, this);
 
@@ -152,6 +153,12 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			tabPanel.add(sp7, "Associated users");
 		} else {
 			tabPanel.add(sp7, "Service identities");
+		}
+
+		if (user.isSponsoredUser()) {
+			tabPanel.add(sp8, "Sponsors");
+		} else if (!user.isServiceUser()) {
+			tabPanel.add(sp8, "Sponsored users");
 		}
 
 		sp0.setWidget(loadInformationOverview());
@@ -194,6 +201,10 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				} else if (7 == event.getSelectedItem()) {
 					if (sp7.getWidget() == null) {
 						sp7.setWidget(loadServiceIdentities());
+					}
+				} else if (8 == event.getSelectedItem()) {
+					if (sp8.getWidget() == null) {
+						sp8.setWidget(loadSponsoredUsers());
 					}
 				};
 			}
@@ -266,6 +277,8 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		layout.setHTML(0, 5, "<strong>User&nbsp;type:</strong>");
 		if (user.isServiceUser()) {
 			layout.setHTML(0, 6, "Service");
+		} else if (user.isSponsoredUser()) {
+			layout.setHTML(0, 6, "Sponsored");
 		} else {
 			layout.setHTML(0, 6, "Person");
 		}
@@ -311,7 +324,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		});
 		menu.addWidget(saveAttrButton);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for user", new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Set new attributes for user", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 
 				Map<String, Integer> ids = new HashMap<String, Integer>();
@@ -388,7 +401,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		};
 
 		// buttons
-		CustomButton addUserExtSourceButton = TabMenu.getPredefinedButton(ButtonType.ADD, "Add new external identity to user", new ClickHandler() {
+		CustomButton addUserExtSourceButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new external identity to user", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				// when user click on add ext source btn
 				session.getTabManager().addTabToCurrentTab(new AddUserExtSourceTabItem(user.getId()));
@@ -734,7 +747,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 				});
 				menu.addWidget(saveAttrButton);
 
-				menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes for member", new ClickHandler() {
+				menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Set new attributes for member", new ClickHandler() {
 					public void onClick(ClickEvent event) {
 
 						Map<String, Integer> ids = new HashMap<String,Integer>();
@@ -866,7 +879,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 							innerTable.setHTML(rowCount, 1, a.getValue());
 							// change password
 							if (Utils.getSupportedPasswordNamespaces().contains(a.getFriendlyNameParameter())) {
-								CustomButton cb = new CustomButton("Change password", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
+								CustomButton cb = new CustomButton("Change password…", SmallIcons.INSTANCE.keyIcon(), new ClickHandler(){
 									public void onClick(ClickEvent event) {
 										session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, a.getFriendlyNameParameter(), a.getValue(), SelfPasswordTabItem.Actions.CHANGE));
 									}
@@ -998,7 +1011,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		});
 		menu.addWidget(saveAttrButton);
 
-		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Set new attributes", new ClickHandler() {
+		menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Set new attributes", new ClickHandler() {
 			public void onClick(ClickEvent event) {
 
 				Map<String, Integer> ids = new HashMap<String, Integer>();
@@ -1059,7 +1072,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			// SERVICE TYPE user
 
 			// request
-			final GetUsersByServiceUser request = new GetUsersByServiceUser(userId);
+			final GetUsersBySpecificUser request = new GetUsersBySpecificUser(userId);
 
 			// menu
 			TabMenu menu = new TabMenu();
@@ -1067,7 +1080,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			vp.setCellHeight(menu, "30px");
 
 			// buttons
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new user to service identity: "+user.getLastName(), new ClickHandler() {
 				public void onClick(ClickEvent clickEvent) {
 					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
 				}
@@ -1092,11 +1105,11 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 									public void onClick(ClickEvent event) {
 										for (int i = 0; i < list.size(); i++) {
 											// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-											RemoveServiceUserOwner req;
+											RemoveSpecificUserOwner req;
 											if (i == list.size() - 1) {
-												req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
+												req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
 											} else {
-												req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+												req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
 											}
 											req.removeServiceUser(list.get(i), user);
 
@@ -1117,11 +1130,11 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 							public void onClick(ClickEvent event) {
 								for (int i = 0; i < list.size(); i++) {
 									// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
-									RemoveServiceUserOwner req;
+									RemoveSpecificUserOwner req;
 									if (i == list.size() - 1) {
-										req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
+										req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
 									} else {
-										req = new RemoveServiceUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+										req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
 									}
 									req.removeServiceUser(list.get(i), user);
 
@@ -1158,7 +1171,8 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			// PERSON TYPE user
 
 			// request
-			final GetServiceUsersByUser request = new GetServiceUsersByUser(userId);
+			final GetSpecificUsersByUser request = new GetSpecificUsersByUser(userId);
+			request.setHideSponsored(true);
 
 			// menu
 			TabMenu menu = new TabMenu();
@@ -1166,7 +1180,7 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			vp.setCellHeight(menu, "30px");
 
 			// buttons
-			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, "Add new service identity to "+user.getFullName(), new ClickHandler() {
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new service identity to "+user.getFullName(), new ClickHandler() {
 				public void onClick(ClickEvent clickEvent) {
 					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
 				}
@@ -1183,12 +1197,185 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 						public void onClick(ClickEvent event) {
 							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
 							for (int i=0; i<list.size(); i++ ) {
-								RemoveServiceUserOwner req;
+								RemoveSpecificUserOwner req;
 								// if last, refresh
 								if(i == list.size() - 1) {
-									req = new RemoveServiceUserOwner(JsonCallbackEvents.refreshTableEvents(request));
+									req = new RemoveSpecificUserOwner(JsonCallbackEvents.refreshTableEvents(request));
 								} else {
-									req = new RemoveServiceUserOwner();
+									req = new RemoveSpecificUserOwner();
+								}
+								req.removeServiceUser(user, list.get(i));
+							}
+						}
+					});
+				}
+			});
+
+			// table
+			CellTable<User> table = request.getTable(new FieldUpdater<User, String>() {
+				public void update(int i, User user, String s) {
+					session.getTabManager().addTab(new UserDetailTabItem(user));
+				}
+			});
+
+			removeUserButton.setEnabled(false);
+			JsonUtils.addTableManagedButton(request, table, removeUserButton);
+
+			table.addStyleName("perun-table");
+			table.setWidth("100%");
+			ScrollPanel sp = new ScrollPanel(table);
+			sp.addStyleName("perun-tableScrollPanel");
+
+			vp.add(sp);
+
+		}
+
+		return vp;
+
+	}
+
+	public VerticalPanel loadSponsoredUsers(){
+
+		// Content
+		VerticalPanel vp = new VerticalPanel();
+		vp.setSize("100%", "100%");
+
+		if (user.isSponsoredUser()) {
+
+			// SPONSORED TYPE user
+
+			// request
+			final GetUsersBySpecificUser request = new GetUsersBySpecificUser(userId);
+
+			// menu
+			TabMenu menu = new TabMenu();
+			vp.add(menu);
+			vp.setCellHeight(menu, "30px");
+
+			// buttons
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new sponsor to "+user.getLastName(), new ClickHandler() {
+				public void onClick(ClickEvent clickEvent) {
+					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
+				}
+			}));
+
+			final CustomButton removeUserButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove sponsors from "+user.getLastName());
+			menu.addWidget(removeUserButton);
+			removeUserButton.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent clickEvent) {
+
+					final ArrayList<User> list = request.getTableSelectedList();
+					final ArrayList<User> fullList = request.getList();
+
+					if (fullList.size() == list.size()) {
+
+						UiElements.generateAlert("Remove warning", "<strong><span class=\"serverResponseLabelError\">If you remove all users from sponsored user you won't be able to use it in the future.</br></br>Please consider keeping at least one user, e.g. add someone else before you remove yourself.</span></strong><p><strong>Do you wish to continue anyway ?</strong>", new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+
+								UiElements.showDeleteConfirm(list, "Following users will be removed from sponsored user and they will lose all access to it. Only users associated with sponsored user can add other users again. If you remove all users connected to the sponsored user, you won't be able to use it in future!", new ClickHandler() {
+									@Override
+									public void onClick(ClickEvent event) {
+										for (int i = 0; i < list.size(); i++) {
+											// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+											RemoveSpecificUserOwner req;
+											if (i == list.size() - 1) {
+												req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
+											} else {
+												req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+											}
+											req.removeServiceUser(list.get(i), user);
+
+											// TODO - consider fixing authz in session ?
+
+										}
+									}
+								});
+
+							}
+						});
+
+					} else {
+
+						// if not selected myself, continue same way
+						UiElements.showDeleteConfirm(list, "Following users will be removed from sponsored user and they will lose any access to it. Only users associated with sponsored user can add other users again. If you remove all users connected to the sponsored user, it will be deleted too!", new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent event) {
+								for (int i = 0; i < list.size(); i++) {
+									// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+									RemoveSpecificUserOwner req;
+									if (i == list.size() - 1) {
+										req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton, JsonCallbackEvents.refreshTableEvents(request)));
+									} else {
+										req = new RemoveSpecificUserOwner(JsonCallbackEvents.disableButtonEvents(removeUserButton));
+									}
+									req.removeServiceUser(list.get(i), user);
+
+									// TODO - consider fixing authz in session ?
+
+								}
+							}
+						});
+
+					}
+
+				}
+			});
+
+			// table
+			CellTable<User> table = request.getTable(new FieldUpdater<User, String>() {
+				public void update(int i, User user, String s) {
+					session.getTabManager().addTab(new UserDetailTabItem(user));
+				}
+			});
+
+			removeUserButton.setEnabled(false);
+			JsonUtils.addTableManagedButton(request, table, removeUserButton);
+
+			table.addStyleName("perun-table");
+			table.setWidth("100%");
+			ScrollPanel sp = new ScrollPanel(table);
+			sp.addStyleName("perun-tableScrollPanel");
+
+			vp.add(sp);
+
+		} else {
+
+			// PERSON TYPE user
+
+			// request
+			final GetSpecificUsersByUser request = new GetSpecificUsersByUser(userId);
+			request.setHideService(true);
+
+			// menu
+			TabMenu menu = new TabMenu();
+			vp.add(menu);
+			vp.setCellHeight(menu, "30px");
+
+			// buttons
+			menu.addWidget(TabMenu.getPredefinedButton(ButtonType.ADD, true, "Add new sponsored user to "+user.getFullName(), new ClickHandler() {
+				public void onClick(ClickEvent clickEvent) {
+					session.getTabManager().addTabToCurrentTab(new ConnectServiceIdentityTabItem(user), true);
+				}
+			}));
+
+			final CustomButton removeUserButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, "Remove sponsored user from "+user.getFullName());
+			menu.addWidget(removeUserButton);
+			removeUserButton.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					final ArrayList<User> list = request.getTableSelectedList();
+					UiElements.showDeleteConfirm(list, "Following sponsored users will be removed from user.", new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE
+							for (int i=0; i<list.size(); i++ ) {
+								RemoveSpecificUserOwner req;
+								// if last, refresh
+								if(i == list.size() - 1) {
+									req = new RemoveSpecificUserOwner(JsonCallbackEvents.refreshTableEvents(request));
+								} else {
+									req = new RemoveSpecificUserOwner();
 								}
 								req.removeServiceUser(user, list.get(i));
 							}

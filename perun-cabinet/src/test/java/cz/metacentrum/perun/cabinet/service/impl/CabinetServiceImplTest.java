@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,13 +27,15 @@ public class CabinetServiceImplTest extends BaseIntegrationTest {
 	// ------------- TESTS --------------------------------------------
 
 	@Test
+	@Ignore
 	public void findPublicationsInPubSysMUTest() throws Exception {
-		System.out.println("findPublicationsInPubSysMUTest()");
+		System.out.println("CabinetServiceImpl.findPublicationsInPubSysMUTest");
 
 		List<Publication> pubs = new ArrayList<Publication>();
 		try {
 			pubs = cabinetService.findPublicationsInPubSys("39700", 2010, 2011, pubSysMu);
 		} catch (CabinetException ex) {
+			System.out.println(ex);
 			if (!ex.getType().equals(ErrorCodes.HTTP_IO_EXCEPTION)) {
 				fail("Different exception code, was: "+ex.getType() +", but expected: HTTP_IO_EXCEPTION.");
 				// fail if different error
@@ -46,12 +49,12 @@ public class CabinetServiceImplTest extends BaseIntegrationTest {
 	}
 
 	@Test
+	@Ignore
 	public void findPublicationsInPubSysZCUTest() throws Exception {
-		System.out.println("findPublicationsInPubSysZCUTest()");
+		System.out.println("CabinetServiceImpl.findPublicationsInPubSysZCUTest");
 
 		List<Publication> pubs = new ArrayList<Publication>();
 		try {
-
 			pubs = cabinetService.findPublicationsInPubSys("Sitera,Jiří", 2006, 2009, pubSysZcu);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.HTTP_IO_EXCEPTION)) {

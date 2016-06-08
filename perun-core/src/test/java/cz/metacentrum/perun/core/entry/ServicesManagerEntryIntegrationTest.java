@@ -18,17 +18,13 @@ import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.RichDestination;
 import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.FacilitiesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.OwnerType;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
-import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
@@ -39,7 +35,6 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -47,10 +42,13 @@ import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 
 /**
+ * Integration tests of ServicesManager.
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-
 public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegrationTest {
+
+	private final static String CLASS_NAME = "ServicesManager.";
 
 	// these are in DB only after setUp"Type"() method and must be set up in right order.
 	private Service service;
@@ -67,107 +65,77 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void createService() throws Exception {
-		System.out.println("ServicesManager.createService");
-
-		Owner owner = new Owner();
-		owner.setName("ServicesManagerTestServiceOwner");
-		owner.setContact("testingServiceOwner");
-		owner.setType(OwnerType.technical);
-		perun.getOwnersManager().createOwner(sess, owner);
+		System.out.println(CLASS_NAME + "createService");
 
 		Service service = new Service();
 		service.setName("ServicesManagerTestService");
-		service = perun.getServicesManager().createService(sess, service, owner);
+		service = perun.getServicesManager().createService(sess, service);
 		assertNotNull("unable to create Service",service);
 
 	}
 
 	@Test (expected=InternalErrorException.class)
-		public void createServiceWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.createServiceWhenServiceNotExists");
+	public void createServiceWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "createServiceWhenServiceNotExists");
 
-			Owner owner = new Owner();
-			owner.setName("ServicesManagerTestServiceOwner");
-			owner.setContact("testingServiceOwner");
-			owner.setType(OwnerType.technical);
-			perun.getOwnersManager().createOwner(sess, owner);
+		perun.getServicesManager().createService(sess, new Service());
+		// shouldn't be able to create service in DB (InternalError) when it's not valid Service object
 
-			perun.getServicesManager().createService(sess, new Service(), owner);
-			// shouldn't be able to create service in DB (InternalError) when it's not valid Service object
-
-		}
-
-	@Test (expected=OwnerNotExistsException.class)
-		public void createServiceWhenOwnerNotExists() throws Exception {
-			System.out.println("ServicesManager.createServiceWhenOwnerNotExists");
-
-			Service service = new Service();
-			service.setName("ServicesManagerTestService");
-
-			perun.getServicesManager().createService(sess, service, new Owner());
-			// shouldn't find owner in DB
-
-		}
+	}
 
 	@Test (expected=ServiceExistsException.class)
-		public void createServiceWhenServiceExists() throws Exception {
-			System.out.println("ServicesManager.createService");
+	public void createServiceWhenServiceExists() throws Exception {
+		System.out.println(CLASS_NAME + "createService");
 
-			Owner owner = new Owner();
-			owner.setName("ServicesManagerTestServiceOwner");
-			owner.setContact("testingServiceOwner");
-			owner.setType(OwnerType.technical);
-			perun.getOwnersManager().createOwner(sess, owner);
+		Service service = new Service();
+		service.setName("ServicesManagerTestService");
+		service = perun.getServicesManager().createService(sess, service);
+		service = perun.getServicesManager().createService(sess, service);
+		// shouldn't create same service twice
 
-			Service service = new Service();
-			service.setName("ServicesManagerTestService");
-			service = perun.getServicesManager().createService(sess, service, owner);
-			service = perun.getServicesManager().createService(sess, service, owner);
-			// shouldn't create same service twice
-
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void deleteService() throws Exception {
-			System.out.println("ServicesManager.deleteService");
+	public void deleteService() throws Exception {
+		System.out.println(CLASS_NAME + "deleteService");
 
-			service = setUpService();
-			assertNotNull("unable to create service before deletion",service);
-			perun.getServicesManager().deleteService(sess, service);
-			perun.getServicesManager().getServiceById(sess, service.getId());
-			// shouldn't find deleted service
+		service = setUpService();
+		assertNotNull("unable to create service before deletion",service);
+		perun.getServicesManager().deleteService(sess, service);
+		perun.getServicesManager().getServiceById(sess, service.getId());
+		// shouldn't find deleted service
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void deleteServiceWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.deleteServiceWhenServiceNotExists");
+	public void deleteServiceWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "deleteServiceWhenServiceNotExists");
 
-			perun.getServicesManager().deleteService(sess, new Service());
-			// shouldn't find service
+		perun.getServicesManager().deleteService(sess, new Service());
+		// shouldn't find service
 
-		}
+	}
 
 
 	@Test (expected=RelationExistsException.class)
-		public void deleteServiceWhenRelationExists() throws Exception {
-			System.out.println("ServicesManager.deleteServiceWhenWhenRelationExists");
+	public void deleteServiceWhenRelationExists() throws Exception {
+		System.out.println(CLASS_NAME + "deleteServiceWhenWhenRelationExists");
 
-			vo = setUpVo();
-			facility = setUpFacility();
-			resource = setUpResource();
-			service = setUpService();
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
 
-			perun.getResourcesManager().assignService(sess, resource, service);
+		perun.getResourcesManager().assignService(sess, resource, service);
 
-			perun.getServicesManager().deleteService(sess, service);
-			// shouldn't deleted service assigned to resource
+		perun.getServicesManager().deleteService(sess, service);
+		// shouldn't deleted service assigned to resource
 
-		}
+	}
 
 	@Test
 	public void updateService() throws Exception {
-		System.out.println("ServicesManager.updateService");
+		System.out.println(CLASS_NAME + "updateService");
 
 		service = setUpService();
 		assertNotNull("unable to create service before update",service);
@@ -181,17 +149,17 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void updateServiceWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.updateServiceWhenServiceNotExists");
+	public void updateServiceWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "updateServiceWhenServiceNotExists");
 
-			perun.getServicesManager().updateService(sess, new Service());
-			// shouldn't find Service
+		perun.getServicesManager().updateService(sess, new Service());
+		// shouldn't find Service
 
-		}
+	}
 
 	@Test
 	public void getServiceById() throws Exception {
-		System.out.println("ServicesManager.getServiceById");
+		System.out.println(CLASS_NAME + "getServiceById");
 
 		service = setUpService();
 		assertNotNull("unable to create service",service);
@@ -202,17 +170,17 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void getServiceByIdWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.getServiceByIdWhenServiceNotExists");
+	public void getServiceByIdWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getServiceByIdWhenServiceNotExists");
 
-			perun.getServicesManager().getServiceById(sess, 0);
-			// shouldn't find service with ID 0
+		perun.getServicesManager().getServiceById(sess, 0);
+		// shouldn't find service with ID 0
 
-		}
+	}
 
 	@Test
 	public void getServiceByName() throws Exception {
-		System.out.println("ServicesManager.getServiceByName");
+		System.out.println(CLASS_NAME + "getServiceByName");
 
 		service = setUpService();
 		assertNotNull("unable to create service",service);
@@ -223,17 +191,17 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void getServiceByNameWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.getServiceByNameWhenServiceNotExists");
+	public void getServiceByNameWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getServiceByNameWhenServiceNotExists");
 
-			perun.getServicesManager().getServiceByName(sess, "");
-			// shouldn't find service with empty name
+		perun.getServicesManager().getServiceByName(sess, "");
+		// shouldn't find service with empty name
 
-		}
+	}
 
 	@Test
 	public void getServices() throws Exception {
-		System.out.println("ServicesManager.getServices");
+		System.out.println(CLASS_NAME + "getServices");
 
 		service = setUpService();
 
@@ -245,7 +213,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getServicesByAttributeDefinition() throws Exception {
-		System.out.println("ServicesManager.getServicesByAttributeDefinition");
+		System.out.println(CLASS_NAME + "getServicesByAttributeDefinition");
 
 		service = setUpService();
 
@@ -261,7 +229,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getAssignedResources() throws Exception {
-		System.out.println("ServicesManager.getAssignedResources");
+		System.out.println(CLASS_NAME + "getAssignedResources");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -277,17 +245,17 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void getAssignedResourcesWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.getAssignedResourcesWhenServiceNotExists");
+	public void getAssignedResourcesWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedResourcesWhenServiceNotExists");
 
-			perun.getServicesManager().getAssignedResources(sess, new Service());
-			// shouldn't find service
+		perun.getServicesManager().getAssignedResources(sess, new Service());
+		// shouldn't find service
 
-		}
+	}
 
 	@Test
 	public void getServicesPackages() throws Exception {
-		System.out.println("ServicesManager.getServicesPackages");
+		System.out.println(CLASS_NAME + "getServicesPackages");
 
 		service = setUpService();
 		servicesPackage = setUpServicesPackage(service);
@@ -300,7 +268,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getServicesPackageById() throws Exception {
-		System.out.println("ServicesManager.getServicesPackageById");
+		System.out.println(CLASS_NAME + "getServicesPackageById");
 
 		service = setUpService();
 		servicesPackage = setUpServicesPackage(service);
@@ -312,17 +280,17 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServicesPackageNotExistsException.class)
-		public void getServicesPackageByIdWhenPackageNotExists() throws Exception {
-			System.out.println("ServicesManager.getServicesPackageByIdWhenPackageNotExists");
+	public void getServicesPackageByIdWhenPackageNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getServicesPackageByIdWhenPackageNotExists");
 
-			perun.getServicesManager().getServicesPackageById(sess, 0);
-			// shouldn't find package
+		perun.getServicesManager().getServicesPackageById(sess, 0);
+		// shouldn't find package
 
-		}
+	}
 
 	@Test
 	public void getServicesPackageByName() throws Exception {
-		System.out.println("ServicesManager.getServicesPackageByName");
+		System.out.println(CLASS_NAME + "getServicesPackageByName");
 
 		service = setUpService();
 		servicesPackage = setUpServicesPackage(service);
@@ -334,17 +302,17 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServicesPackageNotExistsException.class)
-		public void getServicesPackageByNameWhenServPackNotExists() throws Exception {
-			System.out.println("ServicesManager.getServicesPackageByNameWhenServPackNotExists");
+	public void getServicesPackageByNameWhenServPackNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getServicesPackageByNameWhenServPackNotExists");
 
-			perun.getServicesManager().getServicesPackageByName(sess, "notExists");
-			// shouldn't find services package
+		perun.getServicesManager().getServicesPackageByName(sess, "notExists");
+		// shouldn't find services package
 
-		}
+	}
 
 	@Test
 	public void createServicesPackage() throws Exception {
-		System.out.println("ServicesManager.createServicesPackage");
+		System.out.println(CLASS_NAME + "createServicesPackage");
 
 		service = setUpService();
 		servicesPackage = setUpServicesPackage(service);
@@ -356,60 +324,60 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServicesPackageExistsException.class)
-		public void createServicesPackageWhenServicePackageExists() throws Exception {
-			System.out.println("ServicesManager.createServicesPackageWhenServicePackageExists");
+	public void createServicesPackageWhenServicePackageExists() throws Exception {
+		System.out.println(CLASS_NAME + "createServicesPackageWhenServicePackageExists");
 
-			service = setUpService();
-			servicesPackage = setUpServicesPackage(service);
-			assertNotNull("unable to create services package",servicesPackage);
-			ServicesPackage returnedPackage = perun.getServicesManager().getServicesPackageById(sess, servicesPackage.getId());
-			perun.getServicesManager().createServicesPackage(sess, returnedPackage);
-			// shouldn't add service package twice
+		service = setUpService();
+		servicesPackage = setUpServicesPackage(service);
+		assertNotNull("unable to create services package",servicesPackage);
+		ServicesPackage returnedPackage = perun.getServicesManager().getServicesPackageById(sess, servicesPackage.getId());
+		perun.getServicesManager().createServicesPackage(sess, returnedPackage);
+		// shouldn't add service package twice
 
-		}
-
-	@Test (expected=ServicesPackageNotExistsException.class)
-		public void deleteServicesPackage() throws Exception {
-			System.out.println("ServicesManager.deleteServicesPackage");
-
-			service = setUpService();
-			assertNotNull("unable to create service in DB",service);
-			servicesPackage = setUpServicesPackage(service);
-			assertNotNull("unable to create services package before deletion",servicesPackage);
-
-			perun.getServicesManager().removeServiceFromServicesPackage(sess, servicesPackage, service);
-			// remove service from package so it can be deleted
-			perun.getServicesManager().deleteServicesPackage(sess, servicesPackage);
-			// finally delete package
-			perun.getServicesManager().getServicesPackageById(sess, servicesPackage.getId());
-			// shouldn't find services package in DB after deletion
-
-		}
+	}
 
 	@Test (expected=ServicesPackageNotExistsException.class)
-		public void deleteServicesPackageWhenPackageNotExist() throws Exception {
-			System.out.println("ServicesManager.deleteServicesPackageWhenPackageNotExist");
+	public void deleteServicesPackage() throws Exception {
+		System.out.println(CLASS_NAME + "deleteServicesPackage");
 
-			perun.getServicesManager().deleteServicesPackage(sess, new ServicesPackage());
-			// shouldn't find services package in DB
+		service = setUpService();
+		assertNotNull("unable to create service in DB",service);
+		servicesPackage = setUpServicesPackage(service);
+		assertNotNull("unable to create services package before deletion",servicesPackage);
 
-		}
+		perun.getServicesManager().removeServiceFromServicesPackage(sess, servicesPackage, service);
+		// remove service from package so it can be deleted
+		perun.getServicesManager().deleteServicesPackage(sess, servicesPackage);
+		// finally delete package
+		perun.getServicesManager().getServicesPackageById(sess, servicesPackage.getId());
+		// shouldn't find services package in DB after deletion
+
+	}
+
+	@Test (expected=ServicesPackageNotExistsException.class)
+	public void deleteServicesPackageWhenPackageNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "deleteServicesPackageWhenPackageNotExist");
+
+		perun.getServicesManager().deleteServicesPackage(sess, new ServicesPackage());
+		// shouldn't find services package in DB
+
+	}
 
 	@Test (expected=RelationExistsException.class)
-		public void deleteServicesPackageWhenRealtionExists() throws Exception {
-			System.out.println("ServicesManager.deleteServicesPackage");
+	public void deleteServicesPackageWhenRealtionExists() throws Exception {
+		System.out.println(CLASS_NAME + "deleteServicesPackage");
 
-			service = setUpService();
-			servicesPackage = setUpServicesPackage(service);
+		service = setUpService();
+		servicesPackage = setUpServicesPackage(service);
 
-			perun.getServicesManager().deleteServicesPackage(sess, servicesPackage);
-			// shouldn't delete package with service inside
+		perun.getServicesManager().deleteServicesPackage(sess, servicesPackage);
+		// shouldn't delete package with service inside
 
-		}
+	}
 
 	@Test
 	public void addServiceToServicesPackage() throws Exception {
-		System.out.println("ServicesManager.addServiceToServicesPackage");
+		System.out.println(CLASS_NAME + "addServiceToServicesPackage");
 
 		service = setUpService();
 		assertNotNull("unable to create service in DB",service);
@@ -428,34 +396,34 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServicesPackageNotExistsException.class)
-		public void addServiceToServicesPackageWhenPackageNotExists() throws Exception {
-			System.out.println("ServicesManager.addServiceToServicesPackageWhenPackageNotExists");
+	public void addServiceToServicesPackageWhenPackageNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addServiceToServicesPackageWhenPackageNotExists");
 
-			service = setUpService();
-			assertNotNull("unable to create service in DB",service);
+		service = setUpService();
+		assertNotNull("unable to create service in DB",service);
 
-			perun.getServicesManager().addServiceToServicesPackage(sess, new ServicesPackage(), service);
-			// shouldn't find services package
+		perun.getServicesManager().addServiceToServicesPackage(sess, new ServicesPackage(), service);
+		// shouldn't find services package
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void addServiceToServicesPackageWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.addServiceToServicesPackageWhenServiceNotExists");
+	public void addServiceToServicesPackageWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addServiceToServicesPackageWhenServiceNotExists");
 
-			ServicesPackage servicesPackage = new ServicesPackage();
-			servicesPackage.setName("ServicesManagerTestSP");
-			servicesPackage.setDescription("TestingPackage");
-			perun.getServicesManager().createServicesPackage(sess, servicesPackage);
+		ServicesPackage servicesPackage = new ServicesPackage();
+		servicesPackage.setName("ServicesManagerTestSP");
+		servicesPackage.setDescription("TestingPackage");
+		perun.getServicesManager().createServicesPackage(sess, servicesPackage);
 
-			perun.getServicesManager().addServiceToServicesPackage(sess, servicesPackage, new Service());
-			// shouldn't find services package
+		perun.getServicesManager().addServiceToServicesPackage(sess, servicesPackage, new Service());
+		// shouldn't find services package
 
-		}
+	}
 
 	@Test
 	public void removeServiceFromServicesPackage() throws Exception {
-		System.out.println("ServicesManager.removeServiceFromServicesPackage");
+		System.out.println(CLASS_NAME + "removeServiceFromServicesPackage");
 
 		service = setUpService();
 		assertNotNull("unable to create service in DB",service);
@@ -469,33 +437,33 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServicesPackageNotExistsException.class)
-		public void removeServiceFromServicesPackageWhenPackageNotExists() throws Exception {
-			System.out.println("ServicesManager.removeServiceFromServicesPackageWhenPackageNotExists");
+	public void removeServiceFromServicesPackageWhenPackageNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeServiceFromServicesPackageWhenPackageNotExists");
 
-			service = setUpService();
-			assertNotNull("unable to create service in DB",service);
+		service = setUpService();
+		assertNotNull("unable to create service in DB",service);
 
-			perun.getServicesManager().removeServiceFromServicesPackage(sess, new ServicesPackage(), service);
-			// shouldn't find services package
+		perun.getServicesManager().removeServiceFromServicesPackage(sess, new ServicesPackage(), service);
+		// shouldn't find services package
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void removeServiceFromServicesPackageWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.removeServiceFromServicesPackageWhenServiceNotExists");
+	public void removeServiceFromServicesPackageWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeServiceFromServicesPackageWhenServiceNotExists");
 
-			service = setUpService();
-			assertNotNull("unable to create service in DB",service);
-			servicesPackage = setUpServicesPackage(service);
+		service = setUpService();
+		assertNotNull("unable to create service in DB",service);
+		servicesPackage = setUpServicesPackage(service);
 
-			perun.getServicesManager().removeServiceFromServicesPackage(sess, servicesPackage, new Service());
-			// shouldn't find service
+		perun.getServicesManager().removeServiceFromServicesPackage(sess, servicesPackage, new Service());
+		// shouldn't find service
 
-		}
+	}
 
 	@Test
 	public void addRequiredAttribute() throws Exception {
-		System.out.println("ServicesManager.addRequiredAttribute");
+		System.out.println(CLASS_NAME + "addRequiredAttribute");
 
 		service = setUpService();
 		attribute = setUpAttribute();
@@ -507,45 +475,45 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=AttributeNotExistsException.class)
-		public void addRequiredAttributeWhenAttributeNotExists() throws Exception {
-			System.out.println("ServicesManager.addRequiredAttributeWhenAttributeNotExists");
+	public void addRequiredAttributeWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addRequiredAttributeWhenAttributeNotExists");
 
-			service = setUpService();
-			attribute = setUpAttribute();
-			attribute.setId(0);
+		service = setUpService();
+		attribute = setUpAttribute();
+		attribute.setId(0);
 
-			perun.getServicesManager().addRequiredAttribute(sess, service, attribute);
-			// shouldn't find attribute
+		perun.getServicesManager().addRequiredAttribute(sess, service, attribute);
+		// shouldn't find attribute
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void addRequiredAttributeWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.addRequiredAttributeWhenServiceNotExists");
+	public void addRequiredAttributeWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addRequiredAttributeWhenServiceNotExists");
 
-			attribute = setUpAttribute();
+		attribute = setUpAttribute();
 
-			perun.getServicesManager().addRequiredAttribute(sess, new Service(), attribute);
-			// shouldn't find service
+		perun.getServicesManager().addRequiredAttribute(sess, new Service(), attribute);
+		// shouldn't find service
 
-		}
+	}
 
 	@Test (expected=AttributeAlreadyAssignedException.class)
-		public void addRequiredAttributeWhenAttributeAlreadyAssigned() throws Exception {
-			System.out.println("ServicesManager.addRequiredAttributeWhenAttributeAlreadyAssigned");
+	public void addRequiredAttributeWhenAttributeAlreadyAssigned() throws Exception {
+		System.out.println(CLASS_NAME + "addRequiredAttributeWhenAttributeAlreadyAssigned");
 
-			service = setUpService();
-			attribute = setUpAttribute();
+		service = setUpService();
+		attribute = setUpAttribute();
 
-			perun.getServicesManager().addRequiredAttribute(sess, service, attribute);
-			perun.getServicesManager().addRequiredAttribute(sess, service, attribute);
-			// shouldn't add same attribute twice
+		perun.getServicesManager().addRequiredAttribute(sess, service, attribute);
+		perun.getServicesManager().addRequiredAttribute(sess, service, attribute);
+		// shouldn't add same attribute twice
 
-		}
+	}
 
 	@Test
 	public void addRequiredAttributes() throws Exception {
-		System.out.println("ServicesManager.addRequiredAttributes");
+		System.out.println(CLASS_NAME + "addRequiredAttributes");
 
 		service = setUpService();
 		List<AttributeDefinition> attributes = setUpRequiredAttribute();
@@ -557,45 +525,45 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=AttributeNotExistsException.class)
-		public void addRequiredAttributesWhenAttributeNotExists() throws Exception {
-			System.out.println("ServicesManager.addRequiredAttributesWhenAttributeNotExists");
+	public void addRequiredAttributesWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addRequiredAttributesWhenAttributeNotExists");
 
-			service = setUpService();
-			List<AttributeDefinition> attributes = setUpRequiredAttribute();
-			attributes.get(0).setId(0);
+		service = setUpService();
+		List<AttributeDefinition> attributes = setUpRequiredAttribute();
+		attributes.get(0).setId(0);
 
-			perun.getServicesManager().addRequiredAttributes(sess, service, attributes);
-			// shouldn't find attribute
+		perun.getServicesManager().addRequiredAttributes(sess, service, attributes);
+		// shouldn't find attribute
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void addRequiredAttributesWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.addRequiredAttributesWhenServiceNotExists");
+	public void addRequiredAttributesWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addRequiredAttributesWhenServiceNotExists");
 
-			List<AttributeDefinition> attributes = setUpRequiredAttribute();
+		List<AttributeDefinition> attributes = setUpRequiredAttribute();
 
-			perun.getServicesManager().addRequiredAttributes(sess, new Service(), attributes);
-			// shouldn't find service
+		perun.getServicesManager().addRequiredAttributes(sess, new Service(), attributes);
+		// shouldn't find service
 
-		}
+	}
 
 	@Test (expected=AttributeAlreadyAssignedException.class)
-		public void addRequiredAttributesWhenAttributeAlreadyAssigned() throws Exception {
-			System.out.println("ServicesManager.addRequiredAttributeWhenAttributeAlreadyAssigned");
+	public void addRequiredAttributesWhenAttributeAlreadyAssigned() throws Exception {
+		System.out.println(CLASS_NAME + "addRequiredAttributeWhenAttributeAlreadyAssigned");
 
-			service = setUpService();
-			List<AttributeDefinition> attributes = setUpRequiredAttribute();
+		service = setUpService();
+		List<AttributeDefinition> attributes = setUpRequiredAttribute();
 
-			perun.getServicesManager().addRequiredAttributes(sess, service, attributes);
-			perun.getServicesManager().addRequiredAttributes(sess, service, attributes);
-			// shouldn't add same attribute twice
+		perun.getServicesManager().addRequiredAttributes(sess, service, attributes);
+		perun.getServicesManager().addRequiredAttributes(sess, service, attributes);
+		// shouldn't add same attribute twice
 
-		}
+	}
 
 	@Test
 	public void removeRequiredAttribute() throws Exception {
-		System.out.println("ServicesManager.removeRequiredAttribute");
+		System.out.println(CLASS_NAME + "removeRequiredAttribute");
 
 		service = setUpService();
 		attribute = setUpAttribute();
@@ -607,44 +575,44 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=AttributeNotExistsException.class)
-		public void removeRequiredAttributeWhenAttributeNotExists() throws Exception {
-			System.out.println("ServicesManager.removeRequiredAttributeWhenAttributeNotExists");
+	public void removeRequiredAttributeWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeRequiredAttributeWhenAttributeNotExists");
 
-			service = setUpService();
-			attribute = setUpAttribute();
-			attribute.setId(0);
+		service = setUpService();
+		attribute = setUpAttribute();
+		attribute.setId(0);
 
-			perun.getServicesManager().removeRequiredAttribute(sess, service, attribute);
-			// shouldn't find attribute
+		perun.getServicesManager().removeRequiredAttribute(sess, service, attribute);
+		// shouldn't find attribute
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void removeRequiredAttributeWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.removeRequiredAttributeWhenServiceNotExists");
+	public void removeRequiredAttributeWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeRequiredAttributeWhenServiceNotExists");
 
-			attribute = setUpAttribute();
+		attribute = setUpAttribute();
 
-			perun.getServicesManager().removeRequiredAttribute(sess, new Service(), attribute);
-			// shouldn't find service
+		perun.getServicesManager().removeRequiredAttribute(sess, new Service(), attribute);
+		// shouldn't find service
 
-		}
+	}
 
 	@Test (expected=AttributeNotAssignedException.class)
-		public void removeRequiredAttributeWhenAttributeNotAssigned() throws Exception {
-			System.out.println("ServicesManager.removeRequiredAttributeWhenAttributeNotAssigned");
+	public void removeRequiredAttributeWhenAttributeNotAssigned() throws Exception {
+		System.out.println(CLASS_NAME + "removeRequiredAttributeWhenAttributeNotAssigned");
 
-			service = setUpService();
-			attribute = setUpAttribute();
+		service = setUpService();
+		attribute = setUpAttribute();
 
-			perun.getServicesManager().removeRequiredAttribute(sess, service, attribute);
-			// shouldn't remove not assigned attribute
+		perun.getServicesManager().removeRequiredAttribute(sess, service, attribute);
+		// shouldn't remove not assigned attribute
 
-		}
+	}
 
 	@Test
 	public void removeRequiredAttributes() throws Exception {
-		System.out.println("ServicesManager.removeRequiredAttributes");
+		System.out.println(CLASS_NAME + "removeRequiredAttributes");
 
 		service = setUpService();
 		List<AttributeDefinition> attributes = setUpRequiredAttribute();
@@ -656,44 +624,44 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=AttributeNotExistsException.class)
-		public void removeRequiredAttributesWhenAttributeNotExists() throws Exception {
-			System.out.println("ServicesManager.removeRequiredAttributesWhenAttributeNotExists");
+	public void removeRequiredAttributesWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeRequiredAttributesWhenAttributeNotExists");
 
-			service = setUpService();
-			List<AttributeDefinition> attributes = setUpRequiredAttribute();
-			attributes.get(0).setId(0);
+		service = setUpService();
+		List<AttributeDefinition> attributes = setUpRequiredAttribute();
+		attributes.get(0).setId(0);
 
-			perun.getServicesManager().removeRequiredAttributes(sess, service, attributes);
-			// shouldn't find attribute
+		perun.getServicesManager().removeRequiredAttributes(sess, service, attributes);
+		// shouldn't find attribute
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void removeRequiredAttributesWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.removeRequiredAttributesWhenServiceNotExists");
+	public void removeRequiredAttributesWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeRequiredAttributesWhenServiceNotExists");
 
-			List<AttributeDefinition> attributes = setUpRequiredAttribute();
+		List<AttributeDefinition> attributes = setUpRequiredAttribute();
 
-			perun.getServicesManager().removeRequiredAttributes(sess, new Service(), attributes);
-			// shouldn't find service
+		perun.getServicesManager().removeRequiredAttributes(sess, new Service(), attributes);
+		// shouldn't find service
 
-		}
+	}
 
 	@Test (expected=AttributeNotAssignedException.class)
-		public void removeRequiredAttributesWhenAttributeNotAssigned() throws Exception {
-			System.out.println("ServicesManager.removeRequiredAttributesWhenAttributeNotAssigned");
+	public void removeRequiredAttributesWhenAttributeNotAssigned() throws Exception {
+		System.out.println(CLASS_NAME + "removeRequiredAttributesWhenAttributeNotAssigned");
 
-			service = setUpService();
-			List<AttributeDefinition> attributes = setUpRequiredAttribute();
+		service = setUpService();
+		List<AttributeDefinition> attributes = setUpRequiredAttribute();
 
-			perun.getServicesManager().removeRequiredAttributes(sess, service, attributes);
-			// shouldn't remove not assigned attribute
+		perun.getServicesManager().removeRequiredAttributes(sess, service, attributes);
+		// shouldn't remove not assigned attribute
 
-		}
+	}
 
 	@Test
 	public void removeAllRequiredAttributes() throws Exception {
-		System.out.println("ServicesManager.removeAllRequiredAttributes");
+		System.out.println(CLASS_NAME + "removeAllRequiredAttributes");
 
 		service = setUpService();
 		attribute = setUpAttribute();
@@ -705,17 +673,17 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void removeAllRequiredAttributesWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.removeAllRequiredAttributesWhenServiceNotExists");
+	public void removeAllRequiredAttributesWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllRequiredAttributesWhenServiceNotExists");
 
-			perun.getServicesManager().removeAllRequiredAttributes(sess, new Service());
-			// shouldn't find service
+		perun.getServicesManager().removeAllRequiredAttributes(sess, new Service());
+		// shouldn't find service
 
-		}
+	}
 
 	@Test
 	public void addDestination() throws Exception {
-		System.out.println("ServicesManager.addDestination");
+		System.out.println(CLASS_NAME + "addDestination");
 
 		service = setUpService();
 		facility = setUpFacility();
@@ -731,7 +699,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getDestinationsCount() throws Exception {
-		System.out.println("ServicesManager.getDestinationsCount()");
+		System.out.println(CLASS_NAME + "getDestinationsCount");
 
 		service = setUpService();
 		facility = setUpFacility();
@@ -744,7 +712,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void addDestinationForMoreThanOneService() throws Exception {
-		System.out.println("ServicesManager.addDestinationForMoreThanOneService");
+		System.out.println(CLASS_NAME + "addDestinationForMoreThanOneService");
 
 		List<Service> services = setUpServices();
 		facility = setUpFacility();
@@ -763,46 +731,46 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void addDestinationWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.addDestinationWhenServiceNotExists");
+	public void addDestinationWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addDestinationWhenServiceNotExists");
 
-			facility = setUpFacility();
-			destination = setUpDestination();
+		facility = setUpFacility();
+		destination = setUpDestination();
 
-			perun.getServicesManager().addDestination(sess, new Service(), facility, destination);
-			// shouldn't find service
+		perun.getServicesManager().addDestination(sess, new Service(), facility, destination);
+		// shouldn't find service
 
-		}
+	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void addDestinationWhenFacilityNotExists() throws Exception {
-			System.out.println("ServicesManager.addDestinationWhenFacilityNotExists");
+	public void addDestinationWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "addDestinationWhenFacilityNotExists");
 
-			service = setUpService();
-			destination = setUpDestination();
+		service = setUpService();
+		destination = setUpDestination();
 
-			perun.getServicesManager().addDestination(sess, service, new Facility(), destination);
-			// shouldn't find facility
+		perun.getServicesManager().addDestination(sess, service, new Facility(), destination);
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test (expected=DestinationAlreadyAssignedException.class)
-		public void addDestinationWhenDestinationAlreadyAssigned() throws Exception {
-			System.out.println("ServicesManager.addDestinationWhenDestinationAlreadyAssigned");
+	public void addDestinationWhenDestinationAlreadyAssigned() throws Exception {
+		System.out.println(CLASS_NAME + "addDestinationWhenDestinationAlreadyAssigned");
 
-			service = setUpService();
-			facility = setUpFacility();
-			destination = setUpDestination();
+		service = setUpService();
+		facility = setUpFacility();
+		destination = setUpDestination();
 
-			perun.getServicesManager().addDestination(sess, service, facility, destination);
-			perun.getServicesManager().addDestination(sess, service, facility, destination);
-			// shouldn't add same destination twice
+		perun.getServicesManager().addDestination(sess, service, facility, destination);
+		perun.getServicesManager().addDestination(sess, service, facility, destination);
+		// shouldn't add same destination twice
 
-		}
+	}
 
 	@Test
 	public void addDestinationsDefinedByHostsOnFacility() throws Exception {
-		System.out.println("ServicesManager.addDestinationsDefinedByHostsOnFacility");
+		System.out.println(CLASS_NAME + "addDestinationsDefinedByHostsOnFacility");
 
 		service = setUpService();
 		facility = setUpNonClusterFacilityWithTwoHosts();
@@ -817,7 +785,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void addDestinationsDefinedByHostsOnFacilityWithListOfServices() throws Exception {
-		System.out.println("ServicesManager.addDestinationsDefinedByHostsOnFacilityWithListOfServices");
+		System.out.println(CLASS_NAME + "addDestinationsDefinedByHostsOnFacilityWithListOfServices");
 
 		List<Service> services = setUpServices();
 		facility = setUpNonClusterFacilityWithTwoHosts();
@@ -834,7 +802,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void addDestinationsDefinedByHostsOnFacilityForAssignedListOfServices() throws Exception {
-		System.out.println("ServicesManager.addDestinationsDefinedByHostsOnFacilityForAssignedListOfServices");
+		System.out.println(CLASS_NAME + "addDestinationsDefinedByHostsOnFacilityForAssignedListOfServices");
 
 		List<Service> services = setUpServices();
 
@@ -857,7 +825,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void addDestinationsForAllServicesOnFacility() throws Exception {
-		System.out.println("ServicesManager.addDestinationsForAllServicesOnFacility");
+		System.out.println(CLASS_NAME + "addDestinationsForAllServicesOnFacility");
 
 		service = setUpService();
 		facility = setUpFacility();
@@ -880,7 +848,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void removeDestination() throws Exception {
-		System.out.println("ServicesManager.removeDestination");
+		System.out.println(CLASS_NAME + "removeDestination");
 
 		service = setUpService();
 		facility = setUpFacility();
@@ -895,46 +863,66 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	}
 
+	@Test
+	public void removeAllDestinationsWithFacility() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllDestinationsWithFacility");
+
+		List<Service> services = setUpServices();
+		facility = setUpFacility();
+		destination = setUpDestination();
+
+		Destination dest1 = perun.getServicesManager().addDestination(sess, services.get(0), facility, destination);
+		Destination dest2 = perun.getServicesManager().addDestination(sess, services.get(1), facility, destination);
+
+		List<Destination> destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
+		assertTrue("There need to be dest1", destinations.contains(dest1));
+		assertTrue("There need to be dest2", destinations.contains(dest2));
+
+		perun.getServicesManagerBl().removeAllDestinations(sess, facility);
+		destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
+		assertTrue("All destinations should be removed", destinations.isEmpty());
+	}
+
 	@Test (expected=ServiceNotExistsException.class)
-		public void removeDestinationWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.removeDestinationWhenServiceNotExists");
+	public void removeDestinationWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeDestinationWhenServiceNotExists");
 
-			facility = setUpFacility();
-			destination = setUpDestination();
+		facility = setUpFacility();
+		destination = setUpDestination();
 
-			perun.getServicesManager().removeDestination(sess, new Service(), facility, destination);
-			// shouldn't find service
+		perun.getServicesManager().removeDestination(sess, new Service(), facility, destination);
+		// shouldn't find service
 
-		}
+	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void removeDestinationWhenFacilityNotExists() throws Exception {
-			System.out.println("ServicesManager.removeDestinationWhenFacilityNotExists");
+	public void removeDestinationWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeDestinationWhenFacilityNotExists");
 
-			service = setUpService();
-			destination = setUpDestination();
+		service = setUpService();
+		destination = setUpDestination();
 
-			perun.getServicesManager().removeDestination(sess, service, new Facility(), destination);
-			// shouldn't find facility
+		perun.getServicesManager().removeDestination(sess, service, new Facility(), destination);
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test (expected=DestinationAlreadyRemovedException.class)
-		public void removeDestinationWhenDestinationAlreadyRemoved() throws Exception {
-			System.out.println("ServicesManager.removeDestinationWhenDestinationAlreadyRemoved");
+	public void removeDestinationWhenDestinationAlreadyRemoved() throws Exception {
+		System.out.println(CLASS_NAME + "removeDestinationWhenDestinationAlreadyRemoved");
 
-			service = setUpService();
-			facility = setUpFacility();
-			destination = setUpDestination();
+		service = setUpService();
+		facility = setUpFacility();
+		destination = setUpDestination();
 
-			perun.getServicesManager().removeDestination(sess, service, facility, destination);
-			// shouldn't remove not added destination
+		perun.getServicesManager().removeDestination(sess, service, facility, destination);
+		// shouldn't remove not added destination
 
-		}
+	}
 
 	@Test
 	public void removeAllDestinations() throws Exception {
-		System.out.println("ServicesManager.removeAllDestinations");
+		System.out.println(CLASS_NAME + "removeAllDestinations");
 
 		service = setUpService();
 		facility = setUpFacility();
@@ -950,30 +938,43 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void removeAllDestinationsWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.removeAllDestinationsWhenServiceNotExists");
+	public void removeAllDestinationsWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllDestinationsWhenServiceNotExists");
 
-			facility = setUpFacility();
+		facility = setUpFacility();
 
-			perun.getServicesManager().removeAllDestinations(sess, new Service(), facility);
-			// shouldn't find service
+		perun.getServicesManager().removeAllDestinations(sess, new Service(), facility);
+		// shouldn't find service
 
-		}
+	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void removeAllDestinationsWhenFacilityNotExists() throws Exception {
-			System.out.println("ServicesManager.removeAllDestinationsWhenFacilityNotExists");
+	public void removeAllDestinationsWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllDestinationsWhenFacilityNotExists");
 
-			service = setUpService();
+		service = setUpService();
 
-			perun.getServicesManager().removeAllDestinations(sess, service, new Facility());
-			// shouldn't find facility
+		perun.getServicesManager().removeAllDestinations(sess, service, new Facility());
+		// shouldn't find facility
 
-		}
+	}
+
+	@Test
+	public void getAllDestinationsWithFacility() throws Exception {
+		System.out.println(CLASS_NAME + "getAllDestinationsWithFacility");
+		service = setUpService();
+		facility = setUpFacility();
+		destination = setUpDestination();
+		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
+		List<Destination> destinations = perun.getServicesManagerBl().getDestinations(sess, facility);
+		assertTrue("there shoudl be one detination",!destinations.isEmpty());
+		Destination dest = destinations.get(0);
+		assertTrue("there is the right destination in the richDestination", dest.getDestination().equals(destination.getDestination()));
+	}
 
 	@Test
 	public void getAllRichDestinationsWithFacility() throws Exception {
-		System.out.println("ServicesManager.getAllRichDestinationsWithFacility");
+		System.out.println(CLASS_NAME + "getAllRichDestinationsWithFacility");
 		service = setUpService();
 		facility = setUpFacility();
 		destination = setUpDestination();
@@ -988,7 +989,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getAllRichDestinationsWithService() throws Exception {
-		System.out.println("ServicesManager.getAllRichDestinationsWithService");
+		System.out.println(CLASS_NAME + "getAllRichDestinationsWithService");
 		service = setUpService();
 		facility = setUpFacility();
 		destination = setUpDestination();
@@ -1003,7 +1004,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getRichDestinations() throws Exception {
-		System.out.println("ServicesManager.getRichDestinations");
+		System.out.println(CLASS_NAME + "getRichDestinations");
 		service = setUpService();
 		facility = setUpFacility();
 		destination = setUpDestination();
@@ -1018,7 +1019,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getDestinations() throws Exception {
-		System.out.println("ServicesManager.getDestinations");
+		System.out.println(CLASS_NAME + "getDestinations");
 
 		service = setUpService();
 		facility = setUpFacility();
@@ -1030,7 +1031,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	@Test
 	public void getDestinationsWithPerunSession() throws Exception {
-		System.out.println("ServicesManager.getDestinations");
+		System.out.println(CLASS_NAME + "getDestinations");
 
 		Service service1 = setUpService();
 		Facility facility1 = setUpFacility();
@@ -1043,59 +1044,30 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void getDestinationsWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.getDestinationsWhenServiceNotExists");
+	public void getDestinationsWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getDestinationsWhenServiceNotExists");
 
-			facility = setUpFacility();
+		facility = setUpFacility();
 
-			perun.getServicesManager().getDestinations(sess, new Service(), facility);
-			// shouldn't find Service
-
-		}
-
-	@Test (expected=FacilityNotExistsException.class)
-		public void getDestinationsWhenFacilityNotExists() throws Exception {
-			System.out.println("ServicesManager.getDestinationsWhenFacilityNotExists");
-
-			service = setUpService();
-
-			perun.getServicesManager().getDestinations(sess, service, new Facility());
-			// shouldn't find facility
-
-		}
-
-	@Test
-	public void getOwner() throws Exception {
-		System.out.println("ServicesManager.getOwner");
-
-		Owner owner = new Owner();
-		owner.setName("ServicesManagerTestServiceOwner");
-		owner.setContact("testingServiceOwner");
-		owner.setType(OwnerType.technical);
-		owner = perun.getOwnersManager().createOwner(sess, owner);
-
-		Service service = new Service();
-		service.setName("ServicesManagerTestService");
-		service = perun.getServicesManager().createService(sess, service, owner);
-		assertNotNull("unable to create Service",service);
-
-		Owner returnedOwner = perun.getServicesManager().getOwner(sess, service);
-		assertEquals("original and returned Owner should be the same",returnedOwner,owner);
+		perun.getServicesManager().getDestinations(sess, new Service(), facility);
+		// shouldn't find Service
 
 	}
 
-	@Test (expected=ServiceNotExistsException.class)
-		public void getOwnerWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.getOwnerWhenServiceNotExists");
+	@Test (expected=FacilityNotExistsException.class)
+	public void getDestinationsWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getDestinationsWhenFacilityNotExists");
 
-			perun.getServicesManager().getOwner(sess, new Service());
-			// shouldn't find service
+		service = setUpService();
 
-		}
+		perun.getServicesManager().getDestinations(sess, service, new Facility());
+		// shouldn't find facility
+
+	}
 
 	@Test
 	public void getHierarchicalData() throws Exception {
-		System.out.println("ServicesManager.getHierarchicalData");
+		System.out.println(CLASS_NAME + "getHierarchicalData");
 
 		vo = setUpVo();
 		facility = setUpFacility();
@@ -1214,24 +1186,24 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getHierarchicalDataWhenFacilityNotExists() throws Exception {
-			System.out.println("ServicesManager.getHierarchicalDataWhenFacilityNotExists");
+	public void getHierarchicalDataWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getHierarchicalDataWhenFacilityNotExists");
 
-			service = setUpService();
-			perun.getServicesManager().getHierarchicalData(sess, service, new Facility());
-			// shouldn't find facility
+		service = setUpService();
+		perun.getServicesManager().getHierarchicalData(sess, service, new Facility());
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void getHierarchicalDataWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.getHierarchicalDataWhenServiceNotExists");
+	public void getHierarchicalDataWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getHierarchicalDataWhenServiceNotExists");
 
-			facility = setUpFacility();
-			perun.getServicesManager().getHierarchicalData(sess, new Service(), facility);
-			// shouldn't find service
+		facility = setUpFacility();
+		perun.getServicesManager().getHierarchicalData(sess, new Service(), facility);
+		// shouldn't find service
 
-		}
+	}
 
 	// TODO getFlatData() - not implemented yet
 
@@ -1409,28 +1381,28 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
-		public void getDataWithGroupsWhenFacilityNotExists() throws Exception {
-			System.out.println("ServicesManager.getDataWithGroupsWhenFacilityNotExists");
+	public void getDataWithGroupsWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getDataWithGroupsWhenFacilityNotExists");
 
-			service = setUpService();
-			perun.getServicesManager().getDataWithGroups(sess, service, new Facility());
-			// shouldn't find facility
+		service = setUpService();
+		perun.getServicesManager().getDataWithGroups(sess, service, new Facility());
+		// shouldn't find facility
 
-		}
+	}
 
 	@Test (expected=ServiceNotExistsException.class)
-		public void getDataWithGroupsWhenServiceNotExists() throws Exception {
-			System.out.println("ServicesManager.getDataWithGroupsWhenServiceNotExists");
+	public void getDataWithGroupsWhenServiceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getDataWithGroupsWhenServiceNotExists");
 
-			facility = setUpFacility();
-			perun.getServicesManager().getDataWithGroups(sess, new Service(), facility);
-			// shouldn't find service
+		facility = setUpFacility();
+		perun.getServicesManager().getDataWithGroups(sess, new Service(), facility);
+		// shouldn't find service
 
-		}
+	}
 
 	@Test
 	public void getFacilitiesDestinations() throws Exception {
-		System.out.println("ServicesManager.getFacilitiesDestinations");
+		System.out.println(CLASS_NAME + "getFacilitiesDestinations");
 		vo = setUpVo();
 		facility = setUpFacility();
 		resource = setUpResource();
@@ -1446,15 +1418,9 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	private Service setUpService() throws Exception {
 
-		Owner owner = new Owner();
-		owner.setName("ServicesManagerTestServiceOwner");
-		owner.setContact("testingServiceOwner");
-		owner.setType(OwnerType.technical);
-		perun.getOwnersManager().createOwner(sess, owner);
-
 		Service service = new Service();
 		service.setName("ServicesManagerTestService");
-		service = perun.getServicesManager().createService(sess, service, owner);
+		service = perun.getServicesManager().createService(sess, service);
 		assertNotNull("unable to create service",service);
 
 		return service;
@@ -1463,20 +1429,14 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 	private List<Service> setUpServices() throws Exception {
 
-		Owner owner = new Owner();
-		owner.setName("ServicesManagerTestServiceOwner01");
-		owner.setContact("ServicesManagerTestServiceOwner01");
-		owner.setType(OwnerType.technical);
-		perun.getOwnersManager().createOwner(sess, owner);
-
 		Service service1 = new Service();
 		service1.setName("ServicesManagerTestService01");
-		service1 = perun.getServicesManager().createService(sess, service1, owner);
+		service1 = perun.getServicesManager().createService(sess, service1);
 		assertNotNull("unable to create service",service1);
 
 		Service service2 = new Service();
 		service2.setName("ServicesManagerTestService02");
-		service2 = perun.getServicesManager().createService(sess, service2, owner);
+		service2 = perun.getServicesManager().createService(sess, service2);
 		assertNotNull("unable to create service",service2);
 
 		List<Service> services = new ArrayList<Service>();
@@ -1599,7 +1559,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 
 		Destination destination = new Destination();
 		destination.setDestination("testDestination");
-		destination.setType("TestType");
+		destination.setType("service-specific");
 		//destination = perun.getServicesManager().addDestination(sess, service, facility, destination);
 
 		return destination;

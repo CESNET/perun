@@ -2,12 +2,16 @@ package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.BeansUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 
 import java.net.HttpURLConnection;
@@ -55,6 +59,14 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	private String password;
 
 	private String extSourceNameForLogin = null;
+
+	private static PerunBlImpl perunBl;
+
+	// filled by spring (perun-core.xml)
+	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
+		perunBl = perun;
+		return perun;
+	}
 
 
 	public List<Map<String,String>> findSubjectsLogins(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
@@ -180,7 +192,15 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	private List<RichUser> findRichUsers(String substring) throws InternalErrorException {
-		String query = "searchString=" + substring;
+
+		String query;
+		try {
+			// encode query params
+			query = "searchString=" + URLEncoder.encode(substring, "UTF-8");
+		} catch (UnsupportedEncodingException ex) {
+			// sent query params not encoded
+			query = "searchString=" + substring;
+		}
 
 		List<RichUser> richUsers;
 		try {
@@ -206,6 +226,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	}
 
 	private List<RichUser> findRichUsers(Integer groupId) throws InternalErrorException {
+		// we don't need to encode query params here, no unsafe char in fixed string
 		String query = "group=" + groupId + "&" + "allowedStatuses[]=" + "VALID";
 		
 		List<RichMember> richMembers;
@@ -314,5 +335,9 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 	public void close() throws InternalErrorException {
 		//not needed there
+	}
+
+	protected Map<String,String> getAttributes() {
+		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

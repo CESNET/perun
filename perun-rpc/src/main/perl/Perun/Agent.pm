@@ -33,11 +33,13 @@ use Perun::CabinetAgent;
 use Perun::NotificationsAgent;
 use Perun::SearcherAgent;
 use Perun::RegistrarAgent;
+use Perun::SecurityTeamsAgent;
+use Sys::Hostname;
 
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
@@ -66,15 +68,14 @@ sub new {
 	$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion");
 	# Enable cookies if the HOME env is available
 	if (defined($ENV{HOME})) {
+                my $hostname = hostname();
+                my $grp=getpgrp;
 		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/.perun-engine-cookies.txt", autosave => 1, ignore_discard => 1 });
+#		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/.perun-engine-cookies.txt", autosave => 1, ignore_discard => 1 });
+		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/perun-cookie-$hostname-$grp.txt", autosave => 1, ignore_discard => 1 });
 	}
 
-	if ($^V ge 'v5.11.0') {
-		$self->{_jsonXs} = JSON::XS->new->convert_blessed->allow_nonref;
-	} else {
-		$self->{_jsonXs} = JSON::XS->new->utf8->convert_blessed->allow_nonref;
-	}
+	$self->{_jsonXs} = JSON::XS->new->utf8->convert_blessed->allow_nonref;
 
 	# if $login is defined then use login/password authentication
 	if (defined($login)) {
@@ -365,6 +366,16 @@ sub getRegistrarAgent {
 
         return $self->{_registrarAgent};
         }
+}
+
+sub getSecurityTeamsAgent {
+	my $self = shift;
+
+	if (!$self->{_securityTeamsAgent}) {
+		$self->{_securityTeamsAgent} = Perun::SecurityTeamsAgent->new($self);
+
+	return $self->{_securityTeamsAgent};
+	}
 }
 
 1;
