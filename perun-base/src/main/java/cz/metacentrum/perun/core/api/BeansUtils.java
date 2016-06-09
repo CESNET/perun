@@ -377,7 +377,7 @@ public class BeansUtils {
 				while(!delimiterFound) {
 					delimiterIndex++; //start searching at next char then last time
 					delimiterIndex = mapEntry.indexOf(Character.toString(KEY_VALUE_DELIMITER), delimiterIndex);
-					if(delimiterIndex == -1) throw new ConsistencyErrorException("Bad format in attribute value. KEY_VALUE_DELIMITER not found.");
+					if(delimiterIndex == -1) throw new ConsistencyErrorException("Bad format in attribute value. KEY_VALUE_DELIMITER not found. Attribute value='" + stringValue + "', processed entry='" + mapEntry + "'");
 
 					//check if this delimiter is not escaped
 					boolean isEscaped = false;  //is delimiter escaped
