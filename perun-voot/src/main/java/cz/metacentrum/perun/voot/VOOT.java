@@ -11,6 +11,7 @@ import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -378,15 +379,24 @@ public class VOOT {
 	 * @return         group    members of group
 	 * @throws VOOTException    cannot read members of group
 	 */
-	private List<Member> getGroupMembers(Group group) throws VOOTException{
+	private List<Member> getGroupMembers(Group group) throws VOOTException {
 		List<Member> members = new ArrayList<Member>();
 
-		try{
-			//if user is not member of group cannot read members of
-			if (!perun.getGroupsManagerBl().isUserMemberOfGroup(session, user, group)) throw new VOOTException("not_a_member");
-			members = perun.getGroupsManagerBl().getGroupMembers(session, group);
-		}catch(InternalErrorException ex){
+		try {
+
+			if (!perun.getGroupsManagerBl().isUserMemberOfGroup(session, user, group)) {
+				// if not group member, check authorization in Entry
+				members = perun.getGroupsManager().getGroupMembers(session, group);
+			} else {
+				members = perun.getGroupsManagerBl().getGroupMembers(session, group);
+			}
+
+		} catch (InternalErrorException ex){
 			throw new VOOTException("internal_server_error");
+		} catch (PrivilegeException ex) {
+			throw new VOOTException("insufficient_privileges");
+		} catch (GroupNotExistsException ex) {
+			throw new VOOTException("group_not_exists");
 		}
 
 		return members;
