@@ -76,6 +76,15 @@ public class Api extends HttpServlet {
 	protected String getExtSourceName(HttpServletRequest req, Deserializer des) throws RpcException {
 		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
 			return (String) req.getHeader("Shib-Identity-Provider");
+		} else if (req.getHeader("OIDC_CLAIM_principal") != null && !req.getHeader("OIDC_CLAIM_principal").isEmpty()) {
+			try {
+				ObjectMapper mapper = new ObjectMapper();
+				ObjectNode jsonPrincipal = (ObjectNode) mapper.readTree(req.getHeader("OIDC_CLAIM_principal"));
+				ObjectNode jsonAttributes = (ObjectNode) jsonPrincipal.get("attributes");
+				return jsonAttributes.get("extSourceName").getTextValue();
+			} catch (IOException e) {
+				throw new RpcException(RpcException.Type.NO_REMOTE_USER_SPECIFIED, "Cannot read OAuth2 principal", e);
+			}
 		} else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
 			return (String) req.getAttribute("SSL_CLIENT_I_DN");
 		} else if (req.getAttribute("EXTSOURCE") != null) {
@@ -92,6 +101,14 @@ public class Api extends HttpServlet {
 		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
 			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
 				actor = (String) req.getRemoteUser();
+			}
+		} else if (req.getHeader("OIDC_CLAIM_principal") != null && !req.getHeader("OIDC_CLAIM_principal").isEmpty()) {
+			try {
+				ObjectMapper mapper = new ObjectMapper();
+				ObjectNode jsonPrincipal = (ObjectNode) mapper.readTree(req.getHeader("OIDC_CLAIM_principal"));
+				actor = jsonPrincipal.get("name").getTextValue();
+			} catch (IOException e) {
+				throw new RpcException(RpcException.Type.NO_REMOTE_USER_SPECIFIED, "Cannot read OAuth2 principal", e);
 			}
 		} else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
 			actor = (String) req.getAttribute("SSL_CLIENT_S_DN");
@@ -152,7 +169,7 @@ public class Api extends HttpServlet {
 			}
 		}
 
-		// If OIDC_CLAIM_principal header exists, it means user has to authorized via OAuth2
+		// If OIDC_CLAIM_principal header is present, it means user authenticated via OAuth2.
 		else if (req.getHeader("OIDC_CLAIM_principal") != null && !req.getHeader("OIDC_CLAIM_principal").isEmpty()) {
 
 			ObjectMapper mapper = new ObjectMapper();
