@@ -65,7 +65,7 @@ sub new {
 		$rpcType = $ENV{PERUN_RPC_TYPE};
 	}
 
-	$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion");
+	$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion", timeout => 600);
 	# Enable cookies if the HOME env is available
 	if (defined($ENV{HOME})) {
                 my $hostname = hostname();
