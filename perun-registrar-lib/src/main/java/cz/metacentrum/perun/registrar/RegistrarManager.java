@@ -2,6 +2,7 @@ package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
 import cz.metacentrum.perun.registrar.exceptions.DuplicateRegistrationAttemptException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationForm;
@@ -291,6 +292,20 @@ public interface RegistrarManager {
 	 * @throws PerunException
 	 */
 	Application approveApplicationInternal(PerunSession session, int appId) throws PerunException;
+
+	/**
+	 * Throws exception if application can't be approved based on form module rules.
+	 * Is meant to be used from GUI before actual approval happens so VO/Group admin can override
+	 * this default behavior.
+	 *
+	 * @param session Who wants to approve application
+	 * @param application Application to check approval for
+	 * @throws CantBeApprovedException
+	 * @throws PrivilegeException
+	 * @throws InternalErrorException
+	 * @throws PerunException
+	 */
+	void canBeApproved(PerunSession session, Application application) throws PerunException;
 
 	/**
 	 * Manually rejects an application. Expected to be called as a result of direct VO administrator action in the web UI.

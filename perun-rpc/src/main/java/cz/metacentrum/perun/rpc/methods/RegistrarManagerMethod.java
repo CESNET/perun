@@ -595,6 +595,24 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Check if application can be approved based on form module rules. Throws exception if not.
+	 * Expected to be called from Web UI before actual approving happens, so VO admin
+	 * can override this default behavior.
+	 *
+	 * @param id int Application <code>id</code>
+	 * @throw CantBeApprovedException When application can't be approved based on form module rules.
+	 */
+	canBeApproved {
+
+		@Override
+		public Object call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.getRegistrarManager().canBeApproved(ac.getSession(), ac.getApplicationById(parms.readInt("id")));
+			return null;
+		}
+
+	},
+
+	/*#
 	 * Manually rejects an application.
 	 * Expected to be called as a result of direct VO administrator action in the web UI.
 	 *

@@ -7,11 +7,18 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.Image;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.ApplicationMessages;
+import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
+import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonErrorHandler;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Application;
@@ -36,6 +43,7 @@ public class HandleApplication {
 	final String JSON_URL_APPROVE = "registrarManager/approveApplication";
 	final String JSON_URL_REJECT = "registrarManager/rejectApplication";
 	final String JSON_URL_DELETE = "registrarManager/deleteApplication";
+	final String JSON_URL_CHECK = "registrarManager/canBeApproved";
 
 	// custom events
 	private JsonCallbackEvents events = new JsonCallbackEvents();
@@ -168,119 +176,183 @@ public class HandleApplication {
 			}
 		};
 
-		// check for similar users before approving
+		final JSONObject appIdObj = new JSONObject();
+		appIdObj.put("appId", new JSONNumber(appId));
 
-		JSONObject jso = new JSONObject();
-		jso.put("appId", new JSONNumber(appId));
+		final JSONObject idObj = new JSONObject();
+		idObj.put("id", new JSONNumber(appId));
 
-		if (app.getUser() != null) {
+		// check if can be approved
 
-			// ok approve sending data
-			JsonPostClient jspc = new JsonPostClient(newEvents);
-			jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+		JsonPostClient jspc = new JsonPostClient(new JsonCallbackEvents(){
+			@Override
+			public void onError(PerunError error) {
 
-		} else {
+				session.getUiElements().setLogErrorText("Checking approval failed.");
+				events.onError(error);
 
-			JsonPostClient checkJspc = new JsonPostClient(new JsonCallbackEvents(){
-				@Override
-				public void onError(PerunError error) {
-					session.getUiElements().setLogErrorText("Approving application failed.");
-					events.onError(error);
+				if (error == null ) {
+					PerunError e = (PerunError) JsonUtils.parseJson("{\"errorId\":\"0\",\"name\":\"Cross-site request\",\"type\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteType() + "\",\"message\":\"" + WidgetTranslation.INSTANCE.jsonClientAlertBoxErrorCrossSiteText() + "\"}").cast();
+					JsonErrorHandler.alertBox(e);
+				} else if (!error.getName().equals("CantBeApprovedException")) {
+					JsonErrorHandler.alertBox(error);
+				} else {
+
+					FlexTable layout = new FlexTable();
+
+					layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.errorIcon())));
+					layout.setHTML(0, 1, "<p>" + error.getErrorInfo() + "<p>If needed, you can override above restriction by clicking 'Approve' button again.");
+
+					layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+					layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
+					layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
+
+					Confirm c = new Confirm("Application shouldn't be approved", layout, new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent clickEvent) {
+
+							// ok approve sending data
+							JsonPostClient jspc = new JsonPostClient(newEvents);
+							jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+
+						}
+					}, new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent clickEvent) {
+							events.onFinished(null);
+						}
+					}, true);
+
+					c.setOkButtonText("Approve");
+					c.setNonScrollable(true);
+					c.show();
+
 				}
-				@Override
-				public void onFinished(JavaScriptObject jso) {
 
-					ArrayList<Identity> users = JsonUtils.jsoAsList(jso);
-					if (users != null && !users.isEmpty()) {
+			}
+			@Override
+			public void onFinished(JavaScriptObject jso) {
 
-						FlexTable ft = new FlexTable();
-						ft.setWidth("600px");
-						ft.setHTML(0, 0, "<p><strong>Following similar user(s) were found in system:");
-						ft.getFlexCellFormatter().setColSpan(0, 0, 3);
+				// check for similar users before approving
 
-						ft.setHTML(1, 0, "<strong>" + ApplicationMessages.INSTANCE.name() + "</strong>");
-						ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
-						ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
+				if (app.getUser() != null) {
 
-						int i = 2;
+					// ok approve sending data
+					JsonPostClient jspc2 = new JsonPostClient(newEvents);
+					jspc2.sendData(JSON_URL_APPROVE, prepareJSONObject());
 
-						for (Identity user : users) {
+				} else {
 
-							ft.setHTML(i, 0, user.getName());
-
-							if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-								ft.setHTML(i, 1, user.getEmail());
-							} else {
-								ft.setHTML(i, 1, "N/A");
-							}
-
-							if (user.getOrganization() != null && !user.getOrganization().isEmpty()) {
-								ft.setHTML(i, 2, user.getOrganization());
-							} else {
-								ft.setHTML(i, 2, "N/A");
-							}
-
-							i++;
-
+					JsonPostClient checkJspc = new JsonPostClient(new JsonCallbackEvents(){
+						@Override
+						public void onError(PerunError error) {
+							session.getUiElements().setLogErrorText("Approving application failed.");
+							events.onError(error);
 						}
+						@Override
+						public void onFinished(JavaScriptObject jso) {
 
-						String type = "";
-						if (app.getExtSourceType().equals("cz.metacentrum.perun.core.impl.ExtSourceX509")) {
-							type = "cert";
-						} else if (app.getExtSourceType().equals("cz.metacentrum.perun.core.impl.ExtSourceIdp")) {
-							type = "fed";
-						}
+							ArrayList<Identity> users = JsonUtils.jsoAsList(jso);
+							if (users != null && !users.isEmpty()) {
 
-						ft.setHTML(i, 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
-								"<ul><li>If YES, ask him/her to join identities at <a href=\""+Utils.getIdentityConsolidatorLink(type, false)+"\" target=\"_blank\">identity consolidator</a> before approving this application."+
-								"</li><li>If NO, you can approve this application anyway. " +
-								"</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
+								FlexTable ft = new FlexTable();
+								ft.setWidth("600px");
+								ft.setHTML(0, 0, "<p><strong>Following similar user(s) were found in system:");
+								ft.getFlexCellFormatter().setColSpan(0, 0, 3);
 
-						ft.getFlexCellFormatter().setColSpan(i, 0, 3);
+								ft.setHTML(1, 0, "<strong>" + ApplicationMessages.INSTANCE.name() + "</strong>");
+								ft.setHTML(1, 1, "<strong>" + ApplicationMessages.INSTANCE.email() +"</strong>");
+								ft.setHTML(1, 2, "<strong>" + ApplicationMessages.INSTANCE.organization() +"</strong>");
 
-						i++;
+								int i = 2;
 
-						ft.setHTML(i, 0, "<strong>Do you wish to approve this application anyway ?</strong>");
-						ft.getFlexCellFormatter().setColSpan(i, 0, 3);
+								for (Identity user : users) {
 
-						Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
-							@Override
-							public void onClick(ClickEvent clickEvent) {
+									ft.setHTML(i, 0, user.getName());
+
+									if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+										ft.setHTML(i, 1, user.getEmail());
+									} else {
+										ft.setHTML(i, 1, "N/A");
+									}
+
+									if (user.getOrganization() != null && !user.getOrganization().isEmpty()) {
+										ft.setHTML(i, 2, user.getOrganization());
+									} else {
+										ft.setHTML(i, 2, "N/A");
+									}
+
+									i++;
+
+								}
+
+								String type = "";
+								if (app.getExtSourceType().equals("cz.metacentrum.perun.core.impl.ExtSourceX509")) {
+									type = "cert";
+								} else if (app.getExtSourceType().equals("cz.metacentrum.perun.core.impl.ExtSourceIdp")) {
+									type = "fed";
+								}
+
+								ft.setHTML(i, 0,  "<p>Please contact new applicant with question, if he/she isn't already member of any other VO." +
+										"<ul><li>If YES, ask him/her to join identities at <a href=\""+Utils.getIdentityConsolidatorLink(type, false)+"\" target=\"_blank\">identity consolidator</a> before approving this application."+
+										"</li><li>If NO, you can approve this application anyway. " +
+										"</li><li>If UNSURE, contact <a href=\"mailto:"+ Utils.perunReportEmailAddress()+"\">support</a> to help you.</li></ul>");
+
+								ft.getFlexCellFormatter().setColSpan(i, 0, 3);
+
+								i++;
+
+								ft.setHTML(i, 0, "<strong>Do you wish to approve this application anyway ?</strong>");
+								ft.getFlexCellFormatter().setColSpan(i, 0, 3);
+
+								Confirm c = new Confirm("Similar users found!", ft, new ClickHandler() {
+									@Override
+									public void onClick(ClickEvent clickEvent) {
+
+										// ok approve sending data
+										JsonPostClient jspc = new JsonPostClient(newEvents);
+										jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+
+									}
+								}, new ClickHandler() {
+									@Override
+									public void onClick(ClickEvent clickEvent) {
+										events.onFinished(null);
+									}
+								}, true);
+
+								c.setOkButtonText("Approve");
+
+								c.setNonScrollable(true);
+								c.show();
+
+							} else {
 
 								// ok approve sending data
 								JsonPostClient jspc = new JsonPostClient(newEvents);
 								jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
 
 							}
-						}, new ClickHandler() {
-							@Override
-							public void onClick(ClickEvent clickEvent) {
-								events.onFinished(null);
-							}
-						}, true);
 
-						c.setOkButtonText("Approve");
-
-						c.setNonScrollable(true);
-						c.show();
-
-					} else {
-
-						// ok approve sending data
-						JsonPostClient jspc = new JsonPostClient(newEvents);
-						jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
-
-					}
+						}
+						@Override
+						public void onLoadingStart() {
+							events.onLoadingStart();
+						}
+					});
+					checkJspc.sendData("registrarManager/checkForSimilarUsers", appIdObj);
 
 				}
-				@Override
-				public void onLoadingStart() {
-					events.onLoadingStart();
-				}
-			});
-			checkJspc.sendData("registrarManager/checkForSimilarUsers", jso);
 
-		}
+			}
+			@Override
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			}
+		});
+		// we have own error handling
+		jspc.setHidden(true);
+		jspc.sendData(JSON_URL_CHECK, idObj);
 
 	}
 
