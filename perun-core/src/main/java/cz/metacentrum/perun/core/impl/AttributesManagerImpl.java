@@ -3240,7 +3240,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 					"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 					"where namespace in (?,?,?)",
-					new AttributeRowMapper(sess, this, member), service.getId(), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+					new AttributeRowMapper(sess, this, resource, member), service.getId(), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
