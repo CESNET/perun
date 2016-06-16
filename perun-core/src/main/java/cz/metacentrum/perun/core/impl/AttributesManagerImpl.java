@@ -447,12 +447,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					}
 
 				} else if(this.attributesManagerImpl.isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
-					if(!(attributeHolder instanceof Member)) throw new ConsistencyErrorRuntimeException("First attribute holder of member_resource attribute isn't Member");
-					if(attributeHolder2 == null || !(attributeHolder2 instanceof Resource)) throw new ConsistencyErrorRuntimeException("Second attribute holder of member_resource attribute isn't resource");
+					if(!(attributeHolder instanceof Resource)) throw new ConsistencyErrorRuntimeException("First attribute holder of member_resource attribute isn't Member");
+					if(attributeHolder2 == null || !(attributeHolder2 instanceof Member)) throw new ConsistencyErrorRuntimeException("Second attribute holder of member_resource attribute isn't resource");
 
 					try {
 						ResourceMemberVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
-						return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder2, (Member) attributeHolder, attribute);
+						return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder, (Member) attributeHolder2, attribute);
 					} catch (InternalErrorException ex) {
 						throw new InternalErrorRuntimeException(ex);
 					}
