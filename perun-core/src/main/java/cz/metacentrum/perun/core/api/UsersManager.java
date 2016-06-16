@@ -907,7 +907,8 @@ public interface UsersManager {
 		throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException;
 
 	/**
-	 * Allow users to manually add login in supported namespace if same login is not reserved
+	 * Allow users to manually add login in supported namespace if same login is not reserved.
+	 * Can be set only to own service or guest users => specific users.
 	 *
 	 * @param sess
 	 * @param user

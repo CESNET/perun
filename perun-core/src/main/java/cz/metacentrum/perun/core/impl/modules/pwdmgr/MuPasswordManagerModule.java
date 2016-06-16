@@ -1,8 +1,15 @@
 package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -67,7 +74,27 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void changePassword(PerunSession sess, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) {
+	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException, LoginNotExistsException {
+
+		PerunBl perun = (PerunBl) sess.getPerun();
+		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
+
+		try {
+
+			Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, user, attributeName);
+
+			try {
+				int requestID = (new Random()).nextInt(1000000) + 1;
+				InputStream response = makeCall(getChangePasswordRequest((String)attribute.getValue(), oldPassword, newPassword, requestID), requestID);
+				// FIXME - handle this
+				parseResponse(response, requestID);
+			} catch (IOException e) {
+				throw new InternalErrorException(e);
+			}
+
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
+			throw new LoginNotExistsException(e);
+		}
 
 
 
@@ -80,7 +107,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 	@Override
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException {
-
+		throw new InternalErrorException("Deleting user/password in login namespace 'mu' is not supported.");
 	}
 
 	/**
@@ -198,6 +225,33 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 				"<uco></uco>\n" +
 				params +
 				"<operace>INS</operace>\n" +
+				"</osoba>\n" +
+				"</request>";
+
+	}
+
+	/**
+	 * Generate XML request body from passed parameters in order to change/reset password.
+	 *
+	 * @param login
+	 * @param oldPassword
+	 * @param newPassword
+	 * @param requestID unique ID of a request
+	 * @return XML request body
+	 */
+	private String getChangePasswordRequest(String login, String oldPassword, String newPassword, int requestID) {
+
+		log.debug("Making request with ID: " + requestID + " to IS MU.");
+
+		String params = "";
+		if (newPassword != null && !newPassword.isEmpty()) params = "<heslo>" + newPassword + "</heslo>\n";
+
+		return	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+				"<request>\n" +
+				"<osoba reqid=\"" + requestID + "\">\n" +
+				"<uco>" + login + "</uco>\n" +
+				params +
+				"<operace>UPD</operace>\n" +
 				"</osoba>\n" +
 				"</request>";
 

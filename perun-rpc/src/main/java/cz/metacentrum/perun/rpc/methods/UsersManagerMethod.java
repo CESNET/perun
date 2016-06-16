@@ -996,7 +996,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 	/*#
 	 * Set new login in namespace if login is available and user doesn't have login in that namespace.
-	 * !! Works only for service users !!
+	 * !! Works only for service/guest users => specific users !!
 	 *
 	 * @param user int User <code>id</code>
 	 * @param login String Login

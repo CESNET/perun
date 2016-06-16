@@ -1,7 +1,9 @@
 package cz.metacentrum.perun.core.implApi.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 
 import java.util.Map;
 
@@ -19,7 +21,7 @@ public interface PasswordManagerModule {
 
 	void reserveRandomPassword(PerunSession session, String userLogin, String loginNamespace) throws InternalErrorException;
 
-	void changePassword(PerunSession sess, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword);
+	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException, LoginNotExistsException;
 
 	void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException;
 

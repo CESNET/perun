@@ -1002,7 +1002,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) && !user.isServiceUser()) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) && !user.isSpecificUser()) {
 			throw new PrivilegeException(sess, "setLogin");
 		}
 
