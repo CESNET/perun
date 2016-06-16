@@ -91,6 +91,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesMo
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceGroupVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
@@ -445,6 +446,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 						throw new InternalErrorRuntimeException(ex);
 					}
 
+				} else if(this.attributesManagerImpl.isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT)) {
+					if(!(attributeHolder instanceof Member)) throw new ConsistencyErrorRuntimeException("First attribute holder of member_resource attribute isn't Member");
+					if(attributeHolder2 == null || !(attributeHolder2 instanceof Resource)) throw new ConsistencyErrorRuntimeException("Second attribute holder of member_resource attribute isn't resource");
+
+					try {
+						ResourceMemberVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
+						return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder2, (Member) attributeHolder, attribute);
+					} catch (InternalErrorException ex) {
+						throw new InternalErrorRuntimeException(ex);
+					}
 
 				} else {
 					//TODO Add virtual attribute modules for another namespaces
@@ -4756,6 +4767,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return (ResourceGroupVirtualAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new InternalErrorException("Required attribute module isn't ResourceGroupVirtualAttributesModule");
+		}
+	}
+
+	/**
+	 * Get member-resource attribute module for the attribute.
+	 *
+	 * @param attribute attribute for which you get the module
+	 * @return instance member-resource attribute module
+	 *         null if the module doesn't exists
+	 *
+	 * @throws InternalErrorException
+	 */
+	public ResourceMemberVirtualAttributesModuleImplApi getResourceMemberVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+		Object attributeModule = getAttributesModule(sess, attribute);
+		if(attributeModule == null) return null;
+
+		if(attributeModule instanceof ResourceMemberVirtualAttributesModuleImplApi) {
+			return (ResourceMemberVirtualAttributesModuleImplApi) attributeModule;
+		} else {
+			throw new InternalErrorException("Required attribute module isn't ResourceMemberVirtualAttributesModule");
 		}
 	}
 
