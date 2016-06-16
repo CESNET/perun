@@ -3063,7 +3063,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					"where namespace in (?,?,?) " +
 					"and attr_names.id in (select distinct service_required_attrs.attr_id from service_required_attrs " +
 					"join resource_services on service_required_attrs.service_id=resource_services.service_id and resource_services.resource_id=?)",
-					new AttributeRowMapper(sess, this, null), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
+					new AttributeRowMapper(sess, this, resource, member), resource.getId(), member.getId(), AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT, resourceToGetServicesFrom.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
