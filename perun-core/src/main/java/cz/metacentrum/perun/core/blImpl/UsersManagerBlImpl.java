@@ -1794,4 +1794,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public int getUsersCount(PerunSession sess) throws InternalErrorException {
 		return getUsersManagerImpl().getUsersCount(sess);
 	}
+
+	@Override
+	public Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
+		return getUsersManagerImpl().generateAccount(session, namespace, parameters);
+	}
+
 }

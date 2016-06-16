@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.bl;
 
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
@@ -1096,4 +1097,23 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	int getUsersCount(PerunSession perunSession) throws InternalErrorException;
+
+	/**
+	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 *
+	 * This method consumes optional parameters map. Requirements are implementation-dependant
+	 * for each login-namespace.
+	 *
+	 * Returns map with
+	 * 1: key=login-namespace attribute urn, value=generated login
+	 * 2: rest of opt response attributes...
+	 *
+	 * @param session
+	 * @param namespace Namespace to generate account in
+	 * @param parameters Optional parameters
+	 * @return Map of data from backed response
+	 * @throws InternalErrorException
+	 */
+	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException;
+
 }

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
@@ -10,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public enum UsersManagerMethod implements ManagerMethod {
 
@@ -1141,7 +1143,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
 	 *
-	 * @param UserExtSource int UserExtSource <code>id</code>
+	 * @param userExtSource int UserExtSource <code>id</code>
 	 */
 	updateUserExtSourceLastAccess {
 
@@ -1153,5 +1155,33 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 			return null;
 		}
+	},
+
+	/*#
+	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 *
+	 * This method consumes optional parameters map. Requirements are implementation-dependant
+	 * for each login-namespace.
+	 *
+	 * Returns map with
+	 * 1: key=login-namespace attribute urn, value=generated login
+	 * 2: rest of opt response attributes...
+	 *
+	 * @param namespace String
+	 * @param parameters Map
+	 *
+	 * @return Map<String, String> Map of data from backed response
+	 * @throws InternalErrorException
+	 */
+	generateAccount {
+
+		@Override
+		public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			return ac.getUsersManager().generateAccount(ac.getSession(),
+					parms.readString("namespace"),
+					parms.read("parameters", HashMap.class));
+		}
+
 	};
 }
