@@ -121,7 +121,7 @@ public class GroupSettingsTabItem implements TabItem, TabItemWithUrl {
 		ids.put("group", groupId);
 
 		// define GET ATTRIBUTES callback
-		final GetAttributesV2 jsonCallback = new GetAttributesV2();
+		final GetAttributesV2 jsonCallback = new GetAttributesV2(true);
 		jsonCallback.setIds(ids);
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) jsonCallback.setCheckable(false);
 		final CellTable<Attribute> table = jsonCallback.getEmptyTable();

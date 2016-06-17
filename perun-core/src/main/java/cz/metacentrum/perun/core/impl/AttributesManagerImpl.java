@@ -1200,7 +1200,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("mem") + " from attr_names " +
 					"left join   member_resource_attr_values mem    on id=mem.attr_id and mem.resource_id=? and member_id=? " +
 					"where attr_name=?",
-					new AttributeRowMapper(sess, this, null), resource.getId(), member.getId(), attributeName);
+					new AttributeRowMapper(sess, this, resource, member), resource.getId(), member.getId(), attributeName);
 
 
 		} catch(EmptyResultDataAccessException ex) {
