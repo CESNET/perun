@@ -69,11 +69,19 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 
 	private boolean editable = true;
 	private boolean checkable = true;
+	private boolean ownClear = false;
 
 	/**
 	 * Creates new instance of callback
 	 */
 	public GetAttributesV2() {}
+
+	/**
+	 * Creates new instance of callback
+	 */
+	public GetAttributesV2(boolean ownClear) {
+		this.ownClear = ownClear;
+	}
 
 	/**
 	 * Creates new instance of callback
@@ -450,7 +458,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 	public void onFinished(JavaScriptObject jso) {
 		loaderImage.loadingFinished();
 		friendlyTable.clear();
-		clearTable();
+		if (!ownClear) clearTable();
 		int counter = 0;
 		for (Attribute a : JsonUtils.<Attribute>jsoAsList(jso)) {
 			if (!a.getDefinition().equals("core")) {
@@ -481,7 +489,7 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 	}
 
 	public void setList(ArrayList<Attribute> list) {
-		clearTable();
+		if (!ownClear) clearTable();
 		this.list.addAll(list);
 		dataProvider.flush();
 		dataProvider.refresh();

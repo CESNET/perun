@@ -92,7 +92,7 @@ public class MemberSettingsTabItem implements TabItem {
 		menu.addWidget(UiElements.getRefreshButton(this));
 
 		// callbacks
-		final GetAttributesV2 callback = new GetAttributesV2();
+		final GetAttributesV2 callback = new GetAttributesV2(true);
 		if (!session.isVoAdmin(member.getVoId()) && !session.isGroupAdmin(groupId)) {
 			callback.setCheckable(false);
 		}
