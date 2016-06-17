@@ -187,7 +187,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return attribute;
 		}
 	};
-	
+
 	/*
 	 * This rowMapper is only for getting attribute values (value and valueText)
 	 */
@@ -219,7 +219,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				// WHEN CHECK FAILS TRY TO READ AS POSTGRES
 					valueText = rs.getString("attr_value_text");
 			}
-			
+
 			value = rs.getString("attr_value");
 
 			if(valueText != null) return valueText;
@@ -782,7 +782,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws InternalErrorException {
 		try {
 			//member-group attributes, member core attributes
@@ -1077,7 +1077,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			return jdbc.queryForObject("select attr_value, attr_value_text from entityless_attr_values where subject=? and attr_id=? for update", ATTRIBUTE_VALUES_MAPPER, key, attrId);
@@ -1090,7 +1090,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws  InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("enattr") + " from attr_names " +
@@ -2801,7 +2801,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 											ps.setString(2, key);
 											ps.setInt(3, attribute.getId());
 											ps.setString(4, key);
-											
+
 											try {
 												lobCreator.setClobAsString(ps, 5, BeansUtils.attributeValueToString(attribute));
 												ps.setString(6, sess.getPerunPrincipal().getActor());
@@ -3204,7 +3204,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds) throws InternalErrorException {
 		try {
 			List<String> namespace = new ArrayList();
@@ -3212,12 +3212,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			namespace.add(AttributesManager.NS_RESOURCE_ATTR_CORE);
 			namespace.add(AttributesManager.NS_RESOURCE_ATTR_OPT);
 			namespace.add(AttributesManager.NS_RESOURCE_ATTR_VIRT);
-			
+
 			MapSqlParameterSource parameters = new MapSqlParameterSource();
 			parameters.addValue("serviceIds", serviceIds);
 			parameters.addValue("resourceId", resource.getId());
 			parameters.addValue("namespace", namespace);
-			
+
 			return this.namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("resource_attr_values") + " from attr_names "
 					+ "join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id in (:serviceIds) "
 					+ "left join resource_attr_values on id=resource_attr_values.attr_id and resource_attr_values.resource_id=:resourceId "
@@ -3337,6 +3337,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		private final PerunSession sess;
 		private final AttributesManagerImpl attributesManager;
 		private final List<Member> members;
+		private final Resource resource;
 
 		/**
 		 * Sets up parameters for data extractor
@@ -3349,6 +3350,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			this.sess = sess;
 			this.attributesManager = attributesManager;
 			this.members = members;
+			this.resource = null;
+		}
+
+		/**
+		 * Sets up parameters for data extractor
+		 * For memberResource attributes we need also know the resource.
+		 *
+		 * @param sess perun session
+		 * @param attributesManager attribute manager
+		 * @param resource resource for member resource attributes
+		 * @param members list of members
+		 */
+		public MemberAttributeExtractor(PerunSession sess, AttributesManagerImpl attributesManager, Resource resource, List<Member> members) {
+			this.sess = sess;
+			this.attributesManager = attributesManager;
+			this.members = members;
+			this.resource = resource;
 		}
 
 		public HashMap<Member, List<Attribute>> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -3371,8 +3389,12 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					memAttrs = new ArrayList<>();
 					map.put(mem, memAttrs);
 				}
-
-				AttributeRowMapper attributeRowMapper = new AttributeRowMapper(sess, attributesManager, mem);
+				AttributeRowMapper attributeRowMapper;
+				if(resource != null) {
+					attributeRowMapper = new AttributeRowMapper(sess, attributesManager, resource, mem);
+				} else {
+					attributeRowMapper = new AttributeRowMapper(sess, attributesManager, mem);
+				}
 				Attribute attribute = attributeRowMapper.mapRow(rs, rs.getRow());
 
 				if (attribute != null) {
@@ -3448,7 +3470,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 							"JOIN members ON " + BeansUtils.prepareInSQLClause("members.id", members) +
 							"LEFT JOIN member_resource_attr_values mem ON attr_names.id=mem.attr_id AND mem.resource_id=? " +
 							"AND mem.member_id=members.id WHERE namespace IN (?,?,?)",
-					new MemberAttributeExtractor(sess, this, members), service.getId(), resource.getId(),
+					new MemberAttributeExtractor(sess, this, resource, members), service.getId(), resource.getId(),
 					AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT, AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -3939,7 +3961,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(ex);
 		}
 	}
-	
+
 	public boolean removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from facility_attr_values where attr_id=? and facility_id=?", attribute.getId(), facility.getId())) {
@@ -4823,7 +4845,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			Object attributeModule = getAttributesModule(sess, moduleName);
 			if(attributeModule != null) return attributeModule;
 		}
-		
+
 		//if specific module not exists or attribute has no parameter, find the common one
 		moduleName = attributeNameToModuleName(attribute.getNamespace() + ":" + attribute.getBaseFriendlyName());
 		Object attributeModule = getAttributesModule(sess, moduleName);
