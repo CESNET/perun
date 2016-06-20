@@ -26,6 +26,20 @@ public class Candidate extends User {
 	public Candidate() {
 	}
 
+	//Special constructor to get candidate from user
+	public Candidate(User user, UserExtSource userExtSource) {
+		if(user != null) {
+			this.setFirstName(user.getFirstName());
+			this.setLastName(user.getLastName());
+			this.setMiddleName(user.getMiddleName());
+			this.setTitleAfter(user.getTitleAfter());
+			this.setTitleBefore(user.getTitleBefore());
+			this.setServiceUser(user.isServiceUser());
+			this.setSponsoredUser(user.isSponsoredUser());
+		}
+		this.userExtSource = userExtSource;
+	}
+
 	public Candidate(UserExtSource userExtSource, Map<String, String> attributes) {
 		this();
 		this.userExtSource = userExtSource;
