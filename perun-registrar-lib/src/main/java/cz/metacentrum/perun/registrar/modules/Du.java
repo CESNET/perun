@@ -99,18 +99,15 @@ public class Du implements RegistrarModule {
 
 		}
 
-		throw new CantBeApprovedException("User is not active academia member or submitted his registration using non-academic identity. Please reject this application and let user know that he has to use different identity to log-in to registration interface.");
+		throw new CantBeApprovedException("User is not active academia member", "NOT_ACADEMIC", category, affiliation);
 
 	}
 
 	@Override
-	public void canBeApproved(PerunSession session, Application app) throws CantBeApprovedException {
-		try {
-			beforeApprove(session, app);
-		} catch (PerunException ex) {
-			if (ex instanceof CantBeApprovedException) throw (CantBeApprovedException) ex;
-			throw new CantBeApprovedException(ex.getMessage(), ex);
-		}
+	public void canBeApproved(PerunSession session, Application app) throws PerunException {
+
+		beforeApprove(session, app);
+
 	}
 
 }

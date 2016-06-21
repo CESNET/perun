@@ -65,6 +65,6 @@ public interface RegistrarModule {
 	 * @param session who approves the application
 	 * @param app application
 	 */
-	void canBeApproved(PerunSession session, Application app) throws CantBeApprovedException;
+	void canBeApproved(PerunSession session, Application app) throws PerunException;
 
 }

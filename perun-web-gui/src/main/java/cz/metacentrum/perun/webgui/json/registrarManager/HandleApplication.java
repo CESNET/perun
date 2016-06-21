@@ -201,7 +201,15 @@ public class HandleApplication {
 					FlexTable layout = new FlexTable();
 
 					layout.setWidget(0, 0, new HTML("<p>" + new Image(LargeIcons.INSTANCE.errorIcon())));
-					layout.setHTML(0, 1, "<p>" + error.getErrorInfo() + "<p>If needed, you can override above restriction by clicking 'Approve' button again.");
+
+					if ("NOT_ACADEMIC".equals(error.getReason())) {
+						layout.setHTML(0, 1, "<p>User is not active academia member and application shouldn't be approved.<p><b>LoA:</b> " + app.getExtSourceLoa() +
+								"</br><b>IdP category:</b> " + (!(error.getCategory().equals("")) ? error.getCategory() : "N/A") +
+								"</br><b>Affiliation:</b> " + (!(error.getAffiliation().equals("")) ? error.getAffiliation().replace(";", ", ") : "N/A") +
+								"<p>You can try to override above restriction by clicking 'Approve' button again.");
+					} else {
+						layout.setHTML(0, 1, "<p>" + error.getErrorInfo() + "<p>You can try to override this restriction by clicking 'Approve anyway' button again.");
+					}
 
 					layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
 					layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
@@ -223,7 +231,7 @@ public class HandleApplication {
 						}
 					}, true);
 
-					c.setOkButtonText("Approve");
+					c.setOkButtonText("Approve anyway");
 					c.setNonScrollable(true);
 					c.show();
 

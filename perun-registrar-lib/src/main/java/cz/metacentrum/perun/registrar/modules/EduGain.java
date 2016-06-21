@@ -64,7 +64,7 @@ public class EduGain implements RegistrarModule {
 	}
 
 	@Override
-	public void canBeApproved(PerunSession session, Application app) throws CantBeApprovedException {
+	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 
 	}
 

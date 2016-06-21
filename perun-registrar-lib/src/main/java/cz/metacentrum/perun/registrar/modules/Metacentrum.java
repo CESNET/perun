@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.exceptions.CantBeApprovedException;
-import cz.metacentrum.perun.registrar.exceptions.RegistrarException;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import org.slf4j.Logger;
@@ -73,72 +72,62 @@ public class Metacentrum implements RegistrarModule {
 	}
 
 	@Override
-	public void canBeApproved(PerunSession session, Application app) throws CantBeApprovedException {
+	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 
-		try {
+		// allow only Education & Research community members
 
-			// allow only Education & Research community members to
-			if (Application.AppType.EXTENSION.equals(app.getType())) {
+		// allow hostel with loa=2
+		if (Objects.equals(app.getExtSourceName(), "https://idp.hostel.eduid.cz/idp/shibboleth") &&
+				app.getExtSourceLoa() == 2) return;
 
-				// allow hostel with loa=2
-				if (Objects.equals(app.getExtSourceName(), "https://idp.hostel.eduid.cz/idp/shibboleth") &&
-						app.getExtSourceLoa() == 2) return;
+		List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
 
-				List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
+		String category = "";
+		String affiliation = "";
 
-				String category = "";
-				String affiliation = "";
-
-				for (ApplicationFormItemData item : data) {
-					if (item.getFormItem() != null && Objects.equals("md_entityCategory", item.getFormItem().getFederationAttribute())) {
-						if (item.getValue() != null && !item.getValue().trim().isEmpty()) {
-							category = item.getValue();
-							break;
-						}
-					}
+		for (ApplicationFormItemData item : data) {
+			if (item.getFormItem() != null && Objects.equals("md_entityCategory", item.getFormItem().getFederationAttribute())) {
+				if (item.getValue() != null && !item.getValue().trim().isEmpty()) {
+					category = item.getValue();
+					break;
 				}
+			}
+		}
 
-				for (ApplicationFormItemData item : data) {
-					if (item.getFormItem() != null && Objects.equals("affiliation", item.getFormItem().getFederationAttribute())) {
-						if (item.getValue() != null && !item.getValue().trim().isEmpty()) {
-							affiliation = item.getValue();
-							break;
-						}
-					}
+		for (ApplicationFormItemData item : data) {
+			if (item.getFormItem() != null && Objects.equals("affiliation", item.getFormItem().getFederationAttribute())) {
+				if (item.getValue() != null && !item.getValue().trim().isEmpty()) {
+					affiliation = item.getValue();
+					break;
 				}
+			}
+		}
 
-				switch (category) {
-					case "university": {
-						if (affiliation.contains("employee@") ||
-								affiliation.contains("faculty@") ||
-								affiliation.contains("member@") ||
-								affiliation.contains("student@") ||
-								affiliation.contains("staff@"))
-							return;
-					}
-					case "avcr": {
-						if (affiliation.contains("member@")) return;
-					}
-					case "library": {
-						if (affiliation.contains("employee@")) return;
-					}
-					case "hospital": {
-						if (affiliation.contains("employee@")) return;
-					}
-					case "other": {
-						if (affiliation.contains("employee@") || affiliation.contains("member@")) return;
-					}
-
-				}
-
-				throw new CantBeApprovedException("User is not active academia member or submitted his registration using non-academic identity. Please reject this application and let user know that he has to use different identity to log-in to registration interface.");
-
+		switch (category) {
+			case "university": {
+				if (affiliation.contains("employee@") ||
+						affiliation.contains("faculty@") ||
+						affiliation.contains("member@") ||
+						affiliation.contains("student@") ||
+						affiliation.contains("staff@"))
+					return;
+			}
+			case "avcr": {
+				if (affiliation.contains("member@")) return;
+			}
+			case "library": {
+				if (affiliation.contains("employee@")) return;
+			}
+			case "hospital": {
+				if (affiliation.contains("employee@")) return;
+			}
+			case "other": {
+				if (affiliation.contains("employee@") || affiliation.contains("member@")) return;
 			}
 
-		} catch (Exception ex) {
-			if (ex instanceof CantBeApprovedException) throw (CantBeApprovedException) ex;
-			throw new CantBeApprovedException(ex.getMessage(), ex);
 		}
+
+		throw new CantBeApprovedException("User is not active academia member", "NOT_ACADEMIC", category, affiliation);
 
 	}
 
