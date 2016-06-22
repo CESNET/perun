@@ -4,17 +4,17 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
-import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Base64.Encoder;
+import java.text.Normalizer;
 import java.util.List;
 
 /**
@@ -51,18 +51,18 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 		if (Application.AppType.INITIAL.equals(app.getType())) {
 			
 			// get perun from session
-			Perun perun = session.getPerun();
+			PerunBl perun = (PerunBl) session.getPerun();
 
 			User user = app.getUser();
 			// Get user login
-			String login = (String) perun.getAttributesManager().getAttribute(session, user, LOGINATTRIBUTE).getValue();
+			String login = (String) perun.getAttributesManagerBl().getAttribute(session, user, LOGINATTRIBUTE).getValue();
 			// Create ELIXIR login from user login and scope
 			String elixirLogin = login + ELIXIRSCOPE;
 			
 			// Get user displayName
-			String utfDisplayName = (String) perun.getAttributesManager().getAttribute(session, user, DISPLAYNAMEATTRIBUTE).getValue();
-			// Convert to ASCII only
-			String displayName = Utils.utftoasci(utfDisplayName);
+			String utfDisplayName = (String) perun.getAttributesManagerBl().getAttribute(session, user, DISPLAYNAMEATTRIBUTE).getValue();
+			// Remove all accents
+			String displayName = Normalizer.normalize(utfDisplayName, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 			
 			// Compute hash
 			MessageDigest md;
@@ -79,8 +79,7 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			} 
 			
 			byte[] digest = md.digest();
-			Encoder enc = Base64.getEncoder();
-			String hash = enc.encodeToString(digest);
+			String hash = Base64.encodeBase64String(digest);
 			// Get just first 16 bytes as is described in EU CILogon - RCauth.eu CA requirements
 			String CILogonHash = hash.substring(0, 16);
 			
@@ -88,14 +87,13 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			String dn = DNPREFIX + displayName + " " + CILogonHash;
 
 			// Store the userExtSource
-			ExtSource extSource = perun.getExtSourcesManager().getExtSourceByName(session, CADN);
-		
-			// TODO This must be run under perunBL, user doesn't have rights to create an extSource
-			perun.getExtSourcesManager().checkOrCreateExtSource(session, CADN, ExtSourcesManager.EXTSOURCE_X509);
+			ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(session, CADN);
+
+			perun.getExtSourcesManagerBl().checkOrCreateExtSource(session, CADN, ExtSourcesManager.EXTSOURCE_X509);
 				
 			UserExtSource userExtSource = new UserExtSource(extSource, dn);
 			try {
-				perun.getUsersManager().addUserExtSource(session, user, userExtSource);
+				perun.getUsersManagerBl().addUserExtSource(session, user, userExtSource);
 			} catch (UserExtSourceExistsException e) {
 				// This can happen, so we can ignore it.
 			}
