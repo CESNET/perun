@@ -1230,4 +1230,35 @@ public class Utils {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * Convert input string (expected UTF-8) to ASCII if possible.
+	 * Any non-ASCII character is replaced by replacement parameter.
+	 *
+	 * @param input String to convert from UTF-8 to ASCII.
+	 * @param replacement Replacement character used for all non-ASCII chars in input.
+	 * @return converted string from ascii to something near utf
+	 */
+	public synchronized static String toASCII(String input, Character replacement) {
+
+		String normalizedOutput = "";
+
+		// take unicode characters one by one and normalize them
+		for ( int i=0; i<input.length(); i++ ) {
+			char c = input.charAt(i);
+			// normalize a single unicode character, then remove every non-ascii symbol (like accents)
+			String normalizedChar = Normalizer.normalize(String.valueOf(c) , Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+
+			if ( ! normalizedChar.isEmpty() ) {
+				// if there is a valid ascii representation, use it
+				normalizedOutput += normalizedChar;
+			} else {
+				// otherwise replace character with an "replacement"
+				normalizedOutput += replacement;
+			}
+		}
+		return normalizedOutput;
+
+	}
+
 }

@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
+import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
@@ -12,18 +13,27 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.Normalizer;
 import java.util.List;
 
 /**
  * Application module for ELIXIR purpose
  * 
  * @author Michal Prochazka
+ * @author Pavel Zlámal
+ * @author Tamás Balogh
+ * @see <a href="https://rcauth.eu/policy">https://rcauth.eu/policy</a>
  * 
  * Module which generates userExtSource containing generated DN for ELIXIR CILogon service. 
- * More details are available at https://wiki.geant.org/display/AARC/RCauth.eu-CILogon-like-TTS-pilot 
+ * More details are available at https://wiki.geant.org/display/AARC/RCauth.eu-CILogon-like-TTS-pilot
+ *
+ * Implementation must be kept in sync with: https://github.com/ttomttom/aarc-delegation-server/blob/master/src/main/java/org/delegserver/oauth2/generator/DNGenerator.java#L483
  */
 public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 
@@ -34,6 +44,9 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 	final static String DISPLAYNAMEATTRIBUTE = "urn:perun:user:attribute-def:def:displayName";
 	final static String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=elixir-europe.org/CN=";
 	final static String CADN = "/DC=eu/DC=rcauth/O=Certification Authorities/CN=Research and Collaboration Authentication Pilot G1 CA";
+
+	public static String RDN_TRUNCATE_SIGN = "...";
+	public static int RDN_MAX_SIZE = 64;
 
 	@Override
 	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
@@ -61,9 +74,10 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			
 			// Get user displayName
 			String utfDisplayName = (String) perun.getAttributesManagerBl().getAttribute(session, user, DISPLAYNAMEATTRIBUTE).getValue();
-			// Remove all accents
-			String displayName = Normalizer.normalize(utfDisplayName, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-			
+			// Remove all non-ascii chars and replace them for "X"
+			String displayName = Utils.toASCII(utfDisplayName, "X".charAt(0));
+			displayName = truncate(displayName, RDN_MAX_SIZE);
+
 			// Compute hash
 			MessageDigest md;
 			try {
@@ -106,6 +120,53 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 	@Override
 	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
 		return app;
+	}
+
+
+	/**
+	 * Implementation of the general truncating rule outlined in the RCauth Policy Document
+	 * ( https://rcauth.eu/policy ) in section 3.1.2. It takes an RDN as input and checks its
+	 * UTF-8 encoded byte size. In case it's larger than the size provided in the parameters,
+	 * the RDN will get truncated to 61 UTF-8 bytes (or less in case the bordering byte is
+	 * in the middle of a UTF-8 character definition) with RDN_TRUNCATE_SIGN appended to the
+	 * end.
+	 *
+	 * @param rdn Input RDN to be truncated in case it's too large
+	 * @param size The size to which the RDN should be truncated. This value defaults to
+	 * RDN_MAX_SIZE (64 bytes) in case the size provided is less then or equal to 0
+	 * @return Truncated RDN
+	 */
+	protected String truncate(String rdn, int size) {
+
+		if ( size <= 0 ) {
+			size = RDN_MAX_SIZE;
+		}
+
+		Charset defaultCharset = Charset.forName("UTF-8");
+
+		// only truncate if the RDN exceeds the maximum allowed size
+		if ( rdn.getBytes(defaultCharset).length > size ) {
+
+			int truncatedSize = size - RDN_TRUNCATE_SIGN.getBytes(defaultCharset).length;
+
+			CharsetDecoder cd = defaultCharset.newDecoder();
+			byte[] sba = rdn.getBytes(defaultCharset);
+
+			// Ensure truncating by having byte buffer = DB_FIELD_LENGTH
+			ByteBuffer bb = ByteBuffer.wrap(sba, 0, truncatedSize); // len in [B]
+			CharBuffer cb = CharBuffer.allocate(truncatedSize); // len in [char] <= # [B]
+
+			// Ignore an incomplete character
+			cd.onMalformedInput(CodingErrorAction.IGNORE);
+			cd.decode(bb, cb, true);
+			cd.flush(cb);
+
+			rdn = new String(cb.array(), 0, cb.position()) + RDN_TRUNCATE_SIGN;
+
+		}
+
+		return rdn;
+
 	}
 
 }
