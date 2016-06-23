@@ -41,7 +41,6 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 	
 	final static String ELIXIRSCOPE = "@elixir-europe.org";
 	final static String LOGINATTRIBUTE = "urn:perun:user:attribute-def:def:login-namespace:elixir";
-	final static String DISPLAYNAMEATTRIBUTE = "urn:perun:user:attribute-def:def:displayName";
 	final static String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=elixir-europe.org/CN=";
 	final static String CADN = "/DC=eu/DC=rcauth/O=Certification Authorities/CN=Research and Collaboration Authentication Pilot G1 CA";
 
@@ -71,9 +70,9 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			String login = (String) perun.getAttributesManagerBl().getAttribute(session, user, LOGINATTRIBUTE).getValue();
 			// Create ELIXIR login from user login and scope
 			String elixirLogin = login + ELIXIRSCOPE;
-			
+
 			// Get user displayName
-			String utfDisplayName = (String) perun.getAttributesManagerBl().getAttribute(session, user, DISPLAYNAMEATTRIBUTE).getValue();
+			String utfDisplayName = user.getCommonName();
 			// Remove all non-ascii chars and replace them for "X"
 			String displayName = Utils.toASCII(utfDisplayName, "X".charAt(0));
 			displayName = truncate(displayName, RDN_MAX_SIZE);
