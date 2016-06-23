@@ -1167,6 +1167,47 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				kerberosLoginsAttr.setValue(kerberosLogins);
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
 
+			} else if (loginNamespace.equals("ics.muni.cz")) {
+
+				List<String> kerberosLogins = new ArrayList<String>();
+
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ICS.MUNI.CZ");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@ICS.MUNI.CZ");
+				ues.setLoa(0);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+					kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+				// Store also Kerberos logins
+				Attribute kerberosLoginsAttr;
+				try {
+					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+					}
+				} catch (AttributeNotExistsException e) {
+					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				}
+				kerberosLoginsAttr.setValue(kerberosLogins);
+				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+			} else if (loginNamespace.equals("mu")) {
+
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp2.ics.muni.cz/idp/shibboleth");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@muni.cz");
+				ues.setLoa(2);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
