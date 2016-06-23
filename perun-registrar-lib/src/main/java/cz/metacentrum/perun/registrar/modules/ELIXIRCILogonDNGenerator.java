@@ -100,9 +100,7 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			String dn = DNPREFIX + displayName + " " + CILogonHash;
 
 			// Store the userExtSource
-			ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(session, CADN);
-
-			perun.getExtSourcesManagerBl().checkOrCreateExtSource(session, CADN, ExtSourcesManager.EXTSOURCE_X509);
+			ExtSource extSource = perun.getExtSourcesManagerBl().checkOrCreateExtSource(session, CADN, ExtSourcesManager.EXTSOURCE_X509);
 				
 			UserExtSource userExtSource = new UserExtSource(extSource, dn);
 			try {
