@@ -1184,21 +1184,14 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		PasswordManagerModule module = getPasswordManagerModule(session, namespace);
 		if (module != null) {
-			return module.generateAccount(session, namespace, parameters);
+			return module.generateAccount(session, parameters);
 		}
 		return null;
 
 	}
 
-	/**
-	 * Return instance of PasswordManagerModule for specified namespace or throw exception.
-	 *
-	 * @param session
-	 * @param namespace Namespace to get PWDMGR module.
-	 * @return
-	 * @throws InternalErrorException
-	 */
-	private PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
+	@Override
+	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
 
 		if (namespace == null || namespace.isEmpty()) throw new InternalErrorException("Login-namespace to get password manager module must be specified.");
 

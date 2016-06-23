@@ -11,6 +11,7 @@ import java.util.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1313,8 +1314,60 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param password
 	 * @throws InternalErrorException
 	 */
-	protected void managePassword(PerunSession sess, String operation, String userLogin, String loginNamespace, String password)
-		throws InternalErrorException {
+	protected void managePassword(PerunSession sess, String operation, String userLogin, String loginNamespace, String password) throws InternalErrorException {
+
+		// If new PWDMGR module exists, use-it
+		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
+		if (module != null) {
+
+			if (operation.equals(PASSWORD_RESERVE)) {
+				try {
+					module.reservePassword(sess, userLogin, password);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordCreationFailedRuntimeException("Password creation failed for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+			if (operation.equals(PASSWORD_RESERVE_RANDOM)) {
+				try {
+					module.reserveRandomPassword(sess, userLogin);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordCreationFailedRuntimeException("Password creation failed for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+			if (operation.equals(PASSWORD_CHECK)) {
+				try {
+					module.checkPassword(sess, userLogin, password);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordDoesntMatchRuntimeException("Old password doesn't match for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+			if (operation.equals(PASSWORD_VALIDATE)) {
+				module.validatePassword(sess, userLogin);
+				return;
+			}
+			if (operation.equals(PASSWORD_CHANGE)) {
+				try {
+					module.changePassword(sess, userLogin, password);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordChangeFailedRuntimeException("Password change failed for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+			if (operation.equals(PASSWORD_DELETE)) {
+				try {
+					module.deletePassword(sess, userLogin);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordDeletionFailedRuntimeException("Password deletion failed for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+
+		}
+
+		// use good old way
 
 		// Check validity of original password
 		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getPropertyFromConfiguration("perun.passwordManager.program"),
@@ -1798,6 +1851,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
 		return getUsersManagerImpl().generateAccount(session, namespace, parameters);
+	}
+
+	private PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
+		return getUsersManagerImpl().getPasswordManagerModule(session, namespace);
 	}
 
 }

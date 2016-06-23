@@ -4,9 +4,9 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
+import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
@@ -14,8 +14,12 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.usersManager.ChangePassword;
 import cz.metacentrum.perun.webgui.json.usersManager.CreatePassword;
+import cz.metacentrum.perun.webgui.json.usersManager.GenerateAccount;
+import cz.metacentrum.perun.webgui.json.usersManager.SetLogin;
+import cz.metacentrum.perun.webgui.model.BasicOverlayType;
 import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -26,6 +30,7 @@ import cz.metacentrum.perun.webgui.widgets.ExtendedPasswordBox;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -52,8 +57,8 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 	 */
 	public enum Actions {
 		CREATE,
-			DELETE,
-			CHANGE
+		DELETE,
+		CHANGE
 	};
 
 	/**
@@ -212,6 +217,11 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 		changeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 
+				if ("mu".equals(namespace) && !JsonUtils.checkParseInt(login)) {
+					UiElements.generateAlert("Operation not supported",
+							"Password change/reset is not supported for non-numeric logins (UČO).");
+				}
+
 				if (session.isPerunAdmin() || user.isServiceUser()) {
 					if (!validator.validateTextBox() && !validator2.validateTextBox()) return;
 					ChangePassword changepw = new ChangePassword(JsonCallbackEvents.closeTabDisableButtonEvents(changeButton, tab), false);
@@ -232,16 +242,66 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 
 		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent clickEvent) {
+
 				if (validator.validateTextBox() && validator2.validateTextBox()) {
-					CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-					create.createPassword(userId, login, namespace, newPass.getTextBox().getValue().trim());
+
+					if ("mu".equals(namespace)) {
+
+						final GenerateAccount generateAccount = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+
+								BasicOverlayType basic = jso.cast();
+								final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
+
+								SetLogin setLogin = new SetLogin(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+									@Override
+									public void onFinished(JavaScriptObject jso) {
+
+										UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
+
+										// VALIDATE PASSWORD - SET EXT SOURCES
+										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+										req.validateAndSetUserExtSources(user.getId(), login, namespace);
+
+									}
+								}));
+								setLogin.setLogin(user.getId(), "mu", login);
+
+							}
+
+						}));
+
+						final Map<String, String> params = new HashMap<String, String>();
+						GetEntityById get = new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, user.getId(), JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								User usr = jso.cast();
+
+								params.put("urn:perun:user:attribute-def:core:firstName", usr.getFirstName());
+								params.put("urn:perun:user:attribute-def:core:lastName", usr.getLastName());
+								params.put("urn:perun:member:attribute-def:def:mail", usr.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+								generateAccount.generateAccount(namespace, newPass.getTextBox().getValue().trim(), params);
+
+							}
+						}));
+						get.retrieveData();
+
+					} else {
+
+						// NORMAL PWD LOGIC
+						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+						create.createPassword(userId, login, namespace, newPass.getTextBox().getValue().trim());
+
+					}
 				}
 			}
 		});
 
 		deleteButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent clickEvent) {
-				Window.alert("Not yet implemented");
+				UiElements.generateAlert("Not yet implemented", "Not yet implemented");
 			}
 		});
 
@@ -259,8 +319,10 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 			layout.setHTML(row, 0, "Login:");
 			layout.setWidget(row, 1, loginLabel);
 			row++;
+
 			// perun admin doesn't need to know old password
 			// if service user, we can always change password without knowing old
+			// mu namespace can change without knowing old
 			if (!session.isPerunAdmin()) {
 				if (!user.isServiceUser()) {
 					layout.setHTML(row, 0, "Old password: ");
@@ -281,6 +343,12 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 
 			layout.setHTML(0, 0, "Namespace:");
 			layout.setWidget(0, 1, namespaceLabel);
+
+			if ("mu".equals(namespace)) {
+				loginLabel.setText("Will be generated...");
+				loginLabel.addStyleName("inputFormInlineComment");
+			}
+
 			layout.setHTML(1, 0, "Login:");
 			layout.setWidget(1, 1, loginLabel);
 			layout.setHTML(2, 0, "New password:");
@@ -288,12 +356,60 @@ public class SelfPasswordTabItem implements TabItem, TabItemWithUrl{
 			layout.setHTML(3, 0, "Retype new pass:");
 			layout.setWidget(3, 1, confPass);
 
-			final CustomButton skip = new CustomButton("Skip", SmallIcons.INSTANCE.arrowRightIcon());
+			final CustomButton skip = new CustomButton("Skip", "Will set random/empty password", SmallIcons.INSTANCE.arrowRightIcon());
 			skip.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(skip, tab));
-					create.createRandomPassword(userId, login, namespace);
+
+					if ("mu".equals(namespace)) {
+
+						final GenerateAccount generateAccount = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+
+								BasicOverlayType basic = jso.cast();
+								final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
+
+								SetLogin setLogin = new SetLogin(JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+									@Override
+									public void onFinished(JavaScriptObject jso) {
+
+										UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
+
+										// VALIDATE PASSWORD - SET EXT SOURCES
+										CreatePassword req = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+										req.validateAndSetUserExtSources(user.getId(), login, namespace);
+
+									}
+								}));
+								setLogin.setLogin(user.getId(), "mu", login);
+
+							}
+
+						}));
+
+						final Map<String, String> params = new HashMap<String, String>();
+						GetEntityById get = new GetEntityById(PerunEntity.RICH_USER_WITH_ATTRS, user.getId(), JsonCallbackEvents.disableButtonEvents(createButton, new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								User usr = jso.cast();
+
+								params.put("urn:perun:user:attribute-def:core:firstName", usr.getFirstName());
+								params.put("urn:perun:user:attribute-def:core:lastName", usr.getLastName());
+								params.put("urn:perun:member:attribute-def:def:mail", usr.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue());
+								generateAccount.generateAccount(namespace, newPass.getTextBox().getValue().trim(), params);
+
+							}
+						}));
+						get.retrieveData();
+
+					} else {
+
+						CreatePassword create = new CreatePassword(JsonCallbackEvents.closeTabDisableButtonEvents(skip, tab));
+						create.createRandomPassword(userId, login, namespace);
+
+					}
 				}
 			});
 			menu.addWidget(skip);

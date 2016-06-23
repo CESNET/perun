@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.implApi.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
 
@@ -15,16 +14,18 @@ import java.util.Map;
  */
 public interface PasswordManagerModule {
 
-	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException;
+	Map<String,String> generateAccount(PerunSession session, Map<String, String> parameters) throws InternalErrorException;
 
-	void reservePassword(PerunSession session, String userLogin, String loginNamespace, String password) throws InternalErrorException;
+	void reservePassword(PerunSession session, String userLogin, String password) throws InternalErrorException;
 
-	void reserveRandomPassword(PerunSession session, String userLogin, String loginNamespace) throws InternalErrorException;
+	void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException;
 
-	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException, LoginNotExistsException;
+	void checkPassword(PerunSession sess, String userLogin, String password) throws InternalErrorException, LoginNotExistsException;
 
-	void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException;
+	void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException, LoginNotExistsException;
 
-	void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException;
+	void validatePassword(PerunSession sess, String userLogin) throws InternalErrorException;
+
+	void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException;
 
 }

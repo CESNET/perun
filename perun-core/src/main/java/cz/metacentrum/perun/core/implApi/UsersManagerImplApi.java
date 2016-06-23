@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 
 /**
  * UsersManager can find users.
@@ -689,5 +690,15 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException;
+
+	/**
+	 * Return instance of PasswordManagerModule for specified namespace or throw exception.
+	 *
+	 * @param session
+	 * @param namespace Namespace to get PWDMGR module.
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException;
 
 }

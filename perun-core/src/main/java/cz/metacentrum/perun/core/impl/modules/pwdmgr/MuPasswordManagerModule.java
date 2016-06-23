@@ -1,20 +1,15 @@
 package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -28,11 +23,13 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -51,12 +48,13 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	private final static String CRLF = "\r\n"; // Line separator required by multipart/form-data.
 
 	@Override
-	public Map<String, String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
+	public Map<String, String> generateAccount(PerunSession session, Map<String, String> parameters) throws InternalErrorException {
 
 		try {
 			int requestID = (new Random()).nextInt(1000000) + 1;
 			InputStream response = makeCall(getGenerateAccountRequest(parameters, requestID), requestID);
-			return parseResponse(response, requestID);
+			Document document = parseResponse(response, requestID);
+			return parseUCO(document, requestID);
 		} catch (IOException e) {
 			throw new InternalErrorException(e);
 		}
@@ -64,49 +62,41 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	@Override
-	public void reservePassword(PerunSession session, String userLogin, String loginNamespace, String password) throws InternalErrorException{
+	public void reservePassword(PerunSession session, String userLogin, String password) throws InternalErrorException{
 		throw new InternalErrorException("Reserving password in login namespace 'mu' is not supported.");
 	}
 
 	@Override
-	public void reserveRandomPassword(PerunSession session, String userLogin, String loginNamespace) throws InternalErrorException {
+	public void reserveRandomPassword(PerunSession session, String userLogin) throws InternalErrorException {
 		throw new InternalErrorException("Reserving random password in login namespace 'mu' is not supported.");
 	}
 
 	@Override
-	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException, LoginNotExistsException {
+	public void checkPassword(PerunSession sess, String userLogin, String password) throws InternalErrorException, LoginNotExistsException {
+		// silently skip, since MU doesn't check old before change.
+	}
 
-		PerunBl perun = (PerunBl) sess.getPerun();
-		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
+	@Override
+	public void changePassword(PerunSession sess, String userLogin, String newPassword) throws InternalErrorException, LoginNotExistsException {
 
 		try {
-
-			Attribute attribute = perun.getAttributesManagerBl().getAttribute(sess, user, attributeName);
-
-			try {
-				int requestID = (new Random()).nextInt(1000000) + 1;
-				InputStream response = makeCall(getChangePasswordRequest((String)attribute.getValue(), oldPassword, newPassword, requestID), requestID);
-				// FIXME - handle this
-				parseResponse(response, requestID);
-			} catch (IOException e) {
-				throw new InternalErrorException(e);
-			}
-
-		} catch (AttributeNotExistsException | WrongAttributeAssignmentException e) {
-			throw new LoginNotExistsException(e);
+			int requestID = (new Random()).nextInt(1000000) + 1;
+			InputStream response = makeCall(getPwdChangeRequest(userLogin, newPassword, requestID), requestID);
+			// if error, throws exception, otherwise it's ok
+			parseResponse(response, requestID);
+		} catch (IOException e) {
+			throw new InternalErrorException(e);
 		}
 
-
-
 	}
 
 	@Override
-	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException {
-		throw new InternalErrorException("Validating password in login namespace 'mu' is not supported.");
+	public void validatePassword(PerunSession sess, String userLogin) throws InternalErrorException {
+		// silently skip, since generic code calls this but MU doesn't validate it.
 	}
 
 	@Override
-	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException {
+	public void deletePassword(PerunSession sess, String userLogin) throws InternalErrorException {
 		throw new InternalErrorException("Deleting user/password in login namespace 'mu' is not supported.");
 	}
 
@@ -194,32 +184,32 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		if (parameters != null && !parameters.isEmpty()) {
 
 			if (parameters.get("urn:perun:user:attribute-def:core:firstName") != null && !parameters.get("urn:perun:user:attribute-def:core:firstName").isEmpty())
-				params = "<jmeno>" + parameters.get("urn:perun:user:attribute-def:core:firstName") + "</jmeno>\n";
+				params += "<jmeno>" + parameters.get("urn:perun:user:attribute-def:core:firstName") + "</jmeno>\n";
 
 			if (parameters.get("urn:perun:user:attribute-def:core:lastName") != null && !parameters.get("urn:perun:user:attribute-def:core:lastName").isEmpty())
-				params = "<prijmeni>" + parameters.get("urn:perun:user:attribute-def:core:lastName") + "</prijmeni>\n";
+				params += "<prijmeni>" + parameters.get("urn:perun:user:attribute-def:core:lastName") + "</prijmeni>\n";
 
 			if (parameters.get("urn:perun:user:attribute-def:core:titleBefore") != null && !parameters.get("urn:perun:user:attribute-def:core:titleBefore").isEmpty())
-				params = "<titul_pred>" + parameters.get("urn:perun:user:attribute-def:core:titleBefore") + "</titul_pred>\n";
+				params += "<titul_pred>" + parameters.get("urn:perun:user:attribute-def:core:titleBefore") + "</titul_pred>\n";
 
 			if (parameters.get("urn:perun:user:attribute-def:core:titleAfter") != null && !parameters.get("urn:perun:user:attribute-def:core:titleAfter").isEmpty())
-				params = "<titul_za>" + parameters.get("urn:perun:user:attribute-def:core:titleAfter") + "</titul_za>\n";
+				params += "<titul_za>" + parameters.get("urn:perun:user:attribute-def:core:titleAfter") + "</titul_za>\n";
 
 			if (parameters.get("urn:perun:user:attribute-def:def:birthDay") != null && !parameters.get("urn:perun:user:attribute-def:def:birthDay").isEmpty())
-				params = "<datum_narozeni>" + parameters.get("urn:perun:user:attribute-def:def:birthDay") + "</datum_narozeni>\n";
+				params += "<datum_narozeni>" + parameters.get("urn:perun:user:attribute-def:def:birthDay") + "</datum_narozeni>\n";
 
 			if (parameters.get("urn:perun:user:attribute-def:def:rc") != null && !parameters.get("urn:perun:user:attribute-def:def:rc").isEmpty())
-				params = "<rodne_cislo>" + parameters.get("urn:perun:user:attribute-def:def:rc") + "</rodne_cislo>\n";
+				params += "<rodne_cislo>" + parameters.get("urn:perun:user:attribute-def:def:rc") + "</rodne_cislo>\n";
 
 			if (parameters.get("urn:perun:member:attribute-def:def:mail") != null && !parameters.get("urn:perun:member:attribute-def:def:mail").isEmpty())
-				params = "<email>" + parameters.get("urn:perun:member:attribute-def:def:mail") + "</email>\n";
+				params += "<email>" + parameters.get("urn:perun:member:attribute-def:def:mail") + "</email>\n";
 
 			if (parameters.get("password") != null && !parameters.get("password").isEmpty())
-				params = "<heslo>" + parameters.get("password") + "</heslo>\n";
+				params += "<heslo>" + parameters.get("password") + "</heslo>\n";
 
 		}
 
-		return	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+		return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
 				"<request>\n" +
 				"<osoba reqid=\"" + requestID + "\">\n" +
 				"<uco></uco>\n" +
@@ -234,17 +224,16 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	 * Generate XML request body from passed parameters in order to change/reset password.
 	 *
 	 * @param login
-	 * @param oldPassword
 	 * @param newPassword
 	 * @param requestID unique ID of a request
 	 * @return XML request body
 	 */
-	private String getChangePasswordRequest(String login, String oldPassword, String newPassword, int requestID) {
+	private String getPwdChangeRequest(String login, String newPassword, int requestID) {
 
 		log.debug("Making request with ID: " + requestID + " to IS MU.");
 
 		String params = "";
-		if (newPassword != null && !newPassword.isEmpty()) params = "<heslo>" + newPassword + "</heslo>\n";
+		if (newPassword != null && !newPassword.isEmpty()) params += "<heslo>" + newPassword + "</heslo>\n";
 
 		return	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
 				"<request>\n" +
@@ -258,16 +247,49 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	}
 
 	/**
-	 * Parse XML body response from InputStream and convert it to map of parameters.
+	 * Parse UCO from XML body response and convert it to map of parameters.
 	 *
-	 * @param inputStream XML response to be parsed
+	 * @param document XML document to be parsed
 	 * @param requestID unique ID of a request
 	 * @return Map of response params
 	 * @throws InternalErrorException
 	 */
-	private Map<String, String> parseResponse(InputStream inputStream, int requestID) throws InternalErrorException {
+	private Map<String, String> parseUCO(Document document, int requestID) throws InternalErrorException {
 
 		Map<String, String> result = new HashMap<>();
+
+		//Prepare xpath expression
+		XPathFactory xPathfactory = XPathFactory.newInstance();
+		XPath xpath = xPathfactory.newXPath();
+		XPathExpression ucoExpr;
+		try {
+			ucoExpr = xpath.compile("//resp/uco/text()");
+		} catch (XPathExpressionException ex) {
+			throw new InternalErrorException("Error when compiling xpath query. Request ID: " + requestID, ex);
+		}
+
+		try {
+
+			String uco = (String) ucoExpr.evaluate(document, XPathConstants.STRING);
+			result.put("urn:perun:user:attribute-def:def:login-namespace:mu", uco);
+
+		} catch (XPathExpressionException ex) {
+			throw new InternalErrorException("Error when evaluate xpath query on resulting document for request ID: " + requestID, ex);
+		}
+
+		return result;
+
+	}
+
+	/**
+	 * Parse XML response from IS MU to XML document.
+	 *
+	 * @param inputStream Stream to be parsed to Document
+	 * @param requestID ID of request made to IS MU.
+	 * @return XML document for further processing
+	 * @throws InternalErrorException
+	 */
+	private Document parseResponse(InputStream inputStream, int requestID) throws InternalErrorException {
 
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -278,9 +300,18 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			throw new InternalErrorException("Error when creating newDocumentBuilder. Request ID: " + requestID, ex);
 		}
 
+		String response = null;
+		try {
+			response = convertStreamToString(inputStream, "UTF-8");
+		} catch (IOException ex) {
+			log.error("Unable to convert InputStream to String: {}", ex);
+		}
+
+		log.trace("Request ID: " + requestID + " Response: " + response);
+
 		Document doc;
 		try {
-			doc = builder.parse(inputStream);
+			doc = builder.parse(new InputSource(new StringReader(response)));
 		} catch (SAXParseException ex) {
 			throw new InternalErrorException("Error when parsing uri by document builder. Request ID: " + requestID, ex);
 		} catch (SAXException ex) {
@@ -294,11 +325,9 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		XPath xpath = xPathfactory.newXPath();
 		XPathExpression isErrorExpr;
 		XPathExpression getErrorTextExpr;
-		XPathExpression ucoExpr;
 		try {
-			isErrorExpr = xpath.compile("/resp/stav/text()");
-			getErrorTextExpr = xpath.compile("/resp/error/text()");
-			ucoExpr = xpath.compile("/resp/uco/text()");
+			isErrorExpr = xpath.compile("//resp/stav/text()");
+			getErrorTextExpr = xpath.compile("//resp/error/text()");
 		} catch (XPathExpressionException ex) {
 			throw new InternalErrorException("Error when compiling xpath query. Request ID: " + requestID, ex);
 		}
@@ -313,14 +342,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		if ("OK".equals(responseStatus)) {
 
-			try {
-
-				String uco = (String) ucoExpr.evaluate(doc, XPathConstants.STRING);
-				result.put("urn:perun:user:attribute-def:def:login-namespace:mu", uco);
-
-			} catch (XPathExpressionException ex) {
-				throw new InternalErrorException("Error when evaluate xpath query on resulting document for request ID: " + requestID, ex);
-			}
+			return doc;
 
 		} else {
 
@@ -333,9 +355,27 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		}
 
-		return result;
-
 	}
 
+	/**
+	 * Based on tests from: http://stackoverflow.com/questions/309424/read-convert-an-inputstream-to-a-string
+	 * Most quicker and native InputStream reading method.
+	 *
+	 * @param inputStream Input stream to convert
+	 * @param encoding encoding used to parse input stream
+	 * @return Content of inputStream as a String
+	 * @throws IOException
+	 */
+	static String convertStreamToString(InputStream inputStream, String encoding) throws IOException {
+
+		ByteArrayOutputStream result = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int length;
+		while ((length = inputStream.read(buffer)) != -1) {
+			result.write(buffer, 0, length);
+		}
+		return result.toString(encoding);
+
+	}
 
 }

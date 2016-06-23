@@ -390,9 +390,17 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
 															UiElements.generateInfo("Assigned login", "You were assigned with login <b>"+login+"</b> in namespace MU.");
 
-															// validate member when all logins are set
-															ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
-															req2.validateMemberAsync(member);
+															// VALIDATE PASSWORD - SET EXT SOURCES AND VALIDATE MEMBER
+															CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
+																@Override
+																public void onFinished(JavaScriptObject jso) {
+
+																	// validate member when all kerberos logins are set
+																	ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+																	req2.validateMemberAsync(member);
+																}
+															}));
+															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
 
 														}
 														@Override
@@ -452,18 +460,11 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 										if (namespace.getSelectedValue().equals("mu")) {
 
 											final GenerateAccount req = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
-
+												@Override
 												public void onFinished(JavaScriptObject jso) {
 
-													GWT.log("WAS HERE");
-
 													BasicOverlayType basic = jso.cast();
-
-													GWT.log("WAS HERE2");
-
 													final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
-
-													GWT.log("WAS HERE3");
 
 													SetLogin setLogin = new SetLogin(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
 														@Override
@@ -471,9 +472,17 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 
 															UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
 
-															// validate member when all logins are set
-															ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
-															req2.validateMemberAsync(member);
+															// VALIDATE PASSWORD - SET EXT SOURCES AND VALIDATE MEMBER
+															CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
+																@Override
+																public void onFinished(JavaScriptObject jso) {
+
+																	// validate member when all kerberos logins are set
+																	ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+																	req2.validateMemberAsync(member);
+																}
+															}));
+															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
 
 														}
 														@Override
