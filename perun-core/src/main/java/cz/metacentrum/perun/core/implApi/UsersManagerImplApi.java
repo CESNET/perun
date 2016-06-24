@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.implApi;
 
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -20,6 +21,7 @@ import cz.metacentrum.perun.core.api.exceptions.UserAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 
 /**
  * UsersManager can find users.
@@ -670,4 +672,33 @@ public interface UsersManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	int getUsersCount(PerunSession perunSession) throws InternalErrorException;
+
+	/**
+	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 *
+	 * This method consumes optional parameters map. Requirements are implementation-dependant
+	 * for each login-namespace.
+	 *
+	 * Returns map with
+	 * 1: key=login-namespace attribute urn, value=generated login
+	 * 2: rest of opt response attributes...
+	 *
+	 * @param session
+	 * @param namespace Namespace to generate account in
+	 * @param parameters Optional parameters
+	 * @return Map of data from backed response
+	 * @throws InternalErrorException
+	 */
+	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException;
+
+	/**
+	 * Return instance of PasswordManagerModule for specified namespace or throw exception.
+	 *
+	 * @param session
+	 * @param namespace Namespace to get PWDMGR module.
+	 * @return
+	 * @throws InternalErrorException
+	 */
+	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException;
+
 }

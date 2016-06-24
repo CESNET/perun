@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
@@ -1001,7 +1002,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) && !user.isServiceUser()) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) && !user.isSpecificUser()) {
 			throw new PrivilegeException(sess, "setLogin");
 		}
 
@@ -1095,4 +1096,19 @@ public class UsersManagerEntry implements UsersManager {
 
 		getUsersManagerBl().updateUserExtSourceLastAccess(sess, userExtSource);
 	}
+
+	@Override
+	public Map<String,String> generateAccount(PerunSession sess, String namespace, Map<String, String> parameters) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "generateAccount");
+		}
+
+		return getUsersManagerBl().generateAccount(sess, namespace, parameters);
+
+	}
+
+
 }

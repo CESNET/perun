@@ -129,7 +129,7 @@ public class CreateSpecificMember {
 			errorMsg += "Wrong <strong>Email</strong> parameter.<br />";
 			result = false;
 		}
-		if(!namespace.isEmpty() && login.isEmpty()){
+		if(!namespace.isEmpty() && !namespace.equals("mu") && login.isEmpty()){
 			errorMsg += "Wrong <strong>login-namespace</strong> parameter.<br />";
 			result = false;
 		}
@@ -157,7 +157,7 @@ public class CreateSpecificMember {
 		// attributes object !! login !!
 		JSONObject attrs = new JSONObject();
 
-		if (!namespace.isEmpty()) {
+		if (!namespace.isEmpty() && !namespace.equals("mu")) {
 			attrs.put("urn:perun:user:attribute-def:def:login-namespace:"+namespace, new JSONString(login));
 		}
 

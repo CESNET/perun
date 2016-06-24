@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
 
@@ -906,7 +907,8 @@ public interface UsersManager {
 		throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException;
 
 	/**
-	 * Allow users to manually add login in supported namespace if same login is not reserved
+	 * Allow users to manually add login in supported namespace if same login is not reserved.
+	 * Can be set only to own service or guest users => specific users.
 	 *
 	 * @param sess
 	 * @param user
@@ -1003,4 +1005,24 @@ public interface UsersManager {
 	 * @throws UserExtSourceNotExistsException
 	 */
 	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, PrivilegeException, UserExtSourceNotExistsException;
+
+	/**
+	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 *
+	 * This method consumes optional parameters map. Requirements are implementation-dependant
+	 * for each login-namespace.
+	 *
+	 * Returns map with
+	 * 1: key=login-namespace attribute urn, value=generated login
+	 * 2: rest of opt response attributes...
+	 *
+	 * @param session
+	 * @param namespace Namespace to generate account in
+	 * @param parameters Optional parameters
+	 * @return Map of data from backed response
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException, PrivilegeException;
+
 }

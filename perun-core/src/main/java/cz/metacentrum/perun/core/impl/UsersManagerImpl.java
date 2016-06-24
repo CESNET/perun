@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -1176,4 +1178,32 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		if(!userExists(sess, user)) throw new UserNotExistsException("User: " + user);
 	}
+
+	@Override
+	public Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
+
+		PasswordManagerModule module = getPasswordManagerModule(session, namespace);
+		if (module != null) {
+			return module.generateAccount(session, parameters);
+		}
+		return null;
+
+	}
+
+	@Override
+	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
+
+		if (namespace == null || namespace.isEmpty()) throw new InternalErrorException("Login-namespace to get password manager module must be specified.");
+
+		namespace = namespace.replaceAll("[^A-Za-z0-9]", "");
+		namespace = Character.toUpperCase(namespace.charAt(0)) + namespace.substring(1);
+
+		try {
+			return (PasswordManagerModule) Class.forName("cz.metacentrum.perun.core.impl.modules.pwdmgr." + namespace + "PasswordManagerModule").newInstance();
+		} catch (Exception ex) {
+			throw new InternalErrorException("Unable to instantiate password manager module.", ex);
+		}
+
+	}
+
 }

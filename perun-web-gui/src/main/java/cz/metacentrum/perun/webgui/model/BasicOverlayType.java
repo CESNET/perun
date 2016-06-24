@@ -74,8 +74,11 @@ public class BasicOverlayType extends JavaScriptObject {
 	}
 
 	public final native String getCustomProperty(String property) /*-{
-		if(typeof this[property] == "undefined") return "";
+		if (!this[property]) return "";
+		if (typeof this[property] === 'undefined') return "";
+		if (this[property] === null) return "";
 		return this[property];
 	}-*/;
+
 
 }
