@@ -71,6 +71,30 @@ public class PerunError extends JavaScriptObject {
 		return this.reason;
 	}-*/;
 
+	/**
+	 * Return IdP category for CantBeApprovedException
+	 *
+	 * @return IdP category for CantBeApprovedException
+	 */
+	public final native String getCategory() /*-{
+		if (!this.category) {
+			return "";
+		}
+		return this.category;
+	}-*/;
+
+	/**
+	 * Return users affiliation for CantBeApprovedException
+	 *
+	 * @return users affiliation for CantBeApprovedException
+	 */
+	public final native String getAffiliation() /*-{
+		if (!this.affiliation) {
+			return "";
+		}
+		return this.affiliation;
+	}-*/;
+
     public final native void setType(String type) /*-{
 		this.type = type;
 	}-*/;

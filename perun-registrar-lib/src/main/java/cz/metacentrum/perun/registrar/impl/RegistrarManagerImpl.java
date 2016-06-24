@@ -1241,6 +1241,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("User didn't verify his email address yet. Please wait until application will be in a 'Submitted' state. You can send mail verification notification to user again if you wish.");
 		}
 
+		// get registrar module
+		RegistrarModule module;
+		if (app.getGroup() != null) {
+			module = getRegistrarModule(getFormForGroup(app.getGroup()));
+		} else {
+			module = getRegistrarModule(getFormForVo(app.getVo()));
+		}
+
+		if (module != null) {
+			// call custom logic before approving
+			module.beforeApprove(sess, app);
+		}
+
 		// mark as APPROVED
 		int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?", AppState.APPROVED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
 		if (result == 0) {
@@ -1473,13 +1486,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// CONTINUE FOR BOTH APP TYPES
 
-		// call registrar module
-		RegistrarModule module;
-		if (app.getGroup() != null) {
-			module = getRegistrarModule(getFormForGroup(app.getGroup()));
-		} else {
-			module = getRegistrarModule(getFormForVo(app.getVo()));
-		}
+
 		if (module != null) {
 			module.approveApplication(sess, app);
 		}
@@ -1488,6 +1495,35 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// return updated application
 		return app;
+
+	}
+
+	@Override
+	public void canBeApproved(PerunSession session, Application application) throws PerunException {
+
+		// authz
+		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN, application.getVo())) {
+			if (application.getGroup() != null) {
+				if (!AuthzResolver.isAuthorized(session, Role.GROUPADMIN, application.getGroup())) {
+					throw new PrivilegeException(session, "canBeApproved");
+				}
+			} else {
+				throw new PrivilegeException(session, "canBeApproved");
+			}
+		}
+
+		// get registrar module
+		RegistrarModule module;
+		if (application.getGroup() != null) {
+			module = getRegistrarModule(getFormForGroup(application.getGroup()));
+		} else {
+			module = getRegistrarModule(getFormForVo(application.getVo()));
+		}
+
+		if (module != null) {
+			// call custom logic before approving
+			module.canBeApproved(session, application);
+		}
 
 	}
 
@@ -2351,6 +2387,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			try {
 				log.debug("[REGISTRAR] Attempting to instantiate class: {}", MODULE_PACKAGE_PATH + form.getModuleClassName());
 				module = (RegistrarModule) Class.forName(MODULE_PACKAGE_PATH + form.getModuleClassName()).newInstance();
+				module.setRegistrar(registrarManager);
 			} catch (Exception ex) {
 				log.error("[REGISTRAR] Exception when instantiating module: {}", ex);
 				return module;

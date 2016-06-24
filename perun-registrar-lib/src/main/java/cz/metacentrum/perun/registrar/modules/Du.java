@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.registrar.modules;
 
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
@@ -15,13 +14,13 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Module for VO Metacentrum
+ * Custom logic for all CESNET DataCenter VOs
  *
- * @author Pavel Zlamal <256627@mail.muni.cz>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class Metacentrum implements RegistrarModule {
+public class Du implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
+	final static Logger log = LoggerFactory.getLogger(Du.class);
 
 	private RegistrarManager registrar;
 
@@ -35,30 +34,9 @@ public class Metacentrum implements RegistrarModule {
 		return data;
 	}
 
-	/**
-	 * Add all new Metacentrum members to "storage" group.
-	 */
 	@Override
 	public Application approveApplication(PerunSession session, Application app) throws PerunException {
-
-		// get perun from session
-		Perun perun = session.getPerun();
-
-		if (Application.AppType.INITIAL.equals(app.getType())) {
-
-			Vo vo = app.getVo();
-			User user = app.getUser();
-			Group group = perun.getGroupsManager().getGroupByName(session, vo, "storage");
-			Member mem = perun.getMembersManager().getMemberByUser(session, vo, user);
-
-			try  {
-				perun.getGroupsManager().addMember(session, group, mem);
-			} catch (AlreadyMemberException ex) {
-
-			}
-		}
 		return app;
-
 	}
 
 	@Override
@@ -68,20 +46,14 @@ public class Metacentrum implements RegistrarModule {
 
 	@Override
 	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
-		return app;
-	}
-
-	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
-
-		// allow only Education & Research community members
-
-		// allow hostel with loa=2
-		if (Objects.equals(app.getExtSourceName(), "https://idp.hostel.eduid.cz/idp/shibboleth") &&
-				app.getExtSourceLoa() == 2) return;
 
 		List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
 
+		// if hostel with LoA = 2 => OK
+		if (Objects.equals(app.getExtSourceName(), "https://idp.hostel.eduid.cz/idp/shibboleth") &&
+				app.getExtSourceLoa() == 2) return app;
+
+		// For others check IdP attributes
 		String category = "";
 		String affiliation = "";
 
@@ -103,31 +75,38 @@ public class Metacentrum implements RegistrarModule {
 			}
 		}
 
-		switch (category) {
-			case "university": {
+		switch(category) {
+			case "university" : {
 				if (affiliation.contains("employee@") ||
 						affiliation.contains("faculty@") ||
 						affiliation.contains("member@") ||
 						affiliation.contains("student@") ||
 						affiliation.contains("staff@"))
-					return;
+					return app;
 			}
-			case "avcr": {
-				if (affiliation.contains("member@")) return;
+			case "avcr" : {
+				if (affiliation.contains("member@")) return app;
 			}
-			case "library": {
-				if (affiliation.contains("employee@")) return;
+			case "library" : {
+				if (affiliation.contains("employee@")) return app;
 			}
-			case "hospital": {
-				if (affiliation.contains("employee@")) return;
+			case "hospital" : {
+				if (affiliation.contains("employee@")) return app;
 			}
-			case "other": {
-				if (affiliation.contains("employee@") || affiliation.contains("member@")) return;
+			case "other" : {
+				if (affiliation.contains("employee@") || affiliation.contains("member@")) return app;
 			}
 
 		}
 
 		throw new CantBeApprovedException("User is not active academia member", "NOT_ACADEMIC", category, affiliation);
+
+	}
+
+	@Override
+	public void canBeApproved(PerunSession session, Application app) throws PerunException {
+
+		beforeApprove(session, app);
 
 	}
 
