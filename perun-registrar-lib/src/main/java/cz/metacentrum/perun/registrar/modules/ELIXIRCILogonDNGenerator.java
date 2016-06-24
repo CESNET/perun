@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
@@ -46,6 +47,13 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 
 	public static String RDN_TRUNCATE_SIGN = "...";
 	public static int RDN_MAX_SIZE = 64;
+
+	private RegistrarManager registrarManager;
+
+	@Override
+	public void setRegistrar(RegistrarManager registrar) {
+		this.registrarManager = registrar;
+	}
 
 	@Override
 	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
@@ -117,6 +125,15 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 	@Override
 	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
 		return app;
+	}
+
+	@Override
+	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+		return app;
+	}
+
+	@Override
+	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 	}
 
 
