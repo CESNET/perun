@@ -96,7 +96,7 @@ public class MailManagerImpl implements MailManager {
 		final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
 				ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
-		registrarSession = perun.getPerunSession(pp);
+		registrarSession = perun.getPerunSession(pp, new PerunClient());
 
 		this.attrManager = perun.getAttributesManager();
 		this.membersManager = perun.getMembersManager();

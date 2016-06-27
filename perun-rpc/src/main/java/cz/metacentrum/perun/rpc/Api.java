@@ -17,7 +17,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.JsonNode;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
@@ -62,6 +63,7 @@ public class Api extends HttpServlet {
 	private final static String PERUNSTATISTICS = "getPerunStatistics";
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
+	private final static String OIDCMANAGER = "oidcManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
 	@Override
@@ -310,6 +312,28 @@ public class Api extends HttpServlet {
 		return new PerunPrincipal(extLogin, extSourceName, extSourceType, extSourceLoa, additionalInformations);
 	}
 
+	protected PerunClient setupPerunClient(HttpServletRequest req) throws InternalErrorException, RpcException {
+
+		if (req.getHeader("OIDC_CLAIM_audience") != null && !req.getHeader("OIDC_CLAIM_audience").isEmpty()) {
+
+			String clientId = req.getHeader("OIDC_CLAIM_audience");
+
+			List<PerunClient.Scope> scopes = new ArrayList<>();
+			for (String scope : req.getHeader("OIDC_CLAIM_scopes").split(",")) {
+				try {
+					scopes.add(PerunClient.Scope.valueOf(scope.trim().toUpperCase()));
+				} catch (IllegalArgumentException e) {
+					throw new InternalErrorException("Scope "+scope.trim().toUpperCase()+" is unknown.", e);
+				}
+			}
+			return new PerunClient(clientId, scopes);
+		}
+
+		return new PerunClient();
+	}
+
+
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
@@ -430,17 +454,17 @@ public class Api extends HttpServlet {
 
 			// We have new request, so do the whole auth/authz stuff
 			if (caller == null) {
-				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				// Store the current session
 				req.getSession(true).setAttribute(APICALLER, caller);
 			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getExtSourceName(), this.getExtSourceName(req, des))) {
 				// If the user is coming from the URL protected by different authN mechanism, destroy and create session again
-				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
 			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), this.getActor(req, des)) &&
 					!caller.getSession().getPerunPrincipal().getExtSourceName().equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
 				// prevent cookie stealing (if remote user changed, rebuild session)
-				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
 			}
 
@@ -542,10 +566,22 @@ public class Api extends HttpServlet {
 
 			}
 
+			/* Because of security. Currently only OIDC manager can handle scopes from untrustful (OAuth2) clients. */
+			if (!caller.getSession().getPerunClient().getType().equals(PerunClient.Type.INTERNAL)) {
+				if (!OIDCMANAGER.equals(manager) && !caller.getSession().getPerunClient().getScopes().contains(PerunClient.Scope.ALL)) {
+					throw new PrivilegeException("Your client "+caller.getSession().getPerunClient().getId()+" is not allowed to call manager "+manager+". Try "+OIDCMANAGER+" instead.");
+				}
+			}
+
 			// Process request and sent the response back
 			if (VOOTMANAGER.equals(manager)) {
 				// Process VOOT protocol
 				result = caller.getVOOTManager().process(caller.getSession(), method, des.readAll());
+				if (perunRequest != null) perunRequest.setResult(result);
+				ser.write(result);
+			} else if (OIDCMANAGER.equals(manager)) {
+				// OIDC
+				result = caller.getOIDCManager().process(caller.getSession(), method);
 				if (perunRequest != null) perunRequest.setResult(result);
 				ser.write(result);
 			} else {
