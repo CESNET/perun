@@ -891,20 +891,27 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			List<RichMember> actualGroupMembers = getPerunBl().getGroupsManagerBl().getGroupRichMembers(sess, group);
 			List<Map<String, String>> subjects = getSubjectsFromExtSource(sess, source, group);
 
-			//Convert subjects to candidates
-			List<Candidate> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, skippedMembers);
-
 			//Prepare containers for work with group members
 			List<Candidate> candidatesToAdd = new ArrayList<>();
 			Map<Candidate, RichMember> membersToUpdate = new HashMap<>();
 			List<RichMember> membersToRemove = new ArrayList<>();
-			categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
+
+			//special behavior for lightweightSynchronization
+			if(lightweightSynchronization) {
+				//Converting is part of categorizing for lightweight synchronization
+				categorizeMembersForLightweightSynchronization(sess, actualGroupMembers, subjects, candidatesToAdd, membersToRemove, membersSource, source, skippedMembers);
+			} else {
+				//Convert subjects to candidates
+				List<Candidate> candidates = convertSubjectsToCandidates(sess, subjects, membersSource, source, skippedMembers);
+				//Categorize members to specific groups (to update, remove or add to Perun)
+				categorizeMembersForSynchronization(sess, actualGroupMembers, candidates, candidatesToAdd, membersToUpdate, membersToRemove);
+			}
 
 			//Update members already presented in group
 			updateExistingMembersWhileSynchronization(sess, group, membersToUpdate, overwriteUserAttributesList, lightweightSynchronization);
 
 			//Add not presented candidates to group
-			addMissingMembersWhileSynchronization(sess, group, candidatesToAdd, overwriteUserAttributesList, skippedMembers);
+			addAndUpdateMissingMembersWhileSynchronization(sess, group, candidatesToAdd, overwriteUserAttributesList, skippedMembers);
 
 			//Remove presented members in group who are not presented in synchronized ExtSource
 			removeFormerMembersWhileSynchronization(sess, group, membersToRemove);
@@ -1107,6 +1114,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				log.error(exceptionMessage + group, e);
 				exceptionMessage+= "due to unexpected exception: " + e.getClass().getName() + " => " + e.getMessage();
 				throw e;
+			} catch (Throwable thrw) {
+				//If some other throwable has been thrown, log it and throw again
+				failedDueToException = true;
+				exceptionMessage = "Cannot synchronize group ";
+				log.error(exceptionMessage + group, thrw);
+				exceptionMessage+= "due to unexpected throwable: " + thrw.getClass().getName() + " => " + thrw.getMessage();
+				throw thrw;
 			} finally {
 				//Save information about group synchronization, this method run in new transaction
 				try {
@@ -1450,6 +1464,109 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					membersToRemove.remove(mappingStructure.get(key));
 					break;
 				}
+			}
+		}
+	}
+
+	/**
+	 * Categorize members for light weight synchronization.
+	 * This method categorize members just for add and remove. This can be done partially just by logins.
+	 *
+	 * This method fill 2 member structures which get as parameters:
+	 * 1. candidateToAdd - New members of the group
+	 * 2. membersToRemove - Former members who are not in synchronized ExtSource now
+	 *
+	 * @param sess
+	 * @param group to be synchronized
+	 * @param subjects list of subjects from extSource (at least login for every subject, can be different by type of extSource)
+	 * @param candidatesToAdd 1. container (more above)
+	 * @param membersToRemove 2. container (more above)
+	 * @param membersSource main source for getting data
+	 * @param source source for getting logins
+	 * @param skippedMembers list of skipped members
+	 * @throws InternalErrorException
+	 * @throws ExtSourceNotExistsException
+	 */
+	private void categorizeMembersForLightweightSynchronization(PerunSession sess, List<RichMember> groupMembers, List<Map<String,String>> subjects, List<Candidate> candidatesToAdd, List<RichMember> membersToRemove, ExtSource membersSource, ExtSource source, List<String> skippedMembers) throws InternalErrorException, ExtSourceNotExistsException {
+		//get all logins from source and create structure with mapping
+		Map<String, Map<String, String>> sourceLogins = new HashMap<>();
+		for (Map<String, String> subject: subjects) {
+			String login = subject.get("login");
+			// Skip subjects, which doesn't have login
+			if (login == null || login.isEmpty()) {
+				log.debug("Subject {} doesn't contain attribute login, skipping.", subject);
+				skippedMembers.add("MemberEntry:[" + subject + "] was skipped because login is missing");
+				continue;
+			}		
+			sourceLogins.put(login, subject);
+		}
+
+		//get all logins of this extSource from the group and also prepare all other members in group without this extSource
+		List<RichMember> richMembersWithoutLogin = new ArrayList<>();
+		Map<String, RichMember> groupLogins = new HashMap<>();
+		for(RichMember rm: groupMembers) {
+			List<UserExtSource> rmues = rm.getUserExtSources();
+			boolean found = false;
+			for(UserExtSource ues: rmues) {
+				if(ues.getExtSource().equals(membersSource)) {
+					groupLogins.put(ues.getLogin(), rm);
+					//Log information about more than one login of this rich member in the extSource
+					if(found) log.debug("One member {} has more than one login in extSource {}.", rm, membersSource);
+					found = true;
+				}
+			}
+			if(!found) richMembersWithoutLogin.add(rm);
+		}
+
+
+		//### - POZOR - co se stane s uzivatelem, ktery ma vice nez jeden extSource daneho typu s ruznymi loginy??? Zvladne to synchronizator???
+
+		//prepare special structures of members in group and in source (members in group and source are not interesting for lightweight synchronization)
+		List<RichMember> existInGroupNotInSource = new ArrayList(richMembersWithoutLogin);
+		Map<String, Map<String, String>> existInSourceNotInGroup = new HashMap<>();
+		//found all richMembers who are new from ext source (not in group yet)
+		for(String loginInSource: sourceLogins.keySet()) {
+			if(!groupLogins.containsKey(loginInSource)) {
+				existInSourceNotInGroup.put(loginInSource, sourceLogins.get(loginInSource));
+			} // skip in other case (updated users are not useful for lightweight synchronization
+		}
+
+		//for the rest of members in group, add them to the existing members in group, not in source
+		for(String loginInGroup: groupLogins.keySet()) {
+			if(!sourceLogins.containsKey(loginInGroup)) {
+				existInGroupNotInSource.add(groupLogins.get(loginInGroup));
+			}
+		}
+
+		List<Map<String, String>> subjectsForCandidates = new ArrayList<>(existInSourceNotInGroup.values());
+		List<Candidate> subjectsCandidates = convertSubjectsToCandidates(sess, subjectsForCandidates, membersSource, source, skippedMembers);
+
+		//mapping structure for more efficient searching in members' userExtSources
+		Map<UserExtSource, RichMember> mappingStructure = new HashMap<>();
+		for(RichMember rm: existInGroupNotInSource) {
+			for(UserExtSource ues: rm.getUserExtSources()) {
+				mappingStructure.put(ues, rm);
+			}
+		}
+
+		//some of members in group and not in source will be removed so add them to membersToRemove list
+		membersToRemove = existInGroupNotInSource;
+		//try to find richMembers in group who has his own existence also in extSource and remove them from membersToRemove
+		for(Candidate candidate: subjectsCandidates) {
+			List<UserExtSource> candidateExtSources = candidate.getUserExtSources();
+			boolean found = false;
+			for(UserExtSource key: candidateExtSources) {
+				//one of candidates in extSource is our member in this group, remove it from the list of members to remove
+				if(mappingStructure.containsKey(key)) {
+					found = true;
+					membersToRemove.remove(mappingStructure.get(key));
+					//skip other sources of this candidate
+					break;
+				}
+			}
+			//not found, candidate need to be add to group as new
+			if(!found) {
+				candidatesToAdd.add(candidate);
 			}
 		}
 	}
@@ -1870,8 +1987,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * If Candidate can't be added to Group, skip him and add this information to skippedMembers list.
 	 *
-	 * When creating new member from Candidate, if user already exists, merge his attributes,
-	 * if attribute exists in list of overwriteUserAttributesList, update it instead of merging.
+	 * When creating new member from Candidate, if user already exists, merge his attributes and extSources.
+	 * When member already in Vo but not in group, merge his attributes and extSources too.
+	 *
+	 * If attribute exists in list of overwriteUserAttributesList, update it instead of merging.
 	 *
 	 * @param sess
 	 * @param group to be synchronized
@@ -1881,13 +2000,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 *
 	 * @throws InternalErrorException if some internal error occurs
 	 */
-	private void addMissingMembersWhileSynchronization(PerunSession sess, Group group, List<Candidate> candidatesToAdd, List<String> overwriteUserAttributesList, List<String> skippedMembers) throws InternalErrorException {
+	private void addAndUpdateMissingMembersWhileSynchronization(PerunSession sess, Group group, List<Candidate> candidatesToAdd, List<String> overwriteUserAttributesList, List<String> skippedMembers) throws InternalErrorException {
+		Map<Candidate, RichMember> membersToUpdateAfterAdding = new HashMap<>();
 		// Now add missing members
 		for (Candidate candidate: candidatesToAdd) {
 			Member member = null;
 			try {
 				// Check if the member is already in the VO (just not in the group)
 				member = getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate.getUserExtSources());
+				// If yes, we need to update this member
+				membersToUpdateAfterAdding.put(candidate, getPerunBl().getMembersManagerBl().getRichMemberWithAttributes(sess, member));
 			} catch (MemberNotExistsException e) {
 				try {
 					// We have new member (candidate), so create him using synchronous createMember (and overwrite chosed user attributes)
@@ -1933,6 +2055,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (AttributeValueException e) {
 				log.warn("Member id {} will be in INVALID status due to wrong attributes {}.", member.getId(), e);
 			}
+		}
+
+		//Update members from vo who were added to the synchronized group (not lightweight now)
+		try {
+			updateExistingMembersWhileSynchronization(sess, group, membersToUpdateAfterAdding, overwriteUserAttributesList, false);
+		} catch (AttributeNotExistsException | WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
