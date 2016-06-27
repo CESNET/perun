@@ -370,7 +370,9 @@ public class AuditParserTest {
 		attributesMap1.put("test1", null);
 		attributesMap1.put(null, null);
 		Candidate candidate1 = new Candidate(userExtSource1, attributesMap1);
-		Candidate candidate2 = new Candidate(null, null);
+		Candidate candidate2 = new Candidate();
+		candidate2.setUserExtSource(null);
+		candidate2.setAttributes(null);
 		candidate1.setId(5);
 		candidate2.setId(6);
 		candidate1.setAdditionalUserExtSources(null);
