@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
@@ -39,7 +40,9 @@ public abstract class AbstractVOOTTest {
 	 */
 	@Before
 	public void setUpSession() throws Exception {
-		session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		session = perun.getPerunSession(
+				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+				new PerunClient());
 		user1 = setUpUser1();
 		session.getPerunPrincipal().setUser(user1);
 		setUpBackground();

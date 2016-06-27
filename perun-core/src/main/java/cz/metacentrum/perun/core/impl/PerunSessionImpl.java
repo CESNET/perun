@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +20,8 @@ public class PerunSessionImpl extends PerunSession {
 
 	final static Logger log = LoggerFactory.getLogger(PerunSessionImpl.class);
 
-	public PerunSessionImpl(Perun perun, PerunPrincipal principal) throws InternalErrorException {
-		super(perun, principal);
+	public PerunSessionImpl(Perun perun, PerunPrincipal principal, PerunClient client) throws InternalErrorException {
+		super(perun, principal, client);
 	}
 
 

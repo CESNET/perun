@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +71,7 @@ public abstract class AbstractPerunIntegrationTest {
 	@Before
 	public void setUpSess() throws Exception {
 		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		sess = perun.getPerunSession(pp);
+		sess = perun.getPerunSession(pp, new PerunClient());
 	}
 
 }

@@ -96,7 +96,7 @@ public class BaseIntegrationTest {
 		// principal
 
 		PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		sess = perun.getPerunSession(pp);
+		sess = perun.getPerunSession(pp, new PerunClient());
 
 		// setup world
 

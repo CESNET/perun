@@ -38,7 +38,7 @@ public class urn_perun_member_group_attribute_def_virt_isGroupAdminTest  extends
         membersManager = perun.getMembersManager();
         groupsManager = perun.getGroupsManager();
         final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-        this.session = new PerunSessionImpl(perun, pp);
+        this.session = new PerunSessionImpl(perun, pp, new PerunClient());
         this.attrDef = classInstance.getAttributeDefinition();
         this.attribute = new Attribute(attrDef);
         this.user = setUpUser();

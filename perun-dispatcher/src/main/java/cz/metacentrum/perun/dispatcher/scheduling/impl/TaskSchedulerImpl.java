@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -563,7 +564,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 							dispatcherPropertiesBean
 									.getProperty("perun.principal.extSourceName"),
 							dispatcherPropertiesBean
-									.getProperty("perun.principal.extSourceType")));
+									.getProperty("perun.principal.extSourceType")),
+							new PerunClient());
 		}
 	}
 }

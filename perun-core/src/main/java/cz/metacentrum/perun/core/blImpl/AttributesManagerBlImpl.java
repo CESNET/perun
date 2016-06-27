@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -5897,7 +5898,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Get PerunSession
 		String attributesManagerInitializator = "attributesManagerBlImplInitializator";
 		PerunPrincipal pp = new PerunPrincipal(attributesManagerInitializator, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		PerunSession sess = perunBl.getPerunSession(pp);
+		PerunSession sess = perunBl.getPerunSession(pp, new PerunClient());
 
 		//Prepare all attribute definition from system perun
 		Set<AttributeDefinition> allAttributesDef = new HashSet<AttributeDefinition>();

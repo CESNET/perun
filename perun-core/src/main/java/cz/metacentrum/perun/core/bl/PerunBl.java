@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.MembersManager;
 import cz.metacentrum.perun.core.api.OwnersManager;
 import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.RTMessagesManager;
@@ -39,7 +40,7 @@ public interface PerunBl extends Perun {
 	 * @param actor identification of the actor, who will perform operations.
 	 * @return perun session
 	 */
-	PerunSession getPerunSession(PerunPrincipal actor) throws InternalErrorException ;
+	PerunSession getPerunSession(PerunPrincipal actor, PerunClient client) throws InternalErrorException ;
 
 	/**
 	 * Gets an internal Perun session.

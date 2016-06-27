@@ -140,6 +140,12 @@
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-oidc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-dispatcher</artifactId>
 			<version>${project.version}</version>
 		</dependency>
