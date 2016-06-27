@@ -1358,7 +1358,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	protected void managePassword(PerunSession sess, String operation, String userLogin, String loginNamespace, String password) throws InternalErrorException {
 
 		// If new PWDMGR module exists, use-it
-		PasswordManagerModule module = getPasswordManagerModule(sess, loginNamespace);
+		PasswordManagerModule module = null;
+
+		try {
+			module = getPasswordManagerModule(sess, loginNamespace);
+		} catch (Exception ex) {
+			// silently skip
+		}
+
 		if (module != null) {
 
 			if (operation.equals(PASSWORD_RESERVE)) {
