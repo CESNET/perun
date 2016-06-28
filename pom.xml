@@ -28,6 +28,7 @@
 		<module>perun-voot</module>
 		<module>perun-auditer-exporter</module>
 		<module>perun-ldapc-initializer</module>
+		<module>perun-oidc</module>
 	</modules>
 
 	<!-- common environmental and version properties-->

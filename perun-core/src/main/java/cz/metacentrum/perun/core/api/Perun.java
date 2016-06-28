@@ -25,9 +25,10 @@ public interface Perun {
 	 * Gets a (possibly cached) Perun session.
 	 * @throws InternalErrorException raised when session cannot be created.
 	 * @param actor identification of the actor, who will perform operations.
+	 * @param client identification of the client, who will perform operations.
 	 * @return perun session
 	 */
-	PerunSession getPerunSession(PerunPrincipal actor) throws InternalErrorException ;
+	PerunSession getPerunSession(PerunPrincipal actor, PerunClient client) throws InternalErrorException ;
 
 	/**
 	 * Gets a groups manager.

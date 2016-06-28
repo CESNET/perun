@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,7 +184,8 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 					.getPerunSession(new PerunPrincipal(
 							dispatcherPropertiesBean.getProperty("perun.principal.name"),
 							dispatcherPropertiesBean.getProperty("perun.principal.extSourceName"),
-							dispatcherPropertiesBean.getProperty("perun.principal.extSourceType")));
+							dispatcherPropertiesBean.getProperty("perun.principal.extSourceType")),
+							new PerunClient());
 			// Try to find FACILITY in event
 			if (facility != null) {
 				try {

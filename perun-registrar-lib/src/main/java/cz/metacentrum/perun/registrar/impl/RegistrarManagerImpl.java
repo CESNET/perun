@@ -173,7 +173,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
 				ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
-		registrarSession = perun.getPerunSession(pp);
+		registrarSession = perun.getPerunSession(pp, new PerunClient());
 
 		// set managers
 		this.attrManager = perun.getAttributesManager();
