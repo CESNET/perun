@@ -1463,35 +1463,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				continue;
 			}
 
-			//try to find user from perun by login and extSource
+			//try to find user from perun by login and member extSource (need to use memberSource because loginSource is not saved by synchronization)
 			User user = null;
 			Candidate candidate = null;
 			try {
-				UserExtSource userExtSource = getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(sess, loginSource, login);
+				UserExtSource userExtSource = getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(sess, memberSource, login);
 				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 				if(!idsOfUsersInGroup.containsKey(user.getId())) {
 					candidate = new Candidate(user, userExtSource);
 				}
 			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
 				//If not find, get more information about him from member extSource
-				Map<String, String> subjectFromMemberSource = null;
-				if(loginSource.equals(memberSource)) {
-					subjectFromMemberSource = subjectFromLoginSource;
-				} else {
-					try {
-						subjectFromMemberSource = ((ExtSourceSimpleApi) memberSource).getSubjectByLogin(login);
-					} catch (SubjectNotExistsException e) {
-						log.debug("Subject {} not exists in external member source {}, skipping.", subjectFromMemberSource, memberSource);
-						skippedMembers.add("MemberEntry:[" + subjectFromMemberSource + "] was skipped because login is missing");
-						continue;
-					} catch (UnsupportedOperationException | ExtSourceUnsupportedOperationException e) {
-						throw new InternalErrorException("Unsupported operation getSubjectByLogin on extSource " + memberSource, e);
-					}
-				}
-
-				List<Map<String, String>> subjectToConvert = new ArrayList<>();
-				subjectToConvert.add(subjectFromMemberSource);
-				candidate = convertSubjectsToCandidates(sess, subjectToConvert, loginSource, memberSource, skippedMembers).get(0);
+				List<Map<String, String>> subjectToConvert = Arrays.asList(subjectFromLoginSource);
+				candidate = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, skippedMembers).get(0);
 			}
 
 			//If user is not null now, we found it so we can use it from perun, in other case he is not in perun at all
