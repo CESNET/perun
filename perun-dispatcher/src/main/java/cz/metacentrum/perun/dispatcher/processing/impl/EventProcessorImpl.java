@@ -54,8 +54,6 @@ public class EventProcessorImpl implements EventProcessor {
 	@Autowired
 	private EventLogger eventLogger;
 	@Autowired
-	private SmartMatcher smartMatcher;
-	@Autowired
 	private TaskExecutor taskExecutor;
 	private EvProcessor evProcessor;
 	@Autowired
@@ -82,41 +80,12 @@ public class EventProcessorImpl implements EventProcessor {
 					if (event != null) {
 						if (log.isDebugEnabled()) {
 							log.debug("Events in Queue(" + eventQueue.size()
-									+ ").Dispatchers("
+									+ ").Engines("
 									+ dispatcherQueuePool.poolSize()
 									+ ").Processing event...");
 						}
-						boolean orphan = true;
-						for (DispatcherQueue dispatcherQueue : dispatcherQueuePool.getPool()) {
-							long timeStamp = 0;
-							if (log.isDebugEnabled()) {
-								timeStamp = System.currentTimeMillis();
-							}
-							if (smartMatcher.doesItMatch(event, dispatcherQueue)) {
-								orphan = false;
-								createTask(dispatcherQueue, event);
-								eventLogger.logEvent(event, dispatcherQueue.getClientID());
-								if (log.isDebugEnabled()) {
-									long timeStamp2 = System.currentTimeMillis();
-									log.debug("MATCH OK (took "
-											+ (timeStamp2 - timeStamp)
-											+ "ms) for "
-											+ dispatcherQueue.getClientID()
-											+ " AND " + event.toString());
-								}
-								break;
-							}
-							if (log.isDebugEnabled()) {
-								long timeStamp2 = System.currentTimeMillis();
-								log.debug("NO MATCH (took "
-										+ (timeStamp2 - timeStamp) + "ms) for "
-										+ dispatcherQueue.getClientID()
-										+ " AND " + event.toString());
-							}
-						}
-						if (orphan) {
-							eventLogger.logEvent(event, -1);
-						}
+						createTask(null, event);
+						eventLogger.logEvent(event, -1);
 					}
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
@@ -265,14 +234,6 @@ public class EventProcessorImpl implements EventProcessor {
 
 	public void setEventLogger(EventLogger eventLogger) {
 		this.eventLogger = eventLogger;
-	}
-
-	public SmartMatcher getSmartMatcher() {
-		return smartMatcher;
-	}
-
-	public void setSmartMatcher(SmartMatcher smartMatcher) {
-		this.smartMatcher = smartMatcher;
 	}
 
 	public TaskExecutor getTaskExecutor() {
