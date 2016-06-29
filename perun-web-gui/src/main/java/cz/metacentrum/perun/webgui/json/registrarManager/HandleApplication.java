@@ -186,7 +186,7 @@ public class HandleApplication {
 
 		JsonPostClient jspc = new JsonPostClient(new JsonCallbackEvents(){
 			@Override
-			public void onError(PerunError error) {
+			public void onError(final PerunError error) {
 
 				session.getUiElements().setLogErrorText("Checking approval failed.");
 				events.onError(error);
@@ -206,34 +206,41 @@ public class HandleApplication {
 						layout.setHTML(0, 1, "<p>User is not active academia member and application shouldn't be approved.<p><b>LoA:</b> " + app.getExtSourceLoa() +
 								"</br><b>IdP category:</b> " + (!(error.getCategory().equals("")) ? error.getCategory() : "N/A") +
 								"</br><b>Affiliation:</b> " + (!(error.getAffiliation().equals("")) ? error.getAffiliation().replace(";", ", ") : "N/A") +
-								"<p>You can try to override above restriction by clicking 'Approve' button again.");
+								((error.isSoft()) ? "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
 					} else {
-						layout.setHTML(0, 1, "<p>" + error.getErrorInfo() + "<p>You can try to override this restriction by clicking 'Approve anyway' button again.");
+						layout.setHTML(0, 1, "<p>" + error.getErrorInfo() + ((error.isSoft()) ? "<p>You can try to override above restriction by clicking 'Approve anyway' button." : ""));
 					}
 
 					layout.getFlexCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
 					layout.getFlexCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_TOP);
 					layout.getFlexCellFormatter().setStyleName(0, 0, "alert-box-image");
 
-					Confirm c = new Confirm("Application shouldn't be approved", layout, new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent clickEvent) {
+					if (error.isSoft()) {
 
-							// ok approve sending data
-							JsonPostClient jspc = new JsonPostClient(newEvents);
-							jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+						Confirm c = new Confirm("Application shouldn't be approved", layout, new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent clickEvent) {
+									// ok approve sending data
+									JsonPostClient jspc = new JsonPostClient(newEvents);
+									jspc.sendData(JSON_URL_APPROVE, prepareJSONObject());
+							}
+						}, new ClickHandler() {
+							@Override
+							public void onClick(ClickEvent clickEvent) {
+								events.onFinished(null);
+							}
+						}, true);
+						c.setOkButtonText("Approve anyway");
+						c.setNonScrollable(true);
+						c.show();
 
-						}
-					}, new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent clickEvent) {
-							events.onFinished(null);
-						}
-					}, true);
+					} else {
 
-					c.setOkButtonText("Approve anyway");
-					c.setNonScrollable(true);
-					c.show();
+						Confirm c = new Confirm("Application can't be approved", layout, true);
+						c.setNonScrollable(true);
+						c.show();
+
+					}
 
 				}
 

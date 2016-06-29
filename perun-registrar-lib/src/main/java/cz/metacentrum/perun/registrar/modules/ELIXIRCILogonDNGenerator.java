@@ -22,6 +22,7 @@ import java.nio.charset.CodingErrorAction;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Application module for ELIXIR purpose
@@ -134,6 +135,11 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 
 	@Override
 	public void canBeApproved(PerunSession session, Application app) throws PerunException {
+	}
+
+	@Override
+	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
+
 	}
 
 

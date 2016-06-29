@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.registrar.modules;
 
-import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
@@ -16,13 +15,13 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Module for VO Metacentrum
+ * Custom logic for all CESNET DataCenter VOs with SOFT approval (VO admin decide if can be approved)
  *
- * @author Pavel Zlamal <256627@mail.muni.cz>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class Metacentrum implements RegistrarModule {
+public class DuSoft implements RegistrarModule {
 
-	final static Logger log = LoggerFactory.getLogger(Metacentrum.class);
+	final static Logger log = LoggerFactory.getLogger(DuSoft.class);
 
 	private RegistrarManager registrar;
 
@@ -36,30 +35,9 @@ public class Metacentrum implements RegistrarModule {
 		return data;
 	}
 
-	/**
-	 * Add all new Metacentrum members to "storage" group.
-	 */
 	@Override
 	public Application approveApplication(PerunSession session, Application app) throws PerunException {
-
-		// get perun from session
-		Perun perun = session.getPerun();
-
-		if (Application.AppType.INITIAL.equals(app.getType())) {
-
-			Vo vo = app.getVo();
-			User user = app.getUser();
-			Group group = perun.getGroupsManager().getGroupByName(session, vo, "storage");
-			Member mem = perun.getMembersManager().getMemberByUser(session, vo, user);
-
-			try  {
-				perun.getGroupsManager().addMember(session, group, mem);
-			} catch (AlreadyMemberException ex) {
-
-			}
-		}
 		return app;
-
 	}
 
 	@Override
@@ -69,20 +47,22 @@ public class Metacentrum implements RegistrarModule {
 
 	@Override
 	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+		// allow approval of any application based on VO rules
 		return app;
 	}
 
 	@Override
 	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 
-		// allow only Education & Research community members
-
-		// allow hostel with loa=2
-		if (Objects.equals(app.getExtSourceName(), "https://idp.hostel.eduid.cz/idp/shibboleth") &&
-				app.getExtSourceLoa() == 2) return;
+		// warn before approval on non-academic
 
 		List<ApplicationFormItemData> data = registrar.getApplicationDataById(session, app.getId());
 
+		// if hostel with LoA = 2 => OK
+		if (Objects.equals(app.getExtSourceName(), "https://idp.hostel.eduid.cz/idp/shibboleth") &&
+				app.getExtSourceLoa() == 2) return;
+
+		// For others check IdP attributes
 		String category = "";
 		String affiliation = "";
 
