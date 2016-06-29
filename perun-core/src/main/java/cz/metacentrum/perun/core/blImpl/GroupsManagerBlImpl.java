@@ -1475,7 +1475,12 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
 				//If not find, get more information about him from member extSource
 				List<Map<String, String>> subjectToConvert = Arrays.asList(subjectFromLoginSource);
-				candidate = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, skippedMembers).get(0);
+				List<Candidate> converetedCandidatesList = convertSubjectsToCandidates(sess, subjectToConvert, memberSource, loginSource, skippedMembers);
+				//Empty means not found (skipped)
+				if(!converetedCandidatesList.isEmpty()) {
+					//We add one subject so we take the one converted candidate
+					candidate = converetedCandidatesList.get(0);
+				}
 			}
 
 			//If user is not null now, we found it so we can use it from perun, in other case he is not in perun at all
@@ -1485,8 +1490,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} else if (candidate != null) {
 				candidatesToAdd.add(candidate);
 			} else {
-				//This should not happen
-				throw new InternalErrorException("Both candidate and user are null, that means some internal problem occured.");
+				//Both null means that we can't find subject by login in extSource at all (will be in skipped members)
+				log.debug("Subject with login {} was skipped because can't be found in extSource {}.", login, memberSource);
 			}
 		}
 
