@@ -302,6 +302,19 @@ public class PerunError extends JavaScriptObject {
 		return this.formItems;
 	}-*/;
 
+
+	/**
+	 * If TRUE exception is soft and admin can override restrictions in gui -> e.g. when approving application.
+	 *
+	 * @return TRUE = soft / FALSE = hard exception
+	 */
+	public final native boolean isSoft() /*-{
+		if (!this.soft) {
+			return false;
+		}
+		return this.soft;
+	}-*/;
+
     /**
      * If callback causing this error was POST type,
      * this will retrieve data sent with request.

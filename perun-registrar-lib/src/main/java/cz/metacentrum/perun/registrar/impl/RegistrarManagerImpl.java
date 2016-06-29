@@ -405,6 +405,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			} catch (MissingRequiredDataException ex) {
 				// can't display form
 				result.put("voFormInitialException", ex);
+			} catch (CantBeSubmittedException ex) {
+				// can't display form / become member by some custom rules
+				result.put("voFormInitialException", ex);
 			}
 
 			// ONLY EXISTING USERS CAN EXTEND VO MEMBERSHIP
@@ -426,6 +429,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("voFormExtensionException", ex);
 				} catch (MissingRequiredDataException ex) {
 					// can't display form
+					result.put("voFormExtensionException", ex);
+				} catch (CantBeSubmittedException ex) {
+					// can't display form / extend membership by some custom rules
 					result.put("voFormExtensionException", ex);
 				}
 
@@ -454,6 +460,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("groupFormInitialException", ex);
 				}  catch (MissingRequiredDataException ex) {
 					// can't display form
+					result.put("groupFormInitialException", ex);
+				} catch (CantBeSubmittedException ex) {
+					// can't display form / become member by some custom rules
 					result.put("groupFormInitialException", ex);
 				}
 
@@ -1785,6 +1794,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		String extSourceType = sess.getPerunPrincipal().getExtSourceType();
 		int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
 		Map<String, String> federValues = sess.getPerunPrincipal().getAdditionalInformations();
+
+		RegistrarModule module = getRegistrarModule(form);
+		if (module != null) module.canBeSubmitted(sess, federValues);
 
 		// Check if it's not DuplicateRegistrationAttempt (for initial)
 		if (AppType.INITIAL.equals(appType)) {

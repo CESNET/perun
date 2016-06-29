@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Application module for EduGain purpose
@@ -65,6 +66,11 @@ public class EduGain implements RegistrarModule {
 
 	@Override
 	public void canBeApproved(PerunSession session, Application app) throws PerunException {
+
+	}
+
+	@Override
+	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
 
 	}
 

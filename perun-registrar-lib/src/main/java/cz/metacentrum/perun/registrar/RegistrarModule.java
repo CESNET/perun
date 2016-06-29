@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.registrar;
 
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -66,5 +67,13 @@ public interface RegistrarModule {
 	 * @param app application
 	 */
 	void canBeApproved(PerunSession session, Application app) throws PerunException;
+
+	/**
+	 * Custom logic for checking method before application submission (retrieval of registration form) from GUI
+	 *
+	 * @param session who approves the application
+	 * @param params custom params
+	 */
+	void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException;
 
 }
