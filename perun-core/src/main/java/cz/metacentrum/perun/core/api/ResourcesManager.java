@@ -22,9 +22,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
@@ -736,8 +734,9 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws BanAlreadyExistsException
+	 * @throws ResourceNotExistsException
 	 */
-	BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException;
+	BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException, ResourceNotExistsException;
 
 	/**
 	 * Get Ban for member on resource by it's id
@@ -747,9 +746,10 @@ public interface ResourcesManager {
 	 * @return resource ban by it's id
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
+	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException;
+	BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException, ResourceNotExistsException;
 
 	/**
 	 * Get ban by memberId and resource id
@@ -774,8 +774,9 @@ public interface ResourcesManager {
 	 * @return list of bans for member on any resource
 	 * @throws InternalErrorException
 	 * @throws MemberNotExistsException
+	 * @throws ResourceNotExistsException
 	 */
-	List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException, MemberNotExistsException;
+	List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException, MemberNotExistsException, ResourceNotExistsException;
 
 	/**
 	 * Get all bans for members on the resource.
@@ -812,8 +813,9 @@ public interface ResourcesManager {
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws BanNotExistsException
+	 * @throws ResourceNotExistsException
 	 */
-	void removeBan(PerunSession sess, int banId) throws InternalErrorException, PrivilegeException, BanNotExistsException;
+	void removeBan(PerunSession sess, int banId) throws InternalErrorException, PrivilegeException, BanNotExistsException, ResourceNotExistsException;
 
 	/**
 	 * Remove specific ban by memberId and resourceId.
@@ -823,7 +825,8 @@ public interface ResourcesManager {
 	 * @param resourceId the id of resource
 	 * @throws InternalErrorException
 	 * @throws BanNotExistsException
+	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException, PrivilegeException;
+	void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException, PrivilegeException, ResourceNotExistsException;
 }
