@@ -1730,8 +1730,8 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/data_grid.png")
 	//ImageResource dataGridIcon();
 
-	//@Source("icons/16x16/data_sort.png")
-	//ImageResource dataSortIcon();
+	@Source("icons/16x16/data_sort.png")
+	ImageResource dataSortIcon();
 
 	//@Source("icons/16x16/data_table.png")
 	//ImageResource dataTableIcon();
@@ -6050,14 +6050,14 @@ public interface SmallIcons extends ClientBundle{
 	//@Source("icons/16x16/solar.png")
 	//ImageResource solarIcon();
 
-	//@Source("icons/16x16/sort_ascending.png")
-	//ImageResource sortAscendingIcon();
+	@Source("icons/16x16/sort_ascending.png")
+	ImageResource sortAscendingIcon();
 
 	//@Source("icons/16x16/sort_columns.png")
 	//ImageResource sortColumnsIcon();
 
-	//@Source("icons/16x16/sort_descending.png")
-	//ImageResource sortDescendingIcon();
+	@Source("icons/16x16/sort_descending.png")
+	ImageResource sortDescendingIcon();
 
 	//@Source("icons/16x16/sound.png")
 	//ImageResource soundIcon();

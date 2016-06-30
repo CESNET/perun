@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.applicationresources.RegistrarFormItemGenerator;
 import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.resources.ButtonType;
+import cz.metacentrum.perun.webgui.client.resources.Collator;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
@@ -27,8 +28,12 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * View and edit ApplicationFormItem
@@ -212,38 +217,16 @@ public class EditFormItemTabItem implements TabItem {
 
 		// box items table
 		final FlexTable boxItemTable = new FlexTable();
+		boxItemTable.setStyleName("inputFormFlexTable");
+		boxItemTable.setWidth("550px");
 
 		// final layout
 		VerticalPanel vp = new VerticalPanel();
 		vp.add(ft);
 
 		// values for selection and combobox
-		if ("SELECTIONBOX".equalsIgnoreCase(item.getType()) || "COMBOBOX".equalsIgnoreCase(item.getType()) || "CHECKBOX".equalsIgnoreCase(item.getType())) {
+		if (Arrays.asList("SELECTIONBOX", "COMBOBOX", "CHECKBOX", "RADIO").contains(item.getType())) {
 
-			boxItemTable.setStyleName("inputFormFlexTable");
-			boxItemTable.setWidth("550px");
-
-			int boxRow = 0;
-
-			// clear options boxes
-			final Map<TextBox, TextBox> currentOptions = new HashMap<TextBox, TextBox>();
-			optionsBoxes.put(locale, currentOptions);
-
-			boxRow++;
-
-			Label boxContentLabel = new Label(item.getType().substring(0, 1)+item.getType().toLowerCase().substring(1)+" options:");
-			boxItemTable.setWidget(boxRow, 0, boxContentLabel);
-			boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 0, "itemName");
-			boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
-
-			boxRow++;
-
-			HTML comment = new HTML("Define possible options for selection in SELECTIONBOX, COMBOBOX, CHECKBOX widget. Empty options are not used.");
-			comment.setStyleName("inputFormInlineComment");
-			boxItemTable.setWidget(boxRow, 0, comment);
-			boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
-
-			boxRow++;
 			final Map<String, String> values = new HashMap<String, String>();
 
 			// parse values from the item
@@ -253,55 +236,7 @@ public class EditFormItemTabItem implements TabItem {
 				values.putAll(RegistrarFormItemGenerator.parseSelectionBox(options));
 			}
 
-			// for each add new row
-			for (Map.Entry<String, String> entry : values.entrySet()) {
-
-				final TextBox keyTextBox = new TextBox();
-				final TextBox valueTextBox = new TextBox();
-
-				currentOptions.put(keyTextBox, valueTextBox);
-
-				keyTextBox.setText(entry.getKey());
-				valueTextBox.setText(entry.getValue());
-
-				boxItemTable.setHTML(boxRow, 0, "Value:");
-				boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 0, "itemName");
-				boxItemTable.setWidget(boxRow, 1, keyTextBox);
-				boxItemTable.setHTML(boxRow, 2, "Label:");
-				boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 2, "itemName");
-				boxItemTable.setWidget(boxRow, 3, valueTextBox);
-
-				boxRow++;
-
-			}
-
-			// button for adding new
-			CustomButton addNewButton = new CustomButton(ButtonTranslation.INSTANCE.addButton(), ButtonTranslation.INSTANCE.addNewSelectionBoxItem(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
-				public void onClick(ClickEvent event) {
-
-					final int r = boxItemTable.getRowCount();
-
-					final TextBox keyTextBox = new TextBox();
-					final TextBox valueTextBox = new TextBox();
-
-					currentOptions.put(keyTextBox, valueTextBox);
-
-					boxItemTable.insertRow(r - 1);
-
-					boxItemTable.setHTML(r - 1, 0, "Value:");
-					boxItemTable.getFlexCellFormatter().setStyleName(r - 1, 0, "itemName");
-					boxItemTable.setWidget(r - 1, 1, keyTextBox);
-					boxItemTable.setHTML(r - 1, 2, "Label:");
-					boxItemTable.getFlexCellFormatter().setStyleName(r - 1, 2, "itemName");
-					boxItemTable.setWidget(r - 1, 3, valueTextBox);
-
-					UiElements.runResizeCommands(tab);
-
-				}
-			});
-			boxItemTable.setWidget(boxRow, 0, addNewButton);
-			boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 2);
-
+			buildItemsTable(boxItemTable, values, locale);
 			vp.add(boxItemTable);
 
 		}
@@ -314,6 +249,163 @@ public class EditFormItemTabItem implements TabItem {
 		sp.setSize("560px", "100%");
 
 		return sp;
+
+	}
+
+	private FlexTable buildItemsTable(final FlexTable boxItemTable, final Map<String, String> values, final String locale) {
+
+		// clear before rebuild
+		boxItemTable.clear(true);
+
+		int boxRow = 0;
+
+		// clear options boxes
+		final Map<TextBox, TextBox> currentOptions = new HashMap<TextBox, TextBox>();
+		optionsBoxes.put(locale, currentOptions);
+
+		boxRow++;
+
+		Label boxContentLabel = new Label(item.getType().substring(0, 1)+item.getType().toLowerCase().substring(1)+" options:");
+		boxItemTable.setWidget(boxRow, 0, boxContentLabel);
+		boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 0, "itemName");
+		boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
+
+		boxRow++;
+
+		HTML comment = new HTML("Define possible options for selection in SELECTIONBOX, COMBOBOX, CHECKBOX, RADIO widget. Empty options are not used.");
+		comment.setStyleName("inputFormInlineComment");
+		boxItemTable.setWidget(boxRow, 0, comment);
+		boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
+
+		boxRow++;
+
+		TabMenu menu = new TabMenu();
+		//menu.setWidth("100%");
+		boxItemTable.setWidget(boxRow, 0, menu);
+		boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 4);
+		boxRow++;
+
+		final CustomButton sortButton = new CustomButton("Sort by label (A-Z)", SmallIcons.INSTANCE.sortAscendingIcon());
+		menu.addWidget(sortButton);
+		final CustomButton sortButton2 = new CustomButton("Sort by label (Z-A)", SmallIcons.INSTANCE.sortDescendingIcon());
+		menu.addWidget(sortButton2);
+
+		sortButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				// OPTIONS
+				Map<TextBox, TextBox> localeTextboxes = optionsBoxes.get(locale);
+				Map<String, String> keyValue = new HashMap<String, String>();
+				for (Map.Entry<TextBox, TextBox> textBoxes : localeTextboxes.entrySet()) {
+					String key = textBoxes.getKey().getText();
+					String value = textBoxes.getValue().getText();
+					if (key != null && !key.equals("") && value != null && !value.equals("")) {
+						keyValue.put(key.trim(), value.trim());
+					}
+				}
+
+				List<String> values = new ArrayList<String>(keyValue.values());
+				Collections.sort(values, Collator.getNativeComparator());
+
+				Map<String, String> sortedValues = new HashMap<String, String>();
+
+				for (String value : values) {
+					for (String key : keyValue.keySet()) {
+						if (Objects.equals(keyValue.get(key), value)) {
+							sortedValues.put(key, keyValue.get(key));
+						}
+					}
+				}
+
+				buildItemsTable(boxItemTable, sortedValues, locale);
+
+			}
+		});
+
+		sortButton2.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+
+				// OPTIONS
+				Map<TextBox, TextBox> localeTextboxes = optionsBoxes.get(locale);
+				Map<String, String> keyValue = new HashMap<String, String>();
+				for (Map.Entry<TextBox, TextBox> textBoxes : localeTextboxes.entrySet()) {
+					String key = textBoxes.getKey().getText();
+					String value = textBoxes.getValue().getText();
+					if (key != null && !key.equals("") && value != null && !value.equals("")) {
+						keyValue.put(key.trim(), value.trim());
+					}
+				}
+
+				List<String> values = new ArrayList<String>(keyValue.values());
+				Collections.sort(values, Collections.reverseOrder(Collator.getNativeComparator()));
+
+				Map<String, String> sortedValues = new HashMap<String, String>();
+
+				for (String value : values) {
+					for (String key : keyValue.keySet()) {
+						if (Objects.equals(keyValue.get(key), value)) {
+							sortedValues.put(key, keyValue.get(key));
+						}
+					}
+				}
+
+				buildItemsTable(boxItemTable, sortedValues, locale);
+
+			}
+		});
+
+		// for each add new row
+		for (Map.Entry<String, String> entry : values.entrySet()) {
+
+			final TextBox keyTextBox = new TextBox();
+			final TextBox valueTextBox = new TextBox();
+
+			currentOptions.put(keyTextBox, valueTextBox);
+
+			keyTextBox.setText(entry.getKey());
+			valueTextBox.setText(entry.getValue());
+
+			boxItemTable.setHTML(boxRow, 0, "Value:");
+			boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 0, "itemName");
+			boxItemTable.setWidget(boxRow, 1, keyTextBox);
+			boxItemTable.setHTML(boxRow, 2, "Label:");
+			boxItemTable.getFlexCellFormatter().setStyleName(boxRow, 2, "itemName");
+			boxItemTable.setWidget(boxRow, 3, valueTextBox);
+
+			boxRow++;
+
+		}
+
+		// button for adding new
+		CustomButton addNewButton = new CustomButton(ButtonTranslation.INSTANCE.addButton(), ButtonTranslation.INSTANCE.addNewSelectionBoxItem(), SmallIcons.INSTANCE.addIcon(), new ClickHandler() {
+			public void onClick(ClickEvent event) {
+
+				final int r = boxItemTable.getRowCount();
+
+				final TextBox keyTextBox = new TextBox();
+				final TextBox valueTextBox = new TextBox();
+
+				currentOptions.put(keyTextBox, valueTextBox);
+
+				boxItemTable.insertRow(r - 1);
+
+				boxItemTable.setHTML(r - 1, 0, "Value:");
+				boxItemTable.getFlexCellFormatter().setStyleName(r - 1, 0, "itemName");
+				boxItemTable.setWidget(r - 1, 1, keyTextBox);
+				boxItemTable.setHTML(r - 1, 2, "Label:");
+				boxItemTable.getFlexCellFormatter().setStyleName(r - 1, 2, "itemName");
+				boxItemTable.setWidget(r - 1, 3, valueTextBox);
+
+				UiElements.runResizeCommands(tab);
+
+			}
+		});
+		boxItemTable.setWidget(boxRow, 0, addNewButton);
+		boxItemTable.getFlexCellFormatter().setColSpan(boxRow, 0, 2);
+
+		return boxItemTable;
 
 	}
 
