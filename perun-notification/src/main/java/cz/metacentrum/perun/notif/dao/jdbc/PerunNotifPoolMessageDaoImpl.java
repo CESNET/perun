@@ -89,7 +89,7 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 
 		logger.debug("Removing poolMessages from db with ids: {}", proccessedIds);
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("delete from pn_pool_message where " + BeansUtils.prepareInSQLClause(new ArrayList<Integer>(proccessedIds), "id"));
+		buffer.append("delete from pn_pool_message where " + BeansUtils.prepareInSQLClauseForIds(new ArrayList<Integer>(proccessedIds), "id"));
 		this.getJdbcTemplate().update(buffer.toString());
 		logger.debug("PoolMessages with id: {}, removed.", proccessedIds);
 	}

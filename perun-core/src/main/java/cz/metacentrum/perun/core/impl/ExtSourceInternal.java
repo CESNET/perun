@@ -36,8 +36,13 @@ public class ExtSourceInternal extends ExtSource implements ExtSourceSimpleApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
+	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		throw new ExtSourceUnsupportedOperationException();
+	}
+
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes, List<String> logins) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		throw new ExtSourceUnsupportedOperationException("Not supported to get subjects for this extSource by list of logins.");
 	}
 
 	public void close() throws InternalErrorException, ExtSourceUnsupportedOperationException {

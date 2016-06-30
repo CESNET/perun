@@ -455,7 +455,7 @@ public class BeansUtils {
 		for(PerunBean pb: beans) {
 			beansIds.add(pb.getId());
 		}
-		return BeansUtils.prepareInSQLClause(beansIds, identifier);
+		return BeansUtils.prepareInSQLClauseForIds(beansIds, identifier);
 	}
 
 
@@ -470,7 +470,7 @@ public class BeansUtils {
 	 * @param beansIds list of perun bean ids
 	 * @return string with some sql IN clause
 	 */
-	public static String prepareInSQLClause(List<Integer> beansIds, String identifier) {
+	public static String prepareInSQLClauseForIds(List<Integer> beansIds, String identifier) {
 		StringBuilder sb = new StringBuilder();
 		//use or in sql clause
 		boolean useOr = false;
@@ -506,6 +506,52 @@ public class BeansUtils {
 	}
 
 	/**
+	 * Create a string with set of IN clause. Every in clause has maximum 1000 values.
+	 * Identifier means for what IN clause is calling (Like 'table.value')
+	 *
+	 * Reason for using is compatibility with oracle and other dbs.
+	 *
+	 * Example: " ( in ('10','15',...) or in (...) or ... ) "
+	 *
+	 * @param values list of values (like logins etc.)
+	 * @return string with some sql IN clause
+	 */
+	public static String prepareInSQLClauseForValues(List<String> values, String identifier) {
+		StringBuilder sb = new StringBuilder();
+		//use or in sql clause
+		boolean useOr = false;
+		//first bracket
+		sb.append(" (");
+
+		//for every maxSize of beans
+		while(values.size() > MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE ) {
+
+			if(useOr) sb.append(" or ");
+			else useOr = true;
+
+			sb.append(" ");
+			sb.append(identifier);
+			sb.append(" in (");
+			List<String> partOfBeansValues = values.subList(0, MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE);
+			sb.append(beanValuesToString(partOfBeansValues));
+			sb.append(") ");
+			partOfBeansValues.clear();
+		}
+
+		//for rest of beans less or equals to 1000
+		if(useOr) sb.append(" or ");
+		sb.append(" ");
+		sb.append(identifier);
+		sb.append(" in (");
+		sb.append(beanValuesToString(values));
+		sb.append(") ");
+
+		//last bracket
+		sb.append(") ");
+		return sb.toString();
+	}
+
+	/**
 	 * Convert list of beans ids to one string with ',' between ids
 	 *
 	 * @param beans List of ids to construct string with
@@ -516,6 +562,24 @@ public class BeansUtils {
 		for(Integer beanId : beansIds) {
 			stringBuilder.append(",");
 			stringBuilder.append(beanId);
+			}
+		stringBuilder.deleteCharAt(0);
+		return stringBuilder.toString();
+	}
+
+	/**
+	 * Convert list of beans values to one string with ',' between ids
+	 *
+	 * @param beans List of values to construct string with
+	 * @return string representation of list of values
+	 */
+	public static String beanValuesToString(List<String> values) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for(String value : values) {
+			stringBuilder.append(",");
+			stringBuilder.append("'");
+			stringBuilder.append(value);
+			stringBuilder.append("'");
 			}
 		stringBuilder.deleteCharAt(0);
 		return stringBuilder.toString();
