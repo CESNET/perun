@@ -89,6 +89,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<prop key="perun.sms.program"></prop>
 					<prop key="perun.readOnlyPerun">false</prop>
 					<prop key="perun.DBInitializatorEnabled">false</prop>
+					<prop key="perun.userExtSources.persistent">PERUN,[\w\d]*</prop>
 				</props>
 			</property>
 		</bean>
