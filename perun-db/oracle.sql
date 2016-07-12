@@ -407,7 +407,7 @@ create table specific_user_users (
 	modified_by_uid integer,
 	modified_at date default sysdate not null,
 	status char(1) default '0' not null,
-	type varchar(20) default 'service' not null,
+	type varchar(20) default 'service' not null
 );
 
 create table exec_services (
@@ -1781,3 +1781,7 @@ insert into configurations values ('DATABASE VERSION','3.1.36');
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
 insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added into subgroup');
+
+-- insert action types
+insert into action_types (id, action_type, description) values (ACTION_TYPES_SEQ.nextval, 'read', 'Can read value.');
+insert into action_types (id, action_type, description) values (ACTION_TYPES_SEQ.nextval, 'write', 'Can write, rewrite and remove value.');
