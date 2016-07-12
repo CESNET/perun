@@ -1188,7 +1188,7 @@ create table "resources_bans" (
 );
 
 create table "facilities_bans" (
-	id integer not null.
+	id integer not null,
 	user_id integer not null,
 	facility_id integer not null,
 	description varchar(1024),
