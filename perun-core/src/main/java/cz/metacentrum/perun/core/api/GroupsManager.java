@@ -6,6 +6,7 @@ import java.util.Map;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternalyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -28,15 +29,18 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 
 /**
- * <p>Groups manager can do all work about groups in VOs.</p>
+ * <p>
+ * Groups manager can do all work about groups in VOs.</p>
  *
- * <p>You must get an instance of GroupsManager from instance of Perun (perun si singleton - see how to get it's instance on wiki):</p>
+ * <p>
+ * You must get an instance of GroupsManager from instance of Perun (perun si
+ * singleton - see how to get it's instance on wiki):</p>
  * <pre>
  *    GroupsManager gm = perun.getGroupsManager();
  * </pre>
  *
- * @author  Michal Prochazka
- * @author  Slavek Licehammer
+ * @author Michal Prochazka
+ * @author Slavek Licehammer
  * @see Perun
  */
 public interface GroupsManager {
@@ -57,6 +61,7 @@ public interface GroupsManager {
 
 	public static final String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
 	public static final String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
+
 	/**
 	 * Creates a new top-level group and associate it with the VO.
 	 *
@@ -68,7 +73,8 @@ public interface GroupsManager {
 	 *
 	 * @return newly created top-level group
 	 *
-	 * @throws InternalErrorException if group.name contains ':' or other internal error occured
+	 * @throws InternalErrorException if group.name contains ':' or other
+	 * internal error occured
 	 * @throws GroupExistsException
 	 * @throws PrivilegeException
 	 * @throws VoNotExistsException
@@ -81,11 +87,13 @@ public interface GroupsManager {
 	 *
 	 * @param perunSession
 	 * @param parentGroup
-	 * @param group group.name must contain only shortName (without ":"). Hierarchy is defined by parentGroup parameter.
+	 * @param group group.name must contain only shortName (without ":").
+	 * Hierarchy is defined by parentGroup parameter.
 	 *
 	 * @return newly created sub group with full group.Name with ":"
 	 *
-	 * @throws InternalErrorException if group.name contains ':' or other internal error occured
+	 * @throws InternalErrorException if group.name contains ':' or other
+	 * internal error occured
 	 * @throws GroupExistsException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException
@@ -93,65 +101,84 @@ public interface GroupsManager {
 	Group createGroup(PerunSession perunSession, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException;
 
 	/**
-	 * If forceDelete is false, delete only group and if this group has members or subgroups, throw an exception.
-	 * If forceDelete is true, delete group with all subgroups, members and administrators, then delete this group.
+	 * If forceDelete is false, delete only group and if this group has
+	 * members or subgroups, throw an exception. If forceDelete is true,
+	 * delete group with all subgroups, members and administrators, then
+	 * delete this group.
 	 *
 	 * @param perunSession
 	 * @param group group to delete
-	 * @param forceDelete if forceDelete is false, delete group only if is empty and has no subgroups, if is true, delete anyway with all connections
+	 * @param forceDelete if forceDelete is false, delete group only if is
+	 * empty and has no subgroups, if is true, delete anyway with all
+	 * connections
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 * @throws PrivilegeException if user has no rights to do this operation
-	 * @throws RelationExistsException raise only if group has subgroups or members and forceDelete is false
-	 * @throws GroupAlreadyRemovedException if there are 0 rows affected by deleting from DB
-	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group on resource affected by deleting from DB
+	 * @throws RelationExistsException raise only if group has subgroups or
+	 * members and forceDelete is false
+	 * @throws GroupAlreadyRemovedException if there are 0 rows affected by
+	 * deleting from DB
+	 * @throws GroupAlreadyRemovedFromResourceException if there is at least
+	 * 1 group on resource affected by deleting from DB
 	 */
 	void deleteGroup(PerunSession perunSession, Group group, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
-	 * Deletes group only if has no subgroups and no members. Other way throw exception.
-	 * This method is same like deleteGroup(sess, group, false) with false for forceDelete
+	 * Deletes group only if has no subgroups and no members. Other way
+	 * throw exception. This method is same like deleteGroup(sess, group,
+	 * false) with false for forceDelete
 	 *
 	 * @param perunSession
 	 * @param group group to delete
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
-	 * @throws RelationExistsException raise if group has subgroups or member
+	 * @throws RelationExistsException raise if group has subgroups or
+	 * member
 	 * @throws PrivilegeException
-	 * @throws GroupAlreadyRemovedException if there are 0 rows affected by deleting from DB
-	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group on resource affected by deleting from DB
+	 * @throws GroupAlreadyRemovedException if there are 0 rows affected by
+	 * deleting from DB
+	 * @throws GroupAlreadyRemovedFromResourceException if there is at least
+	 * 1 group on resource affected by deleting from DB
 	 */
 	void deleteGroup(PerunSession perunSession, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Delete all groups in list from perun. (Except members group)
-	 * 
-	 * If forceDelete is false, delete groups only if none of them (IN MOMENT OF DELETING) has subgroups and members, in other case throw exception.
-	 * if forceDelete is true, delete groups with all subgroups and members.
-	 * 
-	 * Groups are deleted in order: from longest name to the shortest
-	 *	- ex: Group A:b:c will be deleted sooner than Group A:b etc.
-	 *	- reason for this: with group are deleted its subgroups too
-	 * 
+	 *
+	 * If forceDelete is false, delete groups only if none of them (IN
+	 * MOMENT OF DELETING) has subgroups and members, in other case throw
+	 * exception. if forceDelete is true, delete groups with all subgroups
+	 * and members.
+	 *
+	 * Groups are deleted in order: from longest name to the shortest - ex:
+	 * Group A:b:c will be deleted sooner than Group A:b etc. - reason for
+	 * this: with group are deleted its subgroups too
+	 *
 	 * Important: Groups can be from different VOs.
-	 * 
-	 * @param perunSession 
+	 *
+	 * @param perunSession
 	 * @param groups list of groups to deleted
-	 * @param forceDelete if forceDelete is false, delete groups only if all of them have no subgroups and no members, if is true, delete anyway with all connections
-	 * 
+	 * @param forceDelete if forceDelete is false, delete groups only if all
+	 * of them have no subgroups and no members, if is true, delete anyway
+	 * with all connections
+	 *
 	 * @throws GroupNotExistsException If any group not exists in perun
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException if user has no right to call delete operation on any of these groups
+	 * @throws PrivilegeException if user has no right to call delete
+	 * operation on any of these groups
 	 * @throws GroupAlreadyRemovedException if any groups is already deleted
-	 * @throws RelationExistsException raise if group has subgroups or member (forceDelete is false)
-	 * @throws GroupAlreadyRemovedFromResourceException  if any group is already removed from resource
+	 * @throws RelationExistsException raise if group has subgroups or
+	 * member (forceDelete is false)
+	 * @throws GroupAlreadyRemovedFromResourceException if any group is
+	 * already removed from resource
 	 */
 	void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException;
 
 	/**
-	 * Deletes all groups under the VO except built-in groups (members, admins groups).
+	 * Deletes all groups under the VO except built-in groups (members,
+	 * admins groups).
 	 *
 	 * @param perunSession
 	 * @param vo VO
@@ -160,21 +187,25 @@ public interface GroupsManager {
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
 	 * @throws InternalErrorRuntimeException
-	 * @throws GroupAlreadyRemovedException if there is at least 1 group not affected by deleting from DB
-	 * @throws GroupAlreadyRemovedFromResourceException if there is at least 1 group on resource affected by deleting from DB
+	 * @throws GroupAlreadyRemovedException if there is at least 1 group not
+	 * affected by deleting from DB
+	 * @throws GroupAlreadyRemovedFromResourceException if there is at least
+	 * 1 group on resource affected by deleting from DB
 	 */
 	void deleteAllGroups(PerunSession perunSession, Vo vo) throws VoNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException;
 
 	/**
 	 * Updates group by ID.
 	 *
-	 * Update shortName (use shortName) and description. Group.name is ignored.
-	 * Return Group with correctly set parameters (including group.name)
+	 * Update shortName (use shortName) and description. Group.name is
+	 * ignored. Return Group with correctly set parameters (including
+	 * group.name)
 	 *
 	 * @param perunSession
 	 * @param group to update (use only ID, shortName and description)
 	 *
-	 * @return updated group with correctly set parameters (including group.name)
+	 * @return updated group with correctly set parameters (including
+	 * group.name)
 	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
@@ -201,13 +232,15 @@ public interface GroupsManager {
 	/**
 	 * Search for the group with specified name in specified VO.
 	 *
-	 * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not the shortname which is in this example 'b')
+	 * IMPORTANT: need to use full name of group (ex. 'toplevel:a:b', not
+	 * the shortname which is in this example 'b')
 	 *
 	 * @param perunSession
 	 * @param vo
 	 * @param name
 	 *
-	 * @return group with specified name or throws GroupNotExistsException  in specified VO
+	 * @return group with specified name or throws GroupNotExistsException
+	 * in specified VO
 	 *
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorException
@@ -215,7 +248,6 @@ public interface GroupsManager {
 	 * @throws InternalErrorRuntimeException
 	 */
 	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException, InternalErrorException, PrivilegeException, VoNotExistsException;
-
 
 	/**
 	 * Adds member of the VO to the group in the same VO.
@@ -230,11 +262,15 @@ public interface GroupsManager {
 	 * @throws AlreadyMemberException
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorRuntimeException
-	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
+	 * @throws WrongAttributeValueException if any member attribute value,
+	 * required by resource (on which the group is assigned), is wrong
+	 * @throws NotMemberOfParentGroupException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException
 	 * @throws WrongReferenceAttributeValueException
+	 * @throws ExternalyManagedException
 	 */
-	void addMember(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException;
-
+	void addMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternalyManagedException;
 
 	/**
 	 * Removes member form the group.
@@ -249,8 +285,11 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws NotGroupMemberException
 	 * @throws InternalErrorRuntimeException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException
+	 * @throws ExternalyManagedException
 	 */
-	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException;
+	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternalyManagedException;
 
 	/**
 	 * Return all group members.
@@ -272,7 +311,8 @@ public interface GroupsManager {
 	 * @param perunSession
 	 * @param group
 	 * @param status
-	 * @return list of members with specified membership status or empty list if no such member is found in group
+	 * @return list of members with specified membership status or empty
+	 * list if no such member is found in group
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
@@ -281,9 +321,9 @@ public interface GroupsManager {
 	 */
 	List<Member> getGroupMembers(PerunSession perunSession, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
-
 	/**
-	 * Returns group members in the RichMember object, which contains Member+User data.
+	 * Returns group members in the RichMember object, which contains
+	 * Member+User data.
 	 *
 	 * @param sess
 	 * @param group
@@ -295,7 +335,8 @@ public interface GroupsManager {
 	List<RichMember> getGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Returns group members with specified membership status in the RichMember object, which contains Member+User data.
+	 * Returns group members with specified membership status in the
+	 * RichMember object, which contains Member+User data.
 	 *
 	 * @param sess
 	 * @param group
@@ -308,7 +349,8 @@ public interface GroupsManager {
 	List<RichMember> getGroupRichMembers(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Returns group members in the RichMember object, which contains Member+User data. Also contains user and member attributes.
+	 * Returns group members in the RichMember object, which contains
+	 * Member+User data. Also contains user and member attributes.
 	 *
 	 * @param sess
 	 * @param group
@@ -320,7 +362,9 @@ public interface GroupsManager {
 	List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Returns group members with specified membership status in the RichMember object, which contains Member+User data. Also contains user and member attributes.
+	 * Returns group members with specified membership status in the
+	 * RichMember object, which contains Member+User data. Also contains
+	 * user and member attributes.
 	 *
 	 * @param sess
 	 * @param group
@@ -346,10 +390,9 @@ public interface GroupsManager {
 	int getGroupMembersCount(PerunSession perunSession, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
 	/**
-	 * Get groups of Vo by ACCESS RIGHTS:
-	 * If user is:
-	 * - PERUNADMIN or VOADMIN : all groups in vo
-	 * - GROUPADMIN : only groups where user is admin
+	 * Get groups of Vo by ACCESS RIGHTS: If user is: - PERUNADMIN or
+	 * VOADMIN : all groups in vo - GROUPADMIN : only groups where user is
+	 * admin
 	 *
 	 * @param sess
 	 * @param vo
@@ -363,10 +406,9 @@ public interface GroupsManager {
 	List<Group> getAllGroups(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
 
 	/**
-	 * Get groups of the VO stored in the map reflecting the hierarchy by ACCESS RIGHTS:
-	 * If user is:
-	 * - PERUNADMIN or VOADMIN : all Groups
-	 * - GROUPADMIN : only groups where user is groupAdmin
+	 * Get groups of the VO stored in the map reflecting the hierarchy by
+	 * ACCESS RIGHTS: If user is: - PERUNADMIN or VOADMIN : all Groups -
+	 * GROUPADMIN : only groups where user is groupAdmin
 	 *
 	 * @param sess
 	 * @param vo
@@ -375,7 +417,9 @@ public interface GroupsManager {
 	 *
 	 * @throws InternalErrorException
 	 */
-	Map<Group, Object> getAllGroupsWithHierarchy(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;;
+	Map<Group, Object> getAllGroupsWithHierarchy(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException, VoNotExistsException;
+
+	;
 
 	/**
 	 * Get parent group.
@@ -404,8 +448,8 @@ public interface GroupsManager {
 	List<Group> getSubGroups(PerunSession sess, Group parentGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Get all subgroups of the parentGroup recursively.
-	 * (parentGroup subgroups, their subgroups etc...)
+	 * Get all subgroups of the parentGroup recursively. (parentGroup
+	 * subgroups, their subgroups etc...)
 	 *
 	 * @param sess
 	 * @param parentGroup parent group
@@ -431,13 +475,14 @@ public interface GroupsManager {
 	 * @throws InternalErrorRuntimeException
 	 * @throws UserNotExistsException
 	 */
-	void addAdmin(PerunSession perunSession, Group group,  User user) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
+	void addAdmin(PerunSession perunSession, Group group, User user) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
 
 	/**
 	 * Adds a group administrator to the group.
 	 *
 	 * @param perunSession
-	 * @param group - group that will be assigned admins (users) from authorizedGroup
+	 * @param group - group that will be assigned admins (users) from
+	 * authorizedGroup
 	 * @param authorizedGroup - group that will be given the privilege
 	 *
 	 * @throws InternalErrorException
@@ -446,8 +491,7 @@ public interface GroupsManager {
 	 * @throws AlreadyAdminException
 	 * @throws InternalErrorRuntimeException
 	 */
-	void addAdmin(PerunSession perunSession, Group group,  Group authorizedGroup) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException;
-
+	void addAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws InternalErrorException, AlreadyAdminException, PrivilegeException, GroupNotExistsException;
 
 	/**
 	 * Removes a user administrator form the group.
@@ -481,17 +525,21 @@ public interface GroupsManager {
 	void removeAdmin(PerunSession perunSession, Group group, Group authorizedGroup) throws InternalErrorException, PrivilegeException, GroupNotExistsException, GroupNotAdminException;
 
 	/**
-	 * Get list of all user administrators for supported role and specific group.
+	 * Get list of all user administrators for supported role and specific
+	 * group.
 	 *
-	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 * If onlyDirectAdmins is true, return only direct users of the group
+	 * for supported role.
 	 *
 	 * Supported roles: GroupAdmin
 	 *
 	 * @param perunSession
 	 * @param group
-	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param onlyDirectAdmins if true, get only direct user administrators
+	 * (if false, get both direct and indirect)
 	 *
-	 * @return list of all user administrators of the given group for supported role
+	 * @return list of all user administrators of the given group for
+	 * supported role
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
@@ -500,21 +548,30 @@ public interface GroupsManager {
 	List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Get list of all richUser administrators for the group and supported role with specific attributes.
+	 * Get list of all richUser administrators for the group and supported
+	 * role with specific attributes.
 	 *
 	 * Supported roles: GroupAdmin
 	 *
-	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
-	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 * If "onlyDirectAdmins" is "true", return only direct users of the
+	 * group for supported role with specific attributes. If
+	 * "allUserAttributes" is "true", do not specify attributes through list
+	 * and return them all in objects richUser. Ignoring list of specific
+	 * attributes.
 	 *
 	 * @param perunSession
 	 * @param group
 	 *
-	 * @param specificAttributes list of specified attributes which are needed in object richUser
-	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
-	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 * @param specificAttributes list of specified attributes which are
+	 * needed in object richUser
+	 * @param allUserAttributes if true, get all possible user attributes
+	 * and ignore list of specificAttributes (if false, get only specific
+	 * attributes)
+	 * @param onlyDirectAdmins if true, get only direct user administrators
+	 * (if false, get both direct and indirect)
 	 *
-	 * @return list of RichUser administrators for the group and supported role with attributes
+	 * @return list of RichUser administrators for the group and supported
+	 * role with attributes
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
@@ -524,8 +581,9 @@ public interface GroupsManager {
 	List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Gets list of all user administrators of this group.
-	 * If some group is administrator of the given group, all members are included in the list.
+	 * Gets list of all user administrators of this group. If some group is
+	 * administrator of the given group, all members are included in the
+	 * list.
 	 *
 	 * @param perunSession
 	 * @param group
@@ -539,8 +597,9 @@ public interface GroupsManager {
 	List<User> getAdmins(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Gets list of direct user administrators of this group.
-	 * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
+	 * Gets list of direct user administrators of this group. 'Direct'
+	 * means, there aren't included users, who are members of group
+	 * administrators, in the returned list.
 	 *
 	 * @param perunSession
 	 * @param group
@@ -569,7 +628,8 @@ public interface GroupsManager {
 	List<Group> getAdminGroups(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Gets list of all administrators of this group like RichUsers without attributes.
+	 * Gets list of all administrators of this group like RichUsers without
+	 * attributes.
 	 *
 	 * @param perunSession
 	 * @param group
@@ -584,7 +644,8 @@ public interface GroupsManager {
 	List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
 
 	/**
-	 * Gets list of all administrators of this group like RichUsers with attributes.
+	 * Gets list of all administrators of this group like RichUsers with
+	 * attributes.
 	 *
 	 * @param perunSession
 	 * @param group
@@ -599,8 +660,9 @@ public interface GroupsManager {
 	List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
 
 	/**
-	 * Get list of Group administrators with specific attributes.
-	 * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
+	 * Get list of Group administrators with specific attributes. From list
+	 * of specificAttributes get all Users Attributes and find those for
+	 * every RichAdmin (only, other attributes are not searched)
 	 *
 	 * @param perunSession
 	 * @param group
@@ -615,8 +677,10 @@ public interface GroupsManager {
 	List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
 
 	/**
-	 * Get list of Group administrators, which are directly assigned (not by group membership) with specific attributes.
-	 * From list of specificAttributes get all Users Attributes and find those for every RichAdmin (only, other attributes are not searched)
+	 * Get list of Group administrators, which are directly assigned (not by
+	 * group membership) with specific attributes. From list of
+	 * specificAttributes get all Users Attributes and find those for every
+	 * RichAdmin (only, other attributes are not searched)
 	 *
 	 * @param perunSession
 	 * @param group
@@ -630,16 +694,14 @@ public interface GroupsManager {
 	@Deprecated
 	List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException;
 
-
 	/**
-	 * Get groups of users under the VO by ACCESS RIGHTS:
-	 * If user is:
-	 * - PERUNADMIN or VOADMIN : all groups
-	 * - GROUPADMIN : only groups where user is GroupAdmin
+	 * Get groups of users under the VO by ACCESS RIGHTS: If user is: -
+	 * PERUNADMIN or VOADMIN : all groups - GROUPADMIN : only groups where
+	 * user is GroupAdmin
 	 *
 	 * @param sess
 	 * @param vo vo
-
+	 *
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
 	 * @throws PrivilegeException
@@ -701,7 +763,9 @@ public interface GroupsManager {
 	Vo getVo(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 
 	/**
-	 * Get members from parent group. If the parent group doesn't exist (this is top level group) return all VO (from which the group is) members instead.
+	 * Get members from parent group. If the parent group doesn't exist
+	 * (this is top level group) return all VO (from which the group is)
+	 * members instead.
 	 *
 	 * @param sess
 	 * @param group
@@ -715,6 +779,7 @@ public interface GroupsManager {
 
 	/**
 	 * Get members form the parent group in RichMember format.
+	 *
 	 * @param sess
 	 * @param group
 	 * @return list of parent group rich members
@@ -723,7 +788,9 @@ public interface GroupsManager {
 	List<RichMember> getParentGroupRichMembers(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException;
 
 	/**
-	 * Get members form the parent group in RichMember format including user/member attributes.
+	 * Get members form the parent group in RichMember format including
+	 * user/member attributes.
+	 *
 	 * @param sess
 	 * @param group
 	 * @return list of parent group rich members
@@ -744,7 +811,8 @@ public interface GroupsManager {
 	void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupSynchronizationAlreadyRunningException;
 
 	/**
-	 * Synchronize all groups which have enabled synchronization. This method is run by the scheduler every 5 minutes.
+	 * Synchronize all groups which have enabled synchronization. This
+	 * method is run by the scheduler every 5 minutes.
 	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
@@ -762,23 +830,24 @@ public interface GroupsManager {
 	List<Group> getMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
 
 	/**
-	 * Method return list of groups for selected member which (groups) has set specific attribute.
-	 * Attribute can be only from namespace "GROUP"
-	 * 
+	 * Method return list of groups for selected member which (groups) has
+	 * set specific attribute. Attribute can be only from namespace "GROUP"
+	 *
 	 * @param sess sess
 	 * @param member memer
 	 * @param attribute attribute from "GROUP" namespace
-	 * 
-	 * @return list of groups which contain member and have attribute with same value
-	 * @throws InternalErrorException 
+	 *
+	 * @return list of groups which contain member and have attribute with
+	 * same value
+	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws VoNotExistsException 
+	 * @throws VoNotExistsException
 	 * @throws MemberNotExistsException
 	 * @throws AttributeNotExistsException
 	 */
 	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException;
-	
+
 	/**
 	 * Return all member's groups. Included members groups.
 	 *
@@ -790,13 +859,14 @@ public interface GroupsManager {
 	 * @throws MemberNotExistsException
 	 */
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
-	
+
 	/**
 	 * Return all RichGroups containing selected attributes
-	 * 
+	 *
 	 * @param sess
 	 * @param vo
-	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroups
+	 * containing all attributes
 	 * @return List of RichGroups
 	 * @throws InternalErrorException
 	 * @throws VoNotExistsException
@@ -804,11 +874,13 @@ public interface GroupsManager {
 	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException, VoNotExistsException, PrivilegeException;
 
 	/**
-	 * Return all RichSubGroups in parentGroup containing selected attributes
+	 * Return all RichSubGroups in parentGroup containing selected
+	 * attributes
 	 *
 	 * @param sess
 	 * @param parentGroup
-	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroups
+	 * containing all attributes
 	 * @return List of RichGroups
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
@@ -817,10 +889,11 @@ public interface GroupsManager {
 
 	/**
 	 * Return RichGroup selected by id containing selected attributes
-	 * 
+	 *
 	 * @param sess
 	 * @param groupId
-	 * @param attrNames if attrNames is null method will return RichGroup containing all attributes
+	 * @param attrNames if attrNames is null method will return RichGroup
+	 * containing all attributes
 	 * @return RichGroup
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException

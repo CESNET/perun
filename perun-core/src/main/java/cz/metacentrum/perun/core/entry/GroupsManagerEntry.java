@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternalyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -66,7 +67,8 @@ public class GroupsManagerEntry implements GroupsManager {
 		this.groupsManagerBl = perunBl.getGroupsManagerBl();
 	}
 
-	public GroupsManagerEntry() {}
+	public GroupsManagerEntry() {
+	}
 
 	//FIXME delete this method
 	public GroupsManagerImplApi getGroupsManagerImpl() {
@@ -78,14 +80,13 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.notNull(group, "group");
 		Utils.notNull(group.getName(), "group.name");
 
-
 		if (!group.getName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
 			throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
 		}
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-		    !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
 			throw new PrivilegeException(sess, "createGroup");
 		}
 
@@ -104,16 +105,15 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.notNull(group, "group");
 		Utils.notNull(group.getName(), "group.name");
 
-
 		if (!group.getName().matches(GroupsManager.GROUP_SHORT_NAME_REGEXP)) {
 			throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
 		}
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
 			throw new PrivilegeException(sess, "createGroup - subGroup");
-				}
+		}
 
 		Group createdGroup = getGroupsManagerBl().createGroup(sess, parentGroup, group);
 
@@ -128,9 +128,9 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "deleteGroup");
-				}
+		}
 
 		getGroupsManagerBl().deleteGroup(sess, group, forceDelete);
 	}
@@ -151,20 +151,20 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		getGroupsManagerBl().deleteAllGroups(sess, vo);
 	}
-	
+
 	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(groups, "groups");
-		
+
 		//Test if all groups exists and user has right to delete all of them
-		for(Group group: groups) {
+		for (Group group : groups) {
 			getGroupsManagerBl().checkGroupExists(perunSession, group);
 			//test of privileges on group
-			if(!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+			if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 				throw new PrivilegeException(perunSession, "deleteGroups");
 			}
 		}
-		
+
 		getGroupsManagerBl().deleteGroups(perunSession, groups, forceDelete);
 	}
 
@@ -180,9 +180,9 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "updateGroup");
-				}
+		}
 
 		return getGroupsManagerBl().updateGroup(sess, group);
 	}
@@ -193,12 +193,12 @@ public class GroupsManagerEntry implements GroupsManager {
 		Group group = getGroupsManagerBl().getGroupById(sess, id);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.RPC)) {
 			throw new PrivilegeException(sess, "getGroupById");
-				}
+		}
 
 		return group;
 	}
@@ -216,25 +216,34 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupByName");
-				}
+		}
 
 		return group;
 	}
 
-	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException {
+	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternalyManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+
+		if (attrSynchronizeEnabled.getValue() != null) {
+			String synchronizeEnabled = (String) attrSynchronizeEnabled.getValue();
+			// Check if group is synchronized
+			if (synchronizeEnabled.equals("true")) {
+				throw new ExternalyManagedException("Adding of member is not allowed. Group is externaly managed.");
+			}
+		}
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "addMember");
-				}
+		}
 
 		// Check if the member and group are from the same VO
 		if (member.getVoId() != (group.getVoId())) {
@@ -244,16 +253,25 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().addMember(sess, group, member);
 	}
 
-	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException {
+	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternalyManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+
+		if (attrSynchronizeEnabled.getValue() != null) {
+			String synchronizeEnabled = (String) attrSynchronizeEnabled.getValue();
+			// Check if group is synchronized
+			if (synchronizeEnabled.equals("true")) {
+				throw new ExternalyManagedException("Removing of member is not allowed. Group is externaly managed.");
+			}
+		}
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "removeMember");
-				}
+		}
 
 		getGroupsManagerBl().removeMember(sess, group, member);
 	}
@@ -264,10 +282,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupMembers");
-				}
+		}
 
 		return getGroupsManagerBl().getGroupMembers(sess, group);
 	}
@@ -278,10 +296,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupMembers");
-				}
+		}
 
 		return getGroupsManagerBl().getGroupMembers(sess, group, status);
 	}
@@ -292,10 +310,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupRichMembers");
-				}
+		}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group), true);
 	}
@@ -306,10 +324,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupRichMembers");
-				}
+		}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group, status), true);
 	}
@@ -320,10 +338,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupRichMembersWithAttributes");
-				}
+		}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group), true);
 	}
@@ -334,10 +352,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupRichMembersWithAttributes");
-				}
+		}
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status), true);
 	}
 
@@ -347,10 +365,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupMembersCount");
-				}
+		}
 
 		return getGroupsManagerBl().getGroupMembersCount(sess, group);
 	}
@@ -362,9 +380,9 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "addAdmin");
-				}
+		}
 
 		getGroupsManagerBl().addAdmin(sess, group, user);
 	}
@@ -377,10 +395,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 
 			throw new PrivilegeException(sess, "addAdmin");
-				}
+		}
 
 		getGroupsManagerBl().addAdmin(sess, group, authorizedGroup);
 	}
@@ -392,9 +410,9 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "removeAdmin");
-				}
+		}
 
 		getGroupsManagerBl().removeAdmin(sess, group, user);
 	}
@@ -407,9 +425,9 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "removeAdmin");
-				}
+		}
 
 		getGroupsManagerBl().removeAdmin(sess, group, authorizedGroup);
 	}
@@ -419,9 +437,9 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().checkGroupExists(perunSession, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) &&
-		    !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group) &&
-		    !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(perunSession, "getAdmins");
 		}
 
@@ -432,14 +450,14 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.checkPerunSession(perunSession);
 		getGroupsManagerBl().checkGroupExists(perunSession, group);
 		//list of specific attributes must be not null if filtering is needed
-		if(!allUserAttributes) {
+		if (!allUserAttributes) {
 			Utils.notNull(specificAttributes, "specificAttributes");
 		}
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(perunSession, "getRichAdmins");
 		}
 
@@ -452,11 +470,11 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getAdmins");
-				}
+		}
 
 		return getGroupsManagerBl().getAdmins(sess, group);
 	}
@@ -469,10 +487,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getDirectAdmins");
-				}
+		}
 
 		return getGroupsManagerBl().getDirectAdmins(sess, group);
 	}
@@ -483,10 +501,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getAdminGroups");
-				}
+		}
 
 		return getGroupsManagerBl().getAdminGroups(sess, group);
 	}
@@ -498,10 +516,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(perunSession, "getRichAdmins");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdmins(perunSession, group));
 	}
@@ -513,10 +531,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(perunSession, "getRichAdminsWithAttributes");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdminsWithAttributes(perunSession, group));
 	}
@@ -528,10 +546,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(perunSession, "getRichAdminsWithSpecificAttributes");
-				}
+		}
 
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdminsWithSpecificAttributes(perunSession, group, specificAttributes));
 	}
@@ -543,8 +561,8 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(perunSession, "getDirectRichAdminsWithSpecificAttributes");
 		}
 
@@ -555,23 +573,22 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getAllGroups");
-				}
+		}
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
-
 
 		List<Group> groups = getGroupsManagerBl().getAllGroups(sess, vo);
 
 		// Return all groups for VOADMIN and PERUNADMIN
 		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				|| AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				|| AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
+			|| AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			|| AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)) {
 			return groups;
-				}
+		}
 
 		// Check access rights for each group for GROUPADMIN
 		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.GROUPADMIN)) {
@@ -592,23 +609,22 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getAllGroupsWithHierarchy");
-				}
+		}
 
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
-
-		Map<Group, Object> groups =  getGroupsManagerBl().getAllGroupsWithHierarchy(sess, vo);
+		Map<Group, Object> groups = getGroupsManagerBl().getAllGroupsWithHierarchy(sess, vo);
 
 		// Return all groups for VOADMIN and PERUNADMIN
 		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				|| AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)
-				|| AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
+			|| AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)
+			|| AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
 			return groups;
-				}
+		}
 
 		// Check access rights for each group for GROUPADMIN
 		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.GROUPADMIN)) {
@@ -631,10 +647,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
 			throw new PrivilegeException(sess, "getSubGroups");
-				}
+		}
 
 		return getGroupsManagerBl().getSubGroups(sess, parentGroup);
 	}
@@ -645,10 +661,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
 			throw new PrivilegeException(sess, "getAllSubGroups");
-				}
+		}
 
 		return getGroupsManagerBl().getAllSubGroups(sess, parentGroup);
 	}
@@ -659,10 +675,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getParentGroup");
-				}
+		}
 
 		return getGroupsManagerBl().getParentGroup(sess, group);
 	}
@@ -672,20 +688,20 @@ public class GroupsManagerEntry implements GroupsManager {
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			throw new PrivilegeException(sess, "getGroups");
-				}
+		}
 
-		List<Group> groups =  getGroupsManagerBl().getGroups(sess, vo);
+		List<Group> groups = getGroupsManagerBl().getGroups(sess, vo);
 
 		// Return all groups for VOADMIN and PERUNADMIN
 		if (AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				|| AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)
-				|| AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
+			|| AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.PERUNADMIN)
+			|| AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
 			return groups;
-				}
+		}
 
 		// Check access rights for each group for GROUPADMIN
 		if (AuthzResolver.hasRole(sess.getPerunPrincipal(), Role.GROUPADMIN)) {
@@ -727,10 +743,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
 			throw new PrivilegeException(sess, "getSubGroupsCount for " + parentGroup.getName());
-				}
+		}
 
 		return getGroupsManagerBl().getSubGroupsCount(sess, parentGroup);
 	}
@@ -739,14 +755,14 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
-		Vo vo =  getGroupsManagerBl().getVo(sess, group);
+		Vo vo = getGroupsManagerBl().getVo(sess, group);
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getVo");
-				}
+		}
 
 		return vo;
 	}
@@ -757,10 +773,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getParentGroupMembers for " + group.getName());
-				}
+		}
 
 		return getGroupsManagerBl().getParentGroupMembers(sess, group);
 	}
@@ -771,10 +787,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
-				}
+		}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembers(sess, group), true);
 	}
@@ -785,14 +801,13 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
-				}
+		}
 
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembersWithAttributes(sess, group), true);
 	}
-
 
 	/**
 	 * Gets the groupsManagerBl for this instance.
@@ -808,8 +823,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	 *
 	 * @param perunBl The perunBl.
 	 */
-	public void setPerunBl(PerunBl perunBl)
-	{
+	public void setPerunBl(PerunBl perunBl) {
 		this.perunBl = perunBl;
 	}
 
@@ -818,8 +832,7 @@ public class GroupsManagerEntry implements GroupsManager {
 	 *
 	 * @param groupsManagerBl The groupsManagerBl.
 	 */
-	public void setGroupsManagerBl(GroupsManagerBl groupsManagerBl)
-	{
+	public void setGroupsManagerBl(GroupsManagerBl groupsManagerBl) {
 		this.groupsManagerBl = groupsManagerBl;
 	}
 
@@ -833,7 +846,7 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group))  {
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "synchronizeGroup");
 		}
 
@@ -844,7 +857,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))  {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "synchronizeGroups");
 		}
 
@@ -859,48 +872,47 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
 			throw new PrivilegeException(sess, "getMemberGroups for " + member);
-				}
+		}
 
 		return getGroupsManagerBl().getMemberGroups(sess, member);
 	}
 
-		
-	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, PrivilegeException,InternalErrorException, VoNotExistsException, MemberNotExistsException, AttributeNotExistsException {
+	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, PrivilegeException, InternalErrorException, VoNotExistsException, MemberNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, new AttributeDefinition(attribute));
-		
+
 		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-		
+
 		//Only group attributes are allowed
-		if(!this.getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManagerEntry.NS_GROUP_ATTR)) {
+		if (!this.getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManagerEntry.NS_GROUP_ATTR)) {
 			throw new WrongAttributeAssignmentException(attribute);
 		}
-		
+
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
 			throw new PrivilegeException(sess, "getMemberGroupsByAttribute for " + member);
 		}
-		
+
 		List<Group> groups = this.groupsManagerBl.getMemberGroupsByAttribute(sess, member, attribute);
-		
+
 		//If actor has no right to read attribute for group, throw exception
-		for(Group group: groups) {
-				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group, null)) {
-					throw new PrivilegeException(sess, "Actor hasn't right to read attribute for a group.");
-				}
+		for (Group group : groups) {
+			if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group, null)) {
+				throw new PrivilegeException(sess, "Actor hasn't right to read attribute for a group.");
+			}
 		}
-		
+
 		return groups;
 	}
-	
+
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -909,10 +921,10 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-				&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
 			throw new PrivilegeException(sess, "getAllMemberGroups for " + member);
-				}
+		}
 
 		return getGroupsManagerBl().getAllMemberGroups(sess, member);
 	}
@@ -923,8 +935,8 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-		        && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
 			throw new PrivilegeException(sess, "getAllRichGroupsWithAttributesByNames");
 		}
 
@@ -932,8 +944,8 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Check access rights for each richGroup for GROUPADMIN
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
-			    && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
-			    && AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
+			&& AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)) {
 			Iterator<RichGroup> groupByName = richGroups.iterator();
 			while (groupByName.hasNext()) {
 				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, groupByName.next())) {
@@ -951,16 +963,16 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
-		        && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
-		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
 			throw new PrivilegeException(sess, "getRichSubGroupsWithAttributesByNames");
 		}
 		List<RichGroup> richGroups = getGroupsManagerBl().getRichSubGroupsWithAttributesByNames(sess, parentGroup, attrNames);
 
 		// Check access rights for each richGroup for GROUPADMIN
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
-				&& AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+			&& AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
 			Iterator<RichGroup> eachGroup = richGroups.iterator();
 			while (eachGroup.hasNext()) {
 				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, eachGroup.next())) {
@@ -979,8 +991,8 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-		        && !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
-		        && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+			&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getRichGroupByIdWithAttributesByNames");
 		}
 

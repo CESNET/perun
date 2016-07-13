@@ -32,6 +32,7 @@ import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.ExternalyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -1422,6 +1423,48 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		}
 
 		assertEquals("Both lists should be same", Arrays.asList(richGroup1, richGroup2), groupsManagerBl.convertGroupsToRichGroupsWithAttributes(sess, Arrays.asList(group, group2), attrNames));
+	}
+        
+        @Test (expected=ExternalyManagedException.class)
+	public void addAndRemoveMemberInSynchronizedGroup() throws Exception {
+		System.out.println(CLASS_NAME + "addAndRemoveMemberInSynchronizedGroup");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Attribute synchroAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, "urn:perun:group:attribute-def:def:synchronizationEnabled"));
+                synchroAttr.setValue("true");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
+                               
+                Member member = setUpMember(vo);
+                groupsManager.addMember(sess, group, member);
+		List<Member> members = groupsManager.getGroupMembers(sess, group);
+		
+                assertTrue("List of members should be empty", members.isEmpty());
+                
+                synchroAttr.setValue("false");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
+                groupsManager.addMember(sess, group, member);
+		members = groupsManager.getGroupMembers(sess, group);
+                
+		assertTrue("List of members should contain member", members.contains(member));
+                
+                synchroAttr.setValue("true");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
+                groupsManager.removeMember(sess, group, member);
+                members.clear();
+                members = groupsManager.getGroupMembers(sess, group);
+                
+                assertTrue("List of members should contain member", members.contains(member));
+                
+                
+                synchroAttr.setValue("false");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
+                groupsManager.removeMember(sess, group, member);
+                members.clear();
+                members = groupsManager.getGroupMembers(sess, group);
+                
+                assertTrue("List of members should be empty", members.isEmpty());
 	}
 
 	// PRIVATE METHODS -------------------------------------------------------------
