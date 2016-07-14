@@ -131,7 +131,7 @@ public class GetSubGroups implements JsonCallback, JsonCallbackTable<Group>, Jso
 	 * Sorts table by objects Name
 	 */
 	public void sortTable() {
-		list = new TableSorter<Group>().sortByService(getList());
+		list = new TableSorter<Group>().sortByName(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}

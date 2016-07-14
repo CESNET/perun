@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.DeleteGroups;
-import cz.metacentrum.perun.webgui.json.groupsManager.GetRichSubGroups;
+import cz.metacentrum.perun.webgui.json.groupsManager.GetAllRichSubGroups;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.tabs.GroupsTabs;
@@ -113,7 +113,7 @@ public class SubgroupsTabItem implements TabItem, TabItemWithUrl{
 		attrNames.add("urn:perun:group:attribute-def:def:lastSuccessSynchronizationTimestamp");
 		attrNames.add("urn:perun:group:attribute-def:def:authoritativeGroup");
 
-		final GetRichSubGroups subgroups = new GetRichSubGroups(groupId, attrNames);
+		final GetAllRichSubGroups subgroups = new GetAllRichSubGroups(groupId, attrNames);
 
 		// Events for reloading when group is created
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(subgroups);

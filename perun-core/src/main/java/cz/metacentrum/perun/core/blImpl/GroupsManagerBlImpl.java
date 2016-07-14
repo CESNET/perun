@@ -178,6 +178,23 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 				// Group applications, submitted data and app_form are deleted on cascade with "deleteGroup()"
 
+				//Remove all information about group on facilities (facilities contacts)
+				List<ContactGroup> groupContactGroups = getPerunBl().getFacilitiesManagerBl().getFacilityContactGroups(sess, group);
+				if(!groupContactGroups.isEmpty()) {
+					getPerunBl().getFacilitiesManagerBl().removeAllGroupContacts(sess, group);
+				}
+
+				//remove all assigned ExtSources to this group
+				List<ExtSource> assignedSources = getPerunBl().getExtSourcesManagerBl().getGroupExtSources(sess, group);
+				for(ExtSource source: assignedSources) {
+					try {
+						getPerunBl().getExtSourcesManagerBl().removeExtSource(sess, group, source);
+					} catch (ExtSourceNotAssignedException | ExtSourceAlreadyRemovedException ex) {
+						//Just log this, because if method can't remove it, it is probably not assigned now
+						log.error("Try to remove not existing extSource {} from group {} when deleting group.", source, group);
+					}
+				}
+
 				List<Member> membersFromDeletedGroup = getGroupMembers(sess, g);
 				getGroupsManagerImpl().deleteGroup(sess, vo, g);
 
@@ -1348,6 +1365,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	
 	public List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames)throws InternalErrorException{
 		return convertGroupsToRichGroupsWithAttributes(sess, this.getSubGroups(sess, parentGroup), attrNames);
+	}
+
+	public List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames)throws InternalErrorException{
+		return convertGroupsToRichGroupsWithAttributes(sess, this.getAllSubGroups(sess, parentGroup), attrNames);
 	}
 
 	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames)throws InternalErrorException, GroupNotExistsException{

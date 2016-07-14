@@ -979,7 +979,7 @@ public interface GroupsManagerBl {
 	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException;
 	
 	/**
-	 * Returns all RichSubGroups from parentGroup containing selected attributes
+	 * Returns RichSubGroups from parentGroup containing selected attributes (only 1 level subgroups)
 	 * 
 	 * @param sess
 	 * @param parentGroup
@@ -988,7 +988,18 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException 
 	 */
 	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException;
-	
+
+	/**
+	 * Returns all RichSubGroups from parentGroup containing selected attributes (all levels subgroups)
+	 *
+	 * @param sess
+	 * @param parentGroup
+	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
+	 * @return List of RichGroups
+	 * @throws InternalErrorException
+	 */
+	List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException;
+
 	/**
 	 * Returns RichGroup selected by id containing selected attributes
 	 * 

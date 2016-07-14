@@ -8,7 +8,11 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -17,12 +21,21 @@ import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.PerunEntity;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
-import cz.metacentrum.perun.webgui.json.*;
+import cz.metacentrum.perun.webgui.json.GetEntityById;
+import cz.metacentrum.perun.webgui.json.JsonCallback;
+import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
+import cz.metacentrum.perun.webgui.json.JsonCallbackOracle;
+import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
+import cz.metacentrum.perun.webgui.json.JsonClient;
+import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
-import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.widgets.*;
+import cz.metacentrum.perun.webgui.model.RichGroup;
+import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
+import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
+import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 import cz.metacentrum.perun.webgui.widgets.cells.CustomClickableInfoCellWithImageResource;
 
 import java.util.ArrayList;
@@ -34,7 +47,7 @@ import java.util.Comparator;
  * @author Vaclav Mach <374430@mail.muni.cz>
  * @author Ondrej Velisek <ondrejvelisek@gmail.com>
  */
-public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGroup>, JsonCallbackOracle<RichGroup> {
+public class GetAllRichSubGroups implements JsonCallback, JsonCallbackTable<RichGroup>, JsonCallbackOracle<RichGroup> {
 
 	// Session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -45,7 +58,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 	// Selection model
 	final MultiSelectionModel<RichGroup> selectionModel = new MultiSelectionModel<RichGroup>(new GeneralKeyProvider<RichGroup>());
 	// JSON URL
-	static final private String JSON_URL = "groupsManager/getRichSubGroupsWithAttributesByNames";
+	static final private String JSON_URL = "groupsManager/getAllRichSubGroupsWithAttributesByNames";
 	// Table data provider
 	private ListDataProvider<RichGroup> dataProvider = new ListDataProvider<RichGroup>();
 	// The table itself
@@ -67,7 +80,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 	 *
 	 * @param id Parent group id
 	 */
-	public GetRichSubGroups(int id, ArrayList<String> attrNames) {
+	public GetAllRichSubGroups(int id, ArrayList<String> attrNames) {
 		this.parentId = id;
 		this.attrNames = attrNames;
 	}
@@ -77,7 +90,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 	 *
 	 * @param id Parent group id
 	 */
-	public GetRichSubGroups(int id, JsonCallbackEvents events ) {
+	public GetAllRichSubGroups(int id, JsonCallbackEvents events ) {
 		this.parentId = id;
 		this.events = events;
 	}
