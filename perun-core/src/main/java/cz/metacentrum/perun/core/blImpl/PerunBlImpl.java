@@ -51,8 +51,8 @@ import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Implementation of Perun.
@@ -98,7 +98,7 @@ public class PerunBlImpl implements PerunBl {
 
 	final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
 
-	final static List<String> dontLookupUsersForLogins = new ArrayList<String>();
+	final static Set<String> dontLookupUsersForLogins = new HashSet<>();
 
 	// fill list of logins we don't want to lookup users for
 	static {
