@@ -14,6 +14,7 @@ import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.Candidate;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
@@ -24,11 +25,11 @@ import cz.metacentrum.perun.core.api.RichGroup;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import org.junit.Before;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
@@ -218,6 +219,31 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		// delete group including sub-group
 		groupsManager.getGroupById(sess, group.getId());
 		// shouldn't find group
+
+	}
+
+	@Test
+	public void deleteGroupWithSubGroups() throws Exception {
+		System.out.println(CLASS_NAME + "deleteGroup");
+
+		vo = setUpVo();
+		List<Group> groups = setUpGroupsWithSubgroups(vo);
+
+		List<Group> topLevels = new ArrayList<Group>();
+		for (Group group : groups) {
+			// get only top-level groups
+			if (!group.getName().contains(":")) topLevels.add(group);
+		}
+		assertTrue(!topLevels.isEmpty());
+
+		// try to delete from the top
+		groupsManager.deleteGroups(sess, topLevels, true);
+
+		// there should be only "members" group left
+		List<Group> retrievedGroups = groupsManager.getGroups(sess, vo);
+		assertTrue(retrievedGroups != null);
+		assertTrue(retrievedGroups.size() == 1);
+		assertTrue(retrievedGroups.get(0).getName().equals(VosManager.MEMBERS_GROUP));
 
 	}
 

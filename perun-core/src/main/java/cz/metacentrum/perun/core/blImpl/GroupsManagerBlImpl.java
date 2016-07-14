@@ -138,7 +138,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		if (getGroupsManagerImpl().getSubGroupsCount(sess, group) > 0) {
 			if (!forceDelete) throw new RelationExistsException("Group group="+group+" contains subgroups");
-			List<Group> subGroups = getGroupsManagerImpl().getSubGroups(sess, group);
+
+			// make sure we delete all subgroups !!
+			List<Group> subGroups = getAllSubGroups(sess, group);
+
+			// Use sorting by group names reverse order (first A:B:c then A:B etc.)
+			// to make sure we delete from the bottom in a hierarchy
+			Collections.sort(subGroups, Collections.reverseOrder(
+					new Comparator<Group>() {
+						@Override
+						public int compare(Group groupToCompare,Group groupToCompareWith) {
+							return groupToCompare.getName().compareTo(groupToCompareWith.getName());
+						}
+					}));
+
 			for (Group g : subGroups) {
 				//For auditer
 				List<Resource> subGroupResources = getPerunBl().getResourcesManagerBl().getAssignedResources(sess, g);
@@ -1527,7 +1540,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * 3. membersToRemove - Former members who are not in synchronized ExtSource now
 	 *
 	 * @param sess
-	 * @param group to be synchronized
+	 * @param groupMembers current group members
 	 * @param candidates to be synchronized from extSource
 	 * @param membersToUpdate 1. container (more above)
 	 * @param candidatesToAdd 2. container (more above)
