@@ -34,6 +34,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<prop key="perun.registrar.principals"></prop>
 					<prop key="perun.notification.principals">perunNotifications</prop>
 					<prop key="perun.rpc.principal">perunRpc</prop>
+					<prop key="perun.dont.lookup.users">perunTests, perunController, perunEngine, perunDispatcher, perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc</prop>
 					<prop key="perun.db.type">hsqldb</prop>
 					<prop key="perun.group.synchronization.interval">1</prop>
 					<prop key="perun.group.synchronization.timeout">10</prop>
@@ -67,6 +68,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<prop key="perun.registrar.principals"></prop>
 					<prop key="perun.notification.principals">perunNotifications</prop>
 					<prop key="perun.rpc.principal">perunRpc</prop>
+					<prop key="perun.dont.lookup.users">perunTests, perunController, perunEngine, perunDispatcher, perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc</prop>
 					<prop key="perun.db.type">hsqldb</prop>
 					<prop key="perun.group.synchronization.interval">1</prop>
 					<prop key="perun.group.synchronization.timeout">10</prop>
