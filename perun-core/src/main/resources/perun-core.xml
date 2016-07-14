@@ -287,6 +287,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceGoogle" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
+        <bean class="cz.metacentrum.perun.core.impl.ExtSourceVOOT" factory-method="setPerunBlImpl">
+		<constructor-arg ref="perun" />
+	</bean>
 	<bean class="cz.metacentrum.perun.core.impl.ExtSourceCSV" factory-method="setPerunBlImpl">
 		<constructor-arg ref="perun" />
 	</bean>
