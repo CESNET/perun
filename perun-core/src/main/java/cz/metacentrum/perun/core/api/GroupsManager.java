@@ -804,7 +804,7 @@ public interface GroupsManager {
 	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException, VoNotExistsException, PrivilegeException;
 
 	/**
-	 * Return all RichSubGroups in parentGroup containing selected attributes
+	 * Return RichSubGroups in parentGroup (only 1 level subgroups) containing selected attributes
 	 *
 	 * @param sess
 	 * @param parentGroup
@@ -814,6 +814,18 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 */
 	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException;
+
+	/**
+	 * Return all RichSubGroups in parentGroup (all levels sub groups) containing selected attributes
+	 *
+	 * @param sess
+	 * @param parentGroup
+	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
+	 * @return List of RichGroups
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 */
+	List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException;
 
 	/**
 	 * Return RichGroup selected by id containing selected attributes

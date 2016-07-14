@@ -743,7 +743,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns all RichSubGroups from parent group containing selected attributes
+	 * Returns RichSubGroups from parent group containing selected attributes (only 1 level sub groups).
 	 *
 	 * @param group int <code>id</code> of group
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
@@ -755,6 +755,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getGroupsManager().getRichSubGroupsWithAttributesByNames(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
+	 * Returns all AllRichSubGroups from parent group containing selected attributes (all level subgroups).
+	 *
+	 * @param group int <code>id</code> of group
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	getAllRichSubGroupsWithAttributesByNames {
+
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getAllRichSubGroupsWithAttributesByNames(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
 					parms.readList("attrNames", String.class));
 		}
