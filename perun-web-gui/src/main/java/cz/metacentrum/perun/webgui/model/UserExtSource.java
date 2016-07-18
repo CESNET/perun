@@ -17,57 +17,61 @@ public class UserExtSource extends JavaScriptObject {
 		return this.id;
 	}-*/;
 
-		public final native String getLogin() /*-{
-			return this.login;
-		}-*/;
+	public final native String getLogin() /*-{
+		return this.login;
+	}-*/;
 
-		public final native ExtSource getExtSource() /*-{
-			return this.extSource;
-		}-*/;
+	public final native ExtSource getExtSource() /*-{
+		return this.extSource;
+	}-*/;
 
-		public final native int getLoa() /*-{
-			return this.loa;
-		}-*/;
+	public final native int getLoa() /*-{
+		return this.loa;
+	}-*/;
 
-		/**
-		 * Returns Perun specific type of object
-		 *
-		 * @return type of object
-		 */
-		public final native String getObjectType() /*-{
-			if (!this.beanName) {
+	public final native boolean isPersistent() /*-{
+		return this.persistent;
+	}-*/;
+
+	/**
+	 * Returns Perun specific type of object
+	 *
+	 * @return type of object
+	 */
+	public final native String getObjectType() /*-{
+		if (!this.beanName) {
 			return "JavaScriptObject"
-			}
-			return this.beanName;
-		}-*/;
-
-		/**
-		 * Sets Perun specific type of object
-		 *
-		 * @param type type of object
-		 */
-		public final native void setObjectType(String type) /*-{
-			this.beanName = type;
-		}-*/;
-
-		/**
-		 * Returns the status of this item in Perun system as String
-		 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
-		 *
-		 * @return string which defines item status
-		 */
-		public final native String getStatus() /*-{
-			return this.status;
-		}-*/;
-
-		/**
-		 * Compares to another object
-		 * @param o Object to compare
-		 * @return true, if they are the same
-		 */
-		public final boolean equals(UserExtSource o)
-		{
-			return o.getId() == this.getId();
 		}
+		return this.beanName;
+	}-*/;
+
+	/**
+	 * Sets Perun specific type of object
+	 *
+	 * @param type type of object
+	 */
+	public final native void setObjectType(String type) /*-{
+		this.beanName = type;
+	}-*/;
+
+	/**
+	 * Returns the status of this item in Perun system as String
+	 * VALID, INVALID, SUSPENDED, EXPIRED, DISABLED
+	 *
+	 * @return string which defines item status
+	 */
+	public final native String getStatus() /*-{
+		return this.status;
+	}-*/;
+
+	/**
+	 * Compares to another object
+	 * @param o Object to compare
+	 * @return true, if they are the same
+	 */
+	public final boolean equals(UserExtSource o)
+	{
+		return o.getId() == this.getId();
+	}
 
 }

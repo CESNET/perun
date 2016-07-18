@@ -1,8 +1,12 @@
 package cz.metacentrum.perun.webgui.json.usersManager;
 
+import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
+import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
@@ -13,10 +17,12 @@ import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator;
 import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator.Column;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
+import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.UserExtSource;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.cells.PerunCheckboxCell;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -98,8 +104,43 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 		// set empty content & loader
 		table.setEmptyTableWidget(loaderImage);
 
-		// columns
-		table.addCheckBoxColumn();
+		// checkbox column column
+		com.google.gwt.user.cellview.client.Column<UserExtSource, UserExtSource> checkBoxColumn = new com.google.gwt.user.cellview.client.Column<UserExtSource, UserExtSource>(
+				new PerunCheckboxCell<UserExtSource>(true, false, false)) {
+			@Override
+			public UserExtSource getValue(UserExtSource object) {
+				// Get the value from the selection model.
+				GeneralObject go = object.cast();
+				go.setChecked(selectionModel.isSelected(object));
+				return go.cast();
+			}
+		};
+
+		// updates the columns size
+		table.setColumnWidth(checkBoxColumn, 40.0, Style.Unit.PX);
+
+		// Add the columns
+
+		// Checkbox column header
+		CheckboxCell cb = new CheckboxCell();
+		Header<Boolean> checkBoxHeader = new Header<Boolean>(cb) {
+			public Boolean getValue() {
+				return false;//return true to see a checked checkbox.
+			}
+		};
+		checkBoxHeader.setUpdater(new ValueUpdater<Boolean>() {
+			public void update(Boolean value) {
+				// sets selected to all, if value = true, unselect otherwise
+				for(UserExtSource obj : list){
+					if (!obj.isPersistent()) {
+						selectionModel.setSelected(obj, value);
+					}
+				}
+			}
+		});
+
+		table.addColumn(checkBoxColumn, checkBoxHeader);
+
 		table.addIdColumn("UES ID", null, 100);
 
 		// Name column
