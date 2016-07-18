@@ -15,6 +15,10 @@ public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 	private String login;
 	private int userId = -1;
 	private int loa;
+	/* Persistent flag of this UserExtSource.
+	 * false = UserExtSource can be removed. It is truly external.
+	 * true = UserExtSource can NOT be removed. It is somehow important and needed in the system. */
+	private boolean persistent;
 
 	public UserExtSource(){
 		super();
@@ -47,13 +51,14 @@ public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 		this.extSource = source;
 	}
 
-	public UserExtSource(int id, ExtSource source, String login, int userId, int loa,
+	public UserExtSource(int id, ExtSource source, String login, int userId, int loa, boolean persistent,
 			String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.extSource = source;
 		this.login = login;
 		this.loa = loa;
 		this.userId = userId;
+		this.persistent = persistent;
 	}
 
 	public String getLogin() {
@@ -86,6 +91,14 @@ public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 
 	public void setLoa(int loa) {
 		this.loa = loa;
+	}
+
+	public boolean isPersistent() {
+		return persistent;
+	}
+
+	public void setPersistent(boolean persistent) {
+		this.persistent = persistent;
 	}
 
 	@Override

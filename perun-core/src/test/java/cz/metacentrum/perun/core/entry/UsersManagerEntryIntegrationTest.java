@@ -459,7 +459,7 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		for(UserExtSource uExtSource: ues) {
 			perun.getUsersManagerBl().removeUserExtSource(sess, emptyUser, uExtSource);
 		}
-		
+
 		ues = perun.getUsersManagerBl().getActiveUserExtSources(sess, emptyUser);
 		assertTrue(ues.isEmpty());
 	}
@@ -562,6 +562,22 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		usersManager.removeUserExtSource(sess, new User(), userExtSource);
 		// shouldn't find user
+
+	}
+
+	@Test (expected=InternalErrorException.class)
+	public void removeUserExtSourcePersistent() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourcePersistent");
+
+		// Assuming ExtSource PERUN is persistent (set as property)
+		ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(sess, "PERUN");
+		List<UserExtSource> userExtSources = usersManager.getUserExtSources(sess, user);
+		for (UserExtSource ues : userExtSources) {
+			if (ues.getExtSource().equals(extSource)) {
+				usersManager.removeUserExtSource(sess, user, ues);
+				break;
+			}
+		}
 
 	}
 

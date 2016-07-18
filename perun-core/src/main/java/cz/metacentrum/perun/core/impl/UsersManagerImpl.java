@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,9 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import java.util.Calendar;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
@@ -67,6 +72,29 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		"user_ext_sources.modified_by as user_ext_sources_modified_by, user_ext_sources.modified_at as user_ext_sources_modified_at, " +
 		"user_ext_sources.created_by_uid as ues_created_by_uid, user_ext_sources.modified_by_uid as ues_modified_by_uid";
 
+	private static Map<String, Pattern> userExtSourcePersistentPatterns;
+
+	static {
+		// Prepare userExtSourcePersistentPatterns for matching regex from perun property file.
+		// It is done in advance because of performance.
+		try {
+			userExtSourcePersistentPatterns = new HashMap<>();
+			String persistentConfig = BeansUtils.getPropertyFromConfiguration("perun.userExtSources.persistent");
+			for (String extSource : persistentConfig.split(";")) {
+				String[] extSourceTuple = extSource.split(",", 2);
+				if (extSourceTuple.length > 1) {
+					userExtSourcePersistentPatterns.put(extSourceTuple[0], Pattern.compile(extSourceTuple[1]));
+				} else {
+					userExtSourcePersistentPatterns.put(extSource, Pattern.compile(".*"));
+				}
+			}
+		} catch (InternalErrorException e) {
+			log.info("Error when reading property perun.userExtSources.persistent. Serving default behavior.", e);
+			// If error occurred no persistent user ext sources are considered. e.g. property is not set.
+			userExtSourcePersistentPatterns = new HashMap<>();
+		}
+	}
+
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
 
@@ -94,8 +122,18 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			else extSource.setModifiedByUid(rs.getInt("ext_sources_modified_by_uid"));
 			if(rs.getInt("ext_sources_created_by_uid") == 0) extSource.setCreatedByUid(null);
 			else extSource.setCreatedByUid(rs.getInt("ext_sources_created_by_uid"));
-			return new UserExtSource(rs.getInt("user_ext_sources_id"), extSource, rs.getString("user_ext_sources_login_ext"), rs.getInt("user_ext_sources_user_id"),
-					rs.getInt("user_ext_sources_loa"),rs.getString("user_ext_sources_created_at"), rs.getString("user_ext_sources_created_by"),
+
+			boolean persistent = false;
+			Pattern p = userExtSourcePersistentPatterns.get(rs.getString("ext_sources_name"));
+			if (p != null) {
+				if (p.matcher(rs.getString("user_ext_sources_login_ext")).matches()) {
+					persistent = true;
+				}
+			}
+
+			return new UserExtSource(rs.getInt("user_ext_sources_id"), extSource, rs.getString("user_ext_sources_login_ext"),
+					rs.getInt("user_ext_sources_user_id"), rs.getInt("user_ext_sources_loa"), persistent,
+					rs.getString("user_ext_sources_created_at"), rs.getString("user_ext_sources_created_by"),
 					rs.getString("user_ext_sources_modified_at"), rs.getString("user_ext_sources_modified_by"),
 					rs.getInt("ues_created_by_uid") == 0 ? null : rs.getInt("ues_created_by_uid"),
 					rs.getInt("ues_modified_by_uid") == 0 ? null : rs.getInt("ues_modified_by_uid"));

@@ -448,6 +448,11 @@ public class UsersManagerEntry implements UsersManager {
 		userExtSource.setUserId(user.getId());
 		getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
 
+		if (userExtSource.isPersistent()) {
+			throw new InternalErrorException("Given UserExtSource: " + userExtSource + " is marked as persistent. " +
+					"It means it can not be removed.");
+		}
+
 		getUsersManagerBl().removeUserExtSource(sess, user, userExtSource);
 	}
 
