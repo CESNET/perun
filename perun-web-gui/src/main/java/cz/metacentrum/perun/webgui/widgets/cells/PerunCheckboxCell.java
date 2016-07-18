@@ -163,6 +163,14 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 			}
 		}
 
+		// is user ext source persistent
+		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("UserExtSource")) {
+			if(((UserExtSource)value).isPersistent() && !editable){
+				sb.append(INPUT_DISABLED);
+				return;
+			}
+		}
+
 		// is service disabled on facility
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("RichMember")) {
 			if(((RichMember)value).getMembershipType().equalsIgnoreCase("INDIRECT") && !editable){

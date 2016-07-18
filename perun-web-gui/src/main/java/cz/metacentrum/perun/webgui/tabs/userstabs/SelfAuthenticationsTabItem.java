@@ -230,22 +230,24 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 							found = true;
 							tab.setHTML(i++, 0, "<strong>"+a.getLogin()+"</strong>");
 							tab.setHTML(i++, 0, "Issuer: " + a.getExtSource().getName());
-							CustomButton removeButton = new CustomButton("Remove", SmallIcons.INSTANCE.deleteIcon(), new ClickHandler() {
-								@Override
-								public void onClick(ClickEvent event) {
-									RemoveUserExtSource remove = new RemoveUserExtSource(new JsonCallbackEvents(){
-										@Override
-										public void onFinished(JavaScriptObject jso) {
-											// reload whole tab
-											ueses.retrieveData();
-										}
-									});
-									remove.removeUserExtSource(userId, a.getId());
-								}
-							});
-							// add button to table
-							tab.getFlexCellFormatter().setRowSpan(i-2, 1, 2);
-							tab.setWidget(i-2, 1, removeButton);
+							if (!a.isPersistent()) {
+								CustomButton removeButton = new CustomButton("Remove", SmallIcons.INSTANCE.deleteIcon(), new ClickHandler() {
+									@Override
+									public void onClick(ClickEvent event) {
+										RemoveUserExtSource remove = new RemoveUserExtSource(new JsonCallbackEvents() {
+											@Override
+											public void onFinished(JavaScriptObject jso) {
+												// reload whole tab
+												ueses.retrieveData();
+											}
+										});
+										remove.removeUserExtSource(userId, a.getId());
+									}
+								});
+								// add button to table
+								tab.getFlexCellFormatter().setRowSpan(i - 2, 1, 2);
+								tab.setWidget(i - 2, 1, removeButton);
+							}
 						}
 					}
 					if (found) {
