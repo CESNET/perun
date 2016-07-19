@@ -1111,23 +1111,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				//synchronize Group and get information about skipped Members
 				List<String> skippedMembers = perunBl.getGroupsManagerBl().synchronizeGroup(sess, group);
 
-				//prepare variables for checking max length of message and create human readable text
-				boolean exceedMaxChars = false;
-				int maxChars = 3000;
 				if(!skippedMembers.isEmpty()) {
 					skippedMembersMessage = "These members from extSource were skipped: { ";
-					//Exception message can't be longer than 3000 chars
+					
 					for(String skippedMember: skippedMembers) {
 						if(skippedMember == null) continue;
-						if(!exceedMaxChars && (skippedMembersMessage.length() + skippedMember.length()) > maxChars) {
-							exceptionMessage = skippedMembersMessage + " ... message is too long, other info is in perun log file. If needed, please ask perun administrators.";
-							exceedMaxChars = true;
-						}
+						
 						skippedMembersMessage+= skippedMember + ", ";
 					}
 					skippedMembersMessage+= " }";
-					if(!exceedMaxChars) exceptionMessage = skippedMembersMessage;
-					log.info("Info about exception from synchronization: " + skippedMembersMessage);
+					exceptionMessage = skippedMembersMessage;
 				}
 
 				log.debug("Synchronization thread for group {} has finished in {} ms.", group, System.currentTimeMillis()-startTime);
@@ -1391,6 +1384,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	public void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException {
 		//get current timestamp of this synchronization
 		Date currentTimestamp = new Date();
+		String originalExceptionMessage = exceptionMessage;
 		//If session is null, throw an exception
 		if (sess == null) {
 			throw new InternalErrorException("Session is null when trying to save information about synchronization. Group: " + group + ", timestamp: " + currentTimestamp + ",message: " + exceptionMessage);
@@ -1404,6 +1398,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//if exceptionMessage is empty, use "Empty message" instead
 		if (exceptionMessage != null && exceptionMessage.isEmpty()) {
 			exceptionMessage = "Empty message.";
+		//else trim the message on 1000 characters if not null
+		} else if (exceptionMessage != null && exceptionMessage.length() > 1000) {
+			exceptionMessage = exceptionMessage.substring(0, 1000) + " ... message is too long, other info is in perun log file. If needed, please ask perun administrators.";
 		}
 
 		//Set correct format of currentTimestamp
@@ -1434,9 +1431,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		} else {
 			//Log to auditer_log that synchronization failed or finished with some errors
 			if(failedDueToException) {
-				getPerunBl().getAuditer().log(sess, "{} synchronization failed because of {}.", group, exceptionMessage);
+				getPerunBl().getAuditer().log(sess, "{} synchronization failed because of {}.", group, originalExceptionMessage);
 			} else {
-				getPerunBl().getAuditer().log(sess, "{} synchronization finished with errors: {}.", group, exceptionMessage);
+				getPerunBl().getAuditer().log(sess, "{} synchronization finished with errors: {}.", group, originalExceptionMessage);
 			}
 		}
 
