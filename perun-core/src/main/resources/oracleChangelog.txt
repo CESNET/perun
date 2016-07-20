@@ -31,8 +31,10 @@ create index IDX_FK_SPECIFU_U_UI on specific_user_users(user_id);
 create index IDX_FK_SPECIFU_U_SUI on specific_user_users(specific_user_id);
 alter table specific_user_users add (constraint ACC_SPECIFU_U_PK primary key (user_id,specific_user_id), constraint ACC_SPECIFU_U_UID_FK foreign key (user_id) references users(id), constraint ACC_SPECIFU_U_SUID_FK foreign key (specific_user_id) references users(id), constraint SPECIFU_U_STATUS_CHK check (status in ('0','1')));
 alter table authz add sponsored_user_id integer;
-create index idx_fk_authz_sponsoru_team on authz(sponsored_user_id);
-alter table authz add (constraint AUTHZ_SPONSU_FK foreign key (sponsored_user_id) references users(id));
+create index idx_fk_authz_sponsu on authz(sponsored_user_id);
+alter table authz drop constraint AUTHZ_U2;
+drop index AUTHZ_U2;
+alter table authz add ( constraint AUTHZ_SPONSU_FK foreign key (sponsored_user_id) references users(id), constraint AUTHZ_U unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id,security_team_id,sponsored_user_id) );
 update configurations set value='3.1.35' where property='DATABASE VERSION';
 
 3.1.34

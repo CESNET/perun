@@ -44,9 +44,9 @@ alter table specific_user_users add constraint acc_specifu_u_uid_fk foreign key 
 alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id);
 alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
 alter table authz add sponsored_user_id integer;
-create index idx_fk_authz_sponsoru_team on authz(sponsored_user_id);
+create index idx_fk_authz_sponsu on authz(sponsored_user_id);
 drop index idx_authz_u2;
-create unique index idx_authz_u ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'), COALESCE(security_team_id, '0'));
+create unique index idx_authz_u ON authz (COALESCE(user_id, '0'), COALESCE(authorized_group_id, '0'), COALESCE(service_principal_id, '0'), role_id, COALESCE(group_id, '0'), COALESCE(vo_id, '0'), COALESCE(facility_id, '0'), COALESCE(member_id, '0'), COALESCE(resource_id, '0'), COALESCE(service_id, '0'), COALESCE(security_team_id, '0'), COALESCE(sponsored_user_id, '0'));
 alter table authz add constraint authz_sponsu_fk foreign key (sponsored_user_id) references users(id);
 update configurations set value='3.1.35' where property='DATABASE VERSION';
 
