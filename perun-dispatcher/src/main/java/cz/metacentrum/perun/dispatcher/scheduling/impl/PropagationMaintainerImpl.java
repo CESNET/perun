@@ -207,9 +207,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 								task.toString());
 					}
 				} catch (FacilityNotExistsException e) {
-					log.error(
-							"Consistency error - found task for non-existing facility. {}",
-							e);
+					schedulingPool.removeTask(task);
+					log.error("Removed TASK {} from database, facility no longer exists.",
+							task.getId());
+				
 				} catch (InternalErrorException e) {
 					log.error("{}", e);
 				} catch (PrivilegeException e) {
