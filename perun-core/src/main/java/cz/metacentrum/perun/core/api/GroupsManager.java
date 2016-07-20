@@ -6,6 +6,7 @@ import java.util.Map;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -216,7 +217,6 @@ public interface GroupsManager {
 	 */
 	Group getGroupByName(PerunSession perunSession, Vo vo, String name) throws GroupNotExistsException, InternalErrorException, PrivilegeException, VoNotExistsException;
 
-
 	/**
 	 * Adds member of the VO to the group in the same VO.
 	 *
@@ -231,10 +231,13 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws InternalErrorRuntimeException
 	 * @throws WrongAttributeValueException if any member attribute value, required by resource (on which the group is assigned), is wrong
+	 * @throws NotMemberOfParentGroupException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException
 	 * @throws WrongReferenceAttributeValueException
+	 * @throws ExternallyManagedException
 	 */
-	void addMember(PerunSession perunSession, Group group,  Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException;
-
+	void addMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
 
 	/**
 	 * Removes member form the group.
@@ -249,8 +252,11 @@ public interface GroupsManager {
 	 * @throws GroupNotExistsException
 	 * @throws NotGroupMemberException
 	 * @throws InternalErrorRuntimeException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException
+	 * @throws ExternallyManagedException
 	 */
-	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException;
+	void removeMember(PerunSession perunSession, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException;
 
 	/**
 	 * Return all group members.

@@ -33,6 +33,7 @@ import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
 import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -1450,6 +1451,61 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertEquals("Both lists should be same", Arrays.asList(richGroup1, richGroup2), groupsManagerBl.convertGroupsToRichGroupsWithAttributes(sess, Arrays.asList(group, group2), attrNames));
 	}
 
+	@Test(expected = ExternallyManagedException.class)
+	public void addMemberToSynchronizedGroup() throws Exception {
+		System.out.println(CLASS_NAME + "addMemberToSynchronizedGroup");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Attribute synchroAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
+		synchroAttr.setValue("true");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+	}
+	
+	@Test
+	public void addAndRemoveMemberInNonSynchronizedGroup() throws Exception {
+		System.out.println(CLASS_NAME + "addAndRemoveMemberInNonSynchronizedGroup");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Attribute synchroAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
+		synchroAttr.setValue("false");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
+
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+		List<Member> members = groupsManager.getGroupMembers(sess, group);
+		assertTrue("List of members should contain member", members.contains(member));
+		
+		groupsManager.removeMember(sess, group, member);
+		members = groupsManager.getGroupMembers(sess, group);
+		assertTrue("List of members should be empty", members.isEmpty());
+	}
+	
+	@Test(expected = ExternallyManagedException.class)
+	public void removeMemberInSynchronizedGroup() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberInSynchronizedGroup");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+
+		Attribute synchroAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
+		synchroAttr.setValue("false");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
+		
+		Member member = setUpMember(vo);
+		groupsManager.addMember(sess, group, member);
+
+		synchroAttr.setValue("true");
+		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
+		groupsManager.removeMember(sess, group, member);
+	}
+	
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {

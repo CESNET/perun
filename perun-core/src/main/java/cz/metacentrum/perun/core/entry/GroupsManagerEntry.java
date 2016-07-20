@@ -23,6 +23,7 @@ import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
@@ -49,6 +50,7 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
+import java.util.Objects;
 
 /**
  * GroupsManager entry logic
@@ -225,35 +227,47 @@ public class GroupsManagerEntry implements GroupsManager {
 		return group;
 	}
 
-	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException {
+	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
-
+		
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+		    && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "addMember");
-				}
+		}
 
 		// Check if the member and group are from the same VO
 		if (member.getVoId() != (group.getVoId())) {
 			throw new MembershipMismatchException("Member and group are form the different VO");
 		}
-
+		
+		// Check if the group is externally synchronized
+		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+		if (Objects.equals("true", (String) attrSynchronizeEnabled.getValue())) {
+			throw new ExternallyManagedException("Adding of member is not allowed. Group is externally managed.");
+		}
+		
 		getGroupsManagerBl().addMember(sess, group, member);
 	}
 
-	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException {
+	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+		    && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "removeMember");
-				}
+		}
+		
+		// Check if the group is externally synchronized
+		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+		if (Objects.equals("true", (String) attrSynchronizeEnabled.getValue())) {
+			throw new ExternallyManagedException("Removing of member is not allowed. Group is externally managed.");
+		}
 
 		getGroupsManagerBl().removeMember(sess, group, member);
 	}
