@@ -33,8 +33,8 @@ public class SchedulingPoolImpl implements SchedulingPool{
 
 	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
 
-	private Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
-	private Map<Integer, Task> taskIdMap = new ConcurrentHashMap<Integer, Task>();
+	private final Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
+	private final Map<Integer, Task> taskIdMap = new ConcurrentHashMap<Integer, Task>();
 
 	/*
 	 * private BufferedWriter out = null; private FileWriter fstream = null;
@@ -61,7 +61,7 @@ public class SchedulingPoolImpl implements SchedulingPool{
 			if (status == null) {
 				task.setStatus(TaskStatus.NONE);
 			}
-			if (!pool.get(task.getStatus()).contains(task.getId())) {
+			if (!pool.get(task.getStatus()).contains(task)) {
 				pool.get(task.getStatus()).add(task);
 			}
 		}
@@ -206,6 +206,7 @@ public class SchedulingPoolImpl implements SchedulingPool{
 		 */
 	}
 
+	/* FIXME - if ever used, do not re-assign, but clear final variables
 	private void clearPool() {
 		pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
 		taskIdMap = new ConcurrentHashMap<Integer, Task>();
@@ -213,6 +214,7 @@ public class SchedulingPoolImpl implements SchedulingPool{
 			pool.put(status, new ArrayList<Task>());
 		}
 	}
+	*/
 
 	/*
 	 * class Serializator implements Runnable { private Pair<ExecService,
