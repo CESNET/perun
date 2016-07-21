@@ -1,12 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +15,7 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
 /**
- * Class for checking logins uniqueness in the namespace and filling namespaces
+ * Class for checking login uniqueness in the namespace and filling login value in namespace
  *
  * @author Michal Prochazka  &lt;michalp@ics.muni.cz&gt;
  * @author Slavek Licehammer &lt;glory@ics.muni.cz&gt;
@@ -28,6 +25,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModule
 public class urn_perun_user_attribute_def_def_login_namespace extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace.class);
+
+	protected final static List<String> generatedNamespaces = ModulesUtilsBlImpl.getGeneratedLoginNamespaces();
 
 	/**
 	 * Checks if the user's login is unique in the namespace organization
@@ -69,6 +68,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	/**
 	 * Filling implemented for:
 	 * - namespaces configured in /etc/perun/perun.properties as property: "perun.loginNamespace.generated"
+	 * - You must create own attribute module for that namespace to define filling function
 	 *
 	 * @param perunSession PerunSession
 	 * @param user User to fill attribute for
@@ -81,90 +81,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 
 		Attribute filledAttribute = new Attribute(attribute);
-
-		// load namespaces to generate login for
-		List<String> namespaces;
-		try {
-			String nmspc = BeansUtils.getPropertyFromConfiguration("perun.loginNamespace.generated");
-			namespaces = new ArrayList<String>(Arrays.asList(nmspc.split(",")));
-			Iterator<String> nameIter = namespaces.listIterator();
-			// trim and remove empty namespaces
-			while (nameIter.hasNext()) {
-				String namespace = nameIter.next();
-				namespace = namespace.trim();
-				if (namespace.isEmpty()) nameIter.remove();
-			}
-		} catch (InternalErrorException ex) {
-			// without value
-			return filledAttribute;
-		}
-
-		if (namespaces.contains(attribute.getFriendlyNameParameter())) {
-			// with value
-			return generateLoginValue(perunSession, user, filledAttribute);
-		} else {
-			// without value
-			return filledAttribute;
-		}
-	}
-
-	/**
-	 * Fill login-namespace attribute with generated value.
-	 * 	Format is: "firstName.lastName[number]" where number is opt and start with 1 when same login is already present.
-	 * 	All accented chars are unaccented and all non (a-z,A-Z) chars are removed from name and value is lowercased.
-	 *
-	 * @param sess PerunSession
-	 * @param user User to fill attribute for
-	 * @param attribute Attribute to fill value with
-	 * @return Filled attribute
-	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 */
-	private Attribute generateLoginValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-
-		String firstName = user.getFirstName();
-		String lastName = user.getLastName();
-
-		// get only first part of first name and remove spec. chars
-		if (firstName != null && !firstName.isEmpty()) {
-			firstName = firstName.split(" ")[0];
-			firstName = firstName.toLowerCase();
-			firstName = java.text.Normalizer.normalize(firstName, java.text.Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+","");
-			firstName = firstName.replaceAll("[^a-zA-Z]+", "");
-		}
-
-		// get only last part of last name and remove spec. chars
-		if (lastName != null && !lastName.isEmpty()) {
-			List<String> names = Arrays.asList(lastName.split(" "));
-			lastName = names.get(names.size() - 1);
-			lastName = lastName.toLowerCase();
-			lastName = java.text.Normalizer.normalize(lastName, java.text.Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-			lastName = lastName.replaceAll("[^a-zA-Z]+", "");
-		}
-
-		// unable to fill login for users without name or with partial name
-		if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
-			return attribute;
-		}
-
-		// fill value
-		int iterator = 0;
-		while (iterator >= 0) {
-			if (iterator > 0) {
-				attribute.setValue(firstName+ "." + lastName + iterator);
-			} else {
-				attribute.setValue(firstName + "." + lastName);
-			}
-			try {
-				checkAttributeValue(sess, user, attribute);
-				return attribute;
-			} catch (WrongAttributeValueException ex) {
-				// continue in a WHILE cycle
-				iterator++;
-			}
-		}
-
-		return attribute;
+		return filledAttribute;
 
 	}
 
