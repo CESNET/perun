@@ -61,6 +61,7 @@ public class UpdateUser {
 		newUser.put("titleBefore", oldUser.get("titleBefore"));
 		newUser.put("titleAfter", oldUser.get("titleAfter"));
 		newUser.put("serviceUser", oldUser.get("serviceUser"));
+		newUser.put("sponsoredUser", oldUser.get("sponsoredUser"));
 
 		// whole JSON query
 		JSONObject jsonQuery = new JSONObject();
