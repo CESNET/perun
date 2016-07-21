@@ -429,10 +429,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public User updateUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		//Convert user to version with no empty strings in object attributes (null instead)
 		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);
-		
+
 		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
 		User afterUpdatingUser = getUsersManagerImpl().updateUser(sess, user);
-		
+
 		//Log only when something is changed
 		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
 		return afterUpdatingUser;
@@ -441,10 +441,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		//Convert user to version with no empty strings in object attributes (null instead)
 		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);
-		
+
 		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
 		User afterUpdatingUser = getUsersManagerImpl().updateNameTitles(sess, user);
-		
+
 		//Log only when something is changed		
 		// must audit like update user since it changes same object
 		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
@@ -927,15 +927,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param password
 	 */
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-				 PasswordCreationFailedException {
-					 log.info("Reserving password for {} in login-namespace {}.", userLogin, loginNamespace);
+			PasswordCreationFailedException {
+		log.info("Reserving password for {} in login-namespace {}.", userLogin, loginNamespace);
 
-					 // Reserve the password
-					 try {
-						 this.managePassword(sess, PASSWORD_RESERVE, (String) userLogin, loginNamespace, password);
-					 } catch (PasswordCreationFailedRuntimeException e) {
-						 throw new PasswordCreationFailedException(e);
-					 }
+		// Reserve the password
+		try {
+			this.managePassword(sess, PASSWORD_RESERVE, (String) userLogin, loginNamespace, password);
+		} catch (PasswordCreationFailedRuntimeException e) {
+			throw new PasswordCreationFailedException(e);
+		}
 	}
 
 	/**
@@ -947,28 +947,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param password
 	 */
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-				 PasswordCreationFailedException, LoginNotExistsException {
-					 log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
+			PasswordCreationFailedException, LoginNotExistsException {
+		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
-					 // Get login.
-					 try {
-						 Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
+		// Get login.
+		try {
+			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
-						 if (attr.getValue() == null) {
-							 throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
-						 }
+			if (attr.getValue() == null) {
+				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+			}
 
-						 // Create the password
-						 try {
-							 this.managePassword(sess, PASSWORD_RESERVE, (String) attr.getValue(), loginNamespace, password);
-						 } catch (PasswordCreationFailedRuntimeException e) {
-							 throw new PasswordCreationFailedException(e);
-						 }
-					 } catch (AttributeNotExistsException e) {
-						 throw new LoginNotExistsException(e);
-					 } catch (WrongAttributeAssignmentException e) {
-						 throw new InternalErrorException(e);
-					 }
+			// Create the password
+			try {
+				this.managePassword(sess, PASSWORD_RESERVE, (String) attr.getValue(), loginNamespace, password);
+			} catch (PasswordCreationFailedRuntimeException e) {
+				throw new PasswordCreationFailedException(e);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new LoginNotExistsException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	/**
@@ -979,15 +979,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param loginNamespace
 	 */
 	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-				 PasswordCreationFailedException {
-					 log.info("Validating password for {} in login-namespace {}.", userLogin, loginNamespace);
+			PasswordCreationFailedException {
+		log.info("Validating password for {} in login-namespace {}.", userLogin, loginNamespace);
 
-					 // Validate the password
-					 try {
-						 this.managePassword(sess, PASSWORD_VALIDATE, (String) userLogin, loginNamespace, null);
-					 } catch (PasswordCreationFailedRuntimeException e) {
-						 throw new PasswordCreationFailedException(e);
-					 }
+		// Validate the password
+		try {
+			this.managePassword(sess, PASSWORD_VALIDATE, (String) userLogin, loginNamespace, null);
+		} catch (PasswordCreationFailedRuntimeException e) {
+			throw new PasswordCreationFailedException(e);
+		}
 	}
 
 	/**
@@ -998,28 +998,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param loginNamespace
 	 */
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
-				 PasswordCreationFailedException, LoginNotExistsException {
-					 log.info("Validating password for {} in login-namespace {}.", user, loginNamespace);
+			PasswordCreationFailedException, LoginNotExistsException {
+		log.info("Validating password for {} in login-namespace {}.", user, loginNamespace);
 
-					 // Get login.
-					 try {
-						 Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
+		// Get login.
+		try {
+			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
-						 if (attr.getValue() == null) {
-							 throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
-						 }
+			if (attr.getValue() == null) {
+				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+			}
 
-						 // Create the password
-						 try {
-							 this.managePassword(sess, PASSWORD_VALIDATE, (String) attr.getValue(), loginNamespace, null);
-						 } catch (PasswordCreationFailedRuntimeException e) {
-							 throw new PasswordCreationFailedException(e);
-						 }
-					 } catch (AttributeNotExistsException e) {
-						 throw new LoginNotExistsException(e);
-					 } catch (WrongAttributeAssignmentException e) {
-						 throw new InternalErrorException(e);
-					 }
+			// Create the password
+			try {
+				this.managePassword(sess, PASSWORD_VALIDATE, (String) attr.getValue(), loginNamespace, null);
+			} catch (PasswordCreationFailedRuntimeException e) {
+				throw new PasswordCreationFailedException(e);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new LoginNotExistsException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	/**
@@ -1208,6 +1208,19 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					//this is OK
 				}
 
+			} else if (loginNamespace.equals("vsup")) {
+
+				// Add UES in their ActiveDirectory to access Perun by it
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "AD");
+				UserExtSource ues = new UserExtSource(extSource, userLogin);
+				ues.setLoa(0);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -1229,15 +1242,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 */
 	@Deprecated
 	public void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-				 PasswordCreationFailedException {
-					 log.info("Creating password for {} in login-namespace {}.", userLogin, loginNamespace);
+			PasswordCreationFailedException {
+		log.info("Creating password for {} in login-namespace {}.", userLogin, loginNamespace);
 
-					 // Create the password
-					 try {
-						 this.managePassword(sess, PASSWORD_CREATE, (String) userLogin, loginNamespace, password);
-					 } catch (PasswordCreationFailedRuntimeException e) {
-						 throw new PasswordCreationFailedException(e);
-					 }
+		// Create the password
+		try {
+			this.managePassword(sess, PASSWORD_CREATE, (String) userLogin, loginNamespace, password);
+		} catch (PasswordCreationFailedRuntimeException e) {
+			throw new PasswordCreationFailedException(e);
+		}
 	}
 
 	/**
@@ -1250,28 +1263,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 */
 	@Deprecated
 	public void createPassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-				 PasswordCreationFailedException, LoginNotExistsException {
-					 log.info("Creating password for {} in login-namespace {}.", user, loginNamespace);
+			PasswordCreationFailedException, LoginNotExistsException {
+		log.info("Creating password for {} in login-namespace {}.", user, loginNamespace);
 
-					 // Get login.
-					 try {
-						 Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
+		// Get login.
+		try {
+			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
-						 if (attr.getValue() == null) {
-							 throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
-						 }
+			if (attr.getValue() == null) {
+				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+			}
 
-						 // Create the password
-						 try {
-							 this.managePassword(sess, PASSWORD_CREATE, (String) attr.getValue(), loginNamespace, password);
-						 } catch (PasswordCreationFailedRuntimeException e) {
-							 throw new PasswordCreationFailedException(e);
-						 }
-					 } catch (AttributeNotExistsException e) {
-						 throw new LoginNotExistsException(e);
-					 } catch (WrongAttributeAssignmentException e) {
-						 throw new InternalErrorException(e);
-					 }
+			// Create the password
+			try {
+				this.managePassword(sess, PASSWORD_CREATE, (String) attr.getValue(), loginNamespace, password);
+			} catch (PasswordCreationFailedRuntimeException e) {
+				throw new PasswordCreationFailedException(e);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new LoginNotExistsException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	/**
@@ -1282,24 +1295,24 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param loginNamespace
 	 */
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException, LoginNotExistsException,
-				 PasswordDeletionFailedException {
-					 log.info("Deleting password for {} in login-namespace {}.", userLogin, loginNamespace);
+			PasswordDeletionFailedException {
+		log.info("Deleting password for {} in login-namespace {}.", userLogin, loginNamespace);
 
-					 // Delete the password
-					 try {
-						 this.managePassword(sess, PASSWORD_DELETE, (String) userLogin, loginNamespace, null);
-					 } catch (PasswordDeletionFailedRuntimeException e) {
-						 throw new PasswordDeletionFailedException(e);
-					 } catch (LoginNotExistsRuntimeException e) {
-						 throw new LoginNotExistsException(e);
-					 }
+		// Delete the password
+		try {
+			this.managePassword(sess, PASSWORD_DELETE, (String) userLogin, loginNamespace, null);
+		} catch (PasswordDeletionFailedRuntimeException e) {
+			throw new PasswordDeletionFailedException(e);
+		} catch (LoginNotExistsRuntimeException e) {
+			throw new LoginNotExistsException(e);
+		}
 	}
 
 	/**
 	 * Method which calls external program for password change.
 	 */
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-		throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
+			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
 		log.info("Changing password for {} in login-namespace {}.", user, loginNamespace);
 
 		// Get User login in loginNamespace
@@ -1821,15 +1834,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public User convertUserEmptyStringsInObjectAttributesIntoNull(User user) {
 		//if user is null, return it back without change
 		if(user == null) return user;
-		
+
 		//convert all empty strings to null
 		if(user.getFirstName() != null && user.getFirstName().isEmpty()) user.setFirstName(null);
 		if(user.getMiddleName() != null && user.getMiddleName().isEmpty()) user.setMiddleName(null);
 		if(user.getLastName() != null && user.getLastName().isEmpty()) user.setLastName(null);
-		
+
 		if(user.getTitleBefore() != null && user.getTitleBefore().isEmpty()) user.setTitleBefore(null);
 		if(user.getTitleAfter() != null && user.getTitleAfter().isEmpty()) user.setTitleAfter(null);
-		
+
 		return user;
 	}
 
