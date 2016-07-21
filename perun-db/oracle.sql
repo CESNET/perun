@@ -1258,7 +1258,7 @@ create index IDX_FK_AUTHZ_GROUP on authz(group_id);
 create index IDX_FK_AUTHZ_SERVICE on authz(service_id);
 create index IDX_FK_AUTHZ_RES on authz(resource_id);
 create index IDX_FK_AUTHZ_SER_PRINC on authz(service_principal_id);
-create index IDX_FK_AUTHZ_SPONSORU_TEAM on authz(sponsored_user_id);
+create index IDX_FK_AUTHZ_SPONSU on authz(sponsored_user_id);
 create index IDX_FK_AUTHZ_SEC_TEAM on authz(security_team_id);
 create index IDX_FK_GRRES_GR on groups_resources(group_id);
 create index IDX_FK_GRRES_RES on groups_resources(resource_id);
@@ -1594,8 +1594,9 @@ constraint AUTHZ_SERVICE_FK foreign key (service_id) references services(id),
 constraint AUTHZ_RES_FK foreign key (resource_id) references resources(id),
 constraint AUTHZ_SER_PRINC_FK foreign key (service_principal_id) references service_principals(id),
 constraint AUTHZ_SEC_TEAM_FK foreign key (security_team_id) references security_teams(id),
+constraint AUTHZ_SPONSU_FK foreign key (sponsored_user_id) references users(id),
 constraint AUTHZ_USER_SERPRINC_AUTGRP_CHK check (decode(user_id,null,0,1)+decode(service_principal_id,null,0,1)+decode(authorized_group_id,null,0,1) = 1),
-constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id,security_team_id)
+constraint AUTHZ_U unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id,security_team_id,sponsored_user_id)
 );
 
 alter table facility_contacts add (

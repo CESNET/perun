@@ -42,7 +42,7 @@ alter table specific_user_users add constraint acc_specifu_u_uid_fk foreign key 
 alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id);
 alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
 alter table authz add sponsored_user_id integer;
-create index idx_fk_authz_sponsoru_team on authz(sponsored_user_id);
+create index idx_fk_authz_sponsu on authz(sponsored_user_id);
 drop index idx_authz_u2;
 create unique index idx_authz_u on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id, security_team_id, sponsored_user_id);
 alter table authz add constraint authz_sponsu_fk foreign key (sponsored_user_id) references users(id);
