@@ -1025,7 +1025,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 			if (lastName != null && !lastName.isEmpty()) {
 				List<String> names = Arrays.asList(lastName.split(" "));
 				lastName = names.get(names.size() - 1);
-				firstName = ModulesUtilsBlImpl.normalizeStringForLogin(lastName.split(" ")[0]);
+				lastName = ModulesUtilsBlImpl.normalizeStringForLogin(lastName.split(" ")[0]);
 			}
 
 			// unable to fill login for users without name or with partial name
