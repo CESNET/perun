@@ -553,12 +553,15 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Utils.notNull(hosts, "hosts");
 
-		List<Host> addedHosts = getFacilitiesManagerBl().addHosts(sess, facility, hosts);
+		List<String> allHostnames = new ArrayList<>();
+		for(String host: hosts) {
+			allHostnames.addAll(Utils.generateStringsByPattern(host));
+		}
 
-		for(Host host: addedHosts) {
+		for(String hostname: allHostnames) {
 
-			List<Facility> facilitiesByHostname = getFacilitiesManagerBl().getFacilitiesByHostName(sess, host.getHostname());
-			List<Facility> facilitiesByDestination = getFacilitiesManagerBl().getFacilitiesByDestination(sess, host.getHostname());
+			List<Facility> facilitiesByHostname = getFacilitiesManagerBl().getFacilitiesByHostName(sess, hostname);
+			List<Facility> facilitiesByDestination = getFacilitiesManagerBl().getFacilitiesByDestination(sess, hostname);
 
 			if(facilitiesByHostname.isEmpty() && facilitiesByDestination.isEmpty()) {
 				continue;
@@ -584,10 +587,10 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 				if(hasRight) continue;
 			}
 
-			throw new PrivilegeException(sess, "You can't add host " + host + ", because you don't have privileges to use this hostName");
+			throw new PrivilegeException(sess, "You can't add host " + hostname + ", because you don't have privileges to use this hostName");
 		}
 
-		return addedHosts;
+		return getFacilitiesManagerBl().addHosts(sess, facility, hosts);
 	}
 
 	public void removeHosts(PerunSession sess, List<Host> hosts, Facility facility) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, HostAlreadyRemovedException {
