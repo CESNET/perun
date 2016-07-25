@@ -876,7 +876,7 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 			
 			return ac.getResourcesManager().updateBan(ac.getSession(),
-					ac.getBanOnResource(parms.readInt("banOnResource")));
+					parms.read("banOnResource", BanOnResource.class));
 
 		}
 	},
