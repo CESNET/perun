@@ -201,13 +201,21 @@ eval {
 
 if($@) {
   my $perunException = $@;
-  my $errorId = $perunException->getErrorId();
-  my $message = $perunException->getErrorInfo();
-  my $name = $perunException->getName();
+  my $name = "InternalErrorException";
+  my $message = "Uknown error";
+  my $errorId = 9;
+  if ($perunException =~ /Authentication failed/) {
+    $message = "Authentication Failed";
+    $errorId = 10;
+  } elsif ($perunException->can("getErrorId")) {
+    $name = $perunException->getName();
+    $message = $perunException->getErrorInfo();
+    $errorId = $perunException->getErrorId();
+  }                                                                                           
   my %exception_hash = ('errorId'=>$errorId, 'message'=>$message, 'name'=>$name);
   my $json = encode_json \%exception_hash;
   print "$callback($json);";
-  exit 0; 
+  exit 0;
 }
 
 
