@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 #enviromental variables
-$ENV{KRB5CCNAME}='FILE:/tmp/krb5cc_elixir-mailman';
+$ENV{KRB5CCNAME}='FILE:/tmp/krb5cc_perun-tools-webserver';
 $ENV{PERUN_URL}='https://perun.metacentrum.cz/krb/rpc/';
 
 use CGI qw(:standard);
