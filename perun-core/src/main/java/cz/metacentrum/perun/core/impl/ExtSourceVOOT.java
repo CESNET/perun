@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationExc
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
+import static cz.metacentrum.perun.core.impl.Utils.parseCommonName;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -293,7 +294,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
 
     // method is used by getUsersFromRemoteGroup() method, creates MAP from required user
     private Map<String, String> jsonParsing(JSONObject user) throws InternalErrorException {
-        Map<String, String> resultMap = new HashMap<String, String>();
+        Map<String, String> resultMap = new HashMap<>();
 
         String mapping = getAttributes().get("vootMapping");
         String[] mappingArray = mapping.split(",\n");
@@ -303,7 +304,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
             int mappingIndex = attr.indexOf("=");
 
             if (mappingIndex <= 0) {
-                throw new InternalErrorException("There is no text in csvMapping"
+                throw new InternalErrorException("There is no text in vootMapping"
                         + " attribute or there is no '=' character.");
             }
 
@@ -326,15 +327,8 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
                         resultMap.put(attrName.trim(), attrValue.trim());
                         break;
                     case "firstName":
-                        int indexLastName = user.getString("displayName").indexOf(" ");
-                        attrValue = user.getString("displayName").substring(0, indexLastName);
-                        resultMap.put(attrName.trim(), attrValue.trim());
-                        break;
                     case "lastName":
-                        String userLastName = user.getString("displayName");
-                        int indexfirstName = userLastName.lastIndexOf(" ");
-                        attrValue = userLastName.substring(indexfirstName, userLastName.length());
-                        resultMap.put(attrName.trim(), attrValue.trim());
+                        resultMap.putAll(parseCommonName(user.getString("displayName")));
                         break;
                     case "email":
                         attrValue = user.getJSONArray("emails").getJSONObject(0).getString("value");
