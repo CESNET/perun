@@ -330,6 +330,10 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
                     case "lastName":
                         resultMap.putAll(parseCommonName(user.getString("displayName")));
                         break;
+                    case "eppn":
+                        attrValue = user.getString("eppn");
+                        resultMap.put(attrName.trim(), attrValue.trim());
+                        break;
                     case "email":
                         attrValue = user.getJSONArray("emails").getJSONObject(0).getString("value");
                         resultMap.put(attrName.trim(), attrValue.trim());
