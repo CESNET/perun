@@ -340,8 +340,7 @@ public class EditMailTabItem implements TabItem, TabItemWithUrl {
 		if (!Utils.getNativeLanguage().isEmpty() && !languages.contains(Utils.getNativeLanguage().get(0))) {
 			languages.add(Utils.getNativeLanguage().get(0));
 		}
-		if (!languages.contains("en")) languages.add("en");
-
+		if (!languages.contains("en")) languages.add(0, "en");
 
 		// vertical panel
 		VerticalPanel vp = new VerticalPanel();
