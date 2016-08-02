@@ -1045,7 +1045,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@META");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
@@ -1056,7 +1055,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@EINFRA");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
@@ -1072,19 +1070,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				boolean someChange = false;
+				if (!kerberosLogins.contains(userLogin + "@EINFRA")) {
+					kerberosLogins.add(userLogin + "@EINFRA");
+					someChange = true;
+				}
+				if (!kerberosLogins.contains(userLogin + "@META")) {
+					kerberosLogins.add(userLogin + "@META");
+					someChange = true;
+				}
+
+				if (someChange) {
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
 			} else if (loginNamespace.equals("egi-ui")) {
+
 				List<String> kerberosLogins = new ArrayList<String>();
 
 				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EGI");
@@ -1093,25 +1100,24 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@EGI");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				if (!kerberosLogins.contains(userLogin + "@EGI")) {
+					kerberosLogins.add(userLogin + "@EGI");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
 			} else if (loginNamespace.equals("sitola")) {
+
 				List<String> kerberosLogins = new ArrayList<String>();
 
 				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "SITOLA.FI.MUNI.CZ");
@@ -1120,24 +1126,22 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ")) {
+					kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
 			} else if (loginNamespace.equals("sagrid")) {
 
 				List<String> kerberosLogins = new ArrayList<String>();
@@ -1148,24 +1152,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@SAGRID");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				if (!kerberosLogins.contains(userLogin + "@SAGRID")) {
+					kerberosLogins.add(userLogin + "@SAGRID");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
 
 			} else if (loginNamespace.equals("ics.muni.cz")) {
 
@@ -1177,24 +1178,21 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ")) {
+					kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
 
 			} else if (loginNamespace.equals("mu")) {
 
