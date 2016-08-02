@@ -23,6 +23,7 @@ public class Utils {
 	public static final String VO_SHORT_NAME_MATCHER = "^[-a-zA-Z0-9_.]+$";
 	public static final String ATTRIBUTE_FRIENDLY_NAME_MATCHER = "^[-a-zA-Z0-9.]+([:][-a-zA-Z0-9.]+)?$";
 	public static final String LOGIN_VALUE_MATCHER = "^[a-zA-Z0-9_][-A-z0-9_.@/]*$";
+	public static final String FACILITY_NAME_MATCHER = "^[ a-zA-Z.0-9_-]+$";
 
 	public static final String SERVICE_NAME_TO_SCRIP_PATH_MATCHER= "[^a-zA-Z0-9-_]+";
 

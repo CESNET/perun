@@ -66,7 +66,7 @@ public class CreateFormItemTabItem implements TabItem {
 		aMap.put("COMBOBOX", "Single value selection with opt. custom value");
 		aMap.put("CHECKBOX", "Checkbox");
 		aMap.put("USERNAME", "Input text field for username");
-		aMap.put("PASSWORD", "Input text field for passowrd");
+		aMap.put("PASSWORD", "Input text field for password");
 		aMap.put("VALIDATED_EMAIL", "Input text field for email");
 		aMap.put("SUBMIT_BUTTON", "Custom submit button");
 		aMap.put("AUTO_SUBMIT_BUTTON", "Submit button with auto-submit");
