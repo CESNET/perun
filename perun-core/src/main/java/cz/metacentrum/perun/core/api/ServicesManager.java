@@ -33,6 +33,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
  */
 public interface ServicesManager {
 
+	public static final String SERVICE_NAME_REGEXP = "^[a-zA-Z0-9_]+$";
+
 	/**
 	 * Creates new service.
 	 *
