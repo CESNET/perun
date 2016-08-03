@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.JsonNode;
+import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONSIMPLE;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
@@ -616,6 +616,8 @@ public class Api extends HttpServlet {
 				return new JsonSerializer(out);
 			case voot:
 				return new JsonSerializer(out);
+			case jsonsimple:
+				return new JsonSerializerJSONSIMPLE(out);
 			default:
 				throw new RpcException(RpcException.Type.UNKNOWN_SERIALIZER_FORMAT, format);
 		}
@@ -625,6 +627,7 @@ public class Api extends HttpServlet {
 		switch (Formats.match(format)) {
 			case json:
 			case jsonp:
+			case jsonsimple:
 				return new JsonDeserializer(req);
 			case urlinjsonout:
 			case voot:
@@ -643,7 +646,8 @@ public class Api extends HttpServlet {
 		urlinjsonout,
 		json,
 		jsonp,
-		voot;
+		voot,
+		jsonsimple;
 
 		/**
 		 * Matches a string with the enum's values.
