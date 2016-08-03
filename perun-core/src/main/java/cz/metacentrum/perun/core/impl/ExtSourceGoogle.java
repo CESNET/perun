@@ -186,6 +186,12 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 
 	@Override
 	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		return getGroupSubjects(attributes, null);
+	}
+
+	@Override
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes, List<String> logins) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		if(logins != null) throw new ExtSourceUnsupportedOperationException("Not supported to get subjects for this extSource by list of logins.");
 		try {
 			// Get the query for the group subjects
 			String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);

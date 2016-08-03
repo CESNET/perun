@@ -106,7 +106,13 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return subjects.get(0);
 	}
 
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	@Override
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		return getGroupSubjects(attributes, null);
+	}
+
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes, List<String> logins) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		if(logins == null) throw new ExtSourceUnsupportedOperationException("Not supported to get subjects for this extSource by list of logins.");
 
 		NamingEnumeration<SearchResult> results = null;
 
