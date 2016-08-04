@@ -10,11 +10,8 @@ import java.util.Map;
  */
 public enum MembershipType {
 	NOT_DEFINED(0),
-		DIRECT(1),
-		INDIRECT(2),
-		INCLUDED(3),
-		EXCLUDED(4);
-
+	DIRECT(1),
+	INDIRECT(2);
 
 	private static final Map<Integer,MembershipType> lookup = new HashMap<Integer,MembershipType>();
 	int code;
