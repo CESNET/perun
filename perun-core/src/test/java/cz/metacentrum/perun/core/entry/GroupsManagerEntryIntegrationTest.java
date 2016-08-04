@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -510,7 +511,146 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		groupsManager.createGroupUnion(sess, group, group2);
 	}
-	
+
+	@Test
+	public void transitiveGroupMembershipCheck() throws Exception {
+		System.out.println(CLASS_NAME + "transitiveGroupMembershipCheck");
+
+		Vo newVo = new Vo(0, "voForGroupMembershipTransitiveCheck", "voForGroupMembership");
+		newVo = perun.getVosManagerBl().createVo(sess, newVo);
+		List<Group> groups = setUpGroupsWithSubgroups(newVo);
+
+		Member member = setUpMember(newVo);
+
+		Group topLevel = null;
+		Group secondLevel = null;
+		Group thirdLevel = null;
+		Group fourthLevel = null;
+
+		for (Group group : groups) {
+			if (Objects.equals(group.getName(), "D")) {
+				topLevel = group;
+				//perun.getGroupsManager().addMember(sess, group, member);
+				//System.out.println(perun.getGroupsManagerBl().getGroupRelations(sess, group.getId()));
+			} else if (Objects.equals(group.getName(), "D:C")) {
+				//perun.getGroupsManager().addMember(sess, group, member);
+				secondLevel = group;
+				//System.out.println(perun.getGroupsManagerBl().getGroupRelations(sess, group.getId()));
+			} else if (Objects.equals(group.getName(), "D:C:E")) {
+				//perun.getGroupsManager().addMember(sess, group, member);
+				thirdLevel = group;
+				//System.out.println(perun.getGroupsManagerBl().getGroupRelations(sess, group.getId()));
+			} else if (Objects.equals(group.getName(), "D:C:E:F")) {
+				fourthLevel = group;
+				//perun.getGroupsManager().addMember(sess, group, member);
+				//System.out.println(perun.getGroupsManagerBl().getGroupRelations(sess, group.getId()));
+			}
+		}
+
+		perun.getGroupsManager().addMember(sess, secondLevel, member);
+		perun.getGroupsManager().addMember(sess, fourthLevel, member);
+
+		List<Member> topMembers = perun.getGroupsManager().getGroupMembers(sess, topLevel);
+		List<Member> secondMembers = perun.getGroupsManager().getGroupMembers(sess, secondLevel);
+		List<Member> thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
+		List<Member> fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
+
+		assertTrue(topMembers != null);
+		assertTrue(secondMembers != null);
+		assertTrue(thirdMembers != null);
+		assertTrue(fourthMembers != null);
+
+		assertTrue(topMembers.size() == 1);
+		assertTrue(secondMembers.size() == 1);
+		assertTrue(thirdMembers.size() == 1);
+		assertTrue(fourthMembers.size() == 1);
+
+		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
+		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertTrue(thirdMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
+		assertTrue(fourthMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+
+		perun.getGroupsManager().removeMember(sess, secondLevel, member);
+
+		topMembers = perun.getGroupsManager().getGroupMembers(sess, topLevel);
+		secondMembers = perun.getGroupsManager().getGroupMembers(sess, secondLevel);
+		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
+		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
+
+		assertTrue(topMembers.size() == 1);
+		assertTrue(secondMembers.size() == 1);
+		assertTrue(thirdMembers.size() == 1);
+		assertTrue(fourthMembers.size() == 1);
+
+		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
+		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
+		assertTrue(thirdMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
+		assertTrue(fourthMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+
+		perun.getGroupsManager().addMember(sess, secondLevel, member);
+		perun.getGroupsManager().removeMember(sess, fourthLevel, member);
+
+		topMembers = perun.getGroupsManager().getGroupMembers(sess, topLevel);
+		secondMembers = perun.getGroupsManager().getGroupMembers(sess, secondLevel);
+		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
+		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
+
+		assertTrue(topMembers.size() == 1);
+		assertTrue(secondMembers.size() == 1);
+		assertTrue(thirdMembers.size() == 0);
+		assertTrue(fourthMembers.size() == 0);
+
+		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
+		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+
+		perun.getGroupsManager().addMember(sess, topLevel, member);
+
+		topMembers = perun.getGroupsManager().getGroupMembers(sess, topLevel);
+		secondMembers = perun.getGroupsManager().getGroupMembers(sess, secondLevel);
+		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
+		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
+
+		assertTrue(topMembers.size() == 1);
+		assertTrue(secondMembers.size() == 1);
+		assertTrue(thirdMembers.size() == 0);
+		assertTrue(fourthMembers.size() == 0);
+
+		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+
+		perun.getGroupsManager().removeMember(sess, secondLevel, member);
+
+		topMembers = perun.getGroupsManager().getGroupMembers(sess, topLevel);
+		secondMembers = perun.getGroupsManager().getGroupMembers(sess, secondLevel);
+		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
+		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
+
+		assertTrue(topMembers.size() == 1);
+		assertTrue(secondMembers.size() == 0);
+		assertTrue(thirdMembers.size() == 0);
+		assertTrue(fourthMembers.size() == 0);
+
+		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+
+		perun.getGroupsManager().addMember(sess, fourthLevel, member);
+
+		topMembers = perun.getGroupsManager().getGroupMembers(sess, topLevel);
+		secondMembers = perun.getGroupsManager().getGroupMembers(sess, secondLevel);
+		thirdMembers = perun.getGroupsManager().getGroupMembers(sess, thirdLevel);
+		fourthMembers = perun.getGroupsManager().getGroupMembers(sess, fourthLevel);
+
+		assertTrue(topMembers.size() == 1);
+		assertTrue(secondMembers.size() == 1);
+		assertTrue(thirdMembers.size() == 1);
+		assertTrue(fourthMembers.size() == 1);
+
+		assertTrue(topMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+		assertTrue(secondMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
+		assertTrue(thirdMembers.get(0).getMembershipType().equals(MembershipType.INDIRECT));
+		assertTrue(fourthMembers.get(0).getMembershipType().equals(MembershipType.DIRECT));
+
+	}
+
 	@Test (expected=RelationExistsException.class)
 	public void deleteGroupWhenContainsMember() throws Exception {
 		System.out.println(CLASS_NAME + "deleteGroupWhenContainsMember");
@@ -1497,8 +1637,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
-	public void addDirectMemberToHieararchy() throws Exception {
-		System.out.println(CLASS_NAME + "addDirectMemberToHieararchy");
+	public void addDirectMemberToHierarchy() throws Exception {
+		System.out.println(CLASS_NAME + "addDirectMemberToHierarchy");
 		vo = setUpVo();
 		Group topGroup = this.groupsManager.createGroup(sess, vo, group);
 		Group subGroup = this.groupsManager.createGroup(sess, group, group2);

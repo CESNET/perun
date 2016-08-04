@@ -1009,7 +1009,7 @@ create table pn_regex_object (
 create table groups_groups (
 	result_gid integer not null,
 	operand_gid integer not null,
-	parent_flag boolean default false,
+	parent_flag char(1) default '0' not null,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -1733,7 +1733,8 @@ constraint SPECIFU_U_STATUS_CHK check (status in ('0','1'))
 alter table groups_groups add (
 constraint GRP_GRP_PK primary key (group_id,parent_group_id),
 constraint GRP_GRP_RGID_FK foreign key (result_gid) references groups(id),
-constraint GRP_GRP_OGID_FK foreign key (operand_gid) references groups(id)
+constraint GRP_GRP_OGID_FK foreign key (operand_gid) references groups(id),
+constraint GRP_GRP_PARENT_CHK check (parent_flag in ('0','1'))
 );
 
 alter table action_types add (
