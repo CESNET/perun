@@ -1,8 +1,8 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
 /**
- * Class description.
- * Created on 15. 10. 2015.
+ * Exception thrown when operation with groups fails.
+ * E.g. adding subgroup, creating/removing unions of groups etc.
  *
  * @author Oliver Mrázik
  */

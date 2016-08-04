@@ -713,6 +713,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	@Override
 	public List<Integer> getGroupRelations(PerunSession sess, int groupId) {
-		return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=" + groupId, Integer.class);
+		return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=?", Integer.class, groupId);
 	}
 }
