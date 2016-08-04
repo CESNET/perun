@@ -3,6 +3,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+-- this update is not supported on hsql since its used only as in-memory db
+3.1.37
+update configurations set value='3.1.37' where property='DATABASE VERSION';
+
 3.1.36
 create table resources_bans ( id integer not null, member_id integer not null, resource_id integer not null, description varchar(1024), banned_to timestamp not null, created_at timestamp default now not null, created_by varchar(1024) default user not null, modified_at timestamp default now not null, modified_by varchar(1024) default user not null, created_by_uid integer, modified_by_uid integer);
 create table facilities_bans ( id integer not null, user_id integer not null, facility_id integer not null, description varchar(1024), banned_to timestamp not null, created_at timestamp default now not null, created_by varchar(1024) default user not null, modified_at timestamp default now not null, modified_by varchar(1024) default user not null, created_by_uid integer, modified_by_uid integer);
