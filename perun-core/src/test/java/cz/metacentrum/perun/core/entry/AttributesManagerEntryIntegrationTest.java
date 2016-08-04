@@ -28,6 +28,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MembershipType;
 import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
@@ -50,7 +51,10 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_uid_namespace;
 import java.util.Set;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests of AttributesManager
@@ -401,6 +405,66 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		assertEquals(new Integer(100), (Integer) groupGIDInAAA.getValue());
 		assertEquals(new Integer(100), (Integer) groupGIDInBBB.getValue());
+	}
+
+	@Test
+	public void setRequiredAttributesIfMemberAddedToSubGroup() throws Exception {
+		System.out.println(CLASS_NAME + "setRequiredAttributesIfMemberAddedToSubGroup");
+
+		vo = setUpVo();
+		member = setUpMember();
+		Group topGroup = perun.getGroupsManagerBl().createGroup(sess, vo, new Group("topGroup", ""));
+		Group subGroup = perun.getGroupsManagerBl().createGroup(sess, topGroup, new Group("subGroup", ""));
+		Group subSubGroup = perun.getGroupsManagerBl().createGroup(sess, subGroup, new Group("subSubGroup", ""));
+
+		facility = setUpFacility();
+		resource = setUpResource();
+		perun.getResourcesManagerBl().assignGroupToResource(sess, topGroup, resource);
+		service = setUpService();
+		perun.getResourcesManagerBl().assignService(sess, resource, service);
+
+		String namespace = "testing";
+
+		Attribute userUidNamespace = new Attribute();
+		userUidNamespace.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		userUidNamespace.setFriendlyName("uid-namespace:" + namespace);
+		userUidNamespace.setType(Integer.class.getName());
+		userUidNamespace.setDescription("Uid namespace.");
+		userUidNamespace = new Attribute(perun.getAttributesManagerBl().createAttribute(sess, userUidNamespace));
+		perun.getServicesManagerBl().addRequiredAttribute(sess, service, userUidNamespace);
+
+		Attribute namespaceMaxUID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxUID"));
+		namespaceMaxUID.setValue(100);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, namespaceMaxUID);
+
+		Attribute namespaceMinUID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minUID"));
+		namespaceMinUID.setValue(1);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, namespaceMinUID);
+
+		Attribute facilityUIDNamespace = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_FACILITY_ATTR_DEF + ":uid-namespace"));
+		facilityUIDNamespace.setValue(namespace);
+		perun.getAttributesManagerBl().setAttribute(sess, facility, facilityUIDNamespace);
+
+		perun.getGroupsManagerBl().addMember(sess, subSubGroup, member);
+
+		List<Member> membersOfTopGroup = perun.getGroupsManagerBl().getGroupMembers(sess, topGroup);
+		List<Member> membersOfSubGroup = perun.getGroupsManagerBl().getGroupMembers(sess, subGroup);
+		List<Member> membersOfSubSubGroup = perun.getGroupsManagerBl().getGroupMembers(sess, subSubGroup);
+
+		assertTrue(membersOfTopGroup.contains(member));
+		assertEquals(membersOfTopGroup.size(), 1);
+		assertEquals(membersOfTopGroup.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertTrue(membersOfSubGroup.contains(member));
+		assertEquals(membersOfSubGroup.size(), 1);
+		assertEquals(membersOfSubGroup.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertTrue(membersOfSubSubGroup.contains(member));
+		assertEquals(membersOfSubSubGroup.size(), 1);
+		assertEquals(membersOfSubSubGroup.get(0).getMembershipType(), MembershipType.DIRECT);
+
+		User ourUser = perun.getUsersManagerBl().getUserByMember(sess, member);
+		Attribute automaticlySettedAttribute = perun.getAttributesManagerBl().getAttribute(sess, ourUser, userUidNamespace.getName());
+		Integer value = (Integer) automaticlySettedAttribute.getValue();
+		assertTrue(value == 1);
 	}
 
 	@Test
