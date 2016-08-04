@@ -1000,13 +1000,13 @@ create table pn_regex_object (
 );
 
 create table groups_groups (
-	group_id integer not null,
-	parent_group_id integer not null,
-	group_mode integer not null,
+	result_gid integer not null,
+	operand_gid integer not null,
 	created_at timestamp default now not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now not null,
-	modified_by varchar(1024) default user not null
+	modified_by varchar(1024) default user not null,
+	parent_flag boolean default false 
 );
 
 create table res_tags (
@@ -1289,8 +1289,8 @@ create index idx_fk_pn_rgxobj_rgx on pn_regex_object(regex_id);
 create index idx_fk_pn_rgxobj_obj on pn_regex_object(object_id);
 create index idx_fk_specifu_u_ui on specific_user_users(user_id);
 create index idx_fk_specifu_u_sui on specific_user_users(specific_user_id);
-create index idx_fk_grp_grp_gid on groups_groups(group_id);
-create index idx_fk_grp_grp_pgid on groups_groups(parent_group_id);
+create index idx_fk_grp_grp_rgid on groups_groups(result_gid);
+create index idx_fk_grp_grp_ogid on groups_groups(operand_gid);
 create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
 create index idx_fk_attrauthz_role on attributes_authz(role_id);
 create index idx_fk_attrauthz_attr on attributes_authz(attr_id);
@@ -1568,9 +1568,9 @@ alter table specific_user_users add constraint acc_specifu_u_uid_fk foreign key 
 alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id);
 alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
 
-alter table groups_groups add constraint grp_grp_pk primary key (group_id,parent_group_id);
-alter table groups_groups add constraint grp_grp_gid_fk foreign key (group_id) references groups(id);
-alter table groups_groups add constraint grp_grp_pgid_fk foreign key (parent_group_id) references groups(id);
+alter table groups_groups add constraint grp_grp_pk primary key (result_gid, operand_gid);
+alter table groups_groups add constraint grp_grp_rgid_fk foreign key (result_gid) references groups(id);
+alter table groups_groups add constraint grp_grp_ogid_fk foreign key (operand_gid) references groups(id);
 
 alter table action_types add constraint actiontyp_pk primary key (id);
 alter table action_types add constraint actiontyp_u unique (action_type);
