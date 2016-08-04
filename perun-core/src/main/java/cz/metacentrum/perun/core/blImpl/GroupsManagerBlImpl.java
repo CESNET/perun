@@ -463,9 +463,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		if(this.groupsManagerImpl.isDirectGroupMember(sess, group, member)) throw new AlreadyMemberException(member);
 
+		boolean memberWasIndirectInGroup = this.isGroupMember(sess, group, member);
+
 		member = getGroupsManagerImpl().addMember(sess, group, member, MembershipType.DIRECT, group.getId());
 		getPerunBl().getAuditer().log(sess, "{} added to {}.", member, group);
 
+		//If member was indirect in group before, we don't need to change anything in other groups
+		if(memberWasIndirectInGroup) return;
 		// check all relations with this group and call processRelationMembers to reflect changes of adding member to group
 		List<Integer> relations = groupsManagerImpl.getGroupRelations(sess, group.getId());
 		for (Integer groupId : relations) {
@@ -561,6 +565,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// get only removed members
 		oldMembers.removeAll(newMembers);
 
+		for(Member removedIndirectMember: oldMembers) {
+			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", removedIndirectMember, group);
+		}
+
 		return oldMembers;
 	}
 
@@ -587,21 +595,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		getGroupsManagerImpl().removeMember(sess, group, member);
 		if (this.getGroupsManagerImpl().isGroupMember(sess, group, member)) {
 			getPerunBl().getAuditer().log(sess, "{} was removed from {}.", member, group);
+			//If member was indirect in group before, we don't need to change anything in other groups
+			return;
 		} else {
 			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", member, group);
-		}
-
-		// only if group have parents !!
-		if (group.getParentGroupId() != null) {
-			member.setMembershipType(MembershipType.INDIRECT);
-			for(Group parentGroup: getParentGroups(sess, group)) {
-				// there's no need to call remove, since remove of direct removes all indirect too.
-				if (this.getGroupsManagerImpl().isGroupMember(sess, parentGroup, member)) {
-					getPerunBl().getAuditer().log(sess, "{} was removed from {}.", member, parentGroup);
-				} else {
-					getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", member, parentGroup);
-				}
-			}
 		}
 
 		// check all relations with this group and call processRelationMembers to reflect changes of removing member from group
