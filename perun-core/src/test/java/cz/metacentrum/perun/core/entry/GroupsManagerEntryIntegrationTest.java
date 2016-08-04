@@ -1446,6 +1446,86 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void testInteractionBetweenDirectAndIndirectMembershipTypeInGroups() throws Exception {
+		System.out.println(CLASS_NAME + "testInteractionBetweenDirectAndIndirectMembershipTypeInGroups");
+
+		vo = setUpVo();
+		Group topGroup = this.groupsManager.createGroup(sess, vo, group);
+		Group firstLayerSubGroup = this.groupsManager.createGroup(sess, group, group2);
+		Group secondLayerSubGroup = this.groupsManager.createGroup(sess, group2, group3);
+
+		List<Member> members = new ArrayList<Member>();
+		members.add(setUpMemberWithDifferentParam(vo, 1));
+
+		this.groupsManager.addMember(sess, group2, members.get(0));
+		this.groupsManager.addMember(sess, group3, members.get(0));
+		this.groupsManager.removeMember(sess, group2, members.get(0));
+
+		List<Member> membersOfTopGroup = this.groupsManager.getGroupMembers(sess, group);
+		List<Member> membersOfFirstLayerSubGroup = this.groupsManager.getGroupMembers(sess, group2);
+		List<Member> membersOfSecondLayerSubGroup = this.groupsManager.getGroupMembers(sess, group3);
+
+		assertTrue(membersOfTopGroup.contains(members.get(0)));
+		assertEquals(membersOfTopGroup.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertTrue(membersOfFirstLayerSubGroup.contains(members.get(0)));
+		assertEquals(membersOfFirstLayerSubGroup.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertTrue(membersOfSecondLayerSubGroup.contains(members.get(0)));
+		assertEquals(membersOfSecondLayerSubGroup.get(0).getMembershipType(), MembershipType.DIRECT);
+	}
+
+	@Test
+	public void removeMemberFromSubGroup() throws Exception {
+		System.out.println(CLASS_NAME + "removeMemberFromSubGroup");
+		vo = setUpVo();
+		Group topGroup = this.groupsManager.createGroup(sess, vo, group);
+		Group subGroup = this.groupsManager.createGroup(sess, group, group2);
+
+		List<Member> members = new ArrayList<Member>();
+		members.add(setUpMemberWithDifferentParam(vo, 1));
+
+		this.groupsManager.addMember(sess, group, members.get(0));
+		this.groupsManager.addMember(sess, group2, members.get(0));
+		this.groupsManager.removeMember(sess, group, members.get(0));
+
+		List<Member> membersOfTopGroup = this.groupsManager.getGroupMembers(sess, group);
+		List<Member> membersOfSubGroup = this.groupsManager.getGroupMembers(sess, group2);
+
+		assertTrue(membersOfTopGroup.contains(members.get(0)));
+		assertEquals(membersOfTopGroup.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertTrue(membersOfSubGroup.contains(members.get(0)));
+		assertEquals(membersOfSubGroup.get(0).getMembershipType(), MembershipType.DIRECT);
+	}
+
+	@Test
+	public void addDirectMemberToHieararchy() throws Exception {
+		System.out.println(CLASS_NAME + "addDirectMemberToHieararchy");
+		vo = setUpVo();
+		Group topGroup = this.groupsManager.createGroup(sess, vo, group);
+		Group subGroup = this.groupsManager.createGroup(sess, group, group2);
+		Group subSubGroup = this.groupsManager.createGroup(sess, group2, group3);
+
+		List<Member> members = new ArrayList<Member>();
+		members.add(setUpMemberWithDifferentParam(vo, 1));
+
+		this.groupsManager.addMember(sess, group3, members.get(0));
+		this.groupsManager.addMember(sess, group2, members.get(0));
+
+		List<Member> membersOfTopGroup = this.groupsManager.getGroupMembers(sess, group);
+		List<Member> membersOfSubGroup = this.groupsManager.getGroupMembers(sess, group2);
+		List<Member> membersOfSubSubGroup = this.groupsManager.getGroupMembers(sess, group3);
+
+		assertTrue(membersOfTopGroup.contains(members.get(0)));
+		assertEquals(membersOfTopGroup.size(), 1);
+		assertEquals(membersOfTopGroup.get(0).getMembershipType(), MembershipType.INDIRECT);
+		assertTrue(membersOfSubGroup.contains(members.get(0)));
+		assertEquals(membersOfSubGroup.size(), 1);
+		assertEquals(membersOfSubGroup.get(0).getMembershipType(), MembershipType.DIRECT);
+		assertTrue(membersOfSubSubGroup.contains(members.get(0)));
+		assertEquals(membersOfSubSubGroup.size(), 1);
+		assertEquals(membersOfSubSubGroup.get(0).getMembershipType(), MembershipType.DIRECT);
+	}
+
+	@Test
 	public void getGroupCountInBiggerGroupStructure() throws Exception{
 		System.out.println(CLASS_NAME + "getGroupCountInBiggerGroupStructure");
 
