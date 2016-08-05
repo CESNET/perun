@@ -52,6 +52,12 @@ use constant {
 sub new {
 	my $self = fields::new(shift);
 
+	# load custom data format
+	my $wanted_format = shift;
+	if (defined $wanted_format) {
+		$format = $wanted_format;
+	}
+
 	# Check if the PERUN_URL is defined
 	if (!defined($ENV{PERUN_URL})) { die Perun::Exception->fromHash({ type => MISSING_URL }); };
 	$self->{_url} = $ENV{PERUN_URL};
@@ -68,8 +74,8 @@ sub new {
 	$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion", timeout => 600);
 	# Enable cookies if the HOME env is available
 	if (defined($ENV{HOME})) {
-                my $hostname = hostname();
-                my $grp=getpgrp;
+				my $hostname = hostname();
+				my $grp=getpgrp;
 		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
 #		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/.perun-engine-cookies.txt", autosave => 1, ignore_discard => 1 });
 		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/perun-cookie-$hostname-$grp.txt", autosave => 1, ignore_discard => 1 });
@@ -359,13 +365,13 @@ sub getNotificationsAgent {
 }
 
 sub getRegistrarAgent {
-        my $self = shift;
+	my $self = shift;
 
-        if (!$self->{_registrarAgent}) {
-                $self->{_registrarAgent} = Perun::RegistrarAgent->new($self);
+	if (!$self->{_registrarAgent}) {
+		$self->{_registrarAgent} = Perun::RegistrarAgent->new($self);
 
-        return $self->{_registrarAgent};
-        }
+		return $self->{_registrarAgent};
+	}
 }
 
 sub getSecurityTeamsAgent {
