@@ -72,9 +72,10 @@ public class CreateServiceTabItem implements TabItem {
 				if (serviceName.getTextBox().getText().trim().isEmpty()) {
 					serviceName.setError("Name can't be empty");
 					return false;
+				} else if (!serviceName.getTextBox().getText().trim().matches(Utils.SERVICE_NAME_MATCHER)) {
+					serviceName.setError("Name can contain only letters, numbers and underscore.");
+					return false;
 				} else {
-
-
 					serviceName.setOk();
 					// fill script path on service name change
 					scriptPath.getTextBox().setValue("./"+serviceName.getTextBox().getText().trim().toLowerCase().replaceAll(Utils.SERVICE_NAME_TO_SCRIP_PATH_MATCHER,"_"));
