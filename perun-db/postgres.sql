@@ -1,4 +1,4 @@
--- database version 3.1.36 (don't forget to update insert statement at the end of file)
+-- database version 3.1.37 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1082,11 +1082,11 @@ create table pn_regex_object (
 	modified_by_uid integer
 );
 
--- GROUPS_GROUPS - subgroups in groups -  actually is not used. Prepared fore more sofisticated structure of groups.
+-- GROUPS_GROUPS - Groups relations (union,subgroups)
 create table groups_groups (
-	group_id integer not null,         --identifier of group
-	parent_group_id integer not null,  --identifier of parent group
-	group_mode integer not null,
+	result_gid integer not null,         --identifier of group
+	operand_gid integer not null,        --identifier of operand group (unioned / parent group)
+	parent_flag boolean default false,
 	created_at timestamp default now() not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now() not null,
@@ -1377,8 +1377,8 @@ create index idx_fk_pn_rgxobj_rgx on pn_regex_object(regex_id);
 create index idx_fk_pn_rgxobj_obj on pn_regex_object(object_id);
 create index idx_fk_specifu_u_ui on specific_user_users(user_id);
 create index idx_fk_specifu_u_sui on specific_user_users(specific_user_id);
-create index idx_fk_grp_grp_gid on groups_groups(group_id);
-create index idx_fk_grp_grp_pgid on groups_groups(parent_group_id);
+create index idx_fk_grp_grp_rgid on groups_groups(result_gid);
+create index idx_fk_grp_grp_ogid on groups_groups(operand_gid);
 create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
 create index idx_fk_attrauthz_role on attributes_authz(role_id);
 create index idx_fk_attrauthz_attr on attributes_authz(attr_id);
@@ -1657,8 +1657,8 @@ alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key
 alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
 
 alter table groups_groups add constraint grp_grp_pk primary key (group_id,parent_group_id);
-alter table groups_groups add constraint grp_grp_gid_fk foreign key (group_id) references groups(id);
-alter table groups_groups add constraint grp_grp_pgid_fk foreign key (parent_group_id) references groups(id);
+alter table groups_groups add constraint grp_grp_rgid_fk foreign key (result_gid) references groups(id);
+alter table groups_groups add constraint grp_grp_ogid_fk foreign key (operand_gid) references groups(id);
 
 alter table action_types add constraint actiontyp_pk primary key (id);
 alter table action_types add constraint actiontyp_u unique (action_type);
@@ -1827,11 +1827,11 @@ grant all on facilities_bans to perun;
 grant all on membership_types to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.36');
+insert into configurations values ('DATABASE VERSION','3.1.37');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
-insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added into subgroup');
+insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'read', 'Can read value.');
 insert into action_types (id, action_type, description) values (nextval('action_types_seq'), 'write', 'Can write, rewrite and remove value.');

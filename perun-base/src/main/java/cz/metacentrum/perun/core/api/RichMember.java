@@ -1,12 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
 import java.util.List;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * Member of a Virtual Organization.
@@ -170,6 +165,7 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 			", voId=<").append(getVoId()).append(">").append(
 			", status=<").append(getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())).append(">").append(
 			", type=<").append(getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())).append(">").append(
+			", sourceGroupId=<").append(getSourceGroupId()== null ? "\\0" : getSourceGroupId().toString()).append(">").append(
 			", user=<").append(getUser() == null ? "\\0" : getUser().serializeToString()).append(">").append(
 			", userExtSources=<").append(sUserESNew).append(">").append(
 			", userAttributes=<").append(sUserAttrNew).append(">").append(
@@ -181,7 +177,7 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 
-		return str.append("RichMember:[id='").append(getId()).append("', userId='").append(getUserId()).append("', voId='").append(getVoId()).append("', status='").append(getStatus()).append("', type='").append(getMembershipType()).append( "', user='").append(user).append("', userExtSources='").append(userExtSources).append(
+		return str.append("RichMember:[id='").append(getId()).append("', userId='").append(getUserId()).append("', voId='").append(getVoId()).append("', status='").append(getStatus()).append("', type='").append(getMembershipType()).append("', sourceGroupId='").append(getSourceGroupId()).append( "', user='").append(user).append("', userExtSources='").append(userExtSources).append(
 			"', userAttributes='").append(userAttributes).append("', memberAttributes='").append(memberAttributes).append("']").toString();
 	}
 
