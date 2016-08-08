@@ -1,4 +1,4 @@
--- database version 3.1.36 (don't forget to update insert statement at the end of file)
+-- database version 3.1.37 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1007,9 +1007,9 @@ create table pn_regex_object (
 );
 
 create table groups_groups (
-	group_id integer not null,
-	parent_group_id integer not null,
-	group_mode integer not null,
+	result_gid integer not null,
+	operand_gid integer not null,
+	parent_flag char(1) default '0' not null,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -1289,8 +1289,8 @@ create index IDX_FK_PN_RGXOBJ_RGX on pn_regex_object(regex_id);
 create index IDX_FK_PN_RGXOBJ_OBJ on pn_regex_object(object_id);
 create index IDX_FK_SPECIFU_U_UI on specific_user_users(user_id);
 create index IDX_FK_SPECIFU_U_SUI on specific_user_users(specific_user_id);
-create index IDX_FK_GRP_GRP_GID on groups_groups(group_id);
-create index IDX_FK_GRP_GRP_PGID on groups_groups(parent_group_id);
+create index IDX_FK_GRP_GRP_RGID on groups_groups(result_gid);
+create index IDX_FK_GRP_GRP_OGID on groups_groups(operand_gid);
 create index IDX_FK_ATTRAUTHZ_ACTIONTYP on attributes_authz(action_type_id);
 create index IDX_FK_ATTRAUTHZ_ROLE on attributes_authz(role_id);
 create index IDX_FK_ATTRAUTHZ_ATTR on attributes_authz(attr_id);
@@ -1732,8 +1732,9 @@ constraint SPECIFU_U_STATUS_CHK check (status in ('0','1'))
 
 alter table groups_groups add (
 constraint GRP_GRP_PK primary key (group_id,parent_group_id),
-constraint GRP_GRP_GID_FK foreign key (group_id) references groups(id),
-constraint GRP_GRP_PGID_FK foreign key (parent_group_id) references groups(id)
+constraint GRP_GRP_RGID_FK foreign key (result_gid) references groups(id),
+constraint GRP_GRP_OGID_FK foreign key (operand_gid) references groups(id),
+constraint GRP_GRP_PARENT_CHK check (parent_flag in ('0','1'))
 );
 
 alter table action_types add (
@@ -1777,11 +1778,11 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.36');
+insert into configurations values ('DATABASE VERSION','3.1.37');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
-insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added into subgroup');
+insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
 
 -- insert action types
 insert into action_types (id, action_type, description) values (ACTION_TYPES_SEQ.nextval, 'read', 'Can read value.');
