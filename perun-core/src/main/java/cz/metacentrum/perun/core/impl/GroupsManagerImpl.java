@@ -606,18 +606,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
-	/**
-	 * Converts Member to its Id in grouper.
-	 *
-	 * @param member
-	 *            member
-	 * @return grouper Id
-	 */
-	protected static String toGrouperId(PerunSession sess, Member member) throws InternalErrorException {
-		log.trace("Entering toGrouperId: member='" + member + "'");
-		if (member == null) throw new InternalErrorRuntimeException(new NullPointerException("member"));
-		return Integer.toString(member.getUserId());
-	}
 
 	@Override
 	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) {
