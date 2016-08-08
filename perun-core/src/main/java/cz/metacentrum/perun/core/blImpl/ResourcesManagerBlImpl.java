@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.blImpl;
 
 import java.util.*;
 
+import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +79,16 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return getResourcesManagerImpl().getResourceByName(sess, vo, facility, name);
 	}
 
-	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException {
-		resource = getResourcesManagerImpl().createResource(sess, vo, resource, facility);
-		getPerunBl().getAuditer().log(sess, "{} created.", resource);
+	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException, ResourceExistsException {
+		try{
+			getResourcesManagerImpl().getResourceByName(sess, vo, facility, resource.getName());
+			throw new ResourceExistsException("Resource with name \"" + resource.getName() + "\" already exists in " +
+					"facility " + facility + " in VO " + vo + ".");
+		} catch (ResourceNotExistsException e) {
+			resource = getResourcesManagerImpl().createResource(sess, vo, resource, facility);
+			getPerunBl().getAuditer().log(sess, "{} created.", resource);	
+		}
+		
 		return resource;
 	}
 
