@@ -99,7 +99,7 @@ function loadHostsAttrs(hosts, facility) {
             if (managed[0].value == 1) {
                 man = true;
             }
-            hostsFriendly.push({id:host.id, name:host.hostname ,monitored:mon, managed:man, facility:facility});
+            hostsFriendly.push({id:host.id, name:host.hostname, monitored:mon, managed:man, facility:facility});
             hostsCurrent++;
             setProgressBar(20+hostsCurrent*(80/hostsCount),$("#toggle-facility-" + facility + " .progress-bar"))
             if (hostsCurrent == hostsCount) {
