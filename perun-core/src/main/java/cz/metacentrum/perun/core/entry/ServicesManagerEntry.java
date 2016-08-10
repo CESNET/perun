@@ -63,6 +63,11 @@ public class ServicesManagerEntry implements ServicesManager {
 	public Service createService(PerunSession sess, Service service) throws InternalErrorException, PrivilegeException, ServiceExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(service, "service");
+		Utils.notNull(service.getName(), "service.name");
+
+		if (!service.getName().matches(ServicesManager.SERVICE_NAME_REGEXP)) {
+			throw new InternalErrorException(new IllegalArgumentException("Wrong service name, service name must matches " + ServicesManager.SERVICE_NAME_REGEXP));
+		}
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
