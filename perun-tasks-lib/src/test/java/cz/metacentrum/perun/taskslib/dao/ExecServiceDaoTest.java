@@ -83,11 +83,11 @@ public class ExecServiceDaoTest {
 
 		// Test Service #1
 		testService1 = new Service();
-		testService1.setName("Test service 1-" + Long.toHexString(System.currentTimeMillis()));
+		testService1.setName("Test_service_1_" + Long.toHexString(System.currentTimeMillis()));
 
 		// Test Service #2
 		testService2 = new Service();
-		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
+		testService2.setName("Test_service_2_" + Long.toHexString(System.currentTimeMillis()));
 
 		testService1.setId(servicesManager.createService(perunSession, testService1).getId());
 		testService2.setId(servicesManager.createService(perunSession, testService2).getId());
