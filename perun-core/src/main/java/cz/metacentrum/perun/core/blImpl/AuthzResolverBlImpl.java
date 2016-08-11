@@ -175,7 +175,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, Vo.class.getSimpleName(), ((Vo) complementaryObject).getId());
 				}
 			} else if (role.equals(Role.SELF)) {
-				// Check if the member belogs to the self role
+				// Check if the member belongs to the self role
 				if (beanName.equals(Member.class.getSimpleName())) {
 					return sess.getPerunPrincipal().getRoles().hasRole(role, User.class.getSimpleName(), ((Member) complementaryObject).getUserId());
 				}

@@ -107,7 +107,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		try {
+			// refresh authz for sponsors
 			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.unsetRole(sess, user, specificUser, Role.SPONSOR);
+			// refresh authz for service user owners
+			if(specificUser.isServiceUser() && sess.getPerunPrincipal() != null) {
+				if(user.getId() == sess.getPerunPrincipal().getUserId()) {
+					AuthzResolverBlImpl.refreshAuthz(sess);
+				}
+			}
 		} catch (UserNotAdminException ex) {
 			throw new InternalErrorException("Can't remove role of sponsor for user " + user + " and sponsored user " + specificUser);
 		}
@@ -132,7 +139,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		try {
+			// refresh authz for sponsors
 			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.setRole(sess, user, specificUser, Role.SPONSOR);
+			// refresh authz for service user owners
+			if(specificUser.isServiceUser() && sess.getPerunPrincipal() != null) {
+				if(user.getId() == sess.getPerunPrincipal().getUserId()) {
+					AuthzResolverBlImpl.refreshAuthz(sess);
+				}
+			}
 		} catch (AlreadyAdminException ex) {
 			throw new InternalErrorException("User " + user + " is already sponsor of sponsored user " + specificUser);
 		}
