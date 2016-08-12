@@ -354,21 +354,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		try {
-			jdbc.update("delete from specific_user_users where user_id=?", user.getId());
+			// delete all relations like  user -> sponsor -> service
+			jdbc.update("delete from specific_user_users where specific_user_id=? or user_id=?", user.getId(), user.getId());
 			int numAffected = jdbc.update("delete from users where id=?", user.getId());
-			if(numAffected == 0) throw new UserAlreadyRemovedException("User: " + user);
-		} catch (RuntimeException err) {
-			throw new InternalErrorException(err);
-		}
-	}
-
-	public void deleteSpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, SpecificUserAlreadyRemovedException {
-		try {
-			jdbc.update("delete from specific_user_users where specific_user_id=?", specificUser.getId());
-			int numAffected = jdbc.update("delete from users where id=?", specificUser.getId());
-			if(numAffected == 0) throw new SpecificUserAlreadyRemovedException("ServiceUser: " + specificUser);
+			if(numAffected == 0) {
+				if (user.isSpecificUser()) throw new SpecificUserAlreadyRemovedException("SpecificUser: " + user);
+				throw new UserAlreadyRemovedException("User: " + user);
+			}
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}

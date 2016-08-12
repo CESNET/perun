@@ -429,14 +429,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		}
 
+		// Remove all sponsored user authz of his owners
+		if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
 		// Finally delete the user
-		if(user.isSpecificUser()) {
-			// Remove all sponsored user authz of his owners
-			if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
-			getUsersManagerImpl().deleteSpecificUser(sess, user);
-		} else {
-			getUsersManagerImpl().deleteUser(sess, user);
-		}
+		getUsersManagerImpl().deleteUser(sess, user);
 		getPerunBl().getAuditer().log(sess, "{} deleted.", user);
 	}
 
