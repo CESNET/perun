@@ -11,6 +11,7 @@ import java.beans.Beans;
 import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 
 import java.util.List;
 
@@ -49,6 +50,10 @@ public class DatabaseManagerBlImpl implements DatabaseManagerBl {
 
 	public List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException {
 		return this.databaseManagerImpl.getChangelogVersions(currentDBVersion, fileName);
+	}
+
+	public JdbcPerunTemplate getJdbcPerunTemplate() {
+		return this.databaseManagerImpl.getJdbcPerunTemplate();
 	}
 
 	protected void initialize() throws InternalErrorException {
