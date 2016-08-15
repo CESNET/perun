@@ -12,6 +12,10 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Class for checking logins uniqueness in the namespace and filling vsup id.
  *
@@ -20,6 +24,7 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_vsup.class);
+	private final static Set<String> unpermittedLogins = new HashSet<String>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root"));
 
 	/**
 	 * Checks if the user's login is unique in the namespace organization.
@@ -34,6 +39,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	 */
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+
+		if (attribute != null && unpermittedLogins.contains((String)attribute.getValue())) throw new WrongAttributeValueException(attribute, user, "Login '" + attribute.getValue() + "' is not permitted.");
 
 		// check uniqueness
 		super.checkAttributeValue(sess, user, attribute);
