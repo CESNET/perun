@@ -186,4 +186,9 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 
 		return versions;
 	}
+
+	public JdbcPerunTemplate getJdbcPerunTemplate() {
+		return jdbc;
+	}
+
 }
