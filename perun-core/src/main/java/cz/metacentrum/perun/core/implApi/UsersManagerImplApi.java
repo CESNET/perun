@@ -152,15 +152,6 @@ public interface UsersManagerImplApi {
 	List<User> getSpecificUsers(PerunSession sess) throws InternalErrorException;
 
 	/**
-	 * Delete specific user and all connection between specific user and other users
-	 *
-	 * @param sess
-	 * @param specificUser the specific user
-	 * @throws InternalErrorException
-	 */
-	void deleteSpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, SpecificUserAlreadyRemovedException;
-
-	/**
 	 * Returns user by VO member.
 	 *
 	 * @param perunSession
@@ -201,14 +192,15 @@ public interface UsersManagerImplApi {
 
 
 	/**
-	 *  Deletes user.
+	 *  Deletes user (normal or specific) including all relations to other users (normal,specific,sponsor)
 	 *
-	 * @param perunSession
-	 * @param user
+	 * @param perunSession Session for authz
+	 * @param user User to delete
 	 * @throws InternalErrorException
-	 * @throws UserAlreadyRemovedException
+	 * @throws UserAlreadyRemovedException  When user is already deleted
+	 * @throws SpecificUserAlreadyRemovedException When specific user is already deleted
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
 
 	/**
 	 *  Updates users data in DB.
