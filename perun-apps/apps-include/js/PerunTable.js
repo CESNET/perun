@@ -104,7 +104,7 @@ function PerunTable() {
                         break;
                     case "list":
                         for (var i in this.values[row][column.name]) {
-                            html += this.values[row][column.name][i];
+                            html += htmlEncode(this.values[row][column.name][i]);
                             if (i != this.values[row][column.name].length-1) {
                                 html += ", ";
                             }
@@ -120,11 +120,23 @@ function PerunTable() {
                             html += this.values[row][column.name];
                         }
                         break;
-                    default :
+                    case "html":
                         if (this.values.length == 0) {
                             break;
                         }
                         html += this.values[row][column.name];
+                        break;
+                    case "text":
+                        if (this.values.length == 0) {
+                            break;
+                        }
+                        html += htmlEncode(this.values[row][column.name]);
+                        break;
+                    default :
+                        if (this.values.length == 0) {
+                            break;
+                        }
+                        html += htmlEncode(this.values[row][column.name]);
                         break;
                 }
                 html += "</td>";
