@@ -148,7 +148,7 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 		// Render disabled for different kinds of Types from Perun
 
 		// is core group
-		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Group")) {
+		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Group") || ((GeneralObject)value).getObjectType().equalsIgnoreCase("RichGroup")) {
 			if(((Group)value).isCoreGroup() && !editable){
 				sb.append(INPUT_DISABLED);
 				return;
