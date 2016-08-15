@@ -55,6 +55,27 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Create union of two groups, where "operandGroup" is technically set as subgroup of "resultGroup".
+	 * Members from "operandGroup" are added to "resultGroup" as INDIRECT members. Union is honored also
+	 * in all group member changing operations.
+	 *
+	 * @param resultGroup int <code>id</code> of Group to have included "operandGroup"
+	 * @param operandGroup int <code>id</code> of Group to be included into "resultGroup"
+	 * @return Group Result group
+	 */
+	createGroupUnion {
+
+		@Override
+		public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getGroupsManager().createGroupUnion(ac.getSession(),
+						ac.getGroupById(parms.readInt("resultGroup")),
+						ac.getGroupById(parms.readInt("operandGroup")));
+		}
+	},
+
+	/*#
 	 * Deletes a group. Group is not deleted, if contains members or is assigned to any resource.
 	 *
 	 * @param group int Group <code>id</code>
@@ -105,6 +126,26 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			ac.getGroupsManager().deleteGroups(ac.getSession(),
 					groups,
 					parms.readBoolean("forceDelete"));
+			return null;
+		}
+	},
+
+	/*#
+	 * Removes union of two groups, when "operandGroup" is technically removed from subgroups of "resultGroup".
+	 * Members from "operandGroup" are removed from "resultGroup" if they were INDIRECT members sourcing from this group only.
+	 *
+	 * @param resultGroup int <code>id</code> of Group to have removed "operandGroup" from subgroups
+	 * @param operandGroup int <code>id</code> of Group to be removed from "resultGroup" subgroups
+	 */
+	removeGroupUnion {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getGroupsManager().removeGroupUnion(ac.getSession(),
+					ac.getGroupById(parms.readInt("resultGroup")),
+					ac.getGroupById(parms.readInt("operandGroup")));
 			return null;
 		}
 	},
