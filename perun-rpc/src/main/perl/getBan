@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Time::Local;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+use Switch;
+
+sub help {
+	return qq{
+	Displays the resource or facility ban. (BanId and type of Ban) OR (resourceId and memberId) OR (facilityId and userId) required . 
+	---------------------------------------------------------------
+	Available options:
+        --banId           | -i Ban Id
+        --resourceType    | -R ban for resource-member
+        --facilityType    | -F ban for facility-user
+        --resourceId      | -r resource Id
+        --memberId        | -m member Id
+        --facilityId      | -f facility Id
+        --userId          | -u user Id 
+	--batch           | -b batch
+	--help            | -h prints this help
+
+	};
+}
+
+my ($banId, $valTo, @valToEpoch, $resourceType, $facilityType, $resourceId, $facilityId, $memberId, $userId);
+our $batch;
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+"banId|i=i" => \$banId,
+"resourceType|R" => \$resourceType,
+"facilityType|F" => \$facilityType,
+"resourceId|r=i" => \$resourceId,
+"memberId|m=i" => \$memberId,
+"facilityId|f=i" => \$facilityId,
+"userId|u=i" => \$userId) || die help();
+
+# Check options
+if (defined($banId)) {
+   unless (defined($resourceType) or defined($facilityType) or defined($resourceId) or defined($facilityId)) { die "ERROR: resource or facility Ban type is required \n";}
+}
+if (defined($resourceId) and !defined($memberId) and !defined($banId)) { die "ERROR: member Id is required \n";}
+if (defined($facilityId) and !defined($userId) and !defined($banId)) { die "ERROR: user Id is required \n";}
+unless (defined($banId) or defined($resourceId) or defined($facilityId)) { die "ERROR: Ban Id or resource Id or facility Id is required \n";}
+
+my $agent = Perun::Agent->new();
+
+if (defined($resourceType) or defined($resourceId)) {
+    my $BanOnResourceAgent = $agent->getBanOnResourceAgent;
+    my $ban;
+    unless (defined $banId) {
+        $ban = $BanOnResourceAgent->getBan(memberId => $memberId,resourceId => $resourceId);
+    } else {
+        $ban = $BanOnResourceAgent->getBanById(banId => $banId);
+    }
+
+    @valToEpoch=localtime(($ban->getValidityTo)/1000);
+    $valTo=$valToEpoch[3].".".($valToEpoch[4]+1).".".($valToEpoch[5]+1900);
+
+    printMessage("\nBan Id: ".$ban->getId."\n-----------------\nResource Id: ".$ban->getResourceId."\nMember Id:   ".$ban->getMemberId."\nDescription: ".$ban->getDescription."\nBannedTo:    ".$valTo."\n", $batch);
+}
+
+if (defined($facilityType) or defined($facilityId)) {
+    my $BanOnFacilityAgent = $agent->getBanOnFacilityAgent;
+    my $ban;
+    unless (defined $banId) {
+        $ban = $BanOnFacilityAgent->getBan(userId => $userId,facilityId => $facilityId);
+    } else {
+        $ban = $BanOnFacilityAgent->getBanById(banId => $banId);
+    }
+
+    @valToEpoch=localtime(($ban->getValidityTo)/1000);
+    $valTo=$valToEpoch[3].".".($valToEpoch[4]+1).".".($valToEpoch[5]+1900);
+
+    printMessage("\nBan Id: ".$ban->getId."\n-----------------\nFacility Id: ".$ban->getFacilityId."\nUser Id:     ".$ban->getUserId."\nDescription: ".$ban->getDescription."\nBannedTo:    ".$valTo."\n", $batch);
+}  
+

@@ -34,12 +34,14 @@ use Perun::NotificationsAgent;
 use Perun::SearcherAgent;
 use Perun::RegistrarAgent;
 use Perun::SecurityTeamsAgent;
+use Perun::BanOnResourceAgent;
+use Perun::BanOnFacilityAgent;
 use Sys::Hostname;
 
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
@@ -381,6 +383,26 @@ sub getSecurityTeamsAgent {
 		$self->{_securityTeamsAgent} = Perun::SecurityTeamsAgent->new($self);
 
 	return $self->{_securityTeamsAgent};
+	}
+}
+
+sub getBanOnResourceAgent {
+	my $self = shift;
+
+	if (!$self->{_banOnResourceAgent}) {
+		$self->{_banOnResourceAgent} = Perun::BanOnResourceAgent->new($self);
+
+	return $self->{_banOnResourceAgent};
+	}
+}
+
+sub getBanOnFacilityAgent {
+	my $self = shift;
+
+	if (!$self->{_banOnFacilityAgent}) {
+		$self->{_banOnFacilityAgent} = Perun::BanOnFacilityAgent->new($self);
+
+	return $self->{_banOnFacilityAgent};
 	}
 }
 

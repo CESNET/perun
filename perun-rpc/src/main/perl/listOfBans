@@ -1,0 +1,104 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Time::Local;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction tableToPrint);
+use Switch;
+
+sub help {
+	return qq{
+	Lists of resources or facilities bans. Type of Ban (Resource or facility) required.
+	---------------------------------------------------------------
+	Available options:
+        --resource      | -r resource Id
+        --facility      | -f facility Id
+        --orderById     | -i order by Ban Id 
+        --orderByType   | -n order by Id of entity (resource/facility)
+        --orderByPerson | -p order by Id of person (member/user)
+	--batch         | -b batch
+	--help          | -h prints this help
+        Default sorting is by Banned To
+	};
+}
+
+my ($resourceId,$facilityId,$userId,$memberId,$sortingFunction,$orderByN,$orderByP,@bans, @valToEpoch, $valTo);
+our $batch;
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+"resourceType|r=i" => \$resourceId,
+"facilityType|f=i" => \$facilityId,
+"memberId|m=i" => \$memberId,
+"userId|u=i" => \$userId,
+"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+"orderByType|n" => \$orderByN,
+"orderByPerson|p" => \$orderByP) || die help();
+
+# Check options
+unless (defined($resourceId) or defined($facilityId) or defined($memberId) or defined($userId)) { die "ERROR: resource or facility type is required \n";}
+if (defined($resourceId) and defined($memberId)) { die "ERROR: only one of resource or member can be entered \n";} 
+if (defined($facilityId) and defined($userId)) { die "ERROR: only one of facility or use can be entered \n";} 
+
+my $agent = Perun::Agent->new();
+my $table = Text::ASCIITable->new();
+
+unless (defined $sortingFunction) {$sortingFunction = getSortingFunction('getValidityTo');}
+
+if (defined($resourceId) or defined($memberId)) {
+    if (defined $orderByN) { $sortingFunction = getSortingFunction('getResourceId');}
+    if (defined $orderByP) { $sortingFunction = getSortingFunction('getMemberId');}
+
+    my $banOnResourceAgent = $agent->getBanOnResourceAgent;
+   
+    if (defined($resourceId)) {
+        @bans = $banOnResourceAgent->getBansForResource(resourceId => $resourceId);  
+        $table->setCols('BanId','MemberId','BannedTo','Description');   
+    }
+    if (defined($memberId)) {
+        @bans = $banOnResourceAgent->getBansForMember(memberId => $memberId);  
+        $table->setCols('BanId','ResourceId','BannedTo','Description');   
+    }
+    unless(@bans) { printMessage "No Bans found\n", $batch; exit 0; }
+
+    foreach my $ban (sort $sortingFunction @bans) {
+        @valToEpoch=localtime(($ban->getValidityTo)/1000);
+        $valTo=$valToEpoch[3].".".($valToEpoch[4]+1).".".($valToEpoch[5]+1900);
+
+        my $entityId;
+        $entityId=$ban->getMemberId if defined $resourceId;
+        $entityId=$ban->getResourceId if defined $memberId;
+        $table->addRow($ban->getId, $entityId, $valTo, $ban->getDescription);
+    }
+    print tableToPrint($table, $batch);
+}
+
+if (defined($facilityId) or defined($userId)) {
+    if (defined $orderByN) {$sortingFunction = getSortingFunction('getFacilityId');}
+    if (defined $orderByP) {$sortingFunction = getSortingFunction('getUserId');}
+
+    my $banOnFacilityAgent = $agent->getBanOnFacilityAgent;
+
+    if (defined($facilityId)) {
+        @bans = $banOnFacilityAgent->getBansForFacility(facilityId => $facilityId);  
+        $table->setCols('BanId','UserId','BannedTo','Description');   
+    }
+    if (defined($userId)) {
+        @bans = $banOnFacilityAgent->getBansForUser(userId => $userId);  
+        $table->setCols('BanId','FacilityId','BannedTo','Description');   
+    }
+    unless(@bans) { printMessage "No Bans found\n", $batch; exit 0; }
+
+    foreach my $ban (sort $sortingFunction @bans) {
+        @valToEpoch=localtime(($ban->getValidityTo)/1000);
+        $valTo=$valToEpoch[3].".".($valToEpoch[4]+1).".".($valToEpoch[5]+1900);
+
+        my $entityId;
+        $entityId=$ban->getUserId if defined $facilityId;
+        $entityId=$ban->getFacilityId if defined $userId;
+        $table->addRow($ban->getId, $entityId, $valTo, $ban->getDescription);
+    }
+    print tableToPrint($table, $batch);
+}
+
