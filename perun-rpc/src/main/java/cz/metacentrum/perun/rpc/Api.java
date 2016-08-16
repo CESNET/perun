@@ -295,17 +295,8 @@ public class Api extends HttpServlet {
 	protected PerunClient setupPerunClient(HttpServletRequest req) throws InternalErrorException {
 
 		if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
-
 			String clientId = req.getHeader("OIDC_CLAIM_client_id");
-
-			List<PerunClient.Scope> scopes = new ArrayList<>();
-			for (String scope : req.getHeader("OIDC_CLAIM_scope").split(" ")) {
-				try {
-					scopes.add(PerunClient.Scope.valueOf(scope.trim().toUpperCase()));
-				} catch (IllegalArgumentException e) {
-					throw new InternalErrorException("Scope "+scope.trim().toUpperCase()+" is unknown.", e);
-				}
-			}
+			List<String> scopes = Arrays.asList(req.getHeader("OIDC_CLAIM_scope").split(" "));
 			return new PerunClient(clientId, scopes);
 		}
 
@@ -550,7 +541,7 @@ public class Api extends HttpServlet {
 			/* Security check. Currently only OIDC manager can handle scopes from untrustful (OAuth2) clients
 				or client has to have allowed scope ALL. */
 			if (!caller.getSession().getPerunClient().getType().equals(PerunClient.Type.INTERNAL)) {
-				if (!OIDCMANAGER.equals(manager) && !caller.getSession().getPerunClient().getScopes().contains(PerunClient.Scope.ALL)) {
+				if (!OIDCMANAGER.equals(manager) && !caller.getSession().getPerunClient().getScopes().contains(PerunClient.SCOPE_ALL)) {
 					throw new PrivilegeException("Your client "+caller.getSession().getPerunClient().getId()+" is not allowed to call manager "+manager+". Try "+OIDCMANAGER+" instead.");
 				}
 			}

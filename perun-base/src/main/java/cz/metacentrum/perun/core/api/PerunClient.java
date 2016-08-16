@@ -13,8 +13,10 @@ import java.util.List;
  */
 public class PerunClient {
 
+    public static final String SCOPE_ALL = "all";
+
     private String id;
-    private List<Scope> scopes;
+    private List<String> scopes;
     private Type type;
 
     /**
@@ -23,7 +25,7 @@ public class PerunClient {
      * @param id "Client id" in OAuth terminology
      * @param scopes Domains represent clinet rights. "Scopes" in OAuth terminology. "Claims" in OpenID terminology
      */
-    public PerunClient(String id, List<Scope> scopes) {
+    public PerunClient(String id, List<String> scopes) {
         if (id == null) throw new InternalErrorRuntimeException(new NullPointerException("id is null"));
         if (scopes == null) throw new InternalErrorRuntimeException(new NullPointerException("scopes are null"));
 
@@ -36,7 +38,7 @@ public class PerunClient {
      * Create trustful internal client. E.g. GUI, test or client for internal components.
      */
     public PerunClient() {
-        this.scopes = Arrays.asList(Scope.ALL);
+        this.scopes = Arrays.asList(SCOPE_ALL);
         this.type = Type.INTERNAL;
     }
 
@@ -45,7 +47,7 @@ public class PerunClient {
         return id;
     }
 
-    public List<Scope> getScopes() {
+    public List<String> getScopes() {
         return scopes;
     }
 
@@ -89,25 +91,6 @@ public class PerunClient {
         } else if (!scopes.equals(other.scopes))
             return false;
         return true;
-    }
-
-    public enum Scope {
-
-        /* custom scopes */
-        ALL,    // allow client to access all methods in Perun (which communicating user has allowed too)
-        ELIXIR_ID,   // allow client to access users elixir id
-        BONA_FIDE_STATUS,   // allow client to access users bona fide researcher status
-
-        /* OIDC standard scopes */
-        OPENID,
-        PROFILE,
-        EMAIL,
-        ADDRESS,
-        PHONE;
-
-        public String getSopeName() {
-            return this.name().toLowerCase();
-        }
     }
 
     public enum Type {
