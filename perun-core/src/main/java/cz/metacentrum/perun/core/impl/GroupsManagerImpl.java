@@ -702,7 +702,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	
 	public boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
 		try {
-			return 1 > jdbc.queryForInt("SELECT parent_flag FROM groups_groups WHERE result_gid=? AND operand_gid=?",
+			return 1 > jdbc.queryForInt("SELECT parent_flag"+Compatibility.castToInteger()+" FROM groups_groups WHERE result_gid=? AND operand_gid=?",
 					resultGroup.getId(), operandGroup.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
