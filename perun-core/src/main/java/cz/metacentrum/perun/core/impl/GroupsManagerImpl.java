@@ -658,49 +658,83 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Integer> getRelatedGroupsIds(PerunSession sess, int groupId) {
-		return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=" + groupId, Integer.class);
-	}
-
-	@Override
-	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
-		if (0 == jdbc.update("DELETE FROM groups_groups WHERE result_gid = ? AND operand_gid = ?",
-				resultGroup.getId(), operandGroup.getId())) {
-			throw new InternalErrorException("There is no relation between " + resultGroup + " and " + operandGroup);
+	public List<Integer> getRelatedGroupsIds(PerunSession sess, int groupId) throws InternalErrorException {
+		try {
+			return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=" + groupId, Integer.class);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Integer>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public void removeResultGroupRelations(PerunSession sess, Group resultGroup) {
-		jdbc.update("DELETE FROM groups_groups WHERE result_gid = ?", resultGroup.getId());
+	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
+		try {
+			if (0 == jdbc.update("DELETE FROM groups_groups WHERE result_gid = ? AND operand_gid = ?",
+					resultGroup.getId(), operandGroup.getId())) {
+				throw new InternalErrorException("There is no relation between " + resultGroup + " and " + operandGroup);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeResultGroupRelations(PerunSession sess, Group resultGroup) throws InternalErrorException {
+		try {
+			jdbc.update("DELETE FROM groups_groups WHERE result_gid = ?", resultGroup.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
 	public void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException {
-		jdbc.update("INSERT INTO groups_groups(result_gid, operand_gid, created_at, created_by, " +
+		try {
+			jdbc.update("INSERT INTO groups_groups(result_gid, operand_gid, created_at, created_by, " +
 						"modified_at, modified_by, parent_flag) VALUES(?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
-				resultGroup.getId(), operandGroup.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), parentFlag);
+					resultGroup.getId(), operandGroup.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), parentFlag);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 	
-	public boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) {
-		return 1 > jdbc.queryForInt("SELECT parent_flag FROM groups_groups WHERE result_gid=? AND operand_gid=?", 
-				resultGroup.getId(), operandGroup.getId());
+	public boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
+		try {
+			return 1 > jdbc.queryForInt("SELECT parent_flag FROM groups_groups WHERE result_gid=? AND operand_gid=?",
+					resultGroup.getId(), operandGroup.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
-	public boolean isRelationBetweenGroups(Group group1, Group group2) {
-		return 1 <= jdbc.queryForInt("SELECT count(1) FROM groups_groups WHERE (result_gid = ? AND operand_gid = ?) OR (result_gid = ? AND operand_gid = ?)",
+	public boolean isRelationBetweenGroups(Group group1, Group group2) throws InternalErrorException {
+		try {
+			return 1 <= jdbc.queryForInt("SELECT count(1) FROM groups_groups WHERE (result_gid = ? AND operand_gid = ?) OR (result_gid = ? AND operand_gid = ?)",
 				group1.getId(), group2.getId(), group2.getId(), group1.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
-	public boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup) {
-		return 1 <= jdbc.queryForInt("SELECT count(1) FROM groups_groups WHERE result_gid = ? AND operand_gid = ?",
-				resultGroup.getId(), operandGroup.getId());
+	public boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup) throws InternalErrorException {
+		try {
+			return 1 <= jdbc.queryForInt("SELECT count(1) FROM groups_groups WHERE result_gid = ? AND operand_gid = ?",
+					resultGroup.getId(), operandGroup.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
-	public List<Integer> getGroupRelations(PerunSession sess, int groupId) {
-		return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=?", Integer.class, groupId);
+	public List<Integer> getGroupRelations(PerunSession sess, int groupId) throws InternalErrorException {
+		try {
+			return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=?", Integer.class, groupId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 }

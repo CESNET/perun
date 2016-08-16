@@ -497,8 +497,10 @@ public interface GroupsManagerImplApi {
 	 * @param sess perun session
 	 * @param groupId operand group id
 	 * @return related groups ids
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	List<Integer> getRelatedGroupsIds(PerunSession sess, int groupId);
+	List<Integer> getRelatedGroupsIds(PerunSession sess, int groupId) throws InternalErrorException;
 
 	/**
 	 * Removes a relation between two groups.
@@ -506,6 +508,7 @@ public interface GroupsManagerImplApi {
 	 * @param sess perun session
 	 * @param resultGroup result group
 	 * @param operandGroup operand group
+	 *
 	 * @throws InternalErrorException if there is no relation of the given type between the groups
 	 */
 	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException;
@@ -515,8 +518,10 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param resultGroup result group
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	void removeResultGroupRelations(PerunSession sess, Group resultGroup);
+	void removeResultGroupRelations(PerunSession sess, Group resultGroup) throws InternalErrorException;
 
 	/**
 	 * Saves union operation between result group and operand group.
@@ -524,6 +529,8 @@ public interface GroupsManagerImplApi {
 	 * @param resultGroup group to which members are added
 	 * @param operandGroup group from which members are taken
 	 * @param parentFlag if true union cannot be deleted; false otherwise (it flags relations created by hierarchical structure)
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
 	void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException;
 
@@ -534,8 +541,10 @@ public interface GroupsManagerImplApi {
 	 * @param group1 group
 	 * @param group2 group
 	 * @return true if there is a relation, false otherwise
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	boolean isRelationBetweenGroups(Group group1, Group group2);
+	boolean isRelationBetweenGroups(Group group1, Group group2) throws InternalErrorException;
 
 	/**
 	 * Check if the relation between given groups can be deleted. 
@@ -543,8 +552,10 @@ public interface GroupsManagerImplApi {
 	 * It matters which group is resultGroup and which is operandGroup!!!
 	 * 
 	 * @return true if it can be deleted; false otherwise
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup);
+	boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException;
 	
 	/**
 	 * Checks if relation exists between result group and operand group.
@@ -553,8 +564,10 @@ public interface GroupsManagerImplApi {
 	 * @param resultGroup result group
 	 * @param operandGroup operand group
 	 * @return true if there is a one-way relation, false otherwise
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup);
+	boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup) throws InternalErrorException;
 
 	/**
 	 * Return all group relations.
@@ -562,6 +575,8 @@ public interface GroupsManagerImplApi {
 	 * @param sess perun session
 	 * @param groupId group id
 	 * @return list of group ids
+	 * 
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	List<Integer> getGroupRelations(PerunSession sess, int groupId);
+	List<Integer> getGroupRelations(PerunSession sess, int groupId) throws InternalErrorException;
 }
