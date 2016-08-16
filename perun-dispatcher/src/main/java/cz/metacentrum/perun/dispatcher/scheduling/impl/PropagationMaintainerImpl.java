@@ -593,7 +593,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			} else {
 				log.error("No TaskResult bean found in message {} from engine {}", string, clientID);
 			}
-		} catch (InternalErrorException e) {
+		} catch (Exception e) {
 			log.error("Could not save taskresult message {} from engine " + clientID, string);
 			log.debug("Error storing taskresult message: " + e.getMessage());
 		}
