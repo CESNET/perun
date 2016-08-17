@@ -190,7 +190,7 @@ public class SystemQueueProcessor {
 				throw new MessageFormatException("Client (Perun-Engine) sent empty message");
 			}
 			
-			String[] clientIDsplitter = systemMessagetext.split(":", 2);
+			String[] clientIDsplitter = systemMessagetext.split(":", 3);
 			if(clientIDsplitter.length < 2) {
 				throw new MessageFormatException("Client (Perun-Engine) sent a malformed message [" + systemMessagetext + "]");
 			}
