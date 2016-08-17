@@ -23,9 +23,12 @@ import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.ServiceAttributes;
+import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
@@ -35,11 +38,15 @@ import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyAssignedExcept
 import cz.metacentrum.perun.core.api.exceptions.DestinationAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests of ServicesManager.
@@ -1412,6 +1419,44 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManagerBl().addDestination(sess, service, facility, destination);
 		List<Destination> destinations = perun.getServicesManager().getFacilitiesDestinations(sess, vo);
 		assertTrue("There should be one destination.",destinations.size() == 1);
+	}
+	
+	@Test(expected = PrivilegeException.class)
+	public void addDestinationSameDestinationDifferentAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addDestinationSameDestinationDifferentAdmin");
+		
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		Destination testDestination = new Destination(999, "TestDestination", Destination.DESTINATIONHOSTTYPE);
+		member = setUpMember();
+		Member memberTwo = setUpMember();
+		
+		// Creates second facility
+		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));		
+
+		// Set users as admins of different facilities
+		User userOne = perun.getUsersManagerBl().getUserByMember(sess, member);
+		perun.getFacilitiesManager().addAdmin(sess, facility, userOne);
+		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
+		perun.getFacilitiesManager().addAdmin(sess, secondFacility, userTwo);
+		
+		// Sets userOne as actor in this test with role facility admin for facility
+		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userOne);
+		// Adds destination to facility
+		perun.getServicesManager().addDestination(sess, service, facility, testDestination);
+		assertTrue(perun.getServicesManager().getDestinations(sess, service, facility).size() == 1);
+		
+		// Change actor in this test to userTwo
+		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userTwo);
+		// Adds same destination to secondFacility -> should throw exception
+ 		perun.getServicesManager().addDestination(sess, service, secondFacility, testDestination);
 	}
 
 	// PRIVATE METHODS ----------------------------------------------------
