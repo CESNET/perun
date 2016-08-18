@@ -46,7 +46,7 @@ my @resources = $servicesAgent->getAssignedResources(service => $serviceId);
 unless(@resources) { printMessage "No Resource found", $batch; exit 0; }
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('ID','Name','VO','Facility');
 
 foreach my $resource (sort $sortingFunction @resources) {

@@ -67,7 +67,7 @@ my @richMembers = $membersAgent->getCompleteRichMembers(vo => $voId, allowedStat
 unless(@richMembers) { printMessage "No such member found", $batch; exit 0; }
 
 # output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('Logname','Name','Expiration');
 my @lognames;
 

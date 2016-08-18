@@ -42,7 +42,7 @@ my @users = $securityTeamsAgent->getBlacklist(securityTeam => $securityTeamId);
 unless (@users) { printMessage "No blacklisted users found", $batch; }
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('Id:'.$securityTeamId.','.$securityTeam->getName,'User Id','User Name');
 $ii=0;
 foreach my $admin (sort $sortingFunction @admins) {

@@ -32,7 +32,7 @@ my $usersAgent = $agent->getUsersAgent;
 my $user = $usersAgent->getUserByMember(member => $memberId);
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('ID','Name');
 my $name = $user->getFirstName . " " . ($user->getMiddleName ? $user->getMiddleName . " " : "" ) . $user->getLastName;
 $table->addRow($user->getId, $name);

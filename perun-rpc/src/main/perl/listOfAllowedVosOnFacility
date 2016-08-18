@@ -46,7 +46,7 @@ GetOptions("help|h" => sub { print help; exit 0;} ,
 
 #output
 			 unless(@vos) { printMessage "No VOs assigned", $batch; exit 0; }
-			 my $table = Text::ASCIITable->new();
+			 my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 			 $table->setCols('VO id','VO shortName');
 
 			 foreach my $vo (sort $sortingFunction @vos) {
