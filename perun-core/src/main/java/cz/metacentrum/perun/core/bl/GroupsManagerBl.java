@@ -1115,4 +1115,16 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupOperationsException, InternalErrorException;
+
+	/**
+	 * Get list of group unions for specified group.
+	 * @param sess perun session
+	 * @param group group
+	 * @param reverseDirection if false get all operand groups of requested result group
+	 *                         if true get all result groups of requested operand group   
+	 * @return list of groups.
+	 * 
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException;
 }

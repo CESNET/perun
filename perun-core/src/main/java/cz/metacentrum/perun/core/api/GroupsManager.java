@@ -874,4 +874,18 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 */
 	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupOperationsException;
+
+	/**
+	 * Get list of group unions for specified group.
+	 * @param sess perun session
+	 * @param group group
+	 * @param reverseDirection if false get all operand groups of requested result group
+	 *                         if true get all result groups of requested operand group   
+	 * @return list of groups.
+	 *
+	 * @throws GroupNotExistsException
+	 * @throws InternalErrorException when relation does not exist
+	 * @throws PrivilegeException
+	 */
+	List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException, GroupNotExistsException, PrivilegeException;
 }

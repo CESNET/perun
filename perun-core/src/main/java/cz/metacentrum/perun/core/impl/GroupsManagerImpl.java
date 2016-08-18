@@ -658,17 +658,6 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Integer> getRelatedGroupsIds(PerunSession sess, int groupId) throws InternalErrorException {
-		try {
-			return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=" + groupId, Integer.class);
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Integer>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
-	@Override
 	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
 		try {
 			if (0 == jdbc.update("DELETE FROM groups_groups WHERE result_gid = ? AND operand_gid = ?",
@@ -730,9 +719,18 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Integer> getGroupRelations(PerunSession sess, int groupId) throws InternalErrorException {
+	public List<Integer> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException {
 		try {
 			return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=?", Integer.class, groupId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Integer> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException {
+		try {
+			return jdbc.queryForList("SELECT operand_gid FROM groups_groups WHERE result_gid=?", Integer.class, groupId);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

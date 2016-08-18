@@ -490,17 +490,6 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
-	
-	/**
-	 * Returns all result groups ids of the given operand group.
-	 *
-	 * @param sess perun session
-	 * @param groupId operand group id
-	 * @return related groups ids
-	 *
-	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
-	 */
-	List<Integer> getRelatedGroupsIds(PerunSession sess, int groupId) throws InternalErrorException;
 
 	/**
 	 * Removes a relation between two groups.
@@ -570,7 +559,7 @@ public interface GroupsManagerImplApi {
 	boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup) throws InternalErrorException;
 
 	/**
-	 * Return all group relations.
+	 * Return all result groups of requested operand group.
 	 *
 	 * @param sess perun session
 	 * @param groupId group id
@@ -578,5 +567,14 @@ public interface GroupsManagerImplApi {
 	 * 
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	List<Integer> getGroupRelations(PerunSession sess, int groupId) throws InternalErrorException;
+	List<Integer> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException;
+
+	/**
+	 * Return all operand groups of requested result group.
+	 * 
+	 * @param sess perun session
+	 * @param groupId group id
+	 * @return list of group ids
+	 */
+	List<Integer> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException;
 }

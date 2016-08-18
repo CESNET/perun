@@ -1058,4 +1058,17 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		getGroupsManagerBl().removeGroupUnion(sess, resultGroup, operandGroup, false);
 	}
+
+	@Override
+	public List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if ( !AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) { 
+			throw new PrivilegeException(sess, "getGroupUnions");
+		}
+		
+		return groupsManagerBl.getGroupUnions(sess, group, reverseDirection);
+	}
 }
