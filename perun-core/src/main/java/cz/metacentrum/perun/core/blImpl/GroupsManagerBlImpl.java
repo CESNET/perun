@@ -1140,16 +1140,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				log.info("Scheduling synchronization for the group {}. Interval {} minutes.", group, intervalMultiplier);
 
 				// Run each synchronization in separate thread, but do not start new one, if previous hasn't finished yet
-				if (groupSynchronizerThreads.containsKey(group)) {
+				if (groupSynchronizerThreads.containsKey(group.getId())) {
 					// Check the running time of the thread
-					long timeDiff = System.currentTimeMillis() - groupSynchronizerThreads.get(group).getStartTime();
+					long timeDiff = System.currentTimeMillis() - groupSynchronizerThreads.get(group.getId()).getStartTime();
 
 					// If the time is greater than timeout set in the configuration file (in minutes)
 					if (timeDiff/1000/60 > timeout) {
 						// Timeout reach, stop the thread
 						log.warn("Timeout {} minutes of the synchronization thread for the group {} reached.", timeout, group);
-						groupSynchronizerThreads.get(group).interrupt();
-						groupSynchronizerThreads.remove(group);
+						groupSynchronizerThreads.get(group.getId()).interrupt();
+						groupSynchronizerThreads.remove(group.getId());
 						numberOfTerminatedSynchronizations++;
 					} else {
 						numberOfActiveSynchronizations++;
