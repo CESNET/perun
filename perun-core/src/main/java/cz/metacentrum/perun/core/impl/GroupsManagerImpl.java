@@ -719,18 +719,29 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Integer> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException {
+	public List<Group> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException {
 		try {
-			return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=?", Integer.class, groupId);
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups_groups JOIN groups " +
+					"ON groups.id = groups_groups.result_gid WHERE operand_gid=?", GROUP_MAPPER, groupId);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
 	}
 
 	@Override
-	public List<Integer> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException {
+	public List<Group> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException {
 		try {
-			return jdbc.queryForList("SELECT operand_gid FROM groups_groups WHERE result_gid=?", Integer.class, groupId);
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups_groups JOIN groups " +
+					"ON groups.id = groups_groups.operand_gid WHERE result_gid=?", GROUP_MAPPER, groupId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException {
+		try {
+			return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=?", Integer.class, groupId);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

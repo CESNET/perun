@@ -884,7 +884,7 @@ public interface GroupsManager {
 	 * @return list of groups.
 	 *
 	 * @throws GroupNotExistsException
-	 * @throws InternalErrorException when relation does not exist
+	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 */
 	List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException, GroupNotExistsException, PrivilegeException;

@@ -384,6 +384,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group, group2);
 
 		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
+		Member returnMember = groupsManager.getGroupMembers(sess, group).get(0);
+		assertEquals(returnMember.getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(returnMember.getSourceGroupId(), Integer.valueOf(group2.getId()));
+
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).size() == 1);
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).size() == 1);
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).get(0).getId() == group2.getId());
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).get(0).getId() == group.getId());
 	}
 
 	@Test
@@ -404,6 +412,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.removeGroupUnion(sess, group, group2);
 
 		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).size() == 0);
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).size() == 0);
 	}
 
 	@Test(expected=InternalErrorException.class)

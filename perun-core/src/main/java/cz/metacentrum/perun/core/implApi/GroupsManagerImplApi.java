@@ -563,18 +563,28 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @param sess perun session
 	 * @param groupId group id
-	 * @return list of group ids
+	 * @return list of Group objects
 	 * 
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
-	List<Integer> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException;
+	List<Group> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException;
 
 	/**
 	 * Return all operand groups of requested result group.
 	 * 
 	 * @param sess perun session
 	 * @param groupId group id
-	 * @return list of group ids
+	 * @return list of Group objects
 	 */
-	List<Integer> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException;
+	List<Group> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException;
+
+	/**
+	 * Return list of all result groups ids of requested operand group.
+	 * 
+	 * @param sess perun session
+	 * @param groupId group id
+	 * @return list of group ids
+	 * @throws InternalErrorException
+	 */
+	List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException;
 }
