@@ -6,12 +6,12 @@ import cz.metacentrum.perun.controller.model.FacilityState;
 import cz.metacentrum.perun.controller.model.ResourceState;
 import cz.metacentrum.perun.controller.model.ServiceState;
 import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 
@@ -20,15 +20,15 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Returns a task.
 	 *
-	 * @param execService int Exec service <code>id</code>
+	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @return Task Found task
 	 */
 	getTask {
 		public Task call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ExecService execService = ac.getExecServiceById(parms.readInt("execService"));
+			Service service = ac.getServiceById(parms.readInt("service"));
 			Facility facility = ac.getFacilityById(parms.readInt("facility"));
-			return ac.getPropagationStatsReader().getTask(ac.getSession(), execService, facility);
+			return ac.getPropagationStatsReader().getTask(ac.getSession(), service, facility);
 		}
 	},
 
@@ -94,15 +94,15 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 	/*#
 	 * Whether task exists.
 	 *
-	 * @param execService int ExecService <code>id</code>
+	 * @param service int Service <code>id</code>
 	 * @param facility int Facility <code>id</code>
 	 * @return int 1 = true; 0 = false
 	 */
 	isThereSuchTask {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ExecService execService = ac.getExecServiceById(parms.readInt("execService"));
+			Service service = ac.getServiceById(parms.readInt("service"));
 			Facility facility = ac.getFacilityById(parms.readInt("facility"));
-			return ( ac.getPropagationStatsReader().isThereSuchTask(execService, facility) ? 1 : 0 );
+			return ( ac.getPropagationStatsReader().isThereSuchTask(service, facility) ? 1 : 0 );
 		}
 	},
 
@@ -233,7 +233,7 @@ public enum PropagationStatsReaderMethod implements ManagerMethod {
 			return ac.getPropagationStatsReader().getTaskResultsForDestinations(ac.getSession(), parms.readList("destinations", String.class));
 		}
 	},
-	
+
 	/*#
 	 * Returns service states for defined facility.
 	 *

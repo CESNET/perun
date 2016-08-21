@@ -7,15 +7,10 @@
 
 	<task:scheduler id="scheduler" pool-size="4" />
 
-	<task:scheduled-tasks scheduler="scheduler">
-
-		<!-- Process new Tasks in engine and plan them -->
-		<task:scheduled ref="processPoolJob" method="doTheJob" cron="${engine.cron.processpool}" />
-		<!-- Start planned Tasks -->
-		<task:scheduled ref="taskExecutorEngineJob" method="doTheJob" cron="${engine.cron.taskexecutor}" />
-		<!-- Check finished Tasks and return them to Dispatcher. Check stuck Tasks and end them with error. -->
-		<task:scheduled ref="propagationMaintainerJob" method="doTheJob" cron="${engine.cron.propagation}" />
-
-	</task:scheduled-tasks>
+       <task:scheduled-tasks scheduler="scheduler">
+              <!-- 30 seconds: 0/30 * * * * ? -->
+              <!--  3 minutes: 0 0/3 * * * ?  -->
+              <task:scheduled ref="propagationMaintainerJob" method="doTheJob" cron="${engine.cron.propagation}" />
+       </task:scheduled-tasks>
 
 </beans>

@@ -6,6 +6,60 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.47
+delete from service_dependencies where dependency in (select id from exec_services where exec_services.type='GENERATE');
+delete from service_denials where exec_service_id in (select id from exec_services where exec_services.type='GENERATE');
+delete from tasks where exec_service_id in (select id from exec_services where exec_services.type='GENERATE');
+delete from exec_services where type='GENERATE';
+alter table tasks drop constraint task_stat_chk;
+update tasks set status='ERROR' where status != 'ERROR' and status != 'DONE';
+alter table tasks add constraint task_stat_chk check (status in ('WAITING', 'PLANNED', 'GENERATING', 'GENERROR', 'GENERATED', 'SENDING', 'DONE', 'SENDERROR', 'ERROR'));
+alter table services add column description varchar(1024);
+alter table services add column delay integer not null default 10;
+alter table services add column recurrence integer not null default 2;
+alter table services add column enabled char(1) not null default '1';
+alter table services add column script varchar(256);
+update services set script=exec_services.script from exec_services where services.id=exec_services.service_id;
+update services set enabled=exec_services.enabled from exec_services where services.id=exec_services.service_id;
+alter table services alter column script set not null;
+update services set recurrence=2 , delay=10;
+alter table service_denials add column service_id integer;
+update service_denials set service_id=temp.id from (select id as exec_service_id, service_id as id from exec_services) temp where temp.exec_service_id=service_denials.exec_service_id;
+alter table service_denials add constraint srvden_srv_fk foreign key (service_id) references services(id);
+create index idx_fk_srvden_srv on service_denials(service_id);
+alter table service_denials drop constraint srvden_u;
+drop index idx_srvden_u;
+alter table service_denials add constraint srvden_u check(service_id is not null and ((facility_id is not null and destination_id is null) or (facility_id is null and destination_id is not null)));
+create unique index idx_srvden_u ON service_denials(COALESCE(service_id, '0'), COALESCE(facility_id, '0'), COALESCE(destination_id, '0'));
+alter table service_denials drop constraint srvden_exsrv_fk;
+drop index idx_fk_srvden_exsrv;
+alter table service_denials drop column exec_service_id;
+alter table tasks add column service_id integer;
+update tasks set service_id=temp.id from (select id as exec_service_id, service_id as id from exec_services) temp where temp.exec_service_id=tasks.exec_service_id;
+alter table tasks alter column service_id set not null;
+alter table tasks drop constraint task_exsrv_fk;
+alter table tasks add constraint task_srv_fk foreign key (service_id) references services(id);
+alter table tasks drop constraint task_u;
+alter table tasks add constraint task_u unique (service_id, facility_id);
+drop index idx_fk_task_exsrv;
+create index idx_fk_task_srv on tasks(service_id);
+alter table tasks drop column exec_service_id;
+drop index idx_fk_srvdep_exsrv;
+drop index idx_fk_srvdep_depexsrv;
+alter table service_dependencies drop constraint srvdep_exsrv_fk;
+alter table service_dependencies drop constraint srvdep_depexsrv_fk;
+alter table service_dependencies drop constraint srvdep_type_chk;
+alter table service_dependencies drop constraint srvdep_u;
+drop table service_dependencies;
+drop index idx_fk_exsrv_srv;
+alter table exec_services drop constraint exsrv_pk;
+alter table exec_services drop constraint exsrv_srv_fk;
+alter table exec_services drop constraint exsrv_type_chk;
+drop table exec_services;
+drop sequence exec_services_id_seq;
+drop table dispatcher_settings;
+update configurations set value='3.1.47' where property='DATABASE VERSION';
+
 3.1.46
 ALTER TABLE attr_names ADD COLUMN is_unique BOOLEAN DEFAULT FALSE NOT NULL;
 alter table member_resource_attr_values add constraint memrav_pk primary key(member_id,resource_id,attr_id);

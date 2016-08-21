@@ -5,7 +5,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -148,7 +147,7 @@ public class DestinationResultsTabItem implements TabItem, TabItemWithUrl {
 				ArrayList<RichService> list = JsonUtils.jsoAsList(jso);
 				list = new TableSorter<RichService>().sortByName(list);
 				for (RichService s : list){
-					if (s.getAllowedOnFacility().equalsIgnoreCase("allowed") && (s.getGenExecService() != null && s.getGenExecService().isEnabled()) && (s.getSendExecService() != null && s.getSendExecService().isEnabled())){
+					if (s.getAllowedOnFacility().equalsIgnoreCase("allowed") && (s.getService() != null && s.getService().isEnabled())){
 						listbox.addItem(s);
 					}
 				}

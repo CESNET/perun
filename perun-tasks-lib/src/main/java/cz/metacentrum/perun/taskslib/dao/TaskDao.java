@@ -1,12 +1,11 @@
 package cz.metacentrum.perun.taskslib.dao;
 
-import java.util.Date;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
@@ -18,13 +17,13 @@ import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
  */
 public interface TaskDao {
 
-	Task getTask(ExecService execService, Facility facility);
+	Task getTask(Service service, Facility facility);
 
 	int insertTask(Task task, int engineID) throws InternalErrorException;
 
 	List<Task> listAllTasks();
-	
-	List<Pair<Task, Integer>> listAllTasksAndClients(); 
+
+	List<Pair<Task, Integer>> listAllTasksAndClients();
 
 	/**
 	 * Returns all tasks associated with selected facility
@@ -36,17 +35,7 @@ public interface TaskDao {
 
 	List<Task> listAllTasksInState(Task.TaskStatus state);
 
-	List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen);
-
-	List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen);
-
-	List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen);
-
 	void updateTask(Task task);
-
-	boolean isThereSuchTask(ExecService execService, Facility facility);
-
-	void removeTask(ExecService execService, Facility facility);
 
 	void removeTask(int id);
 
@@ -56,7 +45,7 @@ public interface TaskDao {
 
 	int scheduleNewTask(Task task, int engineID) throws InternalErrorException;
 
-	Task getTask(ExecService execService, Facility facility, int engineID);
+	Task getTask(Service service, Facility facility, int engineID);
 
 	Task getTask(int execServiceId, int facilityId, int engineID);
 
@@ -68,19 +57,17 @@ public interface TaskDao {
 
 	List<Task> listAllTasksInState(TaskStatus state, int engineID);
 
-	List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen, int engineID);
-
-	List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen, int engineID);
-
-	List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen, int engineID);
-
 	void updateTask(Task task, int engineID);
 
 	void updateTaskEngine(Task task, int engineID) throws InternalErrorException;
 
-	boolean isThereSuchTask(ExecService execService, Facility facility, int engineID);
+	boolean isThereSuchTask(Service service, Facility facility, int engineID);
 
-	void removeTask(ExecService execService, Facility facility, int engineID);
+	boolean isThereSuchTask(Service service, Facility facility);
+
+	void removeTask(Service service, Facility facility, int engineID);
+
+	void removeTask(Service service, Facility facility);
 
 	void removeTask(int id, int engineID);
 

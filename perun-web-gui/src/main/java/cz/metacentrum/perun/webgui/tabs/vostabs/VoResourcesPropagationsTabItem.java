@@ -217,7 +217,7 @@ public class VoResourcesPropagationsTabItem implements TabItem, TabItemWithUrl {
 						Column<Task, String> serviceColumn = JsonUtils.addColumn(
 								new JsonUtils.GetValue<Task, String>() {
 									public String getValue(Task task) {
-										return String.valueOf(task.getExecService().getService().getName());
+										return String.valueOf(task.getService().getName());
 									}
 								}, null);
 

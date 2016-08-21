@@ -6,10 +6,7 @@ attributes_authz
 owners
 services
 service_required_attrs
-exec_services
 engines
 routing_rules
 engine_routing_rule
-dispatcher_settings
-service_dependencies
 configurations

@@ -81,7 +81,7 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 
 	public Widget draw() {
 
-		this.titleWidget.setText("Tasks results: "+task.getExecService().getService().getName()+" "+task.getExecService().getType());
+		this.titleWidget.setText("Tasks results: "+task.getService().getName());
 
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
@@ -156,7 +156,7 @@ public class TaskResultsTabItem implements TabItem, TabItemWithUrl{
 
 	public void open() {
 		session.getUiElements().getMenu().openMenu(MainMenu.FACILITY_ADMIN);
-		session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(), "Propagation results: "+task.getExecService().getService().getName(), getUrlWithParameters());
+		session.getUiElements().getBreadcrumbs().setLocation(task.getFacility(), "Propagation results: "+task.getService().getName(), getUrlWithParameters());
 		if(task != null) {
 			if (task.getFacility() != null) {
 				session.setActiveFacility(task.getFacility());

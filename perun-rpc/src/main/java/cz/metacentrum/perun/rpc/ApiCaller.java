@@ -64,7 +64,6 @@ import cz.metacentrum.perun.notif.entities.PerunNotifTemplateMessage;
 import cz.metacentrum.perun.notif.managers.PerunNotifNotificationManager;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
  * ApiCaller calls Perun manager methods.
@@ -348,10 +347,6 @@ public class ApiCaller {
 
 	public UserExtSource getUserExtSourceById(int id) throws PerunException {
 		return getUsersManager().getUserExtSourceById(rpcSession, id);
-	}
-
-	public ExecService getExecServiceById(int id) throws PerunException {
-		return getGeneralServiceManager().getExecService(rpcSession, id);
 	}
 
 	public PerunNotifObject getPerunNotifObjectById(int id) throws PerunException {

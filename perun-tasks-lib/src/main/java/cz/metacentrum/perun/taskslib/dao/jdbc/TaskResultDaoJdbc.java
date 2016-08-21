@@ -15,6 +15,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,6 +26,7 @@ import java.util.List;
 
 @Transactional
 public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
+
 	private static final Logger log = LoggerFactory.getLogger(TaskResultDaoJdbc.class);
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
 
@@ -81,15 +84,15 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 
 		// There was probably an issue with too long a String for VARCHAR2 datatype http://goo.gl/caVxp.
 		// Solution might be to shorten the message according to VARCHAR2: http://goo.gl/WrlYm
-		String standardMessage = null;
-		String errorMessage = null;
-		if(taskResult.getStandardMessage() != null) standardMessage = taskResult.getStandardMessage().length() < 4000 ? taskResult.getStandardMessage() : taskResult.getStandardMessage().substring(0, 3998);
-		if(taskResult.getErrorMessage()    != null) errorMessage    = taskResult.getErrorMessage().length() < 4000 ? taskResult.getErrorMessage() : taskResult.getErrorMessage().substring(0, 3998);
+		byte[] standardMessage = null;
+		byte[] errorMessage = null;
+		if(taskResult.getStandardMessage() != null) standardMessage = taskResult.getStandardMessage().getBytes(StandardCharsets.UTF_8);
+		if(taskResult.getErrorMessage()    != null) errorMessage    = taskResult.getErrorMessage().getBytes(StandardCharsets.UTF_8);
 
 		// CLEAR UTF-8 0x00 bytes, since PostgreSQL can't store them to varchar column (Oracle can).
 		// By java, such byte is displayed as 'empty string' and is not visible in a log.
-		standardMessage = clearZeroBytesFromString(standardMessage);
-		errorMessage = clearZeroBytesFromString(errorMessage);
+		standardMessage = clearZeroBytesFromString(standardMessage, 4000);
+		errorMessage = clearZeroBytesFromString(errorMessage, 4000);
 
 		this.getJdbcTemplate()
 			.update(
@@ -107,8 +110,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 					taskResult.getTaskId(),
 					taskResult.getDestinationId(),
 					taskResult.getStatus().toString(),
-					errorMessage,
-					standardMessage,
+					new String(errorMessage, StandardCharsets.UTF_8),
+					new String(standardMessage, StandardCharsets.UTF_8),
 					taskResult.getReturnCode(),
 					TaskDaoJdbc.getDateFormatter().format(taskResult.getTimestamp()),
 					engineID);
@@ -121,9 +124,11 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				"select " + taskResultMappingSelectQuery + ", " + ServicesManagerImpl.destinationMappingSelectQuery + ", " +
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
-				" left join tasks on tasks.id = tasks_results.task_id left join exec_services on exec_services.id = tasks.exec_service_id" +
-				" left join services on services.id = exec_services.service_id where tasks_results.engine_id = ?", new Integer[] { engineID },
-				TASKRESULT_ROWMAPPER);
+				" left join tasks on tasks.id = tasks_results.task_id" +
+				" left join services on services.id = tasks.service_id" +
+				" where tasks_results.engine_id = ?",
+				TASKRESULT_ROWMAPPER,
+				engineID);
 		if (taskResults != null) {
 			return taskResults;
 		} else {
@@ -138,8 +143,7 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
 				" left join tasks on tasks.id = tasks_results.task_id " +
-				" left join exec_services on exec_services.id = tasks.exec_service_id" +
-				" left join services on services.id = exec_services.service_id ",
+				" left join services on services.id = tasks.service_id",
 				TASKRESULT_ROWMAPPER);
 		if (taskResults != null) {
 			return taskResults;
@@ -155,10 +159,9 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
 				" left join tasks on tasks.id = tasks_results.task_id" +
-				" left join exec_services on exec_services.id = tasks.exec_service_id" +
-				" left join services on services.id = exec_services.service_id " +
+				" left join services on services.id = tasks.service_id" +
 				"where tasks_results.id = ? and tasks_results.engine_id = ?",
-				new Object[] { taskResultId, engineID }, TASKRESULT_ROWMAPPER);
+				TASKRESULT_ROWMAPPER, taskResultId, engineID);
 	}
 
 	@Override
@@ -167,19 +170,19 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id " +
 				" left join tasks on tasks.id = tasks_results.task_id" +
-				" left join exec_services on exec_services.id = tasks.exec_service_id" +
-				" left join services on services.id = exec_services.service_id where tasks_results.id = ?",
-				new Object[] { taskResultId }, TASKRESULT_ROWMAPPER);
+				" left join services on services.id = tasks.service_id" +
+				" where tasks_results.id = ?",
+				TASKRESULT_ROWMAPPER, taskResultId);
 	}
 
 	@Override
 	public int clearByTask(int taskId, int engineID) {
-		return this.getJdbcTemplate().update("delete from tasks_results where task_id = ? and engine_id = ?", new Object[] { taskId, engineID });
+		return this.getJdbcTemplate().update("delete from tasks_results where task_id = ? and engine_id = ?", taskId, engineID);
 	}
 
 	@Override
 	public int clearByTask(int taskId) {
-		return this.getJdbcTemplate().update("delete from tasks_results where task_id = ?", new Object[] { taskId });
+		return this.getJdbcTemplate().update("delete from tasks_results where task_id = ?", taskId);
 	}
 
 	@Override
@@ -220,10 +223,9 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
 				" left join tasks on tasks.id = tasks_results.task_id " +
-				" left join exec_services on exec_services.id = tasks.exec_service_id" +
-				" left join services on services.id = exec_services.service_id " +
+				" left join services on services.id = tasks.service_id" +
 				" where tasks_results.task_id = ? and tasks_results.engine_id = ?",
-				new Integer[] { taskId, engineID }, TASKRESULT_ROWMAPPER);
+				TASKRESULT_ROWMAPPER, taskId, engineID);
 		if (taskResults != null) {
 			return taskResults;
 		} else {
@@ -238,8 +240,9 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 				ServicesManagerImpl.serviceMappingSelectQuery +
 				" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
 				" left join tasks on tasks.id = tasks_results.task_id " +
-				" left join exec_services on exec_services.id = tasks.exec_service_id" +
-				" left join services on services.id = exec_services.service_id where tasks_results.task_id = ?", new Integer[] { taskId }, TASKRESULT_ROWMAPPER);
+				" left join services on services.id = tasks.service_id" +
+				" where tasks_results.task_id = ?",
+				TASKRESULT_ROWMAPPER, taskId);
 		if (taskResults != null) {
 			return taskResults;
 		} else {
@@ -257,8 +260,8 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 					ServicesManagerImpl.serviceMappingSelectQuery +
 					" from tasks_results left join destinations on tasks_results.destination_id = destinations.id" +
 					" left join tasks on tasks.id = tasks_results.task_id " +
-					" left join exec_services on exec_services.id = tasks.exec_service_id" +
-					" left join services on services.id = exec_services.service_id where destinations.destination in ( :destinations )", parameters, TASKRESULT_ROWMAPPER);
+					" left join services on services.id = tasks.service_id" +
+					" where destinations.destination in ( :destinations )", parameters, TASKRESULT_ROWMAPPER);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -270,15 +273,29 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 	 * @param input String to remove zero bytes
 	 * @return Original string without zero bytes
 	 */
-	private static String clearZeroBytesFromString(String input) {
-		if (input == null) return null;
-		byte[] data = input.getBytes(StandardCharsets.UTF_8);
-		String dataOut = "";
-		for (int i = 0; i < data.length; i++) {
+	private static byte[] clearZeroBytesFromString(byte[] data, int maxLength) {
+		if (data == null) return null;
+		ByteArrayOutputStream dataOut = new ByteArrayOutputStream() ;
+		int limit = (maxLength < data.length) ? maxLength - 4 : data.length;
+		for (int i = 0; i < limit; i++) {
 			if (data[i] != 0x00)
-				dataOut += (char)data[i];
+				dataOut.write(data[i]);
 		}
-		return dataOut;
+		if(maxLength < data.length) {
+			// we had to cut the byte array at limit
+			// data[limit-1] is the last added byte
+			// we have to check, if it starts the non-ASCII char sequence
+			if(data[limit-1] >= 0xC0 ) {
+				dataOut.write(data[limit]);
+			}
+			if(data[limit-1] >= 0xE0 ) {
+				dataOut.write(data[limit+1]);
+			}
+			if(data[limit-1] >= 0xF0 ) {
+				dataOut.write(data[limit+2]);
+			}
+		}
+		return dataOut.toByteArray();
 	}
 
 }

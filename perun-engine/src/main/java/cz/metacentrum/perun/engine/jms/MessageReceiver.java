@@ -19,14 +19,14 @@ import cz.metacentrum.perun.engine.processing.CommandProcessor;
 import cz.metacentrum.perun.engine.processing.EventProcessor;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "eventReceiver")
 public class MessageReceiver implements Runnable {
-	private final static Logger log = LoggerFactory
-			.getLogger(MessageReceiver.class);
+
+	private final static Logger log = LoggerFactory.getLogger(MessageReceiver.class);
 
 	private final static int TOO_LONG = 15000;
 
@@ -70,20 +70,17 @@ public class MessageReceiver implements Runnable {
 				} catch (InvalidDestinationException e) {
 					queueAcquired = false;
 					waitTime = waitTime + 5000;
-					log.error("Queue doesn't exist yet. We gonna wait a bit ("
-							+ (waitTime / 1000) + "s) and try it again...", e);
+					log.error("Queue doesn't exist yet. We gonna wait a bit ({} s) and try it again.",
+							(waitTime / 1000), e);
 				} catch (JMSException e) {
 					queueAcquired = false;
 					waitTime = waitTime + 5000;
-					log.error(
-							"Something went wrong with JMS. We gonna wait a bit ("
-									+ (waitTime / 1000)
-									+ "s) and try it again...", e);
+					log.error("Something went wrong with JMS. We are gonna wait a bit ({} s) and try it again...",
+							(waitTime / 1000), e);
 				} catch (Exception e) {
 					queueAcquired = false;
 					waitTime = waitTime + 5000;
-					log.error("Can not continue. We gonna wait a bit ("
-							+ (waitTime / 1000) + "s) and try it again...", e);
+					log.error("Can not continue. We gonna wait a bit ({} s) and try it again...", (waitTime / 1000), e);
 				}
 			} else {
 				// Step 11. Receive the message
@@ -95,28 +92,21 @@ public class MessageReceiver implements Runnable {
 						final String message = messageReceived.getText();
 
 						String messageType = message.split("\\|", 2)[0].trim();
-						log.debug("RECEIVED MESSAGE:" + message + ", Type:"
-								+ messageType);
+						log.debug("RECEIVED MESSAGE:{}, Type:{}", message, messageType);
 
 						if (messageType.equalsIgnoreCase("task")) {
 							try {
-								taskExecutorMessageProcess
-										.execute(new Runnable() {
+								taskExecutorMessageProcess.execute(new Runnable() {
 											@Override
 											public void run() {
 												// TODO: Remove in future
-												log.info("I am going to call eventProcessor.receiveEvent(\""
-														+ message
-														+ "\") in thread:"
-														+ Thread.currentThread()
-																.getName());
-												eventProcessor
-														.receiveEvent(message);
+												log.info("I am going to call eventProcessor.receiveEvent(\"{}\") " +
+														"in thread: {}", message, Thread.currentThread().getName());
+												eventProcessor.receiveEvent(message);
 											}
 										});
 							} catch (TaskRejectedException ex) {
-								log.error("Task was rejected. Message {}",
-										message);
+								log.error("Task was rejected. Message {}", message);
 								throw ex;
 							}
 						} else if (messageType.equalsIgnoreCase("command")) {

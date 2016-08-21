@@ -1139,83 +1139,6 @@ public class Rpc {
 
 	// GeneralServiceManager
 	public static class GeneralServiceManager {
-		public static ExecService getExecService(RpcCaller rpcCaller, int execServiceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("id", new Integer(execServiceId));
-
-			try {
-				return rpcCaller.call("generalServiceManager", "getExecService", params).read(ExecService.class);
-			} catch (ServiceNotExistsException e) {
-				throw e;
-			} catch (PrivilegeException e) {
-				throw e;
-			} catch (InternalErrorException e) {
-				throw e;
-			} catch (PerunException e) {
-				throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static List<ExecService> listExecServices(RpcCaller rpcCaller) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-			try {
-				return rpcCaller.call("", "listExecServices").readList(ExecService.class);
-			} catch(ServiceNotExistsException e) {    throw e;
-			} catch(InternalErrorException e) {    throw e;
-			} catch(PrivilegeException  e) {    throw e;
-			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static List<ExecService> listExecServices(RpcCaller rpcCaller, int serviceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("service", new Integer(serviceId));
-
-			try {
-				return rpcCaller.call("generalServiceManager", "listExecServices", params).readList(ExecService.class);
-			} catch (ServiceNotExistsException e) {
-				throw e;
-			} catch (PrivilegeException e) {
-				throw e;
-			} catch (InternalErrorException e) {
-				throw e;
-			} catch (PerunException e) {
-				throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static List<ExecService> listExecServicesDependingOn(RpcCaller rpcCaller, ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("dependantExecService", execService.getId());
-
-			try {
-				return rpcCaller.call("generalServiceManager", "listExecServicesDependingOn", params).readList(ExecService.class);
-			} catch (ServiceNotExistsException e) {
-				throw e;
-			} catch (PrivilegeException e) {
-				throw e;
-			} catch (InternalErrorException e) {
-				throw e;
-			} catch (PerunException e) {
-				throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static List<ExecService> listExecServicesThisExecServiceDependsOn(RpcCaller rpcCaller, ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("dependantExecService", execService.getId());
-
-			try {
-				return rpcCaller.call("generalServiceManager", "listExecServicesThisExecServiceDependsOn", params).readList(ExecService.class);
-			} catch (ServiceNotExistsException e) {
-				throw e;
-			} catch (PrivilegeException e) {
-				throw e;
-			} catch (InternalErrorException e) {
-				throw e;
-			} catch (PerunException e) {
-				throw new ConsistencyErrorException(e);
-			}
-		}
 
 		public static boolean isExecServiceDeniedOnFacility(RpcCaller rpcCaller, ExecService execService, Facility facility) throws InternalErrorException, PrivilegeException {
 			Map<String, Object> params = new HashMap<String, Object>();
@@ -1223,7 +1146,7 @@ public class Rpc {
 			params.put("facility", facility.getId());
 
 			try {
-				return 1 == rpcCaller.call("generalServiceManager", "isExecServiceDeniedOnFacility", params).readInt();
+				return 1 == rpcCaller.call("generalServiceManager", "isServiceBlockedOnFacility", params).readInt();
 			} catch (PrivilegeException e) {
 				throw e;
 			} catch (InternalErrorException e) {
@@ -1239,7 +1162,7 @@ public class Rpc {
 			params.put("destinationId", destinationId);
 
 			try {
-				return rpcCaller.call("generalServiceManager", "isExecServiceDeniedOnDestination", params).readInt();
+				return rpcCaller.call("generalServiceManager", "isServiceBlockedOnDestination", params).readInt();
 			} catch (PrivilegeException e) {
 				throw e;
 			} catch (InternalErrorException e) {
@@ -1249,90 +1172,25 @@ public class Rpc {
 			}
 		}
 
-		public static int insertExecService(RpcCaller rpcCaller, ExecService execService, Owner owner) throws InternalErrorException, PrivilegeException, OwnerNotExistsException, ServiceExistsException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("execService", execService);
-			params.put("owner", owner.getId());
-
-			try {
-				return rpcCaller.call("generalServiceManager", "insertExecService", params).readInt();
-			} catch (PrivilegeException e) {       throw e;
-			} catch (InternalErrorException e) {   throw e;
-			} catch (OwnerNotExistsException e) {  throw e;
-			} catch (ServiceExistsException e) {   throw e;
-			} catch (PerunException e) {           throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static void deleteService(RpcCaller rpcCaller, Service service) throws InternalErrorException, ServiceNotExistsException, PrivilegeException, RelationExistsException {
+		public static void blockServiceOnFacility(RpcCaller rpcCaller, Service service, Facility facility) throws InternalErrorException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("service", service.getId());
-
-			try {
-				rpcCaller.call("generalServiceManager", "deleteService", params);
-			} catch (PrivilegeException e) {          throw e;
-			} catch (InternalErrorException e) {      throw e;
-			} catch (RelationExistsException e) {     throw e;
-			} catch (ServiceNotExistsException e) {   throw e;
-			} catch (PerunException e) {              throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static List<Service> listServices(RpcCaller rpcCaller) throws InternalErrorException, PrivilegeException {
-			try {
-				return rpcCaller.call("generalServiceManager", "listServices").readList(Service.class);
-			} catch (PrivilegeException e) {          throw e;
-			} catch (InternalErrorException e) {      throw e;
-			} catch (PerunException e) {              throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static Service getService(RpcCaller rpcCaller, int serviceId) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("id", serviceId);
-
-			try {
-				return rpcCaller.call("generalServiceManager", "getService", params).read(Service.class);
-			} catch(ServiceNotExistsException e) {   throw e;
-			} catch(InternalErrorException e) {      throw e;
-			} catch(PrivilegeException e) {          throw e;
-			} catch (PerunException e) {             throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static void updateExecService(RpcCaller rpcCaller, ExecService execService) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("execService", execService.getId());
-
-			try {
-				rpcCaller.call("generalServiceManager", "listExecServices", params);
-			} catch(ServiceNotExistsException e) {    throw e;
-			} catch(InternalErrorException e) {    throw e;
-			} catch(PrivilegeException  e) {    throw e;
-			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
-			}
-		}
-
-
-		public static void banExecServiceOnFacility(RpcCaller rpcCaller, ExecService execService, Facility facility) throws InternalErrorException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("service", execService.getId());
 			params.put("facility", facility.getId());
 
 			try {
-				rpcCaller.call("generalServiceManager", "banExecServiceOnFacility", params);
+				rpcCaller.call("generalServiceManager", "blockServiceOnFacility", params);
 			} catch(InternalErrorException  e) {    throw e;
 			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
 			}
 		}
 
-		public static void banExecServiceOnDestination(RpcCaller rpcCaller, ExecService execService, int destinationId) throws InternalErrorException {
+		public static void blockServiceOnDestination(RpcCaller rpcCaller, Service service, int destinationId) throws InternalErrorException {
 			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("execService", execService.getId());
+			params.put("service", service.getId());
 			params.put("destination", destinationId);
 
 			try {
-				rpcCaller.call("generalServiceManager", "banExecServiceOnDestination", params);
+				rpcCaller.call("generalServiceManager", "blockServiceOnDestination", params);
 			} catch(InternalErrorException  e) {    throw e;
 			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
 			}
@@ -1343,7 +1201,7 @@ public class Rpc {
 			params.put("facility", facility.getId());
 
 			try {
-				return rpcCaller.call("generalServiceManager", "listDenialsForFacility", params).readList(ExecService.class);
+				return rpcCaller.call("generalServiceManager", "getServicesBlockedOnFacility", params).readList(ExecService.class);
 			} catch(ServiceNotExistsException e) {    throw e;
 			} catch(InternalErrorException e) {    throw e;
 			} catch(PrivilegeException  e) {    throw e;
@@ -1356,7 +1214,7 @@ public class Rpc {
 			params.put("destination", destinationId);
 
 			try {
-				return rpcCaller.call("generalServiceManager", "listDenialsForDestination", params).readList(ExecService.class);
+				return rpcCaller.call("generalServiceManager", "getServicesBlockedOnDestination", params).readList(ExecService.class);
 			} catch(ServiceNotExistsException e) {    throw e;
 			} catch(InternalErrorException e) {    throw e;
 			} catch(PrivilegeException  e) {    throw e;
@@ -1369,7 +1227,7 @@ public class Rpc {
 			params.put("facility", facility.getId());
 
 			try {
-				rpcCaller.call("generalServiceManager", "freeAllDenialsOnFacility", params);
+				rpcCaller.call("generalServiceManager", "unblockAllServicesOnFacility", params);
 			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
 			}
 		}
@@ -1379,7 +1237,7 @@ public class Rpc {
 			params.put("destination", destinationId);
 
 			try {
-				rpcCaller.call("generalServiceManager", "freeAllDenialsOnDestination", params);
+				rpcCaller.call("generalServiceManager", "unblockAllServicesOnDestination", params);
 			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
 			}
 		}
@@ -1390,7 +1248,7 @@ public class Rpc {
 			params.put("facility", facility.getId());
 
 			try {
-				rpcCaller.call("generalServiceManager", "freeDenialOfExecServiceOnFacility", params);
+				rpcCaller.call("generalServiceManager", "unblockServiceOnFacility", params);
 			} catch(InternalErrorException  e) {    throw e;
 			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
 			}
@@ -1402,47 +1260,11 @@ public class Rpc {
 			params.put("destination", destinationId);
 
 			try {
-				rpcCaller.call("generalServiceManager", "freeDenialOfExecServiceOnDestination", params);
+				rpcCaller.call("generalServiceManager", "unblockServiceOnDestination", params);
 			} catch(InternalErrorException  e) {    throw e;
 			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
 			}
 		}
 
-		public static void createDependency(RpcCaller rpcCaller, ExecService execService, ExecService dependantExecService) throws InternalErrorException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("dependantExecService", dependantExecService.getId());
-			params.put("execService", execService.getId());
-
-			try {
-				rpcCaller.call("generalServiceManager", "createDependency", params);
-			} catch(InternalErrorException  e) {    throw e;
-			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
-			}
-		}
-
-		public static void removeDependency(RpcCaller rpcCaller, ExecService dependantExecService, ExecService execService) throws InternalErrorException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("dependantExecService", dependantExecService.getId());
-			params.put("execService", execService.getId());
-
-			try {
-				rpcCaller.call("generalServiceManager", "removeDependency", params);
-			} catch(InternalErrorException  e) {    throw e;
-			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
-			}
-		}
-
-
-		public static boolean isThereDependency(RpcCaller rpcCaller, ExecService dependantExecService, ExecService execService) throws InternalErrorException {
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("dependantExecService", dependantExecService.getId());
-			params.put("execService", execService.getId());
-
-			try {
-				return 1 == rpcCaller.call("generalServiceManager", "isThereDependency", params).readInt();
-			} catch(InternalErrorException  e) {    throw e;
-			} catch(PerunException e) {    throw new ConsistencyErrorException(e);
-			}
-		}
 	}
 }

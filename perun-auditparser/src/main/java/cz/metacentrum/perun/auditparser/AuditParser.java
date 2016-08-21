@@ -4,8 +4,6 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.taskslib.model.ExecService;
-import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.TaskResult;
 import cz.metacentrum.perun.taskslib.model.TaskResult.TaskResultStatus;
 
@@ -68,7 +66,6 @@ public class AuditParser {
 				else if(p.getLeft().equals("Vo")) perunBean = createVo(p.getRight());
 				else if(p.getLeft().equals("Authorship")) perunBean = createAuthorship(p.getRight());
 				else if(p.getLeft().equals("ResourceTag")) perunBean = createResourceTag(p.getRight());
-				else if(p.getLeft().equals("ExecService")) perunBean = createExecService(p.getRight());
 				else if(p.getLeft().equals("SecurityTeam")) perunBean = createSecurityTeam(p.getRight());
 				else if(p.getLeft().equals("TaskResult")) perunBean = createTaskResult(p.getRight());
 				else if(p.getLeft().equals("BanOnResource")) perunBean = createBanOnResource(p.getRight());
@@ -426,6 +423,11 @@ public class AuditParser {
 		Service service = new Service();
 		service.setId(Integer.valueOf(beanAttr.get("id")));
 		service.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
+		service.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
+		service.setDelay(Integer.valueOf(beanAttr.get("delay")).intValue());
+		service.setRecurrence(Integer.valueOf(beanAttr.get("recurrence")).intValue());
+		service.setEnabled(Boolean.valueOf(beanAttr.get("enabled")).booleanValue());
+		service.setScript(BeansUtils.eraseEscaping(beanAttr.get("script")));
 		return service;
 	}
 
@@ -485,36 +487,6 @@ public class AuditParser {
 		resourceTag.setVoId(Integer.valueOf(beanAttr.get("voId")));
 		resourceTag.setTagName(BeansUtils.eraseEscaping(beanAttr.get("tagName")));
 		return resourceTag;
-	}
-
-	private static ExecService createExecService(Map<String, String> beanAttr) {
-		if(beanAttr==null) return null;
-		ExecService execService = new ExecService();
-		execService.setId(Integer.valueOf(beanAttr.get("id")));
-		execService.setDefaultDelay(Integer.valueOf(beanAttr.get("defaultDelay")));
-		execService.setDefaultRecurrence(Integer.valueOf(beanAttr.get("defaultRecurrence")));
-		execService.setEnabled(Boolean.valueOf(beanAttr.get("enabled")));
-		if(beanAttr.get("script").equals("\\0")) execService.setScript(null);
-		else {
-			execService.setScript(BeansUtils.eraseEscaping(beanAttr.get("script")));
-		}
-		Service service;
-		if(beanAttr.get("service").equals("\\0")) service = null;
-		else {
-			List<Pair<String, Map<String, String>>> serviceList = beansToMap(beanAttr.get("service"));
-			service = createService(serviceList.get(0).getRight());
-		}
-		execService.setService(service);
-		ExecService.ExecServiceType exType;
-		if(beanAttr.get("type").equals("\\0")) exType = null;
-		else {
-			String type = beanAttr.get("type");
-			if(type.equals("GENERATE")) exType = ExecServiceType.GENERATE;
-			else if(type.equals("SEND")) exType = ExecServiceType.SEND;
-			else exType = null;
-		}
-		execService.setExecServiceType(exType);
-		return execService;
 	}
 
 	private static SecurityTeam createSecurityTeam(Map<String, String> beanAttr) {

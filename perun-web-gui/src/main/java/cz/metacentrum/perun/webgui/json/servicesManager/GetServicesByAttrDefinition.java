@@ -3,6 +3,7 @@ package cz.metacentrum.perun.webgui.json.servicesManager;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
@@ -18,6 +19,7 @@ import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Ajax query to get services which have some attribute definition set as "required".
@@ -128,9 +130,37 @@ public class GetServicesByAttrDefinition implements JsonCallback, JsonCallbackTa
 			table.addCheckBoxColumn();
 		}
 
-		table.addIdColumn("Service Id", tableFieldUpdater, 110);
+		Column<Service, String> enabledColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Service,String>() {
+			public String getValue(Service serv) {
+				return serv.isEnabled() ? "ENABLED" : "DISABLED";
+			}
+		}, tableFieldUpdater);
 
+		enabledColumn.setSortable(true);
+		columnSortHandler.setComparator(enabledColumn, new Comparator<Service>() {
+			public int compare(Service o1, Service o2) {
+				return (o1.isEnabled() ? "ENABLED" : "DISABLED").compareToIgnoreCase((o2.isEnabled() ? "ENABLED" : "DISABLED"));
+			}
+		});
+
+		Column<Service, String> scriptColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Service,String>() {
+			public String getValue(Service serv) {
+				return serv.getScriptPath();
+			}
+		}, tableFieldUpdater);
+
+		scriptColumn.setSortable(true);
+		columnSortHandler.setComparator(scriptColumn, new Comparator<Service>() {
+			public int compare(Service o1, Service o2) {
+				return o1.getScriptPath().compareToIgnoreCase(o2.getScriptPath());
+			}
+		});
+
+		table.addIdColumn("Service Id", tableFieldUpdater, 110);
 		table.addNameColumn(tableFieldUpdater);
+		table.addColumn(enabledColumn, "Enabled");
+		table.addColumn(scriptColumn, "Script");
+		table.addDescriptionColumn(tableFieldUpdater);
 
 		return table;
 

@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.engine.processing;
 
 /**
- * 
- * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ * Takes care of receiving string events, adding the resulting Tasks into the SchedulingPool or modifying existing
+ * Tasks parameters.
+ *
+ * @author Michal Karm Babacek
  */
 public interface EventProcessor {
 

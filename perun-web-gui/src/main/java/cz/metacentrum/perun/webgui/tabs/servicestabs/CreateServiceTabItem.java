@@ -11,13 +11,10 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
-import cz.metacentrum.perun.webgui.json.servicesManager.CreateCompleteService;
 import cz.metacentrum.perun.webgui.json.servicesManager.CreateService;
-import cz.metacentrum.perun.webgui.model.Owner;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
-import cz.metacentrum.perun.webgui.widgets.ListBoxWithObjects;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 /**
@@ -62,9 +59,11 @@ public class CreateServiceTabItem implements TabItem {
 		vp.setSize("100%", "100%");
 
 		final ExtendedTextBox serviceName = new ExtendedTextBox();
+		final ExtendedTextBox serviceDescription = new ExtendedTextBox();
 		final ExtendedTextBox scriptPath = new ExtendedTextBox();
 		final CheckBox enabled = new CheckBox();
 		final ExtendedTextBox delay = new ExtendedTextBox();
+		final ExtendedTextBox recurrence = new ExtendedTextBox();
 
 		final ExtendedTextBox.TextBoxValidator validator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
@@ -89,6 +88,7 @@ public class CreateServiceTabItem implements TabItem {
 		enabled.setValue(true);
 
 		delay.getTextBox().setText(DEFAULT_DELAY);
+		recurrence.getTextBox().setText("2");
 
 		final ExtendedTextBox.TextBoxValidator delayValidator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
@@ -104,7 +104,19 @@ public class CreateServiceTabItem implements TabItem {
 		};
 		delay.setValidator(delayValidator);
 
-
+		final ExtendedTextBox.TextBoxValidator recurrenceValidator = new ExtendedTextBox.TextBoxValidator() {
+			@Override
+			public boolean validateTextBox() {
+				if (!JsonUtils.checkParseInt(delay.getTextBox().getText().trim())) {
+					recurrence.setError("Recurrence must be a number!");
+					return false;
+				} else {
+					recurrence.setOk();
+					return true;
+				}
+			}
+		};
+		recurrence.setValidator(recurrenceValidator);
 
 		final ExtendedTextBox.TextBoxValidator scriptValidator = new ExtendedTextBox.TextBoxValidator() {
 			@Override
@@ -133,14 +145,18 @@ public class CreateServiceTabItem implements TabItem {
 
 		// fill form
 		layout.setHTML(0, 0, "Name:");
-		layout.setHTML(1, 0, "Status:");
-		layout.setHTML(2, 0, "Delay:");
-		layout.setHTML(3, 0, "Script path:");
+		layout.setHTML(1, 0, "Description:");
+		layout.setHTML(2, 0, "Status:");
+		layout.setHTML(3, 0, "Delay:");
+		layout.setHTML(4, 0, "Recurrence:");
+		layout.setHTML(5, 0, "Script path:");
 
 		layout.setWidget(0, 1, serviceName);
-		layout.setWidget(1, 1, enabled);
-		layout.setWidget(2, 1, delay);
-		layout.setWidget(3, 1, scriptPath);
+		layout.setWidget(1, 1, serviceDescription);
+		layout.setWidget(2, 1, enabled);
+		layout.setWidget(3, 1, delay);
+		layout.setWidget(4, 1, recurrence);
+		layout.setWidget(5, 1, scriptPath);
 
 		for (int i=0; i<layout.getRowCount(); i++) {
 			cellFormatter.addStyleName(i, 0, "itemName");
@@ -150,9 +166,16 @@ public class CreateServiceTabItem implements TabItem {
 		final CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.CREATE, ButtonTranslation.INSTANCE.createService());
 		createButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				if (validator.validateTextBox() && delayValidator.validateTextBox() && scriptValidator.validateTextBox()) {
-					CreateCompleteService request = new CreateCompleteService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
-					request.createCompleteService(serviceName.getTextBox().getText().trim(), scriptPath.getTextBox().getText().trim(), Integer.parseInt(delay.getTextBox().getText().trim()), enabled.getValue());
+				if (validator.validateTextBox() && delayValidator.validateTextBox() && scriptValidator.validateTextBox() && recurrenceValidator.validateTextBox()) {
+					CreateService request = new CreateService(JsonCallbackEvents.closeTabDisableButtonEvents(createButton, tab));
+					String description = serviceDescription.getTextBox().getText().trim();
+					if (description.isEmpty()) description = null;
+					request.createService(serviceName.getTextBox().getText().trim(),
+							description,
+							Integer.parseInt(delay.getTextBox().getText().trim()),
+							Integer.parseInt(recurrence.getTextBox().getText().trim()),
+							enabled.getValue(),
+							scriptPath.getTextBox().getText().trim());
 				}
 			}
 		});

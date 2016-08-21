@@ -69,28 +69,8 @@ public class RichService extends JavaScriptObject {
 			}
 		}-*/;
 
-		public final native String getGenAllowedOnFacility()/*-{
-			if (this.genAllowedOnFacility==true) {
-			return "Allowed";
-			} else {
-			return "Denied";
-			}
-		}-*/;
-
-		public final native String getSendAllowedOnFacility()/*-{
-			if (this.sendAllowedOnFacility==true) {
-			return "Allowed";
-			} else {
-			return "Denied";
-			}
-		}-*/;
-
-		public final native ExecService getGenExecService()/*-{
-			return this.genExecService;
-		}-*/;
-
-		public final native ExecService getSendExecService()/*-{
-			return this.sendExecService;
+		public final native Service getService()/*-{
+			return this;
 		}-*/;
 
 		/**

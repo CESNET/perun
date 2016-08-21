@@ -92,8 +92,6 @@ public class GeneralObject extends JavaScriptObject {
 				return this.lastName + " " +this.firstName;
 			} else if (this.beanName == "Author") {
 				return this.lastName + " " +this.firstName;
-			} else if (this.beanName == "ExecService") {
-				return this.service.name + " (" + this.execServiceType+")";
 			} else if (this.beanName == "AttributeDefinition") {
 				return this.displayName;
 			} else if (this.beanName == "Attribute") {

@@ -3,7 +3,6 @@ package cz.metacentrum.perun.dispatcher;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +36,8 @@ public abstract class AbstractDispatcherTest {
 	protected Facility facility1;
 	protected Resource resource1;
 	protected Service service1;
+	protected Service service2;
 	protected Member member1;
-	protected ExecService execservice1;
-	protected ExecService execservice2;
 
 	@Before
 	public void setUpSess() throws Exception {
@@ -73,30 +71,21 @@ public abstract class AbstractDispatcherTest {
 			// assign the group to this resource
 			perun.getResourcesManager().assignGroupToResource(sess, group1, resource1);
 			// create service
-			service1 = new Service(0, "testService");
+			service1 = new Service(0, "testService", null);
+			service1.setDelay(1);
+			service1.setScript("/bin/true");
+			service1.setEnabled(true);
 			service1 = perun.getServicesManager().createService(sess, service1);
 			// assign service to the resource
 			perun.getResourcesManager().assignService(sess, resource1, service1);
-			// create execService
-			execservice1 = new ExecService();
-			execservice1.setDefaultDelay(1);
-			execservice1.setScript("/bin/true");
-			execservice1.setEnabled(true);
-			execservice1.setExecServiceType(ExecService.ExecServiceType.SEND);
-			execservice1.setService(service1);
-			int id = generalServiceManager.insertExecService(sess, execservice1);
-			// stash back the created id (this should be really done somewhere else)
-			execservice1.setId(id);
-			// create execService
-			execservice2 = new ExecService();
-			execservice2.setDefaultDelay(1);
-			execservice2.setScript("/bin/true");
-			execservice2.setEnabled(true);
-			execservice2.setExecServiceType(ExecService.ExecServiceType.SEND);
-			execservice2.setService(service1);
-			id = generalServiceManager.insertExecService(sess, execservice2);
-			// stash back the created id (this should be really done somewhere else)
-			execservice2.setId(id);
+			// create service 2
+			service2 = new Service(0, "testService2", null);
+			service2.setDelay(1);
+			service2.setScript("/bin/true");
+			service2.setEnabled(true);
+			service2 = perun.getServicesManager().createService(sess, service2);
+			// assign service to the resource
+			perun.getResourcesManager().assignService(sess, resource1, service2);
 
 		}
 

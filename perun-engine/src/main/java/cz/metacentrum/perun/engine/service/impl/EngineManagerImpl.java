@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.engine.service.impl;
-import java.util.Properties;
 
+import cz.metacentrum.perun.engine.runners.GenCollector;
+import cz.metacentrum.perun.engine.runners.GenPlanner;
+import cz.metacentrum.perun.engine.runners.SendCollector;
+import cz.metacentrum.perun.engine.runners.SendPlanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,103 +11,117 @@ import org.springframework.beans.factory.annotation.Autowired;
 import cz.metacentrum.perun.engine.jms.JMSQueueManager;
 import cz.metacentrum.perun.engine.scheduling.SchedulingPool;
 import cz.metacentrum.perun.engine.service.EngineManager;
-import cz.metacentrum.perun.taskslib.model.ExecService;
-
-import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
-import cz.metacentrum.perun.taskslib.model.Task;
-import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
-import cz.metacentrum.perun.taskslib.service.TaskManager;
 
 /**
- * @author Michal Karm Babacek JavaDoc coming soon...
+ * Implementation of EngineManager.
+ *
+ * @see cz.metacentrum.perun.engine.service.EngineManager
+ *
+ * @author Michal Karm Babacek
  * @author Michal Voců
- * @authro Pavel Zlámal <zlamal@cesnet.cz>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @org.springframework.stereotype.Service(value = "engineManager")
 public class EngineManagerImpl implements EngineManager {
 
 	private final static Logger log = LoggerFactory.getLogger(EngineManagerImpl.class);
 
-	@Autowired
+	private GenPlanner genPlanner;
+	private GenCollector genCollector;
+	private SendPlanner sendPlanner;
+	private SendCollector sendCollector;
 	private JMSQueueManager jmsQueueManager;
-	@Autowired
 	private SchedulingPool schedulingPool;
 
-	@Override
-	public void startMessaging() {
-		// jmsQueueManager.initiateConnection();
-		// jmsQueueManager.registerForReceivingMessages();
-		jmsQueueManager.start();
+	public EngineManagerImpl() {
 	}
 
-	public void setJmsQueueManager(JMSQueueManager jmsQueueManager) {
+	public EngineManagerImpl(JMSQueueManager jmsQueueManager, SchedulingPool schedulingPool) {
 		this.jmsQueueManager = jmsQueueManager;
+		this.schedulingPool = schedulingPool;
+	}
+
+
+	// ----- setters ------------------------------
+
+
+	public GenPlanner getGenPlanner() {
+		return genPlanner;
+	}
+
+	@Autowired
+	public void setGenPlanner(GenPlanner genPlanner) {
+		this.genPlanner = genPlanner;
+	}
+
+	public GenCollector getGenCollector() {
+		return genCollector;
+	}
+
+	@Autowired
+	public void setGenCollector(GenCollector genCollector) {
+		this.genCollector = genCollector;
+	}
+
+	public SendPlanner getSendPlanner() {
+		return sendPlanner;
+	}
+
+	@Autowired
+	public void setSendPlanner(SendPlanner sendPlanner) {
+		this.sendPlanner = sendPlanner;
+	}
+
+	public SendCollector getSendCollector() {
+		return sendCollector;
+	}
+
+	@Autowired
+	public void setSendCollector(SendCollector sendCollector) {
+		this.sendCollector = sendCollector;
 	}
 
 	public JMSQueueManager getJmsQueueManager() {
 		return jmsQueueManager;
 	}
 
-	@Override
-	@Deprecated
-	public void loadSchedulingPool() {
-		/*
-		 * log.info("Loading last state of Tasks from local DB.");
-		 * // reload all tasks from local DB into pool
-		 * schedulingPool.reloadTasks(0);
-		 * log.info("Loading last state of Tasks from local DB is done. Pool contains " + schedulingPool.getSize() + " tasks.");
-		 */
-	}
-
-	@Override
-	public void switchUnfinishedTasksToERROR() {
-		log.info("I am going to switched all unfinished tasks to ERROR and finished GEN tasks which data wasn't send to ERROR as well");
-		/*
-		 * for (Task task :
-		 * taskManager.listAllTasks(Integer.parseInt(propertiesBean
-		 * .getProperty("engine.unique.id")))) {
-		 * if(task.getStatus().equals(TaskStatus.DONE)) { ExecService
-		 * execService = task.getExecService();
-		 * 
-		 * if(execService.getExecServiceType().equals(ExecServiceType.GENERATE))
-		 * { task.setStatus(TaskStatus.NONE); task.setEndTime(new
-		 * Date(System.currentTimeMillis())); taskManager.updateTask(task,
-		 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))); }
-		 * } else { if (!task.getStatus().equals(TaskStatus.ERROR) &&
-		 * !task.getStatus().equals(TaskStatus.NONE)) {
-		 * task.setStatus(TaskStatus.ERROR); task.setEndTime(new
-		 * Date(System.currentTimeMillis())); taskManager.updateTask(task,
-		 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))); }
-		 * } }
-		 */
-
-		/* we set everything found to error to report it back to dispatcher */
-		for (Task task : schedulingPool.getDoneTasks()) {
-			ExecService execService = task.getExecService();
-
-			if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
-				log.debug("Setting task " + task.toString() + " to ERROR");
-				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
-			}
-		}
-		for (Task task : schedulingPool.getProcessingTasks()) {
-			log.debug("Setting task " + task.toString() + " to ERROR");
-			schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
-		}
-		for (Task task : schedulingPool.getPlannedTasks()) {
-			log.debug("Setting task " + task.toString() + " to ERROR");
-			schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
-		}
-		log.info("I'm done with it.");
+	@Autowired
+	public void setJmsQueueManager(JMSQueueManager jmsQueueManager) {
+		this.jmsQueueManager = jmsQueueManager;
 	}
 
 	public SchedulingPool getSchedulingPool() {
 		return schedulingPool;
 	}
 
+	@Autowired
 	public void setSchedulingPool(SchedulingPool schedulingPool) {
 		this.schedulingPool = schedulingPool;
 	}
 
+
+	// ----- methods ------------------------------
+
+
+	@Override
+	public void startMessaging() {
+		jmsQueueManager.start();
+	}
+
+	@Override
+	public void startRunnerThreads() {
+		new Thread(genPlanner, "genPlanner").start();
+		new Thread(genCollector, "genCollector").start();
+		new Thread(sendPlanner, "sendPlanner").start();
+		new Thread(sendCollector, "sendCollector").start();
+	}
+
+	@Override
+	public void stopRunnerThreads() {
+		genPlanner.stop();
+		genCollector.stop();
+		sendPlanner.stop();
+		sendCollector.stop();
+	}
 
 }

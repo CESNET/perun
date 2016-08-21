@@ -1,32 +1,15 @@
 package cz.metacentrum.perun.engine.scheduling;
 
-import java.util.List;
-
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.engine.jms.JMSQueueManager;
-import cz.metacentrum.perun.engine.model.Statistics;
-import cz.metacentrum.perun.taskslib.model.ExecService;
-
 /**
+ * Implements logic needed to end Tasks that get stuck in Engine for too long.
  *
- * @author Michal Karm Babacek JavaDoc coming soon...
- *
+ * @author Michal Karm Babacek
  */
 public interface PropagationMaintainer {
 
 	/**
-	 * Check finished Tasks and return them to Dispatcher.
-	 * Check stuck Tasks and end them with error.
+	 * Switch processing tasks which started too long ago to error and report them back to dispatcher.
 	 */
-	void checkResults();
+	void endStuckTasks();
 
-	Statistics getStatistics();
-
-	void setAllGenerateDependenciesToNone(List<ExecService> dependencies,
-			Facility facility);
-
-	void setAllGenerateDependenciesToNone(List<ExecService> dependencies,
-			int facilityId);
-
-	void setJmsQueueManager(JMSQueueManager jmsQueueManager);
 }

@@ -35,30 +35,6 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Creates a new service.
-	 *
-	 * @param name String Service name
-	 * @param scriptPath String Path to the service script. Usually "./service_name".
-	 * @param defaultDelay int Default delay in minutes before service propagation repeat. Usually 10 minutes.
-	 * @param enabled boolean TRUE if Service should be enabled globally, FALSE for disabled. Usually TRUE.
-	 * @return Service Created Service
-	 */
-	createCompleteService {
-
-		@Override
-		public Service call(ApiCaller ac, Deserializer parms) throws PerunException {
-			ac.stateChangingCheck();
-
-			return ac.getGeneralServiceManager().createCompleteService(ac.getSession(),
-					parms.readString("name"),
-					parms.readString("scriptPath"),
-					parms.readInt("defaultDelay"),
-					parms.readBoolean("enabled")
-			);
-		}
-	},
-
-	/*#
 	 * Deletes a service.
 	 *
 	 * @param service int Service <code>id</code>

@@ -8,34 +8,47 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Creates a service. Service name and owner id are required fields.
+	Creates a service. Service name is required field.
 	--------------------------------------
 	Available options:
-	--serviceName  | -S service name
-	--ownerId      | -o owner id
+	--name         | -n service name
+	--description  | -d service description
+	--script       | -s service script path (default './service_name')
+	--enabled      | -e enabled (default 'true')
 	--batch        | -b batch
 	--help         | -h prints this help
 
 	};
 }
 
-my ($serviceName, $ownerId, $batch);
+my ($name, $description, $script, $enabled, $batch);
 GetOptions ("help|h"  => sub {
 		print help();
 		exit 0;
-	}, "batch|b"      => \$batch,
-	"serviceName|S=s" => \$serviceName, "ownerId|o=i" => \$ownerId) || die help();
+	},
+	"batch|b"      => \$batch,
+	"name|n=s" => \$name,
+	"description|d=s" => \$description,
+	"script|s=s" => \$script,
+	"enabled|e=s" => \$enabled,) || die help();
 
 # Check options
-unless (defined($serviceName)) { die "ERROR: serviceName is required \n";}
-unless (defined($ownerId)) { die "ERROR: ownerId is required \n";}
+unless (defined($name)) { die "ERROR: name is required \n";}
 
 my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
 my $service = Perun::beans::Service->new;
-$service->setName( $serviceName );
+$service->setName( $name );
+$service->setDescription( $description );
+unless ($script) {
+	$script = "./" . $name;
+}
+$service->setScript($script);
+$service->setEnabled($enabled);
+$service->setRecurrence(2);
+$service->setDelay(10);
 
-$service = $servicesAgent->createService( service => $service, owner => $ownerId );
+$service = $servicesAgent->createService( service => $service);
 
 printMessage("Service Id:".$service->getId." successfully created", $batch);

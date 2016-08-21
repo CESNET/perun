@@ -122,7 +122,13 @@
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-controller</artifactId>
+			<artifactId>perun-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cz.metacentrum.perun</groupId>
+			<artifactId>perun-tasks-lib</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -136,6 +142,13 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.2.24</version>
 			<scope>test</scope>
 		</dependency>
 

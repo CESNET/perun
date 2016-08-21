@@ -23,6 +23,7 @@ import cz.metacentrum.perun.webgui.widgets.PerunTable;
 import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -148,19 +149,7 @@ public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable
 		Column<ServiceState, String> statusColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<ServiceState, String>() {
 					public String getValue(ServiceState serviceState) {
-						String appendix = "";
-						if (JsonUtils.isExtendedInfoVisible()) {
-							appendix = " ("+serviceState.getLastScheduled().toLowerCase()+")";
-						}
-						if (serviceState.getLastScheduled().equals("GENERATE") && serviceState.getStatus().equals("PROCESSING")) {
-							return "PLANNED"+appendix;
-						} else if (serviceState.getLastScheduled().equals("GENERATE") && serviceState.getStatus().equals("DONE")) {
-							return "PROCESSING"+appendix;
-						} else if (serviceState.getLastScheduled().equals("SEND") && serviceState.getStatus().equals("PROCESSING")) {
-							return "PROCESSING"+appendix;
-						} else {
-							return String.valueOf(serviceState.getStatus())+appendix;
-						}
+						return serviceState.getStatus().toUpperCase();
 					}
 				}, tableFieldUpdater);
 
@@ -247,27 +236,22 @@ public class GetFacilityServicesState implements JsonCallback, JsonCallbackTable
 		// set row styles based on ServiceState state
 		table.setRowStyles(new RowStyles<ServiceState>(){
 			public String getStyleNames(ServiceState row, int rowIndex) {
-
-				if (row.getStatus().equalsIgnoreCase("NONE")) {
+				if (row.getStatus().equalsIgnoreCase("WAITING")) {
 					return "";
 				}
-				else if (row.getStatus().equalsIgnoreCase("DONE") && row.getLastScheduled().equals("SEND")){
-					return "rowgreen";
-				}
-				else if (row.getStatus().equalsIgnoreCase("DONE") && row.getLastScheduled().equals("GENERATE")){
-					return "rowyellow";
-				}
-				else if (row.getStatus().equalsIgnoreCase("PROCESSING") && row.getLastScheduled().equals("SEND")){
-					return "rowyellow";
-				}
-				else if (row.getStatus().equalsIgnoreCase("PROCESSING")){
+				else if (row.getStatus().equalsIgnoreCase("PLANNED")){
 					return "rowlightyellow";
 				}
-				else if (row.getStatus().equalsIgnoreCase("ERROR")){
+				else if (Arrays.asList("GENERATING","GENERATED","SENDING").contains(row.getStatus())){
+					return "rowyellow";
+				}
+				else if (row.getStatus().equalsIgnoreCase("DONE")){
+					return "rowgreen";
+				}
+				else if (Arrays.asList("GENERROR","SENDERROR","ERROR").contains(row.getStatus())){
 					return "rowred";
 				}
-		return "";
-
+				return "";
 			}
 		});
 

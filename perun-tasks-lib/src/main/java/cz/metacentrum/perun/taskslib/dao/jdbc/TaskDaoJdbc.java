@@ -4,9 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -23,7 +23,6 @@ import cz.metacentrum.perun.core.impl.ServicesManagerImpl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.taskslib.dao.TaskDao;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
@@ -75,23 +74,31 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 				task.setEndTime(rs.getTimestamp("tasks_end_time"));
 			}
 
-			if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.DONE.toString())) {
+			if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.WAITING.toString())) {
+				task.setStatus(TaskStatus.WAITING);
+			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.PLANNED.toString())) {
+				task.setStatus(TaskStatus.PLANNED);
+			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDERROR.toString())) {
+				task.setStatus(TaskStatus.SENDERROR);
+			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERROR.toString())) {
+				task.setStatus(TaskStatus.GENERROR);
+			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATING.toString())) {
+				task.setStatus(TaskStatus.GENERATING);
+			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.GENERATED.toString())) {
+				task.setStatus(TaskStatus.GENERATED);
+			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.SENDING.toString())) {
+				task.setStatus(TaskStatus.SENDING);
+			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.DONE.toString())) {
 				task.setStatus(TaskStatus.DONE);
 			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.ERROR.toString())) {
 				task.setStatus(TaskStatus.ERROR);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.NONE.toString())) {
-				task.setStatus(TaskStatus.NONE);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.PLANNED.toString())) {
-				task.setStatus(TaskStatus.PLANNED);
-			} else if (rs.getString("tasks_status").equalsIgnoreCase(TaskStatus.PROCESSING.toString())) {
-				task.setStatus(TaskStatus.PROCESSING);
 			} else {
-				throw new IllegalArgumentException("Task status unknown :-(");
+				throw new IllegalArgumentException("Task status [" + rs.getString("tasks_status") + "] unknown");
 			}
 
 			task.setFacility(FacilitiesManagerImpl.FACILITY_MAPPER.mapRow(rs, i));
 
-			task.setExecService(ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER.mapRow(rs, i));
+			task.setService(ServicesManagerImpl.SERVICE_MAPPER.mapRow(rs, i));
 
 			return task;
 		}
@@ -99,89 +106,87 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	};
 
 	public static final RowMapper<Pair<Task, Integer>> TASK_CLIENT_ROWMAPPER = new RowMapper<Pair<Task, Integer>>() {
-	
+
 		public Pair<Task, Integer> mapRow(ResultSet rs, int i) throws SQLException {
-		
+
 			Task task = TASK_ROWMAPPER.mapRow(rs, i);
-			
+
 			int engineID = rs.getInt("tasks_engine_id");
 			if(rs.wasNull()) {
 				engineID = -1;
 			}
 			return new Pair<Task, Integer>(task, engineID);
 		}
-			
-	};	
-	
+
+	};
+
 	@Override
 	public int scheduleNewTask(Task task, int engineID) throws InternalErrorException {
 		int newTaskId = 0;
 		try {
 			newTaskId = Utils.getNewId(this.getJdbcTemplate(), "tasks_id_seq");
 			this.getJdbcTemplate().update(
-						"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
-						newTaskId, task.getExecServiceId(), task.getFacilityId(), getDateFormatter().format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID < 0 ? null : engineID);
+						"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?, " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ",?,?,?,?)",
+						newTaskId, task.getServiceId(), task.getFacilityId(), getDateFormatter().format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID < 0 ? null : engineID);
+			log.debug("Added task with ID {}", newTaskId);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
-			log.error("Data: id, exec_service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getExecServiceId() + ", " + task.getFacilityId() + ", "
+			log.error("Data: id, service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getServiceId() + ", " + task.getFacilityId() + ", "
 					+ getDateFormatter().format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
+		} catch (Exception ex) {
+			log.error("ERRORSTR: {}", ex);
 		}
 		return 0;
 	}
-	
+
 	@Override
 	public int insertTask(Task task, int engineID) throws InternalErrorException {
 		int newTaskId = 0;
 		try {
 			newTaskId = task.getId();
 			this.getJdbcTemplate().update(
-					"insert into tasks(id, exec_service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
-					newTaskId, task.getExecServiceId(), task.getFacilityId(), getDateFormatter().format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID < 0 ? null : engineID);
+					"insert into tasks(id, service_id, facility_id, schedule, recurrence, delay, status, engine_id) values (?,?,?,to_date(?,'DD-MM-YYYY HH24:MI:SS'),?,?,?,?)",
+					newTaskId, task.getServiceId(), task.getFacilityId(), getDateFormatter().format(task.getSchedule()), task.getRecurrence(), task.getDelay(), task.getStatus().toString(), engineID < 0 ? null : engineID);
 			return newTaskId;
 		} catch (DataIntegrityViolationException ex) {
-			log.error("Data: id, exec_service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getExecServiceId() + ", " + task.getFacilityId() + ", "
+			log.error("Data: id, service_id, facility_id, schedule, recurrence, delay, status is: " + newTaskId + ", " + task.getServiceId() + ", " + task.getFacilityId() + ", "
 					+ getDateFormatter().format(task.getSchedule()) + ", " + task.getRecurrence() + ", " + task.getDelay() + ", " + task.getStatus().toString() + ". Exception:" + ex.toString(), ex);
 		}
 		return 0;
 	}
 
 	@Override
-	public Task getTask(ExecService execService, Facility facility) {
-		return getTask(execService.getId(), facility.getId());
+	public Task getTask(Service service, Facility facility) {
+		return getTask(service.getId(), facility.getId());
 	}
 
 	@Override
-	public Task getTask(int execServiceId, int facilityId) {
+	public Task getTask(int serviceId, int facilityId) {
 		try {
-			return this
-				.getJdbcTemplate()
-				.queryForObject(
+			return this.getJdbcTemplate().queryForObject(
 						"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-						", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-						"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id " +
-						"where exec_services.id = ? and tasks.facility_id = ?",
-						new Integer[] { execServiceId, facilityId }, TASK_ROWMAPPER);
+						", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id and tasks.service_id=?" +
+						"left join facilities on facilities.id = tasks.facility_id and tasks.facility_id = ?",
+						TASK_ROWMAPPER, serviceId, facilityId);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}
 	}
 
 	@Override
-	public Task getTask(ExecService execService, Facility facility, int engineID) {
-		return getTask(execService.getId(), facility.getId(), engineID);
+	public Task getTask(Service service, Facility facility, int engineID) {
+		return getTask(service.getId(), facility.getId(), engineID);
 	}
 
 	@Override
-	public Task getTask(int execServiceId, int facilityId, int engineID) {
+	public Task getTask(int serviceId, int facilityId, int engineID) {
 		try {
-			return this
-				.getJdbcTemplate()
-				.queryForObject(
+			return this.getJdbcTemplate().queryForObject(
 						"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-						", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-						"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id " +
-						"where exec_services.id = ? and tasks.facility_id = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
-						engineID < 0 ? new Integer[] { execServiceId, facilityId } : new Integer[] { execServiceId, facilityId, engineID}, 
+						", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id " +
+						"left join facilities on facilities.id = tasks.facility_id " +
+						"where tasks.service_id = ? and tasks.facility_id = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
+						engineID < 0 ? new Integer[] { serviceId, facilityId } : new Integer[] { serviceId, facilityId, engineID},
 						TASK_ROWMAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
@@ -193,8 +198,8 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		try {
 			return this.getJdbcTemplate().query(
 					"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-					", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-					"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where facilities.id = ?",
+					", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join services on tasks.service_id = services.id " +
+					"left join facilities on facilities.id = tasks.facility_id where facilities.id = ?",
 					TASK_ROWMAPPER, facilityId);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
@@ -206,9 +211,9 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		try {
 			return this.getJdbcTemplate().queryForObject(
 					"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-					", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery+ ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-					"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where tasks.id = ?",
-					new Integer[] { id }, TASK_ROWMAPPER);
+					", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+					"left join facilities on facilities.id = tasks.facility_id where tasks.id = ?",
+					TASK_ROWMAPPER, id);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
 		}
@@ -219,8 +224,8 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		try {
 			return this.getJdbcTemplate().queryForObject(
 					"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-					", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery+ ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-					"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where tasks.id = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
+					", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+					"left join facilities on facilities.id = tasks.facility_id where tasks.id = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
 					engineID < 0 ? new Integer[] { id } : new Integer[] { id, engineID }, TASK_ROWMAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			return null;
@@ -230,40 +235,40 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	@Override
 	public List<Task> listAllTasks() {
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery+ ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id", TASK_ROWMAPPER);
+				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+				"left join facilities on facilities.id = tasks.facility_id", TASK_ROWMAPPER);
 	}
 
 	@Override
 	public List<Task> listAllTasks(int engineID) {
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery+ ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
+				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+				"left join facilities on facilities.id = tasks.facility_id left where tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Integer[] { } : new Integer[] { engineID }, TASK_ROWMAPPER);
 	}
 
 	@Override
 	public List<Pair<Task, Integer>> listAllTasksAndClients() {
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery+ ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id", TASK_CLIENT_ROWMAPPER);
+				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+				"left join facilities on facilities.id = tasks.facility_id", TASK_CLIENT_ROWMAPPER);
 	}
-	
+
 	@Override
 	public List<Task> listAllTasksInState(Task.TaskStatus state) {
 		String textState = state.toString().toUpperCase();
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery+ ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where tasks.status = ?",
-				new Object[] { textState }, TASK_ROWMAPPER);
+				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+				"left join facilities on facilities.id = tasks.facility_id left where tasks.status = ?",
+				TASK_ROWMAPPER, textState);
 	}
 
 	@Override
 	public List<Task> listAllTasksInState(Task.TaskStatus state, int engineID) {
 		String textState = state.toString().toUpperCase();
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where tasks.status = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
+				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+				"left join facilities on facilities.id = tasks.facility_id where tasks.status = ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Object[] { textState } : new Object[] { textState, engineID }, TASK_ROWMAPPER);
 	}
 
@@ -271,72 +276,9 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	public List<Task> listAllTasksNotInState(Task.TaskStatus state, int engineID) {
 		String textState = state.toString().toUpperCase();
 		return this.getJdbcTemplate().query("select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where tasks.status != ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
+				", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join services on tasks.service_id = services.id " +
+				"left join facilities on facilities.id = tasks.facility_id where tasks.status != ? and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
 				engineID < 0 ? new Object[] { textState } : new Object[] { textState, engineID }, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen) {
-		return this.getJdbcTemplate().query(
-				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.schedule >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.schedule < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
-				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) }, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen, int engineID) {
-		return this.getJdbcTemplate().query(
-				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.schedule >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.schedule < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id " + (engineID < 0 ? "is null" : "= ? "),
-				engineID < 0 ? new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) }
-				: new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen), engineID }, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen, int engineID) {
-		return this.getJdbcTemplate().query(
-				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.start_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.start_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id " + (engineID < 0 ? "is null" : " = ? "),
-				engineID < 0 ? new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) } 
-					: new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen), engineID }, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen) {
-		return this.getJdbcTemplate().query(
-				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery  + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.start_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.start_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
-				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) }, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen, int engineID) {
-		return this.getJdbcTemplate().query(
-				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.end_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.end_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.engine_id " + (engineID < 0 ? "is null" : "= ?"),
-				engineID < 0 ? new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) }
-					: new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen), engineID}, TASK_ROWMAPPER);
-	}
-
-	@Override
-	public List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen) {
-		return this.getJdbcTemplate().query(
-				"select " + taskMappingSelectQuery + ", " + FacilitiesManagerImpl.facilityMappingSelectQuery +
-				", " + ExecServiceDaoJdbc.execServiceMappingSelectQuery + ", " + ServicesManagerImpl.serviceMappingSelectQuery + " from tasks left join exec_services on tasks.exec_service_id = exec_services.id " +
-				"left join facilities on facilities.id = tasks.facility_id left join services on services.id = exec_services.service_id where "
-				+ "tasks.end_time >= " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " and tasks.end_time < " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'"),
-				new Object[] { getDateFormatter().format(olderThen), getDateFormatter().format(youngerThen) }, TASK_ROWMAPPER);
 	}
 
 	@Override
@@ -355,8 +297,8 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 
 		this.getJdbcTemplate().update(
-				"update tasks set exec_service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
-				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"), task.getExecServiceId(),
+				"update tasks set service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
+				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"), task.getServiceId(),
 				task.getFacilityId(), scheduled, task.getRecurrence(), task.getDelay(), task.getStatus().toString(), startTime, endTime, task.getId(),
 				engineID < 0 ? null : engineID);
 	}
@@ -377,8 +319,8 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		}
 
 		this.getJdbcTemplate().update(
-				"update tasks set exec_service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
-				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ?", task.getExecServiceId(),
+				"update tasks set service_id = ?, facility_id = ?, schedule = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", recurrence = ?, delay = ?, "
+				+ "status = ?, start_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + ", end_time = " + Compatibility.toDate("?","'DD-MM-YYYY HH24:MI:SS'") + " where id = ?", task.getServiceId(),
 				task.getFacilityId(), scheduled, task.getRecurrence(), task.getDelay(), task.getStatus().toString(), startTime, endTime, task.getId());
 	}
 
@@ -393,47 +335,46 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	}
 
 	@Override
-	public boolean isThereSuchTask(ExecService execService, Facility facility, int engineID) {
-		this.getJdbcTemplate().update("select id from exec_services where id = ?", execService.getId());
+	public boolean isThereSuchTask(Service service, Facility facility, int engineID) {
+		this.getJdbcTemplate().update("select id from services where id = ?", service.getId());
 
 		List<Integer> tasks = new ArrayList<Integer>();
-		tasks = this.getJdbcTemplate().queryForList("select id from tasks where exec_service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
-				engineID < 0 ? new Integer[] { execService.getId(), facility.getId() } 
-					: new Integer[] { execService.getId(), facility.getId(),  engineID }, Integer.class);
+		tasks = this.getJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
+				engineID < 0 ? new Integer[] { service.getId(), facility.getId() }
+					: new Integer[] { service.getId(), facility.getId(),  engineID }, Integer.class);
 		if (tasks.size() == 0) {
 			return false;
 		} else if (tasks.size() > 1) {
-			throw new IllegalArgumentException("There is a duplicit Task for constraints ExecService[" + execService.getId() + "], Facility[" + facility.getId() + "]");
+			throw new IllegalArgumentException("There is a duplicate Task for constraints Service[" + service.getId() + "], Facility[" + facility.getId() + "]");
 		}
 		return true;
 	}
 
 	@Override
-	public boolean isThereSuchTask(ExecService execService, Facility facility) {
-		//this.getJdbcTemplate().update("select id from exec_services where id = ? for update", execService.getId());
+	public boolean isThereSuchTask(Service service, Facility facility) {
+		//this.getJdbcTemplate().update("select id from services where id = ? for update", service.getId());
 
 		List<Integer> tasks = new ArrayList<Integer>();
-		tasks = this.getJdbcTemplate().queryForList("select id from tasks where exec_service_id = ? and facility_id = ?",
-				new Integer[] { execService.getId(), facility.getId() }, Integer.class);
+		tasks = this.getJdbcTemplate().queryForList("select id from tasks where service_id = ? and facility_id = ?",
+				new Integer[] { service.getId(), facility.getId() }, Integer.class);
 		if (tasks.size() == 0) {
 			return false;
 		} else if (tasks.size() > 1) {
-			throw new IllegalArgumentException("There is a duplicit Task for constraints ExecService[" + execService.getId() + "], Facility[" + facility.getId() + "]");
+			throw new IllegalArgumentException("There is a duplicate Task for constraints Service[" + service.getId() + "], Facility[" + facility.getId() + "]");
 		}
 		return true;
 	}
 
 	@Override
-	public void removeTask(ExecService execService, Facility facility, int engineID) {
-		this.getJdbcTemplate().update("delete from tasks where exec_service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
-				engineID < 0 ? new Object[] { execService.getId(), facility.getId() }
-					: new Object[] { execService.getId(), facility.getId(), engineID });
+	public void removeTask(Service service, Facility facility, int engineID) {
+		this.getJdbcTemplate().update("delete from tasks where service_id = ? and facility_id = ? and engine_id " + (engineID < 0 ? "is null" : "= ?"),
+				engineID < 0 ? new Object[] { service.getId(), facility.getId() }
+					: new Object[] { service.getId(), facility.getId(), engineID });
 	}
 
 	@Override
-	public void removeTask(ExecService execService, Facility facility) {
-		this.getJdbcTemplate().update("delete from tasks where exec_service_id = ? and facility_id = ?",
-				new Object[] { execService.getId(), facility.getId() });
+	public void removeTask(Service service, Facility facility) {
+		this.getJdbcTemplate().update("delete from tasks where service_id = ? and facility_id = ?", service.getId(), facility.getId());
 	}
 
 	@Override

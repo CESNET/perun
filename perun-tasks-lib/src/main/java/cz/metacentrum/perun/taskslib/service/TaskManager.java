@@ -5,8 +5,8 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
@@ -22,9 +22,9 @@ public interface TaskManager {
 
 	void insertTask(Task task, int engineID) throws InternalErrorException;
 
-	Task getTask(ExecService execService, Facility facility, int engineID);
+	Task getTask(Service service, Facility facility, int engineID);
 
-	Task getTask(int execServiceId, int facilityId, int engineID);
+	Task getTask(int serviceId, int facilityId, int engineID);
 
 	Task getTaskById(int id, int engineID);
 
@@ -33,26 +33,20 @@ public interface TaskManager {
 	List<Task> listAllTasks(int engineID);
 
 	List<Pair<Task, Integer>> listAllTasksAndClients();
-	    
+
 	List<Task> listAllTasksForFacility(int facilityID);
 
 	List<Task> listAllTasksInState(TaskStatus state, int engineID);
 
-	List<Task> listTasksScheduledBetweenDates(Date olderThen, Date youngerThen, int engineID);
-
-	List<Task> listTasksStartedBetweenDates(Date olderThen, Date youngerThen, int engineID);
-
-	List<Task> listTasksEndedBetweenDates(Date olderThen, Date youngerThen, int engineID);
-
 	void updateTask(Task task, int engineID);
 
 	void updateTask(Task task);
-	
+
 	void updateTaskEngine(Task task, int engineID) throws InternalErrorException;
 
-	boolean isThereSuchTask(ExecService execService, Facility facility, int engineID);
+	boolean isThereSuchTask(Service service, Facility facility, int engineID);
 
-	void removeTask(ExecService execService, Facility facility, int engineID);
+	void removeTask(Service service, Facility facility, int engineID);
 
 	void removeTask(int id, int engineID);
 

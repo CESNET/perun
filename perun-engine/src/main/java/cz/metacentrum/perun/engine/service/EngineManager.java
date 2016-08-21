@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.engine.service;
 
 /**
- * 
+ * Interface of EngineManager used to start all the threads and processes necessary for Engine
+ * to propagate data from Perun to end services.
+ *
  * @author Michal Karm Babacek
- * @authot Michal Voců
- * @authro Pavel Zlámal <zlamal@cesnet.cz>
+ * @author Michal Voců
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public interface EngineManager {
 
@@ -14,14 +16,12 @@ public interface EngineManager {
 	void startMessaging();
 
 	/**
-	 * Reload all Tasks from local DB to schedulingPool in order to start
-	 * where engine last stopped.
+	 * Starts all threads responsible for moving and executing Tasks
 	 */
-	void loadSchedulingPool();
+	void startRunnerThreads();
 
 	/**
-	 * Switch all unfinished Tasks to Error in order to re-start them.
+	 * Gives indication to all runner Threads that they should stop
 	 */
-	void switchUnfinishedTasksToERROR();
-
+	void stopRunnerThreads();
 }

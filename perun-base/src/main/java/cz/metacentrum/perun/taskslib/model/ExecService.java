@@ -9,19 +9,15 @@ import cz.metacentrum.perun.core.api.BeansUtils;
 /**
  * @author Michal Karm Babacek
  */
+@Deprecated
 public class ExecService extends PerunBean implements Serializable {
-	private static final long serialVersionUID = 3257568390917667126L;
-
-	public static enum ExecServiceType {
-		GENERATE, SEND
-	}
+	private static final long serialVersionUID = 1610949885568207786L;
 
 	private int defaultDelay;
 	private int defaultRecurrence = 2;
 	private boolean enabled;
 	private Service service;
 	private String script;
-	private ExecServiceType execServiceType;
 
 	public int getDefaultDelay() {
 		return defaultDelay;
@@ -55,14 +51,6 @@ public class ExecService extends PerunBean implements Serializable {
 		this.script = script;
 	}
 
-	public ExecServiceType getExecServiceType() {
-		return execServiceType;
-	}
-
-	public void setExecServiceType(ExecServiceType execServiceType) {
-		this.execServiceType = execServiceType;
-	}
-
 	public String getBeanName(){
 		return this.getClass().getSimpleName();
 	}
@@ -86,13 +74,11 @@ public class ExecService extends PerunBean implements Serializable {
 		ExecService other = (ExecService) obj;
 		if (this.getId() != other.getId())
 			return false;
-		if(this.getExecServiceType() != other.getExecServiceType()) 
-			return false;
 		if(this.isEnabled() != other.isEnabled())
 			return false;
-		if(this.getService() == null ? other.getService() != null : !this.getService().equals(other.getService())) 
+		if(this.getService() == null ? other.getService() != null : !this.getService().equals(other.getService()))
 			return false;
-		if(this.getScript() == null ? other.getScript() != null : !this.getScript().equals(other.getScript())) 
+		if(this.getScript() == null ? other.getScript() != null : !this.getScript().equals(other.getScript()))
 			return false;
 		return true;
 	}
@@ -104,18 +90,7 @@ public class ExecService extends PerunBean implements Serializable {
 	public Service getService() {
 		return service;
 	}
-	/*
-		 @Override
-		 public String toString() {
-		 String toBeReturned = null;
-		 if(service != null && execServiceType != null) {
-		 toBeReturned = "ExecService:[id:"+getId()+", name:"+service.getName()+", type:"+execServiceType.toString()+"]";
-		 } else {
-		 toBeReturned = "ExecService:[id:"+getId()+", name:null, type:null]";
-		 }
-		 return toBeReturned;
-		 }
-		 */
+
 	@Override
 	public String serializeToString() {
 		StringBuilder str = new StringBuilder();
@@ -127,7 +102,6 @@ public class ExecService extends PerunBean implements Serializable {
 			", enabled=<").append(this.isEnabled()).append(">").append(
 			", script=<").append(script == null ? "\\0" : BeansUtils.createEscaping(script)).append(">").append(
 			", name=<").append(service == null ? "\\0" : BeansUtils.createEscaping(service.getName())).append(">").append(
-			", type=<").append(execServiceType == null ? "\\0" : BeansUtils.createEscaping(execServiceType.toString())).append(">").append(
 			", service=<").append(getService()== null ? "\\0" : getService().serializeToString()).append(">").append(
 			']').toString();
 	}
@@ -138,8 +112,6 @@ public class ExecService extends PerunBean implements Serializable {
 
 		String serviceName = null;
 		if(service != null && service.getName() != null) serviceName = service.getName();
-		String exSrvType = null;
-		if(execServiceType != null) exSrvType = execServiceType.toString();
 		return str.append(getClass().getSimpleName()).append(":["
 			).append("id='").append(getId()
 			).append("', defaultDelay='").append(getDefaultDelay()
@@ -147,7 +119,6 @@ public class ExecService extends PerunBean implements Serializable {
 			).append("', enabled='").append(isEnabled()
 			).append("', script='").append(script
 			).append("', name='").append(serviceName
-			).append("', type='").append(exSrvType
 			).append("', service='").append(getService()
 			).append("']").toString();
 	}
