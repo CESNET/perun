@@ -209,7 +209,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 				// 1. remove all relations with group g as an operand group.
 				// this removes all relations that depend on this group
-				List<Integer> relations = groupsManagerImpl.getGroupRelations(sess, g.getId());
+				List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, g.getId());
 				for (Integer groupId : relations) {
 					removeGroupUnion(sess, groupsManagerImpl.getGroupById(sess, groupId), g, true);
 				}
@@ -290,7 +290,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 		// 1. remove all relations with group g as an operand group.
 		// this removes all relations that depend on this group
-		List<Integer> relations = groupsManagerImpl.getGroupRelations(sess, group.getId());
+		List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, group.getId());
 		for (Integer groupId : relations) {
 			removeGroupUnion(sess, groupsManagerImpl.getGroupById(sess, groupId), group, true);
 		}
@@ -471,7 +471,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//If member was indirect in group before, we don't need to change anything in other groups
 		if(memberWasIndirectInGroup) return;
 		// check all relations with this group and call processRelationMembers to reflect changes of adding member to group
-		List<Integer> relations = groupsManagerImpl.getGroupRelations(sess, group.getId());
+		List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, group.getId());
 		for (Integer groupId : relations) {
 			processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId(), true);
 		}
@@ -602,7 +602,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		// check all relations with this group and call processRelationMembers to reflect changes of removing member from group
-		List<Integer> relations = groupsManagerImpl.getGroupRelations(sess, group.getId());
+		List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, group.getId());
 		for (Integer groupId : relations) {
 			processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId(), false);
 		}
@@ -2292,7 +2292,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				return;
 			}
 
-			List<Integer> relations = groupsManagerImpl.getGroupRelations(sess, resultGroup.getId());
+			List<Integer> relations = groupsManagerImpl.getResultGroupsIds(sess, resultGroup.getId());
 			for (Integer groupId : relations) {
 				processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), newMembers, resultGroup.getId(), addition);
 			}
@@ -2354,7 +2354,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		
 		groupsManagerImpl.removeGroupUnion(sess, resultGroup, operandGroup);
 	}
-
+	
+	@Override
+	public List<Group> getGroupUnions(PerunSession session, Group group, boolean reverseDirection) throws InternalErrorException {
+		if (reverseDirection) {
+			return groupsManagerImpl.getResultGroups(session, group.getId());
+		} else {
+			return groupsManagerImpl.getOperandGroups(session, group.getId());
+		}
+	}
+	
 	/**
 	 * Check if cycle would be created by adding union between these groups.
 	 *
@@ -2365,7 +2374,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	private boolean checkGroupsCycle(PerunSession sess, int resultGroupId, int operandGroupId) throws InternalErrorException {
-		List<Integer> groupsIds = groupsManagerImpl.getRelatedGroupsIds(sess, resultGroupId);
+		List<Integer> groupsIds = groupsManagerImpl.getResultGroupsIds(sess, resultGroupId);
 
 		if (groupsIds.contains(operandGroupId)) {
 			return true;

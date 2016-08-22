@@ -384,6 +384,14 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group, group2);
 
 		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
+		Member returnMember = groupsManager.getGroupMembers(sess, group).get(0);
+		assertEquals(returnMember.getMembershipType(), MembershipType.INDIRECT);
+		assertEquals(returnMember.getSourceGroupId(), Integer.valueOf(group2.getId()));
+
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).size() == 1);
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).size() == 1);
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).get(0).getId() == group2.getId());
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).get(0).getId() == group.getId());
 	}
 
 	@Test
@@ -404,6 +412,8 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.removeGroupUnion(sess, group, group2);
 
 		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group, false).size() == 0);
+		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).size() == 0);
 	}
 
 	@Test(expected=InternalErrorException.class)
@@ -531,19 +541,19 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			if (Objects.equals(group.getName(), "D")) {
 				topLevel = group;
 				//perun.getGroupsManager().addMember(sess, group, member);
-				//System.out.println(perun.getGroupsManagerBl().getGroupRelations(sess, group.getId()));
+				//System.out.println(perun.getGroupsManagerBl().getResultGroups(sess, group.getId()));
 			} else if (Objects.equals(group.getName(), "D:C")) {
 				//perun.getGroupsManager().addMember(sess, group, member);
 				secondLevel = group;
-				//System.out.println(perun.getGroupsManagerBl().getGroupRelations(sess, group.getId()));
+				//System.out.println(perun.getGroupsManagerBl().getResultGroups(sess, group.getId()));
 			} else if (Objects.equals(group.getName(), "D:C:E")) {
 				//perun.getGroupsManager().addMember(sess, group, member);
 				thirdLevel = group;
-				//System.out.println(perun.getGroupsManagerBl().getGroupRelations(sess, group.getId()));
+				//System.out.println(perun.getGroupsManagerBl().getResultGroups(sess, group.getId()));
 			} else if (Objects.equals(group.getName(), "D:C:E:F")) {
 				fourthLevel = group;
 				//perun.getGroupsManager().addMember(sess, group, member);
-				//System.out.println(perun.getGroupsManagerBl().getGroupRelations(sess, group.getId()));
+				//System.out.println(perun.getGroupsManagerBl().getResultGroups(sess, group.getId()));
 			}
 		}
 
@@ -651,6 +661,26 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	}
 
+	@Test
+	public void getGroupUnions() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupUnions");
+
+		vo = setUpVo();
+		groupsManager.createGroup(sess, vo, group);
+		groupsManager.createGroup(sess, group, group2);
+		groupsManager.createGroup(sess, vo, group3);
+		groupsManager.createGroup(sess, vo, group4);
+		groupsManager.createGroup(sess, group4, group5);
+
+		groupsManager.createGroupUnion(sess, group3, group);
+		groupsManager.createGroupUnion(sess, group3, group2);
+		groupsManager.createGroupUnion(sess, group4, group3);
+		groupsManager.createGroupUnion(sess, group5, group3);
+		
+		assertEquals("Wrong number of operand groups.", 2, groupsManagerBl.getGroupUnions(sess, group3, false).size());
+		assertEquals("Wrong number of result groups.", 2, groupsManagerBl.getGroupUnions(sess, group3, true).size());
+	}
+	
 	@Test (expected=RelationExistsException.class)
 	public void deleteGroupWhenContainsMember() throws Exception {
 		System.out.println(CLASS_NAME + "deleteGroupWhenContainsMember");
