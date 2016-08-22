@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+        Creates Union between two groups. Result group id or name together 
+        with vo id or vo short name are required fields. 
+        Operand group id or name required. 
+        Both groups have to be from the same VO.
+	------------------------------------
+	Available options:
+	--resultGroupId    | -g result group id
+	--resultGroupName  | -G result group name
+        --operandGroupId   | -o operand group id
+        --operandGroupName | -O operand group name
+	--voId             | -v vo id
+	--voShortName      | -V vo short name
+	--batch            | -b batch
+	--help             | -h prints this help
+
+	};
+}
+
+my ($rgroupId, $rgroupName, $ogroupId, $ogroupName, $voId, $voShortName, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+"resultGroupId|g=i" => \$rgroupId,
+"resultGroupName|G=s" => \$rgroupName,
+"operandGroupId|o=i" => \$ogroupId,
+"operandGroupName|O=s" => \$ogroupName,
+"voId|v=i" => \$voId, 
+"voShortName|V=s" => \$voShortName) || die help();
+
+# Check options
+unless (defined($rgroupId) or ((defined($voShortName) or defined($voId)) and defined($rgroupName))) {die "ERROR: resultGroupId or resultGroupName and voId or voShortName is required\n";}
+unless (defined($ogroupId) or ((defined($voShortName) or defined($voId)) and defined($ogroupName))) {die "ERROR: operandGroupId or operandGroupName and voId or voShortName is required\n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+
+if (!defined($rgroupId) or !defined($ogroupId)) {
+	if (!defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		$voId = $vo->getId;
+	}
+
+        unless (defined $rgroupId) {
+	    my $rgroup = $groupsAgent->getGroupByName(vo => $voId, name => $rgroupName);
+	    $rgroupId = $rgroup->getId;
+        }
+        unless (defined $ogroupId) {
+	    my $ogroup = $groupsAgent->getGroupByName(vo => $voId, name => $ogroupName);
+	    $ogroupId = $ogroup->getId;
+        }
+}
+
+my $group = $groupsAgent->createGroupUnion(resultGroup => $rgroupId, operandGroup => $ogroupId);
+
+printMessage("Operand group $ogroupId successfully joined to result group $rgroupId", $batch);
