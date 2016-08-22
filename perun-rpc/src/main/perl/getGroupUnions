@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+
+sub help {
+	return qq{
+        Lists group Ids joined to entered group. Group id or name together 
+        with vo id or vo short name are required fields. 
+	------------------------------------
+	Available options:
+	--groupId     | -g  group id
+	--groupName   | -G  group name
+	--voId        | -v vo id
+	--voShortName | -V vo short name
+        --reverse     | -r reverse direction
+        --orderByName | -n order by group name
+	--batch       | -b batch
+	--help        | -h prints this help
+
+	};
+}
+
+my ($groupId, $groupName, $voId, $voShortName, $reverse, $sortingFunction, $batch);
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+"groupId|g=i" => \$groupId,
+"groupName|G=s" => \$groupName,
+"reverse|r" => \$reverse,
+"orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1) },
+"voId|v=i" => \$voId, 
+"voShortName|V=s" => \$voShortName) || die help();
+
+# Check options
+unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
+
+my $agent = Perun::Agent->new();
+my $vosAgent = $agent->getVosAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+
+
+if (!defined($groupId)) {
+	if (!defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		$voId = $vo->getId;
+	}
+
+        my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+        $groupId = $group->getId;
+}
+
+$reverse=0 unless defined $reverse; 
+my @groups = $groupsAgent->getGroupUnions(group => $groupId, reverseDirection => $reverse);
+
+$sortingFunction = getSortingFunction("getId") unless defined $sortingFunction;
+
+my $table = Text::ASCIITable->new();
+if ($reverse==0) {
+    $table->setCols('operand group Id','operand group Name');
+} else {
+    $table->setCols('result group Id','result group Name');
+}
+
+foreach my $grp (sort $sortingFunction @groups) {
+    $table->addRow($grp->getId,$grp->getName);
+} 
+
+print tableToPrint($table, $batch);
+
