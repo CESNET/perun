@@ -201,6 +201,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Return all operand groups for specified result groups (all INCLUDED groups).
+	 * If "reverseDirection" is TRUE than return all result groups for specified operand group (where group is INCLUDED).
+	 *
+	 * @param group int <code>id</code> of Group to get groups in union.
+	 * @param reverseDirection boolean FALSE (default) return INCLUDED groups / TRUE = return groups where INCLUDED
+	 * @return List<Group> List of groups in union relation.
+	 */
+	getGroupUnions {
+
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupUnions(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					parms.readBoolean("reverseDirection"));
+		}
+	},
+
+	/*#
 	 * Adds a member to a group.
 	 *
 	 * @param group int Group <code>id</code>
