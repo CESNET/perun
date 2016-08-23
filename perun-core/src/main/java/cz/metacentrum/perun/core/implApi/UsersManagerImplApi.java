@@ -558,7 +558,7 @@ public interface UsersManagerImplApi {
 	 * @param user for which get reserved logins
 	 * @return list of pairs namespace and login
 	 */
-	public List<Pair<String, String>> getUsersReservedLogins(User user);
+	public List<Pair<String, String>> getUsersReservedLogins(User user) throws InternalErrorException;
 
 	/**
 	 * Delete all reserved logins for specific user
@@ -566,7 +566,7 @@ public interface UsersManagerImplApi {
 	 *
 	 * @param user for which get delete reserved logins
 	 */
-	public void deleteUsersReservedLogins(User user);
+	public void deleteUsersReservedLogins(User user) throws InternalErrorException;
 
 	/**
 	 * Get All RichUsers without UserExtSources and without virtual attributes.

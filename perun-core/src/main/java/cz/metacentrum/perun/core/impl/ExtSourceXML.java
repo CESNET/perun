@@ -492,7 +492,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		this.con = con;
 	}
 
-	protected Map<String,String> getAttributes() {
+	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

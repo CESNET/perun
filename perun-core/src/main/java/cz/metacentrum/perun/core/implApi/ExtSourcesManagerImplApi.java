@@ -209,5 +209,5 @@ public interface ExtSourcesManagerImplApi {
 	 * @param extSource	External Source
 	 * @return			Map of attributes for external source
 	 */
-	public Map<String,String> getAttributes(ExtSource extSource);
+	public Map<String,String> getAttributes(ExtSource extSource) throws InternalErrorException;
 }
