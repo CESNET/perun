@@ -549,10 +549,11 @@ public interface ResourcesManager {
 	 * @param resource
 	 * @return returns updated Resource
 	 * @throws ResourceNotExistsException
+	 * @throws ResourceExistsException
 	 * @throws PrivilegeException
 	 * @throws InternalErrorException
 	 */
-	Resource updateResource(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException;
+	Resource updateResource(PerunSession perunSession, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException, ResourceExistsException;
 
 	/**
 	 * Create new Resource tag for the vo.

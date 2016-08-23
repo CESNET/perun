@@ -559,8 +559,9 @@ public interface ResourcesManagerBl {
 	 * @param resource
 	 * @return returns updated Resource
 	 * @throws InternalErrorException
+	 * @throws ResourceExistsException
 	 */
-	Resource updateResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	Resource updateResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceExistsException;
 
 
 	/**

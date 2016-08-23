@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -905,21 +906,52 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		Resource resourceToUpdate = resource;
-		resourceToUpdate.setName("TESTNAME1");
-		resource.setDescription("TESTDESC1");
-		final Resource updatedResource1 = resourcesManager.updateResource(sess, resourceToUpdate);
-		assertEquals(resourceToUpdate, updatedResource1);
+		resource.setName("UpdatedName1");
+		final Resource updatedResource1 = resourcesManager.updateResource(sess, resource);
+		assertEquals(updatedResource1, resourcesManager.getResourceById(sess, resource.getId()));
+		
+		resource.setDescription("ChangedDescription");
+		final Resource updatedResource2 = resourcesManager.updateResource(sess, resource);
+		assertEquals(updatedResource2, resourcesManager.getResourceById(sess, resource.getId()));
+	}
+	
+	@Test(expected = ResourceExistsException.class)
+	public void updateResourceWithExistingName() throws Exception {
+		System.out.println(CLASS_NAME + "updateResourceWithExistingName");
+		
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource1 = setUpResource();
+		Resource resource2 = setUpResource2();
 
-		resourceToUpdate.setName("TESTNAME2");
-		final Resource updatedResource2 = resourcesManager.updateResource(sess, resourceToUpdate);
-		assertEquals(resourceToUpdate, updatedResource2);
-
-		resource.setDescription("TESTDESC3");
-		final Resource updatedResource3 = resourcesManager.updateResource(sess, resourceToUpdate);
-		assertEquals(resourceToUpdate, updatedResource3);
+		resource1.setName(resource2.getName());
+		resourcesManager.updateResource(sess, resource1);
 	}
 
+	@Test
+	public void updateResourceWithExistingNameInDifferentFacilities() throws Exception {
+		System.out.println(CLASS_NAME + "updateResourceWithExistingNameInDifferentFacilities");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Facility facility2 = new Facility();
+		facility2.setName("DifferentFacility");
+		facility2 = perun.getFacilitiesManagerBl().createFacility(sess, facility2);
+		
+		Resource resource1 = setUpResource();
+		Resource resource2 = new Resource();
+		resource2.setName("DifferentResource");
+		resource2.setDescription("DifferentDescription");
+		resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo, facility2);
+
+		resource2.setName(resource1.getName());
+		resource2.setDescription(resource1.getDescription());
+		resourcesManager.updateResource(sess, resource2);
+		
+		assertEquals(resource1.getName(), resource2.getName());
+		assertNotEquals(resource1.getId(), resource2.getId());
+		assertNotEquals(resource1, resource2);
+	}	
 
 	@Test
 	public void getAllResourcesTagsForResource() throws Exception {

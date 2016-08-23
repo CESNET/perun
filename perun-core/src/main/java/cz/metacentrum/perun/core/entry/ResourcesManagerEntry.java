@@ -613,7 +613,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().getAssignedRichResources(sess, member, service);
 	}
 
-	public Resource updateResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException {
+	public Resource updateResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException, ResourceExistsException {
 		Utils.notNull(sess, "sess");
 		resourcesManagerBl.checkResourceExists(sess, resource);
 
