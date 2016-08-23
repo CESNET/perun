@@ -264,6 +264,37 @@
 
 		</pluginManagement>
 
+		<plugins>
+			<plugin>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.17</version>
+				<executions>
+					<execution>
+						<id>checkstyle</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>checkstyle</goal>
+						</goals>
+						<configuration>
+							<failsOnError>false</failsOnError>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<configLocation>checkstyle.xml</configLocation>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError>
+					<includes>**/*</includes>
+					<resourceIncludes>**/*</resourceIncludes>
+					<sourceDirectories>
+						<sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+						<sourceDirectory>./perun-utils</sourceDirectory>
+						<sourceDirectory>./perun-apps</sourceDirectory>
+						<sourceDirectory>./perun-php</sourceDirectory>
+					</sourceDirectories>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<!-- DEFAULT MAVEN DEPENDENCY SETTINGS
