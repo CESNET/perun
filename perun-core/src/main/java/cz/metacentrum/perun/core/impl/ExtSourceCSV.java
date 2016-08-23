@@ -292,7 +292,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         return lineAsMap;
     }
 
-	protected Map<String,String> getAttributes() {
+	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

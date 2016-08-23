@@ -532,7 +532,11 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
-	public Map<String,String> getAttributes(ExtSource extSource) {
-		return jdbc.query("select attr_name, attr_value from ext_sources_attributes where ext_sources_id = " + extSource.getId(), new AttributesExtractor());
+	public Map<String,String> getAttributes(ExtSource extSource) throws InternalErrorException {
+		try {
+			return jdbc.query("select attr_name, attr_value from ext_sources_attributes where ext_sources_id = " + extSource.getId(), new AttributesExtractor());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 }

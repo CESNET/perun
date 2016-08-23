@@ -197,7 +197,7 @@ public interface VosManagerImplApi {
 	 * @param vo
 	 * @return list of all vo applications ids
 	 */
-	public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo);
+	public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Return list of all reserved logins for specific application
@@ -206,7 +206,7 @@ public interface VosManagerImplApi {
 	 * @param appId from which application get reserved logins
 	 * @return list of pairs namespace and login
 	 */
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId);
+	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
 
 	/**
 	 * Delete all VO login reservations
@@ -218,7 +218,7 @@ public interface VosManagerImplApi {
 	 * @param sess
 	 * @param vo VO to delete all login reservations for
 	 */
-	public void deleteVoReservedLogins(PerunSession sess, Vo vo);
+	public void deleteVoReservedLogins(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Creates empty application form definition for VO when

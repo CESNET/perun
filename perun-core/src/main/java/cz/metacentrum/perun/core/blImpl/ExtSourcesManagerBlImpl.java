@@ -448,7 +448,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		getExtSourcesManagerImpl().loadExtSourcesDefinitions(sess);
 	}
 
-	public Map<String, String> getAttributes(ExtSource extSource) {
+	public Map<String, String> getAttributes(ExtSource extSource) throws InternalErrorException {
 		return getExtSourcesManagerImpl().getAttributes(extSource);
 	}
 }
