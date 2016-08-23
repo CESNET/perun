@@ -34,7 +34,7 @@ my @attrs = $attrAgent->getAttributesDefinition;
 unless(@attrs) { printMessage "No Attribute found", $batch; exit 0; }
 
 
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('Id','namespace','friendlyName', 'type', 'Description');
 
 for my $attribute (sort $sortingFunction @attrs) {

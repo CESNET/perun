@@ -58,7 +58,7 @@ while (@facilities) {
 
 #output
 
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('Service for '.$destination);
 
 foreach my $service (sort keys (%services)) {

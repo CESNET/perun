@@ -40,7 +40,7 @@ my @users = $securityTeamsAgent->getBlacklist(securityTeam => $securityTeamId);
 unless (@users) { printMessage "No blacklisted users found", $batch; exit 0; }
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 printMessage "\nSecurityTeamId: ".$securityTeamId.", SecurityTeamName: ".$securityTeam->getName, $batch;
 
 $table->setCols('User Id','User Name');

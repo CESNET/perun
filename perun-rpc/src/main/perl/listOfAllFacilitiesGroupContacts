@@ -29,7 +29,7 @@ my @contactGroupsNames = $FacilitiesAgent->getAllContactGroupNames;
 unless(@contactGroupsNames) { printMessage "No ContactGroups found",$batch; exit 0;}
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('ContactGroupName');
 
 foreach my $cgname (@contactGroupsNames) {

@@ -42,7 +42,7 @@ if (defined($resourceId) and defined($memberId)) { die "ERROR: only one of resou
 if (defined($facilityId) and defined($userId)) { die "ERROR: only one of facility or use can be entered \n";} 
 
 my $agent = Perun::Agent->new();
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 
 unless (defined $sortingFunction) {$sortingFunction = getSortingFunction('getValidityTo');}
 

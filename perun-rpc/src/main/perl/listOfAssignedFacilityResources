@@ -46,7 +46,7 @@ GetOptions("help|h" => sub { print help; exit 0;} ,
 			 unless(@resources) { printMessage "No Resources assigned", $batch; exit 0; }
 
 #output
-			 my $table = Text::ASCIITable->new();
+			 my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 			 $table->setCols('ID','Name');
 
 			 foreach my $resource (sort $sortingFunction @resources) {

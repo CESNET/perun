@@ -53,7 +53,7 @@ my @contactGroups;
 unless (@contactGroups) { printMessage "No Contact found", $batch; exit 0;} 
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 if (defined($displayIds)) {
     $table->setCols('Name','Owner','OwnerId','User','userId','Group','groupId');
 

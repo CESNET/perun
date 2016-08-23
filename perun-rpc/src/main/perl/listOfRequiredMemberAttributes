@@ -46,7 +46,7 @@ if ($resourceId) {
 
 unless(@attributes) { printMessage "No required attributes found", $batch;  exit 0; }
 
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('attribute Id','attribute friendly name','namespace', 'value');
 
 foreach my $attribute (sort $sortingFunction @attributes) {
