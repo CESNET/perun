@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.entry;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -94,6 +96,25 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		assertNotNull("unable to create Resource", returnedResource);
 		assertEquals("created and returned resource should be the same", returnedResource, resource);
 
+	}
+
+	@Test (expected = ResourceExistsException.class)
+	public void createResourceWithExistingNameInSameFacilitySameVo() throws Exception {
+		System.out.println(CLASS_NAME + "createResourceWithExistingNameInSameFacilitySameVo");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+
+		Resource resource1 = new Resource();
+		resource1.setName("ResourcesManagerTestResource");
+		resource1.setDescription("Test Resource one");
+
+		Resource resource2 = new Resource();
+		resource2.setName("ResourcesManagerTestResource");
+		resource2.setDescription("Test Resource two");
+		
+		resourcesManager.createResource(sess, resource1, vo, facility);
+		resourcesManager.createResource(sess, resource2, vo, facility);
 	}
 
 	@Test (expected=FacilityNotExistsException.class)
@@ -566,7 +587,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		group = setUpGroup(vo, member);
 		facility = setUpFacility();
 		resource = setUpResource();
-		Resource sndResource = setUpResource();
+		Resource sndResource = setUpResource2();
 		service = setUpService();
 
 		// both the resources assign to the group
@@ -591,7 +612,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		RichResource richResource = new RichResource(resource);
 		richResource.setFacility(facility);
-		Resource sndResource = setUpResource();
+		Resource sndResource = setUpResource2();
 		service = setUpService();
 
 		// both the resources assign to the group
@@ -885,21 +906,52 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 
-		Resource resourceToUpdate = resourcesManager.createResource(sess, resource, vo, facility);
-		resourceToUpdate.setName("TESTNAME1");
-		resource.setDescription("TESTDESC1");
-		final Resource updatedResource1 = resourcesManager.updateResource(sess, resourceToUpdate);
-		assertEquals(resourceToUpdate, updatedResource1);
+		resource.setName("UpdatedName1");
+		final Resource updatedResource1 = resourcesManager.updateResource(sess, resource);
+		assertEquals(updatedResource1, resourcesManager.getResourceById(sess, resource.getId()));
+		
+		resource.setDescription("ChangedDescription");
+		final Resource updatedResource2 = resourcesManager.updateResource(sess, resource);
+		assertEquals(updatedResource2, resourcesManager.getResourceById(sess, resource.getId()));
+	}
+	
+	@Test(expected = ResourceExistsException.class)
+	public void updateResourceWithExistingName() throws Exception {
+		System.out.println(CLASS_NAME + "updateResourceWithExistingName");
+		
+		vo = setUpVo();
+		facility = setUpFacility();
+		Resource resource1 = setUpResource();
+		Resource resource2 = setUpResource2();
 
-		resourceToUpdate.setName("TESTNAME2");
-		final Resource updatedResource2 = resourcesManager.updateResource(sess, resourceToUpdate);
-		assertEquals(resourceToUpdate, updatedResource2);
-
-		resource.setDescription("TESTDESC3");
-		final Resource updatedResource3 = resourcesManager.updateResource(sess, resourceToUpdate);
-		assertEquals(resourceToUpdate, updatedResource3);
+		resource1.setName(resource2.getName());
+		resourcesManager.updateResource(sess, resource1);
 	}
 
+	@Test
+	public void updateResourceWithExistingNameInDifferentFacilities() throws Exception {
+		System.out.println(CLASS_NAME + "updateResourceWithExistingNameInDifferentFacilities");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		Facility facility2 = new Facility();
+		facility2.setName("DifferentFacility");
+		facility2 = perun.getFacilitiesManagerBl().createFacility(sess, facility2);
+		
+		Resource resource1 = setUpResource();
+		Resource resource2 = new Resource();
+		resource2.setName("DifferentResource");
+		resource2.setDescription("DifferentDescription");
+		resource2 = perun.getResourcesManagerBl().createResource(sess, resource2, vo, facility2);
+
+		resource2.setName(resource1.getName());
+		resource2.setDescription(resource1.getDescription());
+		resourcesManager.updateResource(sess, resource2);
+		
+		assertEquals(resource1.getName(), resource2.getName());
+		assertNotEquals(resource1.getId(), resource2.getId());
+		assertNotEquals(resource1, resource2);
+	}	
 
 	@Test
 	public void getAllResourcesTagsForResource() throws Exception {
@@ -1367,6 +1419,16 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		Resource resource = new Resource();
 		resource.setName("ResourcesManagerTestResource");
 		resource.setDescription("Testovaci");
+		resource = resourcesManager.createResource(sess, resource, vo, facility);
+		return resource;
+
+	}
+
+	private Resource setUpResource2() throws Exception {
+
+		Resource resource = new Resource();
+		resource.setName("ResourcesManagerTestResource2");
+		resource.setDescription("Testovaci2");
 		resource = resourcesManager.createResource(sess, resource, vo, facility);
 		return resource;
 

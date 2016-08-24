@@ -26,6 +26,7 @@ import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceExcepti
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
@@ -88,7 +89,7 @@ public interface ResourcesManagerBl {
 	 * @param resource resource to create
 	 * @throws InternalErrorException
 	 */
-	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException;
+	Resource createResource(PerunSession perunSession, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException, ResourceExistsException;
 
 	/**
 	 *  Deletes resource by id.
@@ -558,8 +559,9 @@ public interface ResourcesManagerBl {
 	 * @param resource
 	 * @return returns updated Resource
 	 * @throws InternalErrorException
+	 * @throws ResourceExistsException
 	 */
-	Resource updateResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	Resource updateResource(PerunSession perunSession, Resource resource) throws InternalErrorException, ResourceExistsException;
 
 
 	/**
