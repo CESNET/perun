@@ -344,7 +344,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					//
 					// Try to automatically convert object returned from bean method call to required data type
 					//
-					if(attribute.getType().equals(String.class.getName()) && !(value instanceof String)) {
+					if (value == null) {
+						// No need to convert NULL value (for String it caused NULL->"null" conversion)
+					} else if(attribute.getType().equals(String.class.getName()) && !(value instanceof String)) {
 						//TODO check exceptions
 						value = String.valueOf(value);
 					} else if(attribute.getType().equals(Integer.class.getName()) && !(value instanceof Integer)) {
