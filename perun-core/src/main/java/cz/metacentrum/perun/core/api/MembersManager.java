@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
 
@@ -209,6 +210,34 @@ public interface MembersManager {
 	 * @throws GroupOperationsException
 	 */
 	Member createMember(PerunSession sess, Vo vo, String extSourceName, String extSourceType, int extSourceLoa, String login, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException;
+
+	/**
+	 * Creates a new sponsored member in given namespace and external source.
+	 * Owner of the member must be specified in params map under key "sponsor"
+	 *
+	 * @param sess
+	 * @param params Map containing parameters about user that will be created, will be used to create Candidate,
+	 *               must contain key "sponsor" with value of user login in given namespace that will be owner of created member
+	 * @param namespace namespace to generate account in
+	 * @param extSource external source
+	 * @param extSourcePostfix login postfix if external source uses postfix after login from given namespace, e.g. "@muni.cz"
+	 * @param vo VO in which user will be created
+	 * @param loa
+	 * @return newly created sponsored member
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 * @throws ExtSourceNotExistsException
+	 * @throws UserExtSourceNotExistsException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws ExtendMembershipException
+	 * @throws AlreadyMemberException
+	 * @throws WrongAttributeValueException
+	 * @throws GroupOperationsException
+	 * @throws PasswordCreationFailedException
+	 * @throws LoginNotExistsException
+	 */
+	Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, Vo vo, int loa) throws InternalErrorException, PrivilegeException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, AlreadyMemberException, GroupOperationsException, PasswordStrengthFailedException, PasswordOperationTimeoutException, WrongAttributeValueException;
 
 	/**
 	 * Creates a new member from candidate returned by the method VosManager.findCandidates which fills Candidate.userExtSource.
