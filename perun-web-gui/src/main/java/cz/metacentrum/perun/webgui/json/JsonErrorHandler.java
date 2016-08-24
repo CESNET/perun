@@ -553,6 +553,10 @@ public class JsonErrorHandler {
 
 			return "Group and Resource doesn't belong to the same VO.";
 
+		} else if ("GroupOperationsException".equalsIgnoreCase(errorName)) {
+
+			return "Action is not permitted, since it violates group arithmetic rules.";
+
 		} else if ("GroupSynchronizationAlreadyRunningException".equalsIgnoreCase(errorName)) {
 
 			return "Can't start group synchronization between Perun and external source, because it's already running.";
@@ -685,6 +689,10 @@ public class JsonErrorHandler {
 		} else if ("ResourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
 			return "Same resource was already removed from facility (deleted).";
+
+		} else if ("ResourceExistsException".equalsIgnoreCase(errorName)) {
+
+			return "Resource with same name \"" + error.getResource().getName() + "\" already exists with id="+error.getResource().getId()+".";
 
 		} else if ("ResourceNotExistsException".equalsIgnoreCase(errorName)) {
 
