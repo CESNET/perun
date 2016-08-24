@@ -9,10 +9,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 ">
 
-	<!-- FIXME  hack, hackiti hack - inject properties bean into static class Utils
-             	(creates another bean, that is never used)
-             	The point is to stop Utils from complaining about non-existent /etc/perun/perun.properties.
-	-->
+	<!-- FIXME  hack, hackiti hack - inject properties bean into static class Utils                         -->
+	<!-- FIXME  (creates another bean, that is never used)                                                  -->
+	<!-- FIXME  The point is to stop Utils from complaining about non-existent /etc/perun/perun.properties. -->
 	<bean id="utilsProperties" class="cz.metacentrum.perun.core.api.BeansUtils" factory-method="setProperties" scope="singleton">
 		<constructor-arg ref="coreProperties" />
 	</bean>

@@ -1,84 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" entityID="https://edugain-group.cesnet.cz/idp/shibboleth">
-    <AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
+	<AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
 
-      <Extensions>
-        <shibmd:Scope regexp="false">edugain-group.cesnet.cz</shibmd:Scope>
-        <mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
-          <mdui:DisplayName xml:lang="en">eduGAIN Group AA</mdui:DisplayName>
-          <mdui:DisplayName xml:lang="cs">eduGAIN Group AA</mdui:DisplayName>
-          <mdui:Description xml:lang="en">Attribute Authority for eduGAIN Group Sevice.</mdui:Description>
-          <mdui:Description xml:lang="cs">Atributová autorita pro službu eduGAIN skupiny.</mdui:Description>
-          <mdui:InformationURL xml:lang="en">http://perun.cesnet.cz/apps/edugain-group/</mdui:InformationURL>
-          <mdui:InformationURL xml:lang="cs">http://perun.cesnet.cz/apps/edugain-group/</mdui:InformationURL>
-          <mdui:Logo height="87" width="293">https://perun.cesnet.cz/web/img/logo_color_shades.png</mdui:Logo>
-        </mdui:UIInfo>
-        <eduidmd:RepublishRequest xmlns:eduidmd="http://eduid.cz/schema/metadata/1.0">
-          <eduidmd:RepublishTarget>http://edugain.org/</eduidmd:RepublishTarget>
-        </eduidmd:RepublishRequest>
-      </Extensions>
+		<Extensions>
+			<shibmd:Scope regexp="false">edugain-group.cesnet.cz</shibmd:Scope>
+			<mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
+				<mdui:DisplayName xml:lang="en">eduGAIN Group AA</mdui:DisplayName>
+				<mdui:DisplayName xml:lang="cs">eduGAIN Group AA</mdui:DisplayName>
+				<mdui:Description xml:lang="en">Attribute Authority for eduGAIN Group Sevice.</mdui:Description>
+				<mdui:Description xml:lang="cs">Atributová autorita pro službu eduGAIN skupiny.</mdui:Description>
+				<mdui:InformationURL xml:lang="en">http://perun.cesnet.cz/apps/edugain-group/</mdui:InformationURL>
+				<mdui:InformationURL xml:lang="cs">http://perun.cesnet.cz/apps/edugain-group/</mdui:InformationURL>
+				<mdui:Logo height="87" width="293">https://perun.cesnet.cz/web/img/logo_color_shades.png</mdui:Logo>
+			</mdui:UIInfo>
+			<eduidmd:RepublishRequest xmlns:eduidmd="http://eduid.cz/schema/metadata/1.0">
+				<eduidmd:RepublishTarget>http://edugain.org/</eduidmd:RepublishTarget>
+			</eduidmd:RepublishRequest>
+		</Extensions>
 
-        <KeyDescriptor>
-            <ds:KeyInfo>
-                <ds:X509Data>
-                    <ds:X509Certificate>
-MIIEqTCCA5GgAwIBAgIRAKTDcyjAM5LIjbwt/gIRhBMwDQYJKoZIhvcNAQELBQAw
-ZDELMAkGA1UEBhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcT
-CUFtc3RlcmRhbTEPMA0GA1UEChMGVEVSRU5BMRgwFgYDVQQDEw9URVJFTkEgU1NM
-IENBIDIwHhcNMTQxMDIxMDAwMDAwWhcNMTcxMDIwMjM1OTU5WjBFMSEwHwYDVQQL
-ExhEb21haW4gQ29udHJvbCBWYWxpZGF0ZWQxIDAeBgNVBAMTF2VkdWdhaW4tZ3Jv
-dXAuY2VzbmV0LmN6MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7h40
-7VUKwoW/zRyupdmroy6rSeb0t2szy683Ac8zJbFQT7lMEE4LEpBF40CxitQN4zkq
-6rZ1avCDfgUA5UOCqDRsDZiVhVZVHTUsewOWnA4I5cI38oKsi7Ai9eSTmgcWVaeS
-EjluoKZW2ycVmABMGLbOLo1odikKDCmXniNZLYRbXH6mGQrZ4bWYW6vXyGJJAyu7
-i5oJIYXv9G6Ok9PZe/nfs2vlU7D3sUFjBOGeTAarwtDdpEb+MzznB+Y49tF6u9f+
-2LWAVV7cQakXx6RATzcbkNcfCV21z9M4UCzQUbMPYfmkT2MT104L9kOcPIWGdA8z
-x0TdmOaFHJHLhqRjLwIDAQABo4IBczCCAW8wHwYDVR0jBBgwFoAUW9CKHJoyW+C1
-3ZZUG+GGKLD9tr0wHQYDVR0OBBYEFPxW7rdUfjv3tljZIZesDtk45SGsMA4GA1Ud
-DwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggr
-BgEFBQcDAjAiBgNVHSAEGzAZMA0GCysGAQQBsjEBAgIdMAgGBmeBDAECATA6BgNV
-HR8EMzAxMC+gLaArhilodHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vVEVSRU5BU1NM
-Q0EyLmNybDBsBggrBgEFBQcBAQRgMF4wNQYIKwYBBQUHMAKGKWh0dHA6Ly9jcnQu
-dXNlcnRydXN0LmNvbS9URVJFTkFTU0xDQTIuY3J0MCUGCCsGAQUFBzABhhlodHRw
-Oi8vb2NzcC51c2VydHJ1c3QuY29tMCIGA1UdEQQbMBmCF2VkdWdhaW4tZ3JvdXAu
-Y2VzbmV0LmN6MA0GCSqGSIb3DQEBCwUAA4IBAQA8oL553U23dlBWyYfRp1HzcDSy
-tl/UlWh8FSjUi9CIrCkIzfjUgwZeAYOTTQ/Hszl8EtxxdY3WPqDmtm5VkL8KyMqk
-Pnndn1ebFpK5vLjI1304TNRsR4iZU9/ntNREeaSVzAA135kSnfz+F3KiDMpmnjkB
-58KT0EUE/YEv8hAOyZpOAt/cXwkkKUvlcArIrexXGhFDG5S6Iy9KHzDJ9fJDbAcn
-fmkgS5Dai/VEkvtdEN4d2BpXZHCC8EGPQQLU6ajpoe+P+ls7oLfM5B+rH9/EBHXJ
-cU/I3dCI+bvdo7O6bNqXqahLqhpBXuEaFFzDuT+6kbx8N9SRf0urvUNlejHQ
-                    </ds:X509Certificate>
-                </ds:X509Data>
-            </ds:KeyInfo>
-        </KeyDescriptor>
+		<KeyDescriptor>
+			<ds:KeyInfo>
+				<ds:X509Data>
+					<ds:X509Certificate>
+						MIIEqTCCA5GgAwIBAgIRAKTDcyjAM5LIjbwt/gIRhBMwDQYJKoZIhvcNAQELBQAw
+						ZDELMAkGA1UEBhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcT
+						CUFtc3RlcmRhbTEPMA0GA1UEChMGVEVSRU5BMRgwFgYDVQQDEw9URVJFTkEgU1NM
+						IENBIDIwHhcNMTQxMDIxMDAwMDAwWhcNMTcxMDIwMjM1OTU5WjBFMSEwHwYDVQQL
+						ExhEb21haW4gQ29udHJvbCBWYWxpZGF0ZWQxIDAeBgNVBAMTF2VkdWdhaW4tZ3Jv
+						dXAuY2VzbmV0LmN6MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7h40
+						7VUKwoW/zRyupdmroy6rSeb0t2szy683Ac8zJbFQT7lMEE4LEpBF40CxitQN4zkq
+						6rZ1avCDfgUA5UOCqDRsDZiVhVZVHTUsewOWnA4I5cI38oKsi7Ai9eSTmgcWVaeS
+						EjluoKZW2ycVmABMGLbOLo1odikKDCmXniNZLYRbXH6mGQrZ4bWYW6vXyGJJAyu7
+						i5oJIYXv9G6Ok9PZe/nfs2vlU7D3sUFjBOGeTAarwtDdpEb+MzznB+Y49tF6u9f+
+						2LWAVV7cQakXx6RATzcbkNcfCV21z9M4UCzQUbMPYfmkT2MT104L9kOcPIWGdA8z
+						x0TdmOaFHJHLhqRjLwIDAQABo4IBczCCAW8wHwYDVR0jBBgwFoAUW9CKHJoyW+C1
+						3ZZUG+GGKLD9tr0wHQYDVR0OBBYEFPxW7rdUfjv3tljZIZesDtk45SGsMA4GA1Ud
+						DwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggr
+						BgEFBQcDAjAiBgNVHSAEGzAZMA0GCysGAQQBsjEBAgIdMAgGBmeBDAECATA6BgNV
+						HR8EMzAxMC+gLaArhilodHRwOi8vY3JsLnVzZXJ0cnVzdC5jb20vVEVSRU5BU1NM
+						Q0EyLmNybDBsBggrBgEFBQcBAQRgMF4wNQYIKwYBBQUHMAKGKWh0dHA6Ly9jcnQu
+						dXNlcnRydXN0LmNvbS9URVJFTkFTU0xDQTIuY3J0MCUGCCsGAQUFBzABhhlodHRw
+						Oi8vb2NzcC51c2VydHJ1c3QuY29tMCIGA1UdEQQbMBmCF2VkdWdhaW4tZ3JvdXAu
+						Y2VzbmV0LmN6MA0GCSqGSIb3DQEBCwUAA4IBAQA8oL553U23dlBWyYfRp1HzcDSy
+						tl/UlWh8FSjUi9CIrCkIzfjUgwZeAYOTTQ/Hszl8EtxxdY3WPqDmtm5VkL8KyMqk
+						Pnndn1ebFpK5vLjI1304TNRsR4iZU9/ntNREeaSVzAA135kSnfz+F3KiDMpmnjkB
+						58KT0EUE/YEv8hAOyZpOAt/cXwkkKUvlcArIrexXGhFDG5S6Iy9KHzDJ9fJDbAcn
+						fmkgS5Dai/VEkvtdEN4d2BpXZHCC8EGPQQLU6ajpoe+P+ls7oLfM5B+rH9/EBHXJ
+						cU/I3dCI+bvdo7O6bNqXqahLqhpBXuEaFFzDuT+6kbx8N9SRf0urvUNlejHQ
+					</ds:X509Certificate>
+				</ds:X509Data>
+			</ds:KeyInfo>
+		</KeyDescriptor>
 
-        <AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://edugain-group.cesnet.cz:8443/idp/profile/SAML1/SOAP/AttributeQuery"/>
-        
-        <AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://edugain-group.cesnet.cz:8443/idp/profile/SAML2/SOAP/AttributeQuery"/>
-        
-        <NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
-        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
-        
-    </AttributeAuthorityDescriptor>
+		<AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://edugain-group.cesnet.cz:8443/idp/profile/SAML1/SOAP/AttributeQuery"/>
 
-  <Organization xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
-    <OrganizationName xml:lang="en">CESNET</OrganizationName>
-    <OrganizationName xml:lang="cs">CESNET</OrganizationName>
-    <OrganizationDisplayName xml:lang="en">CESNET</OrganizationDisplayName>
-    <OrganizationDisplayName xml:lang="cs">CESNET z.s.p.o.</OrganizationDisplayName>
-    <OrganizationURL xml:lang="en">http://www.cesnet.cz/?lang=en</OrganizationURL>
-    <OrganizationURL xml:lang="cs">http://www.cesnet.cz/</OrganizationURL>
-  </Organization>
- 
-  <ContactPerson  xmlns="urn:oasis:names:tc:SAML:2.0:metadata" contactType="technical">
-    <GivenName>Michal</GivenName>
-    <SurName>Prochazka</SurName>
-    <EmailAddress>michalp@ics.muni.cz</EmailAddress>
-  </ContactPerson>    
-  <ContactPerson  xmlns="urn:oasis:names:tc:SAML:2.0:metadata" contactType="technical">
-    <GivenName>Slávek</GivenName>
-    <SurName>Licehammer</SurName>
-    <EmailAddress>slavek@ics.muni.cz</EmailAddress>
-  </ContactPerson>
+		<AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://edugain-group.cesnet.cz:8443/idp/profile/SAML2/SOAP/AttributeQuery"/>
+
+		<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+		<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+
+	</AttributeAuthorityDescriptor>
+
+	<Organization xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+		<OrganizationName xml:lang="en">CESNET</OrganizationName>
+		<OrganizationName xml:lang="cs">CESNET</OrganizationName>
+		<OrganizationDisplayName xml:lang="en">CESNET</OrganizationDisplayName>
+		<OrganizationDisplayName xml:lang="cs">CESNET z.s.p.o.</OrganizationDisplayName>
+		<OrganizationURL xml:lang="en">http://www.cesnet.cz/?lang=en</OrganizationURL>
+		<OrganizationURL xml:lang="cs">http://www.cesnet.cz/</OrganizationURL>
+	</Organization>
+
+	<ContactPerson  xmlns="urn:oasis:names:tc:SAML:2.0:metadata" contactType="technical">
+		<GivenName>Michal</GivenName>
+		<SurName>Prochazka</SurName>
+		<EmailAddress>michalp@ics.muni.cz</EmailAddress>
+	</ContactPerson>
+	<ContactPerson  xmlns="urn:oasis:names:tc:SAML:2.0:metadata" contactType="technical">
+		<GivenName>Slávek</GivenName>
+		<SurName>Licehammer</SurName>
+		<EmailAddress>slavek@ics.muni.cz</EmailAddress>
+	</ContactPerson>
 
 </EntityDescriptor>

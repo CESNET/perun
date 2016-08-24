@@ -209,12 +209,12 @@ sub processFile {
 				} elsif($line =~ m/^\s*\*\s*[@]return\s*(.*)/) {
 					$return="$1";
 				} elsif($line =~ m/^\s*\*\s*[@]exampleResponse\s*(.*)/) {
-                  	$exampleResponse="$1";
-                } elsif($line =~ m/^\s*\*\s*[@]exampleParam\s*(.*)/) {
-                    push @exampleParams, $1;
-                } elsif($line =~ m/^\s*\*\s*[@]deprecated\s*(.*)/) {
-                    $deprecated=1;
-                } elsif($line =~ m/^\s*\*\s*[@]throw\s*(.*)/) {
+					$exampleResponse="$1";
+				} elsif($line =~ m/^\s*\*\s*[@]exampleParam\s*(.*)/) {
+					push @exampleParams, $1;
+				} elsif($line =~ m/^\s*\*\s*[@]deprecated\s*(.*)/) {
+					$deprecated=1;
+				} elsif($line =~ m/^\s*\*\s*[@]throw\s*(.*)/) {
 					push @throws, $1;
 				} elsif($line =~ m/^\s*\*\//) {
 					$phase=2;
@@ -286,7 +286,7 @@ sub processFile {
 # default options
 my $directory;
 GetOptions ("help|h" => sub {print help(); exit 0;},
-						"directory|d=s" => \$directory , "output|o=s" => \$OUTPUT_DIR) || die help();
+	"directory|d=s" => \$directory , "output|o=s" => \$OUTPUT_DIR) || die help();
 
 #if directory with methods is not set
 unless (defined($directory)) { die "ERROR: Path to directory where RPC methods are is required \n";}
@@ -463,9 +463,9 @@ foreach my $manager (sort(keys %{$managers})) {
 
 		my $activeLink = "";
 		if ($menuManager eq $manager) {
-		 $activeLink = "<b>" . $menuManager . "</b>";
+			$activeLink = "<b>" . $menuManager . "</b>";
 		} else {
-		 $activeLink = $menuManager;
+			$activeLink = $menuManager;
 		}
 
 		print FILE qq{<a class="list-group-item" style="color: #005b99;" href="rpc-javadoc-$menuManager.shtml">$activeLink</a>};
@@ -517,34 +517,34 @@ foreach my $manager (sort(keys %{$managers})) {
 					splice(@rest, 0, 1);
 					my $restPar = join(" ", @rest);
 					$exampleParams{(split(/ /, $parameter))[0]} = $restPar;
-            	}
-            }
+				}
+			}
 
-            # CREATE ANNOTATION
+			# CREATE ANNOTATION
 
 			my $methodAnnotation = "";
 			if (defined $params) {
-			foreach my $par (@$params) {
-				if (defined $par && $par ne "") {
+				foreach my $par (@$params) {
+					if (defined $par && $par ne "") {
 
-					my $par1 = (split(/ /, $par))[1];
-					$par1 =~ s/\Q<\E/&lt;/g;
-                    $par1 =~ s/\Q>\E/&gt;/g;
+						my $par1 = (split(/ /, $par))[1];
+						$par1 =~ s/\Q<\E/&lt;/g;
+						$par1 =~ s/\Q>\E/&gt;/g;
 
-					$methodAnnotation .= $par1;
-					$methodAnnotation .= " ";
-					$methodAnnotation .= (split(/ /, $par))[0];
-					$methodAnnotation .= ", "
+						$methodAnnotation .= $par1;
+						$methodAnnotation .= " ";
+						$methodAnnotation .= (split(/ /, $par))[0];
+						$methodAnnotation .= ", "
+					}
 				}
-			}
 			}
 			if (length($methodAnnotation) >= 2) { $methodAnnotation = substr($methodAnnotation, 0, -2) }
 
 			# is deprecated ?
-            my $depr = "";
-            if (defined $deprecated) {
-                #$depr = "<span style=\"padding: 10px 20px; color: #005b99;\" class=\"pull-right\"><b>Deprecated</b></span>";
-                $depr = '<abbr class="pull-right" title="Method is NOT recommended for use, it can be removed in any time."><b>Deprecated</b></abbr>';
+			my $depr = "";
+			if (defined $deprecated) {
+				#$depr = "<span style=\"padding: 10px 20px; color: #005b99;\" class=\"pull-right\"><b>Deprecated</b></span>";
+				$depr = '<abbr class="pull-right" title="Method is NOT recommended for use, it can be removed in any time."><b>Deprecated</b></abbr>';
 			}
 
 			# PRINT ANNOTATION
@@ -576,19 +576,19 @@ foreach my $manager (sort(keys %{$managers})) {
 				print FILE "<table class=\"table\"><tr><th>Parameter name</th><th>Data type</th><th width=\"60%\">Description</th></tr>";
 
 				#print params
-                foreach my $param (@{$params}) {
-                	my @par = split(/ /, $param);
+				foreach my $param (@{$params}) {
+					my @par = split(/ /, $param);
 
-                	$par[1] =~ s/\Q<\E/&lt;/g;
-                    $par[1] =~ s/\Q>\E/&gt;/g;
+					$par[1] =~ s/\Q<\E/&lt;/g;
+					$par[1] =~ s/\Q>\E/&gt;/g;
 
-                	print FILE '<tr><td>' . $par[0] . "</td><td>" . $par[1] . "</td><td>";
-                	splice(@par, 0, 2);
-                	print FILE join(" ", @par);
-                	print FILE "</td></tr>\n";
-                }
+					print FILE '<tr><td>' . $par[0] . "</td><td>" . $par[1] . "</td><td>";
+					splice(@par, 0, 2);
+					print FILE join(" ", @par);
+					print FILE "</td></tr>\n";
+				}
 
-                print FILE "</table>";
+				print FILE "</table>";
 			}
 
 			# PRINT THROWS TABLE
@@ -624,10 +624,10 @@ foreach my $manager (sort(keys %{$managers})) {
 				$ret[0] =~ s/\Q<\E/&lt;/g;
 				$ret[0] =~ s/\Q>\E/&gt;/g;
 
-                print FILE '<tr><td>' . $ret[0] . "</td><td>";
-                splice(@ret, 0, 1);
-                print FILE join(" ", @ret);
-                print FILE "</td></tr>\n";
+				print FILE '<tr><td>' . $ret[0] . "</td><td>";
+				splice(@ret, 0, 1);
+				print FILE join(" ", @ret);
+				print FILE "</td></tr>\n";
 			} else {
 				print FILE '<tr><td>void</td><td></td></tr>';
 			}
@@ -641,50 +641,50 @@ foreach my $manager (sort(keys %{$managers})) {
             	<p><b>Example URL</b><pre><code>https://[hostname]/krb/rpc/json/$managerUrl/$sortedMethod</code></pre>
             };
 
-            print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#url-structure\"><i>see URL structure</i></a></li></ul>";
+			print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#url-structure\"><i>see URL structure</i></a></li></ul>";
 
 			# PRINT EXAMPLE PARAMS
 
-            if (@{$params}) {
+			if (@{$params}) {
 
-                print FILE "<p><b>Example params</b><pre><code>{ ";
+				print FILE "<p><b>Example params</b><pre><code>{ ";
 
-            	#print params
-                for (my $count = 0; $count < scalar @{$params}; $count++) {
+				#print params
+				for (my $count = 0; $count < scalar @{$params}; $count++) {
 
-                    my $param = @{$params}[$count];
-                    my @par = split(/ /, $param);
+					my $param = @{$params}[$count];
+					my @par = split(/ /, $param);
 
-                    my $printPar = "{...}";
-                    # If we have fixed example for param, use it
-                    if (exists($exampleParams{$par[0]})) {
-                    	$printPar = $exampleParams{$par[0]};
-                    # We don't have fixed example, use generic definition
-                    } elsif ($par[1] eq "int") {
-                        $printPar = int(rand(100));
-                    } elsif ($par[1] eq "List") {
-                        $printPar = "[ {...} , {...} ]";
-                    } elsif ($par[1] eq "String[]" || $par[1] eq "List<String>") {
-                        $printPar = "[ \"text\" , \"text\" ]";
-                    } elsif ($par[1] eq "int[]" || $par[1] eq "List<Integer>") {
-                        $printPar = "[ " . int(rand(100)) . " , " . int(rand(100)) ." ]";
-                    } elsif (exists($objectExamples{$par[1]})) {
-                        $printPar = $objectExamples{$par[1]};
-                    }
+					my $printPar = "{...}";
+					# If we have fixed example for param, use it
+					if (exists($exampleParams{$par[0]})) {
+						$printPar = $exampleParams{$par[0]};
+						# We don't have fixed example, use generic definition
+					} elsif ($par[1] eq "int") {
+						$printPar = int(rand(100));
+					} elsif ($par[1] eq "List") {
+						$printPar = "[ {...} , {...} ]";
+					} elsif ($par[1] eq "String[]" || $par[1] eq "List<String>") {
+						$printPar = "[ \"text\" , \"text\" ]";
+					} elsif ($par[1] eq "int[]" || $par[1] eq "List<Integer>") {
+						$printPar = "[ " . int(rand(100)) . " , " . int(rand(100)) ." ]";
+					} elsif (exists($objectExamples{$par[1]})) {
+						$printPar = $objectExamples{$par[1]};
+					}
 
-                    print FILE "\"" . $par[0] . "\" : " . $printPar;
+					print FILE "\"" . $par[0] . "\" : " . $printPar;
 
-                    if ($count < (scalar @{$params})-1) {
-                        print FILE " , ";
-                    }
+					if ($count < (scalar @{$params})-1) {
+						print FILE " , ";
+					}
 
-                }
+				}
 
-                print FILE " }</code></pre>";
+				print FILE " }</code></pre>";
 
-                print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#passing-parameters\"><i>see Passing params</i></a></li></ul>";
+				print FILE "<ul><li><a href=\"rpc-javadoc-howto.shtml#passing-parameters\"><i>see Passing params</i></a></li></ul>";
 
-            }
+			}
 
 			# PRINT EXAMPLE RESPONSE
 
@@ -693,7 +693,7 @@ foreach my $manager (sort(keys %{$managers})) {
 				my @rt = split(/ /, $return);
 				if (defined $exampleResponse) {
 					print FILE $exampleResponse;
-                } elsif (exists($objectExamples{$rt[0]})) {
+				} elsif (exists($objectExamples{$rt[0]})) {
 					print FILE $objectExamples{$rt[0]};
 				} elsif ($rt[0] eq "int") {
 					print FILE int(rand(100));
@@ -725,7 +725,7 @@ foreach my $manager (sort(keys %{$managers})) {
     <!--#include virtual="footer.shtml" -->
     };
 
-    close (FILE);
+	close (FILE);
 }
 
 #END OF MAIN PROGRAM
