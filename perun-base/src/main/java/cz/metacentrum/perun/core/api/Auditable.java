@@ -237,8 +237,8 @@ public abstract class Auditable extends PerunBean {
 		StringBuilder str = new StringBuilder();
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			"id='").append(this.getId()).append('\'').append(
-			']').toString();
+				"id='").append(this.getId()).append('\'').append(
+				']').toString();
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public abstract class Auditable extends PerunBean {
 		StringBuilder str = new StringBuilder();
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			"id=<").append(this.getId()).append(">").append(
-			']').toString();
+				"id=<").append(this.getId()).append(">").append(
+				']').toString();
 	}
 }

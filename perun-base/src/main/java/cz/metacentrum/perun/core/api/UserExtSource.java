@@ -52,7 +52,7 @@ public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 	}
 
 	public UserExtSource(int id, ExtSource source, String login, int userId, int loa, boolean persistent,
-			String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
+	                     String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.extSource = source;
 		this.login = login;
@@ -106,11 +106,11 @@ public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 		StringBuilder str = new StringBuilder();
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			"id=<").append(getId()).append(">").append(
-			", login=<").append(getLogin() == null ? "\\0" : BeansUtils.createEscaping(getLogin())).append(">").append(
-			", source=<").append(extSource == null ? "\\0" : getExtSource().serializeToString()).append(">").append(
-			", loa=<").append(getLoa()).append(">").append(
-			']').toString();
+				"id=<").append(getId()).append(">").append(
+				", login=<").append(getLogin() == null ? "\\0" : BeansUtils.createEscaping(getLogin())).append(">").append(
+				", source=<").append(extSource == null ? "\\0" : getExtSource().serializeToString()).append(">").append(
+				", loa=<").append(getLoa()).append(">").append(
+				']').toString();
 	}
 
 	@Override
@@ -118,11 +118,11 @@ public class UserExtSource extends Auditable implements Comparable<PerunBean> {
 		StringBuilder str = new StringBuilder();
 
 		return str.append(getClass().getSimpleName()).append(":[").append(
-			"id='").append(getId()).append(
-			"', login='").append(login).append('\'').append(
-			", source='").append(extSource).append('\'').append(
-			", loa='").append(loa).append('\'').append(
-			']').toString();
+				"id='").append(getId()).append(
+				"', login='").append(login).append('\'').append(
+				", source='").append(extSource).append('\'').append(
+				", loa='").append(loa).append('\'').append(
+				']').toString();
 	}
 
 	@Override

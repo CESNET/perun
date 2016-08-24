@@ -24,73 +24,73 @@ import java.util.Map;
  */
 public class OIDC {
 
-    private final static Logger log = LoggerFactory.getLogger(OIDC.class);
+	private final static Logger log = LoggerFactory.getLogger(OIDC.class);
 
-    private final String USERINFO_METHOD = "userinfo";
-    private final String PROPERTIES_FILE = "perun-oidc-scopes.properties";
+	private final String USERINFO_METHOD = "userinfo";
+	private final String PROPERTIES_FILE = "perun-oidc-scopes.properties";
 
-    public Object process(PerunSession sess, String method) throws InternalErrorException, WrongAttributeAssignmentException, UserNotExistsException, PrivilegeException {
+	public Object process(PerunSession sess, String method) throws InternalErrorException, WrongAttributeAssignmentException, UserNotExistsException, PrivilegeException {
 
-        if (USERINFO_METHOD.equals(method)) {
+		if (USERINFO_METHOD.equals(method)) {
 
-	        Map<String, String> properties = BeansUtils.getAllPropertiesFromCustomConfiguration(PROPERTIES_FILE);
+			Map<String, String> properties = BeansUtils.getAllPropertiesFromCustomConfiguration(PROPERTIES_FILE);
 
-            if (sess.getPerunClient().getScopes().contains(PerunClient.SCOPE_ALL)) {
+			if (sess.getPerunClient().getScopes().contains(PerunClient.SCOPE_ALL)) {
 
-                return getUserinfo(sess, properties.keySet(), properties);
+				return getUserinfo(sess, properties.keySet(), properties);
 
-            } else {
+			} else {
 
-                return getUserinfo(sess, sess.getPerunClient().getScopes(), properties);
+				return getUserinfo(sess, sess.getPerunClient().getScopes(), properties);
 
-            }
+			}
 
-        } else {
-            throw new RpcException(RpcException.Type.UNKNOWN_METHOD, "No method "+method+" was found. Try /"+USERINFO_METHOD+" instead.");
-        }
+		} else {
+			throw new RpcException(RpcException.Type.UNKNOWN_METHOD, "No method "+method+" was found. Try /"+USERINFO_METHOD+" instead.");
+		}
 
-    }
+	}
 
 
 
-    private Map<String, Object> getUserinfo(PerunSession sess, Collection<String> allowedScopes, Map<String, String> properties)
-		    throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException {
+	private Map<String, Object> getUserinfo(PerunSession sess, Collection<String> allowedScopes, Map<String, String> properties)
+			throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException {
 
-        User user = sess.getPerunPrincipal().getUser();
-        Map<String, Object> userinfo = new HashMap<>();
+		User user = sess.getPerunPrincipal().getUser();
+		Map<String, Object> userinfo = new HashMap<>();
 
-        for (String scope : allowedScopes) {
+		for (String scope : allowedScopes) {
 
-	        String property = properties.get(scope);
-	        if (property == null) {
-		        log.warn("No attributes are mapped to scope "+scope+". Configure it in /etc/perun/"+PROPERTIES_FILE);
-		        continue;
-	        }
+			String property = properties.get(scope);
+			if (property == null) {
+				log.warn("No attributes are mapped to scope "+scope+". Configure it in /etc/perun/"+PROPERTIES_FILE);
+				continue;
+			}
 
-            for (String claim : Arrays.asList(property.split(","))) {
+			for (String claim : Arrays.asList(property.split(","))) {
 				if (claim.isEmpty()) {
 					continue;
 				}
 
-	            try {
-		            String claimName = claim.split("/", 2)[0];
-		            String attrName = claim.split("/", 2)[1];
+				try {
+					String claimName = claim.split("/", 2)[0];
+					String attrName = claim.split("/", 2)[1];
 
-		            try {
-			            userinfo.put(claimName, sess.getPerun().getAttributesManager().getAttribute(sess, user, attrName).getValue());
+					try {
+						userinfo.put(claimName, sess.getPerun().getAttributesManager().getAttribute(sess, user, attrName).getValue());
 
-		            } catch (AttributeNotExistsException e) {
-			            log.warn("Cannot map claim to perun attribute ignoring. Attribute "+attrName+" for claim "+claimName+" in scope "+scope+" does not exists. Check your /etc/perun/"+PROPERTIES_FILE+" file.", e);
-		            }
+					} catch (AttributeNotExistsException e) {
+						log.warn("Cannot map claim to perun attribute ignoring. Attribute "+attrName+" for claim "+claimName+" in scope "+scope+" does not exists. Check your /etc/perun/"+PROPERTIES_FILE+" file.", e);
+					}
 
-	            } catch (IndexOutOfBoundsException e) {
-		            throw new InternalErrorException("Properties file /etc/perun/"+PROPERTIES_FILE+" is wrongly configured.", e);
-	            }
+				} catch (IndexOutOfBoundsException e) {
+					throw new InternalErrorException("Properties file /etc/perun/"+PROPERTIES_FILE+" is wrongly configured.", e);
+				}
 
-            }
-        }
+			}
+		}
 
-        return userinfo;
+		return userinfo;
 
-    }
+	}
 }
