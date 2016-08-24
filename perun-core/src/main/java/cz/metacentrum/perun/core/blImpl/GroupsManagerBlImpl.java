@@ -1193,7 +1193,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			this.group = group;
 			try {
 				// create own session
-				this.sess = perunBl.getPerunSession(pp);
+				this.sess = perunBl.getPerunSession(pp, new PerunClient());
 			} catch (InternalErrorException ex) {
 				log.error("Unable to create internal session for Synchronizer with credentials {} because of exception {}", pp, ex);
 			}
