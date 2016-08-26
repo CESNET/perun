@@ -1516,11 +1516,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	@Override
 	public boolean setAttribute(final PerunSession sess, final Object object, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-		String tableName = null;
-		String columnName = null;
-		Object identificator = null;
-		String namespace = null;
-		
+		String tableName;
+		String columnName;
+		Object identificator;
+		String namespace;
+
 		// check whether the object is String or Perun Bean:
 		if (object instanceof String) {
 			tableName = "entityless_attr_values";
@@ -1530,17 +1530,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} else if (object instanceof PerunBean) {
 			PerunBean bean = (PerunBean) object;
 			String name = bean.getBeanName().toLowerCase();
+			// same behaviour for rich objects as for the simple ones -> cut off "rich" prefix
+			if (name.startsWith("rich")) {
+				name = name.replaceFirst("rich", "");
+			}
 			// get namespace of the perun bean
 			namespace = NAMESPACES_BEANS_MAP.get(name);
 			if (namespace == null) {
 				// perun bean is not in the namespace map
-				throw new IllegalArgumentException("Setting attribute for perun bean " + bean + " is not allowed.");
+				throw new InternalErrorException(new IllegalArgumentException("Setting attribute for perun bean " + bean + " is not allowed."));
 			}
 			tableName = name + "_attr_values";
 			columnName = name + "_id";
 			identificator = bean.getId();
 		} else {
-			throw new IllegalArgumentException("Object " + object + " must be either String or PerunBean.");
+			throw new InternalErrorException(new IllegalArgumentException("Object " + object + " must be either String or PerunBean."));
 		}
 		
 		// check that given object is consistent with the attribute
@@ -1557,14 +1561,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	
 	@Override
 	public boolean setAttribute(final PerunSession sess, final PerunBean bean1, final PerunBean bean2, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-		String tableName = null;
-		String namespace = null;
-		Integer identificator1 = null;
-		Integer identificator2 = null;
+		String tableName;
+		String namespace;
+		Integer identificator1;
+		Integer identificator2;
 
 		// get bean names
 		String name1 = bean1.getBeanName().toLowerCase();
 		String name2 = bean2.getBeanName().toLowerCase();
+		// same behaviour for rich objects as for the simple ones -> cut off "rich" prefix
+		if (name1.startsWith("rich")) {
+			name1 = name1.replaceFirst("rich", "");
+		}
+		if (name2.startsWith("rich")) {
+			name2 = name2.replaceFirst("rich", "");
+		}
 		// get namespace of the perun bean
 		namespace = NAMESPACES_BEANS_MAP.get(name1 + "_" + name2);
 		identificator1 = bean1.getId();
@@ -1580,7 +1591,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 		if (namespace == null) {
 			// the combination of perun beans is not in the namespace map
-			throw new IllegalArgumentException("Setting attribute for perun bean " + bean1 + " and " + bean2 + " is not allowed.");
+			throw new InternalErrorException(new IllegalArgumentException("Setting attribute for perun bean " + bean1 + " and " + bean2 + " is not allowed."));
 		}
 		tableName = name1 + "_" + name2 + "_attr_values";
 
