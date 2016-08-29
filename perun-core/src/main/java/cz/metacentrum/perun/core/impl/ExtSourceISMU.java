@@ -167,7 +167,7 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	protected Map<String,String> getAttributes() {
+	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

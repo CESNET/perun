@@ -131,7 +131,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	private JdbcPerunTemplate jdbc;
 	private LobHandler lobHandler;
 	private ClassLoader classLoader = this.getClass().getClassLoader();
-	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
+	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	//Attributes modules.  name => module
 	private Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<String, AttributesModuleImplApi>();
@@ -3110,14 +3110,23 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		Utils.notNull(attribute.getNamespace(), "attribute.namespace");
 		Utils.notNull(attribute.getType(), "attribute.type");
 
-		return 1 == jdbc.queryForInt("select count('x') from attr_names where attr_name=? and friendly_name=? and namespace=? and id=? and type=?", attribute.getName(), attribute.getFriendlyName(), attribute.getNamespace(), attribute.getId(), attribute.getType());
+
+		try {
+			return 1 == jdbc.queryForInt("select count('x') from attr_names where attr_name=? and friendly_name=? and namespace=? and id=? and type=?", attribute.getName(), attribute.getFriendlyName(), attribute.getNamespace(), attribute.getId(), attribute.getType());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	public boolean actionTypeExists(PerunSession sess, ActionType actionType) throws InternalErrorException {
 		Utils.notNull(actionType, "actionType");
 		Utils.notNull(actionType.getActionType(), "actionType.actionType");
 
-		return 1 == jdbc.queryForInt("select count('x') from action_types where action_type=?", actionType.getActionType());
+		try {
+			return 1 == jdbc.queryForInt("select count('x') from action_types where action_type=?", actionType.getActionType());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	public void checkActionTypeExists(PerunSession sess, ActionType actionType) throws InternalErrorException, ActionTypeNotExistsException {
@@ -4129,9 +4138,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	@Override
 	public List<AttributeRights> getAttributeRights(PerunSession sess, final int attributeId) throws InternalErrorException {
 
-		List<AttributeRights> rights = jdbc.query("select " + attributeRightSelectQuery + " from attributes_authz join roles on "
-				+ "attributes_authz.role_id=roles.id join action_types on attributes_authz.action_type_id=action_types.id where "
-				+ "attributes_authz.attr_id=?", new AttributeRightsExtractor(attributeId), attributeId);
+		List<AttributeRights> rights = null;
+		try {
+			rights = jdbc.query("select " + attributeRightSelectQuery + " from attributes_authz join roles on "
+					+ "attributes_authz.role_id=roles.id join action_types on attributes_authz.action_type_id=action_types.id where "
+					+ "attributes_authz.attr_id=?", new AttributeRightsExtractor(attributeId), attributeId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 
 		// set also empty rights for other roles (not present in DB)
 

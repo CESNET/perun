@@ -162,7 +162,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
                 "For VOOT using this method is not optimized, use findSubjects instead.");
     }
 
-    private HttpURLConnection createConnection(String uri) throws IOException {
+    private HttpURLConnection createConnection(String uri) throws IOException, InternalErrorException {
         HttpURLConnection connection;
 
         username = getAttributes().get("user");
@@ -192,7 +192,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     // use uriMembership attribute to obtain list of available groups
-    private List<String> getGroupsFromRemote() throws IOException {
+    private List<String> getGroupsFromRemote() throws IOException, InternalErrorException {
         List<String> groups = new ArrayList();
 
         HttpURLConnection connection = createConnection(uriMembership);
@@ -360,7 +360,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
         }
     }
 
-    protected Map<String, String> getAttributes() {
+    protected Map<String, String> getAttributes() throws InternalErrorException {
         return perunBl.getExtSourcesManagerBl().getAttributes(this);
     }
 }
