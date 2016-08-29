@@ -1429,12 +1429,12 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		facility = setUpFacility();
 		resource = setUpResource();
 		service = setUpService();
-		Destination testDestination = new Destination(999, "TestDestination", Destination.DESTINATIONHOSTTYPE);
+		Destination testDestination = new Destination(0, "TestDestination", Destination.DESTINATIONHOSTTYPE);
 		member = setUpMember();
 		Member memberTwo = setUpMember();
 		
 		// Creates second facility
-		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));		
 
 		// Set users as admins of different facilities

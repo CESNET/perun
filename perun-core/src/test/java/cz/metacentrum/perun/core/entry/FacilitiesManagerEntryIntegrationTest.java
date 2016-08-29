@@ -1666,13 +1666,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		
 		// Initialize host, destination and service
 	 	String hostName = "TestHost";
-		Host hostOne = new Host(999, hostName);
-		Destination destination = new Destination(999, hostName, Destination.DESTINATIONHOSTTYPE);
-		Service service = new Service(999, "testService");
+		Host hostOne = new Host(0, hostName);
+		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
+		Service service = new Service(0, "testService");
 		ServicesManager servicesManagerEntry = perun.getServicesManager();
 		service = servicesManagerEntry.createService(sess, service);	
 		// Creates second facility
-		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
@@ -1708,9 +1708,9 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostSameHostDifferentAdmin");
 		
 		// Initialize host
-		Host host = new Host(999, "testHost");
+		Host host = new Host(0, "testHost");
 		// Creates second facility
-		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
@@ -1744,14 +1744,14 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		
 		// Initialize host, destination and service
 	 	String hostName = "TestHost";
-		Host host = new Host(999, hostName);
-		Destination destination = new Destination(999, hostName, Destination.DESTINATIONHOSTTYPE);
-		Service service = new Service(999, "testService");
+		Host host = new Host(0, hostName);
+		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
+		Service service = new Service(0, "testService");
 		ServicesManager servicesManagerEntry = perun.getServicesManager();
 		service = servicesManagerEntry.createService(sess, service);
 		
 		// Creates second facility
-		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
@@ -1792,7 +1792,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Member memberOne = setUpMember(vo);
 		Member memberTwo = setUpMember(vo);
 		// Creates second facility
-		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		
 		// Set users as admins of different facilities
@@ -1827,13 +1827,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		hostName = "testHostTwo";
 		listOfHosts.add(hostName);
 		// Initialize destination and service
-		Destination destination = new Destination(999, hostName, Destination.DESTINATIONHOSTTYPE);
-		Service service = new Service(999, "testService");
+		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
+		Service service = new Service(0, "testService");
 		ServicesManager servicesManagerEntry = perun.getServicesManager();
 		service = servicesManagerEntry.createService(sess, service);
 		
 		// Creates second facility
-		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
@@ -1866,15 +1866,15 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		System.out.println(CLASS_NAME + "addHostsSameHostsDifferentAdmin");
 		// Sets list of hosts
 		List<Host> listOfHosts = new ArrayList<Host>();
-		Host testHost = new Host(999, "testHostOne");
+		Host testHost = new Host(0, "testHostOne");
 		listOfHosts.add(testHost);
-		testHost = new Host(998, "testHostTwo");
+		testHost = new Host(0, "testHostTwo");
 		listOfHosts.add(testHost);
 		// Set up two members
 		Member memberOne = setUpMember(vo);
 		Member memberTwo = setUpMember(vo);
 		// Creates second facility
-		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		
 		// Set users as admins of different facilities
@@ -1904,19 +1904,19 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		
 	 	// Sets list of hosts
 		List<Host> listOfHosts = new ArrayList<Host>();
-		Host testHost = new Host(999, "testHostOne");
+		Host testHost = new Host(0, "testHostOne");
 		listOfHosts.add(testHost);
 		String hostName = "testHostTwo";
-		testHost = new Host(998, hostName);
+		testHost = new Host(0, hostName);
 		listOfHosts.add(testHost);
 		// Initialize destination and service
-		Destination destination = new Destination(999, hostName, Destination.DESTINATIONHOSTTYPE);
-		Service service = new Service(999, "testService");
+		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
+		Service service = new Service(0, "testService");
 		ServicesManager servicesManagerEntry = perun.getServicesManager();
 		service = servicesManagerEntry.createService(sess, service);
 		
 		// Creates second facility
-		Facility secondFacility = new Facility(999, "TestSecondFacility", "TestDescriptionText");
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
