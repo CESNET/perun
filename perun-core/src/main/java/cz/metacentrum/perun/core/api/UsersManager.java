@@ -633,7 +633,26 @@ public interface UsersManager {
 	boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**
-	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask autnetication system if old password is correct.
+	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
+	 *
+	 * @param sess
+	 * @param login
+	 * @param loginNamespace
+	 * @param oldPassword
+	 * @param newPassword
+	 * @param checkOldPassword
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordDoesntMatchException
+	 * @throws PasswordChangeFailedException
+	 */
+	void changePassword(PerunSession sess, String login, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
+		throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
+
+	/**
+	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
 	 *
 	 * @param sess
 	 * @param user
@@ -649,7 +668,8 @@ public interface UsersManager {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-		throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
+			throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
+
 
 	/**
 	 * Changes user password in defined login-namespace using encrypted parameters.

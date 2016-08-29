@@ -712,6 +712,31 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
 	}
 
+	public void changePassword(PerunSession sess, String login , String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
+			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
+		Utils.checkPerunSession(sess);
+
+		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
+
+		List<User> users = null;
+		try {
+			users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName , login);
+		} catch (ConsistencyErrorException e) {
+			// attr def not exists by implementation in getUsersByAttributeValue
+			throw new LoginNotExistsException(e);
+		}
+		if (users.size() > 1) throw new ConsistencyErrorException("Multiple users found for login: "+login);
+		if (users.isEmpty()) throw new LoginNotExistsException("User with login: "+login+" not exists.");
+		User user = users.get(0);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "changePassword");
+		}
+
+		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
+	}
+
 	@Deprecated
 	public void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
 			PrivilegeException, PasswordCreationFailedException {
