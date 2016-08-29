@@ -554,7 +554,7 @@ public class Api extends HttpServlet {
 				ser.write(result);
 			} else if (OIDCMANAGER.equals(manager)) {
 				// OIDC
-				result = caller.getOIDCManager().process(caller.getSession(), method);
+				result = caller.getOIDCManager().process(caller.getSession(), method, des);
 				if (perunRequest != null) perunRequest.setResult(result);
 				ser.write(result);
 			} else {
