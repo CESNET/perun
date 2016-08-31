@@ -27,10 +27,22 @@
 
 	<!-- This applies to java files only -->
 	<module name="TreeWalker">
-		<!-- Check if indents are done via tab char. -->
+
+		<!-- Check if indents are done via tab char.
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^\t* "/>
 			<property name="message" value="Indent must use tab characters."/>
+			<property name="ignoreComments" value="true"/>
+		</module>
+		-->
+
+		<!-- more complex indent check - recursive up to 10 indentation levels -->
+		<!-- this is compliant with NetBeans and Intellij IDEA IDEs default java formatting styles -->
+		<module name="Regexp">
+			<property name="format"
+			          value="^\t{1}[^\t\n]*\n+\t{2,} +|^\t{2}[^\t\n]*\n+(:?\t{0,1}|\t{3,}) +|^\t{3}[^\t\n]*\n+(:?\t{0,2}|\t{4,}) +|^\t{4}[^\t\n]*\n+(:?\t{0,3}|\t{5,}) +|^\t{5}[^\t\n]*\n+(:?\t{0,4}|\t{6,}) +|^\t{6}[^\t\n]*\n+(:?\t{0,5}|\t{7,}) +|^\t{7}[^\t\n]*\n+(:?\t{0,6}|\t{8,}) +|^\t{8}[^\t\n]*\n+(:?\t{0,7}|\t{9,}) +|^\t{9}[^\t\n]*\n+(:?\t{0,8}|\t{10,}) +|^\t{10}[^\t\n]*\n+(:?\t{0,9}|\t{11,}) +"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Wrong number of tabs before space on next line. Indent must use tab characters."/>
 			<property name="ignoreComments" value="true"/>
 		</module>
 
