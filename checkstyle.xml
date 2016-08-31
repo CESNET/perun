@@ -5,6 +5,10 @@
 		"http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 
 <module name="Checker">
+	<module name="NewlineAtEndOfFile">
+		<property name="fileExtensions" value="java, xml, pl, properties, php"/>
+	</module>
+
 	<!-- Check for trailing whitespace. -->
 	<module name="RegexpSingleline">
 		<property name="fileExtensions" value="java, xml, pl, properties, php"/>
