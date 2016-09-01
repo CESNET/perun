@@ -7,7 +7,7 @@
 # It takes up to 4 parameters in following order: action, namespace, login, pass
 # where action can be "check", "change", "reserve", "validate", "reserve_random", "delete"
 # where namespace represents login-namespace used by radius server (eduroam) and should match passed login
-# namespace also must match PWDM config file /etc/perun/pwdchange.[namespace].eduroam
+# namespace also must match PWDM config file /etc/perun/pwchange.[namespace].eduroam
 # where login is users login to reserve
 # where password is users password in plaintext (required only for actions check, change, reserve)
 #
@@ -50,7 +50,6 @@ chomp @lines;
 # settings
 my $key_path = $lines[0];  # path to the SSH key
 my $server = $lines[1];    # radius server hostname/ip
-my $command = "";          # command to run on radius server
 
 # do stuff based on password manager action type
 switch ($action) {
@@ -60,10 +59,8 @@ switch ($action) {
 		my $entry = getEntry($login, getPassword());
 
 		eval {
-			# construct command and passit to the server
-			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
 			# timeout 60s kill after 60 more sec.
-			exec "timeout -k 60 60 ssh -i $key_path $server $command";
+			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -81,10 +78,8 @@ switch ($action) {
 		my $entry = getEntry($login, getPassword());
 
 		eval {
-			# construct command and passit to the server
-			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
 			# timeout 60s kill after 60 more sec.
-			exec "timeout -k 60 60 ssh -i $key_path $server $command";
+			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -104,10 +99,8 @@ switch ($action) {
 		my $entry = getEntry($login, getPassword());
 
 		eval {
-			# construct command and passit to the server
-			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
 			# timeout 60s kill after 60 more sec.
-			exec "timeout -k 60 60 ssh -i $key_path $server $command";
+			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -125,10 +118,8 @@ switch ($action) {
 		my $entry = getEntry($login, undef);
 
 		eval {
-			# construct command and passit to the server
-			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
 			# timeout 60s kill after 60 more sec.
-			exec "timeout -k 60 60 ssh -i $key_path $server $command";
+			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error deleting entry
@@ -152,10 +143,8 @@ switch ($action) {
 		my $entry = getEntry($login, getPassword(random_string("Cn!CccncCn")));
 
 		eval {
-			# construct command and passit to the server
-			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
 			# timeout 60s kill after 60 more sec.
-			exec "timeout -k 60 60 ssh -i $key_path $server $command";
+			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -221,9 +210,9 @@ sub getEntry() {
 	my $converted_pass = shift;
 
 	if ($converted_pass) {
-		return "\"$username\@vsup.cz\" NT-Password := \"" . $converted_pass . "\"";
+		return qq^\\\\\\"$username\@vsup.cz\\\\\\" NT-Password := \\\\\\"$converted_pass\\\\\\"^;
 	} else {
-		return "\"$username\@vsup.cz\" NT-Password := \"";
+		return qq^\\\\\\"$username\@vsup.cz\\\\\\" NT-Password := \\\\\\"^;
 	}
 
 }
