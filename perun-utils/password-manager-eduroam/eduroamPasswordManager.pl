@@ -1,6 +1,8 @@
+#!/usr/bin/perl
+
 ######################################################
 #
-# PASSWORD MANAGER FOR LDAP
+# PASSWORD MANAGER FOR EDUROAM
 #
 # It takes up to 4 parameters in following order: action, namespace, login, pass
 # where action can be "check", "change", "reserve", "validate", "reserve_random", "delete"
@@ -11,9 +13,14 @@
 #
 #####################################################
 
-#!/usr/bin/perl
 use strict;
 use warnings FATAL => 'all';
+use Switch;
+use String::Random qw( random_string );
+
+sub edu_log;
+sub getPassword;
+sub getEntry;
 
 ##########
 #
@@ -25,86 +32,112 @@ use warnings FATAL => 'all';
 my $action = $ARGV[0];
 my $namespace = $ARGV[1];
 my $login = $ARGV[2];
-my $user_pass = undef;
+
+my $filename = "/etc/perun/pwchange.".$namespace.".eduroam";
+unless (-e $filename) {
+	edu_log("Configuration file for namespace \"" . $namespace . "\" doesn't exist!");
+	exit 2; # login-namespace is not supported
+}
+
+# load configuration file
+open FILE, "<" . $filename;
+my @lines = <FILE>;
+close FILE;
+
+# remove new-line characters from the end of lines
+chomp @lines;
+
+# settings
+my $key_path = $lines[0];  # path to the SSH key
+my $server = $lines[1];    # radius server hostname/ip
+my $command = "";          # command to run on radius server
 
 # do stuff based on password manager action type
-switch ($action){
+switch ($action) {
 
 	case("change"){
 
-		# always change to the new one
-		$user_pass = <STDIN>;
-		chomp($user_pass);
+		my $entry = getEntry($login, getPassword());
 
-		my $converted_pass = `printf '%s' "$user_pass" | iconv -t utf16le | openssl md4`;
-
-		my $entry = "\"$login\@vsup.cz\" NT-Password := \"" . $converted_pass . "\"".
-
-			eval {
-				# TODO - CALL change script
-			};
+		eval {
+			# construct command and passit to the server
+			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
+			# timeout 60s kill after 60 more sec.
+			exec "timeout -k 60 60 ssh -i $key_path $server $command";
+		};
 		if ( $@ ) {
 			# error adding entry
-			edu_log("[PWDM] Change of password failed with return code: ".$@);
+			edu_log("[PWDM] Change of password for $login failed with return code: ".$@);
 			exit 3; # setting of new password failed
 		} else {
 			# entry added
-			edu_log("[PWDM] Password changed.");
+			edu_log("[PWDM] Password for $login changed.");
 		}
 
 	}
 
 	case("check"){
 
-		# always change to the new one
-		$user_pass = <STDIN>;
-		chomp($user_pass);
-
-		my $converted_pass = `printf '%s' "$user_pass" | iconv -t utf16le | openssl md4`;
-
-		my $entry = "\"$login\@vsup.cz\" NT-Password := \"" . $converted_pass . "\"".
+		my $entry = getEntry($login, getPassword());
 
 		eval {
-			# TODO - CALL check script
+			# construct command and passit to the server
+			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
+			# timeout 60s kill after 60 more sec.
+			exec "timeout -k 60 60 ssh -i $key_path $server $command";
 		};
 		if ( $@ ) {
 			# error adding entry
-			edu_log("[PWDM] Check of password failed with return code: ".$@);
+			edu_log("[PWDM] Check of password failed for $login with return code: ".$@);
 			exit 6; # checking old password failed
 		} else {
 			# entry added
-			edu_log("[PWDM] Password changed.");
+			edu_log("[PWDM] Password for $login checked.");
 		}
 
 	}
 
 	case("reserve"){
 
-		$user_pass = <STDIN>;
-		chomp($user_pass);
+		# TODO - check against AD server
 
-		my $converted_pass = `printf '%s' "$user_pass" | iconv -t utf16le | openssl md4`;
-
-		my $entry = "\"$login\@vsup.cz\" NT-Password := \"" . $converted_pass . "\"".
+		my $entry = getEntry($login, getPassword());
 
 		eval {
-			# TODO - CALL update script
+			# construct command and passit to the server
+			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
+			# timeout 60s kill after 60 more sec.
+			exec "timeout -k 60 60 ssh -i $key_path $server $command";
 		};
 		if ( $@ ) {
 			# error adding entry
-			edu_log("[PWDM] Creation of password failed with return code: ".$@);
+			edu_log("[PWDM] Creation of password for $login failed with return code: ".$@);
 			exit 4; # creation of new password failed
 		} else {
 			# entry added
-			edu_log("[PWDM] Password reserved.");
+			edu_log("[PWDM] Password for $login reserved.");
 		}
 
 	}
 
 	case("delete") {
 
-		# partial entry for delete matching
-		my $entry = "\"$login\@vsup.cz\" NT-Password := \""
+		my $entry = getEntry($login, undef);
+
+		eval {
+			# construct command and passit to the server
+			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
+			# timeout 60s kill after 60 more sec.
+			exec "timeout -k 60 60 ssh -i $key_path $server $command";
+		};
+		if ( $@ ) {
+			# error deleting entry
+			edu_log("[PWDM] Deletion of password for $login failed with return code: ". $@);
+			exit 5; # creation of new password failed
+		} else {
+			# entry added
+			edu_log("[PWDM] Password for $login deleted.");
+		}
 
 	}
 
@@ -116,7 +149,22 @@ switch ($action){
 
 	case("reserve_random") {
 
-		# TODO - will we support this ?
+		my $entry = getEntry($login, getPassword(random_string("Cn!CccncCn")));
+
+		eval {
+			# construct command and passit to the server
+			$command = "~/eduroamPwdmgrServer.pl $action \'$entry\'";
+			# timeout 60s kill after 60 more sec.
+			exec "timeout -k 60 60 ssh -i $key_path $server $command";
+		};
+		if ( $@ ) {
+			# error adding entry
+			edu_log("[PWDM] Creation of random password for $login failed with return code: ".$@);
+			exit 4; # creation of new password failed
+		} else {
+			# entry added
+			edu_log("[PWDM] Random password for $login reserved.");
+		}
 
 	}
 
@@ -134,8 +182,48 @@ switch ($action){
 sub edu_log() {
 
 	my $message = (@_)[0];
-	open(LOGFILE, ">>/usr/local/bin/pwdm.log");
+	open(LOGFILE, ">>./pwdm.log");
 	print LOGFILE (localtime(time) . ": " . $message . "\n");
 	close(LOGFILE);
+
+}
+
+#
+# Reads password from STDIN and converts it to the NTLM hash
+# if password is passed as param, value is used instead
+#
+sub getPassword() {
+
+	my $user_pass;
+	my $pass = shift;
+	unless($pass) {
+		$user_pass = <STDIN>;
+	} else {
+		$user_pass = $pass;
+	}
+
+	chomp($user_pass);
+
+	my $converted_pass = substr `printf '%s' "$user_pass" | iconv -t utf16le | openssl md4` , 10;
+	chomp($converted_pass);
+
+	return $converted_pass;
+
+}
+
+#
+# Return RADIUS "users" file entry for login and hashed password.
+# If password is not passed, partial entry is returned.
+#
+sub getEntry() {
+
+	my $username = shift;
+	my $converted_pass = shift;
+
+	if ($converted_pass) {
+		return "\"$username\@vsup.cz\" NT-Password := \"" . $converted_pass . "\"";
+	} else {
+		return "\"$username\@vsup.cz\" NT-Password := \"";
+	}
 
 }
