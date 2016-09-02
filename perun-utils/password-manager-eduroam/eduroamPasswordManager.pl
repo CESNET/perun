@@ -63,7 +63,7 @@ switch ($action) {
 
 		eval {
 			# timeout 60s kill after 60 more sec.
-			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -82,7 +82,7 @@ switch ($action) {
 
 		eval {
 			# timeout 60s kill after 60 more sec.
-			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -109,7 +109,7 @@ switch ($action) {
 
 		eval {
 			# timeout 60s kill after 60 more sec.
-			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -128,7 +128,7 @@ switch ($action) {
 
 		eval {
 			# timeout 60s kill after 60 more sec.
-			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error deleting entry
@@ -160,7 +160,7 @@ switch ($action) {
 
 		eval {
 			# timeout 60s kill after 60 more sec.
-			exec(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry

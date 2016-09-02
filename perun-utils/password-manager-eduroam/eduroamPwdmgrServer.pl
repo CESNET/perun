@@ -54,7 +54,7 @@ switch ($action){
 			$lock->unlock();
 			exit 3; # setting new password failed
 		}
-		exec("sudo systemctl reload radiusd");
+		system("sudo systemctl reload radiusd");
 		$lock->unlock();
 		exit 0;
 
@@ -91,7 +91,7 @@ switch ($action){
 		# append new user entry
 		push (@lines, $entry . "\n");
 		write_file ($file_location, @lines);
-		exec("sudo systemctl reload radiusd");
+		system("sudo systemctl reload radiusd");
 		$lock->unlock();
 		exit 0;
 
@@ -113,7 +113,7 @@ switch ($action){
 			$lock->unlock();
 			exit 5; # can't delete password
 		}
-		exec("sudo systemctl reload radiusd");
+		system("sudo systemctl reload radiusd");
 		$lock->unlock();
 		exit 0;
 
@@ -142,7 +142,7 @@ switch ($action){
 		# append new user entry
 		push (@lines, $entry . "\n");
 		write_file ($file_location, @lines);
-		exec("sudo systemctl reload radiusd");
+		system("sudo systemctl reload radiusd");
 		$lock->unlock();
 		exit 0;
 
