@@ -535,7 +535,7 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 */
 	List<User> findUsersByExactName(PerunSession sess, String searchString) throws InternalErrorException, PrivilegeException;
-        
+
 	/**
 	 * Checks if the login is available in the namespace.
 	 *
@@ -633,7 +633,29 @@ public interface UsersManager {
 	boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**
+<<<<<<< HEAD
 	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask autnetication system if old password is correct.
+=======
+	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
+	 *
+	 * @param sess
+	 * @param login
+	 * @param loginNamespace
+	 * @param oldPassword
+	 * @param newPassword
+	 * @param checkOldPassword
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordDoesntMatchException
+	 * @throws PasswordChangeFailedException
+	 */
+	void changePassword(PerunSession sess, String login, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
+			throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
+
+	/**
+	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
 	 *
 	 * @param sess
 	 * @param user
@@ -649,7 +671,7 @@ public interface UsersManager {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-		throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
+		throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Changes user password in defined login-namespace using encrypted parameters.
@@ -664,7 +686,7 @@ public interface UsersManager {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password)
-			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException;
+			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 
 	/**
@@ -709,7 +731,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws LoginNotExistsException
 	 */
-	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException;
+	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Reserves the password in external system. User must not exists.
@@ -722,7 +744,7 @@ public interface UsersManager {
 	 * @throws PasswordCreationFailedException
 	 */
 	void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password)
-		throws InternalErrorException, PasswordCreationFailedException, PrivilegeException;
+			throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Reserves the password in external system. User must exists.
@@ -738,7 +760,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	void reservePassword(PerunSession sess, User user, String loginNamespace, String password)
-		throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException;
+			throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Validates the password in external system. User must not exists.
@@ -797,7 +819,7 @@ public interface UsersManager {
 	 * @throws LoginNotExistsException
 	 */
 	void deletePassword(PerunSession sess, String userLogin, String loginNamespace)
-		throws InternalErrorException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException;
+			throws InternalErrorException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException, PasswordOperationTimeoutException;
 
 	/**
 	 * Creates alternative password in external system.
@@ -1002,7 +1024,7 @@ public interface UsersManager {
 	 *
 	 * @param perunSession
 	 * @param userExtSource
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws UserExtSourceNotExistsException

@@ -171,7 +171,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 							getPerunBl().getUsersManagerBl().deletePassword(sess, login.getRight(), login.getLeft());
 						} catch (LoginNotExistsException ex) {
 							log.error("Login: {} not exists in namespace: {} while deleting passwords.", login.getRight(), login.getLeft());
-						} catch (PasswordDeletionFailedException ex) {
+						} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException ex) {
 							throw new InternalErrorException("Failed to delete reserved login "+login.getRight()+" from KDC.", ex);
 						}
 					}
@@ -248,7 +248,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					getPerunBl().getUsersManagerBl().deletePassword(sess, login.getRight(), login.getLeft());
 				} catch (LoginNotExistsException ex) {
 					log.error("Login: {} not exists in namespace: {} while deleting passwords.", login.getRight(), login.getLeft());
-				} catch (PasswordDeletionFailedException ex) {
+				} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException ex) {
 					throw new InternalErrorException("Failed to delete reserved login "+login.getRight()+" from KDC.", ex);
 				}
 			}

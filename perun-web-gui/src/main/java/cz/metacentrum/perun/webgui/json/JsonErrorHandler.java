@@ -672,6 +672,14 @@ public class JsonErrorHandler {
 
 			return "Can't set new password. Old password doesn't match.";
 
+		} else if ("PasswordStrengthFailedException".equalsIgnoreCase(errorName)) {
+
+			return "Used password doesn't match required strength constraints.";
+
+		} else if ("PasswordOperationTimeoutException".equalsIgnoreCase(errorName)) {
+
+			return "Operation with password exceeded expected time limit.";
+
 		} else if ("RelationExistsException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - better text on core side
