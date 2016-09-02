@@ -62,8 +62,8 @@ switch ($action) {
 		my $entry = getEntry($login, getPassword());
 
 		eval {
-			# timeout 60s kill after 60 more sec.
-			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			# timeout 120s kill after 120 more sec.
+			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -81,8 +81,8 @@ switch ($action) {
 		my $entry = getEntry($login, getPassword());
 
 		eval {
-			# timeout 60s kill after 60 more sec.
-			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			# timeout 120s kill after 120 more sec.
+			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -108,8 +108,8 @@ switch ($action) {
 		my $entry = getEntry($login, getPassword($pass));
 
 		eval {
-			# timeout 60s kill after 60 more sec.
-			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			# timeout 120s kill after 120 more sec.
+			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry
@@ -127,8 +127,8 @@ switch ($action) {
 		my $entry = getEntry($login, undef);
 
 		eval {
-			# timeout 60s kill after 60 more sec.
-			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			# timeout 120s kill after 120 more sec.
+			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error deleting entry
@@ -159,8 +159,8 @@ switch ($action) {
 		my $entry = getEntry($login, getPassword($pass));
 
 		eval {
-			# timeout 60s kill after 60 more sec.
-			system(qq^timeout -k 60 60 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
+			# timeout 120s kill after 120 more sec.
+			system(qq^timeout -k 120 120 ssh -i $key_path $server '~/eduroamPwdmgrServer.pl $action "'"$entry"'"'^);
 		};
 		if ( $@ ) {
 			# error adding entry

@@ -36,7 +36,18 @@ switch ($action){
 
 	# create service lock
 	my $lock = ScriptLock->new("eduroam");
-	$lock->lock();
+
+	# for cuncurrent runs, try to finish for 1 minute, after that report error.
+	my $success = 0;
+	my $counter = 0;
+	while ($success == 0 && $counter < 60) {
+		$success = $lock->lock();
+		$counter++;
+		sleep 1;
+	}
+	if ($success == 0) {
+		exit 12; # lock timeout
+	}
 
 	case("change"){
 
