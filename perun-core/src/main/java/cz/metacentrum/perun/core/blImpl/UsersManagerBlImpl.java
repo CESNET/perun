@@ -11,6 +11,8 @@ import java.util.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
+import cz.metacentrum.perun.core.api.exceptions.rt.PasswordOperationTimeoutRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PasswordStrengthFailedRuntimeException;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -370,7 +372,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.deletePassword(sess, login.getRight(), login.getLeft());
 			} catch (LoginNotExistsException e) {
 				// OK - User hasn't assigned any password with this login
-			} catch (PasswordDeletionFailedException e) {
+			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
 					log.error("Error during deletion of an account at {} for user {} with login {}.", new Object[]{login.getLeft(), user, login.getRight()});
 				} else {
@@ -391,7 +393,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.deletePassword(sess, (String) loginAttribute.getValue(), loginAttribute.getFriendlyNameParameter());
 			} catch (LoginNotExistsException e) {
 				// OK - User hasn't assigned any password with this login
-			} catch (PasswordDeletionFailedException e) {
+			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
 					log.error("Error during deletion of the account at {} for user {} with login {}.", new Object[]{loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue()});
 				} else {
@@ -903,7 +905,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param user
 	 * @param loginNamespace
 	 */
-	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException {
+	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
@@ -920,6 +922,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.managePassword(sess, PASSWORD_RESERVE_RANDOM, (String) attr.getValue(), loginNamespace, null);
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
+			} catch (PasswordOperationTimeoutRuntimeException e) {
+				throw new PasswordOperationTimeoutException(e);
+			} catch (PasswordStrengthFailedRuntimeException e) {
+				throw new PasswordStrengthFailedException(e);
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new LoginNotExistsException(e);
@@ -937,7 +943,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param password
 	 */
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-			PasswordCreationFailedException {
+			PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		log.info("Reserving password for {} in login-namespace {}.", userLogin, loginNamespace);
 
 		// Reserve the password
@@ -945,6 +951,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			this.managePassword(sess, PASSWORD_RESERVE, (String) userLogin, loginNamespace, password);
 		} catch (PasswordCreationFailedRuntimeException e) {
 			throw new PasswordCreationFailedException(e);
+		} catch (PasswordOperationTimeoutRuntimeException e) {
+			throw new PasswordOperationTimeoutException(e);
+		} catch (PasswordStrengthFailedRuntimeException e) {
+			throw new PasswordStrengthFailedException(e);
 		}
 	}
 
@@ -957,7 +967,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param password
 	 */
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-			PasswordCreationFailedException, LoginNotExistsException {
+			PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
 		// Get login.
@@ -973,6 +983,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.managePassword(sess, PASSWORD_RESERVE, (String) attr.getValue(), loginNamespace, password);
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
+			} catch (PasswordOperationTimeoutRuntimeException e) {
+				throw new PasswordOperationTimeoutException(e);
+			} catch (PasswordStrengthFailedRuntimeException e) {
+				throw new PasswordStrengthFailedException(e);
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new LoginNotExistsException(e);
@@ -1303,7 +1317,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param loginNamespace
 	 */
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException, LoginNotExistsException,
-			PasswordDeletionFailedException {
+			PasswordDeletionFailedException, PasswordOperationTimeoutException {
 		log.info("Deleting password for {} in login-namespace {}.", userLogin, loginNamespace);
 
 		// Delete the password
@@ -1313,6 +1327,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			throw new PasswordDeletionFailedException(e);
 		} catch (LoginNotExistsRuntimeException e) {
 			throw new LoginNotExistsException(e);
+		}  catch (PasswordOperationTimeoutRuntimeException e) {
+			throw new PasswordOperationTimeoutException(e);
 		}
 	}
 
@@ -1320,7 +1336,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * Method which calls external program for password change.
 	 */
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
+			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		log.info("Changing password for {} in login-namespace {}.", user, loginNamespace);
 
 		// Get User login in loginNamespace
@@ -1339,6 +1355,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.managePassword(sess, PASSWORD_CHECK, (String) userLogin.getValue(), loginNamespace, oldPassword);
 			} catch (PasswordDoesntMatchRuntimeException e) {
 				throw new PasswordDoesntMatchException(e);
+			} catch (PasswordOperationTimeoutRuntimeException e) {
+				throw new PasswordOperationTimeoutException(e);
 			}
 		}
 
@@ -1347,6 +1365,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			this.managePassword(sess, PASSWORD_CHANGE, (String) userLogin.getValue(), loginNamespace, newPassword);
 		} catch (PasswordChangeFailedRuntimeException e) {
 			throw new PasswordChangeFailedException(e);
+		} catch (PasswordOperationTimeoutRuntimeException e) {
+			throw new PasswordOperationTimeoutException(e);
+		} catch (PasswordStrengthFailedRuntimeException e) {
+			throw new PasswordStrengthFailedException(e);
 		}
 
 		//validate and set user ext sources
@@ -1475,6 +1497,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					throw new PasswordDeletionFailedRuntimeException("Password deletion failed for " + loginNamespace + ":" + userLogin + ".");
 				} else if (process.exitValue() == 6) {
 					throw new LoginNotExistsRuntimeException("User login doesn't exists in underlying system for " + loginNamespace + ":" + userLogin + ".");
+				} else if (process.exitValue() == 11) {
+					throw new PasswordStrengthFailedRuntimeException("Password to set doesn't match expected restrictions for " + loginNamespace + ":" + userLogin + ".");
+				} else if (process.exitValue() == 12) {
+					throw new PasswordOperationTimeoutRuntimeException("Operation with password exceeded expected limit for " + loginNamespace + ":" + userLogin + ".");
 				} else {
 					// Some other error occured
 					BufferedReader inReader = new BufferedReader(new InputStreamReader(es));
@@ -1855,7 +1881,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		String requestId = Utils.cipherInput(m, true);
 		String namespace = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
