@@ -4,9 +4,12 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -25,6 +29,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_vsup.class);
 	private final static Set<String> unpermittedLogins = new HashSet<String>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root"));
+	private final static String EDUROAM_VSUP_NAMESPACE = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":login-namespace:eduroam-vsup";
 
 	/**
 	 * Checks if the user's login is unique in the namespace organization.
@@ -120,6 +125,37 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 		} else {
 			// without value
 			return filledAttribute;
+		}
+
+	}
+
+	/**
+	 * When login changes: first set / changed always change eduroam-vsup login too !!
+	 *
+	 * @param session
+	 * @param user
+	 * @param attribute
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	@Override
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+
+		if(attribute.getValue() != null) {
+			Attribute eduroamLogin = null;
+			try {
+				eduroamLogin = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, EDUROAM_VSUP_NAMESPACE);
+				if(!Objects.equals(attribute.getValue(), eduroamLogin.getValue())) {
+					eduroamLogin.setValue(attribute.getValue());
+					session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, eduroamLogin);
+				}
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (WrongAttributeValueException ex) {
+				throw new WrongReferenceAttributeValueException(attribute, eduroamLogin, "Mismatch in checking of users VŠUP login and eduroam login.", ex);
+			}
 		}
 
 	}
