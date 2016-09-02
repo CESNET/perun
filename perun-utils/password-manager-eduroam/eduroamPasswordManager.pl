@@ -17,10 +17,13 @@ use strict;
 use warnings FATAL => 'all';
 use Switch;
 use String::Random qw( random_string );
+# Import shared AD library
+use ADConnector;
 
 sub edu_log;
 sub getPassword;
 sub getEntry;
+sub checkAgainstAD;
 
 ##########
 #
@@ -94,9 +97,15 @@ switch ($action) {
 
 	case("reserve"){
 
-		# TODO - check against AD server
+		my $pass = <STDIN>;
+		chomp($pass);
 
-		my $entry = getEntry($login, getPassword());
+		unless (0 == checkAgainstAD($namespace, $login, $pass)) {
+			edu_log("[PWDM] Same password for $login in AD exists!");
+			exit 11;
+		}
+
+		my $entry = getEntry($login, getPassword($pass));
 
 		eval {
 			# timeout 60s kill after 60 more sec.
@@ -140,7 +149,14 @@ switch ($action) {
 
 	case("reserve_random") {
 
-		my $entry = getEntry($login, getPassword(random_string("Cn!CccncCn")));
+		my $pass = random_string("Cn!CccncCn");
+
+		unless (0 == checkAgainstAD($namespace, $login, $pass)) {
+			edu_log("[PWDM] Same password for $login in AD exists!");
+			exit 11;
+		}
+
+		my $entry = getEntry($login, getPassword($pass));
 
 		eval {
 			# timeout 60s kill after 60 more sec.
@@ -210,9 +226,36 @@ sub getEntry() {
 	my $converted_pass = shift;
 
 	if ($converted_pass) {
-		return qq^\\\\\\"$username\@vsup.cz\\\\\\" NT-Password := \\\\\\"$converted_pass\\\\\\"^;
+		return qq^\\\\\\"$username\\\\\\" NT-Password := \\\\\\"$converted_pass\\\\\\"^;
 	} else {
-		return qq^\\\\\\"$username\@vsup.cz\\\\\\" NT-Password := \\\\\\"^;
+		return qq^\\\\\\"$username\\\\\\" NT-Password := \\\\\\"^;
+	}
+
+}
+
+#
+# Check if user doesn't use same passowrd as in AD.
+#
+# return 0 if OK (passwords not the same)
+# return 1 if NOK (passwords are the same)
+sub checkAgainstAD($$$) {
+
+	my $namespace = shift;
+	my $login = shift;
+	my $pass = shift;
+
+	# AD config in /etc/perun/$namespace.ad
+	my @credentials = init_config($namespace);
+	my $ad_location = resolve_pdc($credentials[0]);
+	my $ad = ldap_connect($ad_location);
+
+	my $mesg = $ad->bind( "$login" , password => "$pass" );
+
+	if ( $mesg->code == 0) {
+		$ad->unbind;
+		return 1;
+	} else {
+		return 0;
 	}
 
 }
