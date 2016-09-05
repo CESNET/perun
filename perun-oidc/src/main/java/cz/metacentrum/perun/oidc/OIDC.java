@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,21 +28,38 @@ public class OIDC {
 	private final static Logger log = LoggerFactory.getLogger(OIDC.class);
 
 	private final String USERINFO_METHOD = "userinfo";
+	private final String USERINFO_FOR_USER_METHOD = "getSpecificUserinfo";
 	private final String PROPERTIES_FILE = "perun-oidc-scopes.properties";
 
-	public Object process(PerunSession sess, String method) throws InternalErrorException, WrongAttributeAssignmentException, UserNotExistsException, PrivilegeException {
+	public Object process(PerunSession sess, String method, Deserializer params) throws InternalErrorException, WrongAttributeAssignmentException, UserNotExistsException, PrivilegeException {
 
 		if (USERINFO_METHOD.equals(method)) {
 
+			User user = sess.getPerunPrincipal().getUser();
 			Map<String, String> properties = BeansUtils.getAllPropertiesFromCustomConfiguration(PROPERTIES_FILE);
 
 			if (sess.getPerunClient().getScopes().contains(PerunClient.SCOPE_ALL)) {
 
-				return getUserinfo(sess, properties.keySet(), properties);
+				return getUserinfo(sess, user, properties.keySet(), properties);
 
 			} else {
 
-				return getUserinfo(sess, sess.getPerunClient().getScopes(), properties);
+				return getUserinfo(sess, user, sess.getPerunClient().getScopes(), properties);
+
+			}
+
+		} else if (USERINFO_FOR_USER_METHOD.equals(method)) {
+
+			User user = sess.getPerun().getUsersManager().getUserById(sess, params.readInt("user"));
+			Map<String, String> properties = BeansUtils.getAllPropertiesFromCustomConfiguration(PROPERTIES_FILE);
+
+			if (sess.getPerunClient().getScopes().contains(PerunClient.SCOPE_ALL)) {
+
+				return getUserinfo(sess, user, properties.keySet(), properties);
+
+			} else {
+
+				return getUserinfo(sess, user, sess.getPerunClient().getScopes(), properties);
 
 			}
 
@@ -53,10 +71,9 @@ public class OIDC {
 
 
 
-	private Map<String, Object> getUserinfo(PerunSession sess, Collection<String> allowedScopes, Map<String, String> properties)
+	private Map<String, Object> getUserinfo(PerunSession sess, User user, Collection<String> allowedScopes, Map<String, String> properties)
 			throws InternalErrorException, PrivilegeException, UserNotExistsException, WrongAttributeAssignmentException {
 
-		User user = sess.getPerunPrincipal().getUser();
 		Map<String, Object> userinfo = new HashMap<>();
 
 		for (String scope : allowedScopes) {
