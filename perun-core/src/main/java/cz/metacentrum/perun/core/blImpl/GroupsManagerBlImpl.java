@@ -2102,6 +2102,19 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			try {
 				// Check if the member is already in the VO (just not in the group)
 				member = getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate.getUserExtSources());
+
+				// member exists - update attributes
+				Map<Candidate,RichMember> memberMap = new HashMap<>();
+				memberMap.put(candidate, getPerunBl().getMembersManagerBl().getRichMember(sess, member));
+				try {
+					updateExistingMembersWhileSynchronization(sess, group, memberMap, overwriteUserAttributesList);
+				} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
+					// if update fails, skip him
+					log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
+					skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e.getMessage() + "'");
+					continue;
+				}
+
 			} catch (MemberNotExistsException e) {
 				try {
 					// We have new member (candidate), so create him using synchronous createMember (and overwrite chosed user attributes)
