@@ -174,6 +174,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		tabPanel.add(new GroupMembersTabItem(group), "Members");
 		if (!group.isCoreGroup()) {
 			tabPanel.add(new SubgroupsTabItem(group), "Subgroups");
+			tabPanel.add(new RelationsTabItem(group), "Relations");
 		}
 		tabPanel.add(new GroupResourcesTabItem(group), "Resources");
 		if (!group.isCoreGroup()) {
