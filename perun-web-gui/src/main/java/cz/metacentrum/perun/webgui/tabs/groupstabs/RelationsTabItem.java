@@ -162,7 +162,7 @@ public class RelationsTabItem implements TabItem, TabItemWithUrl {
 		CustomButton createButton = TabMenu.getPredefinedButton(ButtonType.ADD, true, ButtonTranslation.INSTANCE.addGroupUnion(), new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				// creates a new form
-				session.getTabManager().addTabToCurrentTab(new AddGroupUnionTabItem(group, unions));
+				session.getTabManager().addTabToCurrentTab(new AddGroupUnionTabItem(group), true);
 			}
 		});
 
@@ -219,7 +219,11 @@ public class RelationsTabItem implements TabItem, TabItemWithUrl {
 		CellTable<Group> table = unions.getTable(new FieldUpdater<Group, String>() {
 			@Override
 			public void update(int arg0, Group group, String arg2) {
-				session.getTabManager().addTab(new GroupDetailTabItem(group.getId()));
+				if (session.isGroupAdmin(group.getId()) || session.isVoAdmin(group.getId())) {
+					session.getTabManager().addTab(new GroupDetailTabItem(group.getId()));
+				} else {
+					UiElements.generateInfo("Not privileged", "You are not manager of selected group or its VO.");
+				}
 			}
 		});
 		removeButton.setEnabled(false);
@@ -283,17 +287,30 @@ public class RelationsTabItem implements TabItem, TabItemWithUrl {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
 
-		RelationsTabItem that = (RelationsTabItem) o;
+		if (this == o)
+			return true;
+		if (o == null)
+			return false;
+		if (getClass() != o.getClass())
+			return false;
 
-		return groupId == that.groupId;
+		RelationsTabItem create = (RelationsTabItem) o;
+		if (groupId != create.groupId){
+			return false;
+		}
+		return true;
 
 	}
 
 	@Override
 	public int hashCode() {
-		return groupId;
+
+		final int prime = 104743;
+		int result = 1;
+		result = prime * result + 6786786;
+		return result;
+
 	}
+
 }

@@ -20,7 +20,6 @@ import cz.metacentrum.perun.webgui.client.resources.ButtonType;
 import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
-import cz.metacentrum.perun.webgui.json.JsonCallbackTable;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.groupsManager.AddGroupUnion;
 import cz.metacentrum.perun.webgui.json.groupsManager.GetAllGroups;
@@ -37,6 +36,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Provides page with add Group union form
+ *
+ * !! USE AS INNER TAB ONLY !!
+ *
  * @author Michal Krajcovic <mkrajcovic@mail.muni.cz>
  */
 public class AddGroupUnionTabItem implements TabItem {
@@ -57,8 +60,7 @@ public class AddGroupUnionTabItem implements TabItem {
 	private Label titleWidget = new Label("Add Group union");
 
 	//data
-	private int groupId;
-	private JsonCallbackTable<Group> mainTable;
+	public int groupId;
 	private Group group;
 
 	private List<Group> alreadyAddedList = new ArrayList<>();
@@ -67,12 +69,6 @@ public class AddGroupUnionTabItem implements TabItem {
 	public AddGroupUnionTabItem(Group group) {
 		this.group = group;
 		this.groupId = group.getId();
-	}
-
-	public AddGroupUnionTabItem(Group group, JsonCallbackTable<Group> mainTable) {
-		this.group = group;
-		this.groupId = group.getId();
-		this.mainTable = mainTable;
 	}
 
 	@Override
@@ -87,6 +83,8 @@ public class AddGroupUnionTabItem implements TabItem {
 		menu.addWidget(new HTML(""));
 
 		final GetAllGroups groups = new GetAllGroups(group.getVoId());
+		// TODO Allow members to be included
+		//groups.setCoreGroupsCheckable(true);
 
 		// remove already added union groups from offering
 		JsonCallbackEvents localEvents = new JsonCallbackEvents() {
@@ -99,6 +97,8 @@ public class AddGroupUnionTabItem implements TabItem {
 						for (int i = 0; i < esToRemove.length(); i++) {
 							groups.removeFromTable(esToRemove.get(i));
 						}
+						// remove itself
+						groups.removeFromTable(group);
 					}
 				});
 				alreadyAssigned.retrieveData();
@@ -129,10 +129,6 @@ public class AddGroupUnionTabItem implements TabItem {
 								rebuildAlreadyAddedWidget();
 								// clear search
 								box.getSuggestBox().setText("");
-								if (n == groupsToAdd.size() - 1) {
-									mainTable.clearTable();
-									mainTable.retrieveData();
-								}
 							}
 						}));
 						request.createGroupUnion(group, groupsToAdd.get(i));
@@ -168,13 +164,12 @@ public class AddGroupUnionTabItem implements TabItem {
 		JsonUtils.addTableManagedButton(groups, table, assignButton);
 
 		table.addStyleName("perun-table");
-		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);
 		sp.addStyleName("perun-tableScrollPanel");
 		vp.add(sp);
 
 		// do not use resizePerunTable() when tab is in overlay - wrong width is calculated
-		session.getUiElements().resizeSmallTabPanel(sp, 350, this);
+		session.getUiElements().resizePerunTable(sp, 350, this);
 
 		this.contentWidget.setWidget(vp);
 
@@ -212,18 +207,30 @@ public class AddGroupUnionTabItem implements TabItem {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
 
-		AddGroupUnionTabItem that = (AddGroupUnionTabItem) o;
+		if (this == o)
+			return true;
+		if (o == null)
+			return false;
+		if (getClass() != o.getClass())
+			return false;
 
-		return groupId == that.groupId;
+		AddGroupUnionTabItem create = (AddGroupUnionTabItem) o;
+		if (groupId != create.groupId){
+			return false;
+		}
+		return true;
 
 	}
 
 	@Override
 	public int hashCode() {
-		return groupId;
+
+		final int prime = 104759;
+		int result = 1;
+		result = prime * result + 6786786;
+		return result;
+
 	}
 
 	@Override
