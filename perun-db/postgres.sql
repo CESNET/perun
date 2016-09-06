@@ -1,4 +1,4 @@
--- database version 3.1.37 (don't forget to update insert statement at the end of file)
+-- database version 3.1.38 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1201,6 +1201,20 @@ create table "facilities_bans" (
 	modified_by_uid integer
 );
 
+create table "user_ext_source_attr_values" (
+	ues_id integer not null, 
+	attr_id integer not null, 
+	attr_value varchar(4000), 
+	created_at timestamp default now() not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now() not null,
+	modified_by varchar(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text text, 
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create sequence "attr_names_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_consumers_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_log_id_seq" maxvalue 9223372036854775807;
@@ -1397,6 +1411,8 @@ create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id
 create index idx_fk_fac_ban_user on facilities_bans (user_id);
 create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
+create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (ues_id);
+create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1733,6 +1749,10 @@ alter table facility_contacts add constraint faccont_own_fk foreign key (owner_i
 alter table facility_contacts add constraint faccont_grp_fk foreign key (group_id) references groups(id);
 alter table facility_contacts add constraint faccont_usr_own_grp_chk check ((user_id is not null and owner_id is null and group_id is null) or (user_id is null and owner_id is not null and group_id is null) or (user_id is null and owner_id is null and group_id is not null));
 
+alter table user_ext_source_attr_values add constraint uesattrval_pk primary key (ues_id, attr_id);
+alter table user_ext_source_attr_values add constraint uesattrval_ues_fk foreign key (ues_id) references user_ext_sources(id);
+alter table user_ext_source_attr_values add constraint uesattrval_attr_fk foreign key (attr_id) references attr_names(id);
+
 grant all on users to perun;
 grant all on vos to perun;
 grant all on ext_sources to perun;
@@ -1825,9 +1845,10 @@ grant all on blacklists to perun;
 grant all on resources_bans to perun;
 grant all on facilities_bans to perun;
 grant all on membership_types to perun;
+grant all on user_ext_source_attr_values to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.37');
+insert into configurations values ('DATABASE VERSION','3.1.38');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

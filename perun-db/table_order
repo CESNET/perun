@@ -69,6 +69,7 @@ ext_sources_attributes
 vo_ext_sources
 group_ext_sources
 user_ext_sources
+user_ext_source_attr_values
 service_packages
 service_service_packages
 reserved_logins
