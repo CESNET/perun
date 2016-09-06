@@ -445,7 +445,7 @@ public class MainMenu {
 				applicationForm = new GroupApplicationFormSettingsTabItem(group);
 				admins = new GroupManagersTabItem(group);
 				subgroups = new SubgroupsTabItem(group);
-				relations = new RelationsTabItem(group);
+				relations = new GroupRelationsTabItem(group);
 				extSources = new GroupExtSourcesTabItem(group);
 			}
 		}

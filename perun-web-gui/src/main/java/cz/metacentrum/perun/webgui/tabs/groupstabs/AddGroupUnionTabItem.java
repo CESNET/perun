@@ -83,8 +83,7 @@ public class AddGroupUnionTabItem implements TabItem {
 		menu.addWidget(new HTML(""));
 
 		final GetAllGroups groups = new GetAllGroups(group.getVoId());
-		// TODO Allow members to be included
-		//groups.setCoreGroupsCheckable(true);
+		groups.setCoreGroupsCheckable(true);
 
 		// remove already added union groups from offering
 		JsonCallbackEvents localEvents = new JsonCallbackEvents() {
@@ -250,7 +249,7 @@ public class AddGroupUnionTabItem implements TabItem {
 
 	@Override
 	public boolean isAuthorized() {
-		return session.isVoAdmin(group.getVoId());
+		return (session.isVoAdmin(group.getVoId()) || session.isGroupAdmin(group.getId()));
 	}
 
 	@Override

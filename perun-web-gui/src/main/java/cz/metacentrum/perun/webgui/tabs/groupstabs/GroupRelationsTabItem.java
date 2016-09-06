@@ -47,7 +47,7 @@ import java.util.Map;
 /**
  * @author Michal Krajcovic <mkrajcovic@mail.muni.cz>
  */
-public class RelationsTabItem implements TabItem, TabItemWithUrl {
+public class GroupRelationsTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -76,7 +76,7 @@ public class RelationsTabItem implements TabItem, TabItemWithUrl {
 	 *
 	 * @param group
 	 */
-	public RelationsTabItem(Group group) {
+	public GroupRelationsTabItem(Group group) {
 		this.group = group;
 		this.groupId = group.getId();
 	}
@@ -86,7 +86,7 @@ public class RelationsTabItem implements TabItem, TabItemWithUrl {
 	 *
 	 * @param groupId
 	 */
-	public RelationsTabItem(int groupId) {
+	public GroupRelationsTabItem(int groupId) {
 		this.groupId = groupId;
 		JsonCallbackEvents events = new JsonCallbackEvents() {
 			public void onFinished(JavaScriptObject jso) {
@@ -108,9 +108,9 @@ public class RelationsTabItem implements TabItem, TabItemWithUrl {
 		return GroupsTabs.URL + UrlMapper.TAB_NAME_SEPARATOR + getUrl() + "?id=" + groupId;
 	}
 
-	static public RelationsTabItem load(Map<String, String> parameters) {
+	static public GroupRelationsTabItem load(Map<String, String> parameters) {
 		int gid = Integer.parseInt(parameters.get("id"));
-		return new RelationsTabItem(gid);
+		return new GroupRelationsTabItem(gid);
 	}
 
 	@Override
@@ -295,7 +295,7 @@ public class RelationsTabItem implements TabItem, TabItemWithUrl {
 		if (getClass() != o.getClass())
 			return false;
 
-		RelationsTabItem create = (RelationsTabItem) o;
+		GroupRelationsTabItem create = (GroupRelationsTabItem) o;
 		if (groupId != create.groupId){
 			return false;
 		}
