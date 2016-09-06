@@ -254,7 +254,7 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 					public void onFinished(JavaScriptObject jso) {
 						// pass data to table handling callback
 						findMembers.onFinished(jso);
-						((AjaxLoaderImage) table.getEmptyTableWidget()).setEmptyResultMessage("VO has no members.");
+						((AjaxLoaderImage) table.getEmptyTableWidget()).setEmptyResultMessage("Group has no members.");
 						searchBox.getTextBox().setEnabled(true);
 						searchButton.setEnabled(true);
 					}
