@@ -21,6 +21,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
@@ -412,9 +413,31 @@ public interface AttributesManagerImplApi {
 	 */
 	List<Attribute> getVirtualAttributes(PerunSession sess, User user) throws InternalErrorException;
 
+	/**
+	 * Get all virtual attributes associated with the UserExtSource.
+	 *
+	 * @param sess perun session
+	 * @param ues to get the attributes from
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException;
+
 	List<Attribute> getAttributes(PerunSession sess, Host host) throws InternalErrorException;
 
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException;
+
+	/**
+	 * Get all <b>non-empty</b> attributes associated with the UserExtSource.
+	 *
+	 * @param sess perun session
+	 * @param ues to get the attributes from
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException;
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the user on the all facilities.
@@ -553,6 +576,19 @@ public interface AttributesManagerImplApi {
 	 * @throws AttributeNotExistsException  if the attribute doesn't exists in the underlaying data source
 	 */
 	Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException;
+
+	/**
+	 * Get particular attribute for the User External Source.
+	 *
+	 * @param sess
+	 * @param ues
+	 * @param attributeName attribute name defined in the particular manager
+	 * @return attribute
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 */
+	Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
 	 * Get attributes definition (attribute without defined value).
@@ -703,6 +739,19 @@ public interface AttributesManagerImplApi {
 	Attribute getAttributeById(PerunSession sess, Resource resource, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
 
 	Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
+
+	/**
+	 * Get particular attribute for the user external source.
+	 *
+	 * @param sess
+	 * @param ues
+	 * @param id attribute id
+	 * @return attribute
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
+	 */	
+	Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
 	 * Store the particular attribute associated with the given perun bean. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
@@ -874,6 +923,20 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Store the particular virtual attribute associated with the user external source.
+	 *
+	 * @param sess perun session
+	 * @param ues
+	 * @param attribute attribute to set
+	 * @return true if attribute was really changed
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws ModuleNotExistsException
+	 * @throws WrongModuleTypeException
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace.
@@ -1282,6 +1345,18 @@ public interface AttributesManagerImplApi {
 	Attribute fillAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException;
 
 	/**
+	 * This method try to fill value of the user external source attribute. This value is automatically generated, but not all atrributes can be filled this way.
+	 *
+	 * @param sess perun session
+	 * @param ues attribute of this user external source you want to fill
+	 * @param attribute attribute to fill. If attributes already have set value, this value won't be owerwriten. This means the attribute value must be empty otherwise this method won't fill it.
+	 * @return attribute which may have filled value
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException;
+
+	/**
 	 * If you need to do some further work with other modules, this method do that
 	 *
 	 * @param sess perun session
@@ -1430,6 +1505,18 @@ public interface AttributesManagerImplApi {
 	void changedAttributeHook(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
 
 	/**
+	 * If you need to do some further work with other modules, this method do that
+	 *
+	 * @param sess
+	 * @param ues
+	 * @param attribute
+	 * @throws InternalErrorException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 */
+	void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
 	 * Check if value of this facility attribute is valid.
 	 *
 	 * @param sess perun session
@@ -1568,6 +1655,20 @@ public interface AttributesManagerImplApi {
 	 * @throws WrongReferenceAttributeValueException
 	 */
 	void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
+
+	/**
+	 * Check if value of this user external source attribute is valid.
+	 *
+	 *
+	 * @param sess perun session
+	 * @param ues user external source for which you want to check validity of attribute
+	 * @param attribute attribute to check
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException;
 
 	/**
 	 * Unset particular attribute for the facility.
@@ -1885,6 +1986,27 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException;
+
+	/**
+	 * Unset particular user external source attribute
+	 *
+	 * @param sess perun session
+	 * @param ues
+	 * @param attribute attribute to remove
+	 * @return {@code true} if attribute was changed (deleted) or {@code false} if attribute was not present in a first place
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	boolean removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException;
+
+	/**
+	 * Unset all UserExtSource attributes for the user external source.
+	 *
+	 * @param sess perun session
+	 * @param ues
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException;
+
 	/**
 	 * Check if attribute exists in underlaying data source.
 	 *
