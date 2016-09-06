@@ -17,8 +17,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<aop:advisor advice-ref="txAdviceReadOnly" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getDataWithGroups(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.entry.*.*(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.setAttributeInNestedTransaction(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.insertAttribute(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.updateAttribute(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.insertAttribute(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.updateAttribute(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl.mergeAttributeValueInNestedTransaction(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.validateMember(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.blImpl.MembersManagerBlImpl.createMemberSync(..))"/>
