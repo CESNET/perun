@@ -29,7 +29,6 @@ import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.VosTabs;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
-import cz.metacentrum.perun.webgui.widgets.ExtendedTextArea;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
@@ -94,6 +93,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 	public Widget draw() {
 
 		tab = this;
+		row = 0;
 
 		boolean buttonsEnabled = ((session.isVoAdmin(app.getVo().getId())) ||
 				(app.getGroup() != null && session.isGroupAdmin(app.getGroup().getId())));
@@ -392,6 +392,7 @@ public class ApplicationDetailTabItem implements TabItem, TabItemWithUrl{
 		ScrollPanel sp = new ScrollPanel(data.getContents());
 		sp.setSize("100%", "100%");
 		vp.add(sp);
+		vp.setCellHeight(sp, "100%");
 		vp.setCellHorizontalAlignment(sp, HasHorizontalAlignment.ALIGN_CENTER);
 
 		session.getUiElements().resizePerunTable(sp, 400, this);
