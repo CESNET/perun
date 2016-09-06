@@ -19,6 +19,7 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
@@ -483,6 +484,20 @@ public class AttributesManagerEntry implements AttributesManager {
 		return getAttributesManagerBl().setWritableTrue(sess, getAttributesManagerBl().getAttributes(sess, key));
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, ues);
+		Iterator<Attribute> attrIter = attributes.iterator();
+		//Choose to which attributes has the principal access
+		while(attrIter.hasNext()) {
+			Attribute attrNext = attrIter.next();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, new AttributeDefinition(attrNext), ues, null)) attrIter.remove();
+			else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, ues, null));
+		}
+		return attributes;
+	}
+	
 	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws PrivilegeException, InternalErrorException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attrName, "name of entityless attributes");
@@ -815,6 +830,21 @@ public class AttributesManagerEntry implements AttributesManager {
 		getAttributesManagerBl().setAttributes(sess, resource, group, attributes, workWithGroupAttributes);
 	}
 
+	public void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, UserExtSourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		for(Attribute attribute: attributes) {
+			attribute = this.perunBl.getAttributesManagerBl().convertEmptyStringIntoNullInAttrValue(attribute);
+			attribute = this.perunBl.getAttributesManagerBl().convertBooleanFalseIntoNullInAttrValue(attribute);
+		}
+		getAttributesManagerBl().checkAttributesExists(sess, attributes);
+		//Choose to which attributes has the principal access
+		for(Attribute attr: attributes) {
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attr), ues, null)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attr));
+		}
+		getAttributesManagerBl().setAttributes(sess, ues, attributes);
+	}
+
 	public Attribute getAttribute(PerunSession sess, Facility facility, String attributeName) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attributeName, "attributeName");
@@ -942,6 +972,17 @@ public class AttributesManagerEntry implements AttributesManager {
 		//Choose to which attributes has the principal access
 		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attr, resource, group)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
 		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attr, resource, group));
+		return attr;
+	}
+
+	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(attributeName, "attributeName");
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		Attribute attr = getAttributesManagerBl().getAttribute(sess, ues, attributeName);
+		//Choose to which attributes has the principal access
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attr, ues, null)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attr, ues, null));
 		return attr;
 	}
 
@@ -1113,6 +1154,16 @@ public class AttributesManagerEntry implements AttributesManager {
 		return attr;
 	}
 
+	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		Attribute attr = getAttributesManagerBl().getAttributeById(sess, ues, id);
+		//Choose to which attributes has the principal access
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attr, ues, null)) throw new PrivilegeException("Principal has no access to get attribute = " + new AttributeDefinition(attr));
+		else attr.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attr, ues, null));
+		return attr;
+	}
+
 	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		Utils.checkPerunSession(sess);
 		attribute = this.perunBl.getAttributesManagerBl().convertEmptyStringIntoNullInAttrValue(attribute);
@@ -1243,6 +1294,16 @@ public class AttributesManagerEntry implements AttributesManager {
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) throw new PrivilegeException("Only perunAdmin can set entityless attributes.");
 		getAttributesManagerBl().setAttribute(sess, key, attribute);
 
+	}
+
+	public void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getAttributesManagerBl().checkAttributeExists(sess, attribute);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		attribute = this.perunBl.getAttributesManagerBl().convertEmptyStringIntoNullInAttrValue(attribute);
+		attribute = this.perunBl.getAttributesManagerBl().convertBooleanFalseIntoNullInAttrValue(attribute);
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, ues, null)) throw new PrivilegeException("Principal has no access to set attribute = " + new AttributeDefinition(attribute));
+		getAttributesManagerBl().setAttribute(sess, ues, attribute);
 	}
 
 	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws PrivilegeException, InternalErrorException, AttributeExistsException {
@@ -2474,6 +2535,34 @@ public class AttributesManagerEntry implements AttributesManager {
 		return listOfAttributes;
 	}
 
+	public Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		getAttributesManagerBl().checkAttributeExists(sess, attribute);
+		//Choose to which attributes has the principal access
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attribute), ues, null)) throw new PrivilegeException("Principal has no access to fill attribute = " + new AttributeDefinition(attribute));
+
+		Attribute attr = getAttributesManagerBl().fillAttribute(sess, ues, attribute);
+		attr.setWritable(true);
+		return attr;
+	}
+
+	public List<Attribute> fillAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		getAttributesManagerBl().checkAttributesExists(sess, attributes);
+		//Choose to which attributes has the principal access
+		List<Attribute> listOfAttributes = getAttributesManagerBl().fillAttributes(sess, ues, attributes);
+		Iterator<Attribute> attrIter = listOfAttributes.iterator();
+		while(attrIter.hasNext()) {
+			Attribute attrNext = attrIter.next();
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attrNext), ues,null)) attrIter.remove();
+			else attrNext.setWritable(true);
+		}
+
+		return listOfAttributes;
+	}
+
 	public void checkAttributeValue(PerunSession sess, Facility facility, Attribute attribute) throws PrivilegeException, InternalErrorException, FacilityNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -2802,6 +2891,27 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 		getAttributesManagerBl().checkAttributesValue(sess, resource, group, attributes,workWithGroupAttribute);
 
+	}
+
+	public void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException,AttributeNotExistsException, UserExtSourceNotExistsException, WrongReferenceAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getAttributesManagerBl().checkAttributeExists(sess, attribute);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		//Choose to which attributes has the principal access
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attribute), ues , null)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attribute));
+
+		getAttributesManagerBl().checkAttributeValue(sess, ues, attribute);
+	}
+
+	public void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,  WrongReferenceAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getAttributesManagerBl().checkAttributesExists(sess, attributes);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		//Choose to which attributes has the principal access
+		for(Attribute attr: attributes) {
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, new AttributeDefinition(attr), ues , null)) throw new PrivilegeException("Principal has no access to check attribute = " + new AttributeDefinition(attr));
+		}
+		getAttributesManagerBl().checkAttributesValue(sess, ues, attributes);
 	}
 
 	public void removeAttribute(PerunSession sess, Facility facility, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
@@ -3286,6 +3396,38 @@ public class AttributesManagerEntry implements AttributesManager {
 			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attr, resource , group)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
 		}
 		getAttributesManagerBl().removeAllAttributes(sess, resource, group);
+	}
+
+	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		getAttributesManagerBl().checkAttributeExists(sess, attribute);
+		//Choose to which attributes has the principal access
+		if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attribute, ues , null)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attribute));
+
+		getAttributesManagerBl().removeAttribute(sess, ues, attribute);
+	}
+
+	public void removeAttributes(PerunSession sess, UserExtSource ues, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		getAttributesManagerBl().checkAttributesExists(sess, attributes);
+		//Choose to which attributes has the principal access
+		for(AttributeDefinition attrDef: attributes) {
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, ues , null)) throw new PrivilegeException("Principal has no access to remove attribute = " + attrDef);
+		}
+		getAttributesManagerBl().removeAttributes(sess, ues, attributes);
+	}
+
+	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, PrivilegeException, UserExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getUsersManagerBl().checkUserExtSourceExists(sess, ues);
+		//Choose if principal has access to remove all attributes
+		List<Attribute> allAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, ues);
+		for(Attribute attr: allAttributes) {
+			if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attr, ues , null)) throw new PrivilegeException("Principal has no access to remove attribute = " + new AttributeDefinition(attr));
+		}
+		getAttributesManagerBl().removeAllAttributes(sess, ues);
 	}
 
 	public boolean isOptAttribute(PerunSession sess, AttributeDefinition attribute) {
