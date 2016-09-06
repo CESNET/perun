@@ -19,7 +19,6 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
-import cz.metacentrum.perun.webgui.model.RichGroup;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -174,7 +173,7 @@ public class GroupDetailTabItem implements TabItem, TabItemWithUrl{
 		tabPanel.add(new GroupMembersTabItem(group), "Members");
 		if (!group.isCoreGroup()) {
 			tabPanel.add(new SubgroupsTabItem(group), "Subgroups");
-			tabPanel.add(new RelationsTabItem(group), "Relations");
+			tabPanel.add(new GroupRelationsTabItem(group), "Relations");
 		}
 		tabPanel.add(new GroupResourcesTabItem(group), "Resources");
 		if (!group.isCoreGroup()) {
