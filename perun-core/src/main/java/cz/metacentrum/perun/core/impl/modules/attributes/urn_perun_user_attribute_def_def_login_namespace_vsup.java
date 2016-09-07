@@ -29,7 +29,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_vsup.class);
 	private final static Set<String> unpermittedLogins = new HashSet<String>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root"));
-	private final static String EDUROAM_VSUP_NAMESPACE = AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":login-namespace:eduroam-vsup";
+	private final static String EDUROAM_VSUP_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:eduroam-vsup";
 
 	/**
 	 * Checks if the user's login is unique in the namespace organization.
