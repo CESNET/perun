@@ -59,7 +59,15 @@ switch ($action) {
 
 	case("change"){
 
-		my $entry = getEntry($login, getPassword());
+		my $pass = <STDIN>;
+		chomp($pass);
+
+		unless (0 == checkAgainstAD($namespace, $login, $pass)) {
+			edu_log("[PWDM] Same password for $login in AD exists!");
+			exit 11;
+		}
+
+		my $entry = getEntry($login, getPassword($pass));
 
 		eval {
 			# timeout 120s kill after 120 more sec.
