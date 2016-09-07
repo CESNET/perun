@@ -61,9 +61,10 @@ switch ($action){
 			} , $file_location;
 
 		if ($changed == 0) {
-			# entry to change not found
-			$lock->unlock();
-			exit 3; # setting new password failed
+			# entry to change not found, reserve it instead of error !
+			my @lines = read_file( $file_location );
+			push (@lines, $entry . "\n");
+			write_file ($file_location, @lines);
 		}
 		system("sudo systemctl reload radiusd");
 		$lock->unlock();
