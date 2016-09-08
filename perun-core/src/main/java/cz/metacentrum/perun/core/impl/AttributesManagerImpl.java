@@ -135,9 +135,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	//Attributes modules.  name => module
 	private Map<String, AttributesModuleImplApi> attributesModulesMap = new ConcurrentHashMap<String, AttributesModuleImplApi>();
-	
+
 	private AttributesManagerImplApi self;
-	
+
 	// mapping of the perun bean names to the attribute namespaces
 	private static final Map<String,String> NAMESPACES_BEANS_MAP = new HashMap<>();
 	static {
@@ -151,7 +151,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		NAMESPACES_BEANS_MAP.put("member_resource", NS_MEMBER_RESOURCE_ATTR);
 		NAMESPACES_BEANS_MAP.put("member_group", NS_MEMBER_GROUP_ATTR);
 		NAMESPACES_BEANS_MAP.put("user_facility", NS_USER_FACILITY_ATTR);
-		NAMESPACES_BEANS_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR);		
+		NAMESPACES_BEANS_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR);
 	}
 
 	/**
@@ -1114,7 +1114,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} catch(EmptyResultDataAccessException ex) {
 			//If there is no such entityless attribute, create new one with null value and return null (insert is for transaction same like select for update)
 			Attribute attr = new Attribute(this.getAttributeDefinitionById(sess, attrId));
-			this.setAttributeWithNullValue(sess, key, attr);
+			self.setAttributeWithNullValue(sess, key, attr);
 			return null;
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -1546,19 +1546,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} else {
 			throw new InternalErrorException(new IllegalArgumentException("Object " + object + " must be either String or PerunBean."));
 		}
-		
+
 		// check that given object is consistent with the attribute
 		checkNamespace(sess, attribute, namespace);
-		
+
 		// create map of parameters for the where clause of the SQL query
 		Map<String,Object> params = new HashMap<>();
 		params.put("attr_id", attribute.getId());
 		params.put(columnName, identificator);
-		
+
 		// save attribute
 		return setAttributeInDB(sess, attribute, tableName, params);
 	}
-	
+
 	@Override
 	public boolean setAttribute(final PerunSession sess, final PerunBean bean1, final PerunBean bean2, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		String tableName;
@@ -1603,11 +1603,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		params.put("attr_id", attribute.getId());
 		params.put(name1 + "_id", identificator1);
 		params.put(name2 + "_id", identificator2);
-		
+
 		// save attribute
 		return setAttributeInDB(sess, attribute, tableName, params);
 	}
-		
+
 	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, final Map<String, Object> params) throws InternalErrorException {
 		// get two sorted lists for parameter names and values
 		List<String> columnNames = new ArrayList<>();
@@ -1616,7 +1616,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			columnNames.add((String) entry.getKey());
 			columnValues.add(entry.getValue());
 		}
-		
+
 		try {
 			// deleting the attibute if the given attribute value is null
 			if (attribute.getValue() == null) {
@@ -1630,7 +1630,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			// set the column name according to the size of the attribute
 			boolean largeAttribute = isLargeAttribute(sess, attribute);
 			String valueColName = (largeAttribute ? "attr_value_text" : "attr_value");
-			
+
 			// if the DB value is the same as parameter, return
 			if (!largeAttribute) {
 				try {
@@ -1688,10 +1688,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
-	
+
 	/**
 	 * Build string for purposes of SQL query with given parameters.
-	 * 
+	 *
 	 * @param params parameters to print
 	 * @param afterParam string, which will be inserted after each parameter
 	 * @param separator string, which will be inserted between parameters
@@ -1708,7 +1708,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 		return sb.toString();
 	}
-	
+
 	@Override
 	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
 		// add additional SQL values to the list
@@ -1724,7 +1724,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			sb.append("?,");
 		}
 		String questionMarks = sb.toString();
-		
+
 		try {
 			int changed = jdbc.update("insert into " + tableName + " (" + buildParameters(columnNames, "", ", ") + ", " + valueColName + ", created_by, modified_by, created_by_uid, modified_by_uid, modified_at, created_at) "
 					+ "values (" + questionMarks + Compatibility.getSysdate() + ", " + Compatibility.getSysdate() + " )", values.toArray());
@@ -1733,7 +1733,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw ex;
 		}
 	}
-	
+
 	@Override
 	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException {
 		// add additional SQL values to the list
@@ -1743,26 +1743,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		values.add(sess.getPerunPrincipal().getUserId()); // modified_by_uid
 		values.addAll(columnValues);
 		try {
-			int changed = jdbc.update("update " + tableName + " set " + valueColName + "=?, modified_by=?, modified_by_uid=?, modified_at=" + 
+			int changed = jdbc.update("update " + tableName + " set " + valueColName + "=?, modified_by=?, modified_by_uid=?, modified_at=" +
 					Compatibility.getSysdate() + " where " + buildParameters(columnNames, "=?", " and "), values.toArray());
 		return changed > 0;
 		} catch (DataAccessException ex) {
 			throw ex;
 		}
-	}	
-	
-	/**
-	 * Set entityless attribute with null value (for key and attribute)
-	 *
-	 * @param sess
-	 * @param key key for storing entityless attribute
-	 * @param attribute attribute to set
-	 *
-	 * @return true if insert is ok
-	 *
-	 * @throws InternalErrorException if runtimeException is thrown
-	 */
-	private boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) throws InternalErrorException {
+	}
+
+	@Override
+	public boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) throws InternalErrorException {
 		try {
 			jdbc.update("insert into entityless_attr_values (attr_id, subject, attr_value, attr_value_text, created_by, modified_by, created_at, modified_at, created_by_uid, modified_by_uid) "
 									+ "values (?,?,?,?,?,?," + Compatibility.getSysdate() + "," + Compatibility.getSysdate() + ",?,?)", attribute.getId(), key, null, null,
@@ -4036,7 +4026,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				if(perun.isPerunReadOnly()) {
 					throw new InternalErrorException("There is missing required attribute " + attribute + " and can't be created because this instance is read only.");
 				} else {
-					createAttributeExistsForInitialize(attribute);
+					self.createAttributeExistsForInitialize(attribute);
 				}
 			}
 		}
@@ -4052,7 +4042,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
-	private void createAttributeExistsForInitialize(AttributeDefinition attribute) throws InternalErrorException {
+	public void createAttributeExistsForInitialize(AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			int attributeId = Utils.getNewId(jdbc, "attr_names_id_seq");
 
@@ -4069,7 +4059,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public void setPerun(Perun perun) {
 		this.perun = perun;
 	}
-	
+
 	public void setSelf(AttributesManagerImplApi self) {
 		this.self = self;
 	}
