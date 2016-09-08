@@ -320,20 +320,20 @@ public interface AttributesManagerImplApi {
 	 * Return value of entityless attribute by attr_id and key (subject).
 	 * Value is in the format from DB.
 	 * IMPORTANT: return only values in String (special format for Map or List)!
-	 * 
+	 *
 	 * If value is null, return null.
 	 * If attribute with subject=key not exists, create new one with null value and return null.
-	 * 
+	 *
 	 * @param sess
 	 * @param attrId
 	 * @param key
 	 * @return attr_value in string
-	 * 
+	 *
 	 * @throws InternalErrorException if runtime error exception has been thrown
 	 * @throws AttributeNotExistsException throw exception if attribute with value not exists in DB
 	 */
 	String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException;
-	
+
 	/**
 	 * Returns list of Keys which fits the attributeDefinition.
 	 *
@@ -733,34 +733,47 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Insert attribute value in DB.
-	 * 
+	 *
 	 * @param sess perun session
 	 * @param valueColName column, where the data will be stored, usually one of value or attr_value or attr_value_text
 	 * @param attribute that will be stored in the DB
-	 * @param tableName in the database in which the attribute will be inserted 
+	 * @param tableName in the database in which the attribute will be inserted
 	 * @param columnNames of the database table in which the attribute will be written
 	 * @param columnValues of the objects, for which the attribute will be written, corresponding to the columnNames
 	 * @return true if new value differs from old value (i.e. values changed)
 	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
-	
+
 	/**
 	 * Update attribute value in DB.
-	 * 
+	 *
 	 * @param sess perun session
 	 * @param valueColName column, where the data will be stored, usually one of value or attr_value or attr_value_text
 	 * @param attribute that will be stored in the DB
-	 * @param tableName in the database for updating 
+	 * @param tableName in the database for updating
 	 * @param columnNames of the database table in which the attribute will be written
 	 * @param columnValues of the objects, for which the attribute will be written, corresponding to the columnNames
 	 * @return true if new value differs from old value (i.e. values changed)
 	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
-	
+
+	/**
+	 * Set entityless attribute with null value (for key and attribute). Shouldn't be called from upper layer !!!
+	 *
+	 * @param sess
+	 * @param key key for storing entityless attribute
+	 * @param attribute attribute to set
+	 *
+	 * @return true if insert is ok
+	 *
+	 * @throws InternalErrorException if runtimeException is thrown
+	 */
+	boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) throws InternalErrorException;
+
 	/**
 	 * Store the particular virtual attribute associated with the facility.
 	 *
@@ -923,7 +936,7 @@ public interface AttributesManagerImplApi {
 	 * @param resource
 	 * @param serviceIds
 	 * @return list of resource attributes which are required by services which are selceted
-	 * 
+	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds) throws InternalErrorException;
@@ -1042,7 +1055,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException;
-	
+
 	/**
 	 * Get resource attributes which are required by the service.
 	 *
@@ -1589,10 +1602,10 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Remove all non-virtual group-resource attribute on selected resource
-	 * 
+	 *
 	 * @param sess
 	 * @param resource
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
 
@@ -2109,6 +2122,14 @@ public interface AttributesManagerImplApi {
 	 * @see cz.metacentrum.perun.core.impl.AttributesManagerImpl#getAttributesModule(PerunSession,String)
 	 */
 	Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException;
+
+	/**
+	 * Creates attributes during initialization. Shouldn't be called from upper layers !!!
+	 *
+	 * @param attribute Attribute to create
+	 * @throws InternalErrorException
+	 */
+	void createAttributeExistsForInitialize(AttributeDefinition attribute) throws InternalErrorException;
 
 	/**
 	 * Updates AttributeDefinition.

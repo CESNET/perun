@@ -335,10 +335,11 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	</bean>
 	<bean id="extSourcesManagerImpl" class="cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
 		<constructor-arg ref="dataSource" />
+		<property name="self" ref="extSourcesManagerImpl"/>
 	</bean>
 	<bean id="attributesManagerImpl" class="cz.metacentrum.perun.core.impl.AttributesManagerImpl" scope="singleton" init-method="initialize" depends-on="databaseManagerBl">
 		<property name="perun" ref="perun"/>
-                <property name="self" ref="attributesManagerImpl"/>
+		<property name="self" ref="attributesManagerImpl"/>
 		<constructor-arg ref="dataSource" />
 	</bean>
 	<bean id="servicesManagerImpl" class="cz.metacentrum.perun.core.impl.ServicesManagerImpl" scope="singleton" depends-on="databaseManagerBl">
