@@ -18,7 +18,32 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
+import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
+import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.NotMemberOfParentGroupException;
+import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
 /**
  * <p>Groups manager can do all work about groups in VOs.</p>
