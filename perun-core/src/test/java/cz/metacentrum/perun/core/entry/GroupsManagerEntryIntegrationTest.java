@@ -27,6 +27,10 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -416,7 +420,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue(groupsManagerBl.getGroupUnions(sess, group2, true).size() == 0);
 	}
 
-	@Test(expected=InternalErrorException.class)
+	@Test(expected=GroupRelationAlreadyExists.class)
 	public void createGroupUnionWhenUnionAlreadyExists() throws Exception {
 		System.out.println("GroupsManager.createGroupUnionWhenUnionAlreadyExists");
 
@@ -428,7 +432,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group, group2);
 	}
 	
-	@Test(expected=InternalErrorException.class)
+	@Test(expected=GroupRelationNotAllowed.class)
 	public void createGroupRelationOnSameGroup() throws Exception {
 		System.out.println("GroupsManager.createGroupUnionOnSameGroup");
 
@@ -438,7 +442,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group, group);
 	}
 
-	@Test(expected=InternalErrorException.class)
+	@Test(expected=GroupRelationDoesNotExist.class)
 	public void removeGroupUnionThatDoesNotExist() throws Exception {
 		System.out.println("GroupsManager.removeGroupUnionThatDoesNotExist");
 
@@ -449,9 +453,9 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.removeGroupUnion(sess, group, group2);
 	}
 
-	@Test(expected = InternalErrorException.class)
-	public void createGroupTransitivity() throws Exception {
-		System.out.println("GroupsManager.createGroupTransitivity");
+	@Test(expected = GroupRelationNotAllowed.class)
+	public void createGroupCycle() throws Exception {
+		System.out.println("GroupsManager.createGroupCycle");
 
 		vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
@@ -464,9 +468,9 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group3, group);
 	}
 
-	@Test(expected = InternalErrorException.class)
-	public void createHierarchicalGroupTransitivity() throws Exception {
-		System.out.println("GroupsManager.createHierarchicalGroupTransitivity");
+	@Test(expected = GroupRelationNotAllowed.class)
+	public void createHierarchicalGroupCycle() throws Exception {
+		System.out.println("GroupsManager.createHierarchicalGroupCycle");
 
 		vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
@@ -487,7 +491,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group, group2);
 	}
 
-	@Test(expected = InternalErrorException.class)
+	@Test(expected = GroupRelationDoesNotExist.class)
 	public void deleteUnionWithSwitchedGroups() throws Exception {
 		System.out.println("GroupsManager.deleteUnionWithSwitchedGroups");
 
@@ -500,7 +504,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.removeGroupUnion(sess, group2, group);
 	}
 
-	@Test(expected = GroupOperationsException.class)
+	@Test(expected = GroupRelationCannotBeRemoved.class)
 	public void deleteUnionBetweenGroupsInHierarchy() throws Exception {
 		System.out.println("GroupsManager.deleteUnionBetweenGroupsInHierarchy");
 		
@@ -511,7 +515,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.removeGroupUnion(sess, group, group2);
 	}
 
-	@Test(expected = InternalErrorException.class)
+	@Test(expected = GroupRelationAlreadyExists.class)
 	public void createUnionBetweenGroupsInHierarchy() throws Exception {
 		System.out.println("GroupsManager.createUnionBetweenGroupsInHierarchy");
 
