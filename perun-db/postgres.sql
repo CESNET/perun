@@ -264,7 +264,7 @@ create table "engine_routing_rule" (
 	modified_by_uid integer
 );
 
--- PROCESSING_RULES - rules for assigning processing services to events 
+-- PROCESSING_RULES - rules for assigning processing services to events
 create table "processing_rules" (
 	id integer not null,
 	processing_rule varchar(1024) not null, --string for matching
@@ -277,7 +277,7 @@ create table "processing_rules" (
 	modified_by_uid integer
 );
 
--- ROLES - possible user's rolles - controle access of users to data in DB 
+-- ROLES - possible user's rolles - controle access of users to data in DB
 create table "roles" (
 	id integer not null,
 	name varchar (32) not null,  --name of role
@@ -318,7 +318,7 @@ create table "attr_names" (
 	display_name varchar(256)  --name of attr. displayed at GUI
 );
 
--- ATTRIBUTES_AUTHZ - controles permissions for access to attributes 
+-- ATTRIBUTES_AUTHZ - controles permissions for access to attributes
 create table attributes_authz (
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
 	role_id integer not null,  --identifier of role (roles.id)
@@ -596,7 +596,7 @@ create table "application_mail_texts" (
 	modified_by_uid integer
 );
 
--- APPLICATION_RESERVED_LOGINS - lognames reserved for new users who has not been saved at users table yet                       
+-- APPLICATION_RESERVED_LOGINS - lognames reserved for new users who has not been saved at users table yet
 create table "application_reserved_logins" (
 	login varchar(256) not null,        --logname
 	namespace varchar(30) not null,     --namespace where logname is reserved
@@ -847,7 +847,7 @@ create table "ext_sources_attributes" (
 	modified_by_uid integer
 );
 
--- VO_EXT_SOURCES - external sources assigned to VO 
+-- VO_EXT_SOURCES - external sources assigned to VO
 create table "vo_ext_sources" (
 	vo_id integer not null,          --identifier of VO (vos.id)
 	ext_sources_id integer not null, --identifier of ext. source (ext_sources.id)
@@ -889,7 +889,7 @@ create table "user_ext_sources" (
 	modified_by_uid integer
 );
 
--- SERVICE_PACKAGES - possible groups of services 
+-- SERVICE_PACKAGES - possible groups of services
 create table "service_packages" (
 	id integer not null,
 	name varchar(128) not null,   --name of service package
@@ -977,7 +977,7 @@ create table "service_principals" (
 	modified_by_uid integer
 );
 
--- RESERVED_LOGINS - reserved lognames, actually is not used. Prepared for reservation by core. 
+-- RESERVED_LOGINS - reserved lognames, actually is not used. Prepared for reservation by core.
 create table "reserved_logins" (
 	login varchar(256),        --logname
 	namespace varchar(128),    --namespace in which is logname using
@@ -1656,7 +1656,7 @@ alter table specific_user_users add constraint acc_specifu_u_uid_fk foreign key 
 alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id);
 alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
 
-alter table groups_groups add constraint grp_grp_pk primary key (group_id,parent_group_id);
+alter table groups_groups add constraint grp_grp_pk primary key (result_gid,operand_gid);
 alter table groups_groups add constraint grp_grp_rgid_fk foreign key (result_gid) references groups(id);
 alter table groups_groups add constraint grp_grp_ogid_fk foreign key (operand_gid) references groups(id);
 

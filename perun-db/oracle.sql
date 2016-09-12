@@ -1095,7 +1095,7 @@ create table resources_bans (
   id integer not null,
   member_id integer not null,
   resource_id integer not null,
-  description nvarchar2(1024),                                                                       
+  description nvarchar2(1024),
   banned_to date not null,
   created_at date default sysdate not null,
   created_by nvarchar2(1024) default user not null,
@@ -1109,7 +1109,7 @@ create table facilities_bans (
 	id integer not null,
   user_id integer not null,
   facility_id integer not null,
-  description nvarchar2(1024),                                                                       
+  description nvarchar2(1024),
   banned_to date not null,
   created_at date default sysdate not null,
   created_by nvarchar2(1024) default user not null,
@@ -1731,7 +1731,7 @@ constraint SPECIFU_U_STATUS_CHK check (status in ('0','1'))
 );
 
 alter table groups_groups add (
-constraint GRP_GRP_PK primary key (group_id,parent_group_id),
+constraint GRP_GRP_PK primary key (result_gid,operand_gid),
 constraint GRP_GRP_RGID_FK foreign key (result_gid) references groups(id),
 constraint GRP_GRP_OGID_FK foreign key (operand_gid) references groups(id),
 constraint GRP_GRP_PARENT_CHK check (parent_flag in ('0','1'))
