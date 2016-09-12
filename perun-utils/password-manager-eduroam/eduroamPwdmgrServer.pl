@@ -29,7 +29,8 @@ use ScriptLock;
 my $action = $ARGV[0];
 my $entry = $ARGV[1];
 # should be something like: /etc/raddb/users
-my $file_location = " /etc/raddb/users";
+my $file_location = "/etc/raddb/users";
+my $touch_file_location = "./last-changed";
 
 # do stuff based on password manager action type
 switch ($action){
@@ -66,7 +67,7 @@ switch ($action){
 			push (@lines, $entry . "\n");
 			write_file ($file_location, @lines);
 		}
-		system("sudo systemctl reload radiusd");
+		system("touch $touch_file_location");
 		$lock->unlock();
 		exit 0;
 
@@ -103,7 +104,7 @@ switch ($action){
 		# append new user entry
 		push (@lines, $entry . "\n");
 		write_file ($file_location, @lines);
-		system("sudo systemctl reload radiusd");
+		system("touch $touch_file_location");
 		$lock->unlock();
 		exit 0;
 
@@ -125,7 +126,7 @@ switch ($action){
 			$lock->unlock();
 			exit 5; # can't delete password
 		}
-		system("sudo systemctl reload radiusd");
+		system("touch $touch_file_location");
 		$lock->unlock();
 		exit 0;
 
@@ -154,7 +155,7 @@ switch ($action){
 		# append new user entry
 		push (@lines, $entry . "\n");
 		write_file ($file_location, @lines);
-		system("sudo systemctl reload radiusd");
+		system("touch $touch_file_location");
 		$lock->unlock();
 		exit 0;
 
