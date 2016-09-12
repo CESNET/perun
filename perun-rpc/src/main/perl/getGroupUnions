@@ -17,8 +17,8 @@ sub help {
 	--groupName   | -G  group name
 	--voId        | -v vo id
 	--voShortName | -V vo short name
-        --reverse     | -r reverse direction
-        --orderByName | -n order by group name
+	--reverse     | -r reverse direction
+	--orderByName | -n order by group name
 	--batch       | -b batch
 	--help        | -h prints this help
 
@@ -57,7 +57,7 @@ my @groups = $groupsAgent->getGroupUnions(group => $groupId, reverseDirection =>
 
 $sortingFunction = getSortingFunction("getId") unless defined $sortingFunction;
 
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 if ($reverse==0) {
     $table->setCols('operand group Id','operand group Name');
 } else {

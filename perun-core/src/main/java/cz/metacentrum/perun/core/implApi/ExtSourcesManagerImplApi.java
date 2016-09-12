@@ -51,6 +51,16 @@ public interface ExtSourcesManagerImplApi {
 	void deleteExtSource(PerunSession perunSession, ExtSource extSource) throws InternalErrorException, ExtSourceAlreadyRemovedException;
 
 	/**
+	 * Updates extSource definition. It should be called only internally, because extSources are defined in the external XML file.
+	 * It shouldn't be called from upper layers !!!
+	 *
+	 * @param sess
+	 * @param extSource
+	 * @throws InternalErrorException
+	 */
+	void updateExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws ExtSourceNotExistsException, InternalErrorException;
+
+	/**
 	 * Searches for the external source with specified id.
 	 *
 	 * @param perunSession
@@ -208,6 +218,7 @@ public interface ExtSourcesManagerImplApi {
 	 *
 	 * @param extSource	External Source
 	 * @return			Map of attributes for external source
+	 * @throws InternalErrorException
 	 */
-	public Map<String,String> getAttributes(ExtSource extSource);
+	public Map<String,String> getAttributes(ExtSource extSource) throws InternalErrorException;
 }

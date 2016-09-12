@@ -15,8 +15,8 @@ $file = "bullet-${color}-${w}-${h}.png";
 
 
 if(file_exists($file)) {
-    echo file_get_contents($file);
-    exit();
+	echo file_get_contents($file);
+	exit();
 }
 
 include "bullet-generator.inc.php";

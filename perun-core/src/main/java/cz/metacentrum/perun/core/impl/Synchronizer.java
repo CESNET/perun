@@ -180,7 +180,9 @@ public class Synchronizer {
 
 	public void initialize() throws InternalErrorException {
 		String synchronizerPrincipal = "perunSynchronizer";
-		this.sess = perunBl.getPerunSession(new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		this.sess = perunBl.getPerunSession(
+				new PerunPrincipal(synchronizerPrincipal, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+				new PerunClient());
 	}
 
 	public PerunBl getPerun() {

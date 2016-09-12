@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +124,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 					 return resource;
 	}
 
-	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException {
+	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, ResourceExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -612,7 +613,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().getAssignedRichResources(sess, member, service);
 	}
 
-	public Resource updateResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException {
+	public Resource updateResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException, ResourceExistsException {
 		Utils.notNull(sess, "sess");
 		resourcesManagerBl.checkResourceExists(sess, resource);
 

@@ -88,7 +88,7 @@ unless(@richMembers) { printMessage "No member found", $batch; exit 0; }
 
 #output
 my $table = Text::ASCIITable->new({utf8=>0});
-#my $table = Text::ASCIITable->new();
+#my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 
 $table->setCols('Name', 'Status', sort keys(%attrShort));
 

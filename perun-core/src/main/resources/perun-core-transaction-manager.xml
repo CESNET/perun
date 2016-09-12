@@ -4,15 +4,15 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 ">
-    <bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
-      <property name="dataSource" ref="dataSource"/>
-      <property name="auditer" ref="auditer"/>
-      <property name="nestedTransactionAllowed" value="true"/>
-    </bean>
+	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="auditer" ref="auditer"/>
+		<property name="nestedTransactionAllowed" value="true"/>
+	</bean>
 
-    <bean id="springTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="nestedTransactionAllowed" value="true"/>
-    </bean>
+	<bean id="springTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="nestedTransactionAllowed" value="true"/>
+	</bean>
 
 </beans>

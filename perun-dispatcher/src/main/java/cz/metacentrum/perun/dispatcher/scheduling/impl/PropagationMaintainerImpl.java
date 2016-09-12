@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import javax.jms.JMSException;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 							dispatcherPropertiesBean
 									.getProperty("perun.principal.extSourceName"),
 							dispatcherPropertiesBean
-									.getProperty("perun.principal.extSourceType")));
+									.getProperty("perun.principal.extSourceType")),
+							new PerunClient());
 		} catch (InternalErrorException e1) {
 			// TODO Auto-generated catch block
 			log.error(

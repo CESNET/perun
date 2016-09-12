@@ -2,6 +2,7 @@ package cz.metacentrum.perun.notif;
 
 import com.dumbster.smtp.SimpleSmtpServer;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.bl.PerunBl;
@@ -76,7 +77,7 @@ public class AbstractTest {
 	@Before
 	public void setUpSess() throws Exception {
 		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		sess = perun.getPerunSession(pp);
+		sess = perun.getPerunSession(pp, new PerunClient());
 	}
 	
 	@After

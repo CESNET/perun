@@ -86,7 +86,9 @@ public class NotifUtils {
 	public static PerunSession getPerunSession(PerunBl perun) throws InternalErrorException {
 		if (session == null) {
 			if (perun != null) {
-				session = perun.getPerunSession(new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+				session = perun.getPerunSession(
+						new PerunPrincipal("perunNotifications", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+						new PerunClient());
 			} else {
 				throw new InternalErrorException("PerunBl is null");
 			}

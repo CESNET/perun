@@ -4,6 +4,7 @@ import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Status;
@@ -59,7 +60,7 @@ public class Main {
 		try {
 			this.springCtx = new ClassPathXmlApplicationContext("perun-beans.xml", "perun-datasources.xml", "perun-transaction-manager.xml");
 			this.perun = springCtx.getBean("perun", PerunBl.class);
-			this.perunSession = perun.getPerunSession(pp);
+			this.perunSession = perun.getPerunSession(pp, new PerunClient());
 		} catch (Exception e) {
 			log.error("Application context loading error.", e);
 			throw e;

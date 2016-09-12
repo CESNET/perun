@@ -337,7 +337,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		//not needed there
 	}
 
-	protected Map<String,String> getAttributes() {
+	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

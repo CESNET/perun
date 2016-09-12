@@ -1020,46 +1020,54 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	}
 
-	public List<Pair<String, String>> getUsersReservedLogins(User user) {
+	public List<Pair<String, String>> getUsersReservedLogins(User user) throws InternalErrorException {
 
 		List<Pair<String, String>> result = new ArrayList<Pair<String,String>>();
 
-		List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
-			@Override
-			public Integer mapRow(ResultSet rs, int arg1) throws SQLException {
-				return rs.getInt("id");
-			}
-		},user.getId());
-
-		for (Integer id : ids) {
-
-			result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
+		try {
+			List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
 				@Override
-				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+				public Integer mapRow(ResultSet rs, int arg1) throws SQLException {
+					return rs.getInt("id");
 				}
-			}, id));
+			},user.getId());
 
+			for (Integer id : ids) {
+
+				result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
+					@Override
+					public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
+						return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+					}
+				}, id));
+
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 
 		return result;
 
 	}
 
-	public void deleteUsersReservedLogins(User user) {
+	public void deleteUsersReservedLogins(User user) throws InternalErrorException {
 
-		List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
-			@Override
-			public Integer mapRow(ResultSet rs, int arg1)
-			throws SQLException {
-			return rs.getInt("id");
+		try {
+			List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
+				@Override
+				public Integer mapRow(ResultSet rs, int arg1)
+				throws SQLException {
+				return rs.getInt("id");
+				}
+			},user.getId());
+
+			for (Integer id : ids) {
+
+				jdbc.update("delete from application_reserved_logins where app_id=?", id);
+
 			}
-		},user.getId());
-
-		for (Integer id : ids) {
-
-			jdbc.update("delete from application_reserved_logins where app_id=?", id);
-
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 
 	}
@@ -1068,8 +1076,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		int id = Utils.getNewId(jdbc, "mailchange_id_seq");
 
-		jdbc.update("insert into mailchange(id, value, user_id, created_by, created_by_uid) values (?,?,?,?,?) ",
-				id, email, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		try {
+			jdbc.update("insert into mailchange(id, value, user_id, created_by, created_by_uid) values (?,?,?,?,?) ",
+					id, email, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 
 		return id;
 

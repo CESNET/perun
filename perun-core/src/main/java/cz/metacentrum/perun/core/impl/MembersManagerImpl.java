@@ -252,9 +252,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 		int newId = Utils.getNewId(jdbc, "pwdreset_id_seq");
 
-		jdbc.update("insert into pwdreset (id, namespace, user_id, created_by, created_by_uid, created_at) "
-						+ "values (?,?,?,?,?," + Compatibility.getSysdate() + ")",
-				newId, namespace, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		try {
+			jdbc.update("insert into pwdreset (id, namespace, user_id, created_by, created_by_uid, created_at) "
+							+ "values (?,?,?,?,?," + Compatibility.getSysdate() + ")",
+					newId, namespace, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 
 		return newId;
 

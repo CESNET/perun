@@ -406,7 +406,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return findSubjectsLogins(searchString, maxResults);
 	}
 
-	protected Map<String,String> getAttributes() {
+	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 

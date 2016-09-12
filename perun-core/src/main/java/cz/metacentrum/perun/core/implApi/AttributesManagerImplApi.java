@@ -15,6 +15,7 @@ import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichAttribute;
@@ -319,20 +320,20 @@ public interface AttributesManagerImplApi {
 	 * Return value of entityless attribute by attr_id and key (subject).
 	 * Value is in the format from DB.
 	 * IMPORTANT: return only values in String (special format for Map or List)!
-	 * 
+	 *
 	 * If value is null, return null.
 	 * If attribute with subject=key not exists, create new one with null value and return null.
-	 * 
+	 *
 	 * @param sess
 	 * @param attrId
 	 * @param key
 	 * @return attr_value in string
-	 * 
+	 *
 	 * @throws InternalErrorException if runtime error exception has been thrown
 	 * @throws AttributeNotExistsException throw exception if attribute with value not exists in DB
 	 */
 	String getEntitylessAttrValueForUpdate(PerunSession sess, int attrId, String key) throws InternalErrorException, AttributeNotExistsException;
-	
+
 	/**
 	 * Returns list of Keys which fits the attributeDefinition.
 	 *
@@ -704,156 +705,74 @@ public interface AttributesManagerImplApi {
 	Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
-	 * Store the particular attribute associated with the facility. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the particular attribute associated with the given perun bean. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
 	 *
 	 * @param sess perun session
-	 * @param facility facility to set on
+	 * @param object object of setting the attribute, must be one of perunBean or string
 	 * @param attribute attribute to set
 	 * @return true if new value differs from old value (i.e. values changed)
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException if the namespace of the attribute does not match the perunBean
 	 */
-	boolean setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException;
+	boolean setAttribute(PerunSession sess, Object object, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * Store the particular attribute associated with the vo. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Store the particular attribute associated with the bean1 and bean2. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
 	 *
 	 * @param sess perun session
-	 * @param vo vo to set on
-	 * @param attribute attribute to set
-	 *
-	 * @return true if new value differs from old value (i.e. values changed)
-	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 */
-	boolean setAttribute(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException;
-
-	/**
-	 * Store the particular attribute associated with the group. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-	 *
-	 * @param sess perun session
-	 * @param group group to set on
+	 * @param bean1 first perun bean
+	 * @param bean2 second perun bean
 	 * @param attribute attribute to set
 	 *
 	 * @return true if new value differs from old value (i.e. values changed)
 	 *         false otherwise (value do not change)
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
-	boolean setAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException;
+	boolean setAttribute(PerunSession sess, PerunBean bean1, PerunBean bean2, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * Store the particular attribute associated with the resource. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Insert attribute value in DB.
 	 *
 	 * @param sess perun session
-	 * @param resource resource to set on
-	 * @param attribute attribute to set
-	 *
+	 * @param valueColName column, where the data will be stored, usually one of value or attr_value or attr_value_text
+	 * @param attribute that will be stored in the DB
+	 * @param tableName in the database in which the attribute will be inserted
+	 * @param columnNames of the database table in which the attribute will be written
+	 * @param columnValues of the objects, for which the attribute will be written, corresponding to the columnNames
 	 * @return true if new value differs from old value (i.e. values changed)
 	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws InternalErrorException
 	 */
-	boolean setAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException;
+	public boolean insertAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
 
 	/**
-	 * Store the particular attribute associated with the resource and member combination. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * Update attribute value in DB.
 	 *
 	 * @param sess perun session
-	 * @param resource resource to set on
-	 * @param member member to set on
-	 * @param attribute attribute to set
-	 *
+	 * @param valueColName column, where the data will be stored, usually one of value or attr_value or attr_value_text
+	 * @param attribute that will be stored in the DB
+	 * @param tableName in the database for updating
+	 * @param columnNames of the database table in which the attribute will be written
+	 * @param columnValues of the objects, for which the attribute will be written, corresponding to the columnNames
 	 * @return true if new value differs from old value (i.e. values changed)
 	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws InternalErrorException
 	 */
-	boolean setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException;
+	public boolean updateAttribute(PerunSession sess, String valueColName, Attribute attribute, String tableName, List<String> columnNames, List<Object> columnValues) throws InternalErrorException;
 
 	/**
-	 * Store the particular attribute associated with the group and member combination. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+	 * Set entityless attribute with null value (for key and attribute). Shouldn't be called from upper layer !!!
 	 *
-	 * @param sess perun session
-	 * @param member member to set on
-	 * @param group group to set on
+	 * @param sess
+	 * @param key key for storing entityless attribute
 	 * @param attribute attribute to set
 	 *
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 */
-	boolean setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException;
-
-	/**
-	 * Store the particular attribute associated with the facility and user combination. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
+	 * @return true if insert is ok
 	 *
-	 * @param sess perun session
-	 * @param facility
-	 * @param user
-	 * @param attribute attribute to set
-	 * @return true if new value differs from old value (i.e. values changed)
-	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws InternalErrorException if runtimeException is thrown
 	 */
-	boolean setAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException;
-
-	/**
-	 * Store the particular attribute associated with user. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-	 *
-	 * @param sess perun session
-	 * @param user
-	 * @param attribute attribute to set
-	 * @return true if new value differs from old value (i.e. values changed)
-	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 */
-	boolean setAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException;
-
-	/**
-	 * Store the particular attribute associated with member. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-	 *
-	 * @param sess perun session
-	 * @param member
-	 * @param attribute attribute to set
-	 * @return true if new value differs from old value (i.e. values changed)
-	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 */
-	boolean setAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException;
-
-	/**
-	 * Store the particular attribute associated with host. If an attribute is core attribute then the attribute isn't stored (It's skkiped whithout any notification).
-	 *
-	 * @param sess perun session
-	 * @param host
-	 * @param attribute attribute to set
-	 * @return true if new value differs from old value (i.e. values changed)
-	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 */
-	boolean setAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException;
-
-	/**
-	 * Store the particular attribute group_resource
-	 *
-	 * @param sess perun session
-	 * @param resource
-	 * @param group
-	 * @param attribute attribute to set
-	 * @return true if new value differs from old value (i.e. values changed)
-	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 */
-	boolean setAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException;
-
-
-	/**
-	 * Stores entityless attribute (associateed witk string key).
-	 * @param sess perun session
-	 * @param key stopre the attribute for this key
-	 * @param attribute attribute to set
-	 * @return true if new value differs from old value (i.e. values changed)
-	 *         false otherwise (value do not change)
-	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
-	 */
-	boolean setAttribute(PerunSession sess, String key, Attribute attribute) throws InternalErrorException;
-
+	boolean setAttributeWithNullValue(final PerunSession sess, final String key, final Attribute attribute) throws InternalErrorException;
 
 	/**
 	 * Store the particular virtual attribute associated with the facility.
@@ -1017,7 +936,7 @@ public interface AttributesManagerImplApi {
 	 * @param resource
 	 * @param serviceIds
 	 * @return list of resource attributes which are required by services which are selceted
-	 * 
+	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource, List<Integer> serviceIds) throws InternalErrorException;
@@ -1136,7 +1055,7 @@ public interface AttributesManagerImplApi {
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Vo vo) throws InternalErrorException;
-	
+
 	/**
 	 * Get resource attributes which are required by the service.
 	 *
@@ -1683,10 +1602,10 @@ public interface AttributesManagerImplApi {
 
 	/**
 	 * Remove all non-virtual group-resource attribute on selected resource
-	 * 
+	 *
 	 * @param sess
 	 * @param resource
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	void removeAllGroupResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException;
 
@@ -2203,6 +2122,14 @@ public interface AttributesManagerImplApi {
 	 * @see cz.metacentrum.perun.core.impl.AttributesManagerImpl#getAttributesModule(PerunSession,String)
 	 */
 	Object getAttributesModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException;
+
+	/**
+	 * Creates attributes during initialization. Shouldn't be called from upper layers !!!
+	 *
+	 * @param attribute Attribute to create
+	 * @throws InternalErrorException
+	 */
+	void createAttributeExistsForInitialize(AttributeDefinition attribute) throws InternalErrorException;
 
 	/**
 	 * Updates AttributeDefinition.

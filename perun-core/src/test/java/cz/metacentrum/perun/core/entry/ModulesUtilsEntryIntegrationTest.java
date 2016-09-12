@@ -180,6 +180,15 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		List<Resource> resources = new ArrayList<Resource>();
 		resources.add(resource);
 
+		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
+		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+
+		minGID.setValue(100);
+		maxGID.setValue(100500);
+
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 		Attribute resourceGID = null;
 		for(Attribute a: attributes) {
@@ -205,6 +214,17 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 
 		List<Group> groups = new ArrayList<Group>();
 		groups.add(group);
+
+		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
+		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
+
+		minGID.setValue(100);
+		maxGID.setValue(100500);
+
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);
+		perun.getAttributesManagerBl().setAttribute(sess, namespace, maxGID);
+
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
 
 		List<Attribute> attributes = setUpGroupNamesAndGIDForGroupAndResource();
 		Attribute groupGID = null;
@@ -461,7 +481,7 @@ public class ModulesUtilsEntryIntegrationTest extends AbstractPerunIntegrationTe
 		Attribute minGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-minGID"));
 		Attribute maxGID = new Attribute(perun.getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_ENTITYLESS_ATTR_DEF + ":namespace-maxGID"));
 
-		minGID.setValue(100000);
+		minGID.setValue(100);
 		maxGID.setValue(100500);
 
 		perun.getAttributesManagerBl().setAttribute(sess, namespace, minGID);

@@ -27,7 +27,6 @@ sub TO_JSON
 	}
 
 	my $userId = $self->{_userId};
-	my $vo = $self->{_vo};
 
 	return {id => $id, userId => $userId};
 }
@@ -67,13 +66,18 @@ sub getStatus {
     return $self->{_status};
 }
 
+sub getMembershipType {
+	my $self = shift;
+	return $self->{_membershipType};
+}
+
 sub getCommonArrayRepresentation {
 	my $member = shift;
-	return ($member->getId, $member->getUserId);
+	return ($member->getId, $member->getUserId, $member->getStatus, $member->getMembershipType);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('Id', 'UserId');                                                                                                                                                                      
+	return ('Id', 'UserId', 'Status', 'Membership type');
 }
 
 1;

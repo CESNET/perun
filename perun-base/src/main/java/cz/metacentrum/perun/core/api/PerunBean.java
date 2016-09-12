@@ -27,7 +27,7 @@ public abstract class PerunBean implements Comparable<PerunBean> {
 	}
 
 	/** Returns bean name like VO, Member, Resource,...
-	*/
+	 */
 	public String getBeanName() {
 		return this.getClass().getSimpleName();
 	}
@@ -38,8 +38,8 @@ public abstract class PerunBean implements Comparable<PerunBean> {
 		StringBuilder str = new StringBuilder();
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			"id='").append(id).append('\'').append(
-			']').toString();
+				"id='").append(id).append('\'').append(
+				']').toString();
 	}
 
 
@@ -55,8 +55,8 @@ public abstract class PerunBean implements Comparable<PerunBean> {
 		StringBuilder str = new StringBuilder();
 
 		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			"id=<").append(id).append(">").append(
-			']').toString();
+				"id=<").append(id).append(">").append(
+				']').toString();
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public abstract class PerunBean implements Comparable<PerunBean> {
 	@Override
 	public int compareTo(PerunBean o) {
 		if (o == null) throw new NullPointerException("PerunBean to compare with is null.");
- 		return (this.getId() - o.getId());
+		return (this.getId() - o.getId());
 	}
 
 }

@@ -110,6 +110,9 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 				attrValue = (Integer) attribute.getValue();
 			}
 
+			//Check if GID is within allowed range
+			sess.getPerunBl().getModulesUtilsBl().checkIfGIDIsWithinRange(sess, attribute);
+
 			//check if gid is not already depleted
 			Attribute usedGids = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, gidNamespace, A_E_usedGids);
 			//null in value means there is no depleted or used gids
@@ -128,17 +131,13 @@ public class urn_perun_resource_attribute_def_def_unixGID_namespace extends Reso
 			//Prepare attributes for searching through groups and resources
 			Attribute resourceGIDAttribute = attribute;
 			Attribute groupGIDAttribute = new Attribute(sess.getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, A_G_unixGID_namespace + ":" + gidNamespace));
-			groupGIDAttribute.setValue(groupGIDAttribute.getValue());
+			groupGIDAttribute.setValue(resourceGIDAttribute.getValue());
 
 			//Fill lists of Groups and Resources by data
 			allGroupsWithSameGIDInSameNamespace.addAll(sess.getPerunBl().getGroupsManagerBl().getGroupsByAttribute(sess, groupGIDAttribute));
 			allResourcesWithSameGIDInSameNamespace.addAll(sess.getPerunBl().getResourcesManagerBl().getResourcesByAttribute(sess, resourceGIDAttribute));
-
-			//If there is no group or resource with same GID in the same namespace, its ok so only check if gid is within range
-			if(allGroupsWithSameGIDInSameNamespace.isEmpty() && allResourcesWithSameGIDInSameNamespace.isEmpty()) {
-				sess.getPerunBl().getModulesUtilsBl().checkIfGIDIsWithinRange(sess, attribute);
-				return;
-			}
+			//remove this resource
+			allResourcesWithSameGIDInSameNamespace.remove(resource);
 
 			//Prepare list of GroupName attributes of this resource
 			List <Attribute> groupNamesOfResource = sess.getPerunBl().getAttributesManagerBl().getAllAttributesStartWithNameWithoutNullValue(sess, resource, A_R_unixGroupName_namespace + ":");

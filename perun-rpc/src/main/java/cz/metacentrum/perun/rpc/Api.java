@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONSIMPLE;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
@@ -62,6 +64,7 @@ public class Api extends HttpServlet {
 	private final static String PERUNSTATISTICS = "getPerunStatistics";
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
+	private final static String OIDCMANAGER = "oidcManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
 	@Override
@@ -102,14 +105,8 @@ public class Api extends HttpServlet {
 			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
 				actor = (String) req.getRemoteUser();
 			}
-		} else if (req.getHeader("OIDC_CLAIM_principal") != null && !req.getHeader("OIDC_CLAIM_principal").isEmpty()) {
-			try {
-				ObjectMapper mapper = new ObjectMapper();
-				ObjectNode jsonPrincipal = (ObjectNode) mapper.readTree(req.getHeader("OIDC_CLAIM_principal"));
-				actor = jsonPrincipal.get("name").getTextValue();
-			} catch (IOException e) {
-				throw new RpcException(RpcException.Type.NO_REMOTE_USER_SPECIFIED, "Cannot read OAuth2 principal", e);
-			}
+		} else if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
+			actor = req.getHeader("OIDC_CLAIM_userExtSourceLogin");
 		} else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
 			actor = (String) req.getAttribute("SSL_CLIENT_S_DN");
 		} else if (req.getAttribute("EXTSOURCE") != null) {
@@ -169,28 +166,13 @@ public class Api extends HttpServlet {
 			}
 		}
 
-		// If OIDC_CLAIM_principal header is present, it means user authenticated via OAuth2.
-		else if (req.getHeader("OIDC_CLAIM_principal") != null && !req.getHeader("OIDC_CLAIM_principal").isEmpty()) {
+		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2 with MITRE.
+		else if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
 
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				ObjectNode jsonPrincipal = (ObjectNode) mapper.readTree(req.getHeader("OIDC_CLAIM_principal"));
-				ObjectNode jsonAttributes = (ObjectNode) jsonPrincipal.get("attributes");
-
-				extLogin = jsonPrincipal.get("name").getTextValue();
-				extSourceName = jsonAttributes.get("extSourceName").getTextValue();
-				extSourceType = jsonAttributes.get("extSourceType").getTextValue();
-				extSourceLoaString = jsonAttributes.get("extSourceLoa").getTextValue();
-
-				// remove because we do not want them in additional info
-				jsonAttributes.remove("extSourceName");
-				jsonAttributes.remove("extSourceType");
-				jsonAttributes.remove("extSourceLoa");
-				additionalInformations = mapper.convertValue(jsonAttributes, Map.class);
-
-			} catch (IOException e) {
-				throw new RpcException(RpcException.Type.NO_REMOTE_USER_SPECIFIED, "Cannot read OAuth2 principal", e);
-			}
+				extLogin = req.getHeader("OIDC_CLAIM_userExtSourceLogin");
+				extSourceName = req.getHeader("OIDC_CLAIM_extSourceName");
+				extSourceType = req.getHeader("OIDC_CLAIM_extSourceType");
+				extSourceLoaString = req.getHeader("OIDC_CLAIM_extSourceLoa");
 		}
 
 		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
@@ -309,6 +291,20 @@ public class Api extends HttpServlet {
 
 		return new PerunPrincipal(extLogin, extSourceName, extSourceType, extSourceLoa, additionalInformations);
 	}
+
+	protected PerunClient setupPerunClient(HttpServletRequest req) throws InternalErrorException {
+
+		if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
+			String clientId = req.getHeader("OIDC_CLAIM_client_id");
+			List<String> scopes = Arrays.asList(req.getHeader("OIDC_CLAIM_scope").split(" "));
+			return new PerunClient(clientId, scopes);
+		}
+
+		// If no OIDC header is present means it is not OAuth2 scenario => return trustful internal client.
+		return new PerunClient();
+	}
+
+
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -430,17 +426,17 @@ public class Api extends HttpServlet {
 
 			// We have new request, so do the whole auth/authz stuff
 			if (caller == null) {
-				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				// Store the current session
 				req.getSession(true).setAttribute(APICALLER, caller);
 			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getExtSourceName(), this.getExtSourceName(req, des))) {
 				// If the user is coming from the URL protected by different authN mechanism, destroy and create session again
-				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
 			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), this.getActor(req, des)) &&
 					!caller.getSession().getPerunPrincipal().getExtSourceName().equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
 				// prevent cookie stealing (if remote user changed, rebuild session)
-				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des));
+				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
 			}
 
@@ -542,10 +538,23 @@ public class Api extends HttpServlet {
 
 			}
 
+			/* Security check. Currently only OIDC manager can handle scopes from untrustful (OAuth2) clients
+				or client has to have allowed scope ALL. */
+			if (!caller.getSession().getPerunClient().getType().equals(PerunClient.Type.INTERNAL)) {
+				if (!OIDCMANAGER.equals(manager) && !caller.getSession().getPerunClient().getScopes().contains(PerunClient.SCOPE_ALL)) {
+					throw new PrivilegeException("Your client "+caller.getSession().getPerunClient().getId()+" is not allowed to call manager "+manager+". Try "+OIDCMANAGER+" instead.");
+				}
+			}
+
 			// Process request and sent the response back
 			if (VOOTMANAGER.equals(manager)) {
 				// Process VOOT protocol
 				result = caller.getVOOTManager().process(caller.getSession(), method, des.readAll());
+				if (perunRequest != null) perunRequest.setResult(result);
+				ser.write(result);
+			} else if (OIDCMANAGER.equals(manager)) {
+				// OIDC
+				result = caller.getOIDCManager().process(caller.getSession(), method, des);
 				if (perunRequest != null) perunRequest.setResult(result);
 				ser.write(result);
 			} else {

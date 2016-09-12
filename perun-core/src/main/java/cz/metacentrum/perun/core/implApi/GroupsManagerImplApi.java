@@ -458,8 +458,9 @@ public interface GroupsManagerImplApi {
 	 * @param sess
 	 * @param group
 	 * @return list of all group applications ids
+	 * @throws InternalErrorException
 	 */
-	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group);
+	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Return list of all reserved logins for specific application
@@ -467,8 +468,9 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @param appId from which application get reserved logins
 	 * @return list of pairs namespace and login
+	 * @throws InternalErrorException
 	 */
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId);
+	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
 
 	/**
 	 * Delete all Group login reservations
@@ -479,8 +481,9 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @param sess
 	 * @param group Group to delete all login reservations for
+	 * @throws InternalErrorException
 	 */
-	public void deleteGroupReservedLogins(PerunSession sess, Group group);
+	public void deleteGroupReservedLogins(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Get all groups in specific vo with assigned extSource

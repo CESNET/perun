@@ -17,12 +17,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,6 +46,8 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	private final static Logger log = LoggerFactory.getLogger(ExtSourcesManagerImpl.class);
 	public final static String USEREXTSOURCEMAPPING = "additionalues_";
+
+	private ExtSourcesManagerImplApi self;
 
 	protected final static String extSourceMappingSelectQuery = "ext_sources.id as ext_sources_id, ext_sources.name as ext_sources_name, ext_sources.type as ext_sources_type, " +
 		"ext_sources.created_at as ext_sources_created_at, ext_sources.created_by as ext_sources_created_by, ext_sources.modified_by as ext_sources_modified_by, " +
@@ -100,6 +102,10 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 
 	public ExtSourcesManagerImpl(DataSource perunPool) throws InternalErrorException {
 		jdbc = new JdbcPerunTemplate(perunPool);
+	}
+
+	public void setSelf(ExtSourcesManagerImplApi self) {
+		this.self = self;
 	}
 
 	public ExtSource createExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException, ExtSourceExistsException {
@@ -172,20 +178,13 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
-	/**
-	 * Updates extSource definition. It is only private method, because extSources are defined in the external XML file.
-	 *
-	 * @param sess
-	 * @param extSource
-	 * @throws InternalErrorException
-	 */
-	private void updateExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws InternalErrorException {
+
+	@Override
+	public void updateExtSource(PerunSession sess, ExtSource extSource, Map<String, String> attributes) throws ExtSourceNotExistsException, InternalErrorException {
 		ExtSource extSourceDb;
-		try {
-			extSourceDb = this.getExtSourceById(sess, extSource.getId());
-		} catch (ExtSourceNotExistsException e) {
-			throw new InternalErrorException(e);
-		}
+
+		extSourceDb = this.getExtSourceById(sess, extSource.getId());
+
 
 		// Check the name
 		if (!extSourceDb.getName().equals(extSource.getName())) {
@@ -482,14 +481,14 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 							extSource.setType(extSourceType);
 
 							// ExtSource exists, so check values and potentionally update it
-							this.updateExtSource(sess, extSource, attributes);
+							self.updateExtSource(sess, extSource, attributes);
 
 						} catch (ExtSourceNotExistsException e) {
 							// ExtSource doesn't exist, so create it
 							extSource = new ExtSource();
 							extSource.setName(extSourceName);
 							extSource.setType(extSourceType);
-							extSource = this.createExtSource(sess, extSource, attributes);
+							extSource = self.createExtSource(sess, extSource, attributes);
 						}
 					} catch (RuntimeException e) {
 						throw new InternalErrorException(e);
@@ -532,7 +531,11 @@ public class ExtSourcesManagerImpl implements ExtSourcesManagerImplApi {
 		}
 	}
 
-	public Map<String,String> getAttributes(ExtSource extSource) {
-		return jdbc.query("select attr_name, attr_value from ext_sources_attributes where ext_sources_id = " + extSource.getId(), new AttributesExtractor());
+	public Map<String,String> getAttributes(ExtSource extSource) throws InternalErrorException {
+		try {
+			return jdbc.query("select attr_name, attr_value from ext_sources_attributes where ext_sources_id = " + extSource.getId(), new AttributesExtractor());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 }

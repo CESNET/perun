@@ -687,7 +687,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
-			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
+			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -707,6 +707,31 @@ public class UsersManagerEntry implements UsersManager {
 			throw new LoginNotExistsException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new LoginNotExistsException(e);
+		}
+
+		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
+	}
+
+	public void changePassword(PerunSession sess, String login , String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
+			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+		Utils.checkPerunSession(sess);
+
+		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
+
+		List<User> users = null;
+		try {
+			users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName , login);
+		} catch (ConsistencyErrorException e) {
+			// attr def not exists by implementation in getUsersByAttributeValue
+			throw new LoginNotExistsException(e);
+		}
+		if (users.size() > 1) throw new ConsistencyErrorException("Multiple users found for login: "+login);
+		if (users.isEmpty()) throw new LoginNotExistsException("User with login: "+login+" not exists.");
+		User user = users.get(0);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "changePassword");
 		}
 
 		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
@@ -746,7 +771,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().createPassword(sess, user, loginNamespace, password);
 	}
 
-	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException {
+	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -759,7 +784,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException {
+			PrivilegeException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -777,7 +802,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
+			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -841,7 +866,7 @@ public class UsersManagerEntry implements UsersManager {
 
 
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-			PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException {
+			PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1070,7 +1095,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		Utils.checkPerunSession(sess);
 

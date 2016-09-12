@@ -821,6 +821,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	makeUserPerunAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			User user = ac.getUserById(parms.readInt("user"));
 			ac.getUsersManager().makeUserPerunAdmin(ac.getSession(), user);
 			return null;
@@ -828,6 +829,24 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 
+	/*#
+	 * Changes user password in defined login-namespace.
+	 *
+	 * @param login String Users login
+	 * @param loginNamespace String Namespace
+	 * @param newPassword String New password
+	 * @param checkOldPassword boolean Must be false
+	 */
+	/*#
+	 * Changes user password in defined login-namespace.
+	 * You must send the old password, which will be checked
+	 *
+	 * @param login String Users login
+	 * @param loginNamespace String Namespace
+	 * @param oldPassword String Old password which will be checked.
+	 * @param newPassword String New password
+	 * @param checkOldPassword boolean Must be true
+	 */
 	/*#
 	 * Changes user password in defined login-namespace.
 	 *
@@ -849,12 +868,22 @@ public enum UsersManagerMethod implements ManagerMethod {
 	changePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			User user = ac.getUserById(parms.readInt("user"));
+			ac.stateChangingCheck();
 
-			if (parms.readBoolean("checkOldPassword")) {
-				ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
+			if (parms.contains("login")) {
+				String login = parms.readString("login");
+				if (parms.readBoolean("checkOldPassword")) {
+					ac.getUsersManager().changePassword(ac.getSession(), login, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
+				} else {
+					ac.getUsersManager().changePassword(ac.getSession(), login, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
+				}
 			} else {
-				ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
+				User user = ac.getUserById(parms.readInt("user"));
+				if (parms.readBoolean("checkOldPassword")) {
+					ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
+				} else {
+					ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
+				}
 			}
 			return null;
 		}
@@ -869,6 +898,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	changeNonAuthzPassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 
 			ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"));
 

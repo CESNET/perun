@@ -170,7 +170,19 @@ public class PerunError extends JavaScriptObject {
 		return this.group;
 	}-*/;
 
-    /**
+	/**
+	 * Get referenced Resource related to error message
+	 *
+	 * @return Resource object or null if not present
+	 */
+	public final native Resource getResource() /*-{
+		if (!this.resource) {
+			return null;
+		}
+		return this.resource;
+	}-*/;
+
+	/**
      * Get referenced SecurityTeam related to error message
      *
      * @return SecurityTeam object or null if not present

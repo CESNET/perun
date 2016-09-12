@@ -37,7 +37,7 @@ my @publications = $cabinetAgent->findPublicationsByGUIFilter();
 unless (@publications) { printMessage "No publications found", $batch; exit 0; }
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('ID','Name', 'Rank','Year', 'Cathegory ID', 'Locked' );
 
 foreach my $publication (sort $sortingFunction @publications) {

@@ -28,11 +28,11 @@ while(<>) {
 
 	#line with method definition
 	#if(/^\s*public\s+[^\s]+\s+(\w+\s*\(.*\)).*\{\s*$/) {  #this regex accept line with method
-        if (/^\s*public([^\(]+)\(([^\)]+)\).*$/) {
-                @arr = reverse(split(/\s/,$1)); #last string before ( 
-                $pom=$2; #$2 string inside ()
-                $pom =~ s/\</\&lt\;/;
-                $pom =~ s/\>/\&gt\;/;
+	if (/^\s*public([^\(]+)\(([^\)]+)\).*$/) {
+		@arr = reverse(split(/\s/,$1)); #last string before (
+		$pom=$2; #$2 string inside ()
+		$pom =~ s/\</\&lt\;/;
+		$pom =~ s/\>/\&gt\;/;
 		$methodName = $arr[0]."(".$pom.")";
 		$authorizations->{$methodName}->{"UNAUTHORIZED"} = 1;
 		next;
@@ -46,47 +46,47 @@ while(<>) {
 			$roleAndObject =~ /^(\w+)(,\s*(\w+))?/;
 			my $role = $1;
 			my $complementaryObject = $3;
-#print "$methodName,ROLE:$role,$complementaryObject\n";
+			#print "$methodName,ROLE:$role,$complementaryObject\n";
 			#store
-                        if (defined ($authorizations->{$methodName}->{$role})) {
-                            if ($authorizations->{$methodName}->{$role} == 1) {
-                                if (defined($complementaryObject)) {
-                                    $authorizations->{$methodName}->{$role} = $complementaryObject;
-                                }
-                            } else {
-                                if (defined($complementaryObject)) {
-                                    $authorizations->{$methodName}->{$role}=$authorizations->{$methodName}->{$role}." & ".$complementaryObject;
-                                }
-                            }
-                        } else {
-                            if (defined($complementaryObject)) {
-                                $authorizations->{$methodName}->{$role} = $complementaryObject;
-                            } else {
-                                $authorizations->{$methodName}->{$role} = 1;
-                            }
-                        }
+			if (defined ($authorizations->{$methodName}->{$role})) {
+				if ($authorizations->{$methodName}->{$role} == 1) {
+					if (defined($complementaryObject)) {
+						$authorizations->{$methodName}->{$role} = $complementaryObject;
+					}
+				} else {
+					if (defined($complementaryObject)) {
+						$authorizations->{$methodName}->{$role}=$authorizations->{$methodName}->{$role}." & ".$complementaryObject;
+					}
+				}
+			} else {
+				if (defined($complementaryObject)) {
+					$authorizations->{$methodName}->{$role} = $complementaryObject;
+				} else {
+					$authorizations->{$methodName}->{$role} = 1;
+				}
+			}
 		}
-        }          
-        
+	}
+
 	if (/^.*this\.([\w]+)\(([^\)]+)\).*$/) {
 		my $calledFunction = $1;
-                $pom=$2; #$2 string inside ()
-                $pom =~ s/\</\&lt\;/;
-                $pom =~ s/\>/\&gt\;/;
-                 
-                if (not $calledFunction =~ /Bl/) {
-                    $authorizations->{$methodName}->{"UNAUTHORIZED"} = $calledFunction."(".$pom.")";  
-		}        
-        }
+		$pom=$2; #$2 string inside ()
+		$pom =~ s/\</\&lt\;/;
+		$pom =~ s/\>/\&gt\;/;
+
+		if (not $calledFunction =~ /Bl/) {
+			$authorizations->{$methodName}->{"UNAUTHORIZED"} = $calledFunction."(".$pom.")";
+		}
+	}
 
 }
 
 #output
 foreach $methodName (sort keys %$authorizations) {
-        for my $role (@roles) {
-            if (defined($authorizations->{$methodName}->{$role}) and $role ne "UNAUTHORIZED") { $authorizations->{$methodName}->{"UNAUTHORIZED"} = undef;}
-        }
-             
+	for my $role (@roles) {
+		if (defined($authorizations->{$methodName}->{$role}) and $role ne "UNAUTHORIZED") { $authorizations->{$methodName}->{"UNAUTHORIZED"} = undef;}
+	}
+
 	print "<tr><td>$methodName</td>";
 	for my $role (@roles) {
 		if(defined($authorizations->{$methodName}->{$role})) {

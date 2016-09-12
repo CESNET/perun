@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.blImpl;
 
 import java.util.*;
 
+import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +79,15 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return getResourcesManagerImpl().getResourceByName(sess, vo, facility, name);
 	}
 
-	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException {
-		resource = getResourcesManagerImpl().createResource(sess, vo, resource, facility);
-		getPerunBl().getAuditer().log(sess, "{} created.", resource);
+	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, FacilityNotExistsException, ResourceExistsException {
+		try{
+			Resource existingResource = getResourcesManagerImpl().getResourceByName(sess, vo, facility, resource.getName());
+			throw new ResourceExistsException(existingResource);
+		} catch (ResourceNotExistsException e) {
+			resource = getResourcesManagerImpl().createResource(sess, vo, resource, facility);
+			getPerunBl().getAuditer().log(sess, "{} created.", resource);
+		}
+
 		return resource;
 	}
 
@@ -599,9 +606,28 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		getResourcesManagerImpl().checkResourceTagExists(sess, resourceTag);
 	}
 
-	public Resource updateResource(PerunSession sess, Resource resource) throws InternalErrorException {
-		getPerunBl().getAuditer().log(sess, "{} updated.", resource);
-		return getResourcesManagerImpl().updateResource(sess, resource);
+	public Resource updateResource(PerunSession sess, Resource resource) throws InternalErrorException, ResourceExistsException {
+		Facility facility = getFacility(sess, resource);
+		Vo vo = getVo(sess, resource);
+
+		try {		
+			Resource existingResource = getResourcesManagerImpl().getResourceByName(sess, vo, facility, resource.getName());
+
+			// if it is the same resource which is updated but the name stayed the same.
+			if (existingResource.getId() == resource.getId()) {
+				resource = getResourcesManagerImpl().updateResource(sess, resource);
+				getPerunBl().getAuditer().log(sess, "{} updated.", resource);
+				return resource;
+			}
+			// if it is not the same resource - throw the exception. Resource can not be updated,
+			// because there is already a resource with this name but with different id.
+			throw new ResourceExistsException(existingResource);
+		} catch (ResourceNotExistsException e) {
+			resource = getResourcesManagerImpl().updateResource(sess, resource);
+			getPerunBl().getAuditer().log(sess, "{} updated.", resource);
+		}
+
+		return resource;
 	}
 
 	public void copyAttributes(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongReferenceAttributeValueException {

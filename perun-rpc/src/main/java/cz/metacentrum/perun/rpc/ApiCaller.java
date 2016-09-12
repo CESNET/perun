@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.oidc.OIDC;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -91,6 +93,7 @@ public class ApiCaller {
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
 	private VOOT vootManager = null;
+	private OIDC oidcManager = null;
 
 	private final static String RPCPRINCIPAL = "perunRpc";
 
@@ -223,10 +226,11 @@ public class ApiCaller {
 	}
 
 	public VOOT getVOOTManager(){
-		if(vootManager == null){
-			vootManager = new VOOT();
-		}
 		return vootManager;
+	}
+
+	public OIDC getOIDCManager(){
+		return oidcManager;
 	}
 
 	public Vo getVoById(int id) throws PerunException {
@@ -392,11 +396,11 @@ public class ApiCaller {
 		return null;
 	}
 
-	public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal) throws InternalErrorException {
+	public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal, PerunClient client) throws InternalErrorException {
 		Perun perun = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perun", Perun.class);
 
 		PerunPrincipal rpcPrincipal = new PerunPrincipal(RPCPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		this.rpcSession = perun.getPerunSession(rpcPrincipal);
+		this.rpcSession = perun.getPerunSession(rpcPrincipal, new PerunClient());
 
 		// Initialize serviceManager
 		this.generalServiceManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("generalServiceManager", GeneralServiceManager.class);
@@ -413,7 +417,13 @@ public class ApiCaller {
 		// Initialize Notifications
 		this.notificationManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perunNotifNotificationManager", PerunNotifNotificationManager.class);
 
-		this.session = perun.getPerunSession(perunPrincipal);
+		// Initialize VOOT Manager
+		this.vootManager = new VOOT();
+
+		// Initialize OIDC Manager
+		this.oidcManager = new OIDC();
+
+		this.session = perun.getPerunSession(perunPrincipal, client);
 	}
 
 	public PerunSession getSession() {

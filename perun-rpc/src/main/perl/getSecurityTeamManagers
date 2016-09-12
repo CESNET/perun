@@ -40,7 +40,7 @@ my @admins = $securityTeamsAgent->getAdmins(securityTeam => $securityTeamId);
 unless (@admins) { printMessage "No managers found", $batch; exit 0; }
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 printMessage "\nSecurityTeamId: ".$securityTeamId.", SecurityTeamName: ".$securityTeam->getName, $batch;
 
 $table->setCols('Admins Id','Admins Name');

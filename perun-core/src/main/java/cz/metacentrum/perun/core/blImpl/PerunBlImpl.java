@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -123,7 +124,7 @@ public class PerunBlImpl implements PerunBl {
 
 	}
 
-	public PerunSession getPerunSession(PerunPrincipal principal) throws InternalErrorException {
+	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) throws InternalErrorException {
 		if (principal.getUser() == null &&
 				this.getUsersManagerBl() != null &&
 				!dontLookupUsersForLogins.contains(principal.getActor())) {
@@ -150,7 +151,7 @@ public class PerunBlImpl implements PerunBl {
 				// OK - We don't know user yet
 			}
 				}
-		return new PerunSessionImpl(this, principal);
+		return new PerunSessionImpl(this, principal, client);
 	}
 
 	/**
@@ -161,7 +162,8 @@ public class PerunBlImpl implements PerunBl {
 	 */
 	public PerunSession getPerunSession() throws InternalErrorException {
 		PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		return new PerunSessionImpl(this, principal);
+		PerunClient client = new PerunClient();
+		return new PerunSessionImpl(this, principal, client);
 	}
 
 

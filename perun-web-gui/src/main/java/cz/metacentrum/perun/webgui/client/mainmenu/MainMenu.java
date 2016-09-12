@@ -425,6 +425,7 @@ public class MainMenu {
 		TabItemWithUrl members = null;
 		TabItemWithUrl admins = null;
 		TabItemWithUrl subgroups = null;
+		TabItemWithUrl relations = null;
 		TabItemWithUrl resources = null;
 		TabItemWithUrl settings = null;
 		TabItemWithUrl applications = null;
@@ -444,6 +445,7 @@ public class MainMenu {
 				applicationForm = new GroupApplicationFormSettingsTabItem(group);
 				admins = new GroupManagersTabItem(group);
 				subgroups = new SubgroupsTabItem(group);
+				relations = new GroupRelationsTabItem(group);
 				extSources = new GroupExtSourcesTabItem(group);
 			}
 		}
@@ -456,6 +458,7 @@ public class MainMenu {
 		menu.addItem(new MainMenuItem(groupName, detail, SmallIcons.INSTANCE.groupIcon()));
 		menu.addItem(new MainMenuItem("Members", members, SmallIcons.INSTANCE.userGreenIcon()));
 		menu.addItem(new MainMenuItem("Subgroups", subgroups, SmallIcons.INSTANCE.groupGoIcon()));
+		menu.addItem(new MainMenuItem("Relations", relations, SmallIcons.INSTANCE.groupGoIcon()));
 		menu.addItem(new MainMenuItem("Resources", resources, SmallIcons.INSTANCE.serverGroupIcon()));
 		menu.addItem(new MainMenuItem("Applications", applications , SmallIcons.INSTANCE.applicationFromStorageIcon()));
 

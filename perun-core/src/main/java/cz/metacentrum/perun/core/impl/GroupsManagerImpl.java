@@ -149,14 +149,19 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 
 
-	public String getName(int id){
-		List name= jdbc.query("group.name as (with temp (name, id, parent_group_id) as ((select name, id, parent_group_id from GROUPS where parent_group_id is null) union all (select cast((temp.name + ':' + groups.name) as varchar(128)), " +
-				"groups.id, groups.parent_group_id from groups inner join temp on temp.id = groups.parent_group_id )) select name from temp where group.id = ?"
-				,new RowMapper() {
-					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-						return resultSet.getString(1);
-					}
-				},id);
+	public String getName(int id) throws InternalErrorException {
+		List name= null;
+		try {
+			name = jdbc.query("group.name as (with temp (name, id, parent_group_id) as ((select name, id, parent_group_id from GROUPS where parent_group_id is null) union all (select cast((temp.name + ':' + groups.name) as varchar(128)), " +
+					"groups.id, groups.parent_group_id from groups inner join temp on temp.id = groups.parent_group_id )) select name from temp where group.id = ?"
+					,new RowMapper() {
+						public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+							return resultSet.getString(1);
+						}
+					},id);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 		String result=(String)name.get(0);
 		return result;
 	}
@@ -607,32 +612,44 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) {
+	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) throws InternalErrorException {
 		// get app ids for all applications
-		return jdbc.query("select id from application where group_id=?", new RowMapper<Integer>() {
-			@Override
-			public Integer mapRow(ResultSet rs, int arg1)
-			throws SQLException {
-			return rs.getInt("id");
-			}
-		},group.getId());
+		try {
+			return jdbc.query("select id from application where group_id=?", new RowMapper<Integer>() {
+				@Override
+				public Integer mapRow(ResultSet rs, int arg1)
+				throws SQLException {
+				return rs.getInt("id");
+				}
+			},group.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) {
-		return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
-			@Override
-			public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-				return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
-			}
-		}, appId);
+	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException {
+		try {
+			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
+				@Override
+				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
+					return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+				}
+			}, appId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
-	public void deleteGroupReservedLogins(PerunSession sess, Group group) {
+	public void deleteGroupReservedLogins(PerunSession sess, Group group) throws InternalErrorException {
 		// remove all reserved logins first
-		for (Integer appId : getGroupApplicationIds(sess, group)) {
-			jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+		try {
+			for (Integer appId : getGroupApplicationIds(sess, group)) {
+				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 
