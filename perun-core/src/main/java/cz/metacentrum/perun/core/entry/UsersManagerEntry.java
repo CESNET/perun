@@ -730,7 +730,8 @@ public class UsersManagerEntry implements UsersManager {
 		User user = users.get(0);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
+				!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
 			throw new PrivilegeException(sess, "changePassword");
 		}
 
