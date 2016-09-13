@@ -557,6 +557,22 @@ public class JsonErrorHandler {
 
 			return "Action is not permitted, since it violates group arithmetic rules.";
 
+		} else if ("GroupRelationAlreadyExists".equalsIgnoreCase(errorName)) {
+
+			return "Groups are already in a relation. Please refresh your view/table to see current state.";
+
+		} else if ("GroupRelationCannotBeRemoved".equalsIgnoreCase(errorName)) {
+
+			return "Relation can't be removed, since groups are in a direct hierarchy. If necessary, please delete the sub-group.";
+
+		} else if ("GroupRelationDoesNotExist".equalsIgnoreCase(errorName)) {
+
+			return "Groups are not in a relation. Please refresh your view/table to see current state.";
+
+		} else if ("GroupRelationNotAllowed".equalsIgnoreCase(errorName)) {
+
+			return "You can't add groups to relation. It would create a cycle.";
+
 		} else if ("GroupSynchronizationAlreadyRunningException".equalsIgnoreCase(errorName)) {
 
 			return "Can't start group synchronization between Perun and external source, because it's already running.";
