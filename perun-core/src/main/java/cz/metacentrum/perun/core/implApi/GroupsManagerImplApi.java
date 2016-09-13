@@ -18,6 +18,8 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
@@ -495,15 +497,16 @@ public interface GroupsManagerImplApi {
 	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
 
 	/**
-	 * Removes a relation between two groups.
+	 * Removes a union between two groups.
 	 *
 	 * @param sess perun session
 	 * @param resultGroup result group
 	 * @param operandGroup operand group
 	 *
-	 * @throws InternalErrorException if there is no relation of the given type between the groups
+	 * @throws InternalErrorException
+	 * @throws GroupRelationDoesNotExist if the union between the two groups does not exist
 	 */
-	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException;
+	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupRelationDoesNotExist;
 
 	/**
 	 * Removes all relations of this result group.

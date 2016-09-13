@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -39,7 +40,6 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import java.util.HashSet;
@@ -287,9 +287,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type as membership_type, " +
-					"groups_members.source_group_id as source_group_id from groups_members join members on members.id=groups_members.member_id " +
-					"where groups_members.group_id=?", MembersManagerImpl.GROUPS_MEMBER_MAPPER, group.getId());
+			return jdbc.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_members join members on members.id=groups_members.member_id " +
+					"where groups_members.group_id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Member>();
 		} catch (RuntimeException e) {
@@ -309,14 +308,14 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 			if (excludeStatus) {
 				// Exclude members with one of the status
-				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type as membership_type, groups_members.source_group_id as source_group_id " +
-						"from groups_members join members on members.id=groups_members.member_id " +
-						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" not in (:statuses)", parameters, MembersManagerImpl.GROUPS_MEMBER_MAPPER);
+				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+						" from groups_members join members on members.id=groups_members.member_id " +
+						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" not in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			} else {
 				// Include members with one of the status
-				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type as membership_type, groups_members.source_group_id as source_group_id " +
-						"from groups_members join members on members.id=groups_members.member_id " +
-						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" in (:statuses)", parameters, MembersManagerImpl.GROUPS_MEMBER_MAPPER);
+				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+						" from groups_members join members on members.id=groups_members.member_id " +
+						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			}
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Member>();
@@ -675,11 +674,11 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	@Override
-	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
+	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupRelationDoesNotExist {
 		try {
 			if (0 == jdbc.update("DELETE FROM groups_groups WHERE result_gid = ? AND operand_gid = ?",
 					resultGroup.getId(), operandGroup.getId())) {
-				throw new InternalErrorException("There is no relation between " + resultGroup + " and " + operandGroup);
+				throw new GroupRelationDoesNotExist("Union between " + resultGroup + " and " + operandGroup + " does not exist.");
 			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
