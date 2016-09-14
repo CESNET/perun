@@ -44,6 +44,7 @@ import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -893,20 +894,26 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("urn:perun:user:attribute-def:def:userCertificates");
-		list.add("urn:perun:user:attribute-def:def:kerberosAdminPrincipal");
-		list.add("urn:perun:user:attribute-def:def:sshPublicKey");
-		list.add("urn:perun:user:attribute-def:def:sshPublicAdminKey");
-		list.add("urn:perun:user:attribute-def:def:login-namespace:mu");
-		list.add("urn:perun:user:attribute-def:def:login-namespace:einfra");
-		list.add("urn:perun:user:attribute-def:def:login-namespace:sitola");
-		list.add("urn:perun:user:attribute-def:def:login-namespace:egi-ui");
-		list.add("urn:perun:user:attribute-def:def:login-namespace:cesnet");
-		list.add("urn:perun:user:attribute-def:def:login-namespace:meta");
-		list.add("urn:perun:user:attribute-def:def:login-namespace:einfra-services");
-		list.add("urn:perun:user:attribute-def:def:login-namespace:shongo");
+		HashSet<String> set = new HashSet<String>();
+		set.add("urn:perun:user:attribute-def:def:userCertificates");
+		set.add("urn:perun:user:attribute-def:def:kerberosAdminPrincipal");
+		set.add("urn:perun:user:attribute-def:def:sshPublicKey");
+		set.add("urn:perun:user:attribute-def:def:sshPublicAdminKey");
+		set.add("urn:perun:user:attribute-def:def:login-namespace:mu");
+		set.add("urn:perun:user:attribute-def:def:login-namespace:einfra");
+		set.add("urn:perun:user:attribute-def:def:login-namespace:sitola");
+		set.add("urn:perun:user:attribute-def:def:login-namespace:egi-ui");
+		set.add("urn:perun:user:attribute-def:def:login-namespace:cesnet");
+		set.add("urn:perun:user:attribute-def:def:login-namespace:meta");
+		set.add("urn:perun:user:attribute-def:def:login-namespace:einfra-services");
+		set.add("urn:perun:user:attribute-def:def:login-namespace:shongo");
+		// TODO - FIXME - must be dynamic !!
+		for (String namespace : Utils.getSupportedPasswordNamespaces()) {
+			set.add("urn:perun:user:attribute-def:def:login-namespace:"+namespace);
+		}
+
 		// TODO - remove SHONGO
+		ArrayList<String> list = JsonUtils.setToList(set);
 		attributes.getListOfAttributes(ids, list);
 
 		return attributesTable;
