@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.webgui.json;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONObject;
@@ -19,8 +21,6 @@ import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
-
-import java.util.Set;
 
 /**
  * Class for handling Error objects returned from RPC server
@@ -78,26 +78,7 @@ public class JsonErrorHandler {
 
 			public void onClick(ClickEvent event) {
 
-				String text = messageTextBox.getText() + "\n\n";
-				text += "-------------------------------------\n";
-				text += "Technical details: \n\n";
-				text += error.getErrorId() + " - " + error.getName() + "\n";
-				text += error.getErrorInfo() + "\n\n";
-				text += "Perun instance: " + Utils.perunInstanceName()+ "\n";
-				text += "Request: " + error.getRequestURL() + "\n";
-				if (postObject != null) text += "Post data: " + postObject.toString() + "\n";
-				text += "Application state: " + status + "\n\n";
-				text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
-
-				if (PerunWebSession.getInstance().getUser() == null) {
-
-					// post original authz if unknown user
-					text += "Actor/ExtSource: " + PerunWebSession.getInstance().getPerunPrincipal().getActor() + " / " +
-							PerunWebSession.getInstance().getPerunPrincipal().getExtSource() + " (" +
-							PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
-
-				}
-				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion();
+				String text = getErrorFullMessage(messageTextBox, error, postObject, status);
 
 				final String finalText = text;
 
@@ -148,6 +129,38 @@ public class JsonErrorHandler {
 		baseLayout.setWidget(2, 0, boxSubject);
 		baseLayout.setHTML(3, 0, "<strong>Message:</strong>");
 		baseLayout.setWidget(4, 0, messageTextBox);
+		final Anchor showDetails = new Anchor("Show message preview");
+		final TextArea fullMessage = new TextArea();
+		fullMessage.setReadOnly(true);
+		fullMessage.setVisible(false);
+		fullMessage.setSize("335px", "100px");
+		showDetails.addClickHandler(new ClickHandler() {
+			boolean pressed = false;
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				if (pressed) {
+					showDetails.setText("Show message preview");
+					fullMessage.setVisible(false);
+				} else {
+					showDetails.setText("Hide preview");
+					fullMessage.setText(getErrorFullMessage(messageTextBox, error, postObject, status));
+					fullMessage.setVisible(true);
+				}
+				pressed = !pressed;
+			}
+		});
+
+		messageTextBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent changeEvent) {
+				if (fullMessage.isVisible()) {
+					fullMessage.setText(getErrorFullMessage(messageTextBox, error, postObject, status));
+				}
+			}
+		});
+
+		baseLayout.setWidget(5, 0, showDetails);
+		baseLayout.setWidget(6, 0, fullMessage);
 
 		// box definition
 		final Confirm conf = new Confirm(WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), baseLayout, sendReportHandler, WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), true);
@@ -159,6 +172,30 @@ public class JsonErrorHandler {
 
 		messageTextBox.setFocus(true);
 
+	}
+
+	private static String getErrorFullMessage(TextArea messageTextBox, PerunError error, JSONObject postObject, String status) {
+		String text = messageTextBox.getText() + "\n\n";
+		text += "-------------------------------------\n";
+		text += "Technical details: \n\n";
+		text += error.getErrorId() + " - " + error.getName() + "\n";
+		text += error.getErrorInfo() + "\n\n";
+		text += "Perun instance: " + Utils.perunInstanceName()+ "\n";
+		text += "Request: " + error.getRequestURL() + "\n";
+		if (postObject != null) text += "Post data: " + postObject.toString() + "\n";
+		text += "Application state: " + status + "\n\n";
+		text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
+
+		if (PerunWebSession.getInstance().getUser() == null) {
+
+			// post original authz if unknown user
+			text += "Actor/ExtSource: " + PerunWebSession.getInstance().getPerunPrincipal().getActor() + " / " +
+					PerunWebSession.getInstance().getPerunPrincipal().getExtSource() + " (" +
+					PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
+
+		}
+		text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion();
+		return text;
 	}
 
 	/**
