@@ -132,7 +132,9 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 
 		final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInGroup());
 		final CustomButton listAllButton = TabMenu.getPredefinedButton(ButtonType.LIST_ALL_MEMBERS, ButtonTranslation.INSTANCE.listAllMembersInGroup());
-		if (!session.isVoAdmin(group.getVoId()) && !session.isGroupAdmin(groupId)) findMembers.setCheckable(false);
+		if ((!session.isVoAdmin(group.getVoId()) && !session.isGroupAdmin(groupId)) || group.isCoreGroup()) {
+			findMembers.setCheckable(false);
+		}
 
 		table = findMembers.getEmptyTable(new FieldUpdater<RichMember, RichMember>() {
 			// when user click on a row -> open new tab
@@ -153,12 +155,14 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 			}
 		});
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
-		tabMenu.addWidget(addButton);
 
 		// REMOVE
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromGroup());
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) removeButton.setEnabled(false);
-		tabMenu.addWidget(removeButton);
+		if (!group.isCoreGroup()) {
+			tabMenu.addWidget(addButton);
+			tabMenu.addWidget(removeButton);
+		}
 
 		// refreshMembers
 		final JsonCallbackEvents refreshEvent = new JsonCallbackEvents() {
