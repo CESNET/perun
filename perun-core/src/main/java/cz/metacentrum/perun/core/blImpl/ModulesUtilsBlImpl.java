@@ -250,6 +250,13 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		if(maxGidAttribute.getValue() == null) throw new WrongReferenceAttributeValueException(attribute, maxGidAttribute);
 		Integer maxGid = (Integer) maxGidAttribute.getValue();
 
+		//FIXME HACK: there are some artefact in 'einfra' from the past we need to skip
+		if(gidNamespace.equals("einfra")) {
+			List<Integer> artefactGIDs = new ArrayList<>(Arrays.asList(221,223,226,228,230,236,1185,1186,2001,2004));
+			if(artefactGIDs.contains(gid)) return;
+		}
+		//END OF HACK (need to be remove after solving the problem with EINFRA GID range)
+
 		if ( gid < minGid || gid > maxGid ) {
 			throw new WrongAttributeValueException(attribute,"GID number is not in allowed values min: "+minGid+", max:"+maxGid);
 		}
