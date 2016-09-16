@@ -218,14 +218,15 @@ public class MailsTabItem implements TabItem, TabItemWithUrl {
 		});
 		menu.addWidget(disableButton);
 
-		// for VO only
-		if (group == null) {
 			menu.addWidget(new CustomButton(ButtonTranslation.INSTANCE.mailFooterButton()+"…", ButtonTranslation.INSTANCE.editMailFooter(), SmallIcons.INSTANCE.emailIcon(), new ClickHandler(){
 				public void onClick(ClickEvent event) {
-					session.getTabManager().addTabToCurrentTab(new EditMailFooterTabItem(vo));
+					if(group == null) {
+						session.getTabManager().addTabToCurrentTab(new EditMailFooterTabItem(vo));
+					} else {
+						session.getTabManager().addTabToCurrentTab(new EditMailFooterTabItem(group));
+					}
 				}
 			}));
-		}
 
 		CustomButton copy;
 

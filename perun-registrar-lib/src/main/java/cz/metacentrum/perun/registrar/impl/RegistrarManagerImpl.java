@@ -115,6 +115,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_GROUP_REGISTRAR_URL = AttributesManager.NS_GROUP_ATTR_DEF;
 	private static final String URN_GROUP_REGISTRAR_URL = NAMESPACE_GROUP_REGISTRAR_URL + ":" +  FRIENDLY_NAME_GROUP_REGISTRAR_URL;
 
+	private static final String DISPLAY_NAME_VO_MAIL_FOOTER_URL = "Mail Footer";
+	private static final String FRIENDLY_NAME_VO_MAIL_FOOTER_URL = "mailFooter";
+	private static final String NAMESPACE_VO_MAIL_FOOTER_URL = AttributesManager.NS_VO_ATTR_DEF;
+	private static final String URN_VO_MAIL_FOOTER_URL = NAMESPACE_VO_MAIL_FOOTER_URL + ":" + FRIENDLY_NAME_VO_MAIL_FOOTER_URL;
+
+	private static final String DISPLAY_NAME_GROUP_MAIL_FOOTER_URL = "Mail Footer";
+	private static final String FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL = "mailFooter";
+	private static final String NAMESPACE_GROUP_MAIL_FOOTER_URL = AttributesManager.NS_GROUP_ATTR_DEF;
+	private static final String URN_GROUP_MAIL_FOOTER_URL = NAMESPACE_GROUP_MAIL_FOOTER_URL + ":" + FRIENDLY_NAME_VO_MAIL_FOOTER_URL;
+
+
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
 	@Autowired PerunBl perun;
@@ -339,6 +350,39 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_REGISTRAR_URL);
 			attrDef.setNamespace(NAMESPACE_GROUP_REGISTRAR_URL);
 			attrDef.setDescription("Custom URL used in registration notifications (hostname without any parameters like: https://hostname.domain/). This value override same VO setting. If not set, default hostname of Perun instance is used.");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_VO_MAIL_FOOTER_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_VO_MAIL_FOOTER_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_MAIL_FOOTER_URL);
+			attrDef.setNamespace(NAMESPACE_VO_MAIL_FOOTER_URL);
+			attrDef.setDescription("Email footer used in mail notifications by tag {mailFooter}. To edit text whithout loose of formatting, please use notification's GUI!!");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_MAIL_FOOTER_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_GROUP_MAIL_FOOTER_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL);
+			attrDef.setNamespace(NAMESPACE_GROUP_MAIL_FOOTER_URL);
+			attrDef.setDescription("Email footer used in mail notifications by tag {mailFooter}. To edit text whithout loose of formatting, please use notification's GUI!!");
 			attrDef.setType(String.class.getName());
 			attrDef = attrManager.createAttribute(registrarSession, attrDef);
 			// set attribute rights
