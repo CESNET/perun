@@ -123,7 +123,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String DISPLAY_NAME_GROUP_MAIL_FOOTER_URL = "Mail Footer";
 	private static final String FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL = "mailFooter";
 	private static final String NAMESPACE_GROUP_MAIL_FOOTER_URL = AttributesManager.NS_GROUP_ATTR_DEF;
-	private static final String URN_GROUP_MAIL_FOOTER_URL = NAMESPACE_GROUP_MAIL_FOOTER_URL + ":" + FRIENDLY_NAME_VO_MAIL_FOOTER_URL;
+	private static final String URN_GROUP_MAIL_FOOTER_URL = NAMESPACE_GROUP_MAIL_FOOTER_URL + ":" + FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL;
 
 
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
@@ -826,7 +826,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		jdbc.update("delete from application_form_items where form_id=? and ordnum=?", form.getId(), ordnum);
 		jdbc.update("update application_form_items set ordnum=ordnum-1 where form_id=? and ordnum>?", form.getId(), ordnum);
-		
+
 		perun.getAuditer().log(user, "Application form item ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has been deleted");
 
 	}
