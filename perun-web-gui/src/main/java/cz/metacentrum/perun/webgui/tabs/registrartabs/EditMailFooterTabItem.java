@@ -15,6 +15,7 @@ import cz.metacentrum.perun.webgui.json.attributesManager.GetListOfAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.RemoveAttributes;
 import cz.metacentrum.perun.webgui.json.attributesManager.SetAttributes;
 import cz.metacentrum.perun.webgui.model.Attribute;
+import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
@@ -53,6 +54,9 @@ public class EditMailFooterTabItem implements TabItem {
 	private VirtualOrganization vo;
 	private int voId = 0;
 
+	private Group group = null;
+	private int groupId = 0;
+
 	/**
 	 * Creates a tab instance
 	 *
@@ -61,6 +65,12 @@ public class EditMailFooterTabItem implements TabItem {
 	public EditMailFooterTabItem(VirtualOrganization vo){
 		this.voId = vo.getId();
 		this.vo = vo;
+	}
+
+	public EditMailFooterTabItem(Group group) {
+		this.voId = group.getVoId();
+		this.groupId = group.getId();
+		this.group = group;
 	}
 
 	public boolean isPrepared(){
@@ -82,7 +92,11 @@ public class EditMailFooterTabItem implements TabItem {
 		content.getFlexCellFormatter().setStyleName(2, 0, "inputFormInlineComment");
 
 		final Map<String, Integer> ids = new HashMap<String,Integer>();
-		ids.put("vo", voId);
+		if (group == null) {
+			ids.put("vo", voId);
+		} else {
+			ids.put("group", groupId);
+		}
 
 		final ArrayList<Attribute> list = new ArrayList<Attribute>();
 
@@ -105,7 +119,11 @@ public class EditMailFooterTabItem implements TabItem {
 		});
 
 		ArrayList<String> l = new ArrayList<String>();
-		l.add("urn:perun:vo:attribute-def:def:mailFooter");
+		if (group == null) {
+			l.add("urn:perun:vo:attribute-def:def:mailFooter");
+		} else {
+			l.add("urn:perun:group:attribute-def:def:mailFooter");
+		}
 		call.getListOfAttributes(ids, l);
 
 		final TabItem tab = this;
@@ -207,7 +225,7 @@ public class EditMailFooterTabItem implements TabItem {
 		if (getClass() != obj.getClass())
 			return false;
 		EditMailFooterTabItem create = (EditMailFooterTabItem) obj;
-		if (voId != create.voId){
+		if (voId != create.voId || groupId != create.groupId){
 			return false;
 		}
 
@@ -224,12 +242,7 @@ public class EditMailFooterTabItem implements TabItem {
 	}
 
 	public boolean isAuthorized() {
-
-		if (session.isVoAdmin(voId)) {
-			return true;
-		} else {
-			return false;
-		}
+		return (session.isVoAdmin(voId) || session.isGroupAdmin(groupId));
 	}
 
 }

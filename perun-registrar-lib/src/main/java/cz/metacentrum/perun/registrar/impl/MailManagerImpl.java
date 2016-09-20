@@ -53,6 +53,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_VO_FROM_EMAIL = "urn:perun:vo:attribute-def:def:fromEmail";
 	private static final String URN_VO_TO_EMAIL = "urn:perun:vo:attribute-def:def:toEmail";
 	private static final String URN_VO_MAIL_FOOTER = "urn:perun:vo:attribute-def:def:mailFooter";
+	private static final String URN_GROUP_MAIL_FOOTER = "urn:perun:group:attribute-def:def:mailFooter";
 	protected static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
 	private static final String URN_USER_PREFERRED_LANGUAGE = "urn:perun:user:attribute-def:def:preferredLanguage";
 	private static final String URN_MEMBER_MAIL = "urn:perun:member:attribute-def:def:mail";
@@ -1836,9 +1837,17 @@ public class MailManagerImpl implements MailManager {
 			String footer = "";
 			// get proper value from attribute
 			try {
-				Attribute attrFooter = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_MAIL_FOOTER);
-				if (attrFooter != null && attrFooter.getValue() != null) {
-					footer = BeansUtils.attributeValueToString(attrFooter);
+				Attribute attribute;
+				if (app.getGroup() != null) {
+					attribute = attrManager.getAttribute(registrarSession, app.getGroup(), URN_GROUP_MAIL_FOOTER);
+					if (attribute == null || attribute.getValue() == null) {
+						attribute = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_MAIL_FOOTER);
+					}
+				} else {
+					attribute = attrManager.getAttribute(registrarSession, app.getVo(), URN_VO_MAIL_FOOTER);
+				}
+				if (attribute != null && attribute.getValue() != null) {
+					footer = BeansUtils.attributeValueToString(attribute);
 				}
 			} catch (Exception ex) {
 				// we dont care about exceptions here
