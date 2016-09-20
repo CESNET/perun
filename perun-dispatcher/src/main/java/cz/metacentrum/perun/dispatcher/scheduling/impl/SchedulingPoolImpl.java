@@ -293,6 +293,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		} else {
 			tasksById.get(task.getId()).put(task, queueForTask);
 		}
+		taskManager.updateTaskEngine(task, queueForTask.getClientID());
 	}
 
 	@Override

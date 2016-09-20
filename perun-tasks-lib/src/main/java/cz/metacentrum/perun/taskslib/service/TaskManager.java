@@ -47,6 +47,8 @@ public interface TaskManager {
 	void updateTask(Task task, int engineID);
 
 	void updateTask(Task task);
+	
+	void updateTaskEngine(Task task, int engineID);
 
 	boolean isThereSuchTask(ExecService execService, Facility facility, int engineID);
 

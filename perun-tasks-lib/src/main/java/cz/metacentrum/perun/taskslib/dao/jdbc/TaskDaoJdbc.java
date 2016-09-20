@@ -374,6 +374,12 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	}
 
 	@Override
+	public void updateTaskEngine(Task task, int engineID) {
+		this.getJdbcTemplate().update(
+				"update tasks set engine_id = ? where id = ?", engineID, task.getId());
+	}
+
+	@Override
 	public boolean isThereSuchTask(ExecService execService, Facility facility, int engineID) {
 		this.getJdbcTemplate().update("select id from exec_services where id = ?", execService.getId());
 
