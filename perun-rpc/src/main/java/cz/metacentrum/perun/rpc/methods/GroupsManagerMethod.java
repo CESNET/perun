@@ -45,9 +45,14 @@ public enum GroupsManagerMethod implements ManagerMethod {
 						ac.getGroupById(parms.readInt("parentGroup")),
 						parms.read("group", Group.class));
 			} else if (parms.contains("vo")) {
-				return ac.getGroupsManager().createGroup(ac.getSession(),
-						ac.getVoById(parms.readInt("vo")),
-						parms.read("group", Group.class));
+				Group group = parms.read("group", Group.class);
+				if (group.getParentGroupId() == null) {
+					return ac.getGroupsManager().createGroup(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							group);
+				} else {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Top-level groups can't have parentGroupId set!");
+				}
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or parentGroup");
 			}
@@ -111,18 +116,18 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @param forceDelete boolean If true use force delete.
 	 */
 	deleteGroups {
-		
+
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-			
+
 			//TODO: optimalizovat?
 			int[] ids = parms.readArrayOfInts("groups");
 			List<Group> groups = new ArrayList<>(ids.length);
 			for (int i : ids) {
 				groups.add(ac.getGroupById(i));
 			}
-			
+
 			ac.getGroupsManager().deleteGroups(ac.getSession(),
 					groups,
 					parms.readBoolean("forceDelete"));
@@ -149,7 +154,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			return null;
 		}
 	},
-	
+
 	/*#
 	 * Updates a group.
 	 *
@@ -765,19 +770,19 @@ public enum GroupsManagerMethod implements ManagerMethod {
 					ac.getMemberById(parms.readInt("member")));
 		}
 	},
-	
+
 	/*#
 	 * Returns groups with specific attribute for a member.
-	 * 
+	 *
 	 * @param member int Member <code>id</code>
 	 * @param attribute Attribute attribute object with value
 	 * @return List<Group> Groups of the member
 	 */
 	getMemberGroupsByAttribute {
-		
+
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException{
-			
+
 			return ac.getGroupsManager().getMemberGroupsByAttribute(ac.getSession(),
 					ac.getMemberById(parms.readInt("member")),parms.read("attribute", Attribute.class));
 		}

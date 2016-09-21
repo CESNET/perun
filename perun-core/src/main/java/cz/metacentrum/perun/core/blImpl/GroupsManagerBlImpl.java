@@ -55,6 +55,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, InternalErrorException {
+		if (group.getParentGroupId() != null) throw new InternalErrorException("Top-level groups can't have parentGroupId set!");
 		group = getGroupsManagerImpl().createGroup(sess, vo, group);
 		getPerunBl().getAuditer().log(sess, "{} created in {}.", group, vo);
 		group.setVoId(vo.getId());
@@ -2332,7 +2333,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// check if result group is the same as operand group
 		if (resultGroup.getId() == operandGroup.getId()) {
 			throw new GroupRelationNotAllowed("Result group " + resultGroup + " cannot be the same as operand group " + operandGroup);
-		} 
+		}
 
 		// check if there is already a record of these two groups
 		if (this.groupsManagerImpl.isRelationBetweenGroups(resultGroup, operandGroup)) {
