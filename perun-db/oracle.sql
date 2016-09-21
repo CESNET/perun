@@ -1,4 +1,4 @@
--- database version 3.1.37 (don't forget to update insert statement at the end of file)
+-- database version 3.1.38 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1119,6 +1119,20 @@ create table facilities_bans (
   modified_by_uid integer
 );
 
+create table user_ext_source_attr_values (
+	ues_id integer not null,
+	attr_id integer not null,
+	attr_value nvarchar2(4000),
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28 nocache;
 create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28 nocache;
 create sequence AUDITER_LOG_ID_SEQ maxvalue 1.0000E+28 nocache;
@@ -1307,6 +1321,8 @@ create index IDX_FK_RES_BAN_MEMBER on resources_bans (member_id);
 create index IDX_FK_RES_BAN_RES on resources_bans (resource_id);
 create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
 create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
+create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (ues_id);
+create index IDX_FK_UES_ATTR_VALUES_ATTR on user_ext_source_attr_values (attr_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
@@ -1777,8 +1793,14 @@ constraint pwdreset_pk primary key (id),
 constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
+alter table user_ext_source_attr_values add (
+constraint UESATTRVAL_PK primary key (ues_id, attr_id),
+constraint UESATTRVAL_UES_FK foreign key (ues_id) references user_ext_sources(id),
+constraint UESATTRVAL_ATTR_FK foreign key (attr_id) references attr_names(id)
+);
+
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.37');
+insert into configurations values ('DATABASE VERSION','3.1.38');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

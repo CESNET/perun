@@ -3,6 +3,16 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.38
+create table "user_ext_source_attr_values" ( ues_id integer not null, attr_id integer not null, attr_value varchar(4000), created_at timestamp default now() not null, created_by varchar(1024) default user not null, modified_at timestamp default now() not null, modified_by varchar(1024) default user not null, status char(1) default '0' not null, attr_value_text text, created_by_uid integer, modified_by_uid integer );
+create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (ues_id);
+create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
+alter table user_ext_source_attr_values add constraint uesattrval_pk primary key (ues_id, attr_id);
+alter table user_ext_source_attr_values add constraint uesattrval_ues_fk foreign key (ues_id) references user_ext_sources(id);
+alter table user_ext_source_attr_values add constraint uesattrval_attr_fk foreign key (attr_id) references attr_names(id);
+grant all on user_ext_source_attr_values to perun;
+update configurations set value='3.1.38' where property='DATABASE VERSION';
+
 3.1.37
 ALTER TABLE groups_groups RENAME group_id TO result_gid;
 ALTER TABLE groups_groups RENAME parent_group_id TO operand_gid;

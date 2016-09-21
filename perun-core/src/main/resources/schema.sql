@@ -1112,6 +1112,20 @@ create table facilities_bans (
 	modified_by_uid integer
 );
 
+create table user_ext_source_attr_values (
+	ues_id integer not null,
+	attr_id integer not null,
+	attr_value varchar(4000),
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text longvarchar,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
 create sequence attr_names_id_seq;
 create sequence auditer_consumers_id_seq;
 create sequence auditer_log_id_seq;
@@ -1309,6 +1323,8 @@ create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id
 create index idx_fk_fac_ban_user on facilities_bans (user_id);
 create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
+create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (ues_id);
+create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1644,3 +1660,7 @@ alter table mailchange add constraint mailchange_pk primary key (id);
 alter table mailchange add constraint mailchange_u_fk foreign key (user_id) references users(id);
 alter table pwdreset add constraint pwdreset_pk primary key (id);
 alter table pwdreset add constraint pwdreset_u_fk foreign key (user_id) references users(id);
+
+alter table user_ext_source_attr_values add constraint uesattrval_pk primary key (ues_id, attr_id);
+alter table user_ext_source_attr_values add constraint uesattrval_ues_fk foreign key (ues_id) references user_ext_sources(id);
+alter table user_ext_source_attr_values add constraint uesattrval_attr_fk foreign key (attr_id) references attr_names(id);
