@@ -43,6 +43,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	}
 
 	public Group createGroup(PerunSession sess, Vo vo, Group group) throws GroupExistsException, InternalErrorException {
+		if (group.getParentGroupId() != null) throw new InternalErrorException("Top-level groups can't have parentGroupId set!");
 		group = getGroupsManagerImpl().createGroup(sess, vo, group);
 		getPerunBl().getAuditer().log(sess, "{} created in {}.", group, vo);
 		group.setVoId(vo.getId());
