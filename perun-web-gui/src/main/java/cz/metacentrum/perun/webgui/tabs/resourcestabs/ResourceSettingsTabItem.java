@@ -116,7 +116,7 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 	}
 
 	public boolean isPrepared(){
-		return !(resource == null && service != null);
+		return (resource != null && serviceId == 0) || (resource != null && service != null);
 	}
 
 	public Widget draw() {
@@ -149,6 +149,15 @@ public class ResourceSettingsTabItem implements TabItem, TabItemWithUrl {
 		// puts first table
 		final CellTable<Attribute> table = resAttrs.getEmptyTable();
 		final CellTable<Attribute> table2 = attrs.getEmptyTable();
+
+		// if for one service only modify empty table message
+		if (service != null) {
+			AjaxLoaderImage empty = (AjaxLoaderImage)table.getEmptyTableWidget();
+			empty.setEmptyResultMessage("Service "+service.getName()+" requires no setting on resource.");
+			AjaxLoaderImage empty2 = (AjaxLoaderImage)table2.getEmptyTableWidget();
+			empty2.setEmptyResultMessage("Service "+service.getName()+" requires no setting on resource.");
+		}
+
 		final ListBoxWithObjects<Service> servList = new ListBoxWithObjects<Service>();
 		sp.setWidget(table);
 		sp2.setWidget(table2);
