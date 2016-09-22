@@ -2,7 +2,10 @@ package cz.metacentrum.perun.dispatcher.processing.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,12 +141,12 @@ public class EventProcessorImpl implements EventProcessor {
 
 			// Resolve the services in event, send the resulting <ExecService,
 			// Facility> pairs to engine
-			List<Pair<List<ExecService>, Facility>> resolvedServices = eventExecServiceResolver
+			Map<Facility, Set<ExecService>> resolvedServices = eventExecServiceResolver
 					.parseEvent(event.toString());
-			for (Pair<List<ExecService>, Facility> service : resolvedServices) {
+			for (Entry<Facility, Set<ExecService>> service : resolvedServices.entrySet()) {
 				// String facility = service.getRight().serializeToString();
-				Facility facility = service.getRight();
-				for (ExecService execService : service.getLeft()) {
+				Facility facility = service.getKey();
+				for (ExecService execService : service.getValue()) {
 					// dispatcherQueue.sendMessage("[" + facility + "][" +
 					// execService.getId() + "]");
 
