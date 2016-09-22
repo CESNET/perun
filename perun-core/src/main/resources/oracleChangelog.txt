@@ -4,10 +4,10 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.1.38
-create table user_ext_source_attr_values ( ues_id integer not null, attr_id integer not null, attr_value nvarchar2(4000), created_at date default sysdate not null, created_by nvarchar2(1024) default user not null, modified_at date default sysdate not null, modified_by nvarchar2(1024) default user not null, status char(1) default '0' not null, attr_value_text clob, created_by_uid integer, modified_by_uid integer);
-create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (ues_id);
+create table user_ext_source_attr_values ( user_ext_source_id integer not null, attr_id integer not null, attr_value nvarchar2(4000), created_at date default sysdate not null, created_by nvarchar2(1024) default user not null, modified_at date default sysdate not null, modified_by nvarchar2(1024) default user not null, status char(1) default '0' not null, attr_value_text clob, created_by_uid integer, modified_by_uid integer);
+create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (user_ext_source_id);
 create index IDX_FK_UES_ATTR_VALUES_ATTR on user_ext_source_attr_values (attr_id);
-alter table user_ext_source_attr_values add ( constraint UESATTRVAL_PK primary key (ues_id, attr_id), constraint UESATTRVAL_UES_FK foreign key (ues_id) references user_ext_sources(id), constraint UESATTRVAL_ATTR_FK foreign key (attr_id) references attr_names(id) );
+alter table user_ext_source_attr_values add ( constraint UESATTRVAL_PK primary key (user_ext_source_id, attr_id), constraint UESATTRVAL_UES_FK foreign key (user_ext_source_id) references user_ext_sources(id), constraint UESATTRVAL_ATTR_FK foreign key (attr_id) references attr_names(id) );
 update configurations set value='3.1.38' where property='DATABASE VERSION';
 
 3.1.37
