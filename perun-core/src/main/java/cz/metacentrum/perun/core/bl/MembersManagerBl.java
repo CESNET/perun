@@ -824,6 +824,17 @@ public interface MembersManagerBl {
 	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers)  throws InternalErrorException;
 
 	/**
+	 * Fill the RichMember object with data from Member and corresponding User and user/member attributes defined by list of attribute definition.
+	 * 
+	 * @param sess
+	 * @param richMembers
+	 * @param attrsDef
+	 * @return
+	 * @throws InternalErrorException 
+	 */
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException;
+
+	/**
 	 * Get the VO members count.
 	 *
 	 * @param sess

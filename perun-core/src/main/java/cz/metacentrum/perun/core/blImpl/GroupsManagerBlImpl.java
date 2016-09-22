@@ -1904,6 +1904,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException if some attribute is updated in bad way (bad assignment)
 	 */
 	private void updateExistingMembersWhileSynchronization(PerunSession sess, Group group, Map<Candidate, RichMember> membersToUpdate, List<String> overwriteUserAttributesList) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		List<AttributeDefinition> attrDefs = new ArrayList<>();
 		//Iterate through all subject attributes
 		for(Candidate candidate: membersToUpdate.keySet()) {
 			RichMember richMember = membersToUpdate.get(candidate);
@@ -1917,10 +1918,22 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				continue;
 			}
 
-			for (String attributeName : candidate.getAttributes().keySet()) {
-				//get RichMember with attributes
-				richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, Arrays.asList(richMember)).get(0);
+			//load attrDefinitions just once for first candidate
+			if(attrDefs.isEmpty()) {
+				for(String attrName : candidate.getAttributes().keySet()) {
+					try {
+						AttributeDefinition attrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attrName);
+						attrDefs.add(attrDef);
+					} catch (AttributeNotExistsException ex) {
+						log.error("Can't synchronize attribute " + attrName + " for candidate " + candidate + " and for group " + group);
+						//skip this attribute at all
+					}
+				}
+			}
 
+			//get RichMember with attributes
+			richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, Arrays.asList(richMember), attrDefs).get(0);
+			for (String attributeName : candidate.getAttributes().keySet()) {
 				//update member attribute
 				if(attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
 					boolean attributeFound = false;
