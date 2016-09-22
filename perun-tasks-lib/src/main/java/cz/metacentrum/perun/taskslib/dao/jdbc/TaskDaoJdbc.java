@@ -374,9 +374,13 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 	}
 
 	@Override
-	public void updateTaskEngine(Task task, int engineID) {
-		this.getJdbcTemplate().update(
+	public void updateTaskEngine(Task task, int engineID) throws InternalErrorException {
+		try {
+			this.getJdbcTemplate().update(
 				"update tasks set engine_id = ? where id = ?", engineID, task.getId());
+		} catch(Exception e) {
+			throw new InternalErrorException("Error updating engine id", e);
+		}
 	}
 
 	@Override

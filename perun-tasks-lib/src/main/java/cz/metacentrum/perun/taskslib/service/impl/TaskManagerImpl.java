@@ -110,7 +110,7 @@ public class TaskManagerImpl implements TaskManager {
 	}
 
 	@Override
-	public void updateTaskEngine(Task task, int engineID) {
+	public void updateTaskEngine(Task task, int engineID) throws InternalErrorException {
 		taskDao.updateTaskEngine(task, engineID);
 	}
 
