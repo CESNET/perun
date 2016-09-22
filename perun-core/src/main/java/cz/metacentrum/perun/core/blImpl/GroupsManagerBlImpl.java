@@ -1938,6 +1938,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					boolean attributeFound = false;
 					for (Attribute memberAttribute: richMember.getMemberAttributes()) {
 						if(memberAttribute.getName().equals(attributeName)) {
+							if(memberAttribute.getValue() == null) break;
 							attributeFound = true;
 							Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), memberAttribute.getType());
 							if (subjectAttributeValue != null && !memberAttribute.getValue().equals(subjectAttributeValue)) {
@@ -1976,6 +1977,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					boolean attributeFound = false;
 					for (Attribute userAttribute: richMember.getUserAttributes()) {
 						if(userAttribute.getName().equals(attributeName)) {
+							if(userAttribute.getValue() == null) break;
 							attributeFound = true;
 							Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), userAttribute.getType());
 							if (!userAttribute.getValue().equals(subjectAttributeValue)) {
