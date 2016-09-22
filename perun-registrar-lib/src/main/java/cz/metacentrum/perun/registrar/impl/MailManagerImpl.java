@@ -1300,6 +1300,7 @@ public class MailManagerImpl implements MailManager {
 
 		// set backup
 		message.setFrom(getPropertyFromConfiguration("backupFrom"));
+		message.setReplyTo(getPropertyFromConfiguration("backupFrom"));
 
 		// get proper value from attribute
 		try {
@@ -1318,7 +1319,7 @@ public class MailManagerImpl implements MailManager {
 			String senderEmail = "";
 			if (attrSenderEmail != null && attrSenderEmail.getValue() != null) {
 				senderEmail = BeansUtils.attributeValueToString(attrSenderEmail);
-				message.setFrom(senderEmail);
+				message.setReplyTo(senderEmail);
 			}
 		} catch (Exception ex) {
 			// we dont care about exceptions here - we have backup TO/FROM address
