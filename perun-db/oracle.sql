@@ -1120,7 +1120,7 @@ create table facilities_bans (
 );
 
 create table user_ext_source_attr_values (
-	ues_id integer not null,
+	user_ext_source_id integer not null,
 	attr_id integer not null,
 	attr_value nvarchar2(4000),
 	created_at date default sysdate not null,
@@ -1321,7 +1321,7 @@ create index IDX_FK_RES_BAN_MEMBER on resources_bans (member_id);
 create index IDX_FK_RES_BAN_RES on resources_bans (resource_id);
 create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
 create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
-create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (ues_id);
+create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (user_ext_source_id);
 create index IDX_FK_UES_ATTR_VALUES_ATTR on user_ext_source_attr_values (attr_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
@@ -1794,8 +1794,8 @@ constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
 alter table user_ext_source_attr_values add (
-constraint UESATTRVAL_PK primary key (ues_id, attr_id),
-constraint UESATTRVAL_UES_FK foreign key (ues_id) references user_ext_sources(id),
+constraint UESATTRVAL_PK primary key (user_ext_source_id, attr_id),
+constraint UESATTRVAL_UES_FK foreign key (user_ext_source_id) references user_ext_sources(id),
 constraint UESATTRVAL_ATTR_FK foreign key (attr_id) references attr_names(id)
 );
 
