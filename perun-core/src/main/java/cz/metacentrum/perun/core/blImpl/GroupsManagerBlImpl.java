@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -1939,10 +1940,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					boolean attributeFound = false;
 					for (Attribute memberAttribute: richMember.getMemberAttributes()) {
 						if(memberAttribute.getName().equals(attributeName)) {
-							if(memberAttribute.getValue() == null) break;
 							attributeFound = true;
 							Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), memberAttribute.getType());
-							if (subjectAttributeValue != null && !memberAttribute.getValue().equals(subjectAttributeValue)) {
+							if (subjectAttributeValue != null && !Objects.equals(memberAttribute.getValue(), subjectAttributeValue)) {
 								log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
 										new Object[] {group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue});
 								memberAttribute.setValue(subjectAttributeValue);
@@ -1961,6 +1961,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 					//member has not set this attribute so set it now if possible
 					if(!attributeFound) {
+						// FIXME - this whole section probably can be removed. Previously null attributes were not retrieved with member
+						// FIXME - they are now always present, if not the same, then they are set in a code above.
 						Attribute newAttribute = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName));
 						Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), newAttribute.getType());
 						newAttribute.setValue(subjectAttributeValue);
@@ -1978,10 +1980,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					boolean attributeFound = false;
 					for (Attribute userAttribute: richMember.getUserAttributes()) {
 						if(userAttribute.getName().equals(attributeName)) {
-							if(userAttribute.getValue() == null) break;
 							attributeFound = true;
 							Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), userAttribute.getType());
-							if (!userAttribute.getValue().equals(subjectAttributeValue)) {
+							if (!Objects.equals(userAttribute.getValue(), subjectAttributeValue)) {
 								log.trace("Group synchronization {}: value of the attribute {} for memberId {} changed. Original value {}, new value {}.",
 										new Object[] {group, userAttribute, richMember.getId(), userAttribute.getValue(), subjectAttributeValue});
 								userAttribute.setValue(subjectAttributeValue);
@@ -2005,6 +2006,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 					//user has not set this attribute so set it now if
 					if(!attributeFound) {
+						// FIXME - this whole section probably can be removed. Previously null attributes were not retrieved with member
+						// FIXME - they are now always present, if not the same, then they are set in a code above.
 						Attribute newAttribute = new Attribute(getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName));
 						Object subjectAttributeValue = getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), newAttribute.getType());
 						newAttribute.setValue(subjectAttributeValue);
