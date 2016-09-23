@@ -1932,10 +1932,11 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			//get RichMember with attributes
 			richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, Arrays.asList(richMember), attrDefs).get(0);
-			log.debug("Group Synchronization {}: updating member {}.", group, richMember.getId());
+			log.debug("Group Synchronization {}: updating member {} starts.", group, richMember.getId());
 			for (String attributeName : candidate.getAttributes().keySet()) {
 				//update member attribute
 				if(attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
+					log.debug("Group Synchronization {}: setting member attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 					boolean attributeFound = false;
 					for (Attribute memberAttribute: richMember.getMemberAttributes()) {
 						if(memberAttribute.getName().equals(attributeName)) {
@@ -1947,7 +1948,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 										new Object[] {group, memberAttribute, richMember.getId(), memberAttribute.getValue(), subjectAttributeValue});
 								memberAttribute.setValue(subjectAttributeValue);
 								try {
+									log.debug("Group Synchronization {}: MEMBER-SET start nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 									getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember, memberAttribute);
+									log.debug("Group Synchronization {}: MEMBER-SET end nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 								} catch (AttributeValueException e) {
 									// There is a problem with attribute value, so set INVALID status for the member
 									getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
@@ -1966,7 +1969,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						newAttribute.setValue(subjectAttributeValue);
 						try {
 							// Try to set member's attributes
+							log.debug("Group Synchronization {}: NF-MEMBER-SET start nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 							getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember, newAttribute);
+							log.debug("Group Synchronization {}: NF-MEMBER-SET end nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 							log.trace("Setting the {} value {}", newAttribute, candidate.getAttributes().get(attributeName));
 						} catch (AttributeValueException e) {
 							// There is a problem with attribute value, so set INVALID status for the member
@@ -1975,6 +1980,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					}
 				//update user attribute
 				} else if(attributeName.startsWith(AttributesManager.NS_USER_ATTR)) {
+					log.debug("Group Synchronization {}: setting user attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 					boolean attributeFound = false;
 					for (Attribute userAttribute: richMember.getUserAttributes()) {
 						if(userAttribute.getName().equals(attributeName)) {
@@ -1988,9 +1994,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 								try {
 									//Choose set or merge by extSource attribute overwriteUserAttributes (if contains this one)
 									if(overwriteUserAttributesList.contains(userAttribute.getName())) {
+										log.debug("Group Synchronization {}: USER-SET start nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 										getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember.getUser(), userAttribute);
+										log.debug("Group Synchronization {}: USER-SET end nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 									} else {
+										log.debug("Group Synchronization {}: USER-MERGE start nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 										getPerunBl().getAttributesManagerBl().mergeAttributeValueInNestedTransaction(sess, richMember.getUser(), userAttribute);
+										log.debug("Group Synchronization {}: USER-MERGE end nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 									}
 								} catch (AttributeValueException e) {
 									// There is a problem with attribute value, so set INVALID status for the member
@@ -2010,7 +2020,9 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 						newAttribute.setValue(subjectAttributeValue);
 						try {
 							// Try to set user's attributes
+							log.debug("Group Synchronization {}: NF-USER-SET start nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 							getPerunBl().getAttributesManagerBl().setAttributeInNestedTransaction(sess, richMember.getUser(), newAttribute);
+							log.debug("Group Synchronization {}: NF-USER-SET start nested transaction for attribute {} for member {}.", new Object[] {group, attributeName, richMember.getId()});
 							log.trace("Setting the {} value {}", newAttribute, candidate.getAttributes().get(attributeName));
 						} catch (AttributeValueException e) {
 							// There is a problem with attribute value, so set INVALID status for the member
@@ -2024,6 +2036,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			//Synchronize userExtSources (add not existing)
+			log.debug("Group Synchronization {}: Setting user ext sources for member {}.", group, richMember.getId());
 			for (UserExtSource ues : candidate.getUserExtSources()) {
 				if (!getPerunBl().getUsersManagerBl().userExtSourceExists(sess, ues)) {
 					try {
@@ -2034,6 +2047,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				}
 			}
 
+			log.debug("Group Synchronization {}: Setting status:1 for member {}.", group, richMember.getId());
 			//Set correct member Status
 			// If the member has expired or disabled status, try to expire/validate him (depending on expiration date)
 			if (richMember.getStatus().equals(Status.DISABLED) || richMember.getStatus().equals(Status.EXPIRED)) {
@@ -2072,6 +2086,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			// If the member has INVALID status, try to validate the member
+			log.debug("Group Synchronization {}: Setting status:2 for member {}.", group, richMember.getId());
 			try {
 				if (richMember.getStatus().equals(Status.INVALID)) {
 					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
@@ -2083,6 +2098,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			}
 
 			// If the member has still DISABLED status, try to validate the member
+			log.debug("Group Synchronization {}: Setting status:3 for member {}.", group, richMember.getId());
 			try {
 				if (richMember.getStatus().equals(Status.DISABLED)) {
 					getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
@@ -2092,6 +2108,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			} catch (WrongReferenceAttributeValueException e) {
 				log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
 			}
+			log.debug("Group Synchronization {}: updating member {} ends.", group, richMember.getId());
 		}
 	}
 
