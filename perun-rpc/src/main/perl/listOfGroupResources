@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -20,31 +20,29 @@ sub help {
 	};
 }
 
-my ($groupId, $batch, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"groupId|g=i" => \$groupId,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-"orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) } ,
-"batch|b" => \$batch) || die help;
+our $batch;
+my ($groupId, $sortingFunction);
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"groupId|g=i"   => \$groupId,
+	"orderById|i"   => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"       => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
-unless(defined $groupId) { die "ERROR: Group specification required.\n"; }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $groupId) { die "ERROR: Group specification required.\n"; }
 
 my $resourcesAgent = $agent->getResourcesAgent;
-my @resources = $resourcesAgent->getAssignedResources(group => $groupId);
-unless(@resources) { printMessage "No Group's Resources found", $batch; exit 0; }
-
-
-#output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('ID','Name', 'Facility ID');
-
-foreach my $resource (sort $sortingFunction @resources) {
-	my $facility = $resourcesAgent->getFacility(resource => $resource->getId);
-	$table->addRow($resource->getId, $resource->getName, $facility->getId);
+my @resources = $resourcesAgent->getAssignedResources( group => $groupId );
+unless (@resources) {
+	printMessage "No Group's Resources found", $batch;
+	exit 0;
 }
 
-print tableToPrint($table, $batch);
+#output
+printTable($sortingFunction, @resources);

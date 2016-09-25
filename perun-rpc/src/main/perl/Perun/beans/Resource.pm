@@ -14,11 +14,13 @@ sub toString {
 	my $id = $self->{_id};
 	my $name = $self->{_name};
 	my $description = $self->{_description};
+	my $facilityId = $self->{_facilityId};
 
 	my $str = 'Resource (';
 	$str .= "id: $id, " if ($id);
 	$str .= "name: $name, " if ($name);
 	$str .= "description: $description" if ($description);
+	$str .= "facilityId: $facilityId" if ($facilityId);
 	$str .= ')';
 
 	return $str;
@@ -58,8 +60,15 @@ sub TO_JSON
 	} else {
 		$description = undef;
 	}
+	
+	my $facilityId;
+	if (defined($self->{_facilityId})) {
+		$facilityId = "$self->{_facilityId}";
+	} else {
+		$facilityId = 0;
+	}
 
-	return {id => $id, name => $name, description => $description, beanName => "Resource"};
+	return {id => $id, name => $name, description => $description, facilityId => $facilityId, beanName => "Resource"};
 }
 
 sub getId
@@ -107,13 +116,28 @@ sub setDescription
 	return;
 }
 
+sub getFacilityId
+{
+	my $self = shift;
+	
+	return $self->{_facilityId};
+}
+
+sub setFacilityId
+{
+	my $self = shift;
+	$self->{_facilityId} = shift;
+	
+	return;
+}
+
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_name});
+	return ($self->{_id}, $self->{_name}, $self->{_facilityId});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name');
+	return ('ID', 'Name', 'Facility ID');
 }
 
 

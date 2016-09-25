@@ -35,4 +35,4 @@ unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getSor
 my @users = $usersAgent->getUsers();
 unless(@users) { printMessage "No users found", $batch; exit 0; }
 
-print printTable($sortingFunction, @users);
+printTable($sortingFunction, @users);

@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -22,31 +22,29 @@ sub help {
 
 our $batch;
 my ($resourceId, $memberId, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
+GetOptions("help|h"  => sub {
+		print help;
+		exit 0;
+	},
 	"resourceId|r=i" => \$resourceId,
-"memberId|m=i" => \$memberId,
-					 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-					 "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-					 "batch|b" => \$batch) || die help;
+	"memberId|m=i"   => \$memberId,
+	"orderById|i"    => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"  => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"        => \$batch) || die help;
 
 #options check
-			 unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
-			 unless(defined $resourceId) { die "ERROR: Resource specification required.\n"; }
-			 unless(defined $memberId) { die "ERROR: Member specification required.\n"; }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $resourceId) { die "ERROR: Resource specification required.\n"; }
+unless (defined $memberId) { die "ERROR: Member specification required.\n"; }
 
-			 my $agent = Perun::Agent->new();
-			 my $attributesAgent = $agent->getAttributesAgent;
+my $agent = Perun::Agent->new();
+my $attributesAgent = $agent->getAttributesAgent;
 
-
-			 my @attributes = $attributesAgent->getAttributes(resource => $resourceId, member => $memberId);
-			 unless(@attributes) { printMessage "No Attribute found", $batch; exit 0;}
+my @attributes = $attributesAgent->getAttributes( resource => $resourceId, member => $memberId );
+unless (@attributes) {
+	printMessage "No Attribute found", $batch;
+	exit 0;
+}
 
 #output
-			 my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-			 $table->setCols('ID','Name', 'Type', 'Value');
-
-			 foreach my $attribute (sort $sortingFunction @attributes) {
-				 $table->addRow($attribute->getId, $attribute->getName, $attribute->getType, $attribute->getValueAsScalar);
-			 }
-
-			 print tableToPrint($table, $batch);
+printTable($sortingFunction, @attributes);

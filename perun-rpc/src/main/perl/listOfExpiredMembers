@@ -9,7 +9,7 @@ use Perun::Common qw(printMessage getSortingFunction tableToPrint);
 
 sub help {
 	return qq{
-	Prints list of expired V OMembers. Vo and number of years are required field.
+	Prints list of expired VO Members. Vo and number of years are required field.
 	------------------------------
 	Available options:
 	--voId         | -v  VO idetifier

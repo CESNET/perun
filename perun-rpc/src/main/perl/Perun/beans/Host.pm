@@ -66,4 +66,13 @@ sub setHostname
 	return;
 }
 
+sub getCommonArrayRepresentation {
+	my $self = shift;
+	return ($self->getId, $self->getHostname);
+}
+
+sub getCommonArrayRepresentationHeading {
+	return ('ID','Name');
+}
+
 1;

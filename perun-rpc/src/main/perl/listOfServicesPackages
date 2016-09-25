@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -19,25 +19,25 @@ sub help {
 	};
 }
 
-my ($batch, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-	"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-	"batch|b" => \$batch) || die help;
+our $batch;
+my $sortingFunction;
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"orderById|i"   => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"       => \$batch) || die help;
 
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
-my $servicesAgent=$agent->getServicesAgent;
+my $servicesAgent = $agent->getServicesAgent;
 my @packages = $servicesAgent->getServicesPackages;
-unless(@packages) { printMessage "No Service Packages found", $batch; exit 0; }
-
-#output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('ID','Name');
-
-foreach my $package (sort $sortingFunction @packages) {
-	$table->addRow($package->getId, $package->getName);
+unless (@packages) {
+	printMessage "No Service Packages found", $batch;
+	exit 0;
 }
 
-print tableToPrint($table, $batch);
+#output
+printTable($sortingFunction, @packages);

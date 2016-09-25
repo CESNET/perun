@@ -360,21 +360,6 @@ sub setLocked
 	return;
 }
 
-sub getCathegortId
-{
-	my $self = shift;
-
-	return $self->{_cathegoryId};
-}
-
-sub setCathegortId
-{
-	my $self = shift;
-	$self->{_cathegoryId} = shift;
-
-	return;
-}
-
 sub getAuthors
 {
 	my $self = shift;
@@ -384,12 +369,11 @@ sub getAuthors
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_title});
+	return ($self->getId, $self->getTitle, $self->getRank, $self->getYear, $self->getCategoryId, $self->getLocked);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Title');
+	return ('ID','Name','Rank','Year','Cathegory ID','Locked');
 }
-
 
 1;

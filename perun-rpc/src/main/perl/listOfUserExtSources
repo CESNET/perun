@@ -20,7 +20,8 @@ sub help {
 	};
 }
 
-my ($userId, $sortingFunction, $batch);
+our $batch;
+my ($userId, $sortingFunction);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
 "userId|u=i" => \$userId, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') } ) || die help();
 
@@ -36,4 +37,4 @@ my @extSources = $usersAgent->getUserExtSources(user =>$userId);
 
 unless(@extSources) { printMessage "No user extrnal sources found", $batch;  exit 0; }
 
-printTable $sortingFunction, @extSources;
+printTable($sortingFunction, @extSources);

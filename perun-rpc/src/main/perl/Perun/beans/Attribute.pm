@@ -320,4 +320,13 @@ sub setValueFromArray {
 	}
 }
 
+sub getCommonArrayRepresentation {
+	my $self = shift;
+	return ($self->{_id}, $self->getName, $self->getType, $self->getValueAsScalar);
+}
+
+sub getCommonArrayRepresentationHeading {
+	return ('ID','Name', 'Type', 'Value');
+}
+
 1;

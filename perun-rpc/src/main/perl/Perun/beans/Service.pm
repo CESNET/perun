@@ -83,5 +83,14 @@ sub setName
 	return;
 }
 
+sub getCommonArrayRepresentation {
+	my $self = shift;
+	return ($self->{_id}, $self->{_name});
+}
+
+sub getCommonArrayRepresentationHeading {
+	return ('ID', 'Name');
+}
+
 
 1;
