@@ -76,6 +76,8 @@ public interface TaskDao {
 
 	void updateTask(Task task, int engineID);
 
+	void updateTaskEngine(Task task, int engineID) throws InternalErrorException;
+
 	boolean isThereSuchTask(ExecService execService, Facility facility, int engineID);
 
 	void removeTask(ExecService execService, Facility facility, int engineID);
