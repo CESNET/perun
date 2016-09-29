@@ -41,8 +41,7 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(ELIXIRCILogonDNGenerator.class);
 	
-	final static String ELIXIRSCOPE = "@elixir-europe.org";
-	final static String LOGINATTRIBUTE = "urn:perun:user:attribute-def:def:login-namespace:elixir";
+	final static String LOGINATTRIBUTE = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
 	final static String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=elixir-europe.org/CN=";
 	final static String CADN = "/DC=eu/DC=rcauth/O=Certification Authorities/CN=Research and Collaboration Authentication Pilot G1 CA";
 
@@ -75,10 +74,8 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			PerunBl perun = (PerunBl) session.getPerun();
 
 			User user = app.getUser();
-			// Get user login
-			String login = (String) perun.getAttributesManagerBl().getAttribute(session, user, LOGINATTRIBUTE).getValue();
-			// Create ELIXIR login from user login and scope
-			String elixirLogin = login + ELIXIRSCOPE;
+			// Get user ELIXIR persistent login
+			String elixirLogin = (String) perun.getAttributesManagerBl().getAttribute(session, user, LOGINATTRIBUTE).getValue();
 
 			// Get user displayName
 			String utfDisplayName = user.getCommonName();
@@ -104,6 +101,8 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			String hash = Base64.encodeBase64String(digest);
 			// Get just first 16 bytes as is described in EU CILogon - RCauth.eu CA requirements
 			String CILogonHash = hash.substring(0, 16);
+			// Based on the RCauth.eu policy, every '/' must be replaced with '-'
+			CILogonHash = CILogonHash.replaceAll("/","-");
 			
 			// Generate the DN, it must look like /DC=eu/DC=rcauth/DC=rcauth-clients/O=elixir-europe.org/CN=Michal Prochazka rdkfo3rdkfo3kdo
 			String dn = DNPREFIX + displayName + " " + CILogonHash;
