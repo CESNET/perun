@@ -1154,7 +1154,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 			ac.stateChangingCheck();
 
 			return ac.getFacilitiesManager().updateBan(ac.getSession(),
-					ac.getBanOnFacility(parms.readInt("banOnFacility")));
+					parms.read("banOnFacility", BanOnFacility.class));
 
 		}
 	},

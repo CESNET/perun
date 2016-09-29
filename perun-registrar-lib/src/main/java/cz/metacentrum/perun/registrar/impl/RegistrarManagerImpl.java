@@ -115,6 +115,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 	private static final String NAMESPACE_GROUP_REGISTRAR_URL = AttributesManager.NS_GROUP_ATTR_DEF;
 	private static final String URN_GROUP_REGISTRAR_URL = NAMESPACE_GROUP_REGISTRAR_URL + ":" +  FRIENDLY_NAME_GROUP_REGISTRAR_URL;
 
+	private static final String DISPLAY_NAME_VO_MAIL_FOOTER_URL = "Mail Footer";
+	private static final String FRIENDLY_NAME_VO_MAIL_FOOTER_URL = "mailFooter";
+	private static final String NAMESPACE_VO_MAIL_FOOTER_URL = AttributesManager.NS_VO_ATTR_DEF;
+	private static final String URN_VO_MAIL_FOOTER_URL = NAMESPACE_VO_MAIL_FOOTER_URL + ":" + FRIENDLY_NAME_VO_MAIL_FOOTER_URL;
+
+	private static final String DISPLAY_NAME_GROUP_MAIL_FOOTER_URL = "Mail Footer";
+	private static final String FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL = "mailFooter";
+	private static final String NAMESPACE_GROUP_MAIL_FOOTER_URL = AttributesManager.NS_GROUP_ATTR_DEF;
+	private static final String URN_GROUP_MAIL_FOOTER_URL = NAMESPACE_GROUP_MAIL_FOOTER_URL + ":" + FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL;
+
+
 	private static final String MODULE_PACKAGE_PATH = "cz.metacentrum.perun.registrar.modules.";
 
 	@Autowired PerunBl perun;
@@ -173,7 +184,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		final PerunPrincipal pp = new PerunPrincipal("perunRegistrar",
 				ExtSourcesManager.EXTSOURCE_NAME_INTERNAL,
 				ExtSourcesManager.EXTSOURCE_INTERNAL);
-		registrarSession = perun.getPerunSession(pp);
+		registrarSession = perun.getPerunSession(pp, new PerunClient());
 
 		// set managers
 		this.attrManager = perun.getAttributesManager();
@@ -347,6 +358,39 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
 			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
 		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_VO_MAIL_FOOTER_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_VO_MAIL_FOOTER_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_VO_MAIL_FOOTER_URL);
+			attrDef.setNamespace(NAMESPACE_VO_MAIL_FOOTER_URL);
+			attrDef.setDescription("Email footer used in mail notifications by tag {mailFooter}. To edit text whithout loose of formatting, please use notification's GUI!!");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+		}
+		try {
+			attrManager.getAttributeDefinition(registrarSession, URN_GROUP_MAIL_FOOTER_URL);
+		} catch (AttributeNotExistsException ex) {
+			// create attr if not exists
+			AttributeDefinition attrDef = new AttributeDefinition();
+			attrDef.setDisplayName(DISPLAY_NAME_GROUP_MAIL_FOOTER_URL);
+			attrDef.setFriendlyName(FRIENDLY_NAME_GROUP_MAIL_FOOTER_URL);
+			attrDef.setNamespace(NAMESPACE_GROUP_MAIL_FOOTER_URL);
+			attrDef.setDescription("Email footer used in mail notifications by tag {mailFooter}. To edit text whithout loose of formatting, please use notification's GUI!!");
+			attrDef.setType(String.class.getName());
+			attrDef = attrManager.createAttribute(registrarSession, attrDef);
+			// set attribute rights
+			List<AttributeRights> rights = new ArrayList<AttributeRights>();
+			rights.add(new AttributeRights(attrDef.getId(), Role.VOADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			rights.add(new AttributeRights(attrDef.getId(), Role.GROUPADMIN, Arrays.asList(ActionType.READ, ActionType.WRITE)));
+			perun.getAttributesManager().setAttributeRights(registrarSession, rights);
+		}
 
 	}
 
@@ -405,6 +449,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			} catch (MissingRequiredDataException ex) {
 				// can't display form
 				result.put("voFormInitialException", ex);
+			} catch (CantBeSubmittedException ex) {
+				// can't display form / become member by some custom rules
+				result.put("voFormInitialException", ex);
 			}
 
 			// ONLY EXISTING USERS CAN EXTEND VO MEMBERSHIP
@@ -426,6 +473,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("voFormExtensionException", ex);
 				} catch (MissingRequiredDataException ex) {
 					// can't display form
+					result.put("voFormExtensionException", ex);
+				} catch (CantBeSubmittedException ex) {
+					// can't display form / extend membership by some custom rules
 					result.put("voFormExtensionException", ex);
 				}
 
@@ -454,6 +504,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					result.put("groupFormInitialException", ex);
 				}  catch (MissingRequiredDataException ex) {
 					// can't display form
+					result.put("groupFormInitialException", ex);
+				} catch (CantBeSubmittedException ex) {
+					// can't display form / become member by some custom rules
 					result.put("groupFormInitialException", ex);
 				}
 
@@ -773,7 +826,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		}
 		jdbc.update("delete from application_form_items where form_id=? and ordnum=?", form.getId(), ordnum);
 		jdbc.update("update application_form_items set ordnum=ordnum-1 where form_id=? and ordnum>?", form.getId(), ordnum);
-		
+
 		perun.getAuditer().log(user, "Application form item ID=" + form.getId() + " voID=" + form.getVo().getId() + ((form.getGroup() != null) ? (" groupID=" + form.getGroup().getId()) : "") + " has been deleted");
 
 	}
@@ -1241,6 +1294,19 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			throw new RegistrarException("User didn't verify his email address yet. Please wait until application will be in a 'Submitted' state. You can send mail verification notification to user again if you wish.");
 		}
 
+		// get registrar module
+		RegistrarModule module;
+		if (app.getGroup() != null) {
+			module = getRegistrarModule(getFormForGroup(app.getGroup()));
+		} else {
+			module = getRegistrarModule(getFormForVo(app.getVo()));
+		}
+
+		if (module != null) {
+			// call custom logic before approving
+			module.beforeApprove(sess, app);
+		}
+
 		// mark as APPROVED
 		int result = jdbc.update("update application set state=?, modified_by=?, modified_at=? where id=?", AppState.APPROVED.toString(), sess.getPerunPrincipal().getActor(), new Date(), appId);
 		if (result == 0) {
@@ -1473,13 +1539,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// CONTINUE FOR BOTH APP TYPES
 
-		// call registrar module
-		RegistrarModule module;
-		if (app.getGroup() != null) {
-			module = getRegistrarModule(getFormForGroup(app.getGroup()));
-		} else {
-			module = getRegistrarModule(getFormForVo(app.getVo()));
-		}
+
 		if (module != null) {
 			module.approveApplication(sess, app);
 		}
@@ -1488,6 +1548,35 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 		// return updated application
 		return app;
+
+	}
+
+	@Override
+	public void canBeApproved(PerunSession session, Application application) throws PerunException {
+
+		// authz
+		if (!AuthzResolver.isAuthorized(session, Role.VOADMIN, application.getVo())) {
+			if (application.getGroup() != null) {
+				if (!AuthzResolver.isAuthorized(session, Role.GROUPADMIN, application.getGroup())) {
+					throw new PrivilegeException(session, "canBeApproved");
+				}
+			} else {
+				throw new PrivilegeException(session, "canBeApproved");
+			}
+		}
+
+		// get registrar module
+		RegistrarModule module;
+		if (application.getGroup() != null) {
+			module = getRegistrarModule(getFormForGroup(application.getGroup()));
+		} else {
+			module = getRegistrarModule(getFormForVo(application.getVo()));
+		}
+
+		if (module != null) {
+			// call custom logic before approving
+			module.canBeApproved(session, application);
+		}
 
 	}
 
@@ -1749,6 +1838,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		String extSourceType = sess.getPerunPrincipal().getExtSourceType();
 		int extSourceLoa = sess.getPerunPrincipal().getExtSourceLoa();
 		Map<String, String> federValues = sess.getPerunPrincipal().getAdditionalInformations();
+
+		RegistrarModule module = getRegistrarModule(form);
+		if (module != null) module.canBeSubmitted(sess, federValues);
 
 		// Check if it's not DuplicateRegistrationAttempt (for initial)
 		if (AppType.INITIAL.equals(appType)) {
@@ -2351,6 +2443,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			try {
 				log.debug("[REGISTRAR] Attempting to instantiate class: {}", MODULE_PACKAGE_PATH + form.getModuleClassName());
 				module = (RegistrarModule) Class.forName(MODULE_PACKAGE_PATH + form.getModuleClassName()).newInstance();
+				module.setRegistrar(registrarManager);
 			} catch (Exception ex) {
 				log.error("[REGISTRAR] Exception when instantiating module: {}", ex);
 				return module;

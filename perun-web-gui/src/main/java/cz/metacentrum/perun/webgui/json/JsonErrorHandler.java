@@ -1,5 +1,7 @@
 package cz.metacentrum.perun.webgui.json;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONObject;
@@ -19,8 +21,6 @@ import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.Group;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.Confirm;
-
-import java.util.Set;
 
 /**
  * Class for handling Error objects returned from RPC server
@@ -57,16 +57,7 @@ public class JsonErrorHandler {
 		final JSONObject postObject = new JSONObject(JsonUtils.parseJson(error.getPostData()));
 
 		if (postObject.getJavaScriptObject() != null) {
-			Set<String> keys = postObject.keySet();
-			if (keys.contains("oldPassword")) {
-				postObject.put("oldPassword", new JSONString(""));
-			}
-			if (keys.contains("newPassword")) {
-				postObject.put("newPassword", new JSONString(""));
-			}
-			if (keys.contains("password")) {
-				postObject.put("password", new JSONString(""));
-			}
+			clearPasswords(postObject);
 		}
 
 		String s = "unknown";
@@ -87,26 +78,7 @@ public class JsonErrorHandler {
 
 			public void onClick(ClickEvent event) {
 
-				String text = messageTextBox.getText() + "\n\n";
-				text += "-------------------------------------\n";
-				text += "Technical details: \n\n";
-				text += error.getErrorId() + " - " + error.getName() + "\n";
-				text += error.getErrorInfo() + "\n\n";
-				text += "Perun instance: " + Utils.perunInstanceName()+ "\n";
-				text += "Request: " + error.getRequestURL() + "\n";
-				if (postObject != null) text += "Post data: " + postObject.toString() + "\n";
-				text += "Application state: " + status + "\n\n";
-				text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
-
-				if (PerunWebSession.getInstance().getUser() == null) {
-
-					// post original authz if unknown user
-					text += "Actor/ExtSource: " + PerunWebSession.getInstance().getPerunPrincipal().getActor() + " / " +
-							PerunWebSession.getInstance().getPerunPrincipal().getExtSource() + " (" +
-							PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
-
-				}
-				text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion();
+				String text = getErrorFullMessage(messageTextBox, error, postObject, status);
 
 				final String finalText = text;
 
@@ -157,6 +129,38 @@ public class JsonErrorHandler {
 		baseLayout.setWidget(2, 0, boxSubject);
 		baseLayout.setHTML(3, 0, "<strong>Message:</strong>");
 		baseLayout.setWidget(4, 0, messageTextBox);
+		final Anchor showDetails = new Anchor("Show message preview");
+		final TextArea fullMessage = new TextArea();
+		fullMessage.setReadOnly(true);
+		fullMessage.setVisible(false);
+		fullMessage.setSize("335px", "100px");
+		showDetails.addClickHandler(new ClickHandler() {
+			boolean pressed = false;
+			@Override
+			public void onClick(ClickEvent clickEvent) {
+				if (pressed) {
+					showDetails.setText("Show message preview");
+					fullMessage.setVisible(false);
+				} else {
+					showDetails.setText("Hide preview");
+					fullMessage.setText(getErrorFullMessage(messageTextBox, error, postObject, status));
+					fullMessage.setVisible(true);
+				}
+				pressed = !pressed;
+			}
+		});
+
+		messageTextBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent changeEvent) {
+				if (fullMessage.isVisible()) {
+					fullMessage.setText(getErrorFullMessage(messageTextBox, error, postObject, status));
+				}
+			}
+		});
+
+		baseLayout.setWidget(5, 0, showDetails);
+		baseLayout.setWidget(6, 0, fullMessage);
 
 		// box definition
 		final Confirm conf = new Confirm(WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), baseLayout, sendReportHandler, WidgetTranslation.INSTANCE.jsonClientSendErrorButton(), true);
@@ -168,6 +172,49 @@ public class JsonErrorHandler {
 
 		messageTextBox.setFocus(true);
 
+	}
+
+	private static String getErrorFullMessage(TextArea messageTextBox, PerunError error, JSONObject postObject, String status) {
+		String text = messageTextBox.getText() + "\n\n";
+		text += "-------------------------------------\n";
+		text += "Technical details: \n\n";
+		text += error.getErrorId() + " - " + error.getName() + "\n";
+		text += error.getErrorInfo() + "\n\n";
+		text += "Perun instance: " + Utils.perunInstanceName()+ "\n";
+		text += "Request: " + error.getRequestURL() + "\n";
+		if (postObject != null) text += "Post data: " + postObject.toString() + "\n";
+		text += "Application state: " + status + "\n\n";
+		text += "Authz: " + PerunWebSession.getInstance().getRolesString() + "\n\n";
+
+		if (PerunWebSession.getInstance().getUser() == null) {
+
+			// post original authz if unknown user
+			text += "Actor/ExtSource: " + PerunWebSession.getInstance().getPerunPrincipal().getActor() + " / " +
+					PerunWebSession.getInstance().getPerunPrincipal().getExtSource() + " (" +
+					PerunWebSession.getInstance().getPerunPrincipal().getExtSourceType() + ")" + "\n\n";
+
+		}
+		text += "GUI version: " + PerunWebConstants.INSTANCE.guiVersion();
+		return text;
+	}
+
+	/**
+	 * Clear all password-like params from posted objects
+	 *
+	 * @param object object to clear
+	 */
+	public static void clearPasswords(JSONObject object) {
+
+		for (String key : object.keySet()) {
+			if (key.equals("oldPassword") || key.equals("newPassword") || key.equals("password")) {
+				object.put(key, new JSONString(""));
+			} else {
+				JSONObject obj = object.get(key).isObject();
+				if (obj != null) {
+					clearPasswords(obj);
+				}
+			}
+		}
 	}
 
 	/**
@@ -543,6 +590,26 @@ public class JsonErrorHandler {
 
 			return "Group and Resource doesn't belong to the same VO.";
 
+		} else if ("GroupOperationsException".equalsIgnoreCase(errorName)) {
+
+			return "Action is not permitted, since it violates group arithmetic rules.";
+
+		} else if ("GroupRelationAlreadyExists".equalsIgnoreCase(errorName)) {
+
+			return "Groups are already in a relation. Please refresh your view/table to see current state.";
+
+		} else if ("GroupRelationCannotBeRemoved".equalsIgnoreCase(errorName)) {
+
+			return "Relation can't be removed, since groups are in a direct hierarchy. If necessary, please delete the sub-group.";
+
+		} else if ("GroupRelationDoesNotExist".equalsIgnoreCase(errorName)) {
+
+			return "Groups are not in a relation. Please refresh your view/table to see current state.";
+
+		} else if ("GroupRelationNotAllowed".equalsIgnoreCase(errorName)) {
+
+			return "You can't add groups to relation. It would create a cycle.";
+
 		} else if ("GroupSynchronizationAlreadyRunningException".equalsIgnoreCase(errorName)) {
 
 			return "Can't start group synchronization between Perun and external source, because it's already running.";
@@ -662,6 +729,14 @@ public class JsonErrorHandler {
 
 			return "Can't set new password. Old password doesn't match.";
 
+		} else if ("PasswordStrengthFailedException".equalsIgnoreCase(errorName)) {
+
+			return "Used password doesn't match required strength constraints.";
+
+		} else if ("PasswordOperationTimeoutException".equalsIgnoreCase(errorName)) {
+
+			return "Operation with password exceeded expected time limit.";
+
 		} else if ("RelationExistsException".equalsIgnoreCase(errorName)) {
 
 			// FIXME - better text on core side
@@ -675,6 +750,10 @@ public class JsonErrorHandler {
 		} else if ("ResourceAlreadyRemovedException".equalsIgnoreCase(errorName)) {
 
 			return "Same resource was already removed from facility (deleted).";
+
+		} else if ("ResourceExistsException".equalsIgnoreCase(errorName)) {
+
+			return "Resource with same name \"" + error.getResource().getName() + "\" already exists with id="+error.getResource().getId()+".";
 
 		} else if ("ResourceNotExistsException".equalsIgnoreCase(errorName)) {
 

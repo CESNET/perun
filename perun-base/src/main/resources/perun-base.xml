@@ -9,10 +9,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 ">
 
-	<!-- FIXME  hack, hackiti hack - inject properties bean into static class Utils
-             	(creates another bean, that is never used)
-             	The point is to stop Utils from complaining about non-existent /etc/perun/perun.properties.
-	-->
+	<!-- FIXME  hack, hackiti hack - inject properties bean into static class Utils                         -->
+	<!-- FIXME  (creates another bean, that is never used)                                                  -->
+	<!-- FIXME  The point is to stop Utils from complaining about non-existent /etc/perun/perun.properties. -->
 	<bean id="utilsProperties" class="cz.metacentrum.perun.core.api.BeansUtils" factory-method="setProperties" scope="singleton">
 		<constructor-arg ref="coreProperties" />
 	</bean>
@@ -34,6 +33,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<prop key="perun.registrar.principals"></prop>
 					<prop key="perun.notification.principals">perunNotifications</prop>
 					<prop key="perun.rpc.principal">perunRpc</prop>
+					<prop key="perun.dont.lookup.users">perunTests, perunController, perunEngine, perunDispatcher, perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc, perunLdapc, perunLdapInitializer</prop>
 					<prop key="perun.db.type">hsqldb</prop>
 					<prop key="perun.group.synchronization.interval">1</prop>
 					<prop key="perun.group.synchronization.timeout">10</prop>
@@ -67,6 +67,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<prop key="perun.registrar.principals"></prop>
 					<prop key="perun.notification.principals">perunNotifications</prop>
 					<prop key="perun.rpc.principal">perunRpc</prop>
+					<prop key="perun.dont.lookup.users">perunTests, perunController, perunEngine, perunDispatcher, perunRegistrar, perunSynchronizer, perunCabinet, perunNotifications, perunRpc, perunLdapc, perunLdapInitializer</prop>
 					<prop key="perun.db.type">hsqldb</prop>
 					<prop key="perun.group.synchronization.interval">1</prop>
 					<prop key="perun.group.synchronization.timeout">10</prop>
@@ -89,6 +90,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<prop key="perun.sms.program"></prop>
 					<prop key="perun.readOnlyPerun">false</prop>
 					<prop key="perun.DBInitializatorEnabled">false</prop>
+					<prop key="perun.userExtSources.persistent">PERUN,[\w\d]*</prop>
 				</props>
 			</property>
 		</bean>

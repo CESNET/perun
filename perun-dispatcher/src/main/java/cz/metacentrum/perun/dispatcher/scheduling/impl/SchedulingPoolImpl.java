@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -27,13 +26,11 @@ import cz.metacentrum.perun.taskslib.service.TaskManager;
 @org.springframework.stereotype.Service("schedulingPool")
 public class SchedulingPoolImpl implements SchedulingPool {
 
-	private final static Logger log = LoggerFactory
-			.getLogger(SchedulingPoolImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
 
-	private Map<Integer, Pair<Task, DispatcherQueue>> tasksById = new ConcurrentHashMap<Integer, Pair<Task, DispatcherQueue>>();
-	private Map<Pair<Integer, Integer>, Task> tasksByServiceAndFacility = new ConcurrentHashMap<Pair<Integer, Integer>, Task>();
-	private Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(
-			TaskStatus.class);
+	private final Map<Integer, Pair<Task, DispatcherQueue>> tasksById = new ConcurrentHashMap<Integer, Pair<Task, DispatcherQueue>>();
+	private final Map<Pair<Integer, Integer>, Task> tasksByServiceAndFacility = new ConcurrentHashMap<Pair<Integer, Integer>, Task>();
+	private final Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
 
 	@Autowired
 	private TaskManager taskManager;
@@ -267,7 +264,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
                     continue;
             }
             */
-			if (!pool.get(task.getStatus()).contains(task.getId())) {
+			if (!pool.get(task.getStatus()).contains(task)) {
 				pool.get(task.getStatus()).add(task);
 			}
 			DispatcherQueue queue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight()); 
@@ -296,6 +293,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		} else {
 			tasksById.get(task.getId()).put(task, queueForTask);
 		}
+		taskManager.updateTaskEngine(task, queueForTask.getClientID());
 	}
 
 	@Override

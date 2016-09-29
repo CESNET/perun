@@ -71,6 +71,30 @@ public class PerunError extends JavaScriptObject {
 		return this.reason;
 	}-*/;
 
+	/**
+	 * Return IdP category for CantBeApprovedException
+	 *
+	 * @return IdP category for CantBeApprovedException
+	 */
+	public final native String getCategory() /*-{
+		if (!this.category) {
+			return "";
+		}
+		return this.category;
+	}-*/;
+
+	/**
+	 * Return users affiliation for CantBeApprovedException
+	 *
+	 * @return users affiliation for CantBeApprovedException
+	 */
+	public final native String getAffiliation() /*-{
+		if (!this.affiliation) {
+			return "";
+		}
+		return this.affiliation;
+	}-*/;
+
     public final native void setType(String type) /*-{
 		this.type = type;
 	}-*/;
@@ -146,7 +170,19 @@ public class PerunError extends JavaScriptObject {
 		return this.group;
 	}-*/;
 
-    /**
+	/**
+	 * Get referenced Resource related to error message
+	 *
+	 * @return Resource object or null if not present
+	 */
+	public final native Resource getResource() /*-{
+		if (!this.resource) {
+			return null;
+		}
+		return this.resource;
+	}-*/;
+
+	/**
      * Get referenced SecurityTeam related to error message
      *
      * @return SecurityTeam object or null if not present
@@ -276,6 +312,19 @@ public class PerunError extends JavaScriptObject {
 			return null;
 		}
 		return this.formItems;
+	}-*/;
+
+
+	/**
+	 * If TRUE exception is soft and admin can override restrictions in gui -> e.g. when approving application.
+	 *
+	 * @return TRUE = soft / FALSE = hard exception
+	 */
+	public final native boolean isSoft() /*-{
+		if (!this.soft) {
+			return false;
+		}
+		return this.soft;
 	}-*/;
 
     /**

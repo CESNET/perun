@@ -38,7 +38,7 @@ my @services = $resourcesAgent->getAssignedServices(resource => $resourceId);
 unless(@services) { printMessage "No Service found", $batch; exit 0; }
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('ID','Name');
 
 foreach my $service (sort $sortingFunction @services) {

@@ -65,7 +65,9 @@ public class GetNewExtendMembership implements JsonCallback {
 	 */
 	public void onFinished(JavaScriptObject jso) {
 		BasicOverlayType basic = jso.cast();
-		widget.setText(basic.getString());
+		if (jso != null) {
+			widget.setText(basic.getString());
+		}
 		events.onFinished(jso);
 	}
 

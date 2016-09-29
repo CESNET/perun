@@ -45,7 +45,9 @@ public class TaskResultDaoTest {
 	@Before
 	public void setUp() throws InternalErrorException {
 		if (perunSession == null || jdbcTemplate == null) {
-			perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+			perunSession = perun.getPerunSession(
+					new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+					new PerunClient());
 			jdbcTemplate = new JdbcTemplate(dataSource);
 		}
 	}
@@ -61,11 +63,11 @@ public class TaskResultDaoTest {
 		testOwner = ownersManager.createOwner(perunSession, testOwner);
 
 		Service testService = new Service();
-		testService.setName("Test service 1-" + Long.toHexString(System.currentTimeMillis()));
+		testService.setName("Test_service_1_" + Long.toHexString(System.currentTimeMillis()));
 		testService = servicesManager.createService(perunSession, testService);
 
 		Service testService2 = new Service();
-		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
+		testService2.setName("Test_service_2_" + Long.toHexString(System.currentTimeMillis()));
 		testService2 = servicesManager.createService(perunSession, testService2);
 
 		Facility facility = new Facility();

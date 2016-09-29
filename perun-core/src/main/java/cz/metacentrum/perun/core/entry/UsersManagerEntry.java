@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
@@ -309,7 +310,7 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().createUser(sess, user);
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -322,7 +323,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().deleteUser(sess, user);
 	}
 
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -446,6 +447,11 @@ public class UsersManagerEntry implements UsersManager {
 		// set userId, so checkUserExtSourceExists can check the userExtSource for the particular user
 		userExtSource.setUserId(user.getId());
 		getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
+
+		if (userExtSource.isPersistent()) {
+			throw new InternalErrorException("Given UserExtSource: " + userExtSource + " is marked as persistent. " +
+					"It means it can not be removed.");
+		}
 
 		getUsersManagerBl().removeUserExtSource(sess, user, userExtSource);
 	}
@@ -681,7 +687,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
-			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
+			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		getUsersManagerBl().checkUserExists(sess, user);
@@ -701,6 +707,32 @@ public class UsersManagerEntry implements UsersManager {
 			throw new LoginNotExistsException(e);
 		} catch (WrongAttributeAssignmentException e) {
 			throw new LoginNotExistsException(e);
+		}
+
+		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
+	}
+
+	public void changePassword(PerunSession sess, String login , String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword) throws InternalErrorException,
+			PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+		Utils.checkPerunSession(sess);
+
+		String attributeName = AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace;
+
+		List<User> users = null;
+		try {
+			users = getUsersManagerBl().getUsersByAttributeValue(sess, attributeName , login);
+		} catch (ConsistencyErrorException e) {
+			// attr def not exists by implementation in getUsersByAttributeValue
+			throw new LoginNotExistsException(e);
+		}
+		if (users.size() > 1) throw new ConsistencyErrorException("Multiple users found for login: "+login);
+		if (users.isEmpty()) throw new LoginNotExistsException("User with login: "+login+" not exists.");
+		User user = users.get(0);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) &&
+				!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "changePassword");
 		}
 
 		getUsersManagerBl().changePassword(sess, user, loginNamespace, oldPassword, newPassword, checkOldPassword);
@@ -740,7 +772,7 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().createPassword(sess, user, loginNamespace, password);
 	}
 
-	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException {
+	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -753,7 +785,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException {
+			PrivilegeException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -771,7 +803,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException {
+			PrivilegeException, PasswordCreationFailedException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -835,7 +867,7 @@ public class UsersManagerEntry implements UsersManager {
 
 
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-			PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException {
+			PrivilegeException, PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -1001,7 +1033,7 @@ public class UsersManagerEntry implements UsersManager {
 		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) && !user.isServiceUser()) {
+		if (!AuthzResolver.isAuthorized(sess, Role.SELF, user) && !user.isSpecificUser()) {
 			throw new PrivilegeException(sess, "setLogin");
 		}
 
@@ -1064,7 +1096,7 @@ public class UsersManagerEntry implements UsersManager {
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, String i, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		Utils.checkPerunSession(sess);
 
@@ -1095,4 +1127,19 @@ public class UsersManagerEntry implements UsersManager {
 
 		getUsersManagerBl().updateUserExtSourceLastAccess(sess, userExtSource);
 	}
+
+	@Override
+	public Map<String,String> generateAccount(PerunSession sess, String namespace, Map<String, String> parameters) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "generateAccount");
+		}
+
+		return getUsersManagerBl().generateAccount(sess, namespace, parameters);
+
+	}
+
+
 }

@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.implApi;
 
 import cz.metacentrum.perun.core.api.DBVersion;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
 
 import java.util.List;
 
@@ -70,4 +71,12 @@ public interface DatabaseManagerImplApi {
 	 * @throws InternalErrorException if 1.there is error reading file, 2.currentDBVersion was not found 3.db version does not match pattern 4.db versions are not ordered as they should be
 	 */
 	List<DBVersion> getChangelogVersions(String currentDBVersion, String fileName) throws InternalErrorException;
+
+	/**
+	 * Return JDBC template for performing custom simple SQLs where jdbc is not normally available
+	 *
+	 * @return Peruns JDBC template
+	 */
+	public JdbcPerunTemplate getJdbcPerunTemplate();
+
 }

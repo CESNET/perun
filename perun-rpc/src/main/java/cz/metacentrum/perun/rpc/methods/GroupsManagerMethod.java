@@ -45,12 +45,38 @@ public enum GroupsManagerMethod implements ManagerMethod {
 						ac.getGroupById(parms.readInt("parentGroup")),
 						parms.read("group", Group.class));
 			} else if (parms.contains("vo")) {
-				return ac.getGroupsManager().createGroup(ac.getSession(),
-						ac.getVoById(parms.readInt("vo")),
-						parms.read("group", Group.class));
+				Group group = parms.read("group", Group.class);
+				if (group.getParentGroupId() == null) {
+					return ac.getGroupsManager().createGroup(ac.getSession(),
+							ac.getVoById(parms.readInt("vo")),
+							group);
+				} else {
+					throw new RpcException(RpcException.Type.WRONG_PARAMETER, "Top-level groups can't have parentGroupId set!");
+				}
 			} else {
 				throw new RpcException(RpcException.Type.MISSING_VALUE, "vo or parentGroup");
 			}
+		}
+	},
+
+	/*#
+	 * Create union of two groups, where "operandGroup" is technically set as subgroup of "resultGroup".
+	 * Members from "operandGroup" are added to "resultGroup" as INDIRECT members. Union is honored also
+	 * in all group member changing operations.
+	 *
+	 * @param resultGroup int <code>id</code> of Group to have included "operandGroup"
+	 * @param operandGroup int <code>id</code> of Group to be included into "resultGroup"
+	 * @return Group Result group
+	 */
+	createGroupUnion {
+
+		@Override
+		public Group call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			return ac.getGroupsManager().createGroupUnion(ac.getSession(),
+						ac.getGroupById(parms.readInt("resultGroup")),
+						ac.getGroupById(parms.readInt("operandGroup")));
 		}
 	},
 
@@ -90,25 +116,45 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @param forceDelete boolean If true use force delete.
 	 */
 	deleteGroups {
-		
+
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
-			
+
 			//TODO: optimalizovat?
 			int[] ids = parms.readArrayOfInts("groups");
 			List<Group> groups = new ArrayList<>(ids.length);
 			for (int i : ids) {
 				groups.add(ac.getGroupById(i));
 			}
-			
+
 			ac.getGroupsManager().deleteGroups(ac.getSession(),
 					groups,
 					parms.readBoolean("forceDelete"));
 			return null;
 		}
 	},
-	
+
+	/*#
+	 * Removes union of two groups, when "operandGroup" is technically removed from subgroups of "resultGroup".
+	 * Members from "operandGroup" are removed from "resultGroup" if they were INDIRECT members sourcing from this group only.
+	 *
+	 * @param resultGroup int <code>id</code> of Group to have removed "operandGroup" from subgroups
+	 * @param operandGroup int <code>id</code> of Group to be removed from "resultGroup" subgroups
+	 */
+	removeGroupUnion {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getGroupsManager().removeGroupUnion(ac.getSession(),
+					ac.getGroupById(parms.readInt("resultGroup")),
+					ac.getGroupById(parms.readInt("operandGroup")));
+			return null;
+		}
+	},
+
 	/*#
 	 * Updates a group.
 	 *
@@ -156,6 +202,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 			return ac.getGroupsManager().getGroupByName(ac.getSession(),
 					ac.getVoById(parms.readInt("vo")),
 					parms.readString("name"));
+		}
+	},
+
+	/*#
+	 * Return all operand groups for specified result groups (all INCLUDED groups).
+	 * If "reverseDirection" is TRUE than return all result groups for specified operand group (where group is INCLUDED).
+	 *
+	 * @param group int <code>id</code> of Group to get groups in union.
+	 * @param reverseDirection boolean FALSE (default) return INCLUDED groups / TRUE = return groups where INCLUDED
+	 * @return List<Group> List of groups in union relation.
+	 */
+	getGroupUnions {
+
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getGroupUnions(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					parms.readBoolean("reverseDirection"));
 		}
 	},
 
@@ -706,19 +770,19 @@ public enum GroupsManagerMethod implements ManagerMethod {
 					ac.getMemberById(parms.readInt("member")));
 		}
 	},
-	
+
 	/*#
 	 * Returns groups with specific attribute for a member.
-	 * 
+	 *
 	 * @param member int Member <code>id</code>
 	 * @param attribute Attribute attribute object with value
 	 * @return List<Group> Groups of the member
 	 */
 	getMemberGroupsByAttribute {
-		
+
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException{
-			
+
 			return ac.getGroupsManager().getMemberGroupsByAttribute(ac.getSession(),
 					ac.getMemberById(parms.readInt("member")),parms.read("attribute", Attribute.class));
 		}
@@ -743,7 +807,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns all RichSubGroups from parent group containing selected attributes
+	 * Returns RichSubGroups from parent group containing selected attributes (only 1 level sub groups).
 	 *
 	 * @param group int <code>id</code> of group
 	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
@@ -755,6 +819,24 @@ public enum GroupsManagerMethod implements ManagerMethod {
 		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
 
 			return ac.getGroupsManager().getRichSubGroupsWithAttributesByNames(ac.getSession(),
+					ac.getGroupById(parms.readInt("group")),
+					parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
+	 * Returns all AllRichSubGroups from parent group containing selected attributes (all level subgroups).
+	 *
+	 * @param group int <code>id</code> of group
+	 * @param attrNames List<String> if attrNames is null method will return RichGroups containing all attributes
+	 * @return List<RichGroup> RichGroups containing selected attributes
+	 */
+	getAllRichSubGroupsWithAttributesByNames {
+
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getGroupsManager().getAllRichSubGroupsWithAttributesByNames(ac.getSession(),
 					ac.getGroupById(parms.readInt("group")),
 					parms.readList("attrNames", String.class));
 		}

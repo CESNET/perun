@@ -246,4 +246,43 @@ public class CreatePassword {
 		return jsonQuery;
 	}
 
+	/**
+	 * Validates password and sets user ext sources
+	 *
+	 * @param userId user to set password for
+	 * @param login used for validation only
+	 * @param namespace defined login in namespace
+	 */
+	public void validateAndSetUserExtSources(int userId, String login, String namespace) {
+
+		this.userId = userId;
+		this.namespace = namespace;
+		this.login = login;
+
+		// test arguments
+		String errorMsg = "";
+
+		if(userId == 0){
+			errorMsg += "<p>User ID can't be 0.";
+		}
+
+		if(namespace.isEmpty()){
+			errorMsg += "<p>Namespace can't be empty.";
+		}
+
+		if(login.isEmpty()){
+			errorMsg += "<p>Login to create password for can't be empty.";
+		}
+
+		if(errorMsg.length()>0){
+			Confirm c = new Confirm("Error while creating password.", new HTML(errorMsg), true);
+			c.show();
+			return;
+		}
+
+		JsonPostClient jspc = new JsonPostClient(events);
+		jspc.sendData(JSON_URL_VALIDATE_AND_SET_USER_EXT_SOURCE, validateCallJSON());
+
+	}
+
 }

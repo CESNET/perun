@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
+import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
@@ -21,6 +22,7 @@ import java.nio.charset.CodingErrorAction;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Application module for ELIXIR purpose
@@ -46,6 +48,13 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 
 	public static String RDN_TRUNCATE_SIGN = "...";
 	public static int RDN_MAX_SIZE = 64;
+
+	private RegistrarManager registrarManager;
+
+	@Override
+	public void setRegistrar(RegistrarManager registrar) {
+		this.registrarManager = registrar;
+	}
 
 	@Override
 	public List<ApplicationFormItemData> createApplication(PerunSession user, Application application, List<ApplicationFormItemData> data) throws PerunException {
@@ -100,9 +109,7 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			String dn = DNPREFIX + displayName + " " + CILogonHash;
 
 			// Store the userExtSource
-			ExtSource extSource = perun.getExtSourcesManagerBl().getExtSourceByName(session, CADN);
-
-			perun.getExtSourcesManagerBl().checkOrCreateExtSource(session, CADN, ExtSourcesManager.EXTSOURCE_X509);
+			ExtSource extSource = perun.getExtSourcesManagerBl().checkOrCreateExtSource(session, CADN, ExtSourcesManager.EXTSOURCE_X509);
 				
 			UserExtSource userExtSource = new UserExtSource(extSource, dn);
 			try {
@@ -119,6 +126,20 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 	@Override
 	public Application rejectApplication(PerunSession session, Application app, String reason) throws PerunException {
 		return app;
+	}
+
+	@Override
+	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+		return app;
+	}
+
+	@Override
+	public void canBeApproved(PerunSession session, Application app) throws PerunException {
+	}
+
+	@Override
+	public void canBeSubmitted(PerunSession session, Map<String, String> params) throws PerunException {
+
 	}
 
 

@@ -50,7 +50,7 @@ my @attributes = $attributesAgent->getAttributes(facility =>$facilityId,user => 
 
 unless(@attributes) { printMessage "No attributes found", $batch;  exit 0; }
 
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('attribute Id','Name', 'Type', 'Value');
 
 foreach my $attribute (sort $sortingFunction @attributes) {

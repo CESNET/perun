@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -39,7 +40,6 @@ import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
 import java.util.HashSet;
@@ -114,10 +114,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 		// Check if the group already exists
 		if(group.getParentGroupId() == null) {
+			// check if the TOP level group exists
 			if (1 == jdbc.queryForInt("select count('x') from groups where lower(name)=lower(?) and vo_id=? and parent_group_id IS NULL", group.getName(), vo.getId())) {
 				throw new GroupExistsException("Group [" + group.getName() + "] already exists under VO [" + vo.getShortName() + "] and has parent Group with id is [NULL]");
 			}
 		} else {
+			// check if subgroup exists under parent group
 			if (1 == jdbc.queryForInt("select count('x') from groups where lower(name)=lower(?) and vo_id=? and parent_group_id=?", group.getName(), vo.getId(), group.getParentGroupId())) {
 				throw new GroupExistsException("Group [" + group.getName() + "] already exists under VO [" + vo.getShortName() + "] and has parent Group with id [" + group.getParentGroupId() + "]");
 			}
@@ -147,14 +149,19 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 
 
-	public String getName(int id){
-		List name= jdbc.query("group.name as (with temp (name, id, parent_group_id) as ((select name, id, parent_group_id from GROUPS where parent_group_id is null) union all (select cast((temp.name + ':' + groups.name) as varchar(128)), " +
-				"groups.id, groups.parent_group_id from groups inner join temp on temp.id = groups.parent_group_id )) select name from temp where group.id = ?"
-				,new RowMapper() {
-					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-						return resultSet.getString(1);
-					}
-				},id);
+	public String getName(int id) throws InternalErrorException {
+		List name= null;
+		try {
+			name = jdbc.query("group.name as (with temp (name, id, parent_group_id) as ((select name, id, parent_group_id from GROUPS where parent_group_id is null) union all (select cast((temp.name + ':' + groups.name) as varchar(128)), " +
+					"groups.id, groups.parent_group_id from groups inner join temp on temp.id = groups.parent_group_id )) select name from temp where group.id = ?"
+					,new RowMapper() {
+						public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+							return resultSet.getString(1);
+						}
+					},id);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 		String result=(String)name.get(0);
 		return result;
 	}
@@ -181,7 +188,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 		try {
 			// Delete group's members
-			jdbc.update("delete from groups_members where source_group_id=?", group.getId());
+			jdbc.update("delete from groups_members where group_id=?", group.getId());
 
 			// Delete authz entries for this group
 			AuthzResolverBlImpl.removeAllAuthzForGroup(sess, group);
@@ -280,8 +287,8 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type as membership_type from groups_members join members on members.id=groups_members.member_id " +
-					" where groups_members.group_id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId());
+			return jdbc.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery + " from groups_members join members on members.id=groups_members.member_id " +
+					"where groups_members.group_id=?", MembersManagerImpl.MEMBER_MAPPER, group.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Member>();
 		} catch (RuntimeException e) {
@@ -289,7 +296,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 		}
 	}
 
-	public List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatusInsteadOfIncludeStatus) throws InternalErrorException {
+	public List<Member> getGroupMembers(PerunSession sess, Group group, List<Status> statuses, boolean excludeStatus) throws InternalErrorException {
 		try {
 			MapSqlParameterSource parameters = new MapSqlParameterSource();
 			List<Integer> statusesCodes = new ArrayList<Integer>();
@@ -299,14 +306,16 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			parameters.addValue("statuses", statusesCodes);
 			parameters.addValue("group_id", group.getId());
 
-			if (excludeStatusInsteadOfIncludeStatus) {
+			if (excludeStatus) {
 				// Exclude members with one of the status
-				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type as membership_type from groups_members join members on members.id=groups_members.member_id " +
-						" where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" not in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
+				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+						" from groups_members join members on members.id=groups_members.member_id " +
+						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" not in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			} else {
 				// Include members with one of the status
-				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.memberMappingSelectQuery + ", groups_members.membership_type as membership_type from groups_members join members on members.id=groups_members.member_id " +
-						" where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
+				return this.namedParameterJdbcTemplate.query("select " + MembersManagerImpl.groupsMembersMappingSelectQuery +
+						" from groups_members join members on members.id=groups_members.member_id " +
+						"where groups_members.group_id=:group_id and members.status"+Compatibility.castToInteger()+" in (:statuses)", parameters, MembersManagerImpl.MEMBER_MAPPER);
 			}
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Member>();
@@ -392,6 +401,7 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 
 	public Member addMember(PerunSession sess, Group group, Member member, MembershipType type, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		member.setMembershipType(type);
+		member.setSourceGroupId(sourceGroupId);
 		try {
 			jdbc.update("insert into groups_members (group_id, member_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid, membership_type, source_group_id) " +
 					"values (?,?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?,?,?)", group.getId(),
@@ -483,9 +493,12 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 	}
 
 	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException {
+		if (member.getSourceGroupId() == null) {
+			throw new InternalErrorException("sourceGroupId not set for member object");
+		}
 		int ret;
 		try {
-			ret = jdbc.update("delete from groups_members where source_group_id=? and member_id=?", group.getId(), member.getId());
+			ret = jdbc.update("delete from groups_members where group_id=? and source_group_id=? and member_id=?", group.getId(), member.getSourceGroupId(), member.getId());
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -597,46 +610,46 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 			throw new InternalErrorException(e);
 		}
 	}
-	/**
-	 * Converts Member to its Id in grouper.
-	 *
-	 * @param member
-	 *            member
-	 * @return grouper Id
-	 */
-	protected static String toGrouperId(PerunSession sess, Member member) throws InternalErrorException {
-		log.trace("Entering toGrouperId: member='" + member + "'");
-		if (member == null) throw new InternalErrorRuntimeException(new NullPointerException("member"));
-		return Integer.toString(member.getUserId());
-	}
 
 	@Override
-	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) {
+	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) throws InternalErrorException {
 		// get app ids for all applications
-		return jdbc.query("select id from application where group_id=?", new RowMapper<Integer>() {
-			@Override
-			public Integer mapRow(ResultSet rs, int arg1)
-			throws SQLException {
-			return rs.getInt("id");
-			}
-		},group.getId());
+		try {
+			return jdbc.query("select id from application where group_id=?", new RowMapper<Integer>() {
+				@Override
+				public Integer mapRow(ResultSet rs, int arg1)
+				throws SQLException {
+				return rs.getInt("id");
+				}
+			},group.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) {
-		return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
-			@Override
-			public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-				return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
-			}
-		}, appId);
+	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException {
+		try {
+			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
+				@Override
+				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
+					return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+				}
+			}, appId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	@Override
-	public void deleteGroupReservedLogins(PerunSession sess, Group group) {
+	public void deleteGroupReservedLogins(PerunSession sess, Group group) throws InternalErrorException {
 		// remove all reserved logins first
-		for (Integer appId : getGroupApplicationIds(sess, group)) {
-			jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+		try {
+			for (Integer appId : getGroupApplicationIds(sess, group)) {
+				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 
@@ -655,6 +668,96 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					" from group_ext_sources g_exts inner join groups on g_exts.group_id=groups.id " +
 					" where g_exts.ext_source_id=? and groups.vo_id=?", GROUP_MAPPER, source.getId(), vo.getId());
 
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupRelationDoesNotExist {
+		try {
+			if (0 == jdbc.update("DELETE FROM groups_groups WHERE result_gid = ? AND operand_gid = ?",
+					resultGroup.getId(), operandGroup.getId())) {
+				throw new GroupRelationDoesNotExist("Union between " + resultGroup + " and " + operandGroup + " does not exist.");
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeResultGroupRelations(PerunSession sess, Group resultGroup) throws InternalErrorException {
+		try {
+			jdbc.update("DELETE FROM groups_groups WHERE result_gid = ?", resultGroup.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException {
+		try {
+			jdbc.update("INSERT INTO groups_groups(result_gid, operand_gid, created_at, created_by, " +
+						"modified_at, modified_by, parent_flag) VALUES(?,?," + Compatibility.getSysdate() + ",?," + Compatibility.getSysdate() + ",?,?)",
+					resultGroup.getId(), operandGroup.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(), parentFlag);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+	
+	public boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException {
+		try {
+			return 1 > jdbc.queryForInt("SELECT parent_flag"+Compatibility.castToInteger()+" FROM groups_groups WHERE result_gid=? AND operand_gid=?",
+					resultGroup.getId(), operandGroup.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public boolean isRelationBetweenGroups(Group group1, Group group2) throws InternalErrorException {
+		try {
+			return 1 <= jdbc.queryForInt("SELECT count(1) FROM groups_groups WHERE (result_gid = ? AND operand_gid = ?) OR (result_gid = ? AND operand_gid = ?)",
+				group1.getId(), group2.getId(), group2.getId(), group1.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup) throws InternalErrorException {
+		try {
+			return 1 <= jdbc.queryForInt("SELECT count(1) FROM groups_groups WHERE result_gid = ? AND operand_gid = ?",
+					resultGroup.getId(), operandGroup.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Group> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException {
+		try {
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups_groups JOIN groups " +
+					"ON groups.id = groups_groups.result_gid WHERE operand_gid=?", GROUP_MAPPER, groupId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Group> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException {
+		try {
+			return jdbc.query("SELECT " + groupMappingSelectQuery + " FROM groups_groups JOIN groups " +
+					"ON groups.id = groups_groups.operand_gid WHERE result_gid=?", GROUP_MAPPER, groupId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException {
+		try {
+			return jdbc.queryForList("SELECT result_gid FROM groups_groups WHERE operand_gid=?", Integer.class, groupId);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

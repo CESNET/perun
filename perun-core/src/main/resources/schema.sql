@@ -1000,13 +1000,13 @@ create table pn_regex_object (
 );
 
 create table groups_groups (
-	group_id integer not null,
-	parent_group_id integer not null,
-	group_mode integer not null,
+	result_gid integer not null,
+	operand_gid integer not null,
 	created_at timestamp default now not null,
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now not null,
-	modified_by varchar(1024) default user not null
+	modified_by varchar(1024) default user not null,
+	parent_flag boolean default false 
 );
 
 create table res_tags (
@@ -1108,6 +1108,20 @@ create table facilities_bans (
 	created_by varchar(1024) default user not null,
 	modified_at timestamp default now not null,
 	modified_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_by_uid integer
+);
+
+create table user_ext_source_attr_values (
+	user_ext_source_id integer not null,
+	attr_id integer not null,
+	attr_value varchar(4000),
+	created_at timestamp default now not null,
+	created_by varchar(1024) default user not null,
+	modified_at timestamp default now not null,
+	modified_by varchar(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text longvarchar,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -1251,8 +1265,8 @@ create index idx_fk_authz_service on authz(service_id);
 create index idx_fk_authz_res on authz(resource_id);
 create index idx_fk_authz_ser_princ on authz(service_principal_id);
 create index idx_fk_authz_sec_team on authz(security_team_id);
-create index idx_fk_authz_sponsoru_team on authz(sponsored_user_id);
-create unique index idx_authz_u2 on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id, security_team_id, sponsored_user_id);
+create index idx_fk_authz_sponsu on authz(sponsored_user_id);
+create unique index idx_authz_u on authz (user_id, authorized_group_id, service_principal_id, role_id, group_id, vo_id, facility_id, member_id, resource_id, service_id, security_team_id, sponsored_user_id);
 create index idx_fk_faccont_fac on facility_contacts(facility_id);
 create index idx_fk_faccont_usr on facility_contacts(user_id);
 create index idx_fk_faccont_own on facility_contacts(owner_id);
@@ -1289,8 +1303,8 @@ create index idx_fk_pn_rgxobj_rgx on pn_regex_object(regex_id);
 create index idx_fk_pn_rgxobj_obj on pn_regex_object(object_id);
 create index idx_fk_specifu_u_ui on specific_user_users(user_id);
 create index idx_fk_specifu_u_sui on specific_user_users(specific_user_id);
-create index idx_fk_grp_grp_gid on groups_groups(group_id);
-create index idx_fk_grp_grp_pgid on groups_groups(parent_group_id);
+create index idx_fk_grp_grp_rgid on groups_groups(result_gid);
+create index idx_fk_grp_grp_ogid on groups_groups(operand_gid);
 create index idx_fk_attrauthz_actiontyp on attributes_authz(action_type_id);
 create index idx_fk_attrauthz_role on attributes_authz(role_id);
 create index idx_fk_attrauthz_attr on attributes_authz(attr_id);
@@ -1309,6 +1323,8 @@ create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id
 create index idx_fk_fac_ban_user on facilities_bans (user_id);
 create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
+create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (user_ext_source_id);
+create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1568,9 +1584,9 @@ alter table specific_user_users add constraint acc_specifu_u_uid_fk foreign key 
 alter table specific_user_users add constraint acc_specifu_u_suid_fk foreign key (specific_user_id) references users(id);
 alter table specific_user_users add constraint specifu_u_status_chk check (status in ('0','1'));
 
-alter table groups_groups add constraint grp_grp_pk primary key (group_id,parent_group_id);
-alter table groups_groups add constraint grp_grp_gid_fk foreign key (group_id) references groups(id);
-alter table groups_groups add constraint grp_grp_pgid_fk foreign key (parent_group_id) references groups(id);
+alter table groups_groups add constraint grp_grp_pk primary key (result_gid, operand_gid);
+alter table groups_groups add constraint grp_grp_rgid_fk foreign key (result_gid) references groups(id);
+alter table groups_groups add constraint grp_grp_ogid_fk foreign key (operand_gid) references groups(id);
 
 alter table action_types add constraint actiontyp_pk primary key (id);
 alter table action_types add constraint actiontyp_u unique (action_type);
@@ -1644,3 +1660,7 @@ alter table mailchange add constraint mailchange_pk primary key (id);
 alter table mailchange add constraint mailchange_u_fk foreign key (user_id) references users(id);
 alter table pwdreset add constraint pwdreset_pk primary key (id);
 alter table pwdreset add constraint pwdreset_u_fk foreign key (user_id) references users(id);
+
+alter table user_ext_source_attr_values add constraint uesattrval_pk primary key (user_ext_source_id, attr_id);
+alter table user_ext_source_attr_values add constraint uesattrval_ues_fk foreign key (user_ext_source_id) references user_ext_sources(id);
+alter table user_ext_source_attr_values add constraint uesattrval_attr_fk foreign key (attr_id) references attr_names(id);

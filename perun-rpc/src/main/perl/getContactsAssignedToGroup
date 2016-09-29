@@ -58,7 +58,7 @@ my @contactGroups;
 unless (@contactGroups) { printMessage "No Contacts found", $batch; exit 0;} 
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('Name','Facility','facilityId');
 
 foreach my $contactGroup (sort $sortingFunction @contactGroups) {

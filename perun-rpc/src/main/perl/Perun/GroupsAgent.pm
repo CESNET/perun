@@ -138,4 +138,19 @@ sub forceGroupSynchronization
 	return Perun::Common::callManagerMethod('forceGroupSynchronization', 'null', @_);
 }
 
+sub createGroupUnion
+{
+	return Perun::Common::callManagerMethod('createGroupUnion', 'Group', @_);
+}
+
+sub removeGroupUnion
+{
+	return Perun::Common::callManagerMethod('removeGroupUnion', '', @_);
+}
+
+sub getGroupUnions
+{
+	return Perun::Common::callManagerMethod('getGroupUnions', '[]Group', @_);
+}
+
 1;

@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.regexp.shared.RegExp;
@@ -18,7 +19,9 @@ import cz.metacentrum.perun.webgui.json.membersManager.CreateSpecificMember;
 import cz.metacentrum.perun.webgui.json.membersManager.ValidateMemberAsync;
 import cz.metacentrum.perun.webgui.json.usersManager.CreatePassword;
 import cz.metacentrum.perun.webgui.json.usersManager.FindUsers;
+import cz.metacentrum.perun.webgui.json.usersManager.GenerateAccount;
 import cz.metacentrum.perun.webgui.json.usersManager.IsLoginAvailable;
+import cz.metacentrum.perun.webgui.json.usersManager.SetLogin;
 import cz.metacentrum.perun.webgui.model.*;
 import cz.metacentrum.perun.webgui.tabs.MembersTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -28,6 +31,7 @@ import cz.metacentrum.perun.webgui.widgets.*;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -252,13 +256,18 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 		layout.setWidget(3, 1, namespace);
 		layout.setHTML(4, 0, "<strong>Login: </strong>");
 		layout.setWidget(4, 1, serviceUserLogin);
-		layout.setHTML(5, 0, "<strong>Subject DN: </strong>");
-		layout.setWidget(5, 1, certDN);
-		layout.setHTML(6, 0, "<strong>Issuer DN: </strong>");
-		layout.setWidget(6, 1, cacertDN);
+		final Label label = new Label("You will be assigned with available login");
+		label.setVisible(false);
+		layout.setWidget(5, 0, label);
+		layout.getFlexCellFormatter().setStyleName(5, 0, "inputFormInlineComment");
+		layout.getFlexCellFormatter().setColSpan(5, 0, 2);
+		layout.setHTML(6, 0, "<strong>Subject DN: </strong>");
+		layout.setWidget(6, 1, certDN);
+		layout.setHTML(7, 0, "<strong>Issuer DN: </strong>");
+		layout.setWidget(7, 1, cacertDN);
 		if (session.isPerunAdmin()) {
-			layout.setHTML(7, 0, "<strong>User type: </strong>");
-			layout.setWidget(7, 1, userType);
+			layout.setHTML(8, 0, "<strong>User type: </strong>");
+			layout.setWidget(8, 1, userType);
 		}
 
 		final FlexTable firstTabLayout = new FlexTable();
@@ -284,7 +293,10 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 			public void onClick(ClickEvent clickEvent) {
 
 				// check
-				if (namespace.getSelectedIndex() != 0 && !loginValidator.validateTextBox()) return;
+				if (!namespace.getSelectedValue().equals("mu") &&
+						namespace.getSelectedIndex() != 0 &&
+						!loginValidator.validateTextBox()) return;
+
 				if (!nameValidator.validateTextBox()) return;
 				if (!emailValidator.validateTextBox()) return;
 				if (!certDNValidator.validateTextBox()) return;
@@ -350,6 +362,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 									session.getTabManager().closeTab(tab, true);
 									return;
 								}
+
 								// change to small tab
 								session.getTabManager().changeStyleOfInnerTab(false);
 
@@ -363,15 +376,79 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 											return;
 										}
 
-										// create password which sets also user ext sources
-										CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
-											public void onFinished(JavaScriptObject jso) {
-												// validate member when all kerberos logins are set
-												ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
-												req2.validateMemberAsync(member);
-											}
-										}));
-										req.createPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()), serviceUserPassword.getTextBox().getValue().trim());
+										if (namespace.getSelectedValue().equals("mu")) {
+
+											final GenerateAccount req = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
+												public void onFinished(JavaScriptObject jso) {
+
+													BasicOverlayType basic = jso.cast();
+													final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
+
+													SetLogin setLogin = new SetLogin(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
+														@Override
+														public void onFinished(JavaScriptObject jso) {
+
+															UiElements.generateInfo("Assigned login", "You were assigned with login <b>"+login+"</b> in namespace MU.");
+
+															// VALIDATE PASSWORD - SET EXT SOURCES AND VALIDATE MEMBER
+															CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
+																@Override
+																public void onFinished(JavaScriptObject jso) {
+
+																	// validate member when all kerberos logins are set
+																	ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+																	req2.validateMemberAsync(member);
+																}
+															}));
+															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
+
+														}
+														@Override
+														public void onError(PerunError error) {
+
+															UiElements.generateError(error, "Saving login failed", "You were assigned with login <b>"+login+"</b> in namespace MU but saving it to user failed. <b>Please copy your login and contact support at <a href=\"mailto:"+Utils.perunReportEmailAddress()+"\">"+Utils.perunReportEmailAddress()+"</a>.</b>");
+
+															// validate member when all logins are set
+															ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+															req2.validateMemberAsync(member);
+
+														}
+													}));
+													setLogin.setLogin(member.getUserId(), "mu", login);
+
+												}
+											}));
+
+											final Map<String, String> params = new HashMap<String, String>();
+
+											GetEntityById get = new GetEntityById(PerunEntity.RICH_MEMBER, member.getId(), JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
+												@Override
+												public void onFinished(JavaScriptObject jso) {
+													RichMember rm = jso.cast();
+
+													params.put("urn:perun:user:attribute-def:core:firstName", rm.getUser().getFirstName());
+													params.put("urn:perun:user:attribute-def:core:lastName", rm.getUser().getLastName());
+													params.put("urn:perun:member:attribute-def:def:mail", serviceUserEmail.getTextBox().getValue().trim());
+
+													req.generateAccount(namespace.getValue(namespace.getSelectedIndex()), serviceUserPassword.getTextBox().getValue().trim(), params);
+
+												}
+											}));
+											get.retrieveData();
+
+										} else {
+
+											// create password which sets also user ext sources
+											CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
+												public void onFinished(JavaScriptObject jso) {
+													// validate member when all kerberos logins are set
+													ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+													req2.validateMemberAsync(member);
+												}
+											}));
+											req.createPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()), serviceUserPassword.getTextBox().getValue().trim());
+
+										}
 
 									}
 								});
@@ -379,15 +456,81 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								final CustomButton skipButton = new CustomButton("Skip", SmallIcons.INSTANCE.arrowRightIcon());
 								skipButton.addClickHandler(new ClickHandler() {
 									public void onClick(ClickEvent clickEvent) {
-										CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(skipButton, new JsonCallbackEvents(){
-											public void onFinished(JavaScriptObject jso) {
-												// validate member when all kerberos logins are set
-												ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(skipButton, tab));
-												req2.validateMemberAsync(member);
-											}
-										}));
-										// set empty password for service member if "skipped"
-										req.createRandomPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
+
+										if (namespace.getSelectedValue().equals("mu")) {
+
+											final GenerateAccount req = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
+												@Override
+												public void onFinished(JavaScriptObject jso) {
+
+													BasicOverlayType basic = jso.cast();
+													final String login = basic.getCustomProperty("urn:perun:user:attribute-def:def:login-namespace:mu");
+
+													SetLogin setLogin = new SetLogin(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
+														@Override
+														public void onFinished(JavaScriptObject jso) {
+
+															UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
+
+															// VALIDATE PASSWORD - SET EXT SOURCES AND VALIDATE MEMBER
+															CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
+																@Override
+																public void onFinished(JavaScriptObject jso) {
+
+																	// validate member when all kerberos logins are set
+																	ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+																	req2.validateMemberAsync(member);
+																}
+															}));
+															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
+
+														}
+														@Override
+														public void onError(PerunError error) {
+
+															// validate member when all logins are set
+															ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(button, tab));
+															req2.validateMemberAsync(member);
+
+														}
+													}));
+													setLogin.setLogin(member.getUserId(), "mu", login);
+
+												}
+											}));
+
+											final Map<String, String> params = new HashMap<String, String>();
+
+											GetEntityById get = new GetEntityById(PerunEntity.RICH_MEMBER, member.getId(), JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
+												@Override
+												public void onFinished(JavaScriptObject jso) {
+													RichMember rm = jso.cast();
+
+													params.put("urn:perun:user:attribute-def:core:firstName", rm.getUser().getFirstName());
+													params.put("urn:perun:user:attribute-def:core:lastName", rm.getUser().getLastName());
+													params.put("urn:perun:member:attribute-def:def:mail", serviceUserEmail.getTextBox().getValue().trim());
+
+													req.generateAccount(namespace.getValue(namespace.getSelectedIndex()), null, params);
+
+												}
+											}));
+											get.retrieveData();
+
+										} else {
+
+
+											CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(skipButton, new JsonCallbackEvents() {
+												public void onFinished(JavaScriptObject jso) {
+													// validate member when all kerberos logins are set
+													ValidateMemberAsync req2 = new ValidateMemberAsync(JsonCallbackEvents.closeTabDisableButtonEvents(skipButton, tab));
+													req2.validateMemberAsync(member);
+												}
+											}));
+											// set empty password for service member if "skipped"
+											req.createRandomPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
+
+										}
+
 									}
 								});
 
@@ -415,25 +558,33 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 						}));
 
 						request.createMember(voId, serviceUserName.getTextBox().getValue().trim(),
-									serviceUserEmail.getTextBox().getValue().trim(),
-									itemsTable.getList(),
-									namespace.getValue(namespace.getSelectedIndex()),
-									serviceUserLogin.getTextBox().getValue().trim(),
-									certDN.getTextBox().getValue().trim(),
-									cacertDN.getTextBox().getValue().trim(),
-									userType.getSelectedValue()
-								);
+								serviceUserEmail.getTextBox().getValue().trim(),
+								itemsTable.getList(),
+								namespace.getValue(namespace.getSelectedIndex()),
+								serviceUserLogin.getTextBox().getValue().trim(),
+								certDN.getTextBox().getValue().trim(),
+								cacertDN.getTextBox().getValue().trim(),
+								userType.getSelectedValue()
+						);
 
 					}
 				});
-				cb.setEnabled(false);
+				// we have ourselves already assigned
+				//cb.setEnabled(false);
 
 				CustomButton button = TabMenu.getPredefinedButton(ButtonType.ADD, "Add selected users to service member");
 				button.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent clickEvent) {
 						ArrayList<User> list = callback.getTableSelectedList();
 						if (UiElements.cantSaveEmptyListDialogBox(list)) {
-							itemsTable.addItems(list);
+							// skip self
+							ArrayList<User> list2 = new ArrayList<User>();
+							for (User user : list) {
+								if (user != null && user.getId() != session.getUser().getId()) {
+									list2.add(user);
+								}
+							}
+							itemsTable.addItems(list2);
 							cb.setEnabled(true);
 							callback.clearTableSelectedSet();
 						}
@@ -516,20 +667,20 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								}
 							}
 						}
-					@Override
-					public void onLoadingStart(){
-						if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-							serviceUserLogin.removeHardError();
-							serviceUserLogin.setProcessing(true);
+						@Override
+						public void onLoadingStart(){
+							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+								serviceUserLogin.removeHardError();
+								serviceUserLogin.setProcessing(true);
+							}
 						}
-					}
-					@Override
-					public void onError(PerunError error) {
-						if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-							serviceUserLogin.setProcessing(false);
-							serviceUserLogin.setHardError("Unable to check if login is available!");
+						@Override
+						public void onError(PerunError error) {
+							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+								serviceUserLogin.setProcessing(false);
+								serviceUserLogin.setHardError("Unable to check if login is available!");
+							}
 						}
-					}
 					}).retrieveData();
 				}
 			}
@@ -543,8 +694,13 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 					// do not set login
 					serviceUserLogin.getTextBox().setEnabled(false);
 					serviceUserLogin.getTextBox().setValue(null);
+					label.setVisible(false);
+				} else if (namespace.getSelectedValue().equals("mu")) {
+					serviceUserLogin.getTextBox().setEnabled(false);
+					label.setVisible(true);
 				} else {
 					serviceUserLogin.getTextBox().setEnabled(true);
+					label.setVisible(false);
 				}
 
 				final String login = serviceUserLogin.getTextBox().getValue().trim();
@@ -565,34 +721,34 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								}
 							}
 						}
-					@Override
-					public void onLoadingStart(){
-						if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-							serviceUserLogin.removeHardError();
-							serviceUserLogin.setProcessing(true);
-							loginValidator.validateTextBox();
+						@Override
+						public void onLoadingStart(){
+							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+								serviceUserLogin.removeHardError();
+								serviceUserLogin.setProcessing(true);
+								loginValidator.validateTextBox();
+							}
 						}
-					}
-					@Override
-					public void onError(PerunError error) {
-						if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
-							serviceUserLogin.setProcessing(false);
-							serviceUserLogin.setHardError("Unable to check if login is available!");
+						@Override
+						public void onError(PerunError error) {
+							if (serviceUserLogin.getTextBox().getValue().trim().equals(login)) {
+								serviceUserLogin.setProcessing(false);
+								serviceUserLogin.setHardError("Unable to check if login is available!");
+							}
 						}
-					}
 					}).retrieveData();
 				}
 			}
 		});
 
 		if (session.isPerunAdmin()) {
+			layout.setWidget(9, 0, cb);
+			layout.getFlexCellFormatter().setHorizontalAlignment(9, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+			layout.getFlexCellFormatter().setColSpan(9, 0, 2);
+		} else {
 			layout.setWidget(8, 0, cb);
 			layout.getFlexCellFormatter().setHorizontalAlignment(8, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 			layout.getFlexCellFormatter().setColSpan(8, 0, 2);
-		} else {
-			layout.setWidget(7, 0, cb);
-			layout.getFlexCellFormatter().setHorizontalAlignment(7, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-			layout.getFlexCellFormatter().setColSpan(7, 0, 2);
 		}
 
 		this.contentWidget.setWidget(mainTab);

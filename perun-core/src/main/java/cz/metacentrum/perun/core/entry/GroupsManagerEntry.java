@@ -19,15 +19,20 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
 import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
@@ -50,6 +55,7 @@ import cz.metacentrum.perun.core.bl.GroupsManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.GroupsManagerImplApi;
+import java.util.Objects;
 
 /**
  * GroupsManager entry logic
@@ -84,6 +90,8 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new InternalErrorException(new IllegalArgumentException("Wrong group name, group name must matches " + GroupsManager.GROUP_SHORT_NAME_REGEXP));
 		}
 
+		if (group.getParentGroupId() != null) throw new InternalErrorException("Top-level groups can't have parentGroupId set!");
+
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
 		    !AuthzResolver.isAuthorized(sess, Role.TOPGROUPCREATOR, vo)) {
@@ -99,7 +107,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		return createdGroup;
 	}
 
-	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException {
+	public Group createGroup(PerunSession sess, Group parentGroup, Group group) throws GroupNotExistsException, GroupExistsException, PrivilegeException, InternalErrorException, GroupOperationsException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, parentGroup);
 		Utils.notNull(group, "group");
@@ -123,7 +131,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		return createdGroup;
 	}
 
-	public void deleteGroup(PerunSession sess, Group group, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteGroup(PerunSession sess, Group group, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
@@ -136,11 +144,11 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().deleteGroup(sess, group, forceDelete);
 	}
 
-	public void deleteGroup(PerunSession sess, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteGroup(PerunSession sess, Group group) throws GroupNotExistsException, InternalErrorException, PrivilegeException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		this.deleteGroup(sess, group, false);
 	}
 
-	public void deleteAllGroups(PerunSession sess, Vo vo) throws VoNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException {
+	public void deleteAllGroups(PerunSession sess, Vo vo) throws VoNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -152,11 +160,11 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		getGroupsManagerBl().deleteAllGroups(sess, vo);
 	}
-	
-	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException {
+
+	public void deleteGroups(PerunSession perunSession, List<Group> groups, boolean forceDelete) throws GroupNotExistsException, InternalErrorException, PrivilegeException, GroupAlreadyRemovedException, RelationExistsException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		Utils.checkPerunSession(perunSession);
 		Utils.notNull(groups, "groups");
-		
+
 		//Test if all groups exists and user has right to delete all of them
 		for(Group group: groups) {
 			getGroupsManagerBl().checkGroupExists(perunSession, group);
@@ -165,7 +173,7 @@ public class GroupsManagerEntry implements GroupsManager {
 				throw new PrivilegeException(perunSession, "deleteGroups");
 			}
 		}
-		
+
 		getGroupsManagerBl().deleteGroups(perunSession, groups, forceDelete);
 	}
 
@@ -226,35 +234,47 @@ public class GroupsManagerEntry implements GroupsManager {
 		return group;
 	}
 
-	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException {
+	public void addMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, PrivilegeException, AlreadyMemberException, GroupNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotMemberOfParentGroupException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException, GroupOperationsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+		    && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "addMember");
-				}
+		}
 
 		// Check if the member and group are from the same VO
 		if (member.getVoId() != (group.getVoId())) {
 			throw new MembershipMismatchException("Member and group are form the different VO");
 		}
 
+		// Check if the group is externally synchronized
+		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+		if (Objects.equals("true", (String) attrSynchronizeEnabled.getValue())) {
+			throw new ExternallyManagedException("Adding of member is not allowed. Group is externally managed.");
+		}
+
 		getGroupsManagerBl().addMember(sess, group, member);
 	}
 
-	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException {
+	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, MemberNotExistsException, NotGroupMemberException, PrivilegeException, GroupNotExistsException, WrongAttributeAssignmentException, AttributeNotExistsException, ExternallyManagedException, GroupOperationsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+		    && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "removeMember");
-				}
+		}
+
+		// Check if the group is externally synchronized
+		Attribute attrSynchronizeEnabled = getPerunBl().getAttributesManagerBl().getAttribute(sess, group, GROUPSYNCHROENABLED_ATTRNAME);
+		if (Objects.equals("true", (String) attrSynchronizeEnabled.getValue())) {
+			throw new ExternallyManagedException("Removing of member is not allowed. Group is externally managed.");
+		}
 
 		getGroupsManagerBl().removeMember(sess, group, member);
 	}
@@ -833,19 +853,19 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().getMemberGroups(sess, member);
 	}
 
-		
+
 	public List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, PrivilegeException,InternalErrorException, VoNotExistsException, MemberNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
 		getPerunBl().getAttributesManagerBl().checkAttributeExists(sess, new AttributeDefinition(attribute));
-		
+
 		Vo vo = getPerunBl().getMembersManagerBl().getMemberVo(sess, member);
-		
+
 		//Only group attributes are allowed
 		if(!this.getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManagerEntry.NS_GROUP_ATTR)) {
 			throw new WrongAttributeAssignmentException(attribute);
 		}
-		
+
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo)
 				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)
@@ -853,19 +873,19 @@ public class GroupsManagerEntry implements GroupsManager {
 				&& !AuthzResolver.isAuthorized(sess, Role.SELF, member)) {
 			throw new PrivilegeException(sess, "getMemberGroupsByAttribute for " + member);
 		}
-		
+
 		List<Group> groups = this.groupsManagerBl.getMemberGroupsByAttribute(sess, member, attribute);
-		
+
 		//If actor has no right to read attribute for group, throw exception
 		for(Group group: groups) {
 				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attribute, group, null)) {
 					throw new PrivilegeException(sess, "Actor hasn't right to read attribute for a group.");
 				}
 		}
-		
+
 		return groups;
 	}
-	
+
 	public List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -937,6 +957,33 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups);
 	}
 
+	public List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		this.getGroupsManagerBl().checkGroupExists(sess, parentGroup);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, parentGroup)) {
+			throw new PrivilegeException(sess, "getAllRichSubGroupsWithAttributesByNames");
+		}
+		List<RichGroup> richGroups = getGroupsManagerBl().getAllRichSubGroupsWithAttributesByNames(sess, parentGroup, attrNames);
+
+		// Check access rights for each richGroup for GROUPADMIN
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, parentGroup)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, parentGroup)
+				&& AuthzResolver.isAuthorized(sess, Role.GROUPADMIN)) {
+			Iterator<RichGroup> eachGroup = richGroups.iterator();
+			while (eachGroup.hasNext()) {
+				if (!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, eachGroup.next())) {
+					eachGroup.remove();
+				}
+			}
+		}
+
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups);
+	}
+
 	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -951,5 +998,48 @@ public class GroupsManagerEntry implements GroupsManager {
 
 		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getRichGroupByIdWithAttributesByNames(sess, groupId, attrNames));
 
+	}
+
+	@Override
+	public Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupOperationsException, GroupRelationNotAllowed, GroupRelationAlreadyExists {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, resultGroup);
+		getGroupsManagerBl().checkGroupExists(sess, operandGroup);
+
+		// Authorization
+		if ((!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resultGroup) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, resultGroup)) ||
+				(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, operandGroup) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, operandGroup))) {
+			throw new PrivilegeException(sess, "createGroupUnion");
+		}
+
+		return getGroupsManagerBl().createGroupUnion(sess, resultGroup, operandGroup, false);
+	}
+
+	@Override
+	public void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupOperationsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, resultGroup);
+		getGroupsManagerBl().checkGroupExists(sess, operandGroup);
+
+		// Authorization
+		if ( (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resultGroup) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, resultGroup)) ||
+				(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, operandGroup) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, operandGroup)) ) {
+			throw new PrivilegeException(sess, "removeGroupUnion");
+		}
+
+		getGroupsManagerBl().removeGroupUnion(sess, resultGroup, operandGroup, false);
+	}
+
+	@Override
+	public List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if ( !AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) && !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+			throw new PrivilegeException(sess, "getGroupUnions");
+		}
+
+		return groupsManagerBl.getGroupUnions(sess, group, reverseDirection);
 	}
 }

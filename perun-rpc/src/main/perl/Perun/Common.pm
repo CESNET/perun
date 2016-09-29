@@ -43,6 +43,8 @@ use Perun::beans::NotifTemplateMessage;
 use Perun::beans::NotifTemplate;
 use Perun::beans::ContactGroup;
 use Perun::beans::SecurityTeam;
+use Perun::beans::BanOnResource;
+use Perun::beans::BanOnFacility;
 
 sub newEmptyBean
 {

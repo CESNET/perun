@@ -1,4 +1,4 @@
--- database version 3.1.36 (don't forget to update insert statement at the end of file)
+-- database version 3.1.38 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -407,7 +407,7 @@ create table specific_user_users (
 	modified_by_uid integer,
 	modified_at date default sysdate not null,
 	status char(1) default '0' not null,
-	type varchar(20) default 'service' not null,
+	type varchar(20) default 'service' not null
 );
 
 create table exec_services (
@@ -1007,9 +1007,9 @@ create table pn_regex_object (
 );
 
 create table groups_groups (
-	group_id integer not null,
-	parent_group_id integer not null,
-	group_mode integer not null,
+	result_gid integer not null,
+	operand_gid integer not null,
+	parent_flag char(1) default '0' not null,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1024) default user not null,
 	modified_at date default sysdate not null,
@@ -1095,7 +1095,7 @@ create table resources_bans (
   id integer not null,
   member_id integer not null,
   resource_id integer not null,
-  description nvarchar2(1024),                                                                       
+  description nvarchar2(1024),
   banned_to date not null,
   created_at date default sysdate not null,
   created_by nvarchar2(1024) default user not null,
@@ -1109,7 +1109,7 @@ create table facilities_bans (
 	id integer not null,
   user_id integer not null,
   facility_id integer not null,
-  description nvarchar2(1024),                                                                       
+  description nvarchar2(1024),
   banned_to date not null,
   created_at date default sysdate not null,
   created_by nvarchar2(1024) default user not null,
@@ -1117,6 +1117,20 @@ create table facilities_bans (
   modified_by nvarchar2(1024) default user not null,
   created_by_uid integer,
   modified_by_uid integer
+);
+
+create table user_ext_source_attr_values (
+	user_ext_source_id integer not null,
+	attr_id integer not null,
+	attr_value nvarchar2(4000),
+	created_at date default sysdate not null,
+	created_by nvarchar2(1024) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1024) default user not null,
+	status char(1) default '0' not null,
+	attr_value_text clob,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28 nocache;
@@ -1258,7 +1272,7 @@ create index IDX_FK_AUTHZ_GROUP on authz(group_id);
 create index IDX_FK_AUTHZ_SERVICE on authz(service_id);
 create index IDX_FK_AUTHZ_RES on authz(resource_id);
 create index IDX_FK_AUTHZ_SER_PRINC on authz(service_principal_id);
-create index IDX_FK_AUTHZ_SPONSORU_TEAM on authz(sponsored_user_id);
+create index IDX_FK_AUTHZ_SPONSU on authz(sponsored_user_id);
 create index IDX_FK_AUTHZ_SEC_TEAM on authz(security_team_id);
 create index IDX_FK_GRRES_GR on groups_resources(group_id);
 create index IDX_FK_GRRES_RES on groups_resources(resource_id);
@@ -1289,8 +1303,8 @@ create index IDX_FK_PN_RGXOBJ_RGX on pn_regex_object(regex_id);
 create index IDX_FK_PN_RGXOBJ_OBJ on pn_regex_object(object_id);
 create index IDX_FK_SPECIFU_U_UI on specific_user_users(user_id);
 create index IDX_FK_SPECIFU_U_SUI on specific_user_users(specific_user_id);
-create index IDX_FK_GRP_GRP_GID on groups_groups(group_id);
-create index IDX_FK_GRP_GRP_PGID on groups_groups(parent_group_id);
+create index IDX_FK_GRP_GRP_RGID on groups_groups(result_gid);
+create index IDX_FK_GRP_GRP_OGID on groups_groups(operand_gid);
 create index IDX_FK_ATTRAUTHZ_ACTIONTYP on attributes_authz(action_type_id);
 create index IDX_FK_ATTRAUTHZ_ROLE on attributes_authz(role_id);
 create index IDX_FK_ATTRAUTHZ_ATTR on attributes_authz(attr_id);
@@ -1307,6 +1321,8 @@ create index IDX_FK_RES_BAN_MEMBER on resources_bans (member_id);
 create index IDX_FK_RES_BAN_RES on resources_bans (resource_id);
 create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
 create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
+create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (user_ext_source_id);
+create index IDX_FK_UES_ATTR_VALUES_ATTR on user_ext_source_attr_values (attr_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
@@ -1594,8 +1610,9 @@ constraint AUTHZ_SERVICE_FK foreign key (service_id) references services(id),
 constraint AUTHZ_RES_FK foreign key (resource_id) references resources(id),
 constraint AUTHZ_SER_PRINC_FK foreign key (service_principal_id) references service_principals(id),
 constraint AUTHZ_SEC_TEAM_FK foreign key (security_team_id) references security_teams(id),
+constraint AUTHZ_SPONSU_FK foreign key (sponsored_user_id) references users(id),
 constraint AUTHZ_USER_SERPRINC_AUTGRP_CHK check (decode(user_id,null,0,1)+decode(service_principal_id,null,0,1)+decode(authorized_group_id,null,0,1) = 1),
-constraint AUTHZ_U2 unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id,security_team_id)
+constraint AUTHZ_U unique (user_id,authorized_group_id,role_id,vo_id,facility_id,member_id,group_id,service_id,resource_id,service_principal_id,security_team_id,sponsored_user_id)
 );
 
 alter table facility_contacts add (
@@ -1730,9 +1747,10 @@ constraint SPECIFU_U_STATUS_CHK check (status in ('0','1'))
 );
 
 alter table groups_groups add (
-constraint GRP_GRP_PK primary key (group_id,parent_group_id),
-constraint GRP_GRP_GID_FK foreign key (group_id) references groups(id),
-constraint GRP_GRP_PGID_FK foreign key (parent_group_id) references groups(id)
+constraint GRP_GRP_PK primary key (result_gid,operand_gid),
+constraint GRP_GRP_RGID_FK foreign key (result_gid) references groups(id),
+constraint GRP_GRP_OGID_FK foreign key (operand_gid) references groups(id),
+constraint GRP_GRP_PARENT_CHK check (parent_flag in ('0','1'))
 );
 
 alter table action_types add (
@@ -1775,9 +1793,19 @@ constraint pwdreset_pk primary key (id),
 constraint pwdreset_u_fk foreign key (user_id) references users(id)
 );
 
+alter table user_ext_source_attr_values add (
+constraint UESATTRVAL_PK primary key (user_ext_source_id, attr_id),
+constraint UESATTRVAL_UES_FK foreign key (user_ext_source_id) references user_ext_sources(id),
+constraint UESATTRVAL_ATTR_FK foreign key (attr_id) references attr_names(id)
+);
+
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.36');
+insert into configurations values ('DATABASE VERSION','3.1.38');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
-insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added into subgroup');
+insert into membership_types (id, membership_type, description) values (2, 'INDIRECT', 'Member is added indirectly through UNION relation');
+
+-- insert action types
+insert into action_types (id, action_type, description) values (ACTION_TYPES_SEQ.nextval, 'read', 'Can read value.');
+insert into action_types (id, action_type, description) values (ACTION_TYPES_SEQ.nextval, 'write', 'Can write, rewrite and remove value.');

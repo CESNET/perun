@@ -417,20 +417,20 @@ sub convertPassword() {
 #
 sub getEntryByLogin() {
 
-		my $mesg;
-		# Get current entry from LDAP
-		$mesg = $ldap->search( base => $base_dn ,
-						 scope => 'sub' ,
-						 filter => "(samAccountName=$login)" ,
-						 attrs => ['cn','samAccountName','userAccountControl']
-					   );
+	my $mesg;
+	# Get current entry from LDAP
+	$mesg = $ldap->search( base => $base_dn ,
+		scope => 'sub' ,
+		filter => "(samAccountName=$login)" ,
+		attrs => ['cn','samAccountName','userAccountControl']
+	);
 
-		if ($mesg->entries != 1) {
-			return undef;
-		} else {
-			my @entries = $mesg->entries;
-			my $entry = pop(@entries);
-			return $entry;
-		}
+	if ($mesg->entries != 1) {
+		return undef;
+	} else {
+		my @entries = $mesg->entries;
+		my $entry = pop(@entries);
+		return $entry;
+	}
 
 }

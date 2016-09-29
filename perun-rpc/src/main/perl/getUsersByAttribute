@@ -39,7 +39,7 @@ my $usersAgent = $agent->getUsersAgent;
 my @users = $usersAgent->getUsersByAttribute(attributeName => $attributeName, attributeValue => $attributeValue);
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('ID','Name');
 
 foreach my $user (sort $sortingFunction @users) {

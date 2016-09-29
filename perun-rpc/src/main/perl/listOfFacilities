@@ -36,7 +36,7 @@ unless(@facilities) { printMessage "No Facilities found", $batch; exit 0;}
 
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('ID','Name','Description');
 
 foreach my $facility (sort $sortingFunction @facilities) {

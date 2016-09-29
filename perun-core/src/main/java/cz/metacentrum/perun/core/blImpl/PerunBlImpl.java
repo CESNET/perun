@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.core.blImpl;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -51,6 +52,9 @@ import cz.metacentrum.perun.core.bl.VosManagerBl;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Implementation of Perun.
  *
@@ -95,17 +99,35 @@ public class PerunBlImpl implements PerunBl {
 
 	final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
 
+	final static Set<String> dontLookupUsersForLogins = new HashSet<>();
+
+	// fill list of logins we don't want to lookup users for
+	static {
+
+		String propValue = null;
+		try {
+			propValue = BeansUtils.getPropertyFromConfiguration("perun.dont.lookup.users");
+		} catch (InternalErrorException e) {
+			log.error("Unable to load logins for which we don't lookup users");
+		}
+
+		if (propValue != null) {
+			String[] dontLogins = propValue.split(",");
+			for (String str : dontLogins) {
+				dontLookupUsersForLogins.add(str.trim());
+			}
+		}
+
+	}
+
 	public PerunBlImpl() {
 
 	}
 
-	public PerunSession getPerunSession(PerunPrincipal principal) throws InternalErrorException {
+	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) throws InternalErrorException {
 		if (principal.getUser() == null &&
 				this.getUsersManagerBl() != null &&
-				!principal.getExtSourceType().equals(ExtSourcesManager.EXTSOURCE_INTERNAL) &&
-				!principal.getActor().equals("perunv3/rpc-lib@META") &&
-				!principal.getActor().equals("perunv3/admin@META") &&
-				!principal.getActor().equals("perunv3/engine@META")) {
+				!dontLookupUsersForLogins.contains(principal.getActor())) {
 			// Get the user if we are completely initialized
 			try {
 				principal.setUser(this.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(getPerunSession(), principal.getExtSourceName(), principal.getActor()));
@@ -129,7 +151,7 @@ public class PerunBlImpl implements PerunBl {
 				// OK - We don't know user yet
 			}
 				}
-		return new PerunSessionImpl(this, principal);
+		return new PerunSessionImpl(this, principal, client);
 	}
 
 	/**
@@ -140,7 +162,8 @@ public class PerunBlImpl implements PerunBl {
 	 */
 	public PerunSession getPerunSession() throws InternalErrorException {
 		PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		return new PerunSessionImpl(this, principal);
+		PerunClient client = new PerunClient();
+		return new PerunSessionImpl(this, principal, client);
 	}
 
 

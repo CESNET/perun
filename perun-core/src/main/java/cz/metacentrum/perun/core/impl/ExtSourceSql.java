@@ -234,7 +234,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		}
 	}
 
-	protected void createConnection() throws SQLException {
+	protected void createConnection() throws SQLException, InternalErrorException {
     try {   
       if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
         this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"),
@@ -266,7 +266,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		}
 	}
 
-	protected Map<String,String> getAttributes() {
+	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 }

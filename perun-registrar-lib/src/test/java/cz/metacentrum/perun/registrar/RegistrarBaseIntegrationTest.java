@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.registrar;
 
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Vo;
@@ -58,7 +59,9 @@ public class RegistrarBaseIntegrationTest {
 
 		if (vo == null || session == null) {
 
-			session = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+			session = perun.getPerunSession(
+					new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+					new PerunClient());
 
 			// create test VO
 			vo = new Vo(0,"registrarTestVO","regTestVO");
@@ -384,7 +387,9 @@ System.out.println("APPS ["+result.size()+"]:" + result);
 		assertTrue("Item i13b was not returned from form", items.contains(i13b));
 
 		Random random = new Random();
-		PerunSession applicant = perun.getPerunSession(new PerunPrincipal("rumcajs" + random.nextInt(100000) + "@raholec.cz", "http://www.raholec.cz/idp/", ExtSourcesManager.EXTSOURCE_IDP));
+		PerunSession applicant = perun.getPerunSession(
+				new PerunPrincipal("rumcajs" + random.nextInt(100000) + "@raholec.cz", "http://www.raholec.cz/idp/", ExtSourcesManager.EXTSOURCE_IDP),
+				new PerunClient());
 
 	}
 

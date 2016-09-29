@@ -37,7 +37,7 @@ unless(@sources) { printMessage "No ExternalSources found", $batch; exit 0;}
 
 
 #output
-my $table = Text::ASCIITable->new();
+my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('Id','Name', 'Type');
 
 foreach my $source (sort $sortingFunction @sources) {

@@ -603,7 +603,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 		return serviceLocal;
 	}
 
-	protected Map<String,String> getAttributes() {
+	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}
 

@@ -164,7 +164,7 @@ public class SelfPersonalTabItem implements TabItem {
 		settingsTable.setHTML(6, 0, "List of preferred shells ordered from the most preferred to least is used to determine your shell on provided resources. If none of preferred shells is available on resource (or no preferred shell is set), resource's default is used.");
 		settingsTable.getFlexCellFormatter().setStyleName(6, 0, "inputFormInlineComment");
 
-		settingsTable.setHTML(7, 0, "Preferred unix groups names:");
+		settingsTable.setHTML(7, 0, "Preferred primary unix groups names:");
 
 		for (int i=1; i<settingsTable.getRowCount(); i++) {
 			if (i == 2 || i == 6) continue;

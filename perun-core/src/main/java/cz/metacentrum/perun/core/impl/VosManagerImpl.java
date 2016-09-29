@@ -273,41 +273,61 @@ public class VosManagerImpl implements VosManagerImplApi {
 		if(!voExists(sess, vo)) throw new VoNotExistsException("Vo: " + vo);
 	}
 
-	public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) {
+	public List<Integer> getVoApplicationIds(PerunSession sess, Vo vo) throws InternalErrorException {
 		// get app ids for all applications
-		return jdbc.query("select id from application where vo_id=?", new RowMapper<Integer>() {
-			@Override
-			public Integer mapRow(ResultSet rs, int arg1)
-			throws SQLException {
-			return rs.getInt("id");
-			}
-		},vo.getId());
-	}
-
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) {
-		return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
-			@Override
-			public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-				return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
-			}
-		}, appId);
-	}
-
-	public void deleteVoReservedLogins(PerunSession sess, Vo vo) {
-		// remove all reserved logins first
-		for (Integer appId : getVoApplicationIds(sess, vo)) {
-			jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+		try {
+			return jdbc.query("select id from application where vo_id=?", new RowMapper<Integer>() {
+				@Override
+				public Integer mapRow(ResultSet rs, int arg1)
+				throws SQLException {
+				return rs.getInt("id");
+				}
+			},vo.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 
-	public void deleteVoApplicationForm(PerunSession sess, Vo vo) {
+	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException {
+		try {
+			return jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
+				@Override
+				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
+					return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+				}
+			}, appId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void deleteVoReservedLogins(PerunSession sess, Vo vo) throws InternalErrorException {
+		// remove all reserved logins first
+		try {
+			for (Integer appId : getVoApplicationIds(sess, vo)) {
+				jdbc.update("delete from application_reserved_logins where app_id=?", appId);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void deleteVoApplicationForm(PerunSession sess, Vo vo) throws InternalErrorException {
 		// form items + texts are deleted on cascade with form itself
-		jdbc.update("delete from application_form where vo_id=?", vo.getId());
+		try {
+			jdbc.update("delete from application_form where vo_id=?", vo.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	public void createApplicationForm(PerunSession sess, Vo vo) throws InternalErrorException {
 		int id = Utils.getNewId(jdbc, "APPLICATION_FORM_ID_SEQ");
-		jdbc.update("insert into application_form(id, vo_id) values (?,?)", id, vo.getId());
+		try {
+			jdbc.update("insert into application_form(id, vo_id) values (?,?)", id, vo.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	public int getVosCount(PerunSession sess) throws InternalErrorException {

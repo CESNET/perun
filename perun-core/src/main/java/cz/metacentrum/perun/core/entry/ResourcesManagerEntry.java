@@ -2,6 +2,7 @@ package cz.metacentrum.perun.core.entry;
 
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +124,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 					 return resource;
 	}
 
-	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException {
+	public Resource createResource(PerunSession sess, Resource resource, Vo vo, Facility facility) throws InternalErrorException, PrivilegeException, VoNotExistsException, FacilityNotExistsException, ResourceExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getPerunBl().getFacilitiesManagerBl().checkFacilityExists(sess, facility);
@@ -612,7 +613,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().getAssignedRichResources(sess, member, service);
 	}
 
-	public Resource updateResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException {
+	public Resource updateResource(PerunSession sess, Resource resource) throws ResourceNotExistsException, InternalErrorException, PrivilegeException, ResourceExistsException {
 		Utils.notNull(sess, "sess");
 		resourcesManagerBl.checkResourceExists(sess, resource);
 
@@ -797,12 +798,14 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException {
+	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(banOnResource, "banOnResource");
 
+		Resource resource = getResourcesManagerBl().getResourceById(sess, banOnResource.getResourceId());
+
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
 			throw new PrivilegeException(sess, "setBan");
 		}
 
@@ -810,16 +813,18 @@ public class ResourcesManagerEntry implements ResourcesManager {
 	}
 
 	@Override
-	public BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
+	public BanOnResource getBanById(PerunSession sess, int banId) throws InternalErrorException, BanNotExistsException, PrivilegeException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
-		getResourcesManagerBl().checkBanExists(sess, banId);
+
+		BanOnResource ban = getResourcesManagerBl().getBanById(sess, banId);
+		Resource resource = getResourcesManagerBl().getResourceById(sess, ban.getResourceId());
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
 			throw new PrivilegeException(sess, "getBanById");
 		}
 
-		return getResourcesManagerBl().getBanById(sess, banId);
+		return ban;
 	}
 
 	public BanOnResource getBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException, PrivilegeException, MemberNotExistsException, ResourceNotExistsException {
@@ -835,7 +840,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().getBan(sess, memberId, resourceId);
 	}
 
-	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException, MemberNotExistsException {
+	public List<BanOnResource> getBansForMember(PerunSession sess, int memberId) throws InternalErrorException, MemberNotExistsException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, memberId);
 
@@ -844,8 +849,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Iterator<BanOnResource> iterator = usersBans.iterator();
 		while(iterator.hasNext()) {
 			BanOnResource banForFiltering = iterator.next();
-			Resource resource = new Resource();
-			resource.setId(banForFiltering.getResourceId());
+			Resource resource = getResourcesManagerBl().getResourceById(sess, banForFiltering.getResourceId());
 			if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) iterator.remove();
 		}
 
@@ -879,12 +883,11 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return banOnResource;
 	}
 
-	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, PrivilegeException, BanNotExistsException {
+	public void removeBan(PerunSession sess, int banId) throws InternalErrorException, PrivilegeException, BanNotExistsException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		BanOnResource ban = this.getResourcesManagerBl().getBanById(sess, banId);
 
-		Resource resource = new Resource();
-		resource.setId(ban.getResourceId());
+		Resource resource = getResourcesManagerBl().getResourceById(sess, ban.getResourceId());
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {
@@ -894,12 +897,11 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().removeBan(sess, banId);
 	}
 
-	public void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
+	public void removeBan(PerunSession sess, int memberId, int resourceId) throws InternalErrorException, BanNotExistsException, PrivilegeException, ResourceNotExistsException {
 		Utils.checkPerunSession(sess);
 		BanOnResource ban = this.getResourcesManagerBl().getBan(sess, memberId, resourceId);
 
-		Resource resource = new Resource();
-		resource.setId(ban.getResourceId());
+		Resource resource = getResourcesManagerBl().getResourceById(sess, ban.getResourceId());
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {

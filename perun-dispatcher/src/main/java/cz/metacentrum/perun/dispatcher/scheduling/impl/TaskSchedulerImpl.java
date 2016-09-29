@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,8 +153,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		// #################################################################################
 		log.debug("   Is there any execService that depends on ["
 				+ execService.getId() + "] in \"PROCESSING\" state?");
-		dependantServices = dependenciesResolver
-				.listDependantServices(execService);
+		dependantServices = dependenciesResolver.listDependantServices(execService);
 		boolean proceed = true;
 		for (ExecService dependantService : dependantServices) {
 			Task dependantServiceTask = schedulingPool.getTask(
@@ -493,20 +493,29 @@ public class TaskSchedulerImpl implements TaskScheduler {
 						perunSession, task.getExecService().getService(),
 						task.getFacility());
 			} catch (ServiceNotExistsException e) {
-				log.error("No destinations found for task " + task.toString());
-				// TODO: remove the task?
+				log.error("No destinations found for task " + task.getId());
+				task.setEndTime(new Date(System.currentTimeMillis()));
+				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+				return;
 			} catch (FacilityNotExistsException e) {
-				log.error("Facility for task does not exist..."
-						+ task.toString());
-				// TODO: remove the task?
+				log.error("Facility for task {} does not exist...", task.getId());
+				task.setEndTime(new Date(System.currentTimeMillis()));
+				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+				return;
 			} catch (PrivilegeException e) {
 				log.error("Privilege error accessing the database: "
 						+ e.getMessage());
+				task.setEndTime(new Date(System.currentTimeMillis()));
+				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+				return;
 			} catch (InternalErrorException e) {
 				log.error("Internal error: " + e.getMessage());
+				task.setEndTime(new Date(System.currentTimeMillis()));
+				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+				return;
 			}
 		}
-		log.debug("Fetched destinations: " + destinations.toString());
+		log.debug("Fetched destinations: " + ( (destinations == null) ?  "[]" : destinations.toString()));
 		task.setDestinations(destinations);
 		StringBuilder destinations_s = new StringBuilder("Destinations [");
 		if (destinations != null) {
@@ -555,7 +564,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 							dispatcherPropertiesBean
 									.getProperty("perun.principal.extSourceName"),
 							dispatcherPropertiesBean
-									.getProperty("perun.principal.extSourceType")));
+									.getProperty("perun.principal.extSourceType")),
+							new PerunClient());
 		}
 	}
 }

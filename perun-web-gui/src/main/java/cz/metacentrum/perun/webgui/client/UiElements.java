@@ -303,7 +303,7 @@ public class UiElements {
 
 		// default texts
 		String reportLabel = WidgetTranslation.INSTANCE.jsonClientReportErrorButton();
-		String okLabel = "OK";
+		String okLabel = ButtonTranslation.INSTANCE.cancelButton();
 
 		final ClickHandler okClickHandler = new ClickHandler() {
 			public void onClick(ClickEvent arg0) {
@@ -336,6 +336,7 @@ public class UiElements {
 		} else {
 			conf = new Confirm(header + ((!error.getErrorId().equals("")) ? " (" + error.getErrorId() + ")" : ""), layout, okClickHandler, reportClickHandler, okLabel, reportLabel, true);
 			conf.setCancelIcon(SmallIcons.INSTANCE.emailIcon());
+			conf.setOkIcon(SmallIcons.INSTANCE.stopIcon());
 		}
 		conf.setNonScrollable(true);
 		conf.setAutoHide(false);

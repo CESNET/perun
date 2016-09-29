@@ -29,6 +29,7 @@ public class SetLogin {
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// local variables for entity to send
 	private User user;
+	private int userId;
 	private String login;
 	private String namespace;
 
@@ -56,6 +57,7 @@ public class SetLogin {
 	public void setLogin(final User user, final String namespace, final String login) {
 
 		this.user = user;
+		this.userId = user.getId();
 		this.login = login;
 		this.namespace = namespace;
 
@@ -88,6 +90,47 @@ public class SetLogin {
 	}
 
 	/**
+	 * Set new login for user
+	 *
+	 * @param userId
+	 * @param namespace
+	 * @param login
+	 */
+	public void setLogin(final int userId, final String namespace, final String login) {
+
+		this.userId = userId;
+		this.login = login;
+		this.namespace = namespace;
+
+		// test arguments
+		if(!this.testAdding()){
+			return;
+		}
+
+		// new events
+		JsonCallbackEvents newEvents = new JsonCallbackEvents(){
+			public void onError(PerunError error) {
+				session.getUiElements().setLogErrorText("Adding login to user: " + userId + " failed.");
+				events.onError(error); // custom events
+			};
+
+			public void onFinished(JavaScriptObject jso) {
+				session.getUiElements().setLogSuccessText("Login successfully added to user: "+userId);
+				events.onFinished(jso);
+			};
+
+			public void onLoadingStart() {
+				events.onLoadingStart();
+			};
+		};
+
+		// sending data
+		JsonPostClient jspc = new JsonPostClient(newEvents);
+		jspc.sendData(JSON_URL, prepareJSONObject());
+
+	}
+
+	/**
 	 * Tests the values, if the process can continue
 	 *
 	 * @return true/false for continue/stop
@@ -97,8 +140,12 @@ public class SetLogin {
 		boolean result = true;
 		String errorMsg = "";
 
-		if(!user.isServiceUser()){
+		if(user != null && !user.isSpecificUser()){
 			errorMsg += "Only service users can have login(s) added this way.</br>";
+			result = false;
+		}
+		if(userId <= 0){
+			errorMsg += "ID of User can't be <= 0.</br>";
 			result = false;
 		}
 		if(login == null || login.isEmpty()){
@@ -125,7 +172,7 @@ public class SetLogin {
 	private JSONObject prepareJSONObject() {
 		// create whole JSON query
 		JSONObject jsonQuery = new JSONObject();
-		jsonQuery.put("user", new JSONNumber(user.getId()));
+		jsonQuery.put("user", new JSONNumber(userId));
 		jsonQuery.put("login", new JSONString(login));
 		jsonQuery.put("namespace", new JSONString(namespace));
 

@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import javax.jms.JMSException;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,8 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 							dispatcherPropertiesBean
 									.getProperty("perun.principal.extSourceName"),
 							dispatcherPropertiesBean
-									.getProperty("perun.principal.extSourceType")));
+									.getProperty("perun.principal.extSourceType")),
+							new PerunClient());
 		} catch (InternalErrorException e1) {
 			// TODO Auto-generated catch block
 			log.error(
@@ -207,9 +209,10 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 								task.toString());
 					}
 				} catch (FacilityNotExistsException e) {
-					log.error(
-							"Consistency error - found task for non-existing facility. {}",
-							e);
+					schedulingPool.removeTask(task);
+					log.error("Removed TASK {} from database, facility no longer exists.",
+							task.getId());
+				
 				} catch (InternalErrorException e) {
 					log.error("{}", e);
 				} catch (PrivilegeException e) {
@@ -592,7 +595,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			} else {
 				log.error("No TaskResult bean found in message {} from engine {}", string, clientID);
 			}
-		} catch (InternalErrorException e) {
+		} catch (Exception e) {
 			log.error("Could not save taskresult message {} from engine " + clientID, string);
 			log.debug("Error storing taskresult message: " + e.getMessage());
 		}

@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.webgui.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style.Unit;
@@ -13,6 +14,7 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.*;
+import cz.metacentrum.perun.webgui.client.resources.ExceptionLogger;
 import cz.metacentrum.perun.webgui.client.resources.LargeIcons;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.GetGuiConfiguration;
@@ -73,28 +75,39 @@ public class WebGui implements EntryPoint, ValueChangeHandler<String> {
 	 */
 	public void onModuleLoad() {
 
-		// IF IS MAIL VERIFICATION REQUEST
-		if (checkIfMailVerification()) return;
+		ExceptionLogger exceptionHandler = new ExceptionLogger();
+		GWT.setUncaughtExceptionHandler(exceptionHandler);
 
-		// LOAD PERUN WEB GUI
+		try {
 
-		// Get web page's BODY
-		body = RootLayoutPanel.get();
-		body.setStyleName("mainPanel");
+			// IF IS MAIL VERIFICATION REQUEST
+			if (checkIfMailVerification()) return;
 
-		// check RPC url
-		if(session.getRpcUrl().isEmpty()){
-			VerticalPanel bodyContents = new VerticalPanel();
-			bodyContents.setSize("100%", "300px");
-			bodyContents.add(new HTML(new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>RPC SERVER NOT FOUND!</h2>"));
-			bodyContents.setCellHorizontalAlignment(bodyContents.getWidget(0), HasHorizontalAlignment.ALIGN_CENTER);
-			bodyContents.setCellVerticalAlignment(bodyContents.getWidget(0), HasVerticalAlignment.ALIGN_BOTTOM);
-			body.add(bodyContents);
-			return;
+
+
+			// LOAD PERUN WEB GUI
+
+			// Get web page's BODY
+			body = RootLayoutPanel.get();
+			body.setStyleName("mainPanel");
+
+			// check RPC url
+			if(session.getRpcUrl().isEmpty()){
+				VerticalPanel bodyContents = new VerticalPanel();
+				bodyContents.setSize("100%", "300px");
+				bodyContents.add(new HTML(new Image(LargeIcons.INSTANCE.errorIcon())+"<h2>RPC SERVER NOT FOUND!</h2>"));
+				bodyContents.setCellHorizontalAlignment(bodyContents.getWidget(0), HasHorizontalAlignment.ALIGN_CENTER);
+				bodyContents.setCellVerticalAlignment(bodyContents.getWidget(0), HasVerticalAlignment.ALIGN_BOTTOM);
+				body.add(bodyContents);
+				return;
+			}
+
+			// load principal
+			loadPerunPrincipal();
+
+		} catch (Exception ex) {
+			exceptionHandler.onUncaughtException(ex);
 		}
-
-		// load principal
-		loadPerunPrincipal();
 
 	}
 

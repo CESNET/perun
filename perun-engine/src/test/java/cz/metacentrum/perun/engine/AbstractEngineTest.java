@@ -64,7 +64,9 @@ public abstract class AbstractEngineTest {
 
 		// create session
 
-		sess = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		sess = perun.getPerunSession(
+				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+				new PerunClient());
 
 		// create expected core objects
 

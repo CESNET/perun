@@ -33,11 +33,14 @@ import cz.metacentrum.perun.core.api.Host;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.OwnerType;
+import cz.metacentrum.perun.core.api.PerunBean;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -50,6 +53,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
@@ -57,6 +61,7 @@ import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
 import cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl;
+import cz.metacentrum.perun.core.impl.AuthzRoles;
 import java.util.Date;
 
 /**
@@ -1655,6 +1660,291 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertTrue(bansOnFacility.size() == 1);
 	}
 
+	@Test
+	public void addHostAndDestinationSameNameSameAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addHostAndDestinationSameNameSameAdmin");
+		
+		// Initialize host, destination and service
+	 	String hostName = "TestHost";
+		Host hostOne = new Host(0, hostName);
+		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
+		Service service = new Service(0, "testService");
+		ServicesManager servicesManagerEntry = perun.getServicesManager();
+		service = servicesManagerEntry.createService(sess, service);	
+		// Creates second facility
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
+		// Set up two members
+		Member memberOne = setUpMember(vo);
+		
+		// Set userOne as admin for both facilities
+		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
+		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
+		facilitiesManagerEntry.addAdmin(sess, secondFacility, userOne);
+		// Sets userOne as actor in this test with role facility admin for facility
+		List<PerunBean> list = new ArrayList<PerunBean>();
+		list.add(facility);
+		list.add(secondFacility);
+		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, list);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userOne);
+		
+		// Adds host to facility
+		facilitiesManagerEntry.addHost(sess, hostOne, facility);
+		assertTrue(facilitiesManagerEntry.getHosts(sess, facility).size() == 1);
+		// Adds destination with same name as host to facility
+		servicesManagerEntry.addDestination(sess, service, facility, destination);
+		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
+		// Adds same host to second facility
+		facilitiesManagerEntry.addHost(sess, hostOne, secondFacility);
+		assertTrue(facilitiesManagerEntry.getHosts(sess, secondFacility).size() == 1);
+		// Adds destination with same name as host to secondFacility
+		servicesManagerEntry.addDestination(sess, service, secondFacility, destination);
+		assertTrue(servicesManagerEntry.getDestinations(sess, service, secondFacility).size() == 1);
+	}
+	
+	@Test(expected = PrivilegeException.class)
+	public void addHostSameHostDifferentAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addHostSameHostDifferentAdmin");
+		
+		// Initialize host
+		Host host = new Host(0, "testHost");
+		// Creates second facility
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
+		// Set up two members
+		Member memberOne = setUpMember(vo);
+		Member memberTwo = setUpMember(vo);
+		
+		// Set users as admins of different facilities
+		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
+		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
+		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
+		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
+		
+		// Sets userOne as actor in this test with role facility admin for facility
+		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userOne);
+		// Adds host to facility
+		facilitiesManagerEntry.addHost(sess, host, facility);
+		assertTrue(facilitiesManagerEntry.getHosts(sess, facility).size() == 1);
+		
+		// Change actor in this test to userTwo
+		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userTwo);
+		// Adds same host to secondFacility with different admin -> should throw exception
+		facilitiesManagerEntry.addHost(sess, host, secondFacility);
+	}
+	
+	@Test(expected = PrivilegeException.class)
+	public void addHostSameDestinationDifferentAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addHostSameDestinationDifferentAdmin");
+		
+		// Initialize host, destination and service
+	 	String hostName = "TestHost";
+		Host host = new Host(0, hostName);
+		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
+		Service service = new Service(0, "testService");
+		ServicesManager servicesManagerEntry = perun.getServicesManager();
+		service = servicesManagerEntry.createService(sess, service);
+		
+		// Creates second facility
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
+		// Set up two members
+		Member memberOne = setUpMember(vo);
+		Member memberTwo = setUpMember(vo);
+		
+		// Set users as admins of different facilities
+		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
+		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
+		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
+		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
+		
+		// Sets userOne as actor in this test with role facility admin for facility
+		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userOne);
+		// Adds destination to facility
+		servicesManagerEntry.addDestination(sess, service, facility, destination);
+		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
+		
+		// Change actor in this test to userTwo
+		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userTwo);
+		// Adds same host as destination to secondFacility with different admin -> should throw exception
+		facilitiesManagerEntry.addHost(sess, host, secondFacility);
+	}
+
+	@Test(expected = PrivilegeException.class)
+	public void addHostsStringsSameHostsDifferentAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addHostsStringsSameHostsDifferentAdmin");
+		// Sets list of hostnames
+		String hostName = "testHostOne";
+		List<String> listOfHosts = new ArrayList<String>();
+		listOfHosts.add(hostName);
+		hostName = "testHostTwo";
+		listOfHosts.add(hostName);
+		// Set up two members
+		Member memberOne = setUpMember(vo);
+		Member memberTwo = setUpMember(vo);
+		// Creates second facility
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
+		
+		// Set users as admins of different facilities
+		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
+		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
+		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
+		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
+		
+		// Sets userOne as actor in this test with role facility admin for facility
+		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userOne);
+		// Adds hosts to facility
+		facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
+		
+		// Change actor in this test to userTwo
+		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userTwo);
+		// Adds same hosts to secondFacility with different admin -> should throw exception
+		facilitiesManagerEntry.addHosts(sess, secondFacility, listOfHosts);
+	}
+	
+	@Test(expected = PrivilegeException.class)
+	public void addHostsStringsSameDestinationDifferentAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addHostsStringsSameDestinationDifferentAdmin");
+		
+	 	// Sets list of hostnames
+		String hostName = "testHostOne";
+		List<String> listOfHosts = new ArrayList<String>();
+		listOfHosts.add(hostName);
+		hostName = "testHostTwo";
+		listOfHosts.add(hostName);
+		// Initialize destination and service
+		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
+		Service service = new Service(0, "testService");
+		ServicesManager servicesManagerEntry = perun.getServicesManager();
+		service = servicesManagerEntry.createService(sess, service);
+		
+		// Creates second facility
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
+		// Set up two members
+		Member memberOne = setUpMember(vo);
+		Member memberTwo = setUpMember(vo);
+		
+		// Set users as admins of different facilities
+		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
+		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
+		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
+		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
+		
+		// Sets userOne as actor in this test with role facility admin for facility
+		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userOne);
+		// Adds destination to facility
+		servicesManagerEntry.addDestination(sess, service, facility, destination);
+		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
+		
+		// Change actor in this test to userTwo
+		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userTwo);
+		// Adds same host as destination to secondFacility with different admin -> should throw exception
+		facilitiesManagerEntry.addHosts(sess, secondFacility, listOfHosts);
+	}
+	
+	@Test(expected = PrivilegeException.class)
+	public void addHostsSameHostsDifferentAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addHostsSameHostsDifferentAdmin");
+		// Sets list of hosts
+		List<Host> listOfHosts = new ArrayList<Host>();
+		Host testHost = new Host(0, "testHostOne");
+		listOfHosts.add(testHost);
+		testHost = new Host(0, "testHostTwo");
+		listOfHosts.add(testHost);
+		// Set up two members
+		Member memberOne = setUpMember(vo);
+		Member memberTwo = setUpMember(vo);
+		// Creates second facility
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
+		
+		// Set users as admins of different facilities
+		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
+		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
+		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
+		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
+		
+		// Sets userOne as actor in this test with role facility admin for facility
+		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userOne);
+		// Adds hosts to facility
+		facilitiesManagerEntry.addHosts(sess, listOfHosts, facility);
+		
+		// Change actor in this test to userTwo
+		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userTwo);
+		// Adds same hosts to secondFacility with different admin -> should throw exception
+		facilitiesManagerEntry.addHosts(sess, listOfHosts, secondFacility);
+	}
+	
+	@Test(expected = PrivilegeException.class)
+	public void addHostsSameDestinationDifferentAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addHostsStringsSameDestinationDifferentAdmin");
+		
+	 	// Sets list of hosts
+		List<Host> listOfHosts = new ArrayList<Host>();
+		Host testHost = new Host(0, "testHostOne");
+		listOfHosts.add(testHost);
+		String hostName = "testHostTwo";
+		testHost = new Host(0, hostName);
+		listOfHosts.add(testHost);
+		// Initialize destination and service
+		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
+		Service service = new Service(0, "testService");
+		ServicesManager servicesManagerEntry = perun.getServicesManager();
+		service = servicesManagerEntry.createService(sess, service);
+		
+		// Creates second facility
+		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
+		// Set up two members
+		Member memberOne = setUpMember(vo);
+		Member memberTwo = setUpMember(vo);
+		
+		// Set users as admins of different facilities
+		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
+		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
+		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
+		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
+		
+		// Sets userOne as actor in this test with role facility admin for facility
+		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userOne);
+		// Adds destination to facility
+		servicesManagerEntry.addDestination(sess, service, facility, destination);
+		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
+		
+		// Change actor in this test to userTwo
+		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
+		sess.getPerunPrincipal().setRoles(authzRoles);
+		sess.getPerunPrincipal().setUser(userTwo);
+		// Adds same host as destination to secondFacility with different admin -> should throw exception
+		facilitiesManagerEntry.addHosts(sess, listOfHosts, secondFacility);
+	}
+	
+	
 // PRIVATE METHODS -------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {

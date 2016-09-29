@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.PerunClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +74,9 @@ public class ExecServiceDenialDaoTest {
 
 	@Before
 	public void setUp() throws InternalErrorException, OwnerNotExistsException, ServiceExistsException, PrivilegeException {
-		perunSession = perun.getPerunSession(new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL));
+		perunSession = perun.getPerunSession(
+				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+				new PerunClient());
 
 		jdbcTemplate = new JdbcPerunTemplate(dataSource);
 
@@ -88,11 +91,11 @@ public class ExecServiceDenialDaoTest {
 
 		// Test Service #1
 		testService1 = new Service();
-		testService1.setName("Test service 1-" + Long.toHexString(System.currentTimeMillis()));
+		testService1.setName("Test_service_1_" + Long.toHexString(System.currentTimeMillis()));
 
 		// Test Service #2
 		testService2 = new Service();
-		testService2.setName("Test service 2-" + Long.toHexString(System.currentTimeMillis()));
+		testService2.setName("Test_service_2_" + Long.toHexString(System.currentTimeMillis()));
 
 		testService1.setId(servicesManager.createService(perunSession, testService1).getId());
 		testService2.setId(servicesManager.createService(perunSession, testService2).getId());

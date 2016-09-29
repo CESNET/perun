@@ -144,7 +144,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 
 			List<UserExtSource> userExtSources = getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 			for (UserExtSource userExtSource: userExtSources) {
-				if (userExtSource.getExtSource().equals(this)) {
+				if (userExtSource.getExtSource().equals(source)) {
 					// It is enough to have at least one login from the extSource
 					// TODO jak budeme kontrolovat, ze mu zmizel jeden login a zustal jiny, zajima nas to?
 					userLogin = userExtSource.getLogin();
@@ -448,7 +448,7 @@ public class ExtSourcesManagerBlImpl implements ExtSourcesManagerBl {
 		getExtSourcesManagerImpl().loadExtSourcesDefinitions(sess);
 	}
 
-	public Map<String, String> getAttributes(ExtSource extSource) {
+	public Map<String, String> getAttributes(ExtSource extSource) throws InternalErrorException {
 		return getExtSourcesManagerImpl().getAttributes(extSource);
 	}
 }

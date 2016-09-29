@@ -32,7 +32,12 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	public void isAuthorizedInvalidPrincipal() throws Exception {
 		System.out.println(CLASS_NAME + "isAuthorizedInvalidPrincipal");
 
-		assertTrue(! AuthzResolver.isAuthorized(new PerunSessionImpl(perun, new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL)), Role.PERUNADMIN));
+		assertTrue(!
+				AuthzResolver.isAuthorized(new PerunSessionImpl(
+					perun,
+					new PerunPrincipal("pepa", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
+					new PerunClient()
+				), Role.PERUNADMIN));
 	}
 
 	@Test
@@ -256,7 +261,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 		// Principal perunTests is PERUNADMIN
 		PerunPrincipal pp =  new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		PerunSession ps = new PerunSessionImpl(perun, pp);
+		PerunSession ps = new PerunSessionImpl(perun, pp, new PerunClient());
 
 		List<String> roleNames = cz.metacentrum.perun.core.api.AuthzResolver.getPrincipalRoleNames(ps);
 
@@ -285,7 +290,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 
 	}
 
-	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException {
+	private Member createSomeMember(final Vo createdVo) throws ExtendMembershipException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, GroupOperationsException {
 		final Candidate candidate = setUpCandidate();
 		final Member createdMember = perun.getMembersManagerBl().createMemberSync(sess, createdVo, candidate);
 		return createdMember;
@@ -306,7 +311,7 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 		}
 
 		PerunPrincipal pp1 = new PerunPrincipal(ue.getLogin(), ue.getExtSource().getName(), ue.getExtSource().getType());
-		PerunSession sess1 = perun.getPerunSession(pp1);
+		PerunSession sess1 = perun.getPerunSession(pp1, new PerunClient());
 
 		return sess1;
 	}

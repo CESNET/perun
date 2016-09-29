@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
@@ -10,6 +11,7 @@ import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public enum UsersManagerMethod implements ManagerMethod {
 
@@ -819,6 +821,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	makeUserPerunAdmin {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 			User user = ac.getUserById(parms.readInt("user"));
 			ac.getUsersManager().makeUserPerunAdmin(ac.getSession(), user);
 			return null;
@@ -826,6 +829,24 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 
+	/*#
+	 * Changes user password in defined login-namespace.
+	 *
+	 * @param login String Users login
+	 * @param loginNamespace String Namespace
+	 * @param newPassword String New password
+	 * @param checkOldPassword boolean Must be false
+	 */
+	/*#
+	 * Changes user password in defined login-namespace.
+	 * You must send the old password, which will be checked
+	 *
+	 * @param login String Users login
+	 * @param loginNamespace String Namespace
+	 * @param oldPassword String Old password which will be checked.
+	 * @param newPassword String New password
+	 * @param checkOldPassword boolean Must be true
+	 */
 	/*#
 	 * Changes user password in defined login-namespace.
 	 *
@@ -847,12 +868,22 @@ public enum UsersManagerMethod implements ManagerMethod {
 	changePassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
-			User user = ac.getUserById(parms.readInt("user"));
+			ac.stateChangingCheck();
 
-			if (parms.readBoolean("checkOldPassword")) {
-				ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
+			if (parms.contains("login")) {
+				String login = parms.readString("login");
+				if (parms.readBoolean("checkOldPassword")) {
+					ac.getUsersManager().changePassword(ac.getSession(), login, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
+				} else {
+					ac.getUsersManager().changePassword(ac.getSession(), login, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
+				}
 			} else {
-				ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
+				User user = ac.getUserById(parms.readInt("user"));
+				if (parms.readBoolean("checkOldPassword")) {
+					ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), true);
+				} else {
+					ac.getUsersManager().changePassword(ac.getSession(), user, parms.readString("loginNamespace"), parms.readString("oldPassword"), parms.readString("newPassword"), false);
+				}
 			}
 			return null;
 		}
@@ -867,6 +898,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	changeNonAuthzPassword {
 		@Override
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
 
 			ac.getUsersManager().changeNonAuthzPassword(ac.getSession(), parms.readString("i"), parms.readString("m"), parms.readString("password"));
 
@@ -994,7 +1026,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 	/*#
 	 * Set new login in namespace if login is available and user doesn't have login in that namespace.
-	 * !! Works only for service users !!
+	 * !! Works only for service/guest users => specific users !!
 	 *
 	 * @param user int User <code>id</code>
 	 * @param login String Login
@@ -1141,7 +1173,7 @@ public enum UsersManagerMethod implements ManagerMethod {
 	/*#
 	 * Updates user's userExtSource last access time in DB. We can get information which userExtSource has been used as a last one.
 	 *
-	 * @param UserExtSource int UserExtSource <code>id</code>
+	 * @param userExtSource int UserExtSource <code>id</code>
 	 */
 	updateUserExtSourceLastAccess {
 
@@ -1153,5 +1185,33 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 			return null;
 		}
+	},
+
+	/*#
+	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 *
+	 * This method consumes optional parameters map. Requirements are implementation-dependant
+	 * for each login-namespace.
+	 *
+	 * Returns map with
+	 * 1: key=login-namespace attribute urn, value=generated login
+	 * 2: rest of opt response attributes...
+	 *
+	 * @param namespace String
+	 * @param parameters Map
+	 *
+	 * @return Map<String, String> Map of data from backed response
+	 * @throws InternalErrorException
+	 */
+	generateAccount {
+
+		@Override
+		public Map<String, String> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			return ac.getUsersManager().generateAccount(ac.getSession(),
+					parms.readString("namespace"),
+					parms.read("parameters", HashMap.class));
+		}
+
 	};
 }

@@ -57,7 +57,7 @@ if ((scalar(@candidates) > 1) && $batch) {
 # We are not in the batch mode, so there can be more then one matching user for the searchString, let the user select
 my $candidate;
 if (!$batch) {
-	my $table = Text::ASCIITable->new();
+	my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 	$table->setCols("Candidate\nnumber",'name','login in the external source', 'external source');
 
 	my $i = 0;

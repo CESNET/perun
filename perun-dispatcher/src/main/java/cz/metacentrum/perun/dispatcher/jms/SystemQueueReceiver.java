@@ -6,6 +6,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import cz.metacentrum.perun.dispatcher.exceptions.MessageFormatException;
 import org.hornetq.api.jms.HornetQJMSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,9 +73,15 @@ public class SystemQueueReceiver implements Runnable {
 						log.debug("System message received["
 								+ messageReceived.getText() + "]");
 					}
-					systemQueueProcessor
-							.processDispatcherQueueAndMatchingRule(messageReceived
-									.getText());
+					try {
+						systemQueueProcessor
+								.processDispatcherQueueAndMatchingRule(messageReceived
+										.getText());
+					} catch (MessageFormatException ex) {
+						// engine sent wrongly formatted messages
+						// shouldn't kill whole messaging process
+						log.error(ex.toString(), ex);
+					}
 					messageReceived.acknowledge();
 				}
 				if (log.isDebugEnabled()) {

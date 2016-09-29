@@ -14,16 +14,15 @@ import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 
@@ -161,11 +160,11 @@ public interface GroupsManagerImplApi {
 
 
 	/**
-	 * Removes member form the group.
+	 * Removes member form the group. The member object MUST have sourceGroupId parameter.
 	 *
-	 * @param perunSession
-	 * @param group
-	 * @param member
+	 * @param perunSession perun session
+	 * @param group group
+	 * @param member member
 	 *
 	 * @throws InternalErrorException
 	 * @throws NotGroupMemberException
@@ -459,8 +458,9 @@ public interface GroupsManagerImplApi {
 	 * @param sess
 	 * @param group
 	 * @return list of all group applications ids
+	 * @throws InternalErrorException
 	 */
-	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group);
+	public List<Integer> getGroupApplicationIds(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Return list of all reserved logins for specific application
@@ -468,8 +468,9 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @param appId from which application get reserved logins
 	 * @return list of pairs namespace and login
+	 * @throws InternalErrorException
 	 */
-	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId);
+	public List<Pair<String, String>> getApplicationReservedLogins(Integer appId) throws InternalErrorException;
 
 	/**
 	 * Delete all Group login reservations
@@ -480,8 +481,9 @@ public interface GroupsManagerImplApi {
 	 *
 	 * @param sess
 	 * @param group Group to delete all login reservations for
+	 * @throws InternalErrorException
 	 */
-	public void deleteGroupReservedLogins(PerunSession sess, Group group);
+	public void deleteGroupReservedLogins(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * Get all groups in specific vo with assigned extSource
@@ -493,4 +495,102 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
+
+	/**
+	 * Removes a union between two groups.
+	 *
+	 * @param sess perun session
+	 * @param resultGroup result group
+	 * @param operandGroup operand group
+	 *
+	 * @throws InternalErrorException
+	 * @throws GroupRelationDoesNotExist if the union between the two groups does not exist
+	 */
+	void removeGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupRelationDoesNotExist;
+
+	/**
+	 * Removes all relations of this result group.
+	 *
+	 * @param sess perun session
+	 * @param resultGroup result group
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 */
+	void removeResultGroupRelations(PerunSession sess, Group resultGroup) throws InternalErrorException;
+
+	/**
+	 * Saves union operation between result group and operand group.
+	 * @param sess perun session
+	 * @param resultGroup group to which members are added
+	 * @param operandGroup group from which members are taken
+	 * @param parentFlag if true union cannot be deleted; false otherwise (it flags relations created by hierarchical structure)
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 */
+	void saveGroupRelation(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws InternalErrorException;
+
+	/**
+	 * Checks if relation between groups exists. It checks both ways.
+	 * Does not matter which one is result group and which one is operand group.
+	 *
+	 * @param group1 group
+	 * @param group2 group
+	 * @return true if there is a relation, false otherwise
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 */
+	boolean isRelationBetweenGroups(Group group1, Group group2) throws InternalErrorException;
+
+	/**
+	 * Check if the relation between given groups can be deleted. 
+	 * Determined by parent flag (it flags relations created by hierarchical structure).
+	 * It matters which group is resultGroup and which is operandGroup!!!
+	 * 
+	 * @return true if it can be deleted; false otherwise
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 */
+	boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException;
+	
+	/**
+	 * Checks if relation exists between result group and operand group.
+	 * It matters which one is result group and which one is operand group.
+	 *
+	 * @param resultGroup result group
+	 * @param operandGroup operand group
+	 * @return true if there is a one-way relation, false otherwise
+	 *
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 */
+	boolean isOneWayRelationBetweenGroups(Group resultGroup, Group operandGroup) throws InternalErrorException;
+
+	/**
+	 * Return all result groups of requested operand group.
+	 *
+	 * @param sess perun session
+	 * @param groupId group id
+	 * @return list of Group objects
+	 * 
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 */
+	List<Group> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException;
+
+	/**
+	 * Return all operand groups of requested result group.
+	 * 
+	 * @param sess perun session
+	 * @param groupId group id
+	 * @return list of Group objects
+	 */
+	List<Group> getOperandGroups(PerunSession sess, int groupId) throws InternalErrorException;
+
+	/**
+	 * Return list of all result groups ids of requested operand group.
+	 * 
+	 * @param sess perun session
+	 * @param groupId group id
+	 * @return list of group ids
+	 * @throws InternalErrorException
+	 */
+	List<Integer> getResultGroupsIds(PerunSession sess, int groupId) throws InternalErrorException;
 }

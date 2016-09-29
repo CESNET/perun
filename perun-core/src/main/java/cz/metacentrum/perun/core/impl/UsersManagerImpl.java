@@ -3,14 +3,18 @@ package cz.metacentrum.perun.core.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -34,6 +38,9 @@ import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
 import java.util.Calendar;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
@@ -65,6 +72,29 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		"user_ext_sources.modified_by as user_ext_sources_modified_by, user_ext_sources.modified_at as user_ext_sources_modified_at, " +
 		"user_ext_sources.created_by_uid as ues_created_by_uid, user_ext_sources.modified_by_uid as ues_modified_by_uid";
 
+	private static Map<String, Pattern> userExtSourcePersistentPatterns;
+
+	static {
+		// Prepare userExtSourcePersistentPatterns for matching regex from perun property file.
+		// It is done in advance because of performance.
+		try {
+			userExtSourcePersistentPatterns = new HashMap<>();
+			String persistentConfig = BeansUtils.getPropertyFromConfiguration("perun.userExtSources.persistent");
+			for (String extSource : persistentConfig.split(";")) {
+				String[] extSourceTuple = extSource.split(",", 2);
+				if (extSourceTuple.length > 1) {
+					userExtSourcePersistentPatterns.put(extSourceTuple[0], Pattern.compile(extSourceTuple[1]));
+				} else {
+					userExtSourcePersistentPatterns.put(extSource, Pattern.compile(".*"));
+				}
+			}
+		} catch (InternalErrorException e) {
+			log.info("Error when reading property perun.userExtSources.persistent. Serving default behavior.", e);
+			// If error occurred no persistent user ext sources are considered. e.g. property is not set.
+			userExtSourcePersistentPatterns = new HashMap<>();
+		}
+	}
+
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate  namedParameterJdbcTemplate;
 
@@ -92,8 +122,18 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			else extSource.setModifiedByUid(rs.getInt("ext_sources_modified_by_uid"));
 			if(rs.getInt("ext_sources_created_by_uid") == 0) extSource.setCreatedByUid(null);
 			else extSource.setCreatedByUid(rs.getInt("ext_sources_created_by_uid"));
-			return new UserExtSource(rs.getInt("user_ext_sources_id"), extSource, rs.getString("user_ext_sources_login_ext"), rs.getInt("user_ext_sources_user_id"),
-					rs.getInt("user_ext_sources_loa"),rs.getString("user_ext_sources_created_at"), rs.getString("user_ext_sources_created_by"),
+
+			boolean persistent = false;
+			Pattern p = userExtSourcePersistentPatterns.get(rs.getString("ext_sources_name"));
+			if (p != null) {
+				if (p.matcher(rs.getString("user_ext_sources_login_ext")).matches()) {
+					persistent = true;
+				}
+			}
+
+			return new UserExtSource(rs.getInt("user_ext_sources_id"), extSource, rs.getString("user_ext_sources_login_ext"),
+					rs.getInt("user_ext_sources_user_id"), rs.getInt("user_ext_sources_loa"), persistent,
+					rs.getString("user_ext_sources_created_at"), rs.getString("user_ext_sources_created_by"),
 					rs.getString("user_ext_sources_modified_at"), rs.getString("user_ext_sources_modified_by"),
 					rs.getInt("ues_created_by_uid") == 0 ? null : rs.getInt("ues_created_by_uid"),
 					rs.getInt("ues_modified_by_uid") == 0 ? null : rs.getInt("ues_modified_by_uid"));
@@ -314,21 +354,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
 		try {
-			jdbc.update("delete from specific_user_users where user_id=?", user.getId());
+			// delete all relations like  user -> sponsor -> service
+			jdbc.update("delete from specific_user_users where specific_user_id=? or user_id=?", user.getId(), user.getId());
 			int numAffected = jdbc.update("delete from users where id=?", user.getId());
-			if(numAffected == 0) throw new UserAlreadyRemovedException("User: " + user);
-		} catch (RuntimeException err) {
-			throw new InternalErrorException(err);
-		}
-	}
-
-	public void deleteSpecificUser(PerunSession sess, User specificUser) throws InternalErrorException, SpecificUserAlreadyRemovedException {
-		try {
-			jdbc.update("delete from specific_user_users where specific_user_id=?", specificUser.getId());
-			int numAffected = jdbc.update("delete from users where id=?", specificUser.getId());
-			if(numAffected == 0) throw new SpecificUserAlreadyRemovedException("ServiceUser: " + specificUser);
+			if(numAffected == 0) {
+				if (user.isSpecificUser()) throw new SpecificUserAlreadyRemovedException("SpecificUser: " + user);
+				throw new UserAlreadyRemovedException("User: " + user);
+			}
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -986,46 +1020,54 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	}
 
-	public List<Pair<String, String>> getUsersReservedLogins(User user) {
+	public List<Pair<String, String>> getUsersReservedLogins(User user) throws InternalErrorException {
 
 		List<Pair<String, String>> result = new ArrayList<Pair<String,String>>();
 
-		List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
-			@Override
-			public Integer mapRow(ResultSet rs, int arg1) throws SQLException {
-				return rs.getInt("id");
-			}
-		},user.getId());
-
-		for (Integer id : ids) {
-
-			result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
+		try {
+			List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
 				@Override
-				public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
-					return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+				public Integer mapRow(ResultSet rs, int arg1) throws SQLException {
+					return rs.getInt("id");
 				}
-			}, id));
+			},user.getId());
 
+			for (Integer id : ids) {
+
+				result.addAll(jdbc.query("select namespace,login from application_reserved_logins where app_id=?", new RowMapper<Pair<String, String>>() {
+					@Override
+					public Pair<String, String> mapRow(ResultSet rs, int arg1) throws SQLException {
+						return new Pair<String, String>(rs.getString("namespace"), rs.getString("login"));
+					}
+				}, id));
+
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 
 		return result;
 
 	}
 
-	public void deleteUsersReservedLogins(User user) {
+	public void deleteUsersReservedLogins(User user) throws InternalErrorException {
 
-		List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
-			@Override
-			public Integer mapRow(ResultSet rs, int arg1)
-			throws SQLException {
-			return rs.getInt("id");
+		try {
+			List<Integer> ids = jdbc.query("select id from application where user_id=?", new RowMapper<Integer>() {
+				@Override
+				public Integer mapRow(ResultSet rs, int arg1)
+				throws SQLException {
+				return rs.getInt("id");
+				}
+			},user.getId());
+
+			for (Integer id : ids) {
+
+				jdbc.update("delete from application_reserved_logins where app_id=?", id);
+
 			}
-		},user.getId());
-
-		for (Integer id : ids) {
-
-			jdbc.update("delete from application_reserved_logins where app_id=?", id);
-
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 
 	}
@@ -1034,8 +1076,12 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		int id = Utils.getNewId(jdbc, "mailchange_id_seq");
 
-		jdbc.update("insert into mailchange(id, value, user_id, created_by, created_by_uid) values (?,?,?,?,?) ",
-				id, email, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		try {
+			jdbc.update("insert into mailchange(id, value, user_id, created_by, created_by_uid) values (?,?,?,?,?) ",
+					id, email, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 
 		return id;
 
@@ -1176,4 +1222,32 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	public void checkUserExists(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		if(!userExists(sess, user)) throw new UserNotExistsException("User: " + user);
 	}
+
+	@Override
+	public Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
+
+		PasswordManagerModule module = getPasswordManagerModule(session, namespace);
+		if (module != null) {
+			return module.generateAccount(session, parameters);
+		}
+		return null;
+
+	}
+
+	@Override
+	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
+
+		if (namespace == null || namespace.isEmpty()) throw new InternalErrorException("Login-namespace to get password manager module must be specified.");
+
+		namespace = namespace.replaceAll("[^A-Za-z0-9]", "");
+		namespace = Character.toUpperCase(namespace.charAt(0)) + namespace.substring(1);
+
+		try {
+			return (PasswordManagerModule) Class.forName("cz.metacentrum.perun.core.impl.modules.pwdmgr." + namespace + "PasswordManagerModule").newInstance();
+		} catch (Exception ex) {
+			throw new InternalErrorException("Unable to instantiate password manager module.", ex);
+		}
+
+	}
+
 }

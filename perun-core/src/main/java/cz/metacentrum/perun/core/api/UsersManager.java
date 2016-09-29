@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.api;
 
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.exceptions.*;
 
@@ -256,12 +257,13 @@ public interface UsersManager {
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
 	 * @throws PrivilegeException
-	 * @throws RelationExistsException if user has some members assigned
-	 * @throws MemberAlreadyRemovedException if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException if there are no rows affected by deleting user in DB
-	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected  by deleting specific user in DB
+	 * @throws RelationExistsException
+	 * @throws MemberAlreadyRemovedException
+	 * @throws UserAlreadyRemovedException
+	 * @throws SpecificUserAlreadyRemovedException
+	 * @throws GroupOperationsException
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException;
 
 	/**
 	 *  Deletes user. If forceDelete is true, then removes also associeted members.
@@ -271,12 +273,14 @@ public interface UsersManager {
 	 * @param forceDelete if true, deletes also all members if they are assigned to the user
 	 * @throws InternalErrorException
 	 * @throws UserNotExistsException
-	 * @throws RelationExistsException if forceDelete is false and the user has some members assigned
-	 * @throws MemberAlreadyRemovedException if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException if there are no rows affected by deleting user in DB
-	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected  by deleting specific user in DB
+	 * @throws PrivilegeException
+	 * @throws RelationExistsException
+	 * @throws MemberAlreadyRemovedException
+	 * @throws UserAlreadyRemovedException
+	 * @throws SpecificUserAlreadyRemovedException
+	 * @throws GroupOperationsException
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, UserNotExistsException, PrivilegeException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException;
 
 	/**
 	 *  Updates users data in DB.
@@ -629,7 +633,26 @@ public interface UsersManager {
 	boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**
-	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask autnetication system if old password is correct.
+	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
+	 *
+	 * @param sess
+	 * @param login
+	 * @param loginNamespace
+	 * @param oldPassword
+	 * @param newPassword
+	 * @param checkOldPassword
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 * @throws LoginNotExistsException
+	 * @throws PasswordDoesntMatchException
+	 * @throws PasswordChangeFailedException
+	 */
+	void changePassword(PerunSession sess, String login, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
+			throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
+
+	/**
+	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
 	 *
 	 * @param sess
 	 * @param user
@@ -645,7 +668,8 @@ public interface UsersManager {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-		throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
+			throws InternalErrorException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
+
 
 	/**
 	 * Changes user password in defined login-namespace using encrypted parameters.
@@ -660,7 +684,7 @@ public interface UsersManager {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changeNonAuthzPassword(PerunSession sess, String i, String m, String password)
-			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException;
+			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 
 	/**
@@ -705,7 +729,7 @@ public interface UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws LoginNotExistsException
 	 */
-	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException;
+	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Reserves the password in external system. User must not exists.
@@ -718,7 +742,7 @@ public interface UsersManager {
 	 * @throws PasswordCreationFailedException
 	 */
 	void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password)
-		throws InternalErrorException, PasswordCreationFailedException, PrivilegeException;
+			throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Reserves the password in external system. User must exists.
@@ -734,7 +758,7 @@ public interface UsersManager {
 	 * @throws PrivilegeException
 	 */
 	void reservePassword(PerunSession sess, User user, String loginNamespace, String password)
-		throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException;
+			throws InternalErrorException, PasswordCreationFailedException, PrivilegeException, UserNotExistsException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Validates the password in external system. User must not exists.
@@ -793,7 +817,7 @@ public interface UsersManager {
 	 * @throws LoginNotExistsException
 	 */
 	void deletePassword(PerunSession sess, String userLogin, String loginNamespace)
-		throws InternalErrorException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException;
+			throws InternalErrorException, PasswordDeletionFailedException, PrivilegeException, LoginNotExistsException, PasswordOperationTimeoutException;
 
 	/**
 	 * Creates alternative password in external system.
@@ -906,7 +930,8 @@ public interface UsersManager {
 		throws InternalErrorException, UserNotExistsException, VoNotExistsException, PrivilegeException;
 
 	/**
-	 * Allow users to manually add login in supported namespace if same login is not reserved
+	 * Allow users to manually add login in supported namespace if same login is not reserved.
+	 * Can be set only to own service or guest users => specific users.
 	 *
 	 * @param sess
 	 * @param user
@@ -1003,4 +1028,24 @@ public interface UsersManager {
 	 * @throws UserExtSourceNotExistsException
 	 */
 	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException, PrivilegeException, UserExtSourceNotExistsException;
+
+	/**
+	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 *
+	 * This method consumes optional parameters map. Requirements are implementation-dependant
+	 * for each login-namespace.
+	 *
+	 * Returns map with
+	 * 1: key=login-namespace attribute urn, value=generated login
+	 * 2: rest of opt response attributes...
+	 *
+	 * @param session
+	 * @param namespace Namespace to generate account in
+	 * @param parameters Optional parameters
+	 * @return Map of data from backed response
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException, PrivilegeException;
+
 }

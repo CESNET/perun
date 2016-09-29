@@ -441,6 +441,12 @@ public interface ButtonTranslation extends Messages {
 	@DefaultMessage("Save changes in group`s details")
 	String saveGroupDetails();
 
+	@DefaultMessage("Add new group union")
+	String addGroupUnion();
+
+	@DefaultMessage("Remove selected group union")
+	String removeGroupUnion();
+
 	/* EXT SOURCES */
 
 	@DefaultMessage("Add new external source of users")

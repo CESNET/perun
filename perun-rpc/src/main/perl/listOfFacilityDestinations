@@ -50,7 +50,7 @@ GetOptions("help|h" => sub { print help; exit 0; } ,
 		 unless(@destinations) { printMessage "No destinations found", $batch; exit 0;}
 
 #output
-		 my $table = Text::ASCIITable->new();
+		 my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 		 $table->setCols('ID', 'Destination', 'Type');
 
 		 foreach my $destination (@destinations) {

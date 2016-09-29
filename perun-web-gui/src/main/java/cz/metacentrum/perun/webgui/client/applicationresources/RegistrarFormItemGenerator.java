@@ -54,6 +54,8 @@ public class RegistrarFormItemGenerator {
 	private static final int TEXT_BOX_MAX_LENGTH = 512;
 	private static final int TEXT_AREA_MAX_LENGTH = 3999;
 
+	private int RADIO_COUNTER = 0;
+
 	/**
 	 * Item with type definition
 	 */
@@ -465,6 +467,11 @@ public class RegistrarFormItemGenerator {
 		if(item.getType().equals("USERNAME")){
 			this.visible = true;
 			return generateUsernameBox();
+		}
+
+		if(item.getType().equals("RADIO")){
+			this.visible = true;
+			return generateRadioBox();
 		}
 
 		this.visible = false;
@@ -954,6 +961,120 @@ public class RegistrarFormItemGenerator {
 			i++;
 
 		}
+
+		return ft;
+
+	}
+
+	/**
+	 * Generates the radiobox widget
+	 * @return
+	 */
+	private Widget generateRadioBox() {
+
+		FlexTable ft = new FlexTable();
+		ft.setStyleName("appFormCheckBoxTable");
+		// parse options
+		String options = getOptions();
+		Map<String,String> boxContents = parseSelectionBox(options);
+		final Map<RadioButton, String> boxValueMap = new HashMap<RadioButton, String>();
+
+		int i = 0;
+
+		ArrayList<String> keyList = JsonUtils.setToList(boxContents.keySet());
+
+		RADIO_COUNTER++;
+
+		for(String key : keyList){
+
+			final RadioButton radioBox = new RadioButton("form-radio-"+RADIO_COUNTER);
+
+			radioBox.setText(boxContents.get(key));
+
+			// pre-fill
+			for (String s : prefilledValue.split("\\|")) {
+				if (key.trim().equals(s.trim())) {
+					radioBox.setValue(true);
+				}
+			}
+			boxValueMap.put(radioBox, key);
+
+			radioBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
+
+					// rebuild value
+					strValue = "";
+					for(Map.Entry<RadioButton, String> innerEntry : boxValueMap.entrySet()) {
+						if (innerEntry.getKey().getValue()) {
+							// put in selected values
+							strValue += innerEntry.getValue()+"|";
+						}
+					}
+					if (strValue.length() > 1) {
+						strValue = strValue.substring(0, strValue.length()-1);
+					}
+
+					inputChecker.isValid(true);
+
+					// update
+					if (validationTrigger == null) return;
+					validationTrigger.triggerValidation();
+
+				}
+			});
+
+			inputChecker = new FormInputChecker() {
+
+				private boolean valid = true;
+
+				@Override
+				public boolean isValid(boolean forceNewValidation) {
+
+					// if not new, don't force
+					if(!forceNewValidation) return valid;
+
+					if (item.isRequired() && strValue.isEmpty()) {
+						statusCellWrapper.setWidget(new FormInputStatusWidget(ApplicationMessages.INSTANCE.missingValue(), Status.ERROR));
+						valid = false;
+						return valid;
+					} else {
+						// if not required any value is good
+						statusCellWrapper.setWidget(new FormInputStatusWidget("OK", Status.OK));
+						valid = true;
+						return true;
+					}
+
+				}
+
+				@Override
+				public boolean isValidating() {
+					return false;
+				}
+
+				@Override
+				public boolean useDefaultOkMessage() {
+					return true;
+				}
+			};
+
+			// fill widget
+			ft.setWidget(i, 0, radioBox);
+			i++;
+
+		}
+
+		Anchor clear = new Anchor("Clear selection");
+		clear.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				for (RadioButton radioButton : boxValueMap.keySet()) {
+					radioButton.setValue(false);
+				}
+			}
+		});
+
+		ft.setWidget(i, 0, clear);
 
 		return ft;
 

@@ -34,12 +34,14 @@ use Perun::NotificationsAgent;
 use Perun::SearcherAgent;
 use Perun::RegistrarAgent;
 use Perun::SecurityTeamsAgent;
+use Perun::BanOnResourceAgent;
+use Perun::BanOnFacilityAgent;
 use Sys::Hostname;
 
 my $format = 'json';
 my $contentType = 'application/json; charset=utf-8';
 
-use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent);
+use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _groupsAgent _extSourcesAgent _servicesAgent _searcherAgent _facilitiesAgent _resourcesAgent _controlPanel _attributesAgent _ownersAgent _authzResolverAgent _hostsAgent _clustersAgent _generalServiceAgent _auditMessagesAgent _propagationStatsReaderAgent _cabinetAgent _notificationsAgent _registrarAgent _securityTeamsAgent _banOnResourceAgent _banOnFacilityAgent);
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
@@ -51,6 +53,12 @@ use constant {
 
 sub new {
 	my $self = fields::new(shift);
+
+	# load custom data format
+	my $wanted_format = shift;
+	if (defined $wanted_format) {
+		$format = $wanted_format;
+	}
 
 	# Check if the PERUN_URL is defined
 	if (!defined($ENV{PERUN_URL})) { die Perun::Exception->fromHash({ type => MISSING_URL }); };
@@ -66,12 +74,14 @@ sub new {
 	}
 
 	$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion", timeout => 600);
-	# Enable cookies if the HOME env is available
-	if (defined($ENV{HOME})) {
-                my $hostname = hostname();
-                my $grp=getpgrp;
+	# Enable cookies if enviromental variable with path exists or home env is available
+	if (defined($ENV{PERUN_COOKIE})) {
 		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-#		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/.perun-engine-cookies.txt", autosave => 1, ignore_discard => 1 });
+		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 });
+	} elsif (defined($ENV{HOME})) {
+		my $hostname = hostname();
+		my $grp=getpgrp;
+		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
 		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/perun-cookie-$hostname-$grp.txt", autosave => 1, ignore_discard => 1 });
 	}
 
@@ -359,13 +369,13 @@ sub getNotificationsAgent {
 }
 
 sub getRegistrarAgent {
-        my $self = shift;
+	my $self = shift;
 
-        if (!$self->{_registrarAgent}) {
-                $self->{_registrarAgent} = Perun::RegistrarAgent->new($self);
+	if (!$self->{_registrarAgent}) {
+		$self->{_registrarAgent} = Perun::RegistrarAgent->new($self);
 
-        return $self->{_registrarAgent};
-        }
+		return $self->{_registrarAgent};
+	}
 }
 
 sub getSecurityTeamsAgent {
@@ -375,6 +385,26 @@ sub getSecurityTeamsAgent {
 		$self->{_securityTeamsAgent} = Perun::SecurityTeamsAgent->new($self);
 
 	return $self->{_securityTeamsAgent};
+	}
+}
+
+sub getBanOnResourceAgent {
+	my $self = shift;
+
+	if (!$self->{_banOnResourceAgent}) {
+		$self->{_banOnResourceAgent} = Perun::BanOnResourceAgent->new($self);
+
+	return $self->{_banOnResourceAgent};
+	}
+}
+
+sub getBanOnFacilityAgent {
+	my $self = shift;
+
+	if (!$self->{_banOnFacilityAgent}) {
+		$self->{_banOnFacilityAgent} = Perun::BanOnFacilityAgent->new($self);
+
+	return $self->{_banOnFacilityAgent};
 	}
 }
 

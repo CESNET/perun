@@ -250,6 +250,7 @@ public interface ExtSourcesManagerBl {
 	 *
 	 * @param extSource	External Source
 	 * @return			Map of attributes for external source
+	 * @throws InternalErrorException
 	 */
-	Map<String, String> getAttributes(ExtSource extSource);
+	Map<String, String> getAttributes(ExtSource extSource) throws InternalErrorException;
 }

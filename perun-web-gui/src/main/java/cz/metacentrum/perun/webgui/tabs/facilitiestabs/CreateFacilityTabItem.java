@@ -200,6 +200,9 @@ public class CreateFacilityTabItem implements TabItem, TabItemWithUrl {
 					if (name.getTextBox().getText().trim().isEmpty()) {
 						name.setError("Facility name can't be empty.");
 						return false;
+					} else if (!name.getTextBox().getText().trim().matches(Utils.FACILITY_NAME_MATCHER)) {
+						name.setError("Name can contain only letters, numbers, dash, dot and underscore.");
+						return false;
 					} else {
 						name.setOk();
 						return true;

@@ -148,7 +148,7 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 		// Render disabled for different kinds of Types from Perun
 
 		// is core group
-		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Group")) {
+		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("Group") || ((GeneralObject)value).getObjectType().equalsIgnoreCase("RichGroup")) {
 			if(((Group)value).isCoreGroup() && !editable){
 				sb.append(INPUT_DISABLED);
 				return;
@@ -158,6 +158,14 @@ public class PerunCheckboxCell<T extends JavaScriptObject> extends AbstractEdita
 		// is service disabled on facility
 		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("ServiceForGUI")) {
 			if(((RichService)value).getAllowedOnFacility().equalsIgnoreCase("Denied") && !editable){
+				sb.append(INPUT_DISABLED);
+				return;
+			}
+		}
+
+		// is user ext source persistent
+		if (((GeneralObject)value).getObjectType().equalsIgnoreCase("UserExtSource")) {
+			if(((UserExtSource)value).isPersistent() && !editable){
 				sb.append(INPUT_DISABLED);
 				return;
 			}

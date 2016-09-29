@@ -107,6 +107,8 @@ public class AddLoginTabItem implements TabItem {
 		final ExtendedTextBox userLogin = new ExtendedTextBox();
 		final ListBox namespace = new ListBox();
 		final CustomButton createLogin = TabMenu.getPredefinedButton(ButtonType.ADD, "Add login in selected namespace");
+		final Label notice = new Label("Your login will be automatically generated.");
+		notice.setVisible(false);
 
 		// offer only available namespaces.
 		ArrayList<String> logins = new ArrayList<String>();
@@ -153,6 +155,10 @@ public class AddLoginTabItem implements TabItem {
 
 		layout.setWidget(0, 1, namespace);
 		layout.setWidget(1, 1, userLogin);
+
+		layout.getFlexCellFormatter().setColSpan(2, 0, 2);
+		layout.setWidget(2, 0, notice);
+		layout.getFlexCellFormatter().addStyleName(2, 0, "inputFormInlineComment");
 
 		TabMenu menu = new TabMenu();
 		menu.addWidget(createLogin);
@@ -219,38 +225,54 @@ public class AddLoginTabItem implements TabItem {
 
 			namespace.addChangeHandler(new ChangeHandler() {
 				public void onChange(ChangeEvent changeEvent) {
-					final String value = userLogin.getTextBox().getValue().trim();
-					// trigger new validation on checked input or if previously was hard error
-					if ((!value.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(value)) || userLogin.isHardError()) {
-						new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), new JsonCallbackEvents() {
-							@Override
-							public void onFinished(JavaScriptObject jso) {
-								if (value.equals(userLogin.getTextBox().getValue().trim())) {
-									BasicOverlayType bo = jso.cast();
-									userLogin.setProcessing(false);
-									if (!bo.getBoolean()) {
-										userLogin.setError("Login is already in use!");
-									} else {
-										userLogin.removeHardError();
-										loginValidator.validateTextBox();
+
+					if (namespace.getSelectedValue().equals("mu")) {
+
+						userLogin.getTextBox().setValue("");
+						userLogin.removeHardError();
+						userLogin.setOk();
+						userLogin.getTextBox().setEnabled(false);
+						notice.setVisible(true);
+
+					} else {
+
+						userLogin.getTextBox().setEnabled(true);
+						notice.setVisible(false);
+
+						final String value = userLogin.getTextBox().getValue().trim();
+						// trigger new validation on checked input or if previously was hard error
+						if ((!value.isEmpty() && RegExp.compile(Utils.LOGIN_VALUE_MATCHER).test(value)) || userLogin.isHardError()) {
+							new IsLoginAvailable(namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), new JsonCallbackEvents() {
+								@Override
+								public void onFinished(JavaScriptObject jso) {
+									if (value.equals(userLogin.getTextBox().getValue().trim())) {
+										BasicOverlayType bo = jso.cast();
+										userLogin.setProcessing(false);
+										if (!bo.getBoolean()) {
+											userLogin.setError("Login is already in use!");
+										} else {
+											userLogin.removeHardError();
+											loginValidator.validateTextBox();
+										}
 									}
 								}
-							}
-						@Override
-						public void onLoadingStart() {
-							if (value.equals(userLogin.getTextBox().getValue().trim())) {
-								userLogin.removeHardError();
-								userLogin.setProcessing(true);
-							}
+								@Override
+								public void onLoadingStart() {
+									if (value.equals(userLogin.getTextBox().getValue().trim())) {
+										userLogin.removeHardError();
+										userLogin.setProcessing(true);
+									}
+								}
+								@Override
+								public void onError(PerunError error) {
+									if (value.equals(userLogin.getTextBox().getValue().trim())) {
+										userLogin.setProcessing(false);
+										userLogin.setHardError("Error while loading.");
+									}
+								}
+							}).retrieveData();
 						}
-						@Override
-						public void onError(PerunError error) {
-							if (value.equals(userLogin.getTextBox().getValue().trim())) {
-								userLogin.setProcessing(false);
-								userLogin.setHardError("Error while loading.");
-							}
-						}
-						}).retrieveData();
+
 					}
 				}
 			});
@@ -259,18 +281,35 @@ public class AddLoginTabItem implements TabItem {
 				@Override
 				public void onClick(ClickEvent event) {
 
-					if (!loginValidator.validateTextBox()) return;
+					if (namespace.getSelectedValue().equals("mu")) {
 
-					SetLogin request = new SetLogin(JsonCallbackEvents.disableButtonEvents(createLogin, new JsonCallbackEvents() {
-						@Override
-						public void onFinished(JavaScriptObject jso) {
-							session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), SelfPasswordTabItem.Actions.CREATE));
-						}
-					}));
-					request.setLogin(user, namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim());
+						session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), SelfPasswordTabItem.Actions.CREATE));
+
+					} else {
+
+						if (!loginValidator.validateTextBox()) return;
+
+						SetLogin request = new SetLogin(JsonCallbackEvents.disableButtonEvents(createLogin, new JsonCallbackEvents() {
+							@Override
+							public void onFinished(JavaScriptObject jso) {
+								session.getTabManager().addTabToCurrentTab(new SelfPasswordTabItem(user, namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim(), SelfPasswordTabItem.Actions.CREATE));
+							}
+						}));
+						request.setLogin(user, namespace.getValue(namespace.getSelectedIndex()), userLogin.getTextBox().getValue().trim());
+					}
 
 				}
 			});
+
+		}
+
+		if (namespace.getSelectedValue().equals("mu")) {
+
+			userLogin.getTextBox().setValue("");
+			userLogin.removeHardError();
+			userLogin.setOk();
+			userLogin.getTextBox().setEnabled(false);
+			notice.setVisible(true);
 
 		}
 

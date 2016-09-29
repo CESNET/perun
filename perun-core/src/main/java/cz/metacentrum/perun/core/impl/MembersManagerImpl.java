@@ -40,6 +40,9 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 		"members.created_at as members_created_at, members.created_by as members_created_by, members.modified_by as members_modified_by, members.modified_at as members_modified_at, " +
 		"members.created_by_uid as members_created_by_uid, members.modified_by_uid as members_modified_by_uid";
 
+	protected final static String groupsMembersMappingSelectQuery = memberMappingSelectQuery + ", groups_members.membership_type as membership_type, " +
+			"groups_members.source_group_id as source_group_id";
+
 	private JdbcPerunTemplate jdbc;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -49,9 +52,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 					rs.getString("members_created_at"), rs.getString("members_created_by"), rs.getString("members_modified_at"), rs.getString("members_modified_by"),
 					rs.getInt("members_created_by_uid") == 0 ? null : rs.getInt("members_created_by_uid"),
 					rs.getInt("members_modified_by_uid") == 0 ? null : rs.getInt("members_modified_by_uid"));
-			try{
+
+			try {
 				member.setMembershipType(MembershipType.getMembershipType(rs.getInt("membership_type")));
-			}catch(SQLException ex){/*member.setType(MembershipType.NOT_DEFINED); již provedeno v konstruktoru*/}
+				member.setSourceGroupId(rs.getInt("source_group_id"));
+			} catch(SQLException ex) {
+				// this is ok, member does not need to always have membership_type and source_group_id set
+			}
 			return member;
 		}
 	};
@@ -245,9 +252,13 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 		int newId = Utils.getNewId(jdbc, "pwdreset_id_seq");
 
-		jdbc.update("insert into pwdreset (id, namespace, user_id, created_by, created_by_uid, created_at) "
-						+ "values (?,?,?,?,?," + Compatibility.getSysdate() + ")",
-				newId, namespace, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		try {
+			jdbc.update("insert into pwdreset (id, namespace, user_id, created_by, created_by_uid, created_at) "
+							+ "values (?,?,?,?,?," + Compatibility.getSysdate() + ")",
+					newId, namespace, user.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
 
 		return newId;
 

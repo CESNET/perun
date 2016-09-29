@@ -100,8 +100,8 @@ public class AddRemoveItemsTable<T extends JavaScriptObject> extends Composite {
 	 */
 	public void removeItem(T object) {
 		list.remove(object);
-		buildWidget();
 		events.onRemove(object);
+		buildWidget();
 	}
 
 	/**

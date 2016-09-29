@@ -88,7 +88,7 @@ public class EventParserImpl implements EventParser {
 
 			// check possible enconding
 			if(!eventExecService.startsWith("ExecService")) {
-				eventFacility = new String(Base64.decodeBase64(eventExecService));
+				eventExecService = new String(Base64.decodeBase64(eventExecService));
 			}
 			if(!eventExecService.startsWith("ExecService")) {
 				throw new InvalidEventMessageException("Wrong exec service: parse exception");

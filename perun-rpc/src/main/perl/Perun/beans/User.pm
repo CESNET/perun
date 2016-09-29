@@ -169,9 +169,15 @@ sub getDisplayName
 	return (($self->{_titleBefore} ? $self->{_titleBefore} . ' ' : "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : "") . ($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_titleAfter} ? $self->{_titleAfter} : ""));
 }
 
+# used only for sorting purpose: LastName FirstName MiddleName
+sub getSortingName {
+	my $self = shift;
+	return (($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : ""));
+}
+
 sub getCommonArrayRepresentation {
 	my $user = shift;
-	return ($user->getId, $user->getFirstName . " " . ($user->getMiddleName ? $user->getMiddleName . " " : "" ) . $user->getLastName);
+	return ($user->getId, $user->getDisplayName);
 }
 
 sub getCommonArrayRepresentationHeading {

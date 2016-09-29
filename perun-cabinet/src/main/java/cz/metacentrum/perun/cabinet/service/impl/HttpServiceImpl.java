@@ -6,6 +6,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +28,13 @@ public class HttpServiceImpl implements IHttpService {
 
 	public HttpResponse execute(HttpUriRequest request) throws CabinetException {
 
-		HttpClient httpClient = new DefaultHttpClient();
+		final HttpParams httpParams = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParams, 30000);
+		HttpConnectionParams.setSoTimeout(httpParams, 30000);
+		HttpClient httpClient = new DefaultHttpClient(httpParams);
 		HttpResponse response = null;
 		try {
-			log.debug("Attemping to execute HTTP request...");
+			log.debug("Attempting to execute HTTP request...");
 			response = httpClient.execute(request);
 			log.debug("HTTP request executed.");
 		} catch (IOException ioe) {

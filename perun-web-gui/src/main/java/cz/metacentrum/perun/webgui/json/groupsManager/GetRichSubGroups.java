@@ -308,7 +308,7 @@ public class GetRichSubGroups implements JsonCallback, JsonCallbackTable<RichGro
 	 * Sorts table by objects Name
 	 */
 	public void sortTable() {
-		list = new TableSorter<RichGroup>().sortByService(getList());
+		list = new TableSorter<RichGroup>().sortByName(getList());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}

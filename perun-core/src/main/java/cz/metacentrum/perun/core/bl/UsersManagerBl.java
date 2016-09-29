@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.core.bl;
 
 import java.util.List;
+import java.util.Map;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
@@ -260,12 +261,13 @@ public interface UsersManagerBl {
 	 * @param perunSession
 	 * @param user
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException            if user has some members assigned
-	 * @throws MemberAlreadyRemovedException      if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException        if there are no rows affected by deleting user in DB
+	 * @throws RelationExistsException             if user has some members assigned
+	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
 	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
+	 * @throws GroupOperationsException	           if something went wrong while processing relations
 	 */
-	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException;
 
 	/**
 	 * Deletes user. If forceDelete is true, then removes also associated members.
@@ -274,12 +276,13 @@ public interface UsersManagerBl {
 	 * @param user
 	 * @param forceDelete  if true, deletes also all members if they are assigned to the user
 	 * @throws InternalErrorException
-	 * @throws RelationExistsException            if forceDelete is false and the user has some members assigned
-	 * @throws MemberAlreadyRemovedException      if there is at least 1 member deleted but not affected by deleting from DB
-	 * @throws UserAlreadyRemovedException        if there are no rows affected by deleting user in DB
-	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DB
+	 * @throws RelationExistsException             if forceDelete is false and the user has some members assigned
+	 * @throws MemberAlreadyRemovedException       if there is at least 1 member deleted but not affected by deleting from DB
+	 * @throws UserAlreadyRemovedException         if there are no rows affected by deleting user in DB
+	 * @throws SpecificUserAlreadyRemovedException if there are no rows affected by deleting specific user in DBn
+	 * @throws GroupOperationsException	           if something went wrong while processing relations
 	 */
-	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException;
+	void deleteUser(PerunSession perunSession, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException;
 
 	/**
 	 * Updates users data in DB.
@@ -698,7 +701,7 @@ public interface UsersManagerBl {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException;
+			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Creates the password in external system. User must not exists.
@@ -739,7 +742,7 @@ public interface UsersManagerBl {
 	 * @throws PasswordCreationFailedException
 	 * @throws LoginNotExistsException
 	 */
-	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
+	void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Reserves the password in external system. User must not exists.
@@ -752,7 +755,7 @@ public interface UsersManagerBl {
 	 * @throws PasswordCreationFailedException
 	 */
 	void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password)
-			throws InternalErrorException, PasswordCreationFailedException;
+			throws InternalErrorException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Reserves the password in external system. User must exists.
@@ -766,7 +769,7 @@ public interface UsersManagerBl {
 	 * @throws LoginNotExistsException
 	 */
 	void reservePassword(PerunSession sess, User user, String loginNamespace, String password)
-			throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException;
+			throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Validates the password in external system. User must not exists.
@@ -820,7 +823,7 @@ public interface UsersManagerBl {
 	 * @throws LoginNotExistsException
 	 */
 	void deletePassword(PerunSession sess, String userLogin, String loginNamespace)
-			throws InternalErrorException, PasswordDeletionFailedException, LoginNotExistsException;
+			throws InternalErrorException, PasswordDeletionFailedException, LoginNotExistsException, PasswordOperationTimeoutException;
 
 	/**
 	 * Creates alternative password in external system.
@@ -1084,7 +1087,7 @@ public interface UsersManagerBl {
 	 * @throws PasswordChangeFailedException
 	 */
 	void changeNonAuthzPassword(PerunSession sess, User user, String m, String password)
-			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException;
+			throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException;
 
 	/**
 	 * Get count of all users.
@@ -1096,4 +1099,23 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	int getUsersCount(PerunSession perunSession) throws InternalErrorException;
+
+	/**
+	 * Generate user account in a backend system associated with login-namespace in Perun.
+	 *
+	 * This method consumes optional parameters map. Requirements are implementation-dependant
+	 * for each login-namespace.
+	 *
+	 * Returns map with
+	 * 1: key=login-namespace attribute urn, value=generated login
+	 * 2: rest of opt response attributes...
+	 *
+	 * @param session
+	 * @param namespace Namespace to generate account in
+	 * @param parameters Optional parameters
+	 * @return Map of data from backed response
+	 * @throws InternalErrorException
+	 */
+	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException;
+
 }

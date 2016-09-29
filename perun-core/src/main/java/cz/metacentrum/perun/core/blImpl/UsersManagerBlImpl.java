@@ -11,6 +11,9 @@ import java.util.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
+import cz.metacentrum.perun.core.api.exceptions.rt.PasswordOperationTimeoutRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.rt.PasswordStrengthFailedRuntimeException;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +109,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		try {
+			// refresh authz for sponsors
 			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.unsetRole(sess, user, specificUser, Role.SPONSOR);
+			// refresh authz for service user owners
+			if(specificUser.isServiceUser() && sess.getPerunPrincipal() != null) {
+				if(user.getId() == sess.getPerunPrincipal().getUserId()) {
+					AuthzResolverBlImpl.refreshAuthz(sess);
+				}
+			}
 		} catch (UserNotAdminException ex) {
 			throw new InternalErrorException("Can't remove role of sponsor for user " + user + " and sponsored user " + specificUser);
 		}
@@ -131,7 +141,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		try {
+			// refresh authz for sponsors
 			if(specificUser.isSponsoredUser()) AuthzResolverBlImpl.setRole(sess, user, specificUser, Role.SPONSOR);
+			// refresh authz for service user owners
+			if(specificUser.isServiceUser() && sess.getPerunPrincipal() != null) {
+				if(user.getId() == sess.getPerunPrincipal().getUserId()) {
+					AuthzResolverBlImpl.refreshAuthz(sess);
+				}
+			}
 		} catch (AlreadyAdminException ex) {
 			throw new InternalErrorException("User " + user + " is already sponsor of sponsored user " + specificUser);
 		}
@@ -299,11 +316,11 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return user;
 	}
 
-	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException  {
+	public void deleteUser(PerunSession sess, User user) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException  {
 		this.deleteUser(sess, user, false);
 	}
 
-	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException {
+	public void deleteUser(PerunSession sess, User user, boolean forceDelete) throws InternalErrorException, RelationExistsException, MemberAlreadyRemovedException, UserAlreadyRemovedException, SpecificUserAlreadyRemovedException, GroupOperationsException {
 		List<Member> members = getPerunBl().getMembersManagerBl().getMembersByUser(sess, user);
 
 		if (members != null && (members.size() > 0)) {
@@ -355,7 +372,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.deletePassword(sess, login.getRight(), login.getLeft());
 			} catch (LoginNotExistsException e) {
 				// OK - User hasn't assigned any password with this login
-			} catch (PasswordDeletionFailedException e) {
+			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
 					log.error("Error during deletion of an account at {} for user {} with login {}.", new Object[]{login.getLeft(), user, login.getRight()});
 				} else {
@@ -376,7 +393,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.deletePassword(sess, (String) loginAttribute.getValue(), loginAttribute.getFriendlyNameParameter());
 			} catch (LoginNotExistsException e) {
 				// OK - User hasn't assigned any password with this login
-			} catch (PasswordDeletionFailedException e) {
+			} catch (PasswordDeletionFailedException | PasswordOperationTimeoutException e) {
 				if (forceDelete) {
 					log.error("Error during deletion of the account at {} for user {} with login {}.", new Object[]{loginAttribute.getFriendlyNameParameter(), user, (String) loginAttribute.getValue()});
 				} else {
@@ -414,24 +431,20 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			}
 		}
 
+		// Remove all sponsored user authz of his owners
+		if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
 		// Finally delete the user
-		if(user.isSpecificUser()) {
-			// Remove all sponsored user authz of his owners
-			if(user.isSponsoredUser()) AuthzResolverBlImpl.removeAllSponsoredUserAuthz(sess, user);
-			getUsersManagerImpl().deleteSpecificUser(sess, user);
-		} else {
-			getUsersManagerImpl().deleteUser(sess, user);
-		}
+		getUsersManagerImpl().deleteUser(sess, user);
 		getPerunBl().getAuditer().log(sess, "{} deleted.", user);
 	}
 
 	public User updateUser(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		//Convert user to version with no empty strings in object attributes (null instead)
 		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);
-		
+
 		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
 		User afterUpdatingUser = getUsersManagerImpl().updateUser(sess, user);
-		
+
 		//Log only when something is changed
 		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
 		return afterUpdatingUser;
@@ -440,10 +453,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public User updateNameTitles(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException {
 		//Convert user to version with no empty strings in object attributes (null instead)
 		user = this.convertUserEmptyStringsInObjectAttributesIntoNull(user);
-		
+
 		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
 		User afterUpdatingUser = getUsersManagerImpl().updateNameTitles(sess, user);
-		
+
 		//Log only when something is changed		
 		// must audit like update user since it changes same object
 		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
@@ -892,7 +905,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param user
 	 * @param loginNamespace
 	 */
-	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException {
+	public void reserveRandomPassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException, PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
@@ -909,6 +922,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.managePassword(sess, PASSWORD_RESERVE_RANDOM, (String) attr.getValue(), loginNamespace, null);
 			} catch (PasswordCreationFailedRuntimeException e) {
 				throw new PasswordCreationFailedException(e);
+			} catch (PasswordOperationTimeoutRuntimeException e) {
+				throw new PasswordOperationTimeoutException(e);
+			} catch (PasswordStrengthFailedRuntimeException e) {
+				throw new PasswordStrengthFailedException(e);
 			}
 		} catch (AttributeNotExistsException e) {
 			throw new LoginNotExistsException(e);
@@ -926,15 +943,19 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param password
 	 */
 	public void reservePassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-				 PasswordCreationFailedException {
-					 log.info("Reserving password for {} in login-namespace {}.", userLogin, loginNamespace);
+			PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+		log.info("Reserving password for {} in login-namespace {}.", userLogin, loginNamespace);
 
-					 // Reserve the password
-					 try {
-						 this.managePassword(sess, PASSWORD_RESERVE, (String) userLogin, loginNamespace, password);
-					 } catch (PasswordCreationFailedRuntimeException e) {
-						 throw new PasswordCreationFailedException(e);
-					 }
+		// Reserve the password
+		try {
+			this.managePassword(sess, PASSWORD_RESERVE, (String) userLogin, loginNamespace, password);
+		} catch (PasswordCreationFailedRuntimeException e) {
+			throw new PasswordCreationFailedException(e);
+		} catch (PasswordOperationTimeoutRuntimeException e) {
+			throw new PasswordOperationTimeoutException(e);
+		} catch (PasswordStrengthFailedRuntimeException e) {
+			throw new PasswordStrengthFailedException(e);
+		}
 	}
 
 	/**
@@ -946,28 +967,32 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param password
 	 */
 	public void reservePassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-				 PasswordCreationFailedException, LoginNotExistsException {
-					 log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
+			PasswordCreationFailedException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
+		log.info("Reserving password for {} in login-namespace {}.", user, loginNamespace);
 
-					 // Get login.
-					 try {
-						 Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
+		// Get login.
+		try {
+			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
-						 if (attr.getValue() == null) {
-							 throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
-						 }
+			if (attr.getValue() == null) {
+				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+			}
 
-						 // Create the password
-						 try {
-							 this.managePassword(sess, PASSWORD_RESERVE, (String) attr.getValue(), loginNamespace, password);
-						 } catch (PasswordCreationFailedRuntimeException e) {
-							 throw new PasswordCreationFailedException(e);
-						 }
-					 } catch (AttributeNotExistsException e) {
-						 throw new LoginNotExistsException(e);
-					 } catch (WrongAttributeAssignmentException e) {
-						 throw new InternalErrorException(e);
-					 }
+			// Create the password
+			try {
+				this.managePassword(sess, PASSWORD_RESERVE, (String) attr.getValue(), loginNamespace, password);
+			} catch (PasswordCreationFailedRuntimeException e) {
+				throw new PasswordCreationFailedException(e);
+			} catch (PasswordOperationTimeoutRuntimeException e) {
+				throw new PasswordOperationTimeoutException(e);
+			} catch (PasswordStrengthFailedRuntimeException e) {
+				throw new PasswordStrengthFailedException(e);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new LoginNotExistsException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	/**
@@ -978,15 +1003,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param loginNamespace
 	 */
 	public void validatePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException,
-				 PasswordCreationFailedException {
-					 log.info("Validating password for {} in login-namespace {}.", userLogin, loginNamespace);
+			PasswordCreationFailedException {
+		log.info("Validating password for {} in login-namespace {}.", userLogin, loginNamespace);
 
-					 // Validate the password
-					 try {
-						 this.managePassword(sess, PASSWORD_VALIDATE, (String) userLogin, loginNamespace, null);
-					 } catch (PasswordCreationFailedRuntimeException e) {
-						 throw new PasswordCreationFailedException(e);
-					 }
+		// Validate the password
+		try {
+			this.managePassword(sess, PASSWORD_VALIDATE, (String) userLogin, loginNamespace, null);
+		} catch (PasswordCreationFailedRuntimeException e) {
+			throw new PasswordCreationFailedException(e);
+		}
 	}
 
 	/**
@@ -997,28 +1022,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param loginNamespace
 	 */
 	public void validatePassword(PerunSession sess, User user, String loginNamespace) throws InternalErrorException,
-				 PasswordCreationFailedException, LoginNotExistsException {
-					 log.info("Validating password for {} in login-namespace {}.", user, loginNamespace);
+			PasswordCreationFailedException, LoginNotExistsException {
+		log.info("Validating password for {} in login-namespace {}.", user, loginNamespace);
 
-					 // Get login.
-					 try {
-						 Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
+		// Get login.
+		try {
+			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
-						 if (attr.getValue() == null) {
-							 throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
-						 }
+			if (attr.getValue() == null) {
+				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+			}
 
-						 // Create the password
-						 try {
-							 this.managePassword(sess, PASSWORD_VALIDATE, (String) attr.getValue(), loginNamespace, null);
-						 } catch (PasswordCreationFailedRuntimeException e) {
-							 throw new PasswordCreationFailedException(e);
-						 }
-					 } catch (AttributeNotExistsException e) {
-						 throw new LoginNotExistsException(e);
-					 } catch (WrongAttributeAssignmentException e) {
-						 throw new InternalErrorException(e);
-					 }
+			// Create the password
+			try {
+				this.managePassword(sess, PASSWORD_VALIDATE, (String) attr.getValue(), loginNamespace, null);
+			} catch (PasswordCreationFailedRuntimeException e) {
+				throw new PasswordCreationFailedException(e);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new LoginNotExistsException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	/**
@@ -1044,7 +1069,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@META");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
@@ -1055,7 +1079,6 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@EINFRA");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
@@ -1071,19 +1094,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				boolean someChange = false;
+				if (!kerberosLogins.contains(userLogin + "@EINFRA")) {
+					kerberosLogins.add(userLogin + "@EINFRA");
+					someChange = true;
+				}
+				if (!kerberosLogins.contains(userLogin + "@META")) {
+					kerberosLogins.add(userLogin + "@META");
+					someChange = true;
+				}
+
+				if (someChange) {
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
 			} else if (loginNamespace.equals("egi-ui")) {
+
 				List<String> kerberosLogins = new ArrayList<String>();
 
 				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "EGI");
@@ -1092,25 +1124,24 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@EGI");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				if (!kerberosLogins.contains(userLogin + "@EGI")) {
+					kerberosLogins.add(userLogin + "@EGI");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
 			} else if (loginNamespace.equals("sitola")) {
+
 				List<String> kerberosLogins = new ArrayList<String>();
 
 				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "SITOLA.FI.MUNI.CZ");
@@ -1119,24 +1150,22 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				if (!kerberosLogins.contains(userLogin + "@SITOLA.FI.MUNI.CZ")) {
+					kerberosLogins.add(userLogin + "@SITOLA.FI.MUNI.CZ");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
 			} else if (loginNamespace.equals("sagrid")) {
 
 				List<String> kerberosLogins = new ArrayList<String>();
@@ -1147,24 +1176,72 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 				try {
 					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
-					kerberosLogins.add(userLogin + "@SAGRID");
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
 
 				// Store also Kerberos logins
-				Attribute kerberosLoginsAttr;
-				try {
-					kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
-						kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
-					}
-				} catch (AttributeNotExistsException e) {
-					AttributeDefinition kerberosLoginsAttrDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
-					kerberosLoginsAttr = new Attribute(kerberosLoginsAttrDef);
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
 				}
-				kerberosLoginsAttr.setValue(kerberosLogins);
-				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+
+				if (!kerberosLogins.contains(userLogin + "@SAGRID")) {
+					kerberosLogins.add(userLogin + "@SAGRID");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
+			} else if (loginNamespace.equals("ics.muni.cz")) {
+
+				List<String> kerberosLogins = new ArrayList<String>();
+
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "ICS.MUNI.CZ");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@ICS.MUNI.CZ");
+				ues.setLoa(0);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+				// Store also Kerberos logins
+				Attribute kerberosLoginsAttr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + "kerberosLogins");
+				if (kerberosLoginsAttr != null && kerberosLoginsAttr.getValue() != null) {
+					kerberosLogins.addAll((List<String>) kerberosLoginsAttr.getValue());
+				}
+
+				if (!kerberosLogins.contains(userLogin + "@ICS.MUNI.CZ")) {
+					kerberosLogins.add(userLogin + "@ICS.MUNI.CZ");
+					kerberosLoginsAttr.setValue(kerberosLogins);
+					getPerunBl().getAttributesManagerBl().setAttribute(sess, user, kerberosLoginsAttr);
+				}
+
+			} else if (loginNamespace.equals("mu")) {
+
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://idp2.ics.muni.cz/idp/shibboleth");
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@muni.cz");
+				ues.setLoa(2);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
+
+			} else if (loginNamespace.equals("vsup")) {
+
+				// Add UES in their ActiveDirectory to access Perun by it
+				ExtSource extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "AD");
+				UserExtSource ues = new UserExtSource(extSource, userLogin);
+				ues.setLoa(0);
+
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
 
 			}
 		} catch (WrongAttributeAssignmentException ex) {
@@ -1187,15 +1264,15 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 */
 	@Deprecated
 	public void createPassword(PerunSession sess, String userLogin, String loginNamespace, String password) throws InternalErrorException,
-				 PasswordCreationFailedException {
-					 log.info("Creating password for {} in login-namespace {}.", userLogin, loginNamespace);
+			PasswordCreationFailedException {
+		log.info("Creating password for {} in login-namespace {}.", userLogin, loginNamespace);
 
-					 // Create the password
-					 try {
-						 this.managePassword(sess, PASSWORD_CREATE, (String) userLogin, loginNamespace, password);
-					 } catch (PasswordCreationFailedRuntimeException e) {
-						 throw new PasswordCreationFailedException(e);
-					 }
+		// Create the password
+		try {
+			this.managePassword(sess, PASSWORD_CREATE, (String) userLogin, loginNamespace, password);
+		} catch (PasswordCreationFailedRuntimeException e) {
+			throw new PasswordCreationFailedException(e);
+		}
 	}
 
 	/**
@@ -1208,28 +1285,28 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 */
 	@Deprecated
 	public void createPassword(PerunSession sess, User user, String loginNamespace, String password) throws InternalErrorException,
-				 PasswordCreationFailedException, LoginNotExistsException {
-					 log.info("Creating password for {} in login-namespace {}.", user, loginNamespace);
+			PasswordCreationFailedException, LoginNotExistsException {
+		log.info("Creating password for {} in login-namespace {}.", user, loginNamespace);
 
-					 // Get login.
-					 try {
-						 Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
+		// Get login.
+		try {
+			Attribute attr = getPerunBl().getAttributesManagerBl().getAttribute(sess, user, AttributesManager.NS_USER_ATTR_DEF + ":" + AttributesManager.LOGIN_NAMESPACE + ":" + loginNamespace);
 
-						 if (attr.getValue() == null) {
-							 throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
-						 }
+			if (attr.getValue() == null) {
+				throw new LoginNotExistsException("Attribute containing login has empty value. Namespace: " + loginNamespace);
+			}
 
-						 // Create the password
-						 try {
-							 this.managePassword(sess, PASSWORD_CREATE, (String) attr.getValue(), loginNamespace, password);
-						 } catch (PasswordCreationFailedRuntimeException e) {
-							 throw new PasswordCreationFailedException(e);
-						 }
-					 } catch (AttributeNotExistsException e) {
-						 throw new LoginNotExistsException(e);
-					 } catch (WrongAttributeAssignmentException e) {
-						 throw new InternalErrorException(e);
-					 }
+			// Create the password
+			try {
+				this.managePassword(sess, PASSWORD_CREATE, (String) attr.getValue(), loginNamespace, password);
+			} catch (PasswordCreationFailedRuntimeException e) {
+				throw new PasswordCreationFailedException(e);
+			}
+		} catch (AttributeNotExistsException e) {
+			throw new LoginNotExistsException(e);
+		} catch (WrongAttributeAssignmentException e) {
+			throw new InternalErrorException(e);
+		}
 	}
 
 	/**
@@ -1240,24 +1317,26 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param loginNamespace
 	 */
 	public void deletePassword(PerunSession sess, String userLogin, String loginNamespace) throws InternalErrorException, LoginNotExistsException,
-				 PasswordDeletionFailedException {
-					 log.info("Deleting password for {} in login-namespace {}.", userLogin, loginNamespace);
+			PasswordDeletionFailedException, PasswordOperationTimeoutException {
+		log.info("Deleting password for {} in login-namespace {}.", userLogin, loginNamespace);
 
-					 // Delete the password
-					 try {
-						 this.managePassword(sess, PASSWORD_DELETE, (String) userLogin, loginNamespace, null);
-					 } catch (PasswordDeletionFailedRuntimeException e) {
-						 throw new PasswordDeletionFailedException(e);
-					 } catch (LoginNotExistsRuntimeException e) {
-						 throw new LoginNotExistsException(e);
-					 }
+		// Delete the password
+		try {
+			this.managePassword(sess, PASSWORD_DELETE, (String) userLogin, loginNamespace, null);
+		} catch (PasswordDeletionFailedRuntimeException e) {
+			throw new PasswordDeletionFailedException(e);
+		} catch (LoginNotExistsRuntimeException e) {
+			throw new LoginNotExistsException(e);
+		}  catch (PasswordOperationTimeoutRuntimeException e) {
+			throw new PasswordOperationTimeoutException(e);
+		}
 	}
 
 	/**
 	 * Method which calls external program for password change.
 	 */
 	public void changePassword(PerunSession sess, User user, String loginNamespace, String oldPassword, String newPassword, boolean checkOldPassword)
-		throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException {
+			throws InternalErrorException, LoginNotExistsException, PasswordDoesntMatchException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 		log.info("Changing password for {} in login-namespace {}.", user, loginNamespace);
 
 		// Get User login in loginNamespace
@@ -1276,6 +1355,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				this.managePassword(sess, PASSWORD_CHECK, (String) userLogin.getValue(), loginNamespace, oldPassword);
 			} catch (PasswordDoesntMatchRuntimeException e) {
 				throw new PasswordDoesntMatchException(e);
+			} catch (PasswordOperationTimeoutRuntimeException e) {
+				throw new PasswordOperationTimeoutException(e);
 			}
 		}
 
@@ -1284,6 +1365,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 			this.managePassword(sess, PASSWORD_CHANGE, (String) userLogin.getValue(), loginNamespace, newPassword);
 		} catch (PasswordChangeFailedRuntimeException e) {
 			throw new PasswordChangeFailedException(e);
+		} catch (PasswordOperationTimeoutRuntimeException e) {
+			throw new PasswordOperationTimeoutException(e);
+		} catch (PasswordStrengthFailedRuntimeException e) {
+			throw new PasswordStrengthFailedException(e);
 		}
 
 		//validate and set user ext sources
@@ -1313,8 +1398,67 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	 * @param password
 	 * @throws InternalErrorException
 	 */
-	protected void managePassword(PerunSession sess, String operation, String userLogin, String loginNamespace, String password)
-		throws InternalErrorException {
+	protected void managePassword(PerunSession sess, String operation, String userLogin, String loginNamespace, String password) throws InternalErrorException {
+
+		// If new PWDMGR module exists, use-it
+		PasswordManagerModule module = null;
+
+		try {
+			module = getPasswordManagerModule(sess, loginNamespace);
+		} catch (Exception ex) {
+			// silently skip
+		}
+
+		if (module != null) {
+
+			if (operation.equals(PASSWORD_RESERVE)) {
+				try {
+					module.reservePassword(sess, userLogin, password);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordCreationFailedRuntimeException("Password creation failed for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+			if (operation.equals(PASSWORD_RESERVE_RANDOM)) {
+				try {
+					module.reserveRandomPassword(sess, userLogin);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordCreationFailedRuntimeException("Password creation failed for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+			if (operation.equals(PASSWORD_CHECK)) {
+				try {
+					module.checkPassword(sess, userLogin, password);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordDoesntMatchRuntimeException("Old password doesn't match for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+			if (operation.equals(PASSWORD_VALIDATE)) {
+				module.validatePassword(sess, userLogin);
+				return;
+			}
+			if (operation.equals(PASSWORD_CHANGE)) {
+				try {
+					module.changePassword(sess, userLogin, password);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordChangeFailedRuntimeException("Password change failed for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+			if (operation.equals(PASSWORD_DELETE)) {
+				try {
+					module.deletePassword(sess, userLogin);
+					return;
+				} catch (Exception ex) {
+					throw new PasswordDeletionFailedRuntimeException("Password deletion failed for " + loginNamespace + ":" + userLogin + ".");
+				}
+			}
+
+		}
+
+		// use good old way
 
 		// Check validity of original password
 		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getPropertyFromConfiguration("perun.passwordManager.program"),
@@ -1353,6 +1497,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 					throw new PasswordDeletionFailedRuntimeException("Password deletion failed for " + loginNamespace + ":" + userLogin + ".");
 				} else if (process.exitValue() == 6) {
 					throw new LoginNotExistsRuntimeException("User login doesn't exists in underlying system for " + loginNamespace + ":" + userLogin + ".");
+				} else if (process.exitValue() == 11) {
+					throw new PasswordStrengthFailedRuntimeException("Password to set doesn't match expected restrictions for " + loginNamespace + ":" + userLogin + ".");
+				} else if (process.exitValue() == 12) {
+					throw new PasswordOperationTimeoutRuntimeException("Operation with password exceeded expected limit for " + loginNamespace + ":" + userLogin + ".");
 				} else {
 					// Some other error occured
 					BufferedReader inReader = new BufferedReader(new InputStreamReader(es));
@@ -1720,20 +1868,20 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public User convertUserEmptyStringsInObjectAttributesIntoNull(User user) {
 		//if user is null, return it back without change
 		if(user == null) return user;
-		
+
 		//convert all empty strings to null
 		if(user.getFirstName() != null && user.getFirstName().isEmpty()) user.setFirstName(null);
 		if(user.getMiddleName() != null && user.getMiddleName().isEmpty()) user.setMiddleName(null);
 		if(user.getLastName() != null && user.getLastName().isEmpty()) user.setLastName(null);
-		
+
 		if(user.getTitleBefore() != null && user.getTitleBefore().isEmpty()) user.setTitleBefore(null);
 		if(user.getTitleAfter() != null && user.getTitleAfter().isEmpty()) user.setTitleAfter(null);
-		
+
 		return user;
 	}
 
 	@Override
-	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException {
+	public void changeNonAuthzPassword(PerunSession sess, User user, String m, String password) throws InternalErrorException, UserNotExistsException, LoginNotExistsException, PasswordChangeFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException {
 
 		String requestId = Utils.cipherInput(m, true);
 		String namespace = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
@@ -1794,4 +1942,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	public int getUsersCount(PerunSession sess) throws InternalErrorException {
 		return getUsersManagerImpl().getUsersCount(sess);
 	}
+
+	@Override
+	public Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
+		return getUsersManagerImpl().generateAccount(session, namespace, parameters);
+	}
+
+	private PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {
+		return getUsersManagerImpl().getPasswordManagerModule(session, namespace);
+	}
+
 }
