@@ -1,12 +1,9 @@
 package cz.metacentrum.perun.dispatcher.unit;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -48,7 +45,6 @@ public class EventExecServiceResolverTest extends AbstractDispatcherTest {
 		Assert.assertTrue("We should have 2 exec services", resolved.size() == 2);
 		Assert.assertTrue("Our exec service 1 is missing", resolved.contains(execservice1));
 		Assert.assertTrue("Our exec service 2 is missing", resolved.contains(execservice2));
-		//Assert.assertEquals("Facility from test is not the same", facility1, resolved.getRight());
 
 	}
 

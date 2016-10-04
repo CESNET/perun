@@ -31,7 +31,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -41,19 +40,14 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.dispatcher.dao.ProcessingRuleDao;
 import cz.metacentrum.perun.dispatcher.exceptions.InvalidEventMessageException;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.dispatcher.model.ProcessingRule;
 import cz.metacentrum.perun.dispatcher.processing.EventExecServiceResolver;
-import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
  */
 @org.springframework.stereotype.Service(value = "eventExecServiceResolver")
 public class EventExecServiceResolverImpl implements EventExecServiceResolver {
@@ -300,7 +294,7 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 						}
 					}
 
-					if (attributeDefinition != null) { 
+					if (attributeDefinition != null) {
 						// remove from future processing services
 						// which don't require the found attribute
 						// TODO (CHECKME) This method can raise
@@ -313,12 +307,11 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 							continue;
 					}
 
-					//pairs.add(new Pair<List<ExecService>, Facility>(
-					//		execServices, facilityResolvedFromEvent));
 					if(!result.containsKey(facilityResolvedFromEvent)) {
 						result.put(facilityResolvedFromEvent, new HashSet<ExecService>(execServices));
+					} else {
+						result.get(facilityResolvedFromEvent).addAll(execServices);
 					}
-					result.get(facilityResolvedFromEvent).addAll(execServices);
 				}
 			}
 
