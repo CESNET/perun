@@ -43,11 +43,12 @@ import cz.metacentrum.perun.core.impl.Utils;
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
-public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
+public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
+
 	private String rtURL;
 	private PerunBl perunBl;
 	private final static org.slf4j.Logger log = LoggerFactory.getLogger(RTMessagesManagerBlImpl.class);
-	private final String defaultQueue = "perunv3";
+	private final String defaultQueue = BeansUtils.getPropertyFromConfiguration("perun.rt.defaultQueue");
 
 	private Pattern ticketNumberPattern = Pattern.compile("^# Ticket ([0-9]+) created.");
 
@@ -80,7 +81,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl{
 		//Get Email from User who get from session
 		String email = null;
 		User user = sess.getPerunPrincipal().getUser();
-		
+
 		//try to get user/member email from user in session
 		if(user != null) email = findUserPreferredEmail(sess, user);
 		else {
