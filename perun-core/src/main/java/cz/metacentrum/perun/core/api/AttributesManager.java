@@ -449,6 +449,22 @@ public interface AttributesManager {
 	List<Attribute> getAttributes(PerunSession sess, User user, List<String> attrNames) throws PrivilegeException, InternalErrorException, UserNotExistsException;
 
 	/**
+	 * Get all attributes associated with the userExtSource which have name in list attrNames (empty too).
+	 *
+	 * PRIVILEGE: Get only those attributes the principal has access to.
+	 *
+	 * @param sess perun session
+	 * @param ues to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 *
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws UserExtSourceNotExistsException if the UserExtSource doesn't have access to this resource
+	 */
+	List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the user on the facility.
 	 *
 	 * PRIVILEGE: Get only those attributes the principal has access to.

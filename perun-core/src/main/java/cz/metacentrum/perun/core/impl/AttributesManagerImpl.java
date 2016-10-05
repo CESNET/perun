@@ -1095,6 +1095,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
+
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("uesId", ues.getId());
+		parameters.addValue("nSC", AttributesManager.NS_UES_ATTR_CORE);
+		parameters.addValue("nSO", AttributesManager.NS_UES_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_UES_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_UES_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
+					"left join user_ext_source_attr_values ues on id=ues.attr_id and ues_id=:uesId " +
+					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+					parameters, new AttributeRowMapper(sess, this, ues));
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + attributeDefinitionMappingSelectQuery + ", null as attr_value from attr_names " +

@@ -345,6 +345,10 @@ public class ApiCaller {
 		return getAttributesManager().getAttributeById(session, facility, user, id);
 	}
 
+	public Attribute getAttributeById(UserExtSource ues, int id) throws PerunException {
+		return getAttributesManager().getAttributeById(session, ues, id);
+	}
+
 	public UserExtSource getUserExtSourceById(int id) throws PerunException {
 		return getUsersManager().getUserExtSourceById(rpcSession, id);
 	}

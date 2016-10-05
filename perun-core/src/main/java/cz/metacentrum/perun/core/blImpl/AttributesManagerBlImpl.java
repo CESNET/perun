@@ -295,6 +295,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttributes(sess, vo, attrNames);
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
+		if(attrNames.isEmpty()) return new ArrayList<Attribute>();
+
+		return getAttributesManagerImpl().getAttributes(sess, ues, attrNames);
+	}
+
 	public List<Attribute> getUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException {
 		List<Attribute> attributes =  getAttributesManagerImpl().getUserFacilityAttributesForAnyUser(sess, facility);
 		List<User> facilityUsers = perunBl.getFacilitiesManagerBl().getAllowedUsers(sess, facility);
