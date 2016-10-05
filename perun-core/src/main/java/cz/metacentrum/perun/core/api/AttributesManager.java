@@ -82,6 +82,12 @@ public interface AttributesManager {
 	public static final String NS_ENTITYLESS_ATTR_DEF = "urn:perun:entityless:attribute-def:def";
 	public static final String NS_ENTITYLESS_ATTR_OPT = "urn:perun:entityless:attribute-def:opt";
 
+	public static final String NS_UES_ATTR = "urn:perun:ues:attribute-def";
+	public static final String NS_UES_ATTR_CORE = "urn:perun:ues:attribute-def:core";
+	public static final String NS_UES_ATTR_DEF = "urn:perun:ues:attribute-def:def";
+	public static final String NS_UES_ATTR_OPT = "urn:perun:ues:attribute-def:opt";
+	public static final String NS_UES_ATTR_VIRT = "urn:perun:ues:attribute-def:virt";
+
 	public static final String ENTITY_MEMBER = "member";
 	public static final String ENTITY_USER = "user";
 
@@ -538,6 +544,21 @@ public interface AttributesManager {
 	List<String> getEntitylessKeys(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
+	 * Get all <b>non-empty</b> attributes associated with the UserExtSource.
+	 *
+	 * PRIVILEGE: Get only those attributes the principal has access to.
+	 *
+	 * @param sess perun session
+	 * @param ues to get the attributes from
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws UserExtSourceNotExistsException if the user external source doesn't exists
+	 */
+	List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException;
+
+	/**
 	 * Returns all attributes with not-null value which fits the attributeDefinition. Can't proscess core or virtual attributes.
 	 *
 	 * PRIVILEGE: Only PerunAdmin has access to get Attributes by AttributeDefinition
@@ -880,6 +901,25 @@ public interface AttributesManager {
 	void setAttributes(PerunSession sess, Resource resource, Group group, List<Attribute> attributes, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,GroupResourceMismatchException,AttributeNotExistsException, WrongReferenceAttributeValueException;
 
 	/**
+	 * Store the attributes associated with the user external source. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
+	 *
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
+	 *
+	 * @param sess perun session
+	 * @param ues user external source to set on
+	 * @param attributes attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws UserExtSourceNotExistsException if the user external source doesn't exists in the underlying data source
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not user external source attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+	/**
 	 * Get particular attribute for the facility.
 	 *
 	 * PRIVILEGE: Principal need to have access to attribute which wants to get.
@@ -1098,6 +1138,24 @@ public interface AttributesManager {
 	 * @throws WrongAttributeAssignmentException if attribute isn't entityless attribute
 	 */
 	Attribute getAttribute(PerunSession sess, String key, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
+	 * Get particular attribute for the user external source.
+	 *
+	 * PRIVILEGE: Principal need to have access to attribute which wants to get.
+	 *
+	 * @param sess
+	 * @param ues to get attribute from
+	 * @param attributeName attribute name defined in the particular manager
+	 * @return attribute
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws UserExtSourceNotExistsException if the user external source doesn't exists in the underlying data source
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
+	 */
+	Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get attribute definition (attribute without defined value).
@@ -1385,6 +1443,23 @@ public interface AttributesManager {
 	Attribute getAttributeById(PerunSession sess, Group group, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException,GroupNotExistsException, WrongAttributeAssignmentException, GroupResourceMismatchException;
 
 	/**
+	 * Get particular attribute for user external source
+	 *
+	 * PRIVILEGE: Principal need to have access to attribute which wants to get.
+	 *
+	 * @param sess
+	 * @param ues
+	 * @param id
+	 * @return
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws InternalErrorException  if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
+	 * @throws UserExtSourceNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws PrivilegeException, InternalErrorException, AttributeNotExistsException,UserExtSourceNotExistsException, WrongAttributeAssignmentException;
+
+	/**
 	 * Store the particular attribute associated with the facility. Core attributes can't be set this way.
 	 *
 	 * PRIVILEGE: Principal need to have access to all attribute which wants to set.
@@ -1617,6 +1692,24 @@ public interface AttributesManager {
 	 */
 	void setAttribute(PerunSession sess, String key, Attribute attribute) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
+	/**
+	 * Store the attribute associated with the user external source.
+	 *
+	 * PRIVILEGE: Principal need to have access to all attributes which he wants to set.
+	 *
+	 * @param sess perun session
+	 * @param ues user external source to set on
+	 * @param attribute attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws UserExtSourceNotExistsException if the user external source doesn't exists in the underlying data source
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlying data source
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not user external source attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
 	/**
 	 * Creates an attribute, the attribute is stored into the appropriate DB table according to the namespace
@@ -2639,6 +2732,32 @@ public interface AttributesManager {
 	List<Attribute> fillAttributes(PerunSession sess, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, GroupNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
+	 * This method tries to fill value of the user external source attribute. This value is automatically generated, but not all attributes can be filled this way.
+	 *
+	 * PRIVILEGE: Fill attribute only when principal has access to write on it.
+	 *
+	 * @param sess perun session
+	 * @param ues user external source which will be filled with attribute
+	 * @param attribute attribute to fill. If attributes already have set value, this value won't be overwritten. This means the attribute value must be empty otherwise this method won't fill it.
+	 * @return attribute which may have filled value
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws UserExtSourceNotExistsException if user external source doesn't exists in underlying data source
+	 * @throws WrongAttributeAssignmentException
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in underlying data source
+	 */
+	Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
+	 * PRIVILEGE: Fill attributes only when principal has access to write on them.
+	 *
+	 * Batch version of fillAttribute.
+	 * @see AttributesManager#fillAttribute(PerunSession, UserExtSouce, Attribute)
+	 */
+	List<Attribute> fillAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, UserExtSourceNotExistsException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
+	/**
 	 * Check if value of this facility attribute is valid.
 	 *
 	 * PRIVILEGE: Check attribute only when principal has access to write on it.
@@ -2974,6 +3093,33 @@ public interface AttributesManager {
 	 * @see AttributesManager#checkAttributeValue(PerunSession, Resource, Group, Attribute)
 	 */
 	void checkAttributesValue(PerunSession sess, Resource resource, Group group, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, ResourceNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException,GroupResourceMismatchException, WrongReferenceAttributeValueException;
+	
+	/**
+	 * Checks if value of this user external source attribute is valid
+	 *
+	 * PRIVILEGE: Check attribute only when principal has access to write on it.
+	 *
+	 * @param sess perun session
+	 * @param ues user external source for which attribute validity is checked
+	 * @param attribute
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is wrong/illegal
+	 * @throws WrongAttributeAssignmentException if the attribute isn't UserExtSource attribute
+	 * @throws AttributeNotExistsException if given attribute doesn't exist
+	 * @throws UserExtSourceNotExistsException if specified user external source doesn't exist
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws PrivilegeException, InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException,AttributeNotExistsException, UserExtSourceNotExistsException, WrongReferenceAttributeValueException;
+
+	/**
+	 * PRIVILEGE: Check attributes only when principal has access to write on them.
+	 *
+	 * batch version of checkAttributeValue
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#checkAttributeValue(PerunSession, UserExtSource, Attribute)
+	 */
+	void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException,  WrongReferenceAttributeValueException;
+
 	/**
 	 * Unset particular attribute for the facility. Core attributes can't be removed this way.
 	 *
@@ -3588,6 +3734,49 @@ public interface AttributesManager {
 	 * @throws WrongAttributeAssignmentException
 	 */
 	void removeAllAttributes(PerunSession sess, Resource resource, Group group) throws PrivilegeException, WrongAttributeAssignmentException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException,GroupResourceMismatchException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	
+	/**
+	 * Unset particular attribute for the user external source.
+	 *
+	 * PRIVILEGE: Remove attribute only when principal has access to write on it.
+	 *
+	 * @param sess perun session
+	 * @param ues remove attribute from this user external source
+	 * @param attribute attribute to remove
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws AttributeNotExistsException if the attribute doesn't exists in underlying data source
+	 * @throws UserExtSourceNotExistsException if the user external source doesn't exists in underlying data source
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongAttributeAssignmentException if attribute isn't user external source attribute or if it is core attribute
+	 */
+	void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
+	 * PRIVILEGE: Remove attributes only when principal has access to write on them.
+	 *
+	 * Batch version of removeAttribute. This method automatically skip all core attributes which can't be removed this way.
+	 * @throws AttributeNotExistsException if the any of attributes doesn't exists in underlying data source
+	 * @see cz.metacentrum.perun.core.api.AttributesManager#removeAttribute(PerunSession, UserExtSource, AttributeDefinition)
+	 */
+	void removeAttributes(PerunSession sess, UserExtSource ues, List<? extends AttributeDefinition> attributes) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, UserExtSourceNotExistsException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Unset all attributes for the user external source.
+	 *
+	 * PRIVILEGE: Remove attributes only when principal has access to write on them.
+	 *
+	 * @param sess perun session
+	 * @param ues remove attributes from this user external source
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws WrongAttributeValueException
+	 * @throws UserExtSourceNotExistsException if the user external source doesn't exists in underlying data source
+	 */
+	void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, PrivilegeException, UserExtSourceNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+
 	/**
 	 * Determine if attribute is core attribute.
 	 *
