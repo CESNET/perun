@@ -195,7 +195,8 @@ public class RequestQuotaChangeTabItem implements TabItem {
 	protected void requestQuotaChange(String newQuota, String reason) {
 
 		SendMessageToRt rt = new SendMessageToRt(JsonCallbackEvents.closeTabEvents(session, this));
-		rt.sendMessage(SendMessageToRt.DEFAULT_QUEUE, RT_SUBJECT, getRequestText(newQuota, reason), resource.getVoId());
+		// quota change will use per-vo (or per-resource in a future) queue
+		rt.sendMessage("", RT_SUBJECT, getRequestText(newQuota, reason), resource.getVoId());
 
 	}
 
