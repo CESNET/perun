@@ -53,7 +53,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			throws InternalErrorException {
 		int engineId = (dispatcherQueue == null) ? -1 : dispatcherQueue.getClientID();
 		if (task.getId() == 0) {
-			
+
 			// this task was created new, so we have to check the
 			// ExecService,Facility pair
 			synchronized (tasksByServiceAndFacility) {
@@ -267,13 +267,13 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if (!pool.get(task.getStatus()).contains(task)) {
 				pool.get(task.getStatus()).add(task);
 			}
-			DispatcherQueue queue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight()); 
+			DispatcherQueue queue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight());
 			// XXX should this be synchronized too?
 			tasksById.put(
 					task.getId(),
 					new Pair<Task, DispatcherQueue>(task, queue));
 			tasksByServiceAndFacility.put(
-					new Pair<Integer, Integer>(task.getExecServiceId(), 
+					new Pair<Integer, Integer>(task.getExecServiceId(),
 								task.getFacilityId()), task);
 			// TODO: what about possible duplicates?
 			log.debug("Added task " + task.toString() + " belonging to queue " + pair.getRight());
@@ -293,7 +293,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		} else {
 			tasksById.get(task.getId()).put(task, queueForTask);
 		}
-		taskManager.updateTaskEngine(task, queueForTask.getClientID());
+		// if queue is removed, set -1 to task as it's done on task creation if queue is null
+		int queueId = (queueForTask != null) ? queueForTask.getClientID() : -1;
+		taskManager.updateTaskEngine(task, queueId);
 	}
 
 	@Override
@@ -321,7 +323,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				if(local_task == null) {
 					local_task = tasksByServiceAndFacility.get(new Pair<Integer,Integer>(
 							task.getExecServiceId(),
-							task.getFacilityId()));						
+							task.getFacilityId()));
 				}
 				if(local_task == null) {
 					for (TaskStatus sts : TaskStatus.class.getEnumConstants()) {
@@ -347,7 +349,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				synchronized(tasksById) {
 					if(!tasksById.containsKey(local_task.getId())) {
 						log.debug("  task not known by id, adding");
-						tasksById.put(local_task.getId(), 
+						tasksById.put(local_task.getId(),
 								new Pair<Task, DispatcherQueue>(local_task, taskQueue));
 					}
 					if(!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(
@@ -355,10 +357,10 @@ public class SchedulingPoolImpl implements SchedulingPool {
 						log.debug("  task not known by ExecService and Facility, adding");
 						tasksByServiceAndFacility.put(
 								new Pair<Integer, Integer>(
-										local_task.getExecServiceId(), 
-										local_task.getFacilityId()), 
+										local_task.getExecServiceId(),
+										local_task.getFacilityId()),
 								task);
-						
+
 					}
 					if(local_status != null && local_status != local_task.getStatus()) {
 						log.debug("  task listed with wrong status, removing");
