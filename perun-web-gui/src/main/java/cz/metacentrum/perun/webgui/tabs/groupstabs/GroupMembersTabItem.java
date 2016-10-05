@@ -32,6 +32,7 @@ import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.AddMemberToGroupTabItem;
 import cz.metacentrum.perun.webgui.tabs.memberstabs.MemberDetailTabItem;
+import cz.metacentrum.perun.webgui.tabs.userstabs.InviteUserTabItem;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.ExtendedTextBox;
@@ -155,10 +156,23 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) addButton.setEnabled(false);
 		tabMenu.addWidget(addButton);
 
+		CustomButton inviteButton = new CustomButton("Invite member…", SmallIcons.INSTANCE.emailAddIcon(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				session.getTabManager().addTabToCurrentTab(new InviteUserTabItem(group.getVoId(), group));
+			}
+		});
+		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) inviteButton.setEnabled(false);
+
 		// REMOVE
 		final CustomButton removeButton = TabMenu.getPredefinedButton(ButtonType.REMOVE, ButtonTranslation.INSTANCE.removeMemberFromGroup());
 		if (!session.isGroupAdmin(groupId) && !session.isVoAdmin(group.getVoId())) removeButton.setEnabled(false);
-		tabMenu.addWidget(removeButton);
+
+		if (!group.isCoreGroup()) {
+			tabMenu.addWidget(addButton);
+			tabMenu.addWidget(inviteButton);
+			tabMenu.addWidget(removeButton);
+		}
 
 		// refreshMembers
 		final JsonCallbackEvents refreshEvent = new JsonCallbackEvents() {
