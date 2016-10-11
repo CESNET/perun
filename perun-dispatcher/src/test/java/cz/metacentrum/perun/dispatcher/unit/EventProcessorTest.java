@@ -88,7 +88,6 @@ public class EventProcessorTest extends AbstractDispatcherTest {
 		DispatcherQueue dispatcherQueue = new DispatcherQueueMock(1, "testQueue");
 		eventProcessor.getDispatcherQueuePool().addDispatcherQueue(dispatcherQueue);
 		eventProcessor.setEventQueue(new EventQueueMock());
-		eventProcessor.getSmartMatcher().loadAllRulesFromDB();
 		eventProcessor.setSchedulingPool(new SchedulingPoolMock());
 		evProcessor = eventProcessor.new EvProcessor();
 		// runs inside this thread, should end when message is delivered
