@@ -4,7 +4,7 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.1.39
-alter table user_ext_sources alter column ext_login type varchar(1300);
+alter table user_ext_sources alter column login_ext type varchar(1300);
 alter table cabinet_publications alter column createdby type varchar(1300);
 alter table cabinet_authorships alter column createdby type varchar(1300);
 alter table cabinet_thanks alter column createdby type varchar(1300);
@@ -160,7 +160,7 @@ create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id
 create index idx_fk_fac_ban_user on facilities_bans (user_id);
 create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
-grant all on resources_bans to perun;                                                         
+grant all on resources_bans to perun;
 grant all on facilities_bans to perun;
 update configurations set value='3.1.36' where property='DATABASE VERSION';
 
