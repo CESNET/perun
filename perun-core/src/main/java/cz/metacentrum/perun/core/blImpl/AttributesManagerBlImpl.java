@@ -4050,7 +4050,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	public Object stringToAttributeValue(String value, String type) throws InternalErrorException {
 		if (type.equals(ArrayList.class.getName()) || type.equals(LinkedHashMap.class.getName())) {
-			if (value != null && !value.endsWith(String.valueOf(AttributesManagerImpl.LIST_DELIMITER))) {
+			if (value != null && !value.isEmpty() && !value.endsWith(String.valueOf(AttributesManagerImpl.LIST_DELIMITER))) {
 				value = value.concat(String.valueOf(AttributesManagerImpl.LIST_DELIMITER));
 			}
 		}
