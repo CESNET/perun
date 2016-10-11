@@ -6,7 +6,7 @@
 -- this update is not supported on hsql since its used only as in-memory db
 
 3.1.39
-alter table user_ext_sources alter column ext_login type varchar(1300);
+alter table user_ext_sources alter column login_ext type varchar(1300);
 alter table cabinet_publications alter column createdby type varchar(1300);
 alter table cabinet_authorships alter column createdby type varchar(1300);
 alter table cabinet_thanks alter column createdby type varchar(1300);
@@ -125,7 +125,7 @@ update configurations set value='3.1.37' where property='DATABASE VERSION';
 3.1.36
 create table resources_bans ( id integer not null, member_id integer not null, resource_id integer not null, description varchar(1024), banned_to timestamp not null, created_at timestamp default now not null, created_by varchar(1024) default user not null, modified_at timestamp default now not null, modified_by varchar(1024) default user not null, created_by_uid integer, modified_by_uid integer);
 create table facilities_bans ( id integer not null, user_id integer not null, facility_id integer not null, description varchar(1024), banned_to timestamp not null, created_at timestamp default now not null, created_by varchar(1024) default user not null, modified_at timestamp default now not null, modified_by varchar(1024) default user not null, created_by_uid integer, modified_by_uid integer);
-create sequence resources_bans_id_seq start with 10 increment by 1;                           
+create sequence resources_bans_id_seq start with 10 increment by 1;
 create sequence facilities_bans_id_seq start with 10 increment by 1;
 alter table resources_bans add constraint res_bans_pk primary key (id);
 alter table resources_bans add constraint res_bans_u unique (member_id, resource_id);
@@ -135,7 +135,7 @@ alter table facilities_bans add constraint fac_bans_pk primary key (id);
 alter table facilities_bans add constraint fac_bans_u unique (user_id, facility_id);
 alter table facilities_bans add constraint fac_bans_usr_fk foreign key (user_id) references users (id);
 alter table facilities_bans add constraint fac_bans_fac_fk foreign key (facility_id) references facilities (id);
-create index idx_fk_res_ban_member on resources_bans (member_id);                             
+create index idx_fk_res_ban_member on resources_bans (member_id);
 create index idx_fk_res_ban_res on resources_bans (resource_id);
 create index idx_fk_res_ban_member_res on resources_bans (member_id, resource_id);
 create index idx_fk_fac_ban_user on facilities_bans (user_id);
