@@ -19,6 +19,7 @@ $ENV{NLS_LANG} = "american_america.utf8";
 
 my $user="perun";                    # PostgreSQL user
 my $tableOrderFile="table_order";    # Defined list of tables and their order
+my $tablesToDelete="ADD_tablesToDelete";
 my $filename="DB_tables_delete.sql";
 
 sub help {
@@ -39,6 +40,13 @@ GetOptions ("help|h" => sub { print help(); exit 0;}, "user|u=s" => \$user, "fil
 
 my @tables = ();
 open POR,$tableOrderFile or die "[ERROR] Cannot open $tableOrderFile: $! \n";
+while (my $lin=<POR>) {
+	chomp($lin);
+	unshift (@tables,$lin);
+}
+close POR;
+
+open POR,$tablesToDelete or die "[ERROR] Cannot open $tablesToDelete: $! \n";
 while (my $lin=<POR>) {
 	chomp($lin);
 	unshift (@tables,$lin);

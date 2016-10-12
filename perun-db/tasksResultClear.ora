@@ -1,0 +1,92 @@
+#!/usr/bin/perl -w
+
+use DBI;
+use strict;
+use POSIX qw(:errno_h);
+use Getopt::Long qw(:config no_ignore_case);
+
+use constant BACK => 4;
+
+sub help {
+        return qq{
+        Deletes older data from tasks_results
+        --------------------------------------
+        Available options:
+
+        --user      | -u Username for Oracle DB (required)
+        --password  | -w Password for Oracle DB (required)
+        --olderthan | -o Number of days to keep
+        };
+}
+
+my ($user,$pwd,$numkeep);
+
+GetOptions ("help|h" => sub { print help(); exit 0;},"user|u=s" => \$user, "password|w=s" => \$pwd, "olderthan|o=s" => \$numkeep) || die help();
+
+if (!defined $user) { print "[ERROR] Username for Oracle DB is required! Use --help | -h to print help.\n"; exit 1; }
+if (!defined $pwd) { print "[ERROR] Password for Oracle DB is required! Use --help | -h to print help.\n"; exit 1; }
+
+if (!defined $numkeep) {$numkeep=BACK;}
+
+my $dbh = DBI->connect('dbi:Oracle:',$user,$pwd,{ RaiseError=>1, AutoCommit=>0 })
+        or die EPERM," Connect";
+
+my $dst = $dbh->prepare(q{
+          select distinct r.destination_id,s.service_id from tasks_results r,tasks t,exec_services s where r.task_id=t.id and t.exec_service_id=s.id order by 1,2
+});
+
+my $maxts = $dbh->prepare(q{
+          select to_char(max(r.timestamp),'DD-MON-YYYY HH24:MI:SS') from tasks_results r,tasks t,exec_services s where r.task_id=t.id and t.exec_service_id=s.id and r.destination_id=? and s.service_id=?
+});
+
+my $fsd   = $dbh->prepare(q{
+            select count('x') from facility_service_destinations where service_id=? and destination_id=?
+});	    
+
+my $fd  = $dbh->prepare(q{
+          select count('x') from facility_service_destinations where destination_id=?
+});
+
+my $tr  = $dbh->prepare(q{
+          select count('x') from tasks_results where destination_id=?
+});	  
+
+my $del = $dbh->prepare(q{
+          delete from tasks_results where timestamp < (sysdate - ?) and timestamp != to_date(?,'DD-MON-YYYY HH24:MI:SS') and destination_id=? and task_id in (select id from tasks where exec_service_id in (select id from exec_services where service_id=?))
+}); 
+
+my $fdel = $dbh->prepare(q{
+           delete from tasks_results where destination_id=? and task_id in (select id from tasks where exec_service_id in (select id from exec_services where service_id=?))
+});	   
+
+my $ddel = $dbh->prepare(q{
+           delete from destinations where id=?
+});	   
+
+$dst->execute();
+while (my $dst = $dst->fetch) {
+     my $dest=$$dst[0];
+     my $serv=$$dst[1];
+     
+     #otestovat, zda existuje ve facility_service_destinations, 
+     #kdyz ne, zrusit z tasks_results i kdyz je posledni
+     my $fsdexist = $dbh->selectrow_array ($fsd,{},($serv,$dest));
+     if ($fsdexist != 0) {
+         my $maxtime = $dbh->selectrow_array ($maxts,{},($dest,$serv));
+     
+         print "$dest,$serv,$maxtime \n";
+         execute $del $numkeep,$maxtime,$dest,$serv;
+         commit $dbh;
+     } else {
+	 execute $fdel $dest,$serv;
+         print "$dest,$serv,FACSERVDEST DELETED \n";
+	 my $fdexist = $dbh->selectrow_array ($fd,{},($dest));
+	 my $trexist  = $dbh->selectrow_array ($tr,{},($dest));
+	 if ($fdexist == 0 && $trexist == 0) {
+	    execute $ddel $dest;
+	    print "$dest DESTINATION DELETED \n";
+	 }
+	 commit $dbh;
+     }	 
+}
+disconnect $dbh;
