@@ -426,7 +426,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		return getResourcesManagerBl().getAssignedRichResources(sess, group);
 	}
 
-	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException, FacilityNotExistsException, ServiceNotAssignedException {
 		Utils.checkPerunSession(sess);
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 
@@ -440,7 +440,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().assignService(sess, resource, service);
 	}
 
-	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, ServiceNotAssignedException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
@@ -763,7 +763,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().copyAttributes(sess, sourceResource, destinationResource);
 	}
 
-	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, FacilityNotExistsException, ServiceNotAssignedException {
 		Utils.checkPerunSession(sess);
 
 		getResourcesManagerBl().checkResourceExists(sess, sourceResource);
@@ -872,7 +872,7 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		Utils.checkPerunSession(sess);
 		this.getResourcesManagerBl().checkBanExists(sess, banOnResource.getId());
 		Member member = getPerunBl().getMembersManagerBl().getMemberById(sess, banOnResource.getMemberId());
-		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, banOnResource.getResourceId());;
+		Resource resource = getPerunBl().getResourcesManagerBl().getResourceById(sess, banOnResource.getResourceId());
 
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, resource)) {

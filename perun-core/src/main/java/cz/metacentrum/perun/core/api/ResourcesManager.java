@@ -375,7 +375,7 @@ public interface ResourcesManager {
 	 * @throws WrongAttributeValueException
 	 * @throws ServiceAlreadyAssignedException
 	 */
-	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException, FacilityNotExistsException, ServiceNotAssignedException;
 
 	/**
 	 * Assign all services from services package to resouce.
@@ -390,7 +390,7 @@ public interface ResourcesManager {
 	 * @throws WrongAttributeValueException
 	 * @throws ServicesPackageNotExistsException
 	 */
-	void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ResourceNotExistsException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, ServiceNotAssignedException;
 
 	/**
 	 * Remove service from resource.
@@ -712,7 +712,7 @@ public interface ResourcesManager {
 	 * @throws WrongAttributeValueException
 	 * @throws WrongReferenceAttributeValueException
 	 */
-	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException, WrongAttributeValueException, WrongReferenceAttributeValueException, FacilityNotExistsException, ServiceNotAssignedException;
 
 	/**
 	 * Copy all groups of the source resource to the destination resource.

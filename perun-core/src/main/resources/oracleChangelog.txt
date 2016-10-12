@@ -3,6 +3,15 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.39
+create table facility_services ( service_id integer not null, facility_id integer not null, created_at timestamp default now not null, created_by varchar(1024) default user not null, modified_at timestamp default now not null, modified_by varchar(1024) default user not null, status char(1) default '0' not null, created_by_uid integer, modified_by_uid integer);
+create index idx_fk_facsrv_srv on facility_services(service_id);
+create index idx_fk_facsrv_fac on facility_services(facility_id);
+alter table facility_services add constraint facsrv_pk primary key (service_id,facility_id);
+alter table facility_services add constraint facsrv_srv_fk foreign key (service_id) references services(id);
+alter table facility_services add constraint facsrv_fac_fk foreign key (facility_id) references facilities(id);
+update configurations set value='3.1.39' where property='DATABASE VERSION';
+
 3.1.38
 create table user_ext_source_attr_values ( user_ext_source_id integer not null, attr_id integer not null, attr_value nvarchar2(4000), created_at date default sysdate not null, created_by nvarchar2(1024) default user not null, modified_at date default sysdate not null, modified_by nvarchar2(1024) default user not null, status char(1) default '0' not null, attr_value_text clob, created_by_uid integer, modified_by_uid integer);
 create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (user_ext_source_id);
