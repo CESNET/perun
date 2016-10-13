@@ -4,9 +4,10 @@ use strict;
 use warnings;
 use Switch;
 use Data::Dumper;
+use JSON::PP;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -79,7 +80,7 @@ sub TO_JSON
 	} else {
 		$friendlyName = undef;
 	}
-	
+
 	my $displayName;
 	if (defined($self->{_displayName})) {
 		$displayName = "$self->{_displayName}";
@@ -108,7 +109,7 @@ sub TO_JSON
 		$type = undef;
 	}
 
-	return {id => $id, value => $value, friendlyName => $friendlyName, displayName => $displayName, 
+	return {id => $id, value => $value, friendlyName => $friendlyName, displayName => $displayName,
 		namespace => $namespace, description => $description, type => $type};
 }
 
@@ -222,6 +223,8 @@ sub getType
 		$type = 'array';
 	} elsif ($type eq 'java.util.LinkedHashMap') {
 		$type = 'hash';
+	} elsif ($type eq 'java.lang.Boolean') {
+		$type = 'boolean';
 	}
 
 	return $type;
@@ -240,6 +243,8 @@ sub setType
 		$type = 'java.util.ArrayList';
 	} elsif ($type eq 'hash') {
 		$type = 'java.util.LinkedHashMap';
+	} elsif ($type eq 'boolean') {
+		$type = 'java.lang.Boolean';
 	}
 
 	$self->{_type} = $type;
@@ -268,7 +273,12 @@ sub getValueAsScalar {
 
 			return Dumper($value);
 		}
-		else          { return 'UNKNOWN VALUE TYPE' }
+		case "JSON::PP::Boolean" {
+			return ($value) ? 'true' : 'false';
+		}
+		else {
+			return 'UNKNOWN VALUE TYPE'
+		}
 	}
 }
 
@@ -285,16 +295,28 @@ sub setValueFromArray {
 			my $attributeIntegerValue = $_[0]*1;
 			$attribute->setValue($attributeIntegerValue);
 		}
+		case "boolean" {
+			if(scalar @_ > 1) { Perun::Common::printMessage("More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+			if (("$_[0]" eq '1') or ("$_[0]" eq 'true')) {
+				my $true = JSON::PP::true;
+				$attribute->setValue($true);
+			} elsif (("$_[0]" eq '0') or ("$_[0]" eq 'false')) {
+				my $false = JSON::PP::false;
+				$attribute->setValue($false);
+			} else {
+				Perun::Common::printMessage("Value is not of boolean type, please use numbers 1/0 or strings true/false as input.", $::batch);
+			}
+		}
 		case "array" {
 			$attribute->setValue(\@_);
-	}
-	case "hash" {
-		my %hash = @_;
-		$attribute->setValue(\%hash);
-}
-else {
-	die "Unknown attribute type. Type=" . $attribute->getType;
-}
+		}
+		case "hash" {
+			my %hash = @_;
+			$attribute->setValue(\%hash);
+		}
+		else {
+			die "Unknown attribute type. Type=" . $attribute->getType;
+		}
 	}
 }
 

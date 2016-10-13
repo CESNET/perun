@@ -14,7 +14,7 @@ sub help {
 	--attributeName       | -N attribute friendly name
 	--attributeNameSpace  | -n namespace
 	--attributeDisplayName| -e attribute display name
-	--attributeType       | -t attribute type (integer/string/array/hash)
+	--attributeType       | -t attribute type (integer/string/array/hash/boolean)
 	--attributeDsc        | -d description
 	--batch               | -b batch
 	--help                | -h prints this help
@@ -24,7 +24,7 @@ sub help {
 
 my ($attributeName, $attributeDisplayName, $attributeNameSpace, $attributeType, $attributeDsc, $batch);
 GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"attributeName|N=s" => \$attributeName, "attributeDisplayName|e=s" => \$attributeDisplayName, 
+"attributeName|N=s" => \$attributeName, "attributeDisplayName|e=s" => \$attributeDisplayName,
 "attributeNameSpace|n=s" => \$attributeNameSpace, "attributeType|t=s" => \$attributeType,
 "attributeDsc|d=s" => \$attributeDsc) || die help();
 
