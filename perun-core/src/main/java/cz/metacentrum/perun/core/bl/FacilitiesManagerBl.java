@@ -18,6 +18,7 @@ import cz.metacentrum.perun.core.api.RichResource;
 import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
+import cz.metacentrum.perun.core.api.ServicesPackage;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
@@ -42,6 +43,10 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -958,6 +963,16 @@ public interface FacilitiesManagerBl {
 	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Return all services assigned to specific facility.
+	 * 
+	 * @param sess perun session
+	 * @param facility specific facility
+	 * @return list of assigned services
+	 * @throws InternalErrorException
+	 */
+	List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
 	 * Assign given security team to given facility (means the facility trusts the security team)
 	 *
 	 * @param sess
@@ -968,6 +983,29 @@ public interface FacilitiesManagerBl {
 	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
+	 * Assign service to facility.
+	 * 
+	 * @param sess perun session
+	 * @param facility facility to assign service to
+	 * @param service service to assignment
+	 * @throws InternalErrorException 
+	 */
+	void assignService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, ServiceAlreadyAssignedException;
+
+	/**
+	 * Assign all services from service package to facility.
+	 * @param sess perun session
+	 * @param facility facility to assign services to
+	 * @param servicesPackage service package
+	 * @throws InternalErrorException
+	 * @throws ServicesPackageNotExistsException
+	 * @throws WrongAttributeValueException
+	 * @throws WrongReferenceAttributeValueException
+	 * @throws ServiceNotAssignedException
+	 */
+	void assignServicesPackage(PerunSession sess, Facility facility, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, ServiceNotAssignedException;
+
+	/**
 	 * Remove (Unassign) given security team from given facility
 	 *
 	 * @param sess
@@ -976,6 +1014,27 @@ public interface FacilitiesManagerBl {
 	 * @throws InternalErrorException
 	 */
 	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
+	 * Remove (Unassign) given service from facility.
+	 * 
+	 * @param sess perun session
+	 * @param facility facility to remove service from
+	 * @param service service to remove
+	 * @throws InternalErrorException
+	 */
+	void removeService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, ServiceNotExistsException;
+
+	/**
+	 * Remove (Unassign) given services from facility.
+	 * 
+	 * @param sess perun session
+	 * @param facility facility to remove services from
+	 * @param servicesPackage services to remove
+	 * @throws InternalErrorException
+	 * @throws ServicesPackageNotExistsException
+	 */
+	void removeServicesPackage(PerunSession sess, Facility facility, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException;
 
 	/**
 	 * Check if facility contact for the user already exists.

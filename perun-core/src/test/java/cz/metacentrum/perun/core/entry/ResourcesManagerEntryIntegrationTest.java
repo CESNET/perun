@@ -49,6 +49,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	private Resource resource;
 	private Service service;
 	private ResourcesManager resourcesManager;
+	private FacilitiesManager facilitiesManager;
 
 
 	// setUp methods moved to every test method to save testing time !!
@@ -56,6 +57,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 	@Before
 	public void setUp() throws Exception {
 		resourcesManager = perun.getResourcesManager();
+		facilitiesManager = perun.getFacilitiesManager();
 	}
 
 
@@ -594,6 +596,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 		resourcesManager.assignGroupToResource(sess, group, sndResource);
 		// but only one of them assign to the service
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		resourcesManager.assignService(sess, resource, service);
 
 		List<Resource> resources = resourcesManager.getAssignedResources(sess, member, service);
@@ -619,6 +622,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resourcesManager.assignGroupToResource(sess, group, resource);
 		resourcesManager.assignGroupToResource(sess, group, sndResource);
 		// but only one of them assign to the service
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		resourcesManager.assignService(sess, resource, service);
 
 		List<RichResource> resources = resourcesManager.getAssignedRichResources(sess, member, service);
@@ -635,11 +639,23 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		service = setUpService();
 
+		facilitiesManager.assignService(sess, facility, service);
 		resourcesManager.assignService(sess, resource, service);
 		List<Service> services = resourcesManager.getAssignedServices(sess, resource);
 		assertTrue("resource should have 1 service",services.size() == 1);
 		assertTrue("our service should be assigned to our resource",services.contains(service));
+	}
 
+	@Test(expected = ServiceNotAssignedException.class)
+	public void assignServiceNotAssignedOnFacility() throws Exception {
+		System.out.println(CLASS_NAME + "assignServiceNotAssignedOnFacility");
+
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		service = setUpService();
+		
+		resourcesManager.assignService(sess, resource, service);
 	}
 
 	@Test (expected=ServiceNotExistsException.class)
@@ -675,6 +691,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		service = setUpService();
 
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		resourcesManager.assignService(sess, resource, service);
 		resourcesManager.assignService(sess, resource, service);
 		// shouldn't add service twice
@@ -690,6 +707,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		service = setUpService();
 
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		resourcesManager.assignService(sess, resource, service);
 		List<Service> services = resourcesManager.getAssignedServices(sess, resource);
 		assertTrue("resource should have 1 service",services.size() == 1);
@@ -714,6 +732,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 		service = setUpService();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		ServicesPackage servicesPackage = setUpServicesPackage(service);
 
 		resourcesManager.assignServicesPackage(sess, resource, servicesPackage);
@@ -758,6 +777,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		resource = setUpResource();
 		service = setUpService();
 
+		facilitiesManager.assignService(sess, facility, service);
 		resourcesManager.assignService(sess, resource, service);
 
 		resourcesManager.removeService(sess, resource, service);
@@ -814,6 +834,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		service = setUpService();
 		ServicesPackage servicesPackage = setUpServicesPackage(service);
 
+		facilitiesManager.assignServicesPackage(sess, facility, servicesPackage);
 		resourcesManager.assignServicesPackage(sess, resource, servicesPackage);
 
 		resourcesManager.removeServicesPackage(sess, resource, servicesPackage);
@@ -1041,6 +1062,7 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 		facility = setUpFacility();
 		resource = setUpResource();
 		service = setUpService();
+		facilitiesManager.assignService(sess, facility, service);
 		resourcesManager.assignService(sess, resource, service);
 
 		// set up second resource

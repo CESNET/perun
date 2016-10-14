@@ -367,7 +367,7 @@ public interface ResourcesManagerBl {
 	 * @throws ServiceNotExistsException
 	 * @throws ServiceAlreadyAssignedException
 	 */
-	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void assignService(PerunSession perunSession, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException, FacilityNotExistsException, ServiceNotAssignedException;
 
 	/**
 	 * Assign all services from services package to resource.
@@ -380,7 +380,7 @@ public interface ResourcesManagerBl {
 	 * @throws ServicesPackageNotExistsException
 	 * @throws InternalErrorException
 	 */
-	void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	void assignServicesPackage(PerunSession perunSession, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, ServiceNotAssignedException;
 
 	/**
 	 * Remove service from resource.
@@ -691,7 +691,7 @@ public interface ResourcesManagerBl {
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws WrongAttributeValueException
 	 */
-	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException;
+	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, FacilityNotExistsException, ServiceNotAssignedException;
 
 	/**
 	 * Copy all groups of the source resource to the destination resource.

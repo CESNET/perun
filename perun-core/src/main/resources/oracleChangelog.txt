@@ -3,6 +3,15 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.40
+create table facility_services ( service_id integer not null, facility_id integer not null, created_at timestamp default now not null, created_by varchar(1024) default user not null, modified_at timestamp default now not null, modified_by varchar(1024) default user not null, status char(1) default '0' not null, created_by_uid integer, modified_by_uid integer);
+create index idx_fk_facsrv_srv on facility_services(service_id);
+create index idx_fk_facsrv_fac on facility_services(facility_id);
+alter table facility_services add constraint facsrv_pk primary key (service_id,facility_id);
+alter table facility_services add constraint facsrv_srv_fk foreign key (service_id) references services(id);
+alter table facility_services add constraint facsrv_fac_fk foreign key (facility_id) references facilities(id);
+update configurations set value='3.1.40' where property='DATABASE VERSION';
+
 3.1.39
 alter table user_ext_sources modify login_ext nvarchar2(1300);
 alter table CABINET_AUTHORSHIPS modify createdby nvarchar2(1300);

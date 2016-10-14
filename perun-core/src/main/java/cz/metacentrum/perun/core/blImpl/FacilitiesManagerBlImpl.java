@@ -8,6 +8,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
+import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -911,15 +917,79 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 	}
 
 	@Override
+	public List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException {
+		List<Service> services = new ArrayList<>();
+		List<Integer> servicesIds = facilitiesManagerImpl.getAssignedServices(sess, facility);
+		
+		if (servicesIds == null || servicesIds.size() == 0) {
+			return services;
+		}
+		
+		try {
+			for (Integer id : servicesIds) {
+				services.add(getPerunBl().getServicesManagerBl().getServiceById(sess, id));
+			}
+		} catch (ServiceNotExistsException e) {
+			throw new ConsistencyErrorException(e);
+		}
+		
+		return services;
+	}
+
+	@Override
 	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
 		facilitiesManagerImpl.assignSecurityTeam(sess, facility, securityTeam);
 		getPerunBl().getAuditer().log(sess, "{} was assigned to {}.", securityTeam, facility);
 	}
 
 	@Override
+	public void assignService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, ServiceAlreadyAssignedException {
+		facilitiesManagerImpl.assignService(sess, facility, service);
+		getPerunBl().getAuditer().log(sess, "{} assigned to {}", service, facility);
+
+		AttributesManagerBl attributesManagerBl = getPerunBl().getAttributesManagerBl();
+		// call check of facility's resource's member's user's attributes
+		try {
+			attributesManagerBl.checkAttributesValue(sess, facility, attributesManagerBl.getRequiredAttributes(sess, facility));
+		} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException e) {
+			throw new ConsistencyErrorException(e);
+		}
+	}
+
+	@Override
+	public void assignServicesPackage(PerunSession sess, Facility facility, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, ServiceNotAssignedException {
+		for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
+			try {
+				this.assignService(sess, facility, service);
+			} catch (ServiceAlreadyAssignedException e) {
+				// we can ignore this, silently ofc
+			}
+		}
+		log.info("All services from service package was assigned to the facility. servicesPackage={}, facility={}", servicesPackage, facility);
+	}
+	
+	@Override
 	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
 		facilitiesManagerImpl.removeSecurityTeam(sess, facility, securityTeam);
 		getPerunBl().getAuditer().log(sess, "{} was removed from {}.", securityTeam, facility);
+	}
+
+	@Override
+	public void removeService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, ServiceNotExistsException {
+		facilitiesManagerImpl.removeService(sess, facility, service);
+		getPerunBl().getAuditer().log(sess, "{} removed from {}", service, facility);
+	}
+
+	@Override
+	public void removeServicesPackage(PerunSession sess, Facility facility, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException {
+		for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
+			try {
+				//FIXME remove only when this service is not in any other ServicePackage assigned to facility
+				this.removeService(sess, facility, service);
+			} catch (ServiceNotExistsException e) {
+				throw new ConsistencyErrorException("Service from the package doesn't exist", e);
+			}
+		}
 	}
 
 	@Override

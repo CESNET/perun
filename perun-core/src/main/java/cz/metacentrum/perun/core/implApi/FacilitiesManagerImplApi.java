@@ -27,6 +27,8 @@ import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.OwnerAlreadyRemovedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 
 /**
  * Facility manager can create a new facility or find an existing facility.
@@ -652,6 +654,16 @@ public interface FacilitiesManagerImplApi {
 	List<SecurityTeam> getAssignedSecurityTeams(PerunSession sess, Facility facility) throws InternalErrorException;
 
 	/**
+	 * Return all services assigned to specific facility.
+	 *
+	 * @param sess perun session
+	 * @param facility specific facility
+	 * @return list of assigned services
+	 * @throws InternalErrorException
+	 */
+	List<Integer> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException;
+
+	/**
 	 * Assign given security team to given facility (means the facility trusts the security team)
 	 *
 	 * @param sess
@@ -662,6 +674,16 @@ public interface FacilitiesManagerImplApi {
 	void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
+	 * Assign service to facility.
+	 *
+	 * @param sess perun session
+	 * @param facility facility to assign service to
+	 * @param service service to assignment
+	 * @throws InternalErrorException
+	 */
+	void assignService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, ServiceAlreadyAssignedException;
+
+	/**
 	 * Remove (Unassign) given security team from given facility
 	 *
 	 * @param sess
@@ -670,6 +692,15 @@ public interface FacilitiesManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException;
+
+	/**
+	 * Remove (Unassign) given service from facility.
+	 * @param sess perun session
+	 * @param facility facility to remove service from
+	 * @param service service to remove
+	 * @throws InternalErrorException
+	 */
+	void removeService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, ServiceNotExistsException;
 
 	/**
 	 * Check if security team is <b>not</b> assigned to facility.
