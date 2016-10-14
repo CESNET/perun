@@ -5,7 +5,7 @@
 
 3.1.39
 alter table user_ext_sources modify login_ext nvarchar2(1300);
-lter table CABINET_AUTHORSHIPS modify createdby nvarchar2(1300);
+alter table CABINET_AUTHORSHIPS modify createdby nvarchar2(1300);
 alter table CABINET_PUBLICATIONS modify createdby nvarchar2(1300);
 alter table CABINET_THANKS modify createdby nvarchar2(1300);
 alter table APPLICATION modify created_by nvarchar2(1300);
