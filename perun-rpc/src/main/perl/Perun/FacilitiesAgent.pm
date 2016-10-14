@@ -214,4 +214,14 @@ sub getAssignedSecurityTeams
         return Perun::Common::callManagerMethod('getAssignedSecurityTeams','[]SecurityTeam',@_);
 }
 
+sub getFacilitiesByHostName
+{
+	return Perun::Common::callManagerMethod('getFacilitiesByHostName', '[]Facility', @_);
+}
+
+sub getFacilityForHost
+{
+        return Perun::Common::callManagerMethod('getFacilityForHost','Facility', @_);
+}
+
 1;
