@@ -1,4 +1,4 @@
--- database version 3.1.41 (don't forget to update insert statement at the end of file)
+-- database version 3.1.42 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -177,6 +177,19 @@ create table "facility_contacts" (
 	owner_id integer, --owner identifier
 	user_id integer, --user identifier
 	group_id integer -- group identifier
+);
+
+-- FACILITIES_SERVICES - services assigned to facility
+create table "facility_services" (
+  service_id integer not null,
+  facility_id integer not null,
+  created_at timestamp default now() not null,
+  created_by varchar(1300) default user not null,
+  modified_at timestamp default now() not null,
+  modified_by varchar(1300) default user not null,
+  status char(1) default '0' not null,
+  created_by_uid integer,
+  modified_by_uid integer
 );
 
 -- GROUPS - groups of users
@@ -1330,6 +1343,8 @@ create index idx_fk_srvreqattr_srv on service_required_attrs(service_id);
 create index idx_fk_srvreqattr_attr on service_required_attrs(attr_id);
 create index idx_fk_resrcsrv_srv on resource_services(service_id);
 create index idx_fk_resrcsrv_rsrc on resource_services(resource_id);
+create index idx_fk_facsrv_srv on facility_services(service_id);
+create index idx_fk_facsrv_fac on facility_services(facility_id);
 create index idx_fk_engrr_eng on engine_routing_rule(engine_id);
 create index idx_fk_engrr_rr on engine_routing_rule(routing_rule_id);
 create index idx_fk_servpr_serv on service_processing_rule(service_id);
@@ -1546,6 +1561,10 @@ alter table service_required_attrs add constraint srvreqattr_attr_fk foreign key
 alter table resource_services add constraint resrcsrv_pk primary key (service_id,resource_id);
 alter table resource_services add constraint resrcsrv_srv_fk foreign key (service_id) references services(id);
 alter table resource_services add constraint resrcsrv_rsrc_fk foreign key (resource_id) references resources(id);
+
+alter table facility_services add constraint facsrv_pk primary key (service_id,facility_id);
+alter table facility_services add constraint facsrv_srv_fk foreign key (service_id) references services(id);
+alter table facility_services add constraint facsrv_fac_fk foreign key (facility_id) references facilities(id);
 
 alter table routing_rules add constraint routrul_pk primary key (id);
 
@@ -1849,7 +1868,7 @@ grant all on membership_types to perun;
 grant all on user_ext_source_attr_values to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.41');
+insert into configurations values ('DATABASE VERSION','3.1.42');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

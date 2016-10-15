@@ -229,15 +229,15 @@ public interface ResourcesManagerImplApi {
 	//List<Resource> getAssignedResources(PerunSession sess, User user, Vo vo) throws InternalErrorException;
 
 	/**
-	 * List all services' id associated with the resource.
+	 * List all services associated with the resource.
 	 *
 	 * @param perunSession
 	 * @param resource
 	 *
 	 * @throws InternalErrorException
-	 * @return list of assigned service' id
+	 * @return list of assigned services
 	 */
-	List<Integer> getAssignedServices(PerunSession perunSession, Resource resource) throws InternalErrorException;
+	List<Service> getAssignedServices(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
 	/**
 	 * Assign service to resource.

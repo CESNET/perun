@@ -76,6 +76,7 @@ public abstract class AbstractDispatcherTest {
 			service1 = new Service(0, "testService");
 			service1 = perun.getServicesManager().createService(sess, service1);
 			// assign service to the resource
+			perun.getFacilitiesManager().assignService(sess, facility1, service1);
 			perun.getResourcesManager().assignService(sess, resource1, service1);
 			// create execService
 			execservice1 = new ExecService();

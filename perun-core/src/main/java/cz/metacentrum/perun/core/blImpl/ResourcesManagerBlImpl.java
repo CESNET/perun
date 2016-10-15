@@ -224,22 +224,9 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return getPerunBl().getMembersManagerBl().convertMembersToRichMembers(sess, listOfMembers);
 	}
 
-
 	public List<Service> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
-		List<Service> services = new ArrayList<Service>();
-		List<Integer> servicesIds = getResourcesManagerImpl().getAssignedServices(sess, resource);
-
-		try {
-			for(Integer serviceId: servicesIds) {
-				services.add(getPerunBl().getServicesManagerBl().getServiceById(sess, serviceId));
-			}
-		} catch(ServiceNotExistsException ex) {
-			throw new ConsistencyErrorException(ex);
-		}
-
-		return services;
+		return getResourcesManagerImpl().getAssignedServices(sess, resource);
 	}
-
 
 	public void assignGroupToResource(PerunSession sess, Group group, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
 		Vo groupVo = getPerunBl().getGroupsManagerBl().getVo(sess, group);
@@ -408,7 +395,15 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		return getResourcesManagerImpl().getAssignedRichResources(sess, group);
 	}
 
-	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void assignService(PerunSession sess, Resource resource, Service service) throws InternalErrorException, ServiceNotExistsException, ServiceAlreadyAssignedException, WrongAttributeValueException, WrongReferenceAttributeValueException, FacilityNotExistsException, ServiceNotAssignedException {
+		List<Service> services = getPerunBl().getFacilitiesManagerBl().getAssignedServices(sess,
+				getPerunBl().getFacilitiesManagerBl().getFacilityById(sess, resource.getFacilityId())
+		);
+		
+		if (!services.contains(service)) {
+			throw new ServiceNotAssignedException("Service " + service + " must be assigned to facility first.");
+		}
+		
 		getResourcesManagerImpl().assignService(sess, resource, service);
 		getPerunBl().getAuditer().log(sess, "{} asigned to {}", service, resource);
 
@@ -434,21 +429,19 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				// use complex method for getting and setting member-resource, member, user-facility and user-facility required attributes for the service
 				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, service, facility, resource, user, member);
 			}
-		} catch(WrongAttributeAssignmentException ex) {
-			throw new ConsistencyErrorException(ex);
-		} catch(AttributeNotExistsException ex) {
+		} catch(WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
 	}
 
-	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void assignServicesPackage(PerunSession sess, Resource resource, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, ServiceNotAssignedException {
 		for(Service service : getPerunBl().getServicesManagerBl().getServicesFromServicesPackage(sess, servicesPackage)) {
 			try {
 				this.assignService(sess, resource, service);
-			} catch (ServiceNotExistsException e) {
+			} catch (ServiceNotExistsException | FacilityNotExistsException e) {
 				throw new ConsistencyErrorException("Service from the package doesn't exist", e);
 			} catch (ServiceAlreadyAssignedException e) {
-				// FIXME a co delat tady? Pravdepodobne muzeme tise ignorovat
+				// we can ignore this, silently ofc
 			}
 		}
 		log.info("All services from service package was assigned to the resource. servicesPackage={}, resource={}", servicesPackage, resource);
@@ -644,7 +637,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	}
 
-	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+	public void copyServices(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, FacilityNotExistsException, ServiceNotAssignedException {
 		for (Service owner : getAssignedServices(sess, sourceResource)) {
 			try {
 				assignService(sess, destinationResource, owner);
