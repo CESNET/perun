@@ -13,6 +13,10 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
 
+import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -372,6 +376,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Service serv = new Service();
 		serv.setName("TestService");
 		perun.getServicesManager().createService(sess, serv);
+		perun.getFacilitiesManager().assignService(sess, facility, serv);
 		perun.getResourcesManager().assignService(sess, resource, serv);
 
 		Member member = setUpMember(vo);
@@ -441,6 +446,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Service serv2 = new Service();
 		serv2.setName("TestService2");
 		serv2 = perun.getServicesManager().createService(sess, serv2);
+		perun.getFacilitiesManager().assignService(sess, facility, serv2);
 		perun.getResourcesManager().assignService(sess, resource2, serv2);
 
 		List<User> users11 = perun.getFacilitiesManager().getAllowedUsers(sess, facility, vo, serv2);
@@ -1415,6 +1421,106 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getAssignedServices() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedServices");
+
+		Service service = setUpService();
+		facilitiesManagerEntry.assignService(sess, facility, service);
+		List<Service> assignedServices = facilitiesManagerEntry.getAssignedServices(sess, facility);
+
+		assertTrue(assignedServices.size() > 0);
+		assertEquals(service, assignedServices.get(0));
+	}
+
+	@Test
+	public void assignService() throws Exception {
+		System.out.println(CLASS_NAME + "assignService");
+
+		facilitiesManagerEntry.assignService(sess, facility, setUpService());
+	}
+
+	@Test(expected = ServiceNotExistsException.class)
+	public void assignServiceNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "assignServiceNotExist");
+
+		facilitiesManagerEntry.assignService(sess, facility, new Service(0, "NotExistTest"));
+	}
+
+	@Test(expected = ServiceAlreadyAssignedException.class)
+	public void assignServiceAlreadyAssigned() throws Exception {
+		System.out.println(CLASS_NAME + "assignServiceAlreadyAssigned");
+
+		Service service = setUpService();
+		facilitiesManagerEntry.assignService(sess, facility, service);
+		facilitiesManagerEntry.assignService(sess, facility, service);
+	}
+
+	@Test
+	public void removeService() throws Exception {
+		System.out.println(CLASS_NAME + "removeService");
+
+		Service service = setUpService();
+		facilitiesManagerEntry.assignService(sess, facility, service);
+		facilitiesManagerEntry.removeService(sess, facility, service);
+		List<Service> assignedServices = facilitiesManagerEntry.getAssignedServices(sess, facility);
+
+		assertTrue(assignedServices.size() == 0);
+	}
+
+	@Test(expected = ServiceNotExistsException.class)
+	public void removeServiceNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "removeServiceNotExist");
+
+		facilitiesManagerEntry.removeService(sess, facility, new Service(0, "NotExistTest"));
+	}
+
+	@Test
+	public void assignServicesPackage() throws Exception {
+		System.out.println(CLASS_NAME + "assignServicesPackage");
+
+		Service service = setUpService();
+		ServicesPackage servicesPackage = setUpServicesPackage(service);
+
+		facilitiesManagerEntry.assignServicesPackage(sess, facility, servicesPackage);
+
+		List<Service> services = facilitiesManagerEntry.getAssignedServices(sess, facility);
+		assertTrue("resource should have 1 service", services.size() == 1);
+		assertTrue("our service should be assigned to our facility", services.contains(service));
+	}
+
+	@Test(expected = FacilityNotExistsException.class)
+	public void assignServicesPackageWhenFacilityNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "assignServicesPackageWhenFacilityNotExists");
+
+		Service service = setUpService();
+		ServicesPackage servicesPackage = setUpServicesPackage(service);
+
+		facilitiesManagerEntry.assignServicesPackage(sess, new Facility(), servicesPackage);
+	}
+
+	@Test(expected = ServicesPackageNotExistsException.class)
+	public void assignServicesPackageWhenPackageNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "assignServicesPackageWhenPackageNotExists");
+
+		facilitiesManagerEntry.assignServicesPackage(sess, facility, new ServicesPackage());
+	}
+
+	@Test
+	public void removeServicesPackage() throws Exception {
+		System.out.println(CLASS_NAME + "removeServicesPackage");
+
+		vo = setUpVo();
+		Service service = setUpService();
+		ServicesPackage servicesPackage = setUpServicesPackage(service);
+
+		facilitiesManagerEntry.assignServicesPackage(sess, facility, servicesPackage);
+
+		facilitiesManagerEntry.removeServicesPackage(sess, facility, servicesPackage);
+		List<Service> services = facilitiesManagerEntry.getAssignedServices(sess, facility);
+		assertTrue("facility shouldn't have any services assigned", services.isEmpty());
+	}
+
+	@Test
 	public void setBan() throws Exception {
 		System.out.println(CLASS_NAME + "setBan");
 		Vo vo = setUpVo();
@@ -2225,21 +2331,40 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		}
 	}
 
-        private List<AttributeDefinition> getMandatoryAttrs() throws InternalErrorException{
+	private List<AttributeDefinition> getMandatoryAttrs() throws InternalErrorException {
 		List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
-                        AttributesManager.NS_USER_ATTR_DEF + ":organization",
-                        AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
+				AttributesManager.NS_USER_ATTR_DEF + ":organization",
+				AttributesManager.NS_USER_ATTR_DEF + ":preferredMail"));
 		List<AttributeDefinition> mandatoryAttrs = new ArrayList<>();
 
-		for(String attrName: MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT) {
+		for (String attrName : MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT) {
 			try {
 				mandatoryAttrs.add(perun.getAttributesManagerBl().getAttributeDefinition(sess, attrName));
 			} catch (AttributeNotExistsException ex) {
-				throw new InternalErrorException("Some of mandatory attributes for users in facility contacts not exists.",ex);
+				throw new InternalErrorException("Some of mandatory attributes for users in facility contacts not exists.", ex);
 			}
 		}
 
 		return mandatoryAttrs;
-        }
+	}
 
+	private Service setUpService() throws Exception {
+		Service service = new Service();
+		service.setName("ResourcesManagerTestService");
+		service = perun.getServicesManager().createService(sess, service);
+
+		return service;
+	}
+
+	private ServicesPackage setUpServicesPackage(Service service) throws Exception {
+
+		ServicesPackage servicesPackage = new ServicesPackage();
+		servicesPackage.setName("ResourcesManagertTestSP");
+		servicesPackage.setDescription("testingServicePackage");
+		servicesPackage = perun.getServicesManager().createServicesPackage(sess, servicesPackage);
+		perun.getServicesManager().addServiceToServicesPackage(sess, servicesPackage, service);
+
+		return servicesPackage;
+
+	}
 }

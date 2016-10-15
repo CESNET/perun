@@ -3,7 +3,10 @@ package cz.metacentrum.perun.core.entry;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
+import cz.metacentrum.perun.core.api.ServicesPackage;
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +66,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.impl.AuthzRoles;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.core.implApi.FacilitiesManagerImplApi;
 import java.util.Iterator;
@@ -1158,6 +1160,23 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
+	public List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, facility)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, facility)
+				&& !AuthzResolver.isAuthorized(sess, Role.ENGINE)
+				&& !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)
+				) {
+			throw new PrivilegeException(sess, "getAssignedServices");
+		}
+		
+		return getFacilitiesManagerBl().getAssignedServices(sess, facility);
+	}
+
+	@Override
 	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, SecurityTeamNotExistsException, FacilityNotExistsException, SecurityTeamAlreadyAssignedException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
@@ -1172,6 +1191,35 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	}
 
 	@Override
+	public void assignService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, FacilityNotExistsException, PrivilegeException, ServiceNotExistsException, ServiceAlreadyAssignedException {
+		Utils.checkPerunSession(sess);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, service)) {
+			throw new PrivilegeException(sess, "assignService");
+		}
+
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+		
+		getFacilitiesManagerBl().assignService(sess, facility, service);
+	}
+
+	public void assignServicesPackage(PerunSession sess, Facility facility, ServicesPackage servicesPackage) throws InternalErrorException, PrivilegeException, ServicesPackageNotExistsException, WrongAttributeValueException, WrongReferenceAttributeValueException, ServiceNotAssignedException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "assignServicesPackage");
+		}
+
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getPerunBl().getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
+
+		getFacilitiesManagerBl().assignServicesPackage(sess, facility, servicesPackage);
+	}
+	
+	@Override
 	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, SecurityTeamNotExistsException, SecurityTeamNotAssignedException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getSecurityTeamsManagerBl().checkSecurityTeamExists(sess, securityTeam);
@@ -1185,6 +1233,36 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		this.getFacilitiesManagerBl().removeSecurityTeam(sess, facility, securityTeam);
 	}
 
+	@Override
+	public void removeService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, PrivilegeException, FacilityNotExistsException, ServiceNotAssignedException, ServiceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, service)) {
+			throw new PrivilegeException(sess, "assignService");
+		}
+
+		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);
+
+		getFacilitiesManagerBl().removeService(sess, facility, service);
+	}
+
+	@Override
+	public void removeServicesPackage(PerunSession sess, Facility facility, ServicesPackage servicesPackage) throws InternalErrorException, ServicesPackageNotExistsException, PrivilegeException, FacilityNotExistsException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "removeServicesPackage");
+		}
+
+		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
+		getPerunBl().getServicesManagerBl().checkServicesPackageExists(sess, servicesPackage);
+
+		getFacilitiesManagerBl().removeServicesPackage(sess, facility, servicesPackage);
+	}
+	
 	@Override
 	public BanOnFacility setBan(PerunSession sess, BanOnFacility banOnFacility) throws InternalErrorException, PrivilegeException, BanAlreadyExistsException, FacilityNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(sess);

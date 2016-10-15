@@ -45,7 +45,7 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
-import java.sql.Date;
+
 import java.util.Map;
 
 /**
@@ -510,9 +510,11 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 		}
 	}
 
-	public List<Integer> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
+	public List<Service> getAssignedServices(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
-			return jdbc.query("select service_id as id from resource_services where resource_id=?", Utils.ID_MAPPER, resource.getId());
+			return jdbc.query("SELECT " + ServicesManagerImpl.serviceMappingSelectQuery +
+					" FROM resource_services JOIN services ON resource_services.service_id = services.id " +
+					"WHERE resource_id = ?", ServicesManagerImpl.SERVICE_MAPPER, resource.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
