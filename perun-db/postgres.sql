@@ -1,4 +1,4 @@
--- database version 3.1.39 (don't forget to update insert statement at the end of file)
+-- database version 3.1.40 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -927,7 +927,7 @@ create table "tasks" (
 	status varchar(16) not null,        --state of task
 	start_time timestamp,                    --real start time of task
 	end_time timestamp,                      --real end time of task
-	engine_id integer not null, --identifier of engine which executing the task (engines.id)
+	engine_id integer, --identifier of engine which executing the task (engines.id)
 	created_at timestamp default now() not null,
 	err_message varchar(4000),          --return message in case of error
 	created_by_uid integer,
@@ -1848,7 +1848,7 @@ grant all on membership_types to perun;
 grant all on user_ext_source_attr_values to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.39');
+insert into configurations values ('DATABASE VERSION','3.1.40');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

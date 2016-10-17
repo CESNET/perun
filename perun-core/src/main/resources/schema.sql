@@ -857,7 +857,7 @@ create table tasks (
 	status varchar(16) not null,
 	start_time timestamp,
 	end_time timestamp,
-	engine_id integer not null,
+	engine_id integer,
 	created_at timestamp default now not null,
 	err_message varchar(4000),
 	created_by_uid integer,

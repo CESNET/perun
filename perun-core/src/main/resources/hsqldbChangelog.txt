@@ -4,6 +4,9 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 -- this update is not supported on hsql since its used only as in-memory db
+3.1.40
+alter table tasks alter column engine_id type integer;
+update configurations set value='3.1.40' where property='DATABASE VERSION';
 
 3.1.39
 alter table user_ext_sources alter column login_ext type varchar(1300);
