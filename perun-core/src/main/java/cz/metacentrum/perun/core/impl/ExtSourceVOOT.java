@@ -157,6 +157,11 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     @Override
+    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes, List<String> logins) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+        throw new UnsupportedOperationException("This is not implemented yet");
+    }
+
+    @Override
     public void close() throws ExtSourceUnsupportedOperationException {
         throw new ExtSourceUnsupportedOperationException(
                 "For VOOT using this method is not optimized, use findSubjects instead.");
