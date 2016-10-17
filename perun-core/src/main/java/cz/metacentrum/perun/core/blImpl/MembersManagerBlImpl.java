@@ -433,7 +433,14 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 					throw new InternalErrorException(ex);
 				}
 				Attribute attribute = new Attribute(attributeDefinition);
-				attribute.setValue(getPerunBl().getAttributesManagerBl().stringToAttributeValue(candidate.getAttributes().get(attributeName), attribute.getType()));
+				// convert empty strings to null for compatibility Oracle/Postgres
+				String attrValue = candidate.getAttributes().get(attributeName);
+				if (attrValue != null && attrValue.isEmpty()) {
+					attribute.setValue(null);
+				} else {
+					// process standard or null values
+					attribute.setValue(getPerunBl().getAttributesManagerBl().stringToAttributeValue(attrValue, attribute.getType()));
+				}
 				if (getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR_DEF) ||
 						getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR_OPT)) {
 					// This is member's attribute
