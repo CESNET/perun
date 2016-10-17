@@ -1611,6 +1611,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//If user is not null now, we found it so we can use it from perun, in other case he is not in perun at all
 			if(user != null && candidate == null) {
 				//we can skip this one, because he is already in group, and remove him from the map
+				//but first we need to also validate him if he was disabled before (invalidate and then validate)
+				RichMember richMember = idsOfUsersInGroup.get(user.getId());
+				if(richMember != null && Status.DISABLED.equals(richMember.getStatus())) {
+						getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
+						try {
+							getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
+						} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+							log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
+						}
+				}
 				idsOfUsersInGroup.remove(user.getId());
 			} else if (candidate != null) {
 				candidatesToAdd.add(candidate);
