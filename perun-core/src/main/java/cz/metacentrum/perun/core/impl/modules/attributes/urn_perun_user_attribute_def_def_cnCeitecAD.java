@@ -9,7 +9,9 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Attribute represents CN (common name) of user in a CEITECs ActiveDirectory server.
@@ -29,7 +31,15 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 			throw new WrongAttributeValueException(attribute, user, "Value can't be null");
 		}
 
-		List<User> usersWithSameCN = perunSession.getPerunBl().getUsersManagerBl().getUsersByAttribute(perunSession, attribute);
+		// check existing DN
+		Set<User> usersWithSameCN = new HashSet<User>(perunSession.getPerunBl().getUsersManagerBl().getUsersByAttribute(perunSession, attribute));
+		// check existing DN without accents
+		String normalizedValue = java.text.Normalizer.normalize((String)attribute.getValue(), java.text.Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+","");
+		if (!Objects.equals(normalizedValue, (String)attribute.getValue())) {
+			Attribute changedAttribute = new Attribute(attribute);
+			changedAttribute.setValue(normalizedValue);
+			usersWithSameCN.addAll(perunSession.getPerunBl().getUsersManagerBl().getUsersByAttribute(perunSession, changedAttribute));
+		}
 		usersWithSameCN.remove(user); //remove self
 		if (!usersWithSameCN.isEmpty()) {
 			if(usersWithSameCN.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated CN detected." +  attribute + " " + usersWithSameCN);
@@ -49,6 +59,9 @@ public class urn_perun_user_attribute_def_def_cnCeitecAD extends UserAttributesM
 			// unable to fill
 			return filledAttribute;
 		}
+
+		firstName = java.text.Normalizer.normalize(firstName, java.text.Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+","");
+		lastName = java.text.Normalizer.normalize(lastName, java.text.Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+","");
 
 		int iterator = 1;
 		while (iterator >= 1) {
