@@ -4,6 +4,11 @@ import java.util.Date;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +48,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -126,6 +132,27 @@ public class MembersManagerEntry implements MembersManager {
 		}
 
 		return getMembersManagerBl().createSpecificMember(sess, vo, candidate, specificUserOwners, specificUserType, groups);
+	}
+
+	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, Vo vo, int loa) throws InternalErrorException, PrivilegeException, UserNotExistsException, ExtSourceNotExistsException, UserExtSourceNotExistsException, WrongReferenceAttributeValueException, LoginNotExistsException, PasswordCreationFailedException, ExtendMembershipException, AlreadyMemberException, GroupOperationsException, PasswordStrengthFailedException, PasswordOperationTimeoutException, WrongAttributeValueException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(extSource, "extSource");
+		Utils.notNull(namespace, "namespace");
+		Utils.notNull(vo, "vo");
+		Utils.notNull(extSourcePostfix, "extSourcePostfix");
+
+		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "createSponsoredAccount");
+		}
+
+		if(params.containsKey("sponsor")) {
+			String sponsorLogin = params.get("sponsor");
+			User owner = getPerunBl().getUsersManager().getUserByExtSourceNameAndExtLogin(sess, extSource.getName(), sponsorLogin + extSourcePostfix);
+
+			return getPerunBl().getMembersManagerBl().createSponsoredAccount(sess, params, namespace, extSource, extSourcePostfix, owner, vo, loa);
+		} else {
+			throw new InternalErrorException("sponsor cannot be null");
+		}
 	}
 
 	public Member createMember(PerunSession sess, Vo vo, Candidate candidate) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, VoNotExistsException, PrivilegeException, ExtendMembershipException, GroupNotExistsException, GroupOperationsException {
