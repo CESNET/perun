@@ -1,9 +1,12 @@
 package cz.metacentrum.perun.core.impl.modules.pwdmgr;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -34,6 +37,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -52,7 +56,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		try {
 			int requestID = (new Random()).nextInt(1000000) + 1;
-			InputStream response = makeCall(getGenerateAccountRequest(parameters, requestID), requestID);
+			InputStream response = makeCall(getGenerateAccountRequest(session, parameters, requestID), requestID);
 			Document document = parseResponse(response, requestID);
 			return parseUCO(document, requestID);
 		} catch (IOException e) {
@@ -81,7 +85,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		try {
 			int requestID = (new Random()).nextInt(1000000) + 1;
-			InputStream response = makeCall(getPwdChangeRequest(userLogin, newPassword, requestID), requestID);
+			InputStream response = makeCall(getPwdChangeRequest(sess, userLogin, newPassword, requestID), requestID);
 			// if error, throws exception, otherwise it's ok
 			parseResponse(response, requestID);
 		} catch (IOException e) {
@@ -172,11 +176,12 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	/**
 	 * Generate XML request body from passed parameters in order to generate account.
 	 *
+	 * @param session
 	 * @param parameters request parameters to pass
 	 * @param requestID unique ID of a request
 	 * @return XML request body
 	 */
-	private String getGenerateAccountRequest(Map<String, String> parameters, int requestID) {
+	private String getGenerateAccountRequest(PerunSession session, Map<String, String> parameters, int requestID) {
 
 		log.debug("Making request with ID: " + requestID + " to IS MU.");
 
@@ -209,6 +214,8 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 		}
 
+		params += getUcoFromSessionUser(session);
+
 		return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
 				"<request>\n" +
 				"<osoba reqid=\"" + requestID + "\">\n" +
@@ -223,17 +230,19 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 	/**
 	 * Generate XML request body from passed parameters in order to change/reset password.
 	 *
+	 * @param session
 	 * @param login
 	 * @param newPassword
 	 * @param requestID unique ID of a request
 	 * @return XML request body
 	 */
-	private String getPwdChangeRequest(String login, String newPassword, int requestID) {
+	private String getPwdChangeRequest(PerunSession session, String login, String newPassword, int requestID) {
 
 		log.debug("Making request with ID: " + requestID + " to IS MU.");
 
 		String params = "";
 		if (newPassword != null && !newPassword.isEmpty()) params += "<heslo>" + newPassword + "</heslo>\n";
+		params += getUcoFromSessionUser(session);
 
 		return	"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
 				"<request>\n" +
@@ -375,6 +384,40 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			result.write(buffer, 0, length);
 		}
 		return result.toString(encoding);
+
+	}
+
+	/**
+	 * Return MU UCO of a pwdmanager method caller from his UserExtSource in MU IdP.
+	 *
+	 * @param session Session to get user and identity from
+	 * @return Part of API call params like: "<zmenil>UČO</zmenil>" or empty string.
+	 */
+	private String getUcoFromSessionUser(PerunSession session) {
+
+		PerunBl perunBl = (PerunBl)session.getPerun();
+
+		List<UserExtSource> ueses = null;
+		try {
+			if (session.getPerunPrincipal().getUser() != null) {
+				ueses = perunBl.getUsersManagerBl().getUserExtSources(session, session.getPerunPrincipal().getUser());
+			} else {
+				return "";
+			}
+		} catch (Exception ex) {
+			return "";
+		}
+		for (UserExtSource extSource : ueses) {
+			if (extSource.getExtSource().getName().equals("https://idp2.ics.muni.cz/idp/shibboleth") &&
+					extSource.getExtSource().getType().equals(ExtSourcesManager.EXTSOURCE_IDP)) {
+				String login = extSource.getLogin();
+				if (login != null) {
+					return "<zmenil>" + login.split("@")[0] + "</zmenil>\n";
+				}
+			}
+		}
+
+		return "";
 
 	}
 
