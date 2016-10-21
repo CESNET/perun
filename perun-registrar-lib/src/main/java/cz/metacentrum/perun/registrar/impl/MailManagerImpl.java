@@ -1481,16 +1481,24 @@ public class MailManagerImpl implements MailManager {
 			String footer = "";
 			// get proper value from attribute
 			try {
-				Attribute attrFooter = attrManager.getAttribute(registrarSession, vo, URN_VO_MAIL_FOOTER);
-				if (attrFooter != null && attrFooter.getValue() != null) {
-					footer = BeansUtils.attributeValueToString(attrFooter);
+				Attribute attribute;
+				if (group != null) {
+					attribute = attrManager.getAttribute(registrarSession, group, URN_GROUP_MAIL_FOOTER);
+					if (attribute == null || attribute.getValue() == null) {
+						attribute = attrManager.getAttribute(registrarSession, vo, URN_VO_MAIL_FOOTER);
+					}
+				} else {
+					attribute = attrManager.getAttribute(registrarSession, vo, URN_VO_MAIL_FOOTER);
+				}
+				if (attribute != null && attribute.getValue() != null) {
+					footer = BeansUtils.attributeValueToString(attribute);
 				}
 			} catch (Exception ex) {
 				// we dont care about exceptions here
 				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
 			}
 			// replace by footer or empty
-			mailText = mailText.replace("{mailFooter}", footer);
+			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : "");
 		}
 
 		return mailText;
@@ -1855,7 +1863,7 @@ public class MailManagerImpl implements MailManager {
 				log.error("[MAIL MANAGER] Exception thrown when getting VO's footer for email from attribute.", ex);
 			}
 			// replace by footer or empty
-			mailText = mailText.replace("{mailFooter}", footer);
+			mailText = mailText.replace("{mailFooter}", (footer != null) ? footer : "");
 		}
 
 		return mailText;
