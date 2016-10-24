@@ -1931,6 +1931,38 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//get RichMember with attributes
 			richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, Arrays.asList(richMember), attrDefs).get(0);
 			log.debug("Group Synchronization {}: updating member {} starts.", group, richMember.getId());
+
+			// try to find user core attributes and update user -> update name and titles
+			if (overwriteUserAttributesList != null) {
+				boolean someFound = false;
+				User user = richMember.getUser();
+				for (String attrName : overwriteUserAttributesList) {
+					if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":firstName")) {
+						user.setFirstName(candidate.getFirstName());
+						someFound = true;
+					} else if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":middleName")) {
+						user.setMiddleName(candidate.getMiddleName());
+						someFound = true;
+					} else if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":lastName")) {
+						user.setLastName(candidate.getLastName());
+						someFound = true;
+					} else if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":titleBefore")) {
+						user.setTitleBefore(candidate.getTitleBefore());
+						someFound = true;
+					} else if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":titleAfter")) {
+						user.setTitleAfter(candidate.getTitleAfter());
+						someFound = true;
+					}
+				}
+				if (someFound) {
+					try {
+						perunBl.getUsersManagerBl().updateUser(sess, user);
+					} catch (UserNotExistsException e) {
+						throw new ConsistencyErrorException("User from perun not exists when should - removed during sync.", e);
+					}
+				}
+			}
+
 			for (String attributeName : candidate.getAttributes().keySet()) {
 				//update member attribute
 				if(attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
