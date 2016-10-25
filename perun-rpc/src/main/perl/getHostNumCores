@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+
+sub help {
+	return qq{
+	Gets attribute determining number of cores on Host. Host name is required field.
+	---------------------------------------------------
+	Available options:
+	--hostName    | -H  host name
+	--batch       | -b  batch
+	--help        | -h  prints this help
+	};
+}
+
+my ($hostName, $batch);
+GetOptions("help|h" => sub { print help; exit 0;} ,
+	"hostName|H=s" => \$hostName,
+"batch|b" => \$batch) || die help;
+
+#options check
+unless(defined $hostName) { die "ERROR: hostName is required\n";}
+
+my $attrName="urn:perun:host:attribute-def:def:coresNumber";
+
+my $agent = Perun::Agent->new();
+
+my $attributesAgent = $agent->getAttributesAgent;
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+
+my $table = Text::ASCIITable->new();
+$table->setCols('Id','Host name', 'Number of cores','Facility name');
+
+my @hosts=$facilitiesAgent->getHostsByHostname(hostname => $hostName);
+while (@hosts) {
+    my $host=shift(@hosts);
+    my $hostId=$host->getId;
+    my $attribute = $attributesAgent->getAttribute(attributeName => $attrName,host => $hostId);
+    my $numCores;
+    $numCores=$attribute->getValueAsScalar; 
+    unless(defined $numCores) { $numCores = "undefined";}
+    
+    my $facility = $facilitiesAgent->getFacilityForHost(host => $hostId);
+    my $facilityName;
+    unless($facility) {$facilityName=" ";}
+    $facilityName=$facility->getName;
+
+    $table->addRow($hostId,$hostName,$numCores,$facilityName);
+}
+
+print tableToPrint($table, $batch);
