@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+
+sub help {
+	return qq{
+	Sets Host attribute on each Host on Facility.
+	Facility Id or Name required.
+	Attribute Id or Name required.
+	Attribute value required.
+	---------------------------------------------------
+	Available options:
+	--facilityName   | -F  facility name
+	--faclityId      | -f  facility Id
+	--attributeId    | -a attribute id
+	--attributeName  | -A attribute name including namespace
+	--attributeValue | -w attribute value
+	--batch          | -b  batch
+	--help           | -h  prints this help
+	};
+}
+
+my ($facilityId, $facilityName, $attributeId, $attributeName, @attributeValue);
+our $batch;
+GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
+	"facilityId|f=i" => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+	"attributeId|a=i" => \$attributeId,
+	"attributeName|A=s" => \$attributeName,
+	'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
+
+# Check options
+unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
+unless (defined($attributeId) or defined($attributeName)) { die "ERROR: attributeId or attributeName is required \n";}
+unless (@attributeValue) { die "ERROR: attributeValue is required \n";}
+
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $attributesAgent = $agent->getAttributesAgent;
+
+unless($facilityId) {
+	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
+	$facilityId=$facility->getId;
+}
+
+my $attributeDefinition;
+if (!defined($attributeId)) {
+	$attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+} else {
+	$attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+}
+# Get the attribute definition and create the attribute
+my $attribute = Perun::beans::Attribute->fromAttributeDefinition($attributeDefinition);
+
+$attribute->setValueFromArray(@attributeValue);
+
+my @hosts=$facilitiesAgent->getHosts(facility => $facilityId);
+unless (@hosts) { printMessage "No host found", $batch; exit 0;}
+
+while (@hosts) {
+	my $host=shift(@hosts);
+	my $hostId=$host->getId;
+
+	$attributesAgent->setAttribute(host => $hostId, attribute => $attribute );
+	printMessage("Attribute ".$attribute->getFriendlyName." set for host ".$host->getHostname." on the facility ".($facilityName ? $facilityName : $facilityId), $batch);
+}
+
