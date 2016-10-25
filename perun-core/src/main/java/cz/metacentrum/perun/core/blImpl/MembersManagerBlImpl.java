@@ -1121,7 +1121,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getMembersManagerImpl().setStatus(sess, member, Status.VALID);
 		member.setStatus(Status.VALID);
 		getPerunBl().getAuditer().log(sess, "{} validated.", member);
-		if(oldStatus.equals(Status.INVALID)) {
+		if(oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
 			try {
 				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
 			} catch (WrongAttributeAssignmentException ex) {
