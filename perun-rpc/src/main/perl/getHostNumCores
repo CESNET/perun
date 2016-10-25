@@ -21,7 +21,7 @@ sub help {
 my ($hostName, $batch);
 GetOptions("help|h" => sub { print help; exit 0;} ,
 	"hostName|H=s" => \$hostName,
-"batch|b" => \$batch) || die help;
+	"batch|b" => \$batch) || die help;
 
 #options check
 unless(defined $hostName) { die "ERROR: hostName is required\n";}
@@ -38,19 +38,19 @@ $table->setCols('Id','Host name', 'Number of cores','Facility name');
 
 my @hosts=$facilitiesAgent->getHostsByHostname(hostname => $hostName);
 while (@hosts) {
-    my $host=shift(@hosts);
-    my $hostId=$host->getId;
-    my $attribute = $attributesAgent->getAttribute(attributeName => $attrName,host => $hostId);
-    my $numCores;
-    $numCores=$attribute->getValueAsScalar; 
-    unless(defined $numCores) { $numCores = "undefined";}
-    
-    my $facility = $facilitiesAgent->getFacilityForHost(host => $hostId);
-    my $facilityName;
-    unless($facility) {$facilityName=" ";}
-    $facilityName=$facility->getName;
+	my $host=shift(@hosts);
+	my $hostId=$host->getId;
+	my $attribute = $attributesAgent->getAttribute(attributeName => $attrName,host => $hostId);
+	my $numCores;
+	$numCores=$attribute->getValueAsScalar;
+	unless(defined $numCores) { $numCores = "undefined";}
 
-    $table->addRow($hostId,$hostName,$numCores,$facilityName);
+	my $facility = $facilitiesAgent->getFacilityForHost(host => $hostId);
+	my $facilityName;
+	unless($facility) {$facilityName=" ";}
+	$facilityName=$facility->getName;
+
+	$table->addRow($hostId,$hostName,$numCores,$facilityName);
 }
 
 print tableToPrint($table, $batch);
