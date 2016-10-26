@@ -2162,6 +2162,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Service service = new Service(0, "TestService01");
 		service = perun.getServicesManager().createService(sess, service);
 
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource1, service);
 
 		// service should be only on 1 resource

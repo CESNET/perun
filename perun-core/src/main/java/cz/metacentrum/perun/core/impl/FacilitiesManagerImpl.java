@@ -1018,9 +1018,6 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 		}
 	}
 
-//	return jdbc.query("select " + ResourcesManagerImpl.resourceMappingSelectQuery + " from resources where facility_id=?",
-//	ResourcesManagerImpl.RESOURCE_MAPPER, facility.getId());
-	
 	@Override
 	public List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException {
 		try {

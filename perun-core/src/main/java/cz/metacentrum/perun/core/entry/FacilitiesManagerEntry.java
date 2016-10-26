@@ -1165,11 +1165,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		getFacilitiesManagerBl().checkFacilityExists(sess, facility);
 		
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, facility)
-				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, facility)
-				&& !AuthzResolver.isAuthorized(sess, Role.ENGINE)
-				&& !AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)
-				) {
+		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getAssignedServices");
 		}
 		
