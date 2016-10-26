@@ -1202,15 +1202,15 @@ create table "facilities_bans" (
 );
 
 create table "user_ext_source_attr_values" (
-	user_ext_source_id integer not null, 
-	attr_id integer not null, 
-	attr_value varchar(4000), 
+	user_ext_source_id integer not null,
+	attr_id integer not null,
+	attr_value varchar(4000),
 	created_at timestamp default now() not null,
 	created_by varchar(1300) default user not null,
 	modified_at timestamp default now() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
-	attr_value_text text, 
+	attr_value_text text,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -1694,6 +1694,7 @@ alter table tags_resources add constraint tags_res_tags_fk foreign key (tag_id) 
 alter table tags_resources add constraint tags_res_res_fk foreign key (resource_id) references resources(id);
 
 alter table tasks add constraint task_pk primary key (id);
+alter table tasks add constraint task_u unique (exec_service_id, facility_id);
 alter table tasks add constraint task_exsrv_fk foreign key (exec_service_id) references exec_services(id);
 alter table tasks add constraint task_fac_fk foreign key (facility_id) references facilities(id);
 alter table tasks add constraint task_eng_fk foreign key (engine_id) references engines (id);
