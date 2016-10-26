@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,7 +42,6 @@ import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
 import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
@@ -49,6 +49,7 @@ import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import org.springframework.util.Assert;
 
 /**
  * Integration tests of GroupsManager
@@ -100,7 +101,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 		ExtSource newExtSource = new ExtSource("ExtSourcesManagerEntryIntegrationTest1", ExtSourcesManager.EXTSOURCE_INTERNAL);
 		newExtSource = perun.getExtSourcesManager().createExtSource(sess, newExtSource, null);
-		
+
 		perun.getExtSourcesManagerBl().addExtSource(sess, vo, newExtSource);
 
 		perun.getExtSourcesManagerBl().addExtSource(sess, group, newExtSource);
@@ -342,12 +343,12 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		assertTrue(groupsManager.getGroupMembers(sess, group7).size() == 1);
 
 		groupsManager.deleteGroup(sess, group, true);
-		
+
 		assertTrue(groupsManager.getGroupMembers(sess, group5).size() == 1);
 		assertTrue(groupsManager.getGroupMembers(sess, group6).size() == 0);
 		assertTrue(groupsManager.getGroupMembers(sess, group7).size() == 1);
 	}
-	
+
 	@Test
 	public void addAndRemoveMemberInGroupWithUnion() throws Exception {
 		System.out.println("GroupsManager.addAndRemoveMemberInGroupWithUnion");
@@ -356,7 +357,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroup(sess, vo, group);
 		groupsManager.createGroup(sess, group, group2);
 		groupsManager.createGroup(sess, vo, group3);
-		
+
 		groupsManager.createGroupUnion(sess, group2, group3);
 
 		Member member = setUpMember(vo);
@@ -412,7 +413,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group, group2);
 
 		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 1);
-		
+
 		groupsManager.removeGroupUnion(sess, group, group2);
 
 		assertTrue(groupsManager.getGroupMembers(sess, group).size() == 0);
@@ -431,7 +432,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group, group2);
 		groupsManager.createGroupUnion(sess, group, group2);
 	}
-	
+
 	@Test(expected=GroupRelationNotAllowed.class)
 	public void createGroupRelationOnSameGroup() throws Exception {
 		System.out.println("GroupsManager.createGroupUnionOnSameGroup");
@@ -507,11 +508,11 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	@Test(expected = GroupRelationCannotBeRemoved.class)
 	public void deleteUnionBetweenGroupsInHierarchy() throws Exception {
 		System.out.println("GroupsManager.deleteUnionBetweenGroupsInHierarchy");
-		
+
 		vo = setUpVo();
 		groupsManager.createGroup(sess, vo, group);
 		groupsManager.createGroup(sess, group, group2);
-		
+
 		groupsManager.removeGroupUnion(sess, group, group2);
 	}
 
@@ -680,11 +681,11 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.createGroupUnion(sess, group3, group2);
 		groupsManager.createGroupUnion(sess, group4, group3);
 		groupsManager.createGroupUnion(sess, group5, group3);
-		
+
 		assertEquals("Wrong number of operand groups.", 2, groupsManagerBl.getGroupUnions(sess, group3, false).size());
 		assertEquals("Wrong number of result groups.", 2, groupsManagerBl.getGroupUnions(sess, group3, true).size());
 	}
-	
+
 	@Test (expected=RelationExistsException.class)
 	public void deleteGroupWhenContainsMember() throws Exception {
 		System.out.println(CLASS_NAME + "deleteGroupWhenContainsMember");
@@ -1931,7 +1932,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Member member = setUpMember(vo);
 		groupsManager.addMember(sess, group, member);
 	}
-	
+
 	@Test
 	public void addAndRemoveMemberInNonSynchronizedGroup() throws Exception {
 		System.out.println(CLASS_NAME + "addAndRemoveMemberInNonSynchronizedGroup");
@@ -1947,12 +1948,12 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		groupsManager.addMember(sess, group, member);
 		List<Member> members = groupsManager.getGroupMembers(sess, group);
 		assertTrue("List of members should contain member", members.contains(member));
-		
+
 		groupsManager.removeMember(sess, group, member);
 		members = groupsManager.getGroupMembers(sess, group);
 		assertTrue("List of members should be empty", members.isEmpty());
 	}
-	
+
 	@Test(expected = ExternallyManagedException.class)
 	public void removeMemberInSynchronizedGroup() throws Exception {
 		System.out.println(CLASS_NAME + "removeMemberInSynchronizedGroup");
@@ -1963,7 +1964,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Attribute synchroAttr = new Attribute(perun.getAttributesManager().getAttributeDefinition(sess, GroupsManager.GROUPSYNCHROENABLED_ATTRNAME));
 		synchroAttr.setValue("false");
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
-		
+
 		Member member = setUpMember(vo);
 		groupsManager.addMember(sess, group, member);
 
@@ -1971,7 +1972,61 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		perun.getAttributesManager().setAttribute(sess, group, synchroAttr);
 		groupsManager.removeMember(sess, group, member);
 	}
-	
+
+	@Test
+	public void getAssignedGroupsToFacility() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedGroupsToFacility");
+
+		// Test that new method returns same data as old behavior
+		vo = setUpVo();
+
+		Vo vo2 = new Vo(0, "facilityTestVo002", "facilityTestVo002");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Facility facility = new Facility(0, "groupsTestFacility01", "groupsTestFacility01");
+		facility = perun.getFacilitiesManager().createFacility(sess, facility);
+
+		Resource resource1 = setUpResource(vo, facility);
+		Resource resource2 = setUpResource(vo2, facility);
+
+		Group group11 = new Group("Group11", "testGroup1");
+		Group group12 = new Group("Group12", "testGroup2");
+		Group group21 = new Group("Group21", "testGroup3");
+		Group group22 = new Group("Group22", "testGroup4");
+
+		group11 = perun.getGroupsManager().createGroup(sess, vo, group11);
+		group12 = perun.getGroupsManager().createGroup(sess, vo, group12);
+		group21 = perun.getGroupsManager().createGroup(sess, vo2, group21);
+		group22 = perun.getGroupsManager().createGroup(sess, vo2, group22);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group11, resource1);
+		perun.getResourcesManager().assignGroupToResource(sess, group21, resource2);
+
+		// test new way - single select
+		List<Group> groups = perun.getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
+		Assert.notNull(groups);
+		assertTrue(groups.size() == 2);
+		assertTrue(groups.contains(group11));
+		assertTrue(groups.contains(group21));
+		assertTrue(!groups.contains(group12));
+		assertTrue(!groups.contains(group22));
+
+		// test old way - iterate over resources
+		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
+		List<Group> oldGroups = new ArrayList<Group>();
+		for (Resource r : resources) {
+			oldGroups.addAll(perun.getResourcesManager().getAssignedGroups(sess, r));
+		}
+		Assert.notNull(oldGroups);
+		assertTrue(oldGroups.contains(group11));
+		assertTrue(oldGroups.contains(group21));
+		assertTrue(!oldGroups.contains(group12));
+		assertTrue(!oldGroups.contains(group22));
+
+		assertEquals(new HashSet<>(groups), new HashSet<>(oldGroups));
+
+	}
+
 	// PRIVATE METHODS -------------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
@@ -2031,6 +2086,17 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		Group returnedGroup = groupsManager.createGroup(sess, vo, group);
 		assertNotNull("unable to create a group",returnedGroup);
 		assertEquals("created group should be same as returned group",group,returnedGroup);
+
+	}
+
+	private Resource setUpResource(Vo vo, Facility facility) throws Exception {
+
+		Resource resource = new Resource();
+		resource.setName("GroupsManagerTestResource");
+		resource.setDescription("testing resource");
+		assertNotNull("unable to create resource",perun.getResourcesManager().createResource(sess, resource, vo, facility));
+
+		return resource;
 
 	}
 

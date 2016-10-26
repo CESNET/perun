@@ -60,8 +60,9 @@ import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotAssignedException
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.WrongPatternException;
-import cz.metacentrum.perun.core.blImpl.FacilitiesManagerBlImpl;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+import org.springframework.util.Assert;
+
 import java.util.Date;
 
 /**
@@ -1621,7 +1622,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Date yesterday = new Date(now.getTime() - (1000 * 60 * 60 * 24));
 		banOnFacility.setValidityTo(yesterday);
 		banOnFacility = facilitiesManagerEntry.setBan(sess, banOnFacility);
-		
+
 		List<BanOnFacility> bansOnFacility = facilitiesManagerEntry.getBansForFacility(sess, banOnFacility.getFacilityId());
 		assertTrue(bansOnFacility.size() == 1);
 
@@ -1663,20 +1664,20 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	@Test
 	public void addHostAndDestinationSameNameSameAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostAndDestinationSameNameSameAdmin");
-		
+
 		// Initialize host, destination and service
 	 	String hostName = "TestHost";
 		Host hostOne = new Host(0, hostName);
 		Destination destination = new Destination(0, hostName, Destination.DESTINATIONHOSTTYPE);
 		Service service = new Service(0, "testService");
 		ServicesManager servicesManagerEntry = perun.getServicesManager();
-		service = servicesManagerEntry.createService(sess, service);	
+		service = servicesManagerEntry.createService(sess, service);
 		// Creates second facility
 		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
-		
+
 		// Set userOne as admin for both facilities
 		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
@@ -1688,7 +1689,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, list);
 		sess.getPerunPrincipal().setRoles(authzRoles);
 		sess.getPerunPrincipal().setUser(userOne);
-		
+
 		// Adds host to facility
 		facilitiesManagerEntry.addHost(sess, hostOne, facility);
 		assertTrue(facilitiesManagerEntry.getHosts(sess, facility).size() == 1);
@@ -1702,11 +1703,11 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		servicesManagerEntry.addDestination(sess, service, secondFacility, destination);
 		assertTrue(servicesManagerEntry.getDestinations(sess, service, secondFacility).size() == 1);
 	}
-	
+
 	@Test(expected = PrivilegeException.class)
 	public void addHostSameHostDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostSameHostDifferentAdmin");
-		
+
 		// Initialize host
 		Host host = new Host(0, "testHost");
 		// Creates second facility
@@ -1715,13 +1716,13 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Set up two members
 		Member memberOne = setUpMember(vo);
 		Member memberTwo = setUpMember(vo);
-		
+
 		// Set users as admins of different facilities
 		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
 		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
 		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
-		
+
 		// Sets userOne as actor in this test with role facility admin for facility
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1729,7 +1730,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds host to facility
 		facilitiesManagerEntry.addHost(sess, host, facility);
 		assertTrue(facilitiesManagerEntry.getHosts(sess, facility).size() == 1);
-		
+
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1737,11 +1738,11 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds same host to secondFacility with different admin -> should throw exception
 		facilitiesManagerEntry.addHost(sess, host, secondFacility);
 	}
-	
+
 	@Test(expected = PrivilegeException.class)
 	public void addHostSameDestinationDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostSameDestinationDifferentAdmin");
-		
+
 		// Initialize host, destination and service
 	 	String hostName = "TestHost";
 		Host host = new Host(0, hostName);
@@ -1749,20 +1750,20 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Service service = new Service(0, "testService");
 		ServicesManager servicesManagerEntry = perun.getServicesManager();
 		service = servicesManagerEntry.createService(sess, service);
-		
+
 		// Creates second facility
 		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
 		Member memberTwo = setUpMember(vo);
-		
+
 		// Set users as admins of different facilities
 		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
 		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
 		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
-		
+
 		// Sets userOne as actor in this test with role facility admin for facility
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1770,7 +1771,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds destination to facility
 		servicesManagerEntry.addDestination(sess, service, facility, destination);
 		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
-		
+
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1794,20 +1795,20 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Creates second facility
 		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
-		
+
 		// Set users as admins of different facilities
 		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
 		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
 		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
-		
+
 		// Sets userOne as actor in this test with role facility admin for facility
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
 		sess.getPerunPrincipal().setUser(userOne);
 		// Adds hosts to facility
 		facilitiesManagerEntry.addHosts(sess, facility, listOfHosts);
-		
+
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1815,11 +1816,11 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds same hosts to secondFacility with different admin -> should throw exception
 		facilitiesManagerEntry.addHosts(sess, secondFacility, listOfHosts);
 	}
-	
+
 	@Test(expected = PrivilegeException.class)
 	public void addHostsStringsSameDestinationDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostsStringsSameDestinationDifferentAdmin");
-		
+
 	 	// Sets list of hostnames
 		String hostName = "testHostOne";
 		List<String> listOfHosts = new ArrayList<String>();
@@ -1831,20 +1832,20 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Service service = new Service(0, "testService");
 		ServicesManager servicesManagerEntry = perun.getServicesManager();
 		service = servicesManagerEntry.createService(sess, service);
-		
+
 		// Creates second facility
 		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
 		Member memberTwo = setUpMember(vo);
-		
+
 		// Set users as admins of different facilities
 		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
 		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
 		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
-		
+
 		// Sets userOne as actor in this test with role facility admin for facility
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1852,7 +1853,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds destination to facility
 		servicesManagerEntry.addDestination(sess, service, facility, destination);
 		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
-		
+
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1860,7 +1861,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds same host as destination to secondFacility with different admin -> should throw exception
 		facilitiesManagerEntry.addHosts(sess, secondFacility, listOfHosts);
 	}
-	
+
 	@Test(expected = PrivilegeException.class)
 	public void addHostsSameHostsDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostsSameHostsDifferentAdmin");
@@ -1876,20 +1877,20 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Creates second facility
 		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
-		
+
 		// Set users as admins of different facilities
 		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
 		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
 		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
-		
+
 		// Sets userOne as actor in this test with role facility admin for facility
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
 		sess.getPerunPrincipal().setUser(userOne);
 		// Adds hosts to facility
 		facilitiesManagerEntry.addHosts(sess, listOfHosts, facility);
-		
+
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1897,11 +1898,11 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds same hosts to secondFacility with different admin -> should throw exception
 		facilitiesManagerEntry.addHosts(sess, listOfHosts, secondFacility);
 	}
-	
+
 	@Test(expected = PrivilegeException.class)
 	public void addHostsSameDestinationDifferentAdmin() throws Exception {
 		System.out.println(CLASS_NAME + "addHostsStringsSameDestinationDifferentAdmin");
-		
+
 	 	// Sets list of hosts
 		List<Host> listOfHosts = new ArrayList<Host>();
 		Host testHost = new Host(0, "testHostOne");
@@ -1914,20 +1915,20 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		Service service = new Service(0, "testService");
 		ServicesManager servicesManagerEntry = perun.getServicesManager();
 		service = servicesManagerEntry.createService(sess, service);
-		
+
 		// Creates second facility
 		Facility secondFacility = new Facility(0, "TestSecondFacility", "TestDescriptionText");
 		assertNotNull(perun.getFacilitiesManager().createFacility(sess, secondFacility));
 		// Set up two members
 		Member memberOne = setUpMember(vo);
 		Member memberTwo = setUpMember(vo);
-		
+
 		// Set users as admins of different facilities
 		User userOne = perun.getUsersManagerBl().getUserByMember(sess, memberOne);
 		facilitiesManagerEntry.addAdmin(sess, facility, userOne);
 		User userTwo = perun.getUsersManagerBl().getUserByMember(sess, memberTwo);
 		facilitiesManagerEntry.addAdmin(sess, secondFacility, userTwo);
-		
+
 		// Sets userOne as actor in this test with role facility admin for facility
 		AuthzRoles authzRoles = new AuthzRoles(Role.FACILITYADMIN, facility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1935,7 +1936,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds destination to facility
 		servicesManagerEntry.addDestination(sess, service, facility, destination);
 		assertTrue(servicesManagerEntry.getDestinations(sess, service, facility).size() == 1);
-		
+
 		// Change actor in this test to userTwo
 		authzRoles = new AuthzRoles(Role.FACILITYADMIN, secondFacility);
 		sess.getPerunPrincipal().setRoles(authzRoles);
@@ -1943,9 +1944,143 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// Adds same host as destination to secondFacility with different admin -> should throw exception
 		facilitiesManagerEntry.addHosts(sess, listOfHosts, secondFacility);
 	}
-	
-	
-// PRIVATE METHODS -------------------------------------------------------
+
+	@Test
+	public void getAllowedMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getAllowedMembers");
+
+		// Test that new method returns same data as old behavior
+
+		Vo vo2 = new Vo(0, "facilityTestVo002", "facilityTestVo002");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Member member11 = setUpMember(vo);
+		Member member12 = setUpMember(vo);
+		Member member21 = setUpMember(vo2);
+		Member member22 = setUpMember(vo2);
+
+		Resource resource1 = setUpResource(vo);
+		Resource resource2 = setUpResource(vo2);
+
+		Group group1 = setUpGroup(vo, member11);
+		Group group2 = setUpGroup(vo2, member21);
+
+		// make them not-allowed
+		perun.getMembersManager().setStatus(sess, member12, Status.INVALID);
+		perun.getMembersManager().setStatus(sess, member22, Status.DISABLED);
+
+		perun.getGroupsManager().addMember(sess, group1, member12);
+		perun.getGroupsManager().addMember(sess, group2, member22);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2);
+
+		// test new way - single select
+		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility);
+		Assert.notNull(members);
+		assertTrue(members.size() == 2);
+		assertTrue(members.contains(member11));
+		assertTrue(members.contains(member21));
+		assertTrue(!members.contains(member12));
+		assertTrue(!members.contains(member22));
+
+		// test old way - iterate over resources
+		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
+		List<Member> oldMembers = new ArrayList<Member>();
+		for (Resource r : resources) {
+			oldMembers.addAll(perun.getResourcesManager().getAllowedMembers(sess, r));
+		}
+		Assert.notNull(oldMembers);
+		assertTrue(oldMembers.contains(member11));
+		assertTrue(oldMembers.contains(member21));
+		assertTrue(!oldMembers.contains(member12));
+		assertTrue(!oldMembers.contains(member22));
+
+		assertEquals(new HashSet<>(members), new HashSet<>(members));
+
+	}
+
+	@Test
+	public void getAssignedResourcesWithVoOrServiceFilter() throws Exception {
+		System.out.println(CLASS_NAME + "getAssignedResourcesWithVoOrServiceFilter");
+
+		// Test that new method returns same data as old behavior
+
+		Vo vo2 = new Vo(0, "facilityTestVo002", "facilityTestVo002");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+
+		Member member11 = setUpMember(vo);
+		Member member12 = setUpMember(vo);
+		Member member21 = setUpMember(vo2);
+		Member member22 = setUpMember(vo2);
+
+		Resource resource1 = setUpResource(vo);
+		Resource resource2 = setUpResource(vo2);
+
+		Group group1 = setUpGroup(vo, member11);
+		Group group2 = setUpGroup(vo2, member21);
+
+		// make them not-allowed
+		perun.getMembersManager().setStatus(sess, member12, Status.INVALID);
+		perun.getMembersManager().setStatus(sess, member22, Status.DISABLED);
+
+		perun.getGroupsManager().addMember(sess, group1, member12);
+		perun.getGroupsManager().addMember(sess, group2, member22);
+
+		perun.getResourcesManager().assignGroupToResource(sess, group1, resource1);
+		perun.getResourcesManager().assignGroupToResource(sess, group2, resource2);
+
+		// test new way - single select
+		List<Member> members = perun.getFacilitiesManagerBl().getAllowedMembers(sess, facility);
+		Assert.notNull(members);
+		assertTrue(members.size() == 2);
+		assertTrue(members.contains(member11));
+		assertTrue(members.contains(member21));
+		assertTrue(!members.contains(member12));
+		assertTrue(!members.contains(member22));
+
+		// check getting all
+		List<Resource> resources = perun.getFacilitiesManager().getAssignedResources(sess, facility);
+		Assert.notNull(resources);
+		assertTrue(resources.size() == 2);
+		assertTrue(resources.contains(resource1));
+		assertTrue(resources.contains(resource2));
+
+		// check getting by VO
+		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, vo, null);
+		Assert.notNull(resources);
+		assertTrue(resources.size() == 1);
+		assertTrue(resources.contains(resource1));
+		assertTrue(!resources.contains(resource2));
+
+		Service service = new Service(0, "TestService01");
+		service = perun.getServicesManager().createService(sess, service);
+
+		perun.getResourcesManager().assignService(sess, resource1, service);
+
+		// service should be only on 1 resource
+		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, null, service);
+		Assert.notNull(resources);
+		assertTrue(resources.size() == 1);
+		assertTrue(resources.contains(resource1));
+		assertTrue(!resources.contains(resource2));
+
+		// vo-service should by only for 1 resource
+		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, vo, service);
+		Assert.notNull(resources);
+		assertTrue(resources.size() == 1);
+		assertTrue(resources.contains(resource1));
+		assertTrue(!resources.contains(resource2));
+
+		// vo2-service shouldn't be assigned
+		resources = perun.getFacilitiesManagerBl().getAssignedResources(sess, facility, vo2, service);
+		Assert.notNull(resources);
+		assertTrue(resources.isEmpty());
+
+	}
+
+
+	// PRIVATE METHODS -------------------------------------------------------
 
 	private Vo setUpVo() throws Exception {
 
@@ -2089,7 +2224,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 			facilitiesManagerEntry.assignSecurityTeam(sess, facility, st);
 		}
 	}
-        
+
         private List<AttributeDefinition> getMandatoryAttrs() throws InternalErrorException{
 		List<String> MANDATORY_ATTRIBUTES_FOR_USER_IN_CONTACT = new ArrayList<>(Arrays.asList(
                         AttributesManager.NS_USER_ATTR_DEF + ":organization",

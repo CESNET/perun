@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
 import cz.metacentrum.perun.core.api.Member;
@@ -341,6 +342,20 @@ public class GroupsManagerImpl implements GroupsManagerImplApi {
 					" groups_resources on groups.id=groups_resources.group_id " +
 					" where groups_resources.resource_id=?",
 					GROUP_MAPPER, resource.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Group>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException {
+		try {
+			return jdbc.query("select distinct " + groupMappingSelectQuery + " from groups join " +
+							" groups_resources on groups.id=groups_resources.group_id " +
+							" join resources on groups_resources.resource_id=resources.id " +
+							"where resources.facility_id=?",
+					GROUP_MAPPER, facility.getId());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Group>();
 		} catch (RuntimeException e) {
