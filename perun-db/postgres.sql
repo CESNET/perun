@@ -1,4 +1,4 @@
--- database version 3.1.40 (don't forget to update insert statement at the end of file)
+-- database version 3.1.41 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1316,7 +1316,7 @@ create index idx_fk_usrfacav_fac on user_facility_attr_values(facility_id);
 create index idx_fk_usrfacav_accattnam on user_facility_attr_values(attr_id);
 create index idx_fk_task_exsrv on tasks(exec_service_id);
 create index idx_fk_task_fac on tasks(facility_id);
-create index idx_fk_task_eng on tasks(engine_id);
+create index idx_fk_task_eng on tasks(COALESCE(engine_id, 0));
 create index idx_fk_taskres_task on tasks_results(task_id);
 create index idx_fk_taskres_dest on tasks_results(destination_id);
 create index idx_fk_taskres_eng on tasks_results(engine_id);
@@ -1849,7 +1849,7 @@ grant all on membership_types to perun;
 grant all on user_ext_source_attr_values to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.40');
+insert into configurations values ('DATABASE VERSION','3.1.41');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
