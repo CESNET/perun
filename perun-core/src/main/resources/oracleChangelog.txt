@@ -8,7 +8,7 @@ alter table tasks add ( constraint TASK_U unique (exec_service_id, facility_id) 
 update configurations set value='3.1.41' where property='DATABASE VERSION';
 
 3.1.40
-alter table tasks modify engine_id integer;
+alter table tasks modify engine_id integer null;
 update configurations set value='3.1.40' where property='DATABASE VERSION';
 
 3.1.39
@@ -72,7 +72,7 @@ alter table USERS modify created_by nvarchar2(1300);
 alter table USER_ATTR_VALUES modify created_by nvarchar2(1300);
 alter table USER_EXT_SOURCES modify created_by nvarchar2(1300);
 alter table USER_FACILITY_ATTR_VALUES modify created_by nvarchar2(1300);
-alter_table USER_EXT_SOURCE_ATTR_VALUES modify created_by nvarchar2(1300);
+alter table USER_EXT_SOURCE_ATTR_VALUES modify created_by nvarchar2(1300);
 alter table VOS modify created_by nvarchar2(1300);
 alter table VO_ATTR_VALUES modify created_by nvarchar2(1300);
 alter table VO_EXT_SOURCES modify created_by nvarchar2(1300);
@@ -129,7 +129,7 @@ alter table USERS modify modified_by nvarchar2(1300);
 alter table USER_ATTR_VALUES modify modified_by nvarchar2(1300);
 alter table USER_EXT_SOURCES modify modified_by nvarchar2(1300);
 alter table USER_FACILITY_ATTR_VALUES modify modified_by nvarchar2(1300);
-alter_table USER_EXT_SOURCE_ATTR_VALUES modify modified_by nvarchar2(1300);
+alter table USER_EXT_SOURCE_ATTR_VALUES modify modified_by nvarchar2(1300);
 alter table VOS modify modified_by nvarchar2(1300);
 alter table VO_ATTR_VALUES modify modified_by nvarchar2(1300);
 alter table VO_EXT_SOURCES modify modified_by nvarchar2(1300);

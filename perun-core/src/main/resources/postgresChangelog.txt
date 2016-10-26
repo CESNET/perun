@@ -8,7 +8,7 @@ alter table tasks add constraint task_u unique (exec_service_id, facility_id);
 update configurations set value='3.1.41' where property='DATABASE VERSION';
 
 3.1.40
-alter table tasks alter column engine_id type integer;
+alter table tasks alter column engine_id drop not null;
 update configurations set value='3.1.40' where property='DATABASE VERSION';
 
 3.1.39
