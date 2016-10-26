@@ -1460,6 +1460,7 @@ alter table engines add (constraint ENG_PK primary key (id)
 );
 alter table tasks add (
 constraint TASK_PK primary key (id),
+constraint TASK_U unique (exec_service_id, facility_id),
 constraint TASK_EXSRV_FK foreign key (exec_service_id) references exec_services(id),
 constraint TASK_FAC_FK foreign key (facility_id) references facilities(id),
 constraint TASK_ENG_FK foreign key (engine_id) references engines (id),
