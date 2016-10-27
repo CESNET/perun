@@ -20,6 +20,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.params.ClientPNames;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
  * ExtSource for synchronization from another Perun instance
@@ -187,7 +186,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 
 		if(matchesRichUsers.isEmpty()) throw new SubjectNotExistsException("There is no subject with login " + login + " in extSource " + extSourceNameForLogin + " in System perun with RPC url: " + perunUrl);
 		if(matchesRichUsers.size() > 1) throw new InternalErrorException("There are more then one subject with login " + login + " in extSource " + extSourceNameForLogin + " in System perun with RPC url: " + perunUrl);
-		
+
 		return richUsers.get(0);
 	}
 
@@ -228,7 +227,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	private List<RichUser> findRichUsers(Integer groupId) throws InternalErrorException {
 		// we don't need to encode query params here, no unsafe char in fixed string
 		String query = "group=" + groupId + "&" + "allowedStatuses[]=" + "VALID";
-		
+
 		List<RichMember> richMembers;
 		try {
 			richMembers = this.call("membersManager", "getRichMembersWithAttributes", query).readList(RichMember.class);
@@ -269,14 +268,16 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	private Deserializer call(String managerName, String methodName, String query) throws PerunException {
 		//Prepare sending message
 		HttpResponse response;
-		HttpClient httpClient = new DefaultHttpClient();
-		httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, org.apache.http.client.params.CookiePolicy.IGNORE_COOKIES);
+		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+		// just like cookie-policy: ignore cookies
+		httpClientBuilder.disableCookieManagement();
+		HttpClient httpClient = httpClientBuilder.build();
 
 		String commandUrl = perunUrl + format + "/" + managerName + "/" + methodName;
 		if(query != null) commandUrl+= "?" + query;
 
 		HttpGet get = new HttpGet(commandUrl);
-		get.setHeader("content-Type", "application/json");
+		get.setHeader("Content-Type", "application/json");
 		get.setHeader("charset", "utf-8");
 		get.setHeader("Connection", "Close");
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
@@ -299,7 +300,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		} catch (IOException ex) {
 			this.processIOException(ex);
 		}
-		
+
 		return des;
 	}
 

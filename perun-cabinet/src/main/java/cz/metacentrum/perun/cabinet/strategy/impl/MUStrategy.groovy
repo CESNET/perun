@@ -1,11 +1,13 @@
 package cz.metacentrum.perun.cabinet.strategy.impl
-import groovy.xml.XmlUtil
 
+import groovy.xml.XmlUtil
+import org.apache.http.Consts
 import org.apache.http.HttpResponse
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpUriRequest
-import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.entity.ContentType
+import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content.ByteArrayBody
 import org.apache.http.entity.mime.content.StringBody
 import org.apache.http.impl.auth.BasicScheme
@@ -19,6 +21,7 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem
 import cz.metacentrum.perun.cabinet.service.CabinetException
 import cz.metacentrum.perun.cabinet.service.ErrorCodes
 import cz.metacentrum.perun.cabinet.strategy.IFindPublicationsStrategy
+import cz.metacentrum.perun.core.impl.Utils
 
 /**
  * Groovy class for retrieving publications from external source
@@ -41,11 +44,11 @@ class MUStrategy implements IFindPublicationsStrategy {
 	public HttpUriRequest getHttpRequest(String uco, int yearSince, int yearTill, PublicationSystem ps) {
 
 		//prepare request body
-		MultipartEntity entity = new MultipartEntity();
+		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 		try {
-			entity.addPart("typ", new StringBody("xml"));
-			entity.addPart("kodovani", new StringBody("utf-8"));
-			entity.addPart("keyfile", new ByteArrayBody(buildRequestKeyfile(uco.toInteger(), yearSince, yearTill).getBytes(), "template.xml"));
+			entityBuilder.addPart("typ", new StringBody("xml", ContentType.create("text/plain", Consts.UTF_8)));
+			entityBuilder.addPart("kodovani", new StringBody("utf-8", ContentType.create("text/plain", Consts.UTF_8)));
+			entityBuilder.addPart("keyfile", new ByteArrayBody(buildRequestKeyfile(uco.toInteger(), yearSince, yearTill).getBytes(), "template.xml"));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -54,14 +57,14 @@ class MUStrategy implements IFindPublicationsStrategy {
 		HttpPost post = new HttpPost(ps.getUrl())
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(ps.getUsername(), ps.getPassword())
 		post.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));//cred, enc, proxy
-		post.setEntity(entity)
+		post.setEntity(entityBuilder.build())
 		return post
 
 	}
 
 	public List<Publication> parseResponse(String xml) {
 
-		// log response into alcor.ics.muni.cz:  /home/perun/.perunv3/logs/perun-cabinet.log
+		// log response into /var/log/perun/perun-cabinet.log
 		// log.debug(xml)
 
 		assert xml != null
@@ -86,36 +89,16 @@ class MUStrategy implements IFindPublicationsStrategy {
 
 				//parse authors
 				List<Author> authors = new ArrayList<Author>()
-				String[] names = it.authors.names[0].text().split(" a ")
-				// assert doesnt work when we don't know author's uco
-				//assert names.length == it.authors[0].uco.size() // xml is as expected
+				String[] names = it.authors.names[0].text().split("#")
 				int namesIndex = 0
-				it.authors[0].uco.each { uco ->
-
-					Author author = new Author()
-					if (uco.text()) { //if element uco is not empty then the author is qualified
-
-						// 3.7.2012 these properties were removed from author - do not use
-						//author.setNamespace(MU)
-						//author.setNamespaceLogin(uco.text())
-					}
-
+				for (String name : names) {
 					try {
 
-						String firstName = ""
-						String lastName = ""
-						
-						if (namesIndex == 0) {
-							// first author have switched lastName and firstName
-							firstName = parseNames(names[namesIndex], 1)
-							lastName = parseNames(names[namesIndex], 0)
-						} else {
-							firstName = parseNames(names[namesIndex], 0)
-							lastName = parseNames(names[namesIndex], 1)
-						}
-						
-						author.setFirstName(firstName)
-						author.setLastName(lastName)
+						Author author = new Author()
+						Map<String,String> commonName = Utils.parseCommonName(name)
+
+						author.setFirstName(commonName.get("firstName"))
+						author.setLastName(capitalize(commonName.get("lastName")))
 
 						authors.add(author)
 						namesIndex++
@@ -151,22 +134,11 @@ class MUStrategy implements IFindPublicationsStrategy {
 		StringBuffer sb = new StringBuffer()
 		sb.append(criteriaBegin)
 		sb.append(year1).append(criteriaYearEnd)
-		for (year in year1..year2) {
+		for (year in year1+1..year2) {
 			sb.append(criteriaYearBegin).append(year).append(criteriaYearEnd)
 		}
 		sb.append(criteriaEnd)
 		return sb.toString()
-	}
-
-	private String parseNames(String s, int indexToReturn) {
-		//CNS first name has comma between firstname and surname
-		String[] names = s.split(",");
-		//CNS other authors have space between firstname and surname
-		//TODO trailing spaces
-		if (names.length == 1) {
-			names = s.split(" ");
-		}
-		return capitalize(names[indexToReturn].replace(".", "").trim());
 	}
 
 	private String capitalize(String name) {
@@ -177,9 +149,9 @@ class MUStrategy implements IFindPublicationsStrategy {
 <P>
 <TFORMA>
 	&lt;publication&gt;
-		  &lt;authors&gt;&lt;names&gt;<F_PUBL UDAJE="autori" ODDELOVAC="-" VSE="a"/>
+		  &lt;authors&gt;&lt;names&gt;<F_PUBL_AUTORI FORMAT="plne_jmeno" ODDELOVAC="#" VSE="1"/>
 	&lt;/names&gt;
-	&lt;uco&gt;<F_PUBL_AUTORI FORMAT="uco" ODDELOVAC="&lt;/uco&gt;&lt;uco&gt;" VSE="a" />&lt;/uco&gt;
+	&lt;uco&gt;<F_PUBL_AUTORI FORMAT="uco" ODDELOVAC="&lt;/uco&gt;&lt;uco&gt;" VSE="1" />&lt;/uco&gt;
 	&lt;/authors&gt;
 	&lt;id&gt;<F_PUBL_ID/>&lt;/id&gt;
 	&lt;main&gt;<F_PUBL UDAJE="main" FORMAT="text"/>&lt;/main&gt;
