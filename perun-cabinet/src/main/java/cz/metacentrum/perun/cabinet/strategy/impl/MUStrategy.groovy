@@ -1,11 +1,13 @@
 package cz.metacentrum.perun.cabinet.strategy.impl
 import groovy.xml.XmlUtil
-
+import org.apache.http.Consts
 import org.apache.http.HttpResponse
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content.ByteArrayBody
 import org.apache.http.entity.mime.content.StringBody
 import org.apache.http.impl.auth.BasicScheme
@@ -41,11 +43,11 @@ class MUStrategy implements IFindPublicationsStrategy {
 	public HttpUriRequest getHttpRequest(String uco, int yearSince, int yearTill, PublicationSystem ps) {
 
 		//prepare request body
-		MultipartEntity entity = new MultipartEntity();
+		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 		try {
-			entity.addPart("typ", new StringBody("xml"));
-			entity.addPart("kodovani", new StringBody("utf-8"));
-			entity.addPart("keyfile", new ByteArrayBody(buildRequestKeyfile(uco.toInteger(), yearSince, yearTill).getBytes(), "template.xml"));
+			entityBuilder.addPart("typ", new StringBody("xml", ContentType.create("text/plain", Consts.UTF_8)));
+			entityBuilder.addPart("kodovani", new StringBody("utf-8", ContentType.create("text/plain", Consts.UTF_8)));
+			entityBuilder.addPart("keyfile", new ByteArrayBody(buildRequestKeyfile(uco.toInteger(), yearSince, yearTill).getBytes(), "template.xml"));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -54,7 +56,7 @@ class MUStrategy implements IFindPublicationsStrategy {
 		HttpPost post = new HttpPost(ps.getUrl())
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(ps.getUsername(), ps.getPassword())
 		post.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));//cred, enc, proxy
-		post.setEntity(entity)
+		post.setEntity(entityBuilder.build())
 		return post
 
 	}
@@ -104,7 +106,7 @@ class MUStrategy implements IFindPublicationsStrategy {
 
 						String firstName = ""
 						String lastName = ""
-						
+
 						if (namesIndex == 0) {
 							// first author have switched lastName and firstName
 							firstName = parseNames(names[namesIndex], 1)
@@ -113,7 +115,7 @@ class MUStrategy implements IFindPublicationsStrategy {
 							firstName = parseNames(names[namesIndex], 0)
 							lastName = parseNames(names[namesIndex], 1)
 						}
-						
+
 						author.setFirstName(firstName)
 						author.setLastName(lastName)
 

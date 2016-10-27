@@ -20,7 +20,7 @@ import cz.metacentrum.perun.cabinet.strategy.IFindPublicationsStrategy
 /**
  * Groovy class for retrieving publications from external source
  * OBD ZČU v 3.0
- * 
+ *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id: $
  */
@@ -52,17 +52,17 @@ class OBD30Strategy implements IFindPublicationsStrategy {
 		// prepare valid uri
 		URI uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, "UTF-8"));
 
-		// log uri into alcor.ics.muni.cz:  /home/perun/.perunv3/logs/perun-cabinet.log
-		//log.debug(uri)
-		
+		// log response into /var/log/perun/perun-cabinet.log
+		// log.debug(uri)
+
 		return new HttpGet(uri)
 	}
 
 	public List<Publication> parseResponse(String xmlResponse) {
 		assert xmlResponse != null
 
-		// log response into alcor.ics.muni.cz:  /home/perun/.perunv3/logs/perun-cabinet.log
-		//log.debug(xmlResponse)
+		// log response into /var/log/perun/perun-cabinet.log
+		// log.debug(xmlResponse)
 
 		List<Publication> result = new ArrayList<Publication>()
 		try {

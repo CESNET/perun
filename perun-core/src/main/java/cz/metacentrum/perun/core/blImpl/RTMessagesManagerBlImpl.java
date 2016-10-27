@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 
+import org.apache.http.Consts;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
@@ -15,11 +19,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributesManager;
@@ -130,8 +131,10 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 
 		//Prepare sending message
 		HttpResponse response;
-		HttpClient httpClient = new DefaultHttpClient();
-		httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, org.apache.http.client.params.CookiePolicy.IGNORE_COOKIES);
+		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+		// just like cookie-policy: ignore cookies
+		httpClientBuilder.disableCookieManagement();
+		HttpClient httpClient = httpClientBuilder.build();
 
 		StringBuilder responseMessage = new StringBuilder();
 		String ticketNumber = "0";
@@ -232,18 +235,18 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		String password = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.password");
 
 		//Prepare content of message
-		MultipartEntity entity = new MultipartEntity();
+		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 		try {
-			entity.addPart("Content-Typ", new StringBody("application/x-www-form-urlencoded"));
-			entity.addPart("charset", new StringBody("utf-8"));
-			entity.addPart("Connection", new StringBody("Close"));
+			entityBuilder.addPart("Content-Type", new StringBody("application/x-www-form-urlencoded", ContentType.create("text/plain", Consts.UTF_8)));
+			entityBuilder.addPart("charset", new StringBody("utf-8", ContentType.create("text/plain", Consts.UTF_8)));
+			entityBuilder.addPart("Connection", new StringBody("Close", ContentType.create("text/plain", Consts.UTF_8)));
 			StringBody content = new StringBody("id: " + id + '\n' +
 					"Queue: " + queue + '\n' +
 					"Requestor: " + requestor + '\n' +
 					"Subject: " + subject + '\n' +
 					"Text: " + text,
-					Charset.forName("utf-8"));
-			entity.addPart("content", content);
+					ContentType.create("text/plain", Consts.UTF_8));
+			entityBuilder.addPart("content", content);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -256,7 +259,7 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
 
 		post.addHeader(BasicScheme.authenticate(credentials, "utf-8", false));
-		post.setEntity(entity);
+		post.setEntity(entityBuilder.build());
 
 		return post;
 	}

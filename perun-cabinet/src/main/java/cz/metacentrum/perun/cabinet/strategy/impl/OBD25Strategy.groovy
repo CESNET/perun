@@ -22,7 +22,7 @@ import cz.metacentrum.perun.cabinet.strategy.IFindPublicationsStrategy
 /**
  * Groovy class for retrieving publications from external source
  * OBD ZČU v 2.5
- * 
+ *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  * @version $Id: OBD25Strategy.groovy 4404 2012-08-06 09:04:55Z 256627 $
@@ -55,7 +55,7 @@ class OBD25Strategy implements IFindPublicationsStrategy {
 		// prepare valid uri
 		URI uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, "UTF-8"));
 
-		// log uri into alcor.ics.muni.cz:  /home/perun/.perunv3/logs/perun-cabinet.log
+		// log response into /var/log/perun/perun-cabinet.log
 		// log.debug(uri)
 
 		return new HttpGet(uri)
@@ -64,7 +64,7 @@ class OBD25Strategy implements IFindPublicationsStrategy {
 	public List<Publication> parseResponse(String xmlResponse) {
 		assert xmlResponse != null
 
-		// log response into alcor.ics.muni.cz:  /home/perun/.perunv3/logs/perun-cabinet.log
+		// log response into /var/log/perun/perun-cabinet.log
 		// log.debug(xmlResponse)
 
 		List<Publication> result = new ArrayList<Publication>()
