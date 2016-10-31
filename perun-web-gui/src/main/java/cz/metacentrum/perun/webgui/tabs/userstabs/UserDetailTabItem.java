@@ -437,7 +437,12 @@ public class UserDetailTabItem implements TabItem, TabItemWithUrl {
 		vp.add(menu);
 		vp.setCellHeight(menu, "30px");
 
-		CellTable<UserExtSource> table = extSources.getTable();
+		CellTable<UserExtSource> table = extSources.getTable(new FieldUpdater<UserExtSource, String>() {
+			@Override
+			public void update(int index, UserExtSource object, String value) {
+				session.getTabManager().addTab(new UserExtSourceDetailTabItem(object));
+			}
+		});
 		table.addStyleName("perun-table");
 		table.setWidth("100%");
 		ScrollPanel sp = new ScrollPanel(table);

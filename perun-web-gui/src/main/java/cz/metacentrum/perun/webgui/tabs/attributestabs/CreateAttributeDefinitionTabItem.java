@@ -138,6 +138,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 		entityListBox.addItem("member_group", "urn:perun:member_group:");
 		entityListBox.addItem("member_resource", "urn:perun:member_resource:");
 		entityListBox.addItem("user", "urn:perun:user:");
+		entityListBox.addItem("user_ext_source", "urn:perun:ues:");
 		entityListBox.addItem("user_facility", "urn:perun:user_facility:");
 		entityListBox.addItem("vo", "urn:perun:vo:");
 		entityListBox.addItem("entityless", "urn:perun:entityless:");
@@ -145,6 +146,7 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 		definitionListBox.addItem("def", "attribute-def:def");
 		definitionListBox.addItem("opt", "attribute-def:opt");
 		definitionListBox.addItem("virt", "attribute-def:virt");
+		definitionListBox.addItem("core", "attribute-def:core");
 
 		typeListBox.addItem("String", "java.lang.String");
 		typeListBox.addItem("Integer", "java.lang.Integer");
