@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.entry.ExtSourcesManagerEntry;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItem;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import cz.metacentrum.perun.core.impl.Utils;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
@@ -127,6 +128,37 @@ public class ConsolidatorManagerImpl implements ConsolidatorManager {
 		} else {
 			return new ArrayList<Identity>();
 		}
+	}
+
+	@Override
+	public List<Identity> checkForSimilarUsers(PerunSession sess, List<ApplicationFormItemData> formItems) throws PerunException {
+
+		if (sess.getPerunPrincipal().getUser() != null || formItems == null) {
+			return new ArrayList<Identity>();
+		}
+
+		Set<RichUser> res = new HashSet<RichUser>();
+		List<String> attrNames = new ArrayList<String>();
+		attrNames.add("urn:perun:user:attribute-def:def:preferredMail");
+		attrNames.add("urn:perun:user:attribute-def:def:organization");
+
+		for (ApplicationFormItemData item : formItems) {
+
+			String value = item.getValue();
+
+			if (item.getFormItem().getType().equals(ApplicationFormItem.Type.VALIDATED_EMAIL)) {
+				// search by email
+				if (value != null && !value.isEmpty()) res.addAll(perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, value, attrNames));
+			}
+			if (Objects.equals(item.getFormItem().getPerunDestinationAttribute(), "urn:perun:user:attribute-def:core:displayName")) {
+				// search by name
+				if (value != null && !value.isEmpty()) res.addAll(perun.getUsersManager().findRichUsersWithAttributesByExactMatch(registrarSession, value, attrNames));
+			}
+
+		}
+
+		return convertToIdentities(new ArrayList<RichUser>(res));
+
 	}
 
 	@Override
