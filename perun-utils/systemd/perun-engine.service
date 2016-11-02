@@ -1,0 +1,19 @@
+# Systemd unit file for perun-engine
+#
+#
+
+[Unit]
+Description=Perun-engine
+After=perun.service
+
+[Service]
+Type=forking
+ExecStart=/bin/bash /home/perun/perun-engine/start_engine.sh
+ExecStop=/bin/bash /home/perun/perun-engine/stop_engine.sh
+#SuccessExitStatus=143
+User=perun
+Group=perun
+
+[Install]
+WantedBy=multi-user.target
+
