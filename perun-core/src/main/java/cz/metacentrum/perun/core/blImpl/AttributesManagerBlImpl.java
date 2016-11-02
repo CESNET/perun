@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
@@ -294,6 +295,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return getAttributesManagerImpl().getAttributes(sess, vo, attrNames);
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
+		if(attrNames.isEmpty()) return new ArrayList<Attribute>();
+
+		return getAttributesManagerImpl().getAttributes(sess, ues, attrNames);
+	}
+
 	public List<Attribute> getUserFacilityAttributesForAnyUser(PerunSession sess, Facility facility) throws InternalErrorException {
 		List<Attribute> attributes =  getAttributesManagerImpl().getUserFacilityAttributesForAnyUser(sess, facility);
 		List<User> facilityUsers = perunBl.getFacilitiesManagerBl().getAllowedUsers(sess, facility);
@@ -415,6 +422,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, facility, user));
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, user));
 		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member));
+		return attributes;
+	}
+
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		//get virtual attributes
+		List<Attribute> attributes = getAttributesManagerImpl().getVirtualAttributes(sess, ues);
+		//filter out virtual attributes with null value
+		Iterator<Attribute> attributeIterator = attributes.iterator();
+		while(attributeIterator.hasNext()) if(attributeIterator.next().getValue() == null) attributeIterator.remove();
+
+		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, ues));
 		return attributes;
 	}
 
@@ -904,6 +922,36 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 	}
 
+	public void setAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		// clasification of attributes to attributes to remove and attributes to set
+		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
+		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		for(Attribute attribute : attributes) {
+			if (attribute.getValue() == null) {
+				attributesToRemove.add(attribute);
+			} else {
+				attributesToSet.add(attribute);
+			}
+		}
+		removeAttributes(sess, ues, attributesToRemove);
+		//fist we have to store attributes into DB because checkAttributesValue can be preformed only on stored attributes.
+		for(Attribute attribute : attributesToSet) {
+			//skip core attributes
+			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+				if(isVirtAttribute(sess, attribute)) {
+					//TODO
+					throw new InternalErrorException("Virtual attribute can't be set this way yet. Please set physical attribute.");
+				} else {
+					setAttributeWithoutCheck(sess, ues, attribute);
+				}
+			}
+		}
+
+		//if checkAttributesValue fails it causes rollback so no attribute will be stored
+		checkAttributesValue(sess, ues, attributesToSet);
+		this.checkAttributesDependencies(sess, ues, null, attributesToSet);
+	}
+
 	public void setCoreAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		if(!attribute.getName().equals("urn:perun:member:attribute-def:core:status")) {
@@ -1031,6 +1079,13 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public Attribute getAttribute(PerunSession sess, String key, String attributeName) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		if(!attributeName.startsWith(AttributesManager.NS_ENTITYLESS_ATTR)) throw new WrongAttributeAssignmentException("Attribute name= " + attributeName);
 		return getAttributesManagerImpl().getAttribute(sess, key, attributeName);
+	}
+
+	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+		//check namespace
+		if(!attributeName.startsWith(AttributesManager.NS_UES_ATTR)) throw new WrongAttributeAssignmentException("Attribute name=" + attributeName);
+
+		return getAttributesManagerImpl().getAttribute(sess, ues, attributeName);
 	}
 
 	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
@@ -1263,6 +1318,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public Attribute getAttributeById(PerunSession sess, Group group, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, group, id);
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_GROUP_ATTR);
+		return attribute;
+	}
+
+	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+		Attribute attribute = getAttributesManagerImpl().getAttributeById(sess, ues, id);
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
 		return attribute;
 	}
 
@@ -1796,6 +1857,25 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return changed;
 	}
 
+	public boolean setAttributeWithoutCheck(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
+		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
+
+		boolean changed = true;
+		if(isVirtAttribute(sess, attribute)) {
+			return getAttributesManagerImpl().setVirtualAttribute(sess, ues, attribute);
+		} else {
+			changed = getAttributesManagerImpl().setAttribute(sess, ues, attribute);
+		}
+
+		if(changed) {
+			getPerunBl().getAuditer().log(sess, "{} set for {}.", attribute, ues);
+			getAttributesManagerImpl().changedAttributeHook(sess, ues, attribute);
+		}
+
+		return changed;
+	}
+
 	public boolean setAttributeWithoutCheck(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
 		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
@@ -1824,6 +1904,17 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		if(setAttributeWithoutCheck(sess, key, attribute)) {
 			checkAttributeValue(sess, key, attribute);
 			this.checkAttributeDependencies(sess, new RichAttribute(key, null, attribute));
+		}
+	}
+
+	public void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		if (attribute.getValue() == null) {
+			removeAttribute(sess, ues, attribute);
+			return;
+		}
+		if(setAttributeWithoutCheck(sess, ues, attribute)) {
+			checkAttributeValue(sess, ues, attribute);
+			this.checkAttributeDependencies(sess, new RichAttribute(ues, null, attribute));
 		}
 	}
 
@@ -2558,6 +2649,26 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return filledAttributes;
 	}
 
+	public Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
+		return getAttributesManagerImpl().fillAttribute(sess, ues, attribute);
+	}
+
+	public List<Attribute> fillAttributes(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_UES_ATTR);
+		List<Attribute> filledAttributes = new ArrayList<Attribute>();
+
+		for(Attribute attribute : attributes) {
+			if(attribute.getValue() == null) {
+				filledAttributes.add(getAttributesManagerImpl().fillAttribute(sess, ues, attribute));
+			} else {
+				//skip non-empty attribute
+				filledAttributes.add(attribute);
+			}
+		}
+		return filledAttributes;
+	}
+
 	public void checkAttributeValue(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_FACILITY_ATTR);
 
@@ -2576,7 +2687,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void checkAttributeValue(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, NS_VO_ATTR);
 
-                if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, vo, attribute)) return;
+		if(attribute.getValue() == null && !isTrulyRequiredAttribute(sess, vo, attribute)) return;
 		getAttributesManagerImpl().checkAttributeValue(sess, vo, attribute);
 	}
 
@@ -2846,6 +2957,19 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		getAttributesManagerImpl().checkAttributeValue(sess, host, attribute);
 	}
 
+	public void checkAttributesValue(PerunSession sess, UserExtSource ues, List<Attribute> attributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException{
+		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_UES_ATTR);
+
+		for(Attribute attribute : attributes) {
+			getAttributesManagerImpl().checkAttributeValue(sess, ues, attribute);
+		}
+	}
+
+	public void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
+
+		getAttributesManagerImpl().checkAttributeValue(sess, ues, attribute);
+	}
 
 	public void checkAttributeValue(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_ENTITYLESS_ATTR);
@@ -3873,6 +3997,72 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		for(Attribute attribute: attributes) {
 			try {
 				getAttributesManagerImpl().changedAttributeHook(sess, resource, group, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+		}
+	}
+
+	public void removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		if (removeAttributeWithoutCheck(sess, ues, attribute)) {
+			checkAttributeValue(sess, ues, new Attribute(attribute));
+			this.checkAttributeDependencies(sess, new RichAttribute(ues, null, new Attribute(attribute)));
+		}
+	}
+
+	public boolean removeAttributeWithoutCheck(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+		getAttributesManagerImpl().checkNamespace(sess, attribute, AttributesManager.NS_UES_ATTR);
+
+		if(getAttributesManagerImpl().isCoreAttribute(sess, attribute)) throw new WrongAttributeAssignmentException(attribute);
+
+		boolean changed = getAttributesManagerImpl().removeAttribute(sess, ues, attribute);
+		if (changed) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, ues, new Attribute(attribute));
+			} catch (WrongAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			} catch (WrongReferenceAttributeValueException ex) {
+				//TODO better exception here
+				throw new InternalErrorException(ex);
+			}
+			getPerunBl().getAuditer().log(sess, "{} removed for {}", attribute, ues);
+		}
+		return changed;
+	}
+
+	public void removeAttributes(PerunSession sess, UserExtSource ues, List<? extends AttributeDefinition> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		getAttributesManagerImpl().checkNamespace(sess, attributes, AttributesManager.NS_UES_ATTR);
+		List<AttributeDefinition> attributesToCheck = new ArrayList<AttributeDefinition>();
+		for(AttributeDefinition attribute : attributes) {
+			if(!getAttributesManagerImpl().isCoreAttribute(sess, attribute)) {
+				if (removeAttributeWithoutCheck(sess, ues, attribute)) attributesToCheck.add(attribute);
+			}
+		}
+		checkAttributesValue(sess, ues, attributesFromDefinitions(attributesToCheck));
+		this.checkAttributesDependencies(sess, ues, null, attributesFromDefinitions(attributesToCheck));
+	}
+
+	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		List<Attribute> attributes = getAttributes(sess, ues);
+		getAttributesManagerImpl().removeAllAttributes(sess, ues);
+		getPerunBl().getAuditer().log(sess, "All attributes removed for {}", ues);
+
+		for(Attribute attribute : attributes) attribute.setValue(null);
+		try {
+			checkAttributesValue(sess, ues, attributes);
+			this.checkAttributesDependencies(sess, ues, null, attributes);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new ConsistencyErrorException(ex);
+		}
+
+		for(Attribute attribute: attributes) {
+			try {
+				getAttributesManagerImpl().changedAttributeHook(sess, ues, new Attribute(attribute));
 			} catch (WrongAttributeValueException ex) {
 				//TODO better exception here
 				throw new InternalErrorException(ex);

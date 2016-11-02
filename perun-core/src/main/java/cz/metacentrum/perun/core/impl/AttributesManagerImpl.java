@@ -51,6 +51,7 @@ import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_GROUP_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_MEMBER_RESOURCE_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_RESOURCE_ATTR;
+import static cz.metacentrum.perun.core.api.AttributesManager.NS_UES_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_USER_FACILITY_ATTR;
 import static cz.metacentrum.perun.core.api.AttributesManager.NS_VO_ATTR;
@@ -67,6 +68,7 @@ import cz.metacentrum.perun.core.api.RichAttribute;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 
@@ -103,6 +105,8 @@ import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberAttrib
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceMemberVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceAttributesModuleImplApi;
+import cz.metacentrum.perun.core.implApi.modules.attributes.UserExtSourceVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VirtualAttributesModuleImplApi;
 import cz.metacentrum.perun.core.implApi.modules.attributes.VoAttributesModuleImplApi;
@@ -152,6 +156,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		NAMESPACES_BEANS_MAP.put("member_group", NS_MEMBER_GROUP_ATTR);
 		NAMESPACES_BEANS_MAP.put("user_facility", NS_USER_FACILITY_ATTR);
 		NAMESPACES_BEANS_MAP.put("group_resource", NS_GROUP_RESOURCE_ATTR);
+		NAMESPACES_BEANS_MAP.put("user_ext_source", NS_UES_ATTR);
 	}
 
 	/**
@@ -483,6 +488,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					try {
 						ResourceMemberVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
 						return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder, (Member) attributeHolder2, attribute);
+					} catch (InternalErrorException ex) {
+						throw new InternalErrorRuntimeException(ex);
+					}
+
+				} else if(this.attributesManagerImpl.isFromNamespace(sess, attribute, AttributesManager.NS_UES_ATTR_VIRT)) {
+					if(!(attributeHolder instanceof UserExtSource)) throw new ConsistencyErrorRuntimeException("Attribute holder of UserExtSource attribute isn't UserExtSource");
+
+					try {
+						UserExtSourceVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getUserExtSourceVirtualAttributeModule(sess, attribute);
+						return attributeModule.getAttributeValue((PerunSessionImpl) sess, (UserExtSource) attributeHolder, attribute);
 					} catch (InternalErrorException ex) {
 						throw new InternalErrorRuntimeException(ex);
 					}
@@ -1080,6 +1095,41 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
+
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("uesId", ues.getId());
+		parameters.addValue("nSC", AttributesManager.NS_UES_ATTR_CORE);
+		parameters.addValue("nSO", AttributesManager.NS_UES_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_UES_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_UES_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
+					"left join user_ext_source_attr_values ues on id=ues.attr_id and ues_id=:uesId " +
+					"where namespace in ( :nSC,:nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+					parameters, new AttributeRowMapper(sess, this, ues));
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + attributeDefinitionMappingSelectQuery + ", null as attr_value from attr_names " +
+					"where namespace=?",
+					new AttributeRowMapper(sess, this, ues), AttributesManager.NS_UES_ATTR_VIRT);
+		} catch(EmptyResultDataAccessException ex) {
+			log.debug("No virtual attribute for user external source exists.");
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group) throws InternalErrorException {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
@@ -1102,6 +1152,21 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					"where namespace in (?,?) and (enattr.attr_value is not null or enattr.attr_value_text is not null)",
 					new AttributeRowMapper(sess, this, null),key, AttributesManager.NS_ENTITYLESS_ATTR_DEF, AttributesManager.NS_ENTITYLESS_ATTR_OPT);
 		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
+					"left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=? " +
+					"where namespace=? or (namespace in (?,?) and (ues.attr_value is not null or ues.attr_value_text is not null))",
+					new AttributeRowMapper(sess, this, ues), ues.getId(),
+					AttributesManager.NS_UES_ATTR_CORE, AttributesManager.NS_UES_ATTR_DEF, AttributesManager.NS_UES_ATTR_OPT);
+		} catch(EmptyResultDataAccessException ex) {
+			log.debug("No attribute for UserExtSource exists.");
 			return new ArrayList<Attribute>();
 		} catch(RuntimeException ex) {
 			throw new InternalErrorException(ex);
@@ -1335,6 +1400,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("user_ext_source_attr_values") + " from attr_names " +
+					"left join user_ext_source_attr_values on id=attr_id and user_ext_source_id=? " +
+					"where attr_name=?",
+					new AttributeRowMapper(sess, this, ues), ues.getId(), attributeName);
+		} catch(EmptyResultDataAccessException ex) {
+			throw new AttributeNotExistsException("Attribute name: \"" + attributeName +"\"", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public AttributeDefinition getAttributeDefinition(PerunSession sess, String attributeName) throws InternalErrorException, AttributeNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + attributeDefinitionMappingSelectQuery + " from attr_names where attr_name=?", ATTRIBUTE_DEFINITION_MAPPER, attributeName);
@@ -1514,6 +1592,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException {
+		try {
+			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("ues") + " from attr_names left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=? where id=?", new AttributeRowMapper(sess, this, ues), ues.getId(), id);
+		} catch(EmptyResultDataAccessException ex) {
+			throw new AttributeNotExistsException("Attribute id= \"" + id +"\"", ex);
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	@Override
 	public boolean setAttribute(final PerunSession sess, final Object object, final Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 		String tableName;
@@ -1529,10 +1617,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			namespace = AttributesManager.NS_ENTITYLESS_ATTR;
 		} else if (object instanceof PerunBean) {
 			PerunBean bean = (PerunBean) object;
-			String name = bean.getBeanName().toLowerCase();
-			// same behaviour for rich objects as for the simple ones -> cut off "rich" prefix
+			// Add underscore between two letters where first is lowercase and second is uppercase, then lowercase BeanName
+			String name = bean.getBeanName().replaceAll("(\\p{Ll})(\\p{Lu})","$1_$2").toLowerCase();
+			// same behaviour for rich objects as for the simple ones -> cut off "rich_" prefix
 			if (name.startsWith("rich")) {
-				name = name.replaceFirst("rich", "");
+				name = name.replaceFirst("rich_", "");
 			}
 			// get namespace of the perun bean
 			namespace = NAMESPACES_BEANS_MAP.get(name);
@@ -1790,6 +1879,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public boolean setVirtualAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException {
 		return getUserVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, user, attribute);
+	}
+
+	public boolean setVirtualAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongModuleTypeException, ModuleNotExistsException, WrongReferenceAttributeValueException {
+		return getUserExtSourceVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, ues, attribute);
 	}
 
 	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeExistsException {
@@ -2544,6 +2637,19 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public Attribute fillAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException {
+		UserExtSourceAttributesModuleImplApi attributeModule = getUserExtSourceAttributeModule(sess, attribute);
+		if(attributeModule == null) {
+			log.debug("fillAttribute - There's no rule for this attribute. Attribute wasn't filled. Attribute={}", attribute);
+			return attribute;
+		}
+		try {
+			return attributeModule.fillAttribute((PerunSessionImpl) sess, ues, attribute);
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public void changedAttributeHook(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
@@ -2670,6 +2776,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public void changedAttributeHook(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
+		//Call attribute module
+		UserExtSourceAttributesModuleImplApi uesModule = getUserExtSourceAttributeModule(sess, attribute);
+		if(uesModule == null) return;
+		try {
+			uesModule.changedAttributeHook((PerunSessionImpl) sess, ues, attribute);
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public void checkAttributeValue(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		//Call attribute module
 		FacilityAttributesModuleImplApi facilityModule = getFacilityAttributeModule(sess, attribute);
@@ -2768,6 +2885,16 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		if(attributeModule == null) return;
 		try {
 			attributeModule.checkAttributeValue((PerunSessionImpl) sess, member, attribute);
+		} catch (WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public void checkAttributeValue(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeValueException {
+		UserExtSourceAttributesModuleImplApi attributeModule = getUserExtSourceAttributeModule(sess, attribute);
+		if(attributeModule == null) return;
+		try {
+			attributeModule.checkAttributeValue((PerunSessionImpl) sess, ues, attribute);
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3094,12 +3221,33 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 	}
 
+	public boolean removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException {
+		try {
+			if(0 < jdbc.update("delete from user_ext_source_attr_values where attr_id=? and user_ext_source_id=?", attribute.getId(), ues.getId())) {
+				log.info("Attribute (its value) was removed from user external source. Attribute={}, UserExtSource={}", attribute, ues);
+				return true;
+			}
+			return false;
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		try {
+			if(0 < jdbc.update("delete from user_ext_source_attr_values where user_ext_source_id=?", ues.getId())) {
+				log.info("All attributes (their values) were removed from user external source. UserExtSource={}", ues);
+			}
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
 	public boolean attributeExists(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
 		Utils.notNull(attribute, "attribute");
 		Utils.notNull(attribute.getName(), "attribute.name");
 		Utils.notNull(attribute.getNamespace(), "attribute.namespace");
 		Utils.notNull(attribute.getType(), "attribute.type");
-
 
 		try {
 			return 1 == jdbc.queryForInt("select count('x') from attr_names where attr_name=? and friendly_name=? and namespace=? and id=? and type=?", attribute.getName(), attribute.getFriendlyName(), attribute.getNamespace(), attribute.getId(), attribute.getType());
@@ -3639,6 +3787,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	/**
+	 * Get user external source attribute module for the attribute.
+	 *
+	 * @param attribute attribute for which you get the module
+	 * @return instance user ext source attribute module
+	 *         null if the module doesn't exists
+	 *
+	 * @throws InternalErrorException
+	 */
+	private UserExtSourceAttributesModuleImplApi getUserExtSourceAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+		Object attributeModule = getAttributesModule(sess, attribute);
+		if(attributeModule == null) return null;
+
+		if(attributeModule instanceof UserExtSourceAttributesModuleImplApi) {
+			return (UserExtSourceAttributesModuleImplApi) attributeModule;
+		} else {
+			throw new InternalErrorException("Required attribute module isn't UserExtSourceAttributesModule. " + attribute);
+		}
+	}
+
+	/**
 	 * Get group-resource attribute module for the attribute.
 	 *
 	 * @param attribute attribute for which you get the module
@@ -3694,6 +3862,26 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			return (MemberGroupVirtualAttributesModuleImplApi) attributeModule;
 		} else {
 			throw new InternalErrorException("Required attribute module isn't MemberGroupVirtualAttributesModuleImplApi");
+		}
+	}
+	
+	/**
+	 * Get UserExtSource attribute module for the attribute.
+	 *
+	 * @param attribute attribute for which you get the module
+	 * @return instance UserExtSource attribute module
+	 *         null if the module doesn't exists
+	 *
+	 * @throws InternalErrorException
+	 */
+	private UserExtSourceVirtualAttributesModuleImplApi getUserExtSourceVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
+		Object attributeModule = getAttributesModule(sess, attribute);
+		if(attributeModule == null) return null;
+
+		if(attributeModule instanceof UserExtSourceVirtualAttributesModuleImplApi) {
+			return (UserExtSourceVirtualAttributesModuleImplApi) attributeModule;
+		} else {
+			throw new InternalErrorException("Required attribute module isn't UserExtSourceVirtualAttributesModule. " + attribute);
 		}
 	}
 
