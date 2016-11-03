@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -22,7 +21,6 @@ import cz.metacentrum.perun.webgui.model.RichMember;
 import cz.metacentrum.perun.webgui.model.VirtualOrganization;
 import cz.metacentrum.perun.webgui.tabs.*;
 import cz.metacentrum.perun.webgui.tabs.userstabs.UserDetailTabItem;
-import cz.metacentrum.perun.webgui.widgets.CustomButton;
 import cz.metacentrum.perun.webgui.widgets.TabPanelForTabItems;
 
 import java.util.Map;

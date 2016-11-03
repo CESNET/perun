@@ -166,12 +166,14 @@ public class SetNewAttributeTabItem implements TabItem {
 					ArrayList<Attribute> userFacilityList = new ArrayList<Attribute>();
 					ArrayList<Attribute> userList = new ArrayList<Attribute>();
 					ArrayList<Attribute> memberList = new ArrayList<Attribute>();
+					ArrayList<Attribute> memberGroupList = new ArrayList<Attribute>();
 					ArrayList<Attribute> memberResourceList = new ArrayList<Attribute>();
 					ArrayList<Attribute> resourceList = new ArrayList<Attribute>();
 					ArrayList<Attribute> groupList = new ArrayList<Attribute>();
 					ArrayList<Attribute> groupResourceList = new ArrayList<Attribute>();
 					ArrayList<Attribute> hostList = new ArrayList<Attribute>();
 					ArrayList<Attribute> voList = new ArrayList<Attribute>();
+					ArrayList<Attribute> uesList = new ArrayList<Attribute>();
 
 					for (Attribute a : list) {
 
@@ -195,6 +197,10 @@ public class SetNewAttributeTabItem implements TabItem {
 							hostList.add(a);
 						} else if (a.getEntity().equalsIgnoreCase("vo")) {
 							voList.add(a);
+						} else if (a.getEntity().equalsIgnoreCase("member_group")) {
+							memberGroupList.add(a);
+						} else if (a.getEntity().equalsIgnoreCase("ues")) {
+							uesList.add(a);
 						}
 
 					}
@@ -252,6 +258,13 @@ public class SetNewAttributeTabItem implements TabItem {
 						request.setAttributes(ids, sendList);
 						ids.remove("workWithUserAttributes");
 
+					} else if (ids.size() == 2 && ids.containsKey("group") && ids.containsKey("member")) {
+
+						ArrayList sendList = new ArrayList();
+						sendList.addAll(memberGroupList);
+						// call proper method in RPC
+						request.setAttributes(ids, sendList);
+
 					} else if (ids.size() == 1 && ids.containsKey("group")) {
 
 						request.setAttributes(ids, groupList);
@@ -279,6 +292,10 @@ public class SetNewAttributeTabItem implements TabItem {
 					} else if (ids.size() == 1 && ids.containsKey("user")) {
 
 						request.setAttributes(ids, userList);
+
+					} else if (ids.size() == 1 && ids.containsKey("userExtSource")) {
+
+						request.setAttributes(ids, uesList);
 
 					} else {
 
@@ -394,8 +411,15 @@ public class SetNewAttributeTabItem implements TabItem {
 			}
 		}
 		// others
+		if (ids.contains("user_ext_source")) {
+			namespaces.add("ues");
+		}
 		if (ids.contains("member")) {
-			namespaces.add("member");
+			if (ids.contains("group")) {
+				namespaces.add("member_group");
+			} else {
+				namespaces.add("member");
+			}
 		}
 		if (ids.contains("user")) {
 			namespaces.add("user");

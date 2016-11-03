@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs;
 
+import com.google.gwt.core.client.GWT;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.tabs.userstabs.*;
 
@@ -100,9 +101,17 @@ public class UsersTabs {
 			return true;
 		}
 
+		if (tab.equals(UserExtSourceDetailTabItem.URL)) {
+			session.getTabManager().addTab(UserExtSourceDetailTabItem.load(parameters), open);
+			return true;
+		}
+
+		if (tab.equals(UserExtSourceSettingsTabItem.URL)) {
+			session.getTabManager().addTab(UserExtSourceSettingsTabItem.load(parameters), open);
+			return true;
+		}
+
 		return false;
-
-
 
 	}
 

@@ -961,17 +961,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	public boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
 		Utils.notNull(userExtSource, "userExtSource");
-		Utils.notNull(userExtSource.getLogin(), "userExtSource.getLogin");
-		Utils.notNull(userExtSource.getExtSource(), "userExtSource.getExtSource");
 
 		try {
-			if (userExtSource.getUserId() >= 0) {
-				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
-						userExtSource.getLogin(), userExtSource.getExtSource().getId(), userExtSource.getUserId());
-			} else {
-				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=?",
-						userExtSource.getLogin(), userExtSource.getExtSource().getId());
-			}
+			return 1==jdbc.queryForInt("select 1 from user_ext_sources where id=?", userExtSource.getId());
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {

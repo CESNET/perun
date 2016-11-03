@@ -48,6 +48,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -1487,9 +1488,26 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void getUserExtSourceAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributes");
+		
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.setAttribute(sess, ues, attributes.get(0));
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, ues);
+		assertNotNull("unable to get ues attributes", retAttr);
+		assertTrue("our attribute was not returned", retAttr.contains(attributes.get(0)));
+	}
+	
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void getUserExtSourceAttributesWhenUserExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributesWhenUserExtSourceNotExists");
 
+		attributesManager.getAttributes(sess, new UserExtSource());
+		// shouldn't find userExtSource
 
-
+	}
 
 
 // ==============  2.  SET ATTRIBUTES ================================
@@ -2444,9 +2462,65 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void setUserExtSourceAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributes");
 
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.setAttributes(sess, ues, attributes);
 
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, ues);
+		assertTrue("unable to set/or return userExtSource attribute we created", retAttr.contains(attributes.get(0)));
 
+	}
+
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void setUserExtSourceAttributesWhenUserExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributesWhenUserExtSourceNotExists");
+
+		attributes = setUpUserExtSourceAttribute();
+
+		attributesManager.setAttributes(sess, new UserExtSource(), attributes);
+		// shouldn't find userExtSource
+
+	}
+
+	@Test (expected=AttributeNotExistsException.class)
+	public void setUserExtSourceAttributesWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributesWhenAttributeNotExists");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributes.get(0).setId(0);
+		// make valid attribute into not existing by setting ID = 0
+		attributesManager.setAttributes(sess, ues, attributes);
+		// shouldn't find attribute
+
+	}
+
+	@Test (expected=WrongAttributeAssignmentException.class)
+	public void setUserExtSourceAttributesWhenWrongAttrAssigment() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributesWhenWrongAttrAssigment");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpVoAttribute();
+		// create Vo attribute instead UserExtSource attribute to raise exception
+		attributesManager.setAttributes(sess, ues, attributes);
+		// shouldn't set wrong attribute
+	}
+
+	@Test (expected=InternalErrorException.class)
+	public void setUserExtSourceAttributesWhenTypeMismatch() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributesWhenTypeMismatch");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributes.get(0).setValue(1);
+		// set wrong value - integer into string
+		attributesManager.setAttributes(sess, ues, attributes);
+		// shouldn't set wrong attribute
+	}
 
 
 // ==============  3.  GET ATTRIBUTE (by name) ================================
@@ -3127,12 +3201,47 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void getUserExtSourceAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttribute");
 
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.setAttributes(sess, ues, attributes);
 
+		Attribute retAttr = attributesManager.getAttribute(sess, ues,"urn:perun:ues:attribute-def:opt:userExtSource-test-attribute");
+		assertNotNull("unable to get opt user external source attribute ", retAttr);
+		assertEquals("returned opt attr value is not correct",retAttr.getValue(),attributes.get(0).getValue());
+	}
 
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void getUserExtSourceAttributeWhenUserExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributeWhenUserExtSourceNotExists");
 
+		attributesManager.getAttribute(sess, new UserExtSource(), "urn:perun:ues:attribute-def:opt:userExtSource-test-attribute");
+		// shouldn't find user external source
 
+	}
 
+	@Test (expected=AttributeNotExistsException.class)
+	public void getUserExtSourceAttributeWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributeWhenAttributeNotExists");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributesManager.getAttribute(sess, ues, "urn:perun:ues:attribute-def:opt:nesmysl");
+		// shouldn't find opt attribute "nesmysl"
+
+	}
+
+	@Test (expected=WrongAttributeAssignmentException.class)
+	public void getUserExtSourceAttributeWhenWrongAttrAssignment() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributeWhenWrongAttrAssignment");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributesManager.getAttribute(sess, ues, "urn:perun:vo:attribute-def:core:id");
+		// shouldn't find vo attribute on user external source
+
+	}
 
 
 // ==============  4.  GET ATTRIBUTE DEFINITION ================================
@@ -3881,11 +3990,56 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void getUserExtSourceAttributeById() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributeById");
 
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.setAttributes(sess, ues, attributes);
 
+		int id = attributes.get(0).getId();
 
+		Attribute retAttr = attributesManager.getAttributeById(sess, ues, id);
+		assertNotNull("unable to get userExtSource attribute by id",retAttr);
+		assertEquals("returned attribute is not same as stored", retAttr, attributes.get(0));
 
+	}
 
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void getUserExtSourceAttributeByIdWhenUserExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributeByIdWhenUserExtSourceNotExists");
+
+		attributes = setUpUserExtSourceAttribute();
+		int id = attributes.get(0).getId();
+
+		attributesManager.getAttributeById(sess, new UserExtSource(), id);
+		// shouldn't find resource
+
+	}
+
+	@Test (expected=AttributeNotExistsException.class)
+	public void getUserExtSourceAttributeByIdWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributeByIdWhenAttributeNotExists");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributesManager.getAttributeById(sess, ues, 0);
+		// shouldn't find attribute
+
+	}
+
+	@Test (expected=WrongAttributeAssignmentException.class)
+	public void getUserExtSourceAttributeByIdWhenWrongAttrAssignment() throws Exception {
+		System.out.println(CLASS_NAME + "getUserExtSourceAttributeByIdWhenWrongAttrAssignment");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpMemberAttribute();
+		int id = attributes.get(0).getId();
+
+		attributesManager.getAttributeById(sess, ues, id);
+		// shouldn't return userExtSource attribute when ID belong to different type of attribute
+
+	}
 
 
 // ==============  6. SET ATTRIBUTE ================================
@@ -4732,13 +4886,69 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void setUserExtSourceAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttribute");
 
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.setAttribute(sess, ues, attributes.get(0));
 
+		Attribute retAttr = attributesManager.getAttribute(sess, ues, "urn:perun:ues:attribute-def:opt:userExtSource-test-attribute");
+		assertNotNull("unable to get userExtSource attribute by name", retAttr);
+		assertEquals("returned userExtSource attribute is not same as stored", retAttr, attributes.get(0));
 
+	}
 
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void setUserExtSourceAttributeWhenUserExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributeWhenUserExtSourceNotExists");
 
+		attributes = setUpUserExtSourceAttribute();
 
+		attributesManager.setAttribute(sess, new UserExtSource(), attributes.get(0));
+		// shouldn't find userExtSource
 
+	}
+
+	@Test (expected=AttributeNotExistsException.class)
+	public void setUserExtSourceAttributeWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributeWhenAttributeNotExists");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributes.get(0).setId(0);
+		// make valid attribute not existing in DB by setting ID = 0
+
+		attributesManager.setAttribute(sess, ues, attributes.get(0));
+		// shouldn't find attribute
+
+	}
+
+	@Test (expected=WrongAttributeAssignmentException.class)
+	public void setUserExtSourceAttributeWhenWrongAttrAssignment() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributeWhenWrongAttrAssignment");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpVoAttribute();
+
+		attributesManager.setAttribute(sess, ues, attributes.get(0));
+		// shouldn't add vo attribute into userExtSource
+
+	}
+
+	@Test (expected=InternalErrorException.class)
+	public void setUserExtSourceAttributeWhenTypeMismatch() throws Exception {
+		System.out.println(CLASS_NAME + "setUserExtSourceAttributeWhenTypeMismatch");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributes.get(0).setValue(1);
+
+		attributesManager.setAttribute(sess, ues, attributes.get(0));
+		// shouldn't add attribute with String type and Integer value
+
+	}
 
 
 // ==============  7. CREATE ATTRIBUTE / DELETE ATTRIBUTE ================================
@@ -8111,7 +8321,125 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	@Test
+	public void removeUserExtSourceAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceAttribute");
 
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.setAttribute(sess, ues, attributes.get(0));
+		// create user external source and set attribute with value
+		attributesManager.removeAttribute(sess, ues, attributes.get(0));
+		// remove attribute from user external source (definition or attribute)
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, ues);
+		assertFalse("our user external source shouldn't have set our attribute",retAttr.contains(attributes.get(0)));
+
+	}
+
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void removeUserExtSourceAttributeWhenUserExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceAttributeWhenUserExtSourceNotExists");
+
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.removeAttribute(sess, new UserExtSource(), attributes.get(0));
+		// shouldn't find user external source
+
+	}
+
+	@Test (expected=AttributeNotExistsException.class)
+	public void removeUserExtSourceAttributeWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceAttributeWhenAttributeNotExists");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributes.get(0).setId(0);
+		attributesManager.removeAttribute(sess, ues, attributes.get(0));
+		// shouldn't find attribute
+
+	}
+
+	@Test (expected=WrongAttributeAssignmentException.class)
+	public void removeUserExtSourceAttributeWhenWrongAttrAssignment() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceAttributeWhenWrongAttrAssignment");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpFacilityAttribute();
+		attributesManager.removeAttribute(sess, ues, attributes.get(0));
+		// shouldn't find facility attribute on user external source
+
+	}
+
+	@Test
+	public void removeUserExtSourceAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceAttributes");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.setAttribute(sess, ues, attributes.get(0));
+		// create userExtSource and set attribute with value
+		attributesManager.removeAttributes(sess, ues, attributes);
+		// remove attributes from resource (definition or attribute)
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, ues);
+		assertFalse("our user external source shouldn't have set our attribute",retAttr.contains(attributes.get(0)));
+
+	}
+
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void removeUserExtSourceAttributesWhenUserExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceAttributesWhenUserExtSourceNotExists");
+
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.removeAttributes(sess, new UserExtSource(), attributes);
+		// shouldn't find user external source
+
+	}
+
+	@Test (expected=AttributeNotExistsException.class)
+	public void removeUserExtSourceAttributesWhenAttributeNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceAttributesWhenAttributeNotExists");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributes.get(0).setId(0);
+		attributesManager.removeAttributes(sess, ues, attributes);
+		// shouldn't find attribute
+
+	}
+
+	@Test (expected=WrongAttributeAssignmentException.class)
+	public void removeUserExtSourceAttributesWhenWrongAttrAssignment() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceAttributesWhenWrongAttrAssignment");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpFacilityAttribute();
+		attributesManager.removeAttributes(sess, ues, attributes);
+		// shouldn't find facility attribute on user external source
+
+	}
+
+	@Test
+	public void removeAllUserExtSourceAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllUserExtSourceAttributes");
+
+		UserExtSource ues = setUpUserExtSourceTest();
+		attributes = setUpUserExtSourceAttribute();
+		attributesManager.setAttribute(sess, ues, attributes.get(0));
+		// create user external source and set attribute with value
+		attributesManager.removeAllAttributes(sess, ues);
+		// remove all attributes from user external source (definition or attribute)
+		List<Attribute> retAttr = attributesManager.getAttributes(sess, ues);
+		assertFalse("our user external source shouldn't have set our attribute",retAttr.contains(attributes.get(0)));
+		
+	}
+
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void removeAllUserExtSourceAttributesWhenUserExtSourceNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeAllUserExtSourceAttributesWhenUserExtSourceNotExists");
+
+		attributesManager.removeAllAttributes(sess, new UserExtSource());
+		// shouldn't find user external source
+
+	}
 
 
 
@@ -8473,6 +8801,23 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
+	private UserExtSource setUpUserExtSourceTest() throws Exception {
+		vo = setUpVo();
+		member = setUpMember();
+		User user = perun.getUsersManager().getUserByMember(sess, member);
+		List<UserExtSource> userExtSources = perun.getUsersManager().getUserExtSources(sess, user);
+		
+		UserExtSource ues = null; 
+		for (UserExtSource u: userExtSources) {
+			if (!"PERUN".equals(u.getExtSource().getName())) {
+				ues = u;
+				break;
+			}	
+		}
+		assertTrue("User has more more UserExtSources than expected. Expected 2 (PERUN, testExtSource), contains " + userExtSources.size(), userExtSources.size() == 2);
+		return ues;
+	}
+	
 	private List<Attribute> setUpRequiredAttributes() throws Exception {
 
 		List<Attribute> attrList = new ArrayList<Attribute>();
@@ -8898,6 +9243,20 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		assertNotNull("unable to create specific memberResource attribute",attributesManager.createAttribute(sess, attr));
 
 		return attr;
+	}
+
+	private List<Attribute> setUpUserExtSourceAttribute() throws Exception {
+		Attribute attr = new Attribute();
+		attr.setNamespace("urn:perun:ues:attribute-def:opt");
+		attr.setFriendlyName("userExtSource-test-attribute");
+		attr.setType(String.class.getName());
+		attr.setValue("UserExtSourceAttribute");
+
+		assertNotNull("unable to create userExtSource attribute", attributesManager.createAttribute(sess, attr));
+
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		attributes.add(attr);
+		return attributes;
 	}
 
 	public Attribute setAttributeInNamespace(String namespace) throws Exception {

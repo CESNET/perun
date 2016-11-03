@@ -115,6 +115,16 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 	}
 
 	/**
+	 * Returns attributes of a UserExtSource
+	 *
+	 * @param uesId UserExtSource ID
+	 */
+	public void getUserExtSourceAttributes(int uesId) {
+		ids.clear();
+		this.ids.put("userExtSource", uesId);
+	}
+
+	/**
 	 * Returns attributes of a VO
 	 *
 	 * @param voId VO ID
@@ -144,6 +154,18 @@ public class GetAttributesV2 implements JsonCallback, JsonCallbackTable<Attribut
 	public void getMemberAttributes(int memberId) {
 		ids.clear();
 		this.ids.put("member", memberId);
+	}
+
+	/**
+	 * Returns attributes of a member_group
+	 *
+	 * @param memberId Member ID
+	 * @param groupId Group ID
+	 */
+	public void getMemberGroupAttributes(int memberId, int groupId) {
+		ids.clear();
+		this.ids.put("member", memberId);
+		this.ids.put("group", groupId);
 	}
 
 	/**
