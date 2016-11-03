@@ -348,16 +348,16 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public Attribute getEntitylessAttributeForUpdate(PerunSession sess, String key, String attrName) throws InternalErrorException, AttributeNotExistsException {
 		AttributeDefinition attrDef = this.getAttributeDefinition(sess, attrName);
 		Attribute attr = new Attribute(attrDef);
-		
+
 		String value = getAttributesManagerImpl().getEntitylessAttrValueForUpdate(sess, attrDef.getId(), key);
 
 		if(value != null) {
 			attr.setValue(BeansUtils.stringToAttributeValue(value, attr.getType()));
 		}
-		
+
 		return attr;
 	}
-	
+
 	public List<Attribute> getAttributesByAttributeDefinition(PerunSession sess, AttributeDefinition attributeDefinition) throws InternalErrorException, WrongAttributeAssignmentException {
 		if(isCoreAttribute(sess, attributeDefinition) || isVirtAttribute(sess, attributeDefinition) || isCoreManagedAttribute(sess, attributeDefinition)) throw new WrongAttributeAssignmentException(attributeDefinition);
 
@@ -1108,6 +1108,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		Group group = null;
 		Facility facility = null;
 		Host host = null;
+		UserExtSource ues = null;
 
 		//Iterate through all entities and fill those which are in list of entities
 		for(PerunBean entity: entities) {
@@ -1118,6 +1119,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			else if(entity instanceof Group) group = (Group) entity;
 			else if(entity instanceof Facility) facility = (Facility) entity;
 			else if(entity instanceof Host) host = (Host) entity;
+			else if(entity instanceof UserExtSource) ues = (UserExtSource) entity;
 			//Else skip not identified entity (log it)
 			else log.debug("In method GetAttributesDefinitionWithRights there are entity which is not identified correctly and will be skipped: " + entity);
 		}
@@ -1193,8 +1195,14 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				} else {
 					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, host, null));
 				}
+			} else if(this.isFromNamespace(sess, attrDef, AttributesManager.NS_UES_ATTR) && ues != null) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrDef, ues, null)) {
+					iterator.remove();
+				} else {
+					attrDef.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrDef, ues, null));
+				}
 			} else {
-				//if there is another namespace or if there are no entities (which are needed for the namespace) remove this attributeDefiniton
+				//if there is another namespace or if there are no entities (which are needed for the namespace) remove this attributeDefinition
 				iterator.remove();
 			}
 		}
@@ -1387,11 +1395,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//Check all attributes dependencies
 		this.checkAttributesDependencies(sess, resource, member, user, facility, attributes);
 	}
-	
+
 	public void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, WrongAttributeValueException, AttributeNotExistsException {
 		//get all attributes (for member, resource, facility and user) with values
 		List<Attribute> attributes = this.getResourceRequiredAttributes(sess, resource, facility, resource, user, member);
-		
+
 		this.setRequiredAttributes(sess, facility, resource, user, member, attributes);
 	}
 
@@ -2033,7 +2041,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		return this.attributesManagerImpl.getRequiredAttributes(sess, resource, serviceIds);
 	}
-	
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
 		return this.getResourceRequiredAttributes(sess, resource, resource);
 	}
@@ -2489,7 +2497,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 		return filledAttributes;
 	}
-	
+
 	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean returnOnlyAttributesWithChangedValue) throws InternalErrorException, WrongAttributeAssignmentException {
 		if(!returnOnlyAttributesWithChangedValue) {
 			return this.fillAttributes(sess, facility, resource, user, member, attributes);
@@ -6347,7 +6355,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 * Example: if there are 25000 records in list of members, this method call it by 3 separate
 	 * queries instead of 1, if less or equal to 10000 records are in list of members, than this method
 	 * calls getRequiredAttributes just once without any changes
-	 * 
+	 *
 	 * Reason: SQL error in Oracle for too much records in one SQL query
 	 *
 	 * @param sess perunSession
@@ -6359,7 +6367,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	 */
 	private HashMap<Member, List<Attribute>> getRequiredAttributesForBulk(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
 		if(members.size() <= MAX_SIZE_OF_BULK_IN_SQL) return getAttributesManagerImpl().getRequiredAttributes(sess, service, resource, members);
-		
+
 		HashMap<Member, List<Attribute>> memberResourceAttrs = new HashMap<>();
 
 		int from = 0;
