@@ -3,8 +3,14 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.43
+CREATE PROCEDURE ASSIGN_SERVICE(f IN INTEGER, s IN INTEGER) AS BEGIN IF NOT EXISTS(SELECT * FROM facility_services fs WHERE fs.facility_id = f AND fs.service_id = s) THEN INSERT INTO facility_services(facility_id, service_id) VALUES (f, s); END IF; END;
+BEGIN FOR c IN (SELECT r.facility_id, rs.service_id FROM resource_services AS rs JOIN resources AS r ON r.id = rs.resource_id GROUP BY r.facility_id, rs.service_id ORDER BY r.facility_id, rs.service_id) LOOP assign_service(c.facility_id, c.service_id); END LOOP; END;
+DROP PROCEDURE assign_service;
+update configurations set value='3.1.43' where property='DATABASE VERSION';
+
 3.1.42
-create table facility_services ( service_id integer not null, facility_id integer not null, created_at timestamp default now not null, created_by varchar(1300) default user not null, modified_at timestamp default now not null, modified_by varchar(1300) default user not null, status char(1) default '0' not null, created_by_uid integer, modified_by_uid integer);
+create table facility_services ( service_id integer not null, facility_id integer not null, created_at date default sysdate not null, created_by nvarchar2(1300) default user not null, modified_at date default sysdate not null, modified_by nvarchar2(1300) default user not null, status char(1) default '0' not null, created_by_uid integer, modified_by_uid integer);
 create index idx_fk_facsrv_srv on facility_services(service_id);
 create index idx_fk_facsrv_fac on facility_services(facility_id);
 alter table facility_services add constraint facsrv_pk primary key (service_id,facility_id);
@@ -82,7 +88,7 @@ alter table USERS modify created_by nvarchar2(1300);
 alter table USER_ATTR_VALUES modify created_by nvarchar2(1300);
 alter table USER_EXT_SOURCES modify created_by nvarchar2(1300);
 alter table USER_FACILITY_ATTR_VALUES modify created_by nvarchar2(1300);
-alter_table USER_EXT_SOURCE_ATTR_VALUES modify created_by nvarchar2(1300);
+alter table USER_EXT_SOURCE_ATTR_VALUES modify created_by nvarchar2(1300);
 alter table VOS modify created_by nvarchar2(1300);
 alter table VO_ATTR_VALUES modify created_by nvarchar2(1300);
 alter table VO_EXT_SOURCES modify created_by nvarchar2(1300);
@@ -139,7 +145,7 @@ alter table USERS modify modified_by nvarchar2(1300);
 alter table USER_ATTR_VALUES modify modified_by nvarchar2(1300);
 alter table USER_EXT_SOURCES modify modified_by nvarchar2(1300);
 alter table USER_FACILITY_ATTR_VALUES modify modified_by nvarchar2(1300);
-alter_table USER_EXT_SOURCE_ATTR_VALUES modify modified_by nvarchar2(1300);
+alter table USER_EXT_SOURCE_ATTR_VALUES modify modified_by nvarchar2(1300);
 alter table VOS modify modified_by nvarchar2(1300);
 alter table VO_ATTR_VALUES modify modified_by nvarchar2(1300);
 alter table VO_EXT_SOURCES modify modified_by nvarchar2(1300);
