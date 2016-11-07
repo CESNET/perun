@@ -633,9 +633,6 @@ public interface UsersManager {
 	boolean isUserPerunAdmin(PerunSession sess, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException;
 
 	/**
-<<<<<<< HEAD
-	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask autnetication system if old password is correct.
-=======
 	 * Changes user password in defined login-namespace. If checkOldPassword is true, then ask authentication system if old password is correct.
 	 *
 	 * @param sess
