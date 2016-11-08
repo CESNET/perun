@@ -35,6 +35,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_vsup.class);
 	private final static Set<String> unpermittedLogins = new HashSet<String>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root"));
 	private final static String EDUROAM_VSUP_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:eduroam-vsup";
+	private final static String VSUP_MAIL_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":vsupMail";
 
 	/**
 	 * Checks if the user's login is unique in the namespace organization.
@@ -136,7 +137,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 
 	/**
 	 * When login changes: first set / changed always change eduroam-vsup login too !!
-	 * When login is set for the first time, add UserExtSource, since logins are generated in Perun.
+	 * When login is set add UserExtSource, since logins are generated in Perun.
+	 * When login is set, set also school mail u:d:vsupMail
 	 *
 	 * @param session
 	 * @param user
@@ -184,6 +186,23 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 			} catch (WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException(attribute, eduroamLogin, "Mismatch in checking of users VŠUP login and eduroam login.", ex);
 			}
+
+			// set všup school mail
+			Attribute schoolMail = null;
+			try {
+				schoolMail = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, VSUP_MAIL_NAMESPACE);
+				if(!Objects.equals(attribute.getValue(), schoolMail.getValue())) {
+					schoolMail.setValue(attribute.getValue()+"@vsup.cz");
+					session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, schoolMail);
+				}
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (WrongAttributeValueException ex) {
+				throw new WrongReferenceAttributeValueException(attribute, schoolMail, "Mismatch in checking of users VŠUP login and schoolMail.", ex);
+			}
+
 		}
 
 	}
