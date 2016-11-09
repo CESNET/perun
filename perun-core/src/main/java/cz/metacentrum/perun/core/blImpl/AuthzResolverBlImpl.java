@@ -22,6 +22,7 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,6 +231,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 		User user = null;
 		Host host = null;
 		Resource resource = null;
+		UserExtSource ues = null;
 
 		//Get object for primaryHolder
 		if(primaryHolder != null) {
@@ -240,6 +242,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			else if(primaryHolder instanceof User) user = (User) primaryHolder;
 			else if(primaryHolder instanceof Host) host = (Host) primaryHolder;
 			else if(primaryHolder instanceof Resource) resource = (Resource) primaryHolder;
+			else if(primaryHolder instanceof UserExtSource) ues = (UserExtSource) primaryHolder;
 			else {
 				throw new InternalErrorException("There is unrecognized object in primaryHolder.");
 			}
@@ -256,6 +259,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 			else if(secondaryHolder instanceof User) user = (User) secondaryHolder;
 			else if(secondaryHolder instanceof Host) host = (Host) secondaryHolder;
 			else if(secondaryHolder instanceof Resource) resource = (Resource) secondaryHolder;
+			else if(secondaryHolder instanceof UserExtSource) ues = (UserExtSource) secondaryHolder;
 			else {
 				throw new InternalErrorException("There is unrecognized perunBean in secondaryHolder.");
 			}
@@ -336,12 +340,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 					userVosIds.add(voElement.getId());
 				}
 
-				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				Set<Group> groupsFromFacility = new HashSet<Group>();
-				for (Resource resourceElement : resourcesFromFacility) {
-					groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-				}
-
+				List<Group> groupsFromFacility = getPerunBlImpl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
 				for (Group groupElement : groupsFromFacility) {
 					if (isAuthorized(sess, Role.GROUPADMIN, groupElement) && userVosIds.contains(groupElement.getVoId()))
 						return true;
@@ -456,11 +455,7 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				}
 			}
 			if(roles.contains(Role.GROUPADMIN)) {
-				List<Resource> resourcesFromFacility = getPerunBlImpl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
-				Set<Group> groupsFromFacility = new HashSet<Group>();
-				for(Resource resourceElement: resourcesFromFacility) {
-					groupsFromFacility.addAll(getPerunBlImpl().getResourcesManagerBl().getAssignedGroups(sess, resourceElement));
-				}
+				List<Group> groupsFromFacility = getPerunBlImpl().getGroupsManagerBl().getAssignedGroupsToFacility(sess, facility);
 				for(Group g: groupsFromFacility){
 					if(isAuthorized(sess, Role.GROUPADMIN, g)) return true;
 				}
@@ -480,6 +475,34 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				if(isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
 			}
 			if(roles.contains(Role.SELF)); //Not allowed
+		} else if(ues != null) {
+			User sessUser = sess.getPerunPrincipal().getUser();
+			User uesUser;
+			try {
+				uesUser = getPerunBlImpl().getUsersManagerBl().getUserById(sess, ues.getUserId());
+			} catch (UserNotExistsException ex) {
+				return false;
+			}
+			if(ues.getUserId() == sessUser.getId() ) return true;
+			if(roles.contains(Role.FACILITYADMIN)) {
+				List<Facility> facilities = getPerunBlImpl().getFacilitiesManagerBl().getAssignedFacilities(sess, uesUser);
+				for(Facility f: facilities) {
+					if(isAuthorized(sess, Role.FACILITYADMIN, f)) return true;
+				}
+			}
+			if(roles.contains(Role.VOADMIN) || roles.contains(Role.VOOBSERVER)) {
+				List<Vo> vos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, uesUser);
+				for(Vo v: vos) {
+					if(isAuthorized(sess, Role.VOADMIN, v)) return true;
+					if(isAuthorized(sess, Role.VOOBSERVER, v)) return true;
+				}
+			}
+			if(roles.contains(Role.GROUPADMIN)) {
+				List<Vo> vos = getPerunBlImpl().getUsersManagerBl().getVosWhereUserIsMember(sess, uesUser);
+				for(Vo v: vos) {
+					if(isAuthorized(sess, Role.GROUPADMIN, v)) return true;
+				}
+			}
 		} else {
 			throw new InternalErrorException("There is no other possible variants for now!");
 		}

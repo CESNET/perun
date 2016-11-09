@@ -138,6 +138,18 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 	}
 
 	/**
+	 * Returns attributes of a member_group
+	 *
+	 * @param memberId Member ID
+	 * @param groupId Group ID
+	 */
+	public void getMemberGroupAttributes(int memberId, int groupId) {
+		ids.clear();
+		this.ids.put("member", memberId);
+		this.ids.put("group", groupId);
+	}
+
+	/**
 	 * Returns attributes of a member
 	 *
 	 * @param memberId Member ID
@@ -166,6 +178,16 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 	public void getUserAttributes(int userId) {
 		ids.clear();
 		this.ids.put("user", userId);
+	}
+
+	/**
+	 * Returns attributes of a UserExtSource
+	 *
+	 * @param uesId UserExtSource ID
+	 */
+	public void getUserExtSourceAttributes(int uesId) {
+		ids.clear();
+		this.ids.put("userExtSource", uesId);
 	}
 
 	/**
@@ -280,9 +302,7 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 		// because of tabindex
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
 
-
-		if(checkable)
-		{
+		if(checkable) {
 
 			// checkbox column column
 			Column<Attribute, Attribute> checkBoxColumn = new Column<Attribute, Attribute>(
@@ -369,15 +389,12 @@ public class GetAttributes implements JsonCallback, JsonCallbackTable<Attribute>
 						}
 					}, new FieldUpdater<Attribute, String>() {
 						public void update(int index, Attribute object, String newText) {
-
-
 							if (object.setValue(newText)) {
 								selectionModel.setSelected(object, true);
 							} else {
 								selectionModel.setSelected(object, false);
 								UiElements.cantSaveAttributeValueDialogBox(object);
 							}
-
 						}
 					});
 		}else{

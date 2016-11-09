@@ -45,6 +45,22 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @exampleParam attrNames [ "urn:perun:vo:attribute-def:def:contactEmail" , "urn:perun:vo:attribute-def:core:shortName" ]
 	 */
 	/*#
+	 * Returns all non-empty UserExtSource attributes for selected UserExtSource.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @return List<Attribute> All non-empty UserExtSource attributes
+	 * @throw UserExtSourceNotExistsException When Ues with <code>id</code> doesn't exist.
+	 */
+	/*#
+	 * Returns all specified UserExtSource attributes for selected UserExtSource.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @return List<Attribute> Specified UserExtSource attributes
+	 * @throw UserExtSourceNotExistsException When userExtSource with <code>id</code> doesn't exist.
+	 * @exampleParam attrNames [ "urn:perun:ues:attribute-def:opt:optionalAttribute" ]
+	 */
+	/*#
 	 * Returns all non-empty Member-Resource attributes for selected Member and Resource.
 	 *
 	 * @param member int Member <code>id</code>
@@ -312,12 +328,22 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			} else if (parms.contains("key")) {
 				return ac.getAttributesManager().getAttributes(ac.getSession(),
 						parms.readString("key"));
-			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host, group or key");
+			} else if (parms.contains("userExtSource")) {
+				if (parms.contains("attrNames")) {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
+							ac.getUserExtSourceById(parms.readInt("userExtSource")),
+							parms.readList("attrNames", String.class));
+				} else {
+					return ac.getAttributesManager().getAttributes(ac.getSession(),
+							ac.getUserExtSourceById(parms.readInt("userExtSource")));
+				}
+			}
+			else {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host, group, userExtSource or key");
 			}
 		}
 	},
-	
+
 	/*#
 	 * Returns all entityless attributes with <code>attrName</code> (for all namespaces of same attribute).
 	 *
@@ -358,6 +384,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Sets the attributes.
 	 *
 	 * @param vo int VO <code>id</code>
+	 * @param attributes List<Attribute> List of attributes
+	 */
+	/* Sets the attributes.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attributes List<Attribute> List of attributes
 	 */
 	/*#
@@ -541,8 +572,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getAttributesManager().setAttributes(ac.getSession(),
 						ac.getHostById(parms.readInt("host")),
 						parms.readList("attributes", Attribute.class));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().setAttributes(ac.getSession(),
+						ac.getUserExtSourceById(parms.readInt("userExtSource")),
+						parms.readList("attributes", Attribute.class));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host or group");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host, group or userExtSource");
 			}
 
 			return null;
@@ -620,6 +655,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
 	 *
 	 * @param host int Host <code>id</code>
+	 * @param attributeId int Attribute <code>id</code>
+	 * @return Attribute Found Attribute
+	 */
+	/*#
+	 * Returns an Attribute by its <code>id</code>. Returns only non-empty attributes.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
 	 * @param attributeId int Attribute <code>id</code>
 	 * @return Attribute Found Attribute
 	 */
@@ -704,6 +746,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param attributeName String Attribute name
 	 * @return Attribute Found Attribute
 	 */
+	/*#
+	 * Returns an Attribute by its name. Returns only non-empty attributes.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attributeName String Attribute name
+	 * @return Attribute Found Attribute
+	 */
 	getAttribute {
 
 		@Override
@@ -769,8 +818,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 							parms.readString("key"),
 							parms.readInt("attributeId"));
 							*/
+				} else if (parms.contains("userExtSource")) {
+					return ac.getAttributesManager().getAttributeById(ac.getSession(),
+							ac.getUserExtSourceById(parms.readInt("userExtSource")),
+							parms.readInt("attributeId"));
 				} else {
-					throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host, key or group");
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host, key, group or userExtSource");
 				}
 			} else {
 				if (parms.contains("facility")) {
@@ -827,12 +880,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 					return ac.getAttributesManager().getAttribute(ac.getSession(),
 							ac.getHostById(parms.readInt("host")),
 							parms.readString("attributeName"));
+				} else if (parms.contains("userExtSource")) {
+					return ac.getAttributesManager().getAttribute(ac.getSession(),
+							ac.getUserExtSourceById(parms.readInt("userExtSource")),
+							parms.readString("attributeName"));
 				} else if (parms.contains("key")) {
 					return ac.getAttributesManager().getAttribute(ac.getSession(),
 							parms.readString("key"),
 							parms.readString("attributeName"));
 				} else {
-					throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host, key or group");
+					throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, user, host, key, group or userExtSource");
 				}
 			}
 		}
@@ -907,6 +964,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param resource int <code>id</code> of Resource
 	 * @param facility int <code>id</code> of Facility
 	 * @param host int <code>id</code> of Host
+	 * @param userExtSource int <code>id</code> of UserExtSource
 	 *
 	 * @return List<AttributeDefinition> Definitions of Attributes for entities
 	 */
@@ -920,6 +978,7 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			Resource resource = null;
 			Facility facility = null;
 			Host host = null;
+			UserExtSource ues = null;
 			//Not supported entityless attirbutes now
 			//String entityless = null;
 			List<PerunBean> entities = new ArrayList<PerunBean>();
@@ -958,6 +1017,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			if (parms.contains("host")) {
 				host = ac.getHostById(parms.readInt("host"));
 				entities.add(host);
+			}
+			//If userExtSource exists in query
+			if (parms.contains("userExtSource")) {
+				ues = ac.getUserExtSourceById(parms.readInt("userExtSource"));
+				entities.add(ues);
 			}
 			//If entityless exists in query
 			/*if(parms.contains("entityless")) {
@@ -1041,6 +1105,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param host int Host <code>id</code>
 	 * @param attribute Attribute JSON object
 	 */
+	/*#
+	 * Sets an Attribute.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attribute Attribute JSON object
+	 */
 	setAttribute {
 
 		@Override
@@ -1101,12 +1171,16 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getAttributesManager().setAttribute(ac.getSession(),
 						ac.getHostById(parms.readInt("host")),
 						parms.read("attribute", Attribute.class));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().setAttribute(ac.getSession(),
+						ac.getUserExtSourceById(parms.readInt("userExtSource")),
+						parms.read("attribute", Attribute.class));
 			} else if (parms.contains("key")) {
 				ac.getAttributesManager().setAttribute(ac.getSession(),
 						parms.readString("key"),
 						parms.read("attribute", Attribute.class));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, user, member, host, key or group");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, user, member, host, key, group or userExtSource");
 			}
 
 			return null;
@@ -1998,6 +2072,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param attribute int Attribute <code>id</code>
 	 */
+	/*#
+	 * Checks if this userExtSource attribute is valid.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attribute int Attribute <code>id</code>
+	 */
 	checkAttributeValue {
 
 		@Override
@@ -2056,8 +2136,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
 						ac.getUserById(parms.readInt("user")),
 						parms.read("attribute", Attribute.class));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().checkAttributeValue(ac.getSession(),
+						ac.getUserExtSourceById(parms.readInt("userExtSource")),
+						parms.read("attribute", Attribute.class));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, group, host or user");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, group, host, user or userExtSource");
 			}
 
 			return null;
@@ -2153,6 +2237,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param attributes List<Attribute> Attributes List
 	 */
+	/*#
+	 * Checks if these userExtSource attributes are valid.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attributes List<Attribute> Attributes List
+	 */
 	checkAttributesValue {
 
 		@Override
@@ -2232,8 +2322,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getAttributesManager().checkAttributesValue(ac.getSession(),
 						ac.getUserById(parms.readInt("user")),
 						parms.readList("attributes", Attribute.class));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().checkAttributesValue(ac.getSession(),
+						ac.getUserExtSourceById(parms.readInt("userExtSource")),
+						parms.readList("attributes", Attribute.class));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, host or user");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, resource, member, host, user or userExtSource");
 			}
 		return null;
 		}
@@ -2361,6 +2455,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param attributes List<Integer> List of attributes IDs to remove
 	 */
+	/*#
+	 * Remove attributes of namespace:
+	 *
+	 * userExtSource
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attributes List<Integer> List of attributes IDs to remove
+	 */
 	removeAttributes {
 
 		@Override
@@ -2447,8 +2549,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getAttributesManager().removeAttributes(ac.getSession(),
 						ac.getGroupById(parms.readInt("group")),
 						attributes);
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().removeAttributes(ac.getSession(),
+						ac.getUserExtSourceById(parms.readInt("userExtSource")),
+						attributes);
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, group, host, resource, member or user");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, group, host, resource, member, user or userExtSource");
 			}
 
 			return null;
@@ -2547,6 +2653,14 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @param user int User <code>id</code>
 	 * @param attribute int <code>id</code> of attribute to remove
 	 */
+	/*#
+	 * Remove attribute of namespace:
+	 *
+	 * userExtSource
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 * @param attribute int <code>id</code> of attribute to remove
+	 */
 	removeAttribute {
 
 		@Override
@@ -2607,8 +2721,12 @@ public enum AttributesManagerMethod implements ManagerMethod {
 				ac.getAttributesManager().removeAttribute(ac.getSession(),
 						ac.getHostById(parms.readInt("host")),
 						ac.getAttributeDefinitionById(parms.readInt("attribute")));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().removeAttribute(ac.getSession(),
+						ac.getUserExtSourceById(parms.readInt("userExtSource")),
+						ac.getAttributeDefinitionById(parms.readInt("attribute")));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, group, resource, member, host or user");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, vo, group, resource, member, host, user or userExtSource");
 			}
 		return null;
 		}
@@ -2686,6 +2804,11 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 *
 	 * @param host int Host <code>id</code>
 	 */
+	/*#
+	 * Unset all attributes for the userExtSource.
+	 *
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 */
 	removeAllAttributes {
 
 		@Override
@@ -2746,10 +2869,13 @@ public enum AttributesManagerMethod implements ManagerMethod {
 			} else if (parms.contains("host")) {
 				ac.getAttributesManager().removeAllAttributes(ac.getSession(),
 						ac.getHostById(parms.readInt("host")));
+			} else if (parms.contains("userExtSource")) {
+				ac.getAttributesManager().removeAllAttributes(ac.getSession(),
+						ac.getUserExtSourceById(parms.readInt("userExtSource")));
 			} else {
-				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, resource, vo, group, member, host or user");
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "facility, resource, vo, group, member, host, user or userExtSource");
 			}
-			
+
 			return null;
 		}
 	},

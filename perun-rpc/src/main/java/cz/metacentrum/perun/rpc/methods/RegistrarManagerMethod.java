@@ -1134,6 +1134,20 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 	 *
 	 * @return List<Identity> List of found similar identities.
 	 */
+	/*#
+	 * Check for similar users by name and email in session (authz) information
+	 *
+	 * @return List<Identity> List of found similar identities.
+	 */
+	/*#
+	 * Check if newly inserted form data may connect anonymous person to existing user.
+	 * Return list of similar users (by identity, name or email).
+	 * Returned users contain also organization and preferredMail attribute.
+	 *
+	 * @param formItems List<ApplicationFormItemData> List of application form items with data
+	 *
+	 * @return List<Identity> List of found similar identities.
+	 */
 	checkForSimilarUsers {
 
 		@Override
@@ -1146,6 +1160,9 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 						ac.getVoById(parms.readInt("voId")),
 						(parms.readInt("groupId") != 0) ? ac.getGroupById(parms.readInt("groupId")) : null,
 						AppType.valueOf(parms.readString("type")) );
+			} else if (parms.contains("formItems")) {
+				return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession(),
+						parms.readList("formItems", ApplicationFormItemData.class));
 			} else {
 				return ac.getRegistrarManager().getConsolidatorManager().checkForSimilarUsers(ac.getSession());
 			}

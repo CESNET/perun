@@ -5,6 +5,7 @@ import java.util.Map;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.Pair;
@@ -278,6 +279,17 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource, boolean withSubGroups) throws InternalErrorException;
+
+	/** Return list of assigned groups on all facility resources (without subgroups unless they are assigned too)
+	 *
+	 * @param perunSession
+	 * @param facility
+	 *
+	 * @return list of groups, which are assigned on all facility resources
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/**
 	 * Removes member form the group. But not from members or administrators group.

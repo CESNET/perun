@@ -3,10 +3,15 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
@@ -30,6 +35,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_vsup.class);
 	private final static Set<String> unpermittedLogins = new HashSet<String>(Arrays.asList("administrator", "admin", "guest", "host", "vsup", "umprum", "root"));
 	private final static String EDUROAM_VSUP_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:eduroam-vsup";
+	private final static String VSUP_MAIL_NAMESPACE = AttributesManager.NS_USER_ATTR_DEF + ":vsupMail";
 
 	/**
 	 * Checks if the user's login is unique in the namespace organization.
@@ -131,6 +137,8 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 
 	/**
 	 * When login changes: first set / changed always change eduroam-vsup login too !!
+	 * When login is set add UserExtSource, since logins are generated in Perun.
+	 * When login is set, set also school mail u:d:vsupMail
 	 *
 	 * @param session
 	 * @param user
@@ -142,6 +150,28 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 
 		if(attribute.getValue() != null) {
+
+			// add UES
+			ExtSource es = null;
+
+			try {
+				es = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, "AD");
+			} catch (ExtSourceNotExistsException ex) {
+				throw new InternalErrorException("AD ext source on VŠUP doesn't exists.", ex);
+			}
+			try {
+				session.getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(session, es, (String) attribute.getValue());
+			} catch (UserExtSourceNotExistsException ex) {
+				// add UES
+				UserExtSource ues = new UserExtSource(es, 2, (String)attribute.getValue());
+				try {
+					session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, ues);
+				} catch (UserExtSourceExistsException ex2) {
+					throw new ConsistencyErrorException(ex2);
+				}
+			}
+
+			// set eduroam-login
 			Attribute eduroamLogin = null;
 			try {
 				eduroamLogin = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, EDUROAM_VSUP_NAMESPACE);
@@ -156,6 +186,23 @@ public class urn_perun_user_attribute_def_def_login_namespace_vsup extends urn_p
 			} catch (WrongAttributeValueException ex) {
 				throw new WrongReferenceAttributeValueException(attribute, eduroamLogin, "Mismatch in checking of users VŠUP login and eduroam login.", ex);
 			}
+
+			// set všup school mail
+			Attribute schoolMail = null;
+			try {
+				schoolMail = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, VSUP_MAIL_NAMESPACE);
+				if(!Objects.equals(attribute.getValue(), schoolMail.getValue())) {
+					schoolMail.setValue(attribute.getValue()+"@vsup.cz");
+					session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, schoolMail);
+				}
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException(ex);
+			} catch (AttributeNotExistsException ex) {
+				throw new ConsistencyErrorException(ex);
+			} catch (WrongAttributeValueException ex) {
+				throw new WrongReferenceAttributeValueException(attribute, schoolMail, "Mismatch in checking of users VŠUP login and schoolMail.", ex);
+			}
+
 		}
 
 	}

@@ -130,7 +130,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new InternalErrorException(ex);
 		} catch (WrongReferenceAttributeValueException ex) {
 			throw new InternalErrorException(ex);
-		}	
+		}
 		//Remove all resources tags
 		this.removeAllResourcesTagFromResource(sess, resource);
 
@@ -189,14 +189,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 	}
 
 	public boolean isUserAssigned(PerunSession sess, User user, Resource resource) throws InternalErrorException {
-		/* TODO this metod will be reimplemented after removing Grouper
-			 List<Member> members = getAssignedMembers(sess, resource);
-			 for(Member m: members){
-			 if(m.getUserId()==user.getId()) return true;
-			 }
-			 return false;
-			 */
-
 		return getResourcesManagerImpl().isUserAssigned(sess, user, resource);
 	}
 
@@ -405,14 +397,6 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 
 	public List<Group> getAssignedGroups(PerunSession sess, Resource resource) throws InternalErrorException {
 		return getPerunBl().getGroupsManagerBl().getAssignedGroupsToResource(sess, resource);
-
-		// GROUPER OUT
-		/*
-		// Get the groups ids
-		List<Integer> groupsIds = getResourcesManagerImpl().getAssignedGroupsIds(sess, resource, withSubGroups);
-		return getPerunBl().getGroupsManagerBl().getGroupsByIds(sess, groupsIds);
-		// GROUPER OUT
-		*/
 	}
 
 	public List<Resource> getAssignedResources(PerunSession sess, Group group) throws InternalErrorException {
@@ -610,7 +594,7 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 		Facility facility = getFacility(sess, resource);
 		Vo vo = getVo(sess, resource);
 
-		try {		
+		try {
 			Resource existingResource = getResourcesManagerImpl().getResourceByName(sess, vo, facility, resource.getName());
 
 			// if it is the same resource which is updated but the name stayed the same.

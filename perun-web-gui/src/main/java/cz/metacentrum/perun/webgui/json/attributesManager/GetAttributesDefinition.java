@@ -205,15 +205,6 @@ public class GetAttributesDefinition implements JsonCallback, JsonCallbackTable<
 			}
 		});
 
-		/*
-			 namespaceColumn.setSortable(true);
-			 columnSortHandler.setComparator(namespaceColumn, new Comparator<AttributeDefinition>() {
-			 public int compare(AttributeDefinition o1, AttributeDefinition o2) {
-			 return o1.getNamespace().compareToIgnoreCase(o2.getNamespace());
-			 }
-			 });
-			 */
-
 		entityColumn.setSortable(true);
 		columnSortHandler.setComparator(entityColumn, new Comparator<AttributeDefinition>() {
 			public int compare(AttributeDefinition o1, AttributeDefinition o2) {

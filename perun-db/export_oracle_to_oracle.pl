@@ -21,6 +21,7 @@ my $pwd;                             # Oracle DB password
 my $newuser="perunv3";               # PostgreSQL user
 my $tableOrderFile="table_order";    # Defined list of tables and their order
 my $tab;                             # Single table to export if preferred
+my $allTables = undef;               # Tag for exporting all tables
 
 sub help {
 	return qq{
@@ -28,12 +29,13 @@ sub help {
 	--------------------------------------------------------------
 	Available options:
 
-	--user     | -u Username for Oracle DB (required)
-	--password | -w Password for Oracle DB (required)
-	--newUser  | -n Username for new Oracle DB (if not set, use "perunv3")
-	--file     | -f File with list of tables to export (if not set, use "table_order")
-	--table    | -t Name of single table to export (if set, ignore --file|-f option)
-	--help     | -h prints this help
+	--user      | -u Username for Oracle DB (required)
+	--password  | -w Password for Oracle DB (required)
+	--newUser   | -n Username for new Oracle DB (if not set, use "perunv3")
+	--file      | -f File with list of tables to export (if not set, use "table_order")
+	--table     | -t Name of single table to export (if set, ignore --file|-f option)
+	--allTables | -a exports all tables incuding tables usually don't exported
+	--help      | -h prints this help
 
 	Usage:
 
@@ -41,10 +43,17 @@ sub help {
 	Export base tables: -u [login] -w [pass] -f table_order_base
 	Export single table: -u [login] -w [pass] -t [table_name]
 	Export custom tables: -u [login] -w [pass] -f [file_with_table_names]
+	Export all tables: -u [login] -w [pass] -f [file_with_table_names] -a
 	};
 }
 
-GetOptions ("help|h" => sub { print help(); exit 0;},"user|u=s" => \$user, "password|w=s" => \$pwd, "newUser|n=s" => \$newuser, "file|f=s" => \$tableOrderFile, "table|t=s" => \$tab) || die help();
+GetOptions ("help|h" => sub { print help(); exit 0;},
+"user|u=s" => \$user, 
+"password|w=s" => \$pwd, 
+"newUser|n=s" => \$newuser, 
+"file|f=s" => \$tableOrderFile, 
+"allTables|a" => \$allTables,
+"table|t=s" => \$tab) || die help();
 
 if (!defined $user) { print "[ERROR] Username for Oracle DB is required! Use --help | -h to print help.\n"; exit 1; }
 if (!defined $pwd) { print "[ERROR] Password for Oracle DB is required! Use --help | -h to print help.\n"; exit 1; }
@@ -54,28 +63,41 @@ my $dbh = DBI->connect('dbi:Oracle:',$user,$pwd,{RaiseError=>1,AutoCommit=>0,Lon
 my $filename;
 my @tabulky = ();
 my @tabulkys = ();
+my %tabs;
+my $tabstodelete="ADD_tablesToDelete";
+
 if (defined($tab)) {
 	push (@tabulky, $tab);
 	$filename=$tab."_data.ora.sql";
 } else {
+        open (DEL,">$tabstodelete");
+	binmode DEL,":utf8";
+
 	open POR,$tableOrderFile or die "Cannot open $tableOrderFile: $! \n";
 	while (my $lin=<POR>) {
 		chomp($lin);
 		push (@tabulky,$lin);
 		push (@tabulkys,uc($lin));
+		$tabs{$lin}=1;
 	}
 	close POR;
 	$filename="DB_data.ora.sql";
-
-	# Commented old way of exporting all tables without exact order
-
-	#my $tablename = $dbh->prepare(qq{
-	#select lower(table_name) from all_tables where lower(owner)=?});
-	#$tablename->execute($user);
-	#my $tbn;
-	#while ($tbn = $tablename->fetch) {
-	#push (@tabulky, $$tbn[0]);
-	#}
+        
+	# all tables 
+        my $tablename = $dbh->prepare(qq{
+           select lower(table_name) from all_tables where lower(owner)=?});
+        $tablename->execute($user);
+        my $tbn;
+	while ($tbn = $tablename->fetch) {
+	    if (not exists($tabs{$$tbn[0]})) {
+		if (defined $allTables) {    
+		    push (@tabulky, $$tbn[0]);
+		    push (@tabulkys, uc($$tbn[0]));
+		}
+		print DEL $$tbn[0]."\n";
+	    }
+	}
+	close DEL;
 }
 
 open (DBD,">$filename");

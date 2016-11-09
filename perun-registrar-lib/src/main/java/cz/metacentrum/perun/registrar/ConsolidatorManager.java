@@ -6,6 +6,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.model.Application;
+import cz.metacentrum.perun.registrar.model.ApplicationFormItemData;
 import cz.metacentrum.perun.registrar.model.Identity;
 
 import java.util.List;
@@ -62,6 +63,22 @@ public interface ConsolidatorManager {
 	 * @throws PerunException
 	 */
 	List<Identity> checkForSimilarUsers(PerunSession sess, Vo vo, Group group, Application.AppType type) throws PerunException;
+
+	/**
+	 * Check if new application may belong to another user in Perun
+	 * (but same person in real life).
+	 *
+	 * Return list of similar users (by identity, name or email).
+	 *
+	 * Returned users contain also organization and preferredMail attribute.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param formItems List of application form items with data
+	 *
+	 * @return List of found similar Identities
+	 * @throws PerunException
+	 */
+	List<Identity> checkForSimilarUsers(PerunSession sess, List<ApplicationFormItemData> formItems) throws PerunException;
 
 	/**
 	 * Return unique token with information about current authz. It can be used to join this identity

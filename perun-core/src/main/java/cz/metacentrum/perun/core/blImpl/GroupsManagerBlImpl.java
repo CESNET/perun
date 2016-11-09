@@ -806,6 +806,10 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return assignedGroups;
 	}
 
+	public List<Group> getAssignedGroupsToFacility(PerunSession sess, Facility facility) throws InternalErrorException {
+		return getGroupsManagerImpl().getAssignedGroupsToFacility(sess, facility);
+	}
+
 	public List<Group> getAllGroups(PerunSession sess, Vo vo) throws InternalErrorException {
 		List<Group> groups = getGroupsManagerImpl().getAllGroups(sess, vo);
 
@@ -832,7 +836,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	/**
 	 *
 	 * @param sess
-	 * @param groups initialized HashMap containing pair <topLevelGropu, null>
+	 * @param groups initialized HashMap containing pair <topLevelGroup, null>
 	 * @return HashMap containing all VO groups hierarchically organized
 	 */
 	private Map<Group, Object> getGroupsForHierarchy(PerunSession sess, Map<Group, Object> groups) throws InternalErrorException {
@@ -1625,6 +1629,16 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//If user is not null now, we found it so we can use it from perun, in other case he is not in perun at all
 			if(user != null && candidate == null) {
 				//we can skip this one, because he is already in group, and remove him from the map
+				//but first we need to also validate him if he was disabled before (invalidate and then validate)
+				RichMember richMember = idsOfUsersInGroup.get(user.getId());
+				if(richMember != null && Status.DISABLED.equals(richMember.getStatus())) {
+						getPerunBl().getMembersManagerBl().invalidateMember(sess, richMember);
+						try {
+							getPerunBl().getMembersManagerBl().validateMember(sess, richMember);
+						} catch (WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+							log.info("Switching member id {} into INVALID state from DISABLED, because there was problem with attributes {}.", richMember.getId(), e);
+						}
+				}
 				idsOfUsersInGroup.remove(user.getId());
 			} else if (candidate != null) {
 				candidatesToAdd.add(candidate);
@@ -1934,6 +1948,38 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 
 			//get RichMember with attributes
 			richMember = getPerunBl().getMembersManagerBl().convertMembersToRichMembersWithAttributes(sess, Arrays.asList(richMember), attrDefs).get(0);
+
+			// try to find user core attributes and update user -> update name and titles
+			if (overwriteUserAttributesList != null) {
+				boolean someFound = false;
+				User user = richMember.getUser();
+				for (String attrName : overwriteUserAttributesList) {
+					if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":firstName")) {
+						user.setFirstName(candidate.getFirstName());
+						someFound = true;
+					} else if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":middleName")) {
+						user.setMiddleName(candidate.getMiddleName());
+						someFound = true;
+					} else if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":lastName")) {
+						user.setLastName(candidate.getLastName());
+						someFound = true;
+					} else if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":titleBefore")) {
+						user.setTitleBefore(candidate.getTitleBefore());
+						someFound = true;
+					} else if (attrName.startsWith(AttributesManager.NS_USER_ATTR_CORE+":titleAfter")) {
+						user.setTitleAfter(candidate.getTitleAfter());
+						someFound = true;
+					}
+				}
+				if (someFound) {
+					try {
+						perunBl.getUsersManagerBl().updateUser(sess, user);
+					} catch (UserNotExistsException e) {
+						throw new ConsistencyErrorException("User from perun not exists when should - removed during sync.", e);
+					}
+				}
+			}
+
 			for (String attributeName : candidate.getAttributes().keySet()) {
 				//update member attribute
 				if(attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR)) {

@@ -91,7 +91,7 @@ public class DeleteAttribute {
 		String errorMsg = "";
 
 		if(attrDefId == 0){
-			errorMsg += "Wrong Attribute definition ID parametr.\n";
+			errorMsg += "Wrong Attribute definition ID parameter.\n";
 			result = false;
 		}
 

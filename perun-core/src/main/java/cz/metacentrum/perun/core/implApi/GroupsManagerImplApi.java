@@ -4,6 +4,7 @@ import java.util.List;
 
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.Member;
 import cz.metacentrum.perun.core.api.MembershipType;
@@ -192,6 +193,17 @@ public interface GroupsManagerImplApi {
 	 * @throws InternalErrorException
 	 */
 	List<Group> getAssignedGroupsToResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
+
+	/** Return list of assigned groups from all facility resources
+	 *
+	 * @param perunSession
+	 * @param facility
+	 *
+	 * @return list of groups, which are assigned on all facility resources
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAssignedGroupsToFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
 
 	/** Return group users sorted by name.
 	 *

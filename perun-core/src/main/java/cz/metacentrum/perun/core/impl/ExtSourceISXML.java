@@ -57,7 +57,7 @@ public class ExtSourceISXML extends ExtSourceXML {
 		if(query == null) throw new InternalErrorException("General query for ExtSourceISXML can't be null.");
 
 		//Get file or uri of xml
-		prepareEnviroment();
+		prepareEnvironment();
 
 		return xpathParsing(query, 0);
 	}

@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,7 +279,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				} catch (WrongAttributeAssignmentException | AttributeNotExistsException ex) {
 					throw new InternalErrorException(ex);
 				}
-				
+
 				if(actorUserOrganizationValue != null) {
 					candidateAttributes.put(memberOrganization, actorUserOrganizationValue);
 					candidate.setAttributes(candidateAttributes);
@@ -293,6 +298,37 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			} catch (RelationExistsException ex) {
 				throw new InternalErrorException(ex);
 			}
+		}
+		return member;
+	}
+
+	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws InternalErrorException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException {
+		String loginNamespaceUri = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + namespace;
+		boolean passwordPresent = params.get("password") != null;
+		if(params.get(loginNamespaceUri) == null) {
+			Map<String, String> generatedParams = getPerunBl().getUsersManagerBl().generateAccount(sess, namespace, params);
+			params.putAll(generatedParams);
+		} else if (passwordPresent) {
+			getPerunBl().getUsersManagerBl().reservePassword(sess, params.get(loginNamespaceUri), namespace, params.get("password"));
+		} else {
+			throw new InternalErrorException("If login for new account is provided, password must be provided also");
+		}
+		Iterator<String> iterator = params.keySet().iterator();
+		// remove non-valid entries from map for Candidate otherwise it would fail to create member
+		while (iterator.hasNext()) {
+			String next = iterator.next();
+			if (!next.startsWith("urn:perun:user") && !next.startsWith("urn:perun:member")) {
+				iterator.remove();
+			}
+		}
+		String extSourceLogin = params.get(loginNamespaceUri) + extSourcePostfix;
+		UserExtSource userExtSource = new UserExtSource(extSource, loa, extSourceLogin);
+		Candidate candidate = new Candidate(userExtSource, params);
+		Member member = this.createSpecificMember(sess, vo, candidate, Arrays.asList(owner), SpecificUserType.SPONSORED);
+		this.validateMemberAsync(sess, member);
+		if (passwordPresent) {
+			User user = getPerunBl().getUsersManagerBl().getUserById(sess, member.getUserId());
+			getPerunBl().getUsersManagerBl().validatePasswordAndSetExtSources(sess, user, params.get(loginNamespaceUri), namespace);
 		}
 		return member;
 	}
@@ -317,7 +353,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	public Member createMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
 		return this.createMemberSync(sess, vo, candidate, groups, null);
 	}
-	
+
 	public Member createSpecificMemberSync(PerunSession sess, Vo vo, Candidate candidate, List<User> specificUserOwners, SpecificUserType specificUserType) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
 		return this.createSpecificMemberSync(sess, vo, candidate, specificUserOwners, specificUserType, null);
 	}
@@ -1085,7 +1121,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		getMembersManagerImpl().setStatus(sess, member, Status.VALID);
 		member.setStatus(Status.VALID);
 		getPerunBl().getAuditer().log(sess, "{} validated.", member);
-		if(oldStatus.equals(Status.INVALID)) {
+		if(oldStatus.equals(Status.INVALID) || oldStatus.equals(Status.DISABLED)) {
 			try {
 				getPerunBl().getAttributesManagerBl().doTheMagic(sess, member);
 			} catch (WrongAttributeAssignmentException ex) {
@@ -1396,7 +1432,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
       calendar.set(Calendar.SECOND, 0);
       calendar.set(Calendar.MILLISECOND, 0);
     }
-    
+
     return calendar.getTime();
 	}
 

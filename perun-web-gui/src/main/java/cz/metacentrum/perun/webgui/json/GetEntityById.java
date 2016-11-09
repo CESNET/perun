@@ -49,6 +49,7 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 	static private final String URL_APP = "registrarManager/getApplicationById";
 
 	static private final String URL_SECURITY_TEAM = "securityTeamsManager/getSecurityTeamById";
+	static private final String URL_USER_EXT_SRC = "usersManager/getUserExtSourceById";
 
 	/**
 	 * New callback instance
@@ -93,7 +94,7 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 			js.retrieveData(URL_FACILITY, param, this);
 		} else if (PerunEntity.GROUP.equals(entity)) {
 			js.retrieveData(URL_GROUP, param, this);
-		}   else if (PerunEntity.GROUP_PARENT.equals(entity)) {
+		} else if (PerunEntity.GROUP_PARENT.equals(entity)) {
 			param = "group="+entityId;
 			js.retrieveData(URL_GROUP_PARENT, param, this);
 		} else if (PerunEntity.RICH_GROUP.equals(entity)) {
@@ -131,14 +132,15 @@ public class GetEntityById implements JsonCallback, JsonCallbackWithCache {
 			js.retrieveData(URL_TASK, param, this);
 		} else if (PerunEntity.APPLICATION_MAIL.equals(entity)) {
 			js.retrieveData(URL_APP_MAIL, param, this);
-		}  else if (PerunEntity.APPLICATION.equals(entity)) {
+		} else if (PerunEntity.APPLICATION.equals(entity)) {
 			js.retrieveData(URL_APP, param, this);
-		}  else if (PerunEntity.SECURITY_TEAM.equals(entity)) {
+		} else if (PerunEntity.SECURITY_TEAM.equals(entity)) {
 			js.retrieveData(URL_SECURITY_TEAM, param, this);
-		}  else {
-
+		} else if (PerunEntity.USER_EXT_SOURCE.equals(entity)) {
+			param = "userExtSource="+entityId;
+			js.retrieveData(URL_USER_EXT_SRC, param, this);
+		} else {
 			// UNSUPPORTED COMBINATION
-
 		}
 
 	}

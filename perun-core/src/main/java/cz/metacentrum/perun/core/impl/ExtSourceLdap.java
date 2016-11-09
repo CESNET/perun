@@ -242,7 +242,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		String ldapAttrName;
 		String rule = null;
 		Matcher matcher = null;
-		Pattern pattern = null;
 		String attrValue = "";;
 
 		// Check if the ldapAttrName contains regex
@@ -250,7 +249,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			int splitter = ldapAttrNameRaw.indexOf('|');
 			ldapAttrName = ldapAttrNameRaw.substring(0,splitter);
 			rule = ldapAttrNameRaw.substring(splitter+1, ldapAttrNameRaw.length());
-			pattern =  Pattern.compile(rule);
 		} else {
 			ldapAttrName = ldapAttrNameRaw;
 		}
@@ -280,7 +278,11 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
 				String tmpAttrValue = "";
 				try {
-					if (((String) attr.get()).startsWith(": ")) {
+					if(attr.get() instanceof byte[]) {
+						// It can be byte array with cert or binary file
+						char[] encodedValue = Base64Coder.encode((byte[]) attr.get());
+						tmpAttrValue = new String(encodedValue);
+					} else if (((String) attr.get()).startsWith(": ")) {
 						// Base64 encoded attribute starts with ": "
 						tmpAttrValue = String.valueOf(Base64Coder.decodeString((String) attr.get(i)));
 					} else {
@@ -291,11 +293,20 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				}
 
 				if (rule != null) {
-					// Rules are in place, so apply them
-					matcher = pattern.matcher(tmpAttrValue);
-					// Get the first group which matched
-					if (matcher.matches()) {
-						tmpAttrValue = matcher.group(1);
+					if(rule.contains("#")) {
+						// Rules are in place, so apply them
+						String regex = rule.substring(0, rule.indexOf('#'));
+						String replacement = rule.substring(rule.indexOf('#')+1);
+						tmpAttrValue = tmpAttrValue.replaceAll(regex, replacement);
+					//DEPRECATED way
+					} else {
+						// Rules are in place, so apply them
+						Pattern pattern = Pattern.compile(rule);
+						matcher = pattern.matcher(tmpAttrValue);
+						// Get the first group which matched
+						if (matcher.matches()) {
+							tmpAttrValue = matcher.group(1);
+						}
 					}
 				}
 				if (i == 0 || attributeValueIndex != -1) {

@@ -2,13 +2,16 @@ package cz.metacentrum.perun.dispatcher.processing.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cz.metacentrum.perun.core.api.PerunClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import cz.metacentrum.perun.auditparser.AuditParser;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.core.api.Attribute;
-
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Group;
@@ -29,7 +31,6 @@ import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Resource;
 import cz.metacentrum.perun.core.api.Service;
 import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.HostNotExistsException;
@@ -39,19 +40,14 @@ import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.dispatcher.dao.ProcessingRuleDao;
 import cz.metacentrum.perun.dispatcher.exceptions.InvalidEventMessageException;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.dispatcher.model.ProcessingRule;
 import cz.metacentrum.perun.dispatcher.processing.EventExecServiceResolver;
-import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
  */
 @org.springframework.stereotype.Service(value = "eventExecServiceResolver")
 public class EventExecServiceResolverImpl implements EventExecServiceResolver {
@@ -65,7 +61,7 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 	private GeneralServiceManager generalServiceManager;
 
 	@Override
-	public List<Pair<List<ExecService>, Facility>> parseEvent(String event)
+	public Map<Facility, Set<ExecService>> parseEvent(String event)
 			throws InvalidEventMessageException, ServiceNotExistsException,
 			InternalErrorException, PrivilegeException {
 		log.info("I am going to process event:" + event);
@@ -267,7 +263,8 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 				servicesResolvedFromEvent.add(service);
 			}
 
-			List<Pair<List<ExecService>, Facility>> pairs = new ArrayList<Pair<List<ExecService>, Facility>>();
+			//List<Pair<List<ExecService>, Facility>> pairs = new ArrayList<Pair<List<ExecService>, Facility>>();
+			Map<Facility, Set<ExecService>> result = new HashMap<Facility, Set<ExecService>>();
 			for (Resource r : resourcesResolvedFromEvent) {
 
 				Facility facilityResolvedFromEvent;
@@ -275,23 +272,9 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 				try {
 					facilityResolvedFromEvent = perun.getResourcesManager().getFacility(perunSession, r);
 					servicesResolvedFromResource = perun.getResourcesManager().getAssignedServices(perunSession, r);
-					/* TESTING ONLY: drop any facilities not meant for test* */
-					/*
-					if(facilityResolvedFromEvent.getName().equals("alcor.ics.muni.cz") ||
-                       facilityResolvedFromEvent.getName().equals("aldor.ics.muni.cz") ||
-                       facilityResolvedFromEvent.getName().equals("ascor.ics.muni.cz") ||
-                       facilityResolvedFromEvent.getName().equals("torque.ics.muni.cz") ||
-                       facilityResolvedFromEvent.getName().equals("nympha-cloud.zcu.cz")) {
-                    } else {
-                            log.debug("Dropping facility {} that is not meant for testing", 
-                            		  facilityResolvedFromEvent.getName());
-                            continue;
-                    }
-                    */
 					// process only services resolved from event if any
 					if (!servicesResolvedFromEvent.isEmpty())
-						servicesResolvedFromResource
-								.retainAll(servicesResolvedFromEvent);
+						servicesResolvedFromResource.retainAll(servicesResolvedFromEvent);
 				} catch (ResourceNotExistsException ex) {
 					log.debug(
 							"Non-existing resource found while resolving event. Resource={}",
@@ -311,30 +294,29 @@ public class EventExecServiceResolverImpl implements EventExecServiceResolver {
 						}
 					}
 
-					if (attributeDefinition != null) { // remove from future
-														// processing services
-														// which don't require
-														// the found attribute
+					if (attributeDefinition != null) {
+						// remove from future processing services
+						// which don't require the found attribute
 						// TODO (CHECKME) This method can raise
 						// ServiceNotExistsException. Is it ok? Or it must be
 						// catch?
 						List<AttributeDefinition> serviceRequiredAttributes = perun
 								.getAttributesManager()
-								.getRequiredAttributesDefinition(perunSession,
-										s);
-						if (!serviceRequiredAttributes
-								.contains(attributeDefinition))
+								.getRequiredAttributesDefinition(perunSession, s);
+						if (!serviceRequiredAttributes.contains(attributeDefinition))
 							continue;
 					}
 
-					pairs.add(new Pair<List<ExecService>, Facility>(
-							execServices, facilityResolvedFromEvent));
+					if(!result.containsKey(facilityResolvedFromEvent)) {
+						result.put(facilityResolvedFromEvent, new HashSet<ExecService>(execServices));
+					} else {
+						result.get(facilityResolvedFromEvent).addAll(execServices);
+					}
 				}
 			}
 
-			log.info("I am going to return " + pairs.size()
-					+ " Pair<List<ExecService>, Facility>> pairs.");
-			return pairs;
+			log.info("I am going to return " + result.size() + " facilities.");
+			return result;
 
 		} else {
 			throw new InvalidEventMessageException("Message[" + event + "]");

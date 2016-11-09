@@ -1,22 +1,16 @@
 package cz.metacentrum.perun.dispatcher.processing.impl;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.util.Assert;
 
-import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -37,9 +31,9 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 @org.springframework.stereotype.Service(value = "eventProcessor")
 public class EventProcessorImpl implements EventProcessor {
@@ -53,8 +47,6 @@ public class EventProcessorImpl implements EventProcessor {
 	private DispatcherQueuePool dispatcherQueuePool;
 	@Autowired
 	private EventLogger eventLogger;
-	@Autowired
-	private SmartMatcher smartMatcher;
 	@Autowired
 	private TaskExecutor taskExecutor;
 	private EvProcessor evProcessor;
@@ -82,41 +74,12 @@ public class EventProcessorImpl implements EventProcessor {
 					if (event != null) {
 						if (log.isDebugEnabled()) {
 							log.debug("Events in Queue(" + eventQueue.size()
-									+ ").Dispatchers("
+									+ ").Engines("
 									+ dispatcherQueuePool.poolSize()
 									+ ").Processing event...");
 						}
-						boolean orphan = true;
-						for (DispatcherQueue dispatcherQueue : dispatcherQueuePool.getPool()) {
-							long timeStamp = 0;
-							if (log.isDebugEnabled()) {
-								timeStamp = System.currentTimeMillis();
-							}
-							if (smartMatcher.doesItMatch(event, dispatcherQueue)) {
-								orphan = false;
-								createTask(dispatcherQueue, event);
-								eventLogger.logEvent(event, dispatcherQueue.getClientID());
-								if (log.isDebugEnabled()) {
-									long timeStamp2 = System.currentTimeMillis();
-									log.debug("MATCH OK (took "
-											+ (timeStamp2 - timeStamp)
-											+ "ms) for "
-											+ dispatcherQueue.getClientID()
-											+ " AND " + event.toString());
-								}
-								break;
-							}
-							if (log.isDebugEnabled()) {
-								long timeStamp2 = System.currentTimeMillis();
-								log.debug("NO MATCH (took "
-										+ (timeStamp2 - timeStamp) + "ms) for "
-										+ dispatcherQueue.getClientID()
-										+ " AND " + event.toString());
-							}
-						}
-						if (orphan) {
-							eventLogger.logEvent(event, -1);
-						}
+						createTask(null, event);
+						eventLogger.logEvent(event, -1);
 					}
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
@@ -138,12 +101,12 @@ public class EventProcessorImpl implements EventProcessor {
 
 			// Resolve the services in event, send the resulting <ExecService,
 			// Facility> pairs to engine
-			List<Pair<List<ExecService>, Facility>> resolvedServices = eventExecServiceResolver
+			Map<Facility, Set<ExecService>> resolvedServices = eventExecServiceResolver
 					.parseEvent(event.toString());
-			for (Pair<List<ExecService>, Facility> service : resolvedServices) {
+			for (Entry<Facility, Set<ExecService>> service : resolvedServices.entrySet()) {
 				// String facility = service.getRight().serializeToString();
-				Facility facility = service.getRight();
-				for (ExecService execService : service.getLeft()) {
+				Facility facility = service.getKey();
+				for (ExecService execService : service.getValue()) {
 					// dispatcherQueue.sendMessage("[" + facility + "][" +
 					// execService.getId() + "]");
 
@@ -265,14 +228,6 @@ public class EventProcessorImpl implements EventProcessor {
 
 	public void setEventLogger(EventLogger eventLogger) {
 		this.eventLogger = eventLogger;
-	}
-
-	public SmartMatcher getSmartMatcher() {
-		return smartMatcher;
-	}
-
-	public void setSmartMatcher(SmartMatcher smartMatcher) {
-		this.smartMatcher = smartMatcher;
 	}
 
 	public TaskExecutor getTaskExecutor() {

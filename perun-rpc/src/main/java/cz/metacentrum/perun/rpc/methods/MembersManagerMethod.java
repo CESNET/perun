@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.rpc.methods;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.AttributeDefinition;
@@ -82,6 +83,32 @@ public enum MembersManagerMethod implements ManagerMethod {
 						parms.readList("specificUserOwners", User.class),
 						SpecificUserType.valueOf(parms.readString("specificUserType")));
 			}
+		}
+	},
+	
+	/**
+	 * Creates a new SPONSORED member from given parameters map.
+	 *
+	 * @param parameters Map<String,String> Map containing all parameters, must contain at least:
+	 *                   "sponsor" - uco of sponsor for new created account
+	 * @param namespace String namespace
+	 * @param extSource int extSource ID
+	 * @param extSourcePostfix String extSource login postfix, e.g. "@muni.cz"
+	 * @param vo int VO ID
+	 * @param loa
+	 * @return Member newly created sponsored member
+	 */
+	createSponsoredAccount {
+		@Override
+		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			return ac.getMembersManager().createSponsoredAccount(ac.getSession(),
+					parms.read("parameters", HashMap.class),
+					parms.readString("namespace"),
+					ac.getExtSourceById(parms.readInt("extSource")),
+					parms.readString("extSourcePostfix"),
+					ac.getVoById(parms.readInt("vo")),
+					parms.readInt("loa"));
 		}
 	},
 

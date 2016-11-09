@@ -144,14 +144,22 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(destination, "destination");
 
-		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination);
-
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE) &&
-				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
+				!AuthzResolver.isAuthorized(sess, Role.RPC) &&
+				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
 			throw new PrivilegeException(sess, "getFacilitiesByDestination");
-				}
+		}
 
+		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByDestination(sess, destination);
+
+		if (!facilities.isEmpty()) {
+			Iterator<Facility> facilityByDestination = facilities.iterator();
+			while(facilityByDestination.hasNext()) {
+				if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination.next())) facilityByDestination.remove();
+			}
+		}
+		
 		return facilities;
 	}
 

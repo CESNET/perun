@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.webgui.tabs;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
@@ -27,7 +28,7 @@ public class UrlMapper {
 	static private boolean parsingRunning = false;
 
 	/**
-	 * UrlMapper instnace
+	 * UrlMapper instance
 	 */
 	public UrlMapper() {}
 

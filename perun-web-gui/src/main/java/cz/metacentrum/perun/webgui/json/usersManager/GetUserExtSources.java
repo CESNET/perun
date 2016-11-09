@@ -1,13 +1,14 @@
 package cz.metacentrum.perun.webgui.json.usersManager;
 
 import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -15,7 +16,6 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.*;
 import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator;
-import cz.metacentrum.perun.webgui.json.comparators.GeneralComparator.Column;
 import cz.metacentrum.perun.webgui.json.keyproviders.GeneralKeyProvider;
 import cz.metacentrum.perun.webgui.model.GeneralObject;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -54,6 +54,8 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 	private ArrayList<UserExtSource> list = new ArrayList<UserExtSource>();
 	// loader image
 	private AjaxLoaderImage loaderImage = new AjaxLoaderImage();
+	// Table field updater
+	private FieldUpdater<UserExtSource, String> tableFieldUpdater;
 
 	/**
 	 * Creates a new request instance
@@ -73,6 +75,15 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 	public GetUserExtSources(int id, JsonCallbackEvents events) {
 		this.userId = id;
 		this.events = events;
+	}
+
+	/**
+	 * Returns table of users
+	 * @param fu
+	 */
+	public CellTable<UserExtSource> getTable(FieldUpdater<UserExtSource, String> fu){
+		this.tableFieldUpdater = fu;
+		return this.getTable();
 	}
 
 	/**
@@ -141,40 +152,36 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 
 		table.addColumn(checkBoxColumn, checkBoxHeader);
 
-		table.addIdColumn("UES ID", null, 100);
+		table.addIdColumn("UES ID", tableFieldUpdater, 100);
 
 		// Name column
-		TextColumn<UserExtSource> nameColumn = new TextColumn<UserExtSource>() {
-			@Override
+		Column<UserExtSource, String> nameColumn = JsonUtils.addColumn(new JsonUtils.GetValue<UserExtSource, String>() {
 			public String getValue(UserExtSource extSource) {
 				return String.valueOf(extSource.getExtSource().getName());
 			}
-		};
+		}, tableFieldUpdater);
 
 		// Login column
-		TextColumn<UserExtSource> loginColumn = new TextColumn<UserExtSource>() {
-			@Override
+		Column<UserExtSource, String> loginColumn = JsonUtils.addColumn(new JsonUtils.GetValue<UserExtSource, String>() {
 			public String getValue(UserExtSource extSource) {
 				return String.valueOf(extSource.getLogin());
 			}
-		};
+		}, tableFieldUpdater);
 
 		// LOA column
-		TextColumn<UserExtSource> loaColumn = new TextColumn<UserExtSource>() {
-			@Override
+		Column<UserExtSource, String> loaColumn = JsonUtils.addColumn(new JsonUtils.GetValue<UserExtSource, String>() {
 			public String getValue(UserExtSource extSource) {
 				return String.valueOf(extSource.getLoa());
 			}
-		};
+		}, tableFieldUpdater);
 
 		// sort name column
 		nameColumn.setSortable(true);
-		columnSortHandler.setComparator(nameColumn, new GeneralComparator<UserExtSource>(Column.NAME));
+		columnSortHandler.setComparator(nameColumn, new GeneralComparator<UserExtSource>(GeneralComparator.Column.NAME));
 
 		// sort login column
 		loginColumn.setSortable(true);
 		columnSortHandler.setComparator(loginColumn, new Comparator<UserExtSource>() {
-
 			public int compare(UserExtSource o1, UserExtSource o2) {
 				return o1.getLogin().compareTo(o2.getLogin());
 			}
@@ -183,7 +190,6 @@ public class GetUserExtSources implements JsonCallback, JsonCallbackTable<UserEx
 		// sort login column
 		loaColumn.setSortable(true);
 		columnSortHandler.setComparator(loaColumn, new Comparator<UserExtSource>() {
-
 			public int compare(UserExtSource o1, UserExtSource o2) {
 				return o1.getLoa() - o2.getLoa();
 			}
