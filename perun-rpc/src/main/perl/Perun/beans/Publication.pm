@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -66,7 +66,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -80,35 +80,35 @@ sub TO_JSON
 
 	my $rank;
 	if (defined($self->{_rank})) {
-		$rank = $self->{_rank}*1;
+		$rank = $self->{_rank} * 1;
 	} else {
 		$rank = undef;
 	}
 
 	my $externalId;
 	if (defined($self->{_externalId})) {
-		$externalId = $self->{_externalId}*1;
+		$externalId = $self->{_externalId} * 1;
 	} else {
 		$externalId = undef;
 	}
 
 	my $publicationSystemId;
 	if (defined($self->{_publicationSystemId})) {
-		$publicationSystemId = $self->{_publicationSystemId}*1;
+		$publicationSystemId = $self->{_publicationSystemId} * 1;
 	} else {
 		$publicationSystemId = undef;
 	}
 
 	my $year;
 	if (defined($self->{_year})) {
-		$year = $self->{_year}*1;
+		$year = $self->{_year} * 1;
 	} else {
 		$year = undef;
 	}
 
 	my $categoryId;
 	if (defined($self->{_categoryId})) {
-		$categoryId = $self->{_categoryId}*1;
+		$categoryId = $self->{_categoryId} * 1;
 	} else {
 		$categoryId = undef;
 	}
@@ -150,19 +150,22 @@ sub TO_JSON
 
 	my $locked;
 	if (defined($self->{_locked})) {
-		$locked = $self->{_locked}*1;
+		$locked = $self->{_locked} * 1;
 	} else {
 		$locked = undef;
 	}
 
 	my @authors;
 	if (defined($self->{_authors})) {
-		@authors = $self->{_authors}*1;
+		@authors = $self->{_authors} * 1;
 	} else {
 		@authors = undef;
 	}
 
-	return {id => $id, title => $title,  rank => $rank, externalId => $externalId, publicationSystemId => $publicationSystemId, year => $year, isbn => $isbn, main => $main, categoryId => $categoryId, createdBy => $createdBy, createdDate => $createdDate, doi => $doi, locked => $locked, authors => \@authors};
+	return { id                    => $id, title => $title, rank => $rank, externalId => $externalId,
+		publicationSystemId        => $publicationSystemId, year => $year, isbn => $isbn, main => $main, categoryId =>
+		$categoryId, createdBy     => $createdBy, createdDate => $createdDate, doi => $doi, locked => $locked, authors
+								   => \@authors };
 }
 
 sub getId
@@ -373,15 +376,16 @@ sub printAuthors
 	my @authors = $self->getAuthors;
 	my @result;
 	foreach my $author (@authors) {
-		push @result, $author->getFirstName . ' ' . $author->getLastName;
+		push @result, $author->getFirstName.' '.$author->getLastName;
 	}
-	
-	return '[' . join(', ',@result) . ']';
+
+	return '['.join(', ', @result).']';
 }
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->getId, $self->getTitle, $self->getRank, $self->getYear, $self->getCategoryId, $self->getLocked, $self->printAuthors);
+	return ($self->getId, $self->getTitle, $self->getRank, $self->getYear, $self->getCategoryId, $self->getLocked,
+		$self->printAuthors);
 }
 
 sub getCommonArrayRepresentationHeading {

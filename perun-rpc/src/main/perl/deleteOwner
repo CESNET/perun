@@ -19,8 +19,11 @@ sub help {
 }
 
 my ($ownerId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"ownerId|o=i" => \$ownerId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"ownerId|o=i"    => \$ownerId) || die help();
 
 # Check options
 unless (defined($ownerId)) { die "ERROR: ownerId is required \n";}
@@ -28,6 +31,6 @@ unless (defined($ownerId)) { die "ERROR: ownerId is required \n";}
 my $agent = Perun::Agent->new();
 my $ownersAgent = $agent->getOwnersAgent;
 
-$ownersAgent->deleteOwner(owner => $ownerId);
+$ownersAgent->deleteOwner( owner => $ownerId );
 
 printMessage("Owner Id:$ownerId successfully deleted", $batch);

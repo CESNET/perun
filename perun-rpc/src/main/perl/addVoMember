@@ -25,9 +25,12 @@ sub help {
 
 our $batch;
 my ($voId, $voShortName, $searchString);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "searchString|p=s" => \$searchString) || die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"voId|v=i"         => \$voId, "voShortName|V=s" => \$voShortName,
+	"searchString|p=s" => \$searchString) || die help();
 
 # There can be PERUN_BATCH env set, so check it
 $batch = $batch || $ENV{'PERUN_BATCH'};
@@ -42,13 +45,16 @@ my $vosAgent = $agent->getVosAgent;
 my $membersAgent = $agent->getMembersAgent;
 
 if (!defined($voId)) {
-	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
-my @candidates = $vosAgent->findCandidates('vo' => $voId, 'searchString' => $searchString);
+my @candidates = $vosAgent->findCandidates( 'vo' => $voId, 'searchString' => $searchString );
 
-if (scalar(@candidates) <= 0) { print STDERR "No new candidates matching the searchString '$searchString' found or the candidate is already Vo member\n"; exit 1; }
+if (scalar(@candidates) <= 0) {
+	print STDERR "No new candidates matching the searchString '$searchString' found or the candidate is already Vo member\n";
+	exit 1;
+}
 
 if ((scalar(@candidates) > 1) && $batch) {
 	die "ERROR: More than one candidate for the searchString '$searchString' in the batch mode\n";
@@ -57,26 +63,26 @@ if ((scalar(@candidates) > 1) && $batch) {
 # We are not in the batch mode, so there can be more then one matching user for the searchString, let the user select
 my $candidate;
 if (!$batch) {
-	my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-	$table->setCols("Candidate\nnumber",'name','login in the external source', 'external source');
+	my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+	$table->setCols( "Candidate\nnumber", 'name', 'login in the external source', 'external source' );
 
 	my $i = 0;
 	foreach my $tmpCandidate (@candidates) {
 		$i++;
 		my $candidateName = $tmpCandidate->getFirstName;
-		$candidateName .= " " . $tmpCandidate->getMiddleName if ($tmpCandidate->getMiddleName);
-		$candidateName .= " " . $tmpCandidate->getLastName;
+		$candidateName .= " ".$tmpCandidate->getMiddleName if ($tmpCandidate->getMiddleName);
+		$candidateName .= " ".$tmpCandidate->getLastName;
 
 		my $userExtSourceLogins = $tmpCandidate->getUserExtSource->getLogin;
 		my $userExtSourceNames = $tmpCandidate->getUserExtSource->getExtSource->getName;
 
 		foreach my $aues (@{$tmpCandidate->getAdditionalUserExtSources}) {
-			$userExtSourceLogins .= "\n" . $aues->getLogin;
+			$userExtSourceLogins .= "\n".$aues->getLogin;
 			my $auesExtSource = $aues->getExtSource;
 			bless($auesExtSource, 'Perun::beans::ExtSource');
-			$userExtSourceNames .= "\n" . $auesExtSource->getName;
+			$userExtSourceNames .= "\n".$auesExtSource->getName;
 		}
-		$table->addRow($i, $candidateName, $userExtSourceLogins, $userExtSourceNames);
+		$table->addRow( $i, $candidateName, $userExtSourceLogins, $userExtSourceNames );
 	}
 	print tableToPrint($table, $batch);
 
@@ -84,20 +90,20 @@ if (!$batch) {
 	my $candidateNumber = <>;
 	chomp($candidateNumber);
 	# Exit if empty string was provided
-	unless($candidateNumber !~ /^\s*$/) { exit 0 };
+	unless ($candidateNumber !~ /^\s*$/) { exit 0 };
 
 	if (($candidateNumber !~ /^\d*$/) || ($candidateNumber <= 0 || $candidateNumber > $i)) {
 		die "Candidate number must be in the range 1-$i\n";
 	} else {
 		# Get the selected candidate
-		$candidate=$candidates[$candidateNumber-1];
+		$candidate = $candidates[$candidateNumber - 1];
 	}
 } else {
 	# Get the first one, it should be only one
 	$candidate = $candidates[0];
 }
 
-my $member = $membersAgent->createMember(vo => $voId, candidate => $candidate);
-$member = $membersAgent->validateMemberAsync(member => $member->getId);
+my $member = $membersAgent->createMember( vo => $voId, candidate => $candidate );
+$member = $membersAgent->validateMemberAsync( member => $member->getId );
 
-print "Member created ID:" . $member->getId;
+print "Member created ID:".$member->getId;

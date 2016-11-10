@@ -8,7 +8,7 @@ use Perun::Agent;
 use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 
 sub help {
-        return qq{
+	return qq{
         Prints list of Facilities Contacts
         ----------------------------------
         Available options:
@@ -17,24 +17,30 @@ sub help {
         };
 }
 
-my ($batch, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-        "batch|b" => \$batch) || die help;
+my $batch;
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"batch|b"       => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $FacilitiesAgent = $agent->getFacilitiesAgent;
 
 my @contactGroupsNames = $FacilitiesAgent->getAllContactGroupNames;
 
-unless(@contactGroupsNames) { printMessage "No ContactGroups found",$batch; exit 0;}
-
-#output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('ContactGroupName');
-
-foreach my $cgname (@contactGroupsNames) {
-        $table->addRow($cgname);
+unless (@contactGroupsNames) {
+	printMessage "No ContactGroups found", $batch;
+	exit 0;
 }
 
-print tableToPrint($table,$batch); 
+#output
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+$table->setCols( 'ContactGroupName' );
+
+foreach my $cgname (@contactGroupsNames) {
+	$table->addRow( $cgname );
+}
+
+print tableToPrint($table, $batch); 
 

@@ -20,16 +20,18 @@ sub help {
 
 my $memberId;
 our $batch;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"memberId|m=i" => \$memberId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"memberId|m=i"   => \$memberId) || die help();
 
 # Check options
-unless(defined $memberId) {die "ERROR: memberId is required\n";}
+unless (defined $memberId) {die "ERROR: memberId is required\n";}
 
 my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 
-
-$attributesAgent->doTheMagic(member => $memberId);
+$attributesAgent->doTheMagic( member => $memberId );
 
 printMessage("All attributes set to valid value for member id: $memberId.", $batch);

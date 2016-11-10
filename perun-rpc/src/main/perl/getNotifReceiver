@@ -8,7 +8,7 @@ use Perun::Agent;
 use Perun::Common qw(printTable getSortingFunction);
 
 sub help {
-return qq{
+	return qq{
 Find NotifReceiver by id. Id is required field.
 ------------------------
 Available options:
@@ -21,8 +21,11 @@ Available options:
 
 our $batch;
 my $receiverId;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "NotifReceiverId|i=i" => \$receiverId)|| die help();
+GetOptions ("help|h"      => sub {
+		print help();
+		exit 0;
+	}, "batch|b"          => \$batch,
+	"NotifReceiverId|i=i" => \$receiverId) || die help();
 
 # Check options
 unless (defined($receiverId)) { die "ERROR: NotifReceiver: Id is required \n";}
@@ -30,7 +33,7 @@ unless (defined($receiverId)) { die "ERROR: NotifReceiver: Id is required \n";}
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent();
 
-my $receiver = $notifAgent->getPerunNotifReceiverById(id => $receiverId);
+my $receiver = $notifAgent->getPerunNotifReceiverById( id => $receiverId );
 
 #output
 if (defined($receiver->getId)) {

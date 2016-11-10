@@ -18,7 +18,10 @@ sub help {
 }
 
 my ($groupId, $groupName, $voId, $voShortName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;}) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}) || die help();
 
 my $agent = Perun::Agent->new();
 my $extSourcesAgent = $agent->getExtSourcesAgent;

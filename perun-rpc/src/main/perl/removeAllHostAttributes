@@ -19,8 +19,11 @@ sub help {
 }
 
 my ($hostId, $hostName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"hostId|H=i" => \$hostId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"hostId|H=i"     => \$hostId) || die help();
 
 # Check options
 unless (defined($hostId)) { die "ERROR: hostId is required \n";}
@@ -35,6 +38,6 @@ my $agent = Perun::Agent->new();
 
 my $attributesAgent = $agent->getAttributesAgent;
 
-$attributesAgent->removeAllAttributes(host => $hostId);
+$attributesAgent->removeAllAttributes( host => $hostId );
 
 printMessage("All attributes removed from the host Id:$hostId", $batch);

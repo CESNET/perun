@@ -21,10 +21,13 @@ sub help {
 }
 
 my ($securityTeamId, $userId, $desc, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"securityTeamId|s=i" => \$securityTeamId,
-"desc|d=s" => \$desc,
-"userId|u=i" => \$userId || die help());
+GetOptions ("help|h"     => sub {
+		print help();
+		exit 0;
+	}, "batch|b"         => \$batch,
+	"securityTeamId|s=i" => \$securityTeamId,
+	"desc|d=s"           => \$desc,
+	"userId|u=i"         => \$userId || die help());
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -33,7 +36,7 @@ unless (defined($securityTeamId)) {die "ERROR: securityTeamId is required\n";}
 my $agent = Perun::Agent->new();
 my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
 
-$securityTeamsAgent->addUserToBlacklist(securityTeam => $securityTeamId, user => $userId, description => $desc);
+$securityTeamsAgent->addUserToBlacklist( securityTeam => $securityTeamId, user => $userId, description => $desc );
 
 printMessage("User Id:$userId successfully added to BlackList of SecurityTeam $securityTeamId", $batch);
 

@@ -23,32 +23,38 @@ sub help {
 }
 
 my ($facilityId, $facilityName, $batch, $sortingFunction);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
-"facilityName|F=s" => \$facilityName,
-"facilityId|f=i" => \$facilityId || die help());
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"orderById|i"      => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"    => sub { $sortingFunction = getSortingFunction("getLastName", 1) },
+	"facilityName|F=s" => \$facilityName,
+	"facilityId|f=i"   => \$facilityId || die help());
 
 # Check options
-unless(defined $facilityId or (defined $facilityName)) { die "ERROR: facilityId or facilityName is required\n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
+unless (defined $facilityId or (defined $facilityName)) { die "ERROR: facilityId or facilityName is required\n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
 
 my $agent = Perun::Agent->new();
 my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
-unless($facilityId) {
-    my $facilitiesAgent = $agent->getFacilitiesAgent;
-    my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-    $facilityId=$facility->getId;
+unless ($facilityId) {
+	my $facilitiesAgent = $agent->getFacilitiesAgent;
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
-my @users = $securityTeamsAgent->getBlacklist(facility => $facilityId);
-unless (@users) { printMessage "No blacklisted users found", $batch; exit 0; }
+my @users = $securityTeamsAgent->getBlacklist( facility => $facilityId );
+unless (@users) {
+	printMessage "No blacklisted users found", $batch;
+	exit 0;
+}
 
 #output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 
-$table->setCols('User Id','User Name');
+$table->setCols( 'User Id', 'User Name' );
 foreach my $user (sort $sortingFunction @users) {
-    $table->addRow($user->getId, $user->getCommonName);
+	$table->addRow( $user->getId, $user->getCommonName );
 }
 print tableToPrint($table, $batch);

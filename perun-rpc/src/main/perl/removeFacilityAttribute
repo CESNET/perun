@@ -21,10 +21,13 @@ sub help {
 }
 
 my ($facilityId, $facilityName, $attributeId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId,
- "facilityName|F=s" => \$facilityName,
- "attributeId|a=i" => \$attributeId) || die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+	"attributeId|a=i"  => \$attributeId) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
@@ -32,14 +35,14 @@ unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
 
 my $agent = Perun::Agent->new();
 
-unless($facilityId) {
+unless ($facilityId) {
 	my $facilitiesAgent = $agent->getFacilitiesAgent;
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-	$facilityId=$facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
 
-$attributesAgent->removeAttribute(facility => $facilityId, attribute => $attributeId);
+$attributesAgent->removeAttribute( facility => $facilityId, attribute => $attributeId );
 
 printMessage("Attribute Id:$attributeId removed from the facility Id:$facilityId", $batch);

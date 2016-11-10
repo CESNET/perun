@@ -20,23 +20,26 @@ sub help {
 }
 
 my ($voId, $voShortName, $userId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"voId|v=i" => \$voId,
- "voShortName|V=s" => \$voShortName) || die help();
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"voId|v=i"        => \$voId,
+	"voShortName|V=s" => \$voShortName) || die help();
 
 # Check options
 unless (defined($voId) or defined($voShortName)) { die "ERROR: voId or voShortName is required \n";}
 
 my $agent = Perun::Agent->new();
 
-unless($voId) {
+unless ($voId) {
 	my $vosAgent = $agent->getVosAgent;
-	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-	$voId=$vo->getId;
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
+	$voId = $vo->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
 
-$attributesAgent->removeAllAttributes(vo => $voId);
+$attributesAgent->removeAllAttributes( vo => $voId );
 
 printMessage("All attributes removed from the vo Id:$voId", $batch);

@@ -11,141 +11,141 @@ use fields qw(_agent _manager);
 
 sub new
 {
-    my $self = fields::new(shift);  
-    $self->{_agent} = shift;
-    $self->{_manager} = $manager;
-    
-    return $self;
+	my $self = fields::new(shift);
+	$self->{_agent} = shift;
+	$self->{_manager} = $manager;
+
+	return $self;
 }
 
 # Methods for PerunNotifReceiver
-sub getPerunNotifReceiverById 
+sub getPerunNotifReceiverById
 {
-    return Perun::Common::callManagerMethod('getPerunNotifReceiverById', 'NotifReceiver', @_);
+	return Perun::Common::callManagerMethod('getPerunNotifReceiverById', 'NotifReceiver', @_);
 }
 
-sub getAllPerunNotifReceivers 
+sub getAllPerunNotifReceivers
 {
-    return Perun::Common::callManagerMethod('getAllPerunNotifReceivers', '[]NotifReceiver', @_);
+	return Perun::Common::callManagerMethod('getAllPerunNotifReceivers', '[]NotifReceiver', @_);
 }
 
-sub createPerunNotifReceiver 
+sub createPerunNotifReceiver
 {
-    return Perun::Common::callManagerMethod('createPerunNotifReceiver', 'NotifReceiver', @_);
+	return Perun::Common::callManagerMethod('createPerunNotifReceiver', 'NotifReceiver', @_);
 }
 
-sub updatePerunNotifReceiver 
+sub updatePerunNotifReceiver
 {
-    return Perun::Common::callManagerMethod('updatePerunNotifReceiver', 'NotifReceiver', @_);
+	return Perun::Common::callManagerMethod('updatePerunNotifReceiver', 'NotifReceiver', @_);
 }
 
-sub removePerunNotifReceiverById 
+sub removePerunNotifReceiverById
 {
-    return Perun::Common::callManagerMethod('removePerunNotifReceiverById', 'null', @_);
+	return Perun::Common::callManagerMethod('removePerunNotifReceiverById', 'null', @_);
 }
 
 # Methods for PerunNotifRegex
-sub getPerunNotifRegexById 
+sub getPerunNotifRegexById
 {
-    return Perun::Common::callManagerMethod('getPerunNotifRegexById', 'NotifRegex', @_);
+	return Perun::Common::callManagerMethod('getPerunNotifRegexById', 'NotifRegex', @_);
 }
 
-sub getAllPerunNotifRegexes 
+sub getAllPerunNotifRegexes
 {
-    return Perun::Common::callManagerMethod('getAllPerunNotifRegexes', '[]NotifRegex', @_);
+	return Perun::Common::callManagerMethod('getAllPerunNotifRegexes', '[]NotifRegex', @_);
 }
 
-sub createPerunNotifRegex 
+sub createPerunNotifRegex
 {
-    return Perun::Common::callManagerMethod('createPerunNotifRegex', 'NotifRegex', @_);
+	return Perun::Common::callManagerMethod('createPerunNotifRegex', 'NotifRegex', @_);
 }
 
-sub updatePerunNotifRegex 
+sub updatePerunNotifRegex
 {
-    return Perun::Common::callManagerMethod('updatePerunNotifRegex', 'NotifRegex', @_);
+	return Perun::Common::callManagerMethod('updatePerunNotifRegex', 'NotifRegex', @_);
 }
 
-sub removePerunNotifRegexById 
+sub removePerunNotifRegexById
 {
-    return Perun::Common::callManagerMethod('removePerunNotifRegexById', 'null', @_);
+	return Perun::Common::callManagerMethod('removePerunNotifRegexById', 'null', @_);
 }
 
 sub saveTemplateRegexRelation
 {
-    return Perun::Common::callManagerMethod('saveTemplateRegexRelation', 'null', @_);
+	return Perun::Common::callManagerMethod('saveTemplateRegexRelation', 'null', @_);
 }
 
 sub getRelatedRegexesForTemplate
 {
-    return Perun::Common::callManagerMethod('getRelatedRegexesForTemplate', '[]NotifRegex', @_);
+	return Perun::Common::callManagerMethod('getRelatedRegexesForTemplate', '[]NotifRegex', @_);
 }
 
 
-sub removePerunNotifTemplateRegexRelation 
+sub removePerunNotifTemplateRegexRelation
 {
-    return Perun::Common::callManagerMethod('removePerunNotifTemplateRegexRelation', 'null', @_);
+	return Perun::Common::callManagerMethod('removePerunNotifTemplateRegexRelation', 'null', @_);
 }
 
 # Methods for perunNotifTemplateMessage
-sub getPerunNotifTemplateMessageById 
+sub getPerunNotifTemplateMessageById
 {
-    return Perun::Common::callManagerMethod('getPerunNotifTemplateMessageById', 'NotifTemplateMessage', @_);
+	return Perun::Common::callManagerMethod('getPerunNotifTemplateMessageById', 'NotifTemplateMessage', @_);
 }
 
-sub getAllPerunNotifTemplateMessages 
+sub getAllPerunNotifTemplateMessages
 {
-    return Perun::Common::callManagerMethod('getAllPerunNotifTemplateMessages', '[]NotifTemplateMessage', @_);
+	return Perun::Common::callManagerMethod('getAllPerunNotifTemplateMessages', '[]NotifTemplateMessage', @_);
 }
 
-sub createPerunNotifTemplateMessage 
+sub createPerunNotifTemplateMessage
 {
-    return Perun::Common::callManagerMethod('createPerunNotifTemplateMessage', 'NotifTemplateMessage', @_);
+	return Perun::Common::callManagerMethod('createPerunNotifTemplateMessage', 'NotifTemplateMessage', @_);
 }
 
-sub updatePerunNotifTemplateMessage 
+sub updatePerunNotifTemplateMessage
 {
-    return Perun::Common::callManagerMethod('updatePerunNotifTemplateMessage', 'NotifTemplateMessage', @_);
+	return Perun::Common::callManagerMethod('updatePerunNotifTemplateMessage', 'NotifTemplateMessage', @_);
 }
 
 sub removePerunNotifTemplateMessage
 {
-    return Perun::Common::callManagerMethod('removePerunNotifTemplateMessage', 'null', @_);
+	return Perun::Common::callManagerMethod('removePerunNotifTemplateMessage', 'null', @_);
 }
 
 # Methods for perunNotifTemplate
-sub getPerunNotifTemplateById 
+sub getPerunNotifTemplateById
 {
-    return Perun::Common::callManagerMethod('getPerunNotifTemplateById', 'NotifTemplate', @_);
+	return Perun::Common::callManagerMethod('getPerunNotifTemplateById', 'NotifTemplate', @_);
 }
 
 sub getAllPerunNotifTemplates
 {
-    return Perun::Common::callManagerMethod('getAllPerunNotifTemplates', '[]NotifTemplate', @_);
+	return Perun::Common::callManagerMethod('getAllPerunNotifTemplates', '[]NotifTemplate', @_);
 }
 
-sub createPerunNotifTemplate 
+sub createPerunNotifTemplate
 {
-    return Perun::Common::callManagerMethod('createPerunNotifTemplate', 'NotifTemplate', @_);
+	return Perun::Common::callManagerMethod('createPerunNotifTemplate', 'NotifTemplate', @_);
 }
 
-sub updatePerunNotifTemplate 
+sub updatePerunNotifTemplate
 {
-    return Perun::Common::callManagerMethod('updatePerunNotifTemplate', 'NotifTemplate', @_);
+	return Perun::Common::callManagerMethod('updatePerunNotifTemplate', 'NotifTemplate', @_);
 }
 
-sub removePerunNotifTemplateById 
+sub removePerunNotifTemplateById
 {
-    return Perun::Common::callManagerMethod('removePerunNotifTemplateById', 'null', @_);
+	return Perun::Common::callManagerMethod('removePerunNotifTemplateById', 'null', @_);
 }
 
 sub stopNotifications
 {
-    return Perun::Common::callManagerMethod('stopNotifications', 'null', @_);
+	return Perun::Common::callManagerMethod('stopNotifications', 'null', @_);
 }
 
 sub startNotifications
 {
-    return Perun::Common::callManagerMethod('startNotifications', 'null', @_);
+	return Perun::Common::callManagerMethod('startNotifications', 'null', @_);
 }
 
 1;

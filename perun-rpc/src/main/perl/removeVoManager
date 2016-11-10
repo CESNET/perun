@@ -22,9 +22,12 @@ sub help {
 
 our $batch;
 my ($voId, $voShortName, $userId);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "userId|u=i" => \$userId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
+	"userId|u=i"     => \$userId) || die help();
 
 # Check options
 unless (defined($voShortName) or defined($voId)) {die "ERROR: voId or voShortName is required\n";}
@@ -33,10 +36,10 @@ my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
 
 if (!defined($voId)) {
-	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
-$vosAgent->removeAdmin(vo => $voId, user => $userId);
+$vosAgent->removeAdmin( vo => $voId, user => $userId );
 
 printMessage("Manager (user) Id:$userId successfully removed from the Vo Id:$voId", $batch);

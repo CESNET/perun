@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -54,21 +54,21 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
 
 	my $taskId;
 	if (defined($self->{_taskId})) {
-		$taskId = $self->{_taskId}*1;
+		$taskId = $self->{_taskId} * 1;
 	} else {
 		$taskId = 0;
 	}
 
 	my $destinationId;
 	if (defined($self->{_destinationId})) {
-		$destinationId = $self->{_destinationId}*1;
+		$destinationId = $self->{_destinationId} * 1;
 	} else {
 		$destinationId = 0;
 	}
@@ -89,7 +89,7 @@ sub TO_JSON
 
 	my $returnCode;
 	if (defined($self->{_returnCode})) {
-		$returnCode = $self->{_returnCode}*1;
+		$returnCode = $self->{_returnCode} * 1;
 	} else {
 		$returnCode = 0;
 	}
@@ -105,7 +105,9 @@ sub TO_JSON
 	my $status = $self->{_status};
 	my $destination = $self->{_destination};
 
-	return {id => $id, taskId => $taskId, destinationId => $destinationId, errorMessage => $errorMessage, standardMessage => $standardMessage, returnCode => $returnCode, timestamp => $timestamp, status => $status, destination => $destination, service => $service};
+	return { id         => $id, taskId => $taskId, destinationId => $destinationId, errorMessage => $errorMessage,
+		standardMessage => $standardMessage, returnCode => $returnCode, timestamp => $timestamp, status => $status,
+		destination     => $destination, service => $service };
 }
 
 sub getCommonArrayRepresentation {
@@ -116,7 +118,8 @@ sub getCommonArrayRepresentation {
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID','TaskId', 'DestinationId', 'stderr', 'stdout', 'ReturnCode', 'Timestamp', 'Status', 'Destination', 'Service');
+	return ('ID', 'TaskId', 'DestinationId', 'stderr', 'stdout', 'ReturnCode', 'Timestamp', 'Status', 'Destination',
+		'Service');
 }
 
 

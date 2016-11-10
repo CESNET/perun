@@ -24,9 +24,12 @@ sub help {
 
 my ($userId, $attributeId, $attributeName, @attributeValue);
 our $batch;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"userId|u=i" => \$userId, "attributeId|a=i" => \$attributeId,
- "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
+GetOptions ("help|h"    => sub {
+		print help();
+		exit 0;
+	}, "batch|b"        => \$batch,
+	"userId|u=i"        => \$userId, "attributeId|a=i" => \$attributeId,
+	"attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -38,16 +41,16 @@ my $attributesAgent = $agent->getAttributesAgent;
 my $attributeDefinition;
 
 if (!defined($attributeId)) {
-	$attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
 } else {
-	$attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+	$attributeDefinition = $attributesAgent->getAttributeDefinitionById( id => $attributeId );
 }
 
 # Get the attribute definition and create the attribute
-my $attribute = Perun::beans::Attribute->fromAttributeDefinition($attributeDefinition);
+my $attribute = Perun::beans::Attribute->fromAttributeDefinition( $attributeDefinition );
 
-$attribute->setValueFromArray(@attributeValue);
+$attribute->setValueFromArray( @attributeValue );
 
-$attributesAgent->setAttribute(user => $userId, attribute => $attribute);
+$attributesAgent->setAttribute( user => $userId, attribute => $attribute );
 
 printMessage("Attribute Id:".$attribute->getId." set for the user Id:$userId", $batch);

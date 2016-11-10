@@ -21,7 +21,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -40,7 +40,7 @@ sub TO_JSON
 		$shortName = undef;
 	}
 
-	return {id => $id, name => $name, shortName => $shortName, beanName => "Vo"};
+	return { id => $id, name => $name, shortName => $shortName, beanName => "Vo" };
 }
 
 sub getId
@@ -94,7 +94,7 @@ sub getCommonArrayRepresentation {
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('VO id','VO short name','VO name');
+	return ('VO id', 'VO short name', 'VO name');
 }
 
 

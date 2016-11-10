@@ -20,19 +20,25 @@ sub help {
 }
 
 my ($facilityId, $batch, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-	"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-	"batch|b" => \$batch) || die help;
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"orderById|i"   => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"       => \$batch) || die help;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
 
 my $ownersAgent = $agent->getOwnersAgent;
 
 my @owners = $ownersAgent->getOwners;
-unless(@owners) { printMessage "No owner found", $batch; exit 0;}
+unless (@owners) {
+	printMessage "No owner found", $batch;
+	exit 0;
+}
 
 printTable $sortingFunction, @owners;

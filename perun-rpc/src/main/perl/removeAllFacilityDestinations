@@ -21,10 +21,13 @@ sub help {
 }
 
 my ($facilityId, $facilityName, $facilityType, $serviceId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-	"facilityId|f=i" => \$facilityId,
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityId|f=i"   => \$facilityId,
 	"facilityName|F=s" => \$facilityName,
-	"serviceId|s=i" => \$serviceId) || die help();
+	"serviceId|s=i"    => \$serviceId) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
@@ -32,14 +35,14 @@ unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
 
 my $agent = Perun::Agent->new();
 
-unless($facilityId) {
+unless ($facilityId) {
 	my $facilitiesAgent = $agent->getFacilitiesAgent;
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-	$facilityId=$facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 my $servicesAgent = $agent->getServicesAgent;
 
-$servicesAgent->removeAllDestinations(facility => $facilityId, service => $serviceId);
+$servicesAgent->removeAllDestinations( facility => $facilityId, service => $serviceId );
 
 printMessage("All destinations removed from the facility Id:".$facilityId." and service Id:".$serviceId, $batch);

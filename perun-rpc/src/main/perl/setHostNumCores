@@ -20,37 +20,39 @@ sub help {
 }
 
 my ($hostName, $numCores, $facilityName, $batch);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"hostName|H=s" => \$hostName,
-	"numCores|n=i" => \$numCores,
-	"batch|b" => \$batch) || die help;
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"hostName|H=s"  => \$hostName,
+	"numCores|n=i"  => \$numCores,
+	"batch|b"       => \$batch) || die help;
 
 #options check
-unless(defined $hostName) { die "ERROR: hostName is required\n";}
-unless(defined $numCores) { die "ERROR: number of Cores is required\n";}
+unless (defined $hostName) { die "ERROR: hostName is required\n";}
+unless (defined $numCores) { die "ERROR: number of Cores is required\n";}
 
-my $attrName="urn:perun:host:attribute-def:def:coresNumber";
+my $attrName = "urn:perun:host:attribute-def:def:coresNumber";
 
 my $agent = Perun::Agent->new();
 
 my $attributesAgent = $agent->getAttributesAgent;
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-my $attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attrName);
-my $attribute = Perun::beans::Attribute->fromAttributeDefinition($attributeDefinition);
-$attribute->setValue($numCores);
+my $attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attrName );
+my $attribute = Perun::beans::Attribute->fromAttributeDefinition( $attributeDefinition );
+$attribute->setValue( $numCores );
 
-
-my @hosts=$facilitiesAgent->getHostsByHostname(hostname => $hostName);
+my @hosts = $facilitiesAgent->getHostsByHostname( hostname => $hostName );
 while (@hosts) {
-	my $host=shift(@hosts);
-	my $hostId=$host->getId;
+	my $host = shift(@hosts);
+	my $hostId = $host->getId;
 
-	$attributesAgent->setAttribute(host => $hostId, attribute => $attribute );
+	$attributesAgent->setAttribute( host => $hostId, attribute => $attribute );
 
-	my $facility = $facilitiesAgent->getFacilityForHost(host => $hostId);
-	unless($facility) {$facilityName="undefined";}
-	$facilityName=$facility->getName;
+	my $facility = $facilitiesAgent->getFacilityForHost( host => $hostId );
+	unless ($facility) {$facilityName = "undefined";}
+	$facilityName = $facility->getName;
 }
 
-printMessage ("Number of Cores $numCores set for Host $hostName on $facilityName Facility",$batch);
+printMessage ("Number of Cores $numCores set for Host $hostName on $facilityName Facility", $batch);

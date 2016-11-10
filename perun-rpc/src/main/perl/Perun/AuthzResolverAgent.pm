@@ -45,7 +45,7 @@ sub isPerunAdmin
 
 sub setRole
 {
-  return Perun::Common::callManagerMethod('setRole', '', @_);
+	return Perun::Common::callManagerMethod('setRole', '', @_);
 }
 
 sub unsetRole

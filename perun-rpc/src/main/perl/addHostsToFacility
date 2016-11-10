@@ -21,11 +21,14 @@ sub help {
 }
 
 my ($facilityId, $facilityName, @hosts, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-	"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName,
-'hosts|H=s@{1,}' => \@hosts) or die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"          => \$batch,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+	'hosts|H=s@{1,}'   => \@hosts) or die help();
 
 # Check options
 unless (defined($facilityId) || (defined($facilityName))) { die "ERROR: facilityId or facilityName are required \n";}
@@ -34,13 +37,13 @@ unless (@hosts) { die "ERROR: hosts are required \n";}
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-	$facilityId=$facility->getId;
+unless ($facilityId) {
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 
 
-$facilitiesAgent->addHosts(facility => $facilityId,hostnames => \@hosts );
+$facilitiesAgent->addHosts( facility => $facilityId, hostnames => \@hosts );
 
 printMessage("Hosts '@hosts' successfully added on the facility Id:$facilityId", $batch);

@@ -21,8 +21,11 @@ sub help {
 }
 
 my ($extSourceName, $extSourceType, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"extSourceName|e=s" => \$extSourceName,"extSourceType|t=s" => \$extSourceType) || die help();
+GetOptions ("help|h"    => sub {
+		print help();
+		exit 0;
+	}, "batch|b"        => \$batch,
+	"extSourceName|e=s" => \$extSourceName, "extSourceType|t=s" => \$extSourceType) || die help();
 
 # Check options
 unless (defined($extSourceName)) { die "ERROR: extSourceName is required \n";}
@@ -60,9 +63,9 @@ my $agent = Perun::Agent->new();
 my $extSourceAgent = $agent->getExtSourcesAgent;
 
 my $extSource = Perun::beans::ExtSource->new;
-$extSource->setName($extSourceName);
-$extSource->setType($extSourceTypeInternal);
+$extSource->setName( $extSourceName );
+$extSource->setType( $extSourceTypeInternal );
 
-$extSource = $extSourceAgent->createExtSource(extSource => $extSource);
+$extSource = $extSourceAgent->createExtSource( extSource => $extSource );
 
 printMessage("ExtSource Id:".$extSource->getId." successfully created", $batch);

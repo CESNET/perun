@@ -21,45 +21,48 @@ sub help {
 	};
 }
 
-my ($securityTeamId, $batch, $sortingFunction,$ii);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
-"securityTeamId|s=i" => \$securityTeamId || die help());
+my ($securityTeamId, $batch, $sortingFunction, $ii);
+GetOptions ("help|h"     => sub {
+		print help();
+		exit 0;
+	}, "batch|b"         => \$batch,
+	"orderById|i"        => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"      => sub { $sortingFunction = getSortingFunction("getLastName", 1) },
+	"securityTeamId|s=i" => \$securityTeamId || die help());
 
 # Check options
 unless (defined($securityTeamId)) {die "ERROR: securityTeamId is required\n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
 
 my $agent = Perun::Agent->new();
 my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
 
-my $securityTeam=$securityTeamsAgent->getSecurityTeamById('id',$securityTeamId);
+my $securityTeam = $securityTeamsAgent->getSecurityTeamById( 'id', $securityTeamId );
 
-my @admins = $securityTeamsAgent->getAdmins(securityTeam => $securityTeamId);
+my @admins = $securityTeamsAgent->getAdmins( securityTeam => $securityTeamId );
 unless (@admins) { printMessage "No managers found", $batch;}
-my @users = $securityTeamsAgent->getBlacklist(securityTeam => $securityTeamId);
+my @users = $securityTeamsAgent->getBlacklist( securityTeam => $securityTeamId );
 unless (@users) { printMessage "No blacklisted users found", $batch; }
 
 #output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('Id:'.$securityTeamId.','.$securityTeam->getName,'User Id','User Name');
-$ii=0;
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+$table->setCols( 'Id:'.$securityTeamId.','.$securityTeam->getName, 'User Id', 'User Name' );
+$ii = 0;
 foreach my $admin (sort $sortingFunction @admins) {
-    if ($ii==0) {
-        $table->addRow('ADMINS',$admin->getId, $admin->getCommonName);
-    } else {
-        $table->addRow('',$admin->getId, $admin->getCommonName);
-    }
-    $ii++;
+	if ($ii == 0) {
+		$table->addRow( 'ADMINS', $admin->getId, $admin->getCommonName );
+	} else {
+		$table->addRow( '', $admin->getId, $admin->getCommonName );
+	}
+	$ii++;
 }
-$ii=0;
+$ii = 0;
 foreach my $user (sort $sortingFunction @users) {
-    if ($ii==0) { 
-        $table->addRow('BLACKLISTED USERS',$user->getId, $user->getCommonName);
-    } else {
-        $table->addRow('',$user->getId, $user->getCommonName);
-    }
-    $ii++;
+	if ($ii == 0) {
+		$table->addRow( 'BLACKLISTED USERS', $user->getId, $user->getCommonName );
+	} else {
+		$table->addRow( '', $user->getId, $user->getCommonName );
+	}
+	$ii++;
 }
 print tableToPrint($table, $batch);

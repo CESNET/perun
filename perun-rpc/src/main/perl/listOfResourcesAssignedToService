@@ -23,27 +23,33 @@ sub help {
 
 our $batch;
 my ($serviceId, $serviceName, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-"serviceId|s=i" => \$serviceId,
-"serviceName|S=s" => \$serviceName,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-"batch|b" => \$batch) || die help;
+GetOptions("help|h"   => sub {
+		print help;
+		exit 0;
+	},
+	"serviceId|s=i"   => \$serviceId,
+	"serviceName|S=s" => \$serviceName,
+	"orderById|i"     => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"   => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"         => \$batch) || die help;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
-unless(defined $serviceId or defined $serviceName) { die "ERROR: service Id or Name required\n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $serviceId or defined $serviceName) { die "ERROR: service Id or Name required\n";}
 
 my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
 my $service;
-unless(defined $serviceId) {
-    $service = $servicesAgent->getServiceByName(name => $serviceName);
-    $serviceId = $service->getId;
+unless (defined $serviceId) {
+	$service = $servicesAgent->getServiceByName( name => $serviceName );
+	$serviceId = $service->getId;
 }
-my @resources = $servicesAgent->getAssignedResources(service => $serviceId);
-unless(@resources) { printMessage "No Resource found", $batch; exit 0; }
+my @resources = $servicesAgent->getAssignedResources( service => $serviceId );
+unless (@resources) {
+	printMessage "No Resource found", $batch;
+	exit 0;
+}
 
 #output
 printTable($sortingFunction, @resources);

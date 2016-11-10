@@ -23,14 +23,17 @@ sub help {
 }
 
 our $batch;
-my ($memberId,$resourceId,$sortingFunction);
-GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-"memberId|m=i" => \$memberId,
+my ($memberId, $resourceId, $sortingFunction);
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"memberId|m=i"   => \$memberId,
 	"resourceId|r=i" => \$resourceId,
-"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-"orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
+	"orderById|i"    => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByName|n"  => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}
@@ -40,11 +43,15 @@ my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 my @attributes;
 if ($resourceId) {
-	@attributes = $attributesAgent->getResourceRequiredAttributes(member =>$memberId, resourceToGetServicesFrom =>$resourceId);
+	@attributes = $attributesAgent->getResourceRequiredAttributes( member => $memberId, resourceToGetServicesFrom =>
+		$resourceId );
 } else {
-	@attributes = $attributesAgent->getRequiredAttributes(member =>$memberId);
+	@attributes = $attributesAgent->getRequiredAttributes( member => $memberId );
 }
 
-unless(@attributes) { printMessage "No required attributes found", $batch;  exit 0; }
+unless (@attributes) {
+	printMessage "No required attributes found", $batch;
+	exit 0;
+}
 
 printTable($sortingFunction, @attributes);

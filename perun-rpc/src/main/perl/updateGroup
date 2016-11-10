@@ -22,11 +22,14 @@ sub help {
 
 our $batch;
 my ($groupId, $name, $dsc);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch,
-"groupId|g=i" => \$groupId,
-"dsc|d=s" => \$dsc,
-"name|n=s" => \$name ) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"        => \$batch,
+	"groupId|g=i"    => \$groupId,
+	"dsc|d=s"        => \$dsc,
+	"name|n=s"       => \$name ) || die help();
 
 # Check options
 unless (defined($groupId)) { die "ERROR: groupId is required \n";}
@@ -34,16 +37,16 @@ unless (defined($groupId)) { die "ERROR: groupId is required \n";}
 my $agent = Perun::Agent->new();
 my $groupsAgent = $agent->getGroupsAgent;
 
-my $group = $groupsAgent->getGroupById(id => $groupId);
+my $group = $groupsAgent->getGroupById( id => $groupId );
 
 if (defined($name)) {
 	unless ($name !~ /^\s*$/) { die "ERROR: name cannot be empty string\n";}
-	$group->setName($name);
+	$group->setName( $name );
 }
 if (defined($dsc)) {
-        $group->setDescription($dsc);
+	$group->setDescription( $dsc );
 }
 
-$group = $groupsAgent->updateGroup(group => $group);
+$group = $groupsAgent->updateGroup( group => $group );
 
 printMessage("Group id:$groupId successfully updated", $batch);

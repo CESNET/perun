@@ -24,27 +24,33 @@ sub help {
 
 our $batch;
 my ($voId, $voShortName, $sortingFunction);
-GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-"voId|v=i" => \$voId,
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"voId|v=i"        => \$voId,
 	"voShortName|V=s" => \$voShortName,
-"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-"orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
+	"orderById|i"     => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByName|n"   => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
 
 # Check options
 unless (defined($voId) or defined($voShortName)) { die "ERROR: voId  or voShotName is required \n";}
 
 my $agent = Perun::Agent->new();
 
-unless(defined $voId) {
-	my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
+unless (defined $voId) {
+	my $vo = $agent->getVosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
-my @attributes = $attributesAgent->getRequiredAttributes(vo =>$voId);
+my @attributes = $attributesAgent->getRequiredAttributes( vo => $voId );
 
-unless(@attributes) { printMessage "No required attributes found", $batch;  exit 0; }
+unless (@attributes) {
+	printMessage "No required attributes found", $batch;
+	exit 0;
+}
 
 printTable($sortingFunction, @attributes);

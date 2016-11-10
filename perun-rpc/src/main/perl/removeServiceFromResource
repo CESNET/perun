@@ -21,8 +21,11 @@ sub help {
 }
 
 my ($resourceId, $serviceId, $serviceName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"resourceId|r=i" => \$resourceId, "serviceId|s=i" => \$serviceId, "serviceName|S=s" => \$serviceName) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"resourceId|r=i" => \$resourceId, "serviceId|s=i" => \$serviceId, "serviceName|S=s" => \$serviceName) || die help();
 
 
 # Check options
@@ -31,15 +34,15 @@ unless (defined($serviceId) or defined($serviceName)) { die "ERROR: serviceId or
 
 my $agent = Perun::Agent->new();
 
-unless($serviceId) {
+unless ($serviceId) {
 	my $servicesAgent = $agent->getServicesAgent;
-	my $service = $servicesAgent->getServiceByName(name => $serviceName);
-	$serviceId=$service->getId;
+	my $service = $servicesAgent->getServiceByName( name => $serviceName );
+	$serviceId = $service->getId;
 }
 
 
 my $resourcesAgent = $agent->getResourcesAgent;
 
-$resourcesAgent->removeService(resource => $resourceId, service => $serviceId);
+$resourcesAgent->removeService( resource => $resourceId, service => $serviceId );
 
 printMessage("Service Id:$serviceId removed from the resource Id:$resourceId", $batch);

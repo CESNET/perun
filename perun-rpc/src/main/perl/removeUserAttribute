@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($userId, $attributeId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"userId|u=i" => \$userId, "attributeId|a=i" => \$attributeId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"userId|u=i"     => \$userId, "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -30,6 +33,6 @@ unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
 my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 
-$attributesAgent->removeAttribute(user => $userId, attribute => $attributeId);
+$attributesAgent->removeAttribute( user => $userId, attribute => $attributeId );
 
 printMessage("Attribute Id:$attributeId removed from the user Id:$userId", $batch);

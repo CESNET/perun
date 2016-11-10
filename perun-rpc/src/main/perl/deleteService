@@ -20,9 +20,12 @@ sub help {
 }
 
 my ($serviceId, $serviceName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"serviceId|s=i" => \$serviceId,
- "serviceName|S=s" => \$serviceName) || die help();
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"serviceId|s=i"   => \$serviceId,
+	"serviceName|S=s" => \$serviceName) || die help();
 
 # Check options
 unless (defined($serviceId) or defined($serviceName)) { die "ERROR: serviceId or serviceName is required \n";}
@@ -30,11 +33,11 @@ unless (defined($serviceId) or defined($serviceName)) { die "ERROR: serviceId or
 my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
-unless($serviceId) {
-	my $service = $servicesAgent->getServiceByName(name => $serviceName);
-	$serviceId=$service->getId;
+unless ($serviceId) {
+	my $service = $servicesAgent->getServiceByName( name => $serviceName );
+	$serviceId = $service->getId;
 }
 
-$servicesAgent->deleteService(service => $serviceId);
+$servicesAgent->deleteService( service => $serviceId );
 
 printMessage("Service Id:$serviceId successfully deleted", $batch);

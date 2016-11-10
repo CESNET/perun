@@ -25,7 +25,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -69,8 +69,9 @@ sub TO_JSON
 		$titleAfter = undef;
 	}
 
-	return {id => $id, userExtSource => $userExtSource, additionalUserExtSources => $additionalUserExtSources, attributes => $attributes, firstName => $firstName, lastName => $lastName,
-		middleName => $middleName, titleBefore => $titleBefore, titleAfter => $titleAfter};
+	return { id    => $id, userExtSource => $userExtSource, additionalUserExtSources => $additionalUserExtSources,
+		attributes => $attributes, firstName => $firstName, lastName => $lastName,
+		middleName => $middleName, titleBefore => $titleBefore, titleAfter => $titleAfter };
 }
 
 sub getId
@@ -167,22 +168,22 @@ sub getCommonName
 {
 	my $self = shift;
 
-	return ($self->{_firstName} . ' ' . $self->{_middleName} . ' ' . $self->{_lastName});
+	return ($self->{_firstName}.' '.$self->{_middleName}.' '.$self->{_lastName});
 }
 
 sub getDisplayName
 {
 	my $self = shift;
 
-	return ($self->{_titleBefore} . ' ' . $self->{_firstName} . ' ' . $self->{_middleName} . ' ' . $self->{_lastName} . ' ' . $self->{_titleAfter});
+	return ($self->{_titleBefore}.' '.$self->{_firstName}.' '.$self->{_middleName}.' '.$self->{_lastName}.' '.$self->{_titleAfter});
 }
 
 sub getUserExtSource
 {
 	my $self = shift;
 
-	if ( ref($self->{_userExtSource}) eq 'HASH' ) {
-		return Perun::beans::UserExtSource->fromHash($self->{_userExtSource});
+	if (ref($self->{_userExtSource}) eq 'HASH') {
+		return Perun::beans::UserExtSource->fromHash( $self->{_userExtSource} );
 	} else {
 		return $self->{_userExtSource};
 	}
@@ -200,8 +201,8 @@ sub getAdditionalUserExtSources
 {
 	my $self = shift;
 
-	if ( ref($self->{_additionalUserExtSources}) eq 'HASH' ) {
-		return Perun::beans::UserExtSource->fromHash($self->{_additionalUserExtSources});
+	if (ref($self->{_additionalUserExtSources}) eq 'HASH') {
+		return Perun::beans::UserExtSource->fromHash( $self->{_additionalUserExtSources} );
 	} else {
 		return $self->{_additionalUserExtSources};
 	}

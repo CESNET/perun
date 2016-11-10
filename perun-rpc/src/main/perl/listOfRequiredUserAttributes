@@ -24,13 +24,16 @@ sub help {
 
 our $batch;
 my ($userId, $resourceId, $sortingFunction);
-GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-"userId|u=i" => \$userId,
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"userId|u=i"     => \$userId,
 	"resourceId|r=i" => \$resourceId,
-"orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
-"orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
+	"orderById|i"    => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByName|n"  => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -41,11 +44,15 @@ my $attributesAgent = $agent->getAttributesAgent;
 
 my @attributes;
 if ($resourceId) {
-	@attributes = $attributesAgent->getResourceRequiredAttributes(user =>$userId, resourceToGetServicesFrom =>$resourceId);
+	@attributes = $attributesAgent->getResourceRequiredAttributes( user => $userId, resourceToGetServicesFrom =>
+		$resourceId );
 } else {
-	@attributes = $attributesAgent->getRequiredAttributes(user =>$userId);
+	@attributes = $attributesAgent->getRequiredAttributes( user => $userId );
 }
 
-unless(@attributes) { printMessage "No required attributes found", $batch;  exit 0; }
+unless (@attributes) {
+	printMessage "No required attributes found", $batch;
+	exit 0;
+}
 
 printTable($sortingFunction, @attributes);

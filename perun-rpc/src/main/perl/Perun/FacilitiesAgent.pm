@@ -101,7 +101,7 @@ sub getHosts
 #(hostname => "prvni.cz")
 sub getHostsByHostname
 {
-       return Perun::Common::callManagerMethod('getHostsByHostname', '[]Host', @_);
+	return Perun::Common::callManagerMethod('getHostsByHostname', '[]Host', @_);
 }
 
 #(facility => $facilityId)
@@ -166,52 +166,52 @@ sub getAllowedUsers
 
 sub addFacilityContacts
 {
-        return Perun::Common::callManagerMethod('addFacilityContacts','[]ContactGroup',@_);
+	return Perun::Common::callManagerMethod('addFacilityContacts', '[]ContactGroup', @_);
 }
 
 sub addFacilityContact
 {
-        return Perun::Common::callManagerMethod('addFacilityContact','ContactGroup',@_);
+	return Perun::Common::callManagerMethod('addFacilityContact', 'ContactGroup', @_);
 }
 
 sub removeFacilityContacts
 {
-        return Perun::Common::callManagerMethod('removeFacilityContacts','',@_);
+	return Perun::Common::callManagerMethod('removeFacilityContacts', '', @_);
 }
 
 sub removeFacilityContact
 {
-        return Perun::Common::callManagerMethod('removeFacilityContact','',@_);
+	return Perun::Common::callManagerMethod('removeFacilityContact', '', @_);
 }
 
 sub getAllContactGroupNames
 {
-        return Perun::Common::callManagerMethod('getAllContactGroupNames','[]string',@_);
+	return Perun::Common::callManagerMethod('getAllContactGroupNames', '[]string', @_);
 }
 
 sub getFacilityContactGroup
 {
-        return Perun::Common::callManagerMethod('getFacilityContactGroup','ContactGroup',@_);
+	return Perun::Common::callManagerMethod('getFacilityContactGroup', 'ContactGroup', @_);
 }
 
 sub getFacilityContactGroups
 {
-        return Perun::Common::callManagerMethod('getFacilityContactGroups','[]ContactGroup',@_);
+	return Perun::Common::callManagerMethod('getFacilityContactGroups', '[]ContactGroup', @_);
 }
 
 sub assignSecurityTeam
 {
-        return Perun::Common::callManagerMethod('assignSecurityTeam','SecurityTeam',@_);
+	return Perun::Common::callManagerMethod('assignSecurityTeam', 'SecurityTeam', @_);
 }
 
 sub removeSecurityTeam
 {
-        return Perun::Common::callManagerMethod('removeSecurityTeam','',@_);
+	return Perun::Common::callManagerMethod('removeSecurityTeam', '', @_);
 }
 
 sub getAssignedSecurityTeams
 {
-        return Perun::Common::callManagerMethod('getAssignedSecurityTeams','[]SecurityTeam',@_);
+	return Perun::Common::callManagerMethod('getAssignedSecurityTeams', '[]SecurityTeam', @_);
 }
 
 sub getFacilitiesByHostName
@@ -221,7 +221,7 @@ sub getFacilitiesByHostName
 
 sub getFacilityForHost
 {
-        return Perun::Common::callManagerMethod('getFacilityForHost','Facility', @_);
+	return Perun::Common::callManagerMethod('getFacilityForHost', 'Facility', @_);
 }
 
 1;

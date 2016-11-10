@@ -24,19 +24,22 @@ sub help {
 }
 
 my ($facilityName, $facilityId, $all, $sortingFunction, $batch, @facilities, @hosts);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"facilityId|f=i" => \$facilityId,
+GetOptions("help|h"    => sub {
+		print help;
+		exit 0;
+	},
+	"facilityId|f=i"   => \$facilityId,
 	"facilityName|F=s" => \$facilityName,
-	"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getHostname", 1)},
-	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId")},
-	"batch|b" => \$batch) || die help;
+	"orderByName|n"    => sub {$sortingFunction = getSortingFunction("getHostname", 1)},
+	"orderById|i"      => sub { $sortingFunction = getSortingFunction("getId")},
+	"batch|b"          => \$batch) || die help;
 
 #options check
-unless(defined $facilityId or (defined $facilityName)) { $all=1;} else {$all=0;}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getHostname", 1); }
+unless (defined $facilityId or (defined $facilityName)) { $all = 1;} else {$all = 0;}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getHostname", 1); }
 
-my $sortingFunction2 = getSortingFunction("getName",1);
-my $attrName="urn:perun:host:attribute-def:def:coresNumber";
+my $sortingFunction2 = getSortingFunction("getName", 1);
+my $attrName = "urn:perun:host:attribute-def:def:coresNumber";
 
 my $agent = Perun::Agent->new();
 
@@ -44,37 +47,43 @@ my $attributesAgent = $agent->getAttributesAgent;
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 my $table = Text::ASCIITable->new();
-$table->setCols('Facility name','Host name', 'Number of cores');
+$table->setCols( 'Facility name', 'Host name', 'Number of cores' );
 
-if ($all>0) {
+if ($all > 0) {
 	@facilities = $facilitiesAgent->getFacilities;
-	unless(@facilities) { printMessage "No Facilities found", $batch; exit 0;}
+	unless (@facilities) {
+		printMessage "No Facilities found", $batch;
+		exit 0;
+	}
 } else {
 	my $facility;
 	if ($facilityId) {
-		$facility = $facilitiesAgent->getFacilityById(id => $facilityId);
+		$facility = $facilitiesAgent->getFacilityById( id => $facilityId );
 	}
 	if ($facilityName) {
-		$facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
+		$facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
 	}
-	$facilities[0]=$facility;
+	$facilities[0] = $facility;
 }
 
 foreach my $facility (sort $sortingFunction2 @facilities) {
-	my $facilityId=$facility->getId;
-	my $facilityName=$facility->getName;
+	my $facilityId = $facility->getId;
+	my $facilityName = $facility->getName;
 
-	@hosts = $facilitiesAgent->getHosts(facility => $facilityId);
-	unless(@hosts) {printMessage "No Host found for facility $facilityName", $batch; next;}
+	@hosts = $facilitiesAgent->getHosts( facility => $facilityId );
+	unless (@hosts) {
+		printMessage "No Host found for facility $facilityName", $batch;
+		next;
+	}
 	foreach my $host (sort $sortingFunction @hosts) {
-		my $hostId=$host->getId;
-		my $hostName=$host->getHostname;
-		my $attribute = $attributesAgent->getAttribute(attributeName => $attrName,host => $hostId);
+		my $hostId = $host->getId;
+		my $hostName = $host->getHostname;
+		my $attribute = $attributesAgent->getAttribute( attributeName => $attrName, host => $hostId );
 		my $numCores;
-		$numCores=$attribute->getValueAsScalar;
-		unless(defined $numCores) { $numCores = "undefined";}
+		$numCores = $attribute->getValueAsScalar;
+		unless (defined $numCores) { $numCores = "undefined";}
 
-		$table->addRow($facilityName,$hostName,$numCores);
+		$table->addRow( $facilityName, $hostName, $numCores );
 	}
 }
 

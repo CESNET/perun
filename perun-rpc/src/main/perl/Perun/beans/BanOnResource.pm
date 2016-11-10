@@ -21,7 +21,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -40,21 +40,22 @@ sub TO_JSON
 		$description = undef;
 	}
 
-        my $memberId;
+	my $memberId;
 	if (defined($self->{_memberId})) {
 		$memberId = "$self->{_memberId}";
 	} else {
 		$memberId = undef;
 	}
-          
-        my $resourceId;
+
+	my $resourceId;
 	if (defined($self->{_resourceId})) {
 		$resourceId = "$self->{_resourceId}";
 	} else {
 		$resourceId = undef;
 	}
 
-	return {id => $id, validityTo => $validityTo, description => $description, memberId => $memberId, resourceId => $resourceId};
+	return { id => $id, validityTo => $validityTo, description => $description, memberId => $memberId, resourceId =>
+		$resourceId };
 }
 
 sub getId

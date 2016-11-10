@@ -22,8 +22,11 @@ sub help {
 
 my ($memberId, $status);
 our $batch;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"memberId|m=i" => \$memberId, "status|s=s" => \$status) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"memberId|m=i"   => \$memberId, "status|s=s" => \$status) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}
@@ -33,6 +36,6 @@ my $agent = Perun::Agent->new();
 my $membersAgent = $agent->getMembersAgent;
 
 # FIXME check if the status is valid
-$membersAgent->setStatus(member => $memberId, status => $status);
+$membersAgent->setStatus( member => $memberId, status => $status );
 
 printMessage("Status:".$status." set for the member Id:$memberId", $batch);

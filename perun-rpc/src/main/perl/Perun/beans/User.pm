@@ -21,7 +21,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -67,7 +67,7 @@ sub TO_JSON
 	} else {
 		$isServiceUser = undef;
 	}
-	
+
 	my $isSponsoredUser;
 	if (defined($self->{_isSponsoredUser})) {
 		$isSponsoredUser = $self->{_isSponsoredUser};
@@ -75,9 +75,9 @@ sub TO_JSON
 		$isSponsoredUser = undef;
 	}
 
-	return {id => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
-		titleBefore => $titleBefore, titleAfter => $titleAfter, isServiceUser => $isServiceUser,
-		isSponsoredUser => $isSponsoredUser};
+	return { id         => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
+		titleBefore     => $titleBefore, titleAfter => $titleAfter, isServiceUser => $isServiceUser,
+		isSponsoredUser => $isSponsoredUser };
 }
 
 sub getId
@@ -204,20 +204,20 @@ sub getCommonName
 {
 	my $self = shift;
 
-	return ($self->{_firstName} . ' ' . (defined $self->{_middleName} ? $self->{_middleName} . ' ' : '') . $self->{_lastName});
+	return ($self->{_firstName}.' '.(defined $self->{_middleName} ? $self->{_middleName}.' ' : '').$self->{_lastName});
 }
 
 sub getDisplayName
 {
 	my $self = shift;
 
-	return (($self->{_titleBefore} ? $self->{_titleBefore} . ' ' : "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : "") . ($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_titleAfter} ? $self->{_titleAfter} : ""));
+	return (($self->{_titleBefore} ? $self->{_titleBefore}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : "").($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_titleAfter} ? $self->{_titleAfter} : ""));
 }
 
 # used only for sorting purpose: LastName FirstName MiddleName
 sub getSortingName {
 	my $self = shift;
-	return (($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : ""));
+	return (($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : ""));
 }
 
 sub getCommonArrayRepresentation {

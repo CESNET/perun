@@ -21,9 +21,12 @@ sub help {
 }
 
 my ($voId, $userId, $voShortName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "userId|u=i" => \$userId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
+	"userId|u=i"     => \$userId) || die help();
 
 # Check options
 unless (defined($voShortName) or defined($voId)) {die "ERROR: voId or voShortName is required\n";}
@@ -33,10 +36,10 @@ my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
 
 if (!defined($voId)) {
-	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
-$vosAgent->addAdmin(vo => $voId, user => $userId);
+$vosAgent->addAdmin( vo => $voId, user => $userId );
 
 printMessage("User Id:$userId successfully added as a Vo Id:$voId manager", $batch);

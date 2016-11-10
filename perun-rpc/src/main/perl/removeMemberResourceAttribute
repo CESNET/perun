@@ -22,8 +22,11 @@ sub help {
 
 our $batch;
 my ($resourceId, $attributeId, $memberId);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"resourceId|r=i" => \$resourceId, "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"resourceId|r=i" => \$resourceId, "memberId|m=i" => \$memberId, "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
@@ -33,6 +36,6 @@ unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
 my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 
-$attributesAgent->removeAttribute(resource => $resourceId, member => $memberId, attribute => $attributeId);
+$attributesAgent->removeAttribute( resource => $resourceId, member => $memberId, attribute => $attributeId );
 
 printMessage("Attribute Id:$attributeId removed from the resource Id:$resourceId and member Id:$memberId", $batch);

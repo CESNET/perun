@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -44,14 +44,14 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
 
 	my $voId;
 	if (defined($self->{_voId})) {
-		$voId = $self->{_voId}*1;
+		$voId = $self->{_voId} * 1;
 	} else {
 		$voId = 0;
 	}
@@ -69,7 +69,7 @@ sub TO_JSON
 	} else {
 		$description = undef;
 	}
-	
+
 	my $facilityId;
 	if (defined($self->{_facilityId})) {
 		$facilityId = "$self->{_facilityId}";
@@ -77,7 +77,8 @@ sub TO_JSON
 		$facilityId = 0;
 	}
 
-	return {id => $id, voId => $voId, name => $name, description => $description, facilityId => $facilityId, beanName => "Resource"};
+	return { id => $id, voId => $voId, name => $name, description => $description, facilityId => $facilityId, beanName
+				=> "Resource" };
 }
 
 sub getId
@@ -143,7 +144,7 @@ sub setDescription
 sub getFacilityId
 {
 	my $self = shift;
-	
+
 	return $self->{_facilityId};
 }
 
@@ -151,7 +152,7 @@ sub setFacilityId
 {
 	my $self = shift;
 	$self->{_facilityId} = shift;
-	
+
 	return;
 }
 

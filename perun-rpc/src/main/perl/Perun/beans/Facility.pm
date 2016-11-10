@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -40,7 +40,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -59,7 +59,7 @@ sub TO_JSON
 		$description = undef;
 	}
 
-	return {id => $id, name => $name, description => $description, beanName => "Facility"};
+	return { id => $id, name => $name, description => $description, beanName => "Facility" };
 }
 
 sub getId

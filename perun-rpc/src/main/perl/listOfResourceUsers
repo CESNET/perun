@@ -29,7 +29,7 @@ GetOptions("help|h"  => sub {
 	},
 	"resourceId|r=i" => \$resourceId,
 	"orderById|i"    => sub { $sortingFunction = getSortingFunction("getId") },
-	"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getSortingName", 1) },
+	"orderByName|n"  => sub {$sortingFunction = getSortingFunction("getSortingName", 1) },
 	"batch|b"        => \$batch) || die help;
 
 #options check

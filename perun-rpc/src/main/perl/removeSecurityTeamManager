@@ -22,10 +22,13 @@ sub help {
 }
 
 my ($securityTeamId, $userId, $groupId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"securityTeamId|s=i" => \$securityTeamId,
-"groupId|g=i" => \$groupId,
-"userId|u=i" => \$userId || die help());
+GetOptions ("help|h"     => sub {
+		print help();
+		exit 0;
+	}, "batch|b"         => \$batch,
+	"securityTeamId|s=i" => \$securityTeamId,
+	"groupId|g=i"        => \$groupId,
+	"userId|u=i"         => \$userId || die help());
 
 # Check options
 unless (defined($groupId) or (defined($userId))) { die "ERROR: groupId or userId is required \n";}
@@ -35,11 +38,11 @@ my $agent = Perun::Agent->new();
 my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
 
 if (defined($userId)) {
-    $securityTeamsAgent->removeAdmin(securityTeam => $securityTeamId, user => $userId);
-    printMessage("User Id:$userId successfully removed as SecurityTeam $securityTeamId admin", $batch);
+	$securityTeamsAgent->removeAdmin( securityTeam => $securityTeamId, user => $userId );
+	printMessage("User Id:$userId successfully removed as SecurityTeam $securityTeamId admin", $batch);
 }
 if (defined($groupId)) {
-    $securityTeamsAgent->removeAdmin(securityTeam => $securityTeamId, group => $groupId);
-    printMessage("Group Id:$groupId successfully removed as SecurityTeam $securityTeamId admin", $batch);
+	$securityTeamsAgent->removeAdmin( securityTeam => $securityTeamId, group => $groupId );
+	printMessage("Group Id:$groupId successfully removed as SecurityTeam $securityTeamId admin", $batch);
 }
 

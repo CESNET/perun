@@ -20,9 +20,12 @@ sub help {
 }
 
 my ($packageName, $packageId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"packageName|P=s" => \$packageName,
- "packageId|p=i" => \$packageId) || die help();
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"packageName|P=s" => \$packageName,
+	"packageId|p=i"   => \$packageId) || die help();
 
 # Check options
 unless (defined($packageName) or defined($packageId)) { die "ERROR: packageName or packageId is required \n";}
@@ -31,10 +34,10 @@ my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
 unless ($packageId) {
-	my $package = $servicesAgent->getServicesPackageByName(name => $packageName);
-	$packageId=$package->getId;
+	my $package = $servicesAgent->getServicesPackageByName( name => $packageName );
+	$packageId = $package->getId;
 }
 
-$servicesAgent->deleteServicesPackage(servicesPackage => $packageId);
+$servicesAgent->deleteServicesPackage( servicesPackage => $packageId );
 
 printMessage("Service Package Id:".$packageId." deleted", $batch);

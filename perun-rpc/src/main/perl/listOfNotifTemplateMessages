@@ -5,10 +5,10 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage getSortingFunction printTable); 
+use Perun::Common qw(printMessage getSortingFunction printTable);
 
 sub help {
-return qq{
+	return qq{
 Prints list of all Notif TemplateMessages.
 ---------------------------------------
 Available options:
@@ -22,13 +22,20 @@ Available options:
 
 my $sortingFunction;
 our $batch;
-GetOptions ("help|h" => sub { print help; exit 0;} ,"batch|b" => \$batch, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },"orderByTemplateId|t" => sub {$sortingFunction = getSortingFunction("getTemplateId", 1); } ) || die help; 
+GetOptions ("help|h"      => sub {
+		print help;
+		exit 0;
+	}, "batch|b"          => \$batch, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByTemplateId|t" => sub {$sortingFunction = getSortingFunction("getTemplateId", 1); } ) || die help;
 
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
 
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
 my @objects = $notifAgent->getAllPerunNotifTemplateMessages;
-unless(@objects) { printMessage "No NotifTemplateMessages found", $batch;  exit 0;}
+unless (@objects) {
+	printMessage "No NotifTemplateMessages found", $batch;
+	exit 0;
+}
 
 printTable($sortingFunction, @objects);

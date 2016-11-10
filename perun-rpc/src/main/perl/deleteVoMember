@@ -19,8 +19,11 @@ sub help {
 }
 
 my ($memberId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"memberId|m=i" => \$memberId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"memberId|m=i"   => \$memberId) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}
@@ -28,6 +31,6 @@ unless (defined($memberId)) { die "ERROR: memberId is required \n";}
 my $agent = Perun::Agent->new();
 my $membersAgent = $agent->getMembersAgent;
 
-$membersAgent->deleteMember(member => $memberId);
+$membersAgent->deleteMember( member => $memberId );
 
 printMessage("Member Id:$memberId successfully deleted", $batch);

@@ -12,27 +12,27 @@ sub new
 
 sub fromHash
 {
-      my $contactGroup = Perun::Common::fromHash(@_);
-      for my $owner (@{$contactGroup->{_owners}}) {
-          $owner = Perun::beans::Owner::fromHash("Perun::beans::Owner", $owner);
-      }
-      for my $user (@{$contactGroup->{_users}}) {
-          $user = Perun::beans::RichUser::fromHash("Perun::beans::RichUser", $user);
-      }
-      for my $group (@{$contactGroup->{_groups}}) {
-          $group = Perun::beans::Group::fromHash("Perun::beans::Group", $group);
-      }
-      my $facility = $contactGroup->{_facility}; 
-      $contactGroup->{_facility} = Perun::beans::Facility::fromHash("Perun::beans::Facility", $facility);    
-      return $contactGroup;
+	my $contactGroup = Perun::Common::fromHash(@_);
+	for my $owner (@{$contactGroup->{_owners}}) {
+		$owner = Perun::beans::Owner::fromHash("Perun::beans::Owner", $owner);
+	}
+	for my $user (@{$contactGroup->{_users}}) {
+		$user = Perun::beans::RichUser::fromHash("Perun::beans::RichUser", $user);
+	}
+	for my $group (@{$contactGroup->{_groups}}) {
+		$group = Perun::beans::Group::fromHash("Perun::beans::Group", $group);
+	}
+	my $facility = $contactGroup->{_facility};
+	$contactGroup->{_facility} = Perun::beans::Facility::fromHash("Perun::beans::Facility", $facility);
+	return $contactGroup;
 }
 
 sub TO_JSON
 {
 	my $self = shift;
 
-
-        return {name => $self->{_name}, facility => $self->{_facility}, groups => $self->{_groups}, owners => $self->{_owners}, users => $self->{_users}};
+	return { name               => $self->{_name}, facility => $self->{_facility}, groups => $self->{_groups}, owners =>
+		$self->{_owners}, users => $self->{_users} };
 }
 
 sub getName
@@ -111,12 +111,12 @@ sub setUsers
 }
 
 sub getCommonArrayRepresentation {
-        my $self = shift;
-        return ($self->{_name}, $self->{_facility});
+	my $self = shift;
+	return ($self->{_name}, $self->{_facility});
 }
 
 sub getCommonArrayRepresentationHeading {
-        return ('Name', 'Facility');
+	return ('Name', 'Facility');
 }
 
 1;

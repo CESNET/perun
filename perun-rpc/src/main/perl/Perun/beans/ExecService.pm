@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -48,7 +48,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -60,7 +60,7 @@ sub TO_JSON
 		$name = undef;
 	}
 
-	return {id => $id, name => $name};
+	return { id => $id, name => $name };
 }
 
 sub getId
@@ -152,11 +152,13 @@ sub setExecServiceType
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_service}->{id}, $self->{_service}->{name}, $self->{_type}, $self->{_script}, $self->{_enabled}, $self->{_defaultDelay}, $self->{_defaultRecurrence});
+	return ($self->{_id}, $self->{_service}->{id}, $self->{_service}->{name}, $self->{_type}, $self->{_script},
+		$self->{_enabled}, $self->{_defaultDelay}, $self->{_defaultRecurrence});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ("ExecService\nID", "Service\nID", "Service\nname", 'Type', 'Script', 'Enabled', "Default\nDelay", "Default\nRecurrence" );
+	return ("ExecService\nID", "Service\nID", "Service\nname", 'Type', 'Script', 'Enabled', "Default\nDelay",
+		"Default\nRecurrence" );
 }
 
 1;

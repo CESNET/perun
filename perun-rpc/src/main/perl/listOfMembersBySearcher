@@ -24,26 +24,33 @@ sub help {
 
 our $batch;
 my ($voId, $voShortName, @mapOfAttrs, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"voId|v=i" => \$voId,
-	"voShortName|V=s" => \$voShortName,
+GetOptions("help|h"       => sub {
+		print help;
+		exit 0;
+	},
+	"voId|v=i"            => \$voId,
+	"voShortName|V=s"     => \$voShortName,
 	'mapOfAttrs|m=s@{1,}' => \@mapOfAttrs,
-	"batch|b" => \$batch) || die help;
+	"batch|b"             => \$batch) || die help;
 
-	 my $agent = Perun::Agent->new();
-	 my $searcherAgent = $agent->getSearcherAgent;
+my $agent = Perun::Agent->new();
+my $searcherAgent = $agent->getSearcherAgent;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getMemberId"); }
-unless(defined $voId) {
-	unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
-	my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getMemberId"); }
+unless (defined $voId) {
+	unless (defined $voShortName) { die "ERROR: VO specification required.\n"; }
+	my $vo = $agent->getVosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
 my %mapOfAttrs = @mapOfAttrs;
-my @members = $searcherAgent->getMembersByUserAttributes(vo => $voId, userAttributesWithSearchingValues => \%mapOfAttrs);
-unless(@members) { printMessage "No member found", $batch; exit 0; }
+my @members = $searcherAgent->getMembersByUserAttributes( vo => $voId, userAttributesWithSearchingValues =>
+	\%mapOfAttrs );
+unless (@members) {
+	printMessage "No member found", $batch;
+	exit 0;
+}
 
 #output
 printTable($sortingFunction, @members);

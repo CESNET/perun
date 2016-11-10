@@ -18,11 +18,13 @@ sub help {
 }
 
 our $batch;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch) || die help();
 
 my $agent = Perun::Agent->new();
-my $notificationsAgent= $agent->getNotificationsAgent;
-
+my $notificationsAgent = $agent->getNotificationsAgent;
 
 $notificationsAgent->startNotifications();
 

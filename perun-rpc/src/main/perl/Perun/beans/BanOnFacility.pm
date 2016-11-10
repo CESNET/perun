@@ -21,7 +21,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -40,21 +40,22 @@ sub TO_JSON
 		$description = undef;
 	}
 
-        my $userId;
+	my $userId;
 	if (defined($self->{_userId})) {
 		$userId = "$self->{_userId}";
 	} else {
 		$userId = undef;
 	}
-          
-        my $facilityId;
+
+	my $facilityId;
 	if (defined($self->{_facilityId})) {
 		$facilityId = "$self->{_facilityId}";
 	} else {
 		$facilityId = undef;
 	}
 
-	return {id => $id, validityTo => $validityTo, description => $description, userId => $userId, facilityId => $facilityId};
+	return { id => $id, validityTo => $validityTo, description => $description, userId => $userId, facilityId =>
+		$facilityId };
 }
 
 sub getId

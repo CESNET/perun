@@ -17,9 +17,12 @@ sub help {
 	};
 }
 
-my ($userId,$extSourceId,$extSourceName,$extSourceLogin,$batch);
-GetOptions ("help|h" => sub { print help(); exit 0;},"userId|u=i" => \$userId,
-"batch|b" => \$batch) || die help();
+my ($userId, $extSourceId, $extSourceName, $extSourceLogin, $batch);
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "userId|u=i"  => \$userId,
+	"batch|b"        => \$batch) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -27,6 +30,6 @@ unless (defined($userId)) { die "ERROR: userId is required \n";}
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
 
-$usersAgent->makeUserPerunAdmin(user => $userId);
+$usersAgent->makeUserPerunAdmin( user => $userId );
 
-printMessage("User Id: $userId became PERUNADMIN",$batch);
+printMessage("User Id: $userId became PERUNADMIN", $batch);

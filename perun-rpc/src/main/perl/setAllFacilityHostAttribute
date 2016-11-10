@@ -27,11 +27,14 @@ sub help {
 
 my ($facilityId, $facilityName, $attributeId, $attributeName, @attributeValue);
 our $batch;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-	"facilityId|f=i" => \$facilityId,
-	"facilityName|F=s" => \$facilityName,
-	"attributeId|a=i" => \$attributeId,
-	"attributeName|A=s" => \$attributeName,
+GetOptions ("help|h"          => sub {
+		print help();
+		exit 0;
+	}, "batch|b"              => \$batch,
+	"facilityId|f=i"          => \$facilityId,
+	"facilityName|F=s"        => \$facilityName,
+	"attributeId|a=i"         => \$attributeId,
+	"attributeName|A=s"       => \$attributeName,
 	'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
 
 # Check options
@@ -43,30 +46,35 @@ my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 my $attributesAgent = $agent->getAttributesAgent;
 
-unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-	$facilityId=$facility->getId;
+unless ($facilityId) {
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 my $attributeDefinition;
 if (!defined($attributeId)) {
-	$attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
 } else {
-	$attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+	$attributeDefinition = $attributesAgent->getAttributeDefinitionById( id => $attributeId );
 }
 # Get the attribute definition and create the attribute
-my $attribute = Perun::beans::Attribute->fromAttributeDefinition($attributeDefinition);
+my $attribute = Perun::beans::Attribute->fromAttributeDefinition( $attributeDefinition );
 
-$attribute->setValueFromArray(@attributeValue);
+$attribute->setValueFromArray( @attributeValue );
 
-my @hosts=$facilitiesAgent->getHosts(facility => $facilityId);
-unless (@hosts) { printMessage "No host found", $batch; exit 0;}
+my @hosts = $facilitiesAgent->getHosts( facility => $facilityId );
+unless (@hosts) {
+	printMessage "No host found", $batch;
+	exit 0;
+}
 
 while (@hosts) {
-	my $host=shift(@hosts);
-	my $hostId=$host->getId;
+	my $host = shift(@hosts);
+	my $hostId = $host->getId;
 
-	$attributesAgent->setAttribute(host => $hostId, attribute => $attribute );
-	printMessage("Attribute ".$attribute->getFriendlyName." set for host ".$host->getHostname." on the facility ".($facilityName ? $facilityName : $facilityId), $batch);
+	$attributesAgent->setAttribute( host => $hostId, attribute => $attribute );
+	printMessage(
+		"Attribute ".$attribute->getFriendlyName." set for host ".$host->getHostname." on the facility ".($facilityName ? $facilityName : $facilityId)
+		, $batch);
 }
 

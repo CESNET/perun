@@ -45,12 +45,12 @@ sub getBan
 
 sub getBansForResource
 {
-        return Perun::Common::callManagerMethod('getBansForResource','[]BanOnResource', @_);
+	return Perun::Common::callManagerMethod('getBansForResource', '[]BanOnResource', @_);
 }
 
 sub getBansForMember
 {
-        return Perun::Common::callManagerMethod('getBansForMember','[]BanOnResource', @_);
+	return Perun::Common::callManagerMethod('getBansForMember', '[]BanOnResource', @_);
 
 }
 

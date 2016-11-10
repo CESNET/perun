@@ -7,7 +7,7 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-        return qq{
+	return qq{
         Removes contacts from facility.
         --------------------------
         Available options:
@@ -25,14 +25,17 @@ sub help {
 
 my ($facilityId, $facilityName, @owners, @groups, @users, $contactName, $batch);
 
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName,
-"contactName|n=s" => \$contactName,
-'owners|o=n@{1,}' => \@owners,
-'groups|g=n@{1,}' => \@groups,
-'users|u=n@{1,}' => \@users) or die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"          => \$batch,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+	"contactName|n=s"  => \$contactName,
+	'owners|o=n@{1,}'  => \@owners,
+	'groups|g=n@{1,}'  => \@groups,
+	'users|u=n@{1,}'   => \@users) or die help();
 
 # Check options
 unless (defined($facilityId) || (defined($facilityName))) { die "ERROR: facilityId or facilityName are required \n";}
@@ -41,21 +44,21 @@ unless (@owners || @groups || @users) {die "ERROR: owners or groups or users are
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
- 
+
 my $facility;
 if ($facilityId) {
-    $facility = $facilitiesAgent->getFacilityById(id => $facilityId);
+	$facility = $facilitiesAgent->getFacilityById( id => $facilityId );
 }
 if ($facilityName) {
-    $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-    $facilityId=$facility->getId;
+	$facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 #convert userIds to richUser objects
 my @richUsers;
 foreach(@users) {
 	my $richUser = Perun::beans::RichUser->new();
-	$richUser->setId($_);
+	$richUser->setId( $_ );
 	push @richUsers, $richUser;
 }
 
@@ -63,26 +66,26 @@ foreach(@users) {
 my @objectGroups;
 foreach(@groups) {
 	my $groupObject = Perun::beans::Group->new();
-	$groupObject->setId($_);
+	$groupObject->setId( $_ );
 	push @objectGroups, $groupObject;
 }
 
 #convert ownerIds to owner objects
 my @objectOwners;
 foreach(@owners) {
-  my $ownerObject = Perun::beans::Owner->new();
-  $ownerObject->setId($_);
-  push @objectOwners, $ownerObject;
+	my $ownerObject = Perun::beans::Owner->new();
+	$ownerObject->setId( $_ );
+	push @objectOwners, $ownerObject;
 }
 
 my $contactGroup = Perun::beans::ContactGroup->new();
-$contactGroup->setFacility($facility);
-$contactGroup->setName($contactName);
-$contactGroup->setGroups(\@objectGroups) if @objectGroups;
-$contactGroup->setOwners(\@objectOwners) if @objectOwners;
-$contactGroup->setUsers(\@richUsers) if @richUsers;
+$contactGroup->setFacility( $facility );
+$contactGroup->setName( $contactName );
+$contactGroup->setGroups( \@objectGroups ) if @objectGroups;
+$contactGroup->setOwners( \@objectOwners ) if @objectOwners;
+$contactGroup->setUsers( \@richUsers ) if @richUsers;
 
 #print Dumper($contactGroup);
-$facilitiesAgent->removeFacilityContact(contactGroupToRemove => $contactGroup);
+$facilitiesAgent->removeFacilityContact( contactGroupToRemove => $contactGroup );
 
-printMessage("ContactGroup $contactName has been successfully removed from facility ". $facility->getName,$batch); 
+printMessage("ContactGroup $contactName has been successfully removed from facility ".$facility->getName, $batch); 
