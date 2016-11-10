@@ -5,14 +5,14 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
 	Lists all required member group attributes. Group, VO and member fields are required. Resource id is optional.
 	-----------------------------------------------------------------------
 	Available options:.
-        --groupId      | -g group id
+	--groupId      | -g group id
 	--groupName    | -G group name
 	--voId         | -v vo id
 	--voShortName  | -V vo short name
@@ -26,7 +26,8 @@ sub help {
 	};
 }
 
-my ($groupId, $groupName, $voId, $voShortName, $resourceId, $memberId, $sortingFunction, $batch);
+our $batch;
+my ($groupId, $groupName, $voId, $voShortName, $resourceId, $memberId, $sortingFunction);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
 		"groupId|g=i" => \$groupId,
 		"groupName|G=s" => \$groupName,
@@ -68,10 +69,4 @@ if ($resourceId) {
 
 unless(@attributes) { printMessage "No required attributes found", $batch;  exit 0; }
 
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('attribute Id','attribute friendly name','namespace');
-
-foreach my $attribute (sort $sortingFunction @attributes) {
-	$table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace );
-}
-print tableToPrint($table, $batch);
+printTable($sortingFunction, @attributes);

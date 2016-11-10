@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -22,7 +22,8 @@ sub help {
 	};
 }
 
-my ($resourceId, $serviceId, $sortingFunction, $batch);
+our $batch;
+my ($resourceId, $serviceId, $sortingFunction);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
 "resourceId|r=i" => \$resourceId, "serviceId|s=i" => \$serviceId, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
 	"orderByName|n" => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
@@ -42,10 +43,4 @@ my @attributes = $attributesAgent->getRequiredAttributes(%params);
 
 unless(@attributes) { printMessage "No required attributes found", $batch;  exit 0; }
 
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('attribute Id','attribute friendly name','namespace', 'value');
-
-foreach my $attribute (sort $sortingFunction @attributes) {
-	$table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace, $attribute->getValueAsScalar);
-}
-print tableToPrint($table, $batch);
+printTable($sortingFunction, @attributes);

@@ -12,12 +12,14 @@ sub toString {
 	my $self = shift;
 
 	my $id = $self->{_id};
+	my $voId = $self->{_voId};
 	my $name = $self->{_name};
 	my $description = $self->{_description};
 	my $facilityId = $self->{_facilityId};
 
 	my $str = 'Resource (';
 	$str .= "id: $id, " if ($id);
+	$str .= "voId: $voId, " if ($voId);
 	$str .= "name: $name, " if ($name);
 	$str .= "description: $description" if ($description);
 	$str .= "facilityId: $facilityId" if ($facilityId);
@@ -47,6 +49,13 @@ sub TO_JSON
 		$id = 0;
 	}
 
+	my $voId;
+	if (defined($self->{_voId})) {
+		$voId = $self->{_voId}*1;
+	} else {
+		$voId = 0;
+	}
+
 	my $name;
 	if (defined($self->{_name})) {
 		$name = "$self->{_name}";
@@ -68,7 +77,7 @@ sub TO_JSON
 		$facilityId = 0;
 	}
 
-	return {id => $id, name => $name, description => $description, facilityId => $facilityId, beanName => "Resource"};
+	return {id => $id, voId => $voId, name => $name, description => $description, facilityId => $facilityId, beanName => "Resource"};
 }
 
 sub getId
@@ -82,6 +91,21 @@ sub setId
 {
 	my $self = shift;
 	$self->{_id} = shift;
+
+	return;
+}
+
+sub getVoId
+{
+	my $self = shift;
+
+	return $self->{_voId};
+}
+
+sub setVoId
+{
+	my $self = shift;
+	$self->{_voId} = shift;
 
 	return;
 }
@@ -133,11 +157,11 @@ sub setFacilityId
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_name}, $self->{_facilityId});
+	return ($self->{_id}, $self->{_voId}, $self->{_name}, $self->{_facilityId});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Facility ID');
+	return ('ID', 'VO ID', 'Name', 'Facility ID');
 }
 
 

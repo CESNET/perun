@@ -50,10 +50,5 @@ unless (@resources) {
 	exit 0;
 }
 
-foreach my $resource (@resources) {
-	my $facility = $resourcesAgent->getFacility( resource => $resource->getId );
-	$resource->setFacilityId( $facility->getId );
-}
-
 #output
 printTable($sortingFunction, @resources);

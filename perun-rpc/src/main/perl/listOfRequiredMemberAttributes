@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -22,7 +22,8 @@ sub help {
 	};
 }
 
-my ($memberId,$resourceId,$sortingFunction, $batch);
+our $batch;
+my ($memberId,$resourceId,$sortingFunction);
 GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
 "memberId|m=i" => \$memberId,
 	"resourceId|r=i" => \$resourceId,
@@ -46,10 +47,4 @@ if ($resourceId) {
 
 unless(@attributes) { printMessage "No required attributes found", $batch;  exit 0; }
 
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('attribute Id','attribute friendly name','namespace', 'value');
-
-foreach my $attribute (sort $sortingFunction @attributes) {
-	$table->addRow($attribute->getId, $attribute->getFriendlyName, $attribute->getNamespace, $attribute->getValueAsScalar);
-}
-print tableToPrint($table, $batch);
+printTable($sortingFunction, @attributes);

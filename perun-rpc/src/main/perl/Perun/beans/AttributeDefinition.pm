@@ -211,11 +211,11 @@ sub setType
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->getId, $self->getNamespace, $self->getFriendlyName, $self->getType);
+	return ($self->getId, $self->getName, $self->getType, $self->getDisplayName, $self->getDescription);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('Id','Namespace','Friendly Name','Type');
+	return ('ID', 'Name', 'Type', 'Display\nName', 'Description');
 }
 
 1;

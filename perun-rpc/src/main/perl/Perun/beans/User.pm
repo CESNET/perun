@@ -61,8 +61,23 @@ sub TO_JSON
 		$titleAfter = undef;
 	}
 
+	my $isServiceUser;
+	if (defined($self->{_isServiceUser})) {
+		$isServiceUser = $self->{_isServiceUser};
+	} else {
+		$isServiceUser = undef;
+	}
+	
+	my $isSponsoredUser;
+	if (defined($self->{_isSponsoredUser})) {
+		$isSponsoredUser = $self->{_isSponsoredUser};
+	} else {
+		$isSponsoredUser = undef;
+	}
+
 	return {id => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
-		titleBefore => $titleBefore, titleAfter => $titleAfter};
+		titleBefore => $titleBefore, titleAfter => $titleAfter, isServiceUser => $isServiceUser,
+		isSponsoredUser => $isSponsoredUser};
 }
 
 sub getId
@@ -155,6 +170,36 @@ sub setTitleAfter
 	return;
 }
 
+sub getIsServiceUser
+{
+	my $self = shift;
+
+	return $self->{_isServiceUser};
+}
+
+sub setIsServiceUser
+{
+	my $self = shift;
+	$self->{_isServiceUser} = shift;
+
+	return;
+}
+
+sub getIsSponsoredUser
+{
+	my $self = shift;
+
+	return $self->{_isSponsoredUser};
+}
+
+sub setIsSponsoredUser
+{
+	my $self = shift;
+	$self->{_isSponsoredUser} = shift;
+
+	return;
+}
+
 sub getCommonName
 {
 	my $self = shift;
@@ -177,11 +222,11 @@ sub getSortingName {
 
 sub getCommonArrayRepresentation {
 	my $user = shift;
-	return ($user->getId, $user->getDisplayName);
+	return ($user->getId, $user->getDisplayName, $user->getIsServiceUser, $user->getIsSponsoredUser);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('Id', 'Name');
+	return ('Id', 'Name', 'IsServiceUser', 'IsSponsoredUser');
 }
 
 

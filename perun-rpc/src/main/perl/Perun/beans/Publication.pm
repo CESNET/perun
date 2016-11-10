@@ -366,14 +366,26 @@ sub getAuthors
 
 	return @{$self->{_authors}};
 }
+#return '["' . join('", "', @$value) . '"]'
+sub printAuthors
+{
+	my $self = shift;
+	my @authors = $self->getAuthors;
+	my @result;
+	foreach my $author (@authors) {
+		push @result, $author->getFirstName . ' ' . $author->getLastName;
+	}
+	
+	return '[' . join(', ',@result) . ']';
+}
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->getId, $self->getTitle, $self->getRank, $self->getYear, $self->getCategoryId, $self->getLocked);
+	return ($self->getId, $self->getTitle, $self->getRank, $self->getYear, $self->getCategoryId, $self->getLocked, $self->printAuthors);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID','Name','Rank','Year','Cathegory ID','Locked');
+	return ('ID', 'Name', 'Rank', 'Year', 'Cathegory ID', 'Locked', 'Authors');
 }
 
 1;

@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 
 sub help {
@@ -17,18 +17,17 @@ sub help {
 	--voShortName   | -V VO shortName
 	--orderById     | -i order by numeric ID (default)
 	--orderByName   | -n order by name
-	--showSubgroups | -s show also subgroups
 	--batch         | -b batch
 	--help          | -h prints this help
 
 	};
 }
 
-my ($voId, $voShortName, $batch, $sortingFunction, $showSubgroups);
+our $batch;
+my ($voId, $voShortName, $sortingFunction);
 GetOptions("help|h" => sub { print help; exit 0;} ,
 	"voId|v=i" => \$voId,
 "voShortName|V=s" => \$voShortName,
-					 "showSubgroups|s" => \$showSubgroups,
 				 "orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
 				 "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
 				 "batch|b" => \$batch) || die help;
@@ -47,36 +46,5 @@ GetOptions("help|h" => sub { print help; exit 0;} ,
 		 my $groupsAgent = $agent->getGroupsAgent;
 		 my @groups = $groupsAgent->getGroups(vo => $voId);
 
-		 my $membersGroup = $groupsAgent->getGroupByName(vo => $voId, name => "members");
-
-		 sub printSubGroups {
-			 my $group = shift;
-			 my $table = shift;
-			 my $level = shift;
-
-			 # Prepare spaces for output
-			 my $spaces;
-			 for (my $i = 0; $i < $level; $i++) {
-				 $spaces .= "  ";
-			 }
-			 $spaces .= "|-- ";
-
-			 my @subGroups = $groupsAgent->getSubGroups(parentGroup => $group->getId);
-			 foreach my $subGroup (sort $sortingFunction @subGroups) {
-				 $table->addRow($subGroup->getId, $spaces.$subGroup->getName, $subGroup->getDescription);
-				 printSubGroups($subGroup, $table, $level+1);
-			 }
-		 }
-
 #output
-		 my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-		 $table->setCols('ID','Name', 'Description');
-
-		 $table->addRow($membersGroup->getId, $membersGroup->getName, "build-in group containg all Vo members");
-
-		 foreach my $group (sort $sortingFunction @groups) {
-			 $table->addRow($group->getId, $group->getName, $group->getDescription);
-			 if ($showSubgroups) { printSubGroups($group, $table, 1); };
-		 }
-
-		 print tableToPrint($table, $batch);
+		 printTable($sortingFunction, @groups);
