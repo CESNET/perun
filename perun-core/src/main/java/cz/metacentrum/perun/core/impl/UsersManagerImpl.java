@@ -416,7 +416,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 						user.getMiddleName(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
 				userDb.setMiddleName(user.getMiddleName());
 			}
-			if ((user.getTitleBefore() != null && !user.getTitleBefore().equals(userDb.getTitleBefore())) || 
+			if ((user.getTitleBefore() != null && !user.getTitleBefore().equals(userDb.getTitleBefore())) ||
 							(user.getTitleBefore() == null && userDb.getTitleBefore() != null)) {
 				jdbc.update("update users set title_before=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						user.getTitleBefore(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
@@ -428,7 +428,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 						user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
 				userDb.setTitleAfter(user.getTitleAfter());
 			}
-		
+
 			return userDb;
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
@@ -444,7 +444,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			}
 
 			// changed condition to updateUser case to handle: fill, change and remove
-			
+
 			if ((user.getTitleBefore() != null && !user.getTitleBefore().equals(userDb.getTitleBefore())) ||
 					(user.getTitleBefore() == null && userDb.getTitleBefore() != null)) {
 				jdbc.update("update users set title_before=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
@@ -457,7 +457,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 						user.getTitleAfter(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), user.getId());
 				userDb.setTitleAfter(user.getTitleAfter());
 			}
-			
+
 			return userDb;
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
@@ -961,9 +961,17 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	public boolean userExtSourceExists(PerunSession sess, UserExtSource userExtSource) throws InternalErrorException {
 		Utils.notNull(userExtSource, "userExtSource");
+		Utils.notNull(userExtSource.getLogin(), "userExtSource.getLogin");
+		Utils.notNull(userExtSource.getExtSource(), "userExtSource.getExtSource");
 
 		try {
-			return 1==jdbc.queryForInt("select 1 from user_ext_sources where id=?", userExtSource.getId());
+			if (userExtSource.getUserId() >= 0) {
+				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=? and user_id=?",
+						userExtSource.getLogin(), userExtSource.getExtSource().getId(), userExtSource.getUserId());
+			} else {
+				return 1 == jdbc.queryForInt("select 1 from user_ext_sources where login_ext=? and ext_sources_id=?",
+						userExtSource.getLogin(), userExtSource.getExtSource().getId());
+			}
 		} catch(EmptyResultDataAccessException ex) {
 			return false;
 		} catch(RuntimeException ex) {
