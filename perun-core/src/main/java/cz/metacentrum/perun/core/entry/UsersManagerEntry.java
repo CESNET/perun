@@ -402,7 +402,7 @@ public class UsersManagerEntry implements UsersManager {
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER) &&
 				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN) &&
 				!AuthzResolver.isAuthorized(sess, Role.RPC)) {
-			throw new PrivilegeException(sess, "addUserExtSourceById");
+			throw new PrivilegeException(sess, "getUserExtSourceById");
 		}
 
 		return getUsersManagerBl().getUserExtSourceById(sess, id);
