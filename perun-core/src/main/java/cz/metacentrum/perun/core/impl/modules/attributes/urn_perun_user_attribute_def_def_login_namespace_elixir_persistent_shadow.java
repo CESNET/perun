@@ -27,7 +27,7 @@ import java.security.NoSuchAlgorithmException;
 public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_shadow.class);
-	private final String extSourceNameElixir = "https://engine.elixir-czech.org/authentication/idp/metadata";
+	private final String extSourceNameElixir = "https://login.elixir-czech.org/idp/";
 	private final String domainNameElixir = "@elixir-europe.org";
 	private final String attrNameElixir = "login-namespace:elixir-persistent-shadow";
 
