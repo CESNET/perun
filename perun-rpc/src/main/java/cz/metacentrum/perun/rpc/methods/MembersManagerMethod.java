@@ -85,8 +85,8 @@ public enum MembersManagerMethod implements ManagerMethod {
 			}
 		}
 	},
-	
-	/**
+
+	/*#
 	 * Creates a new SPONSORED member from given parameters map.
 	 *
 	 * @param parameters Map<String,String> Map containing all parameters, must contain at least:
