@@ -1,4 +1,4 @@
--- database version 3.1.43 (don't forget to update insert statement at the end of file)
+-- database version 3.1.42 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1820,7 +1820,7 @@ constraint UESATTRVAL_ATTR_FK foreign key (attr_id) references attr_names(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.43');
+insert into configurations values ('DATABASE VERSION','3.1.42');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

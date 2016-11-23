@@ -5,12 +5,6 @@
 
 -- this update is not supported on hsql since its used only as in-memory db
 
-3.1.43
-CREATE FUNCTION assign_service(INTEGER, INTEGER) RETURNS VOID AS $$ BEGIN IF NOT EXISTS(SELECT * FROM facility_services fs WHERE fs.facility_id = $1 AND fs.service_id = $2) THEN INSERT INTO facility_services(facility_id, service_id) VALUES ($1, $2); END IF; END $$ LANGUAGE plpgsql;
-WITH efs AS ( SELECT r.facility_id, rs.service_id FROM resource_services rs JOIN resources r ON r.id = rs.resource_id GROUP BY r.facility_id, rs.service_id ORDER BY r.facility_id, rs.service_id ) SELECT assign_service(efs.facility_id, efs.service_id) FROM efs;
-DROP FUNCTION assign_service(INTEGER, INTEGER);
-update configurations set value='3.1.43' where property='DATABASE VERSION';
-
 3.1.42
 create table facility_services ( service_id integer not null, facility_id integer not null, created_at timestamp default now not null, created_by varchar(1300) default user not null, modified_at timestamp default now not null, modified_by varchar(1300) default user not null, status char(1) default '0' not null, created_by_uid integer, modified_by_uid integer);
 create index idx_fk_facsrv_srv on facility_services(service_id);
@@ -18,6 +12,9 @@ create index idx_fk_facsrv_fac on facility_services(facility_id);
 alter table facility_services add constraint facsrv_pk primary key (service_id,facility_id);
 alter table facility_services add constraint facsrv_srv_fk foreign key (service_id) references services(id);
 alter table facility_services add constraint facsrv_fac_fk foreign key (facility_id) references facilities(id);
+CREATE FUNCTION assign_service(INTEGER, INTEGER) RETURNS VOID AS $$ BEGIN IF NOT EXISTS(SELECT * FROM facility_services fs WHERE fs.facility_id = $1 AND fs.service_id = $2) THEN INSERT INTO facility_services(facility_id, service_id) VALUES ($1, $2); END IF; END $$ LANGUAGE plpgsql;
+WITH efs AS ( SELECT r.facility_id, rs.service_id FROM resource_services rs JOIN resources r ON r.id = rs.resource_id GROUP BY r.facility_id, rs.service_id ORDER BY r.facility_id, rs.service_id ) SELECT assign_service(efs.facility_id, efs.service_id) FROM efs;
+DROP FUNCTION assign_service(INTEGER, INTEGER);
 update configurations set value='3.1.42' where property='DATABASE VERSION';
 
 3.1.41
