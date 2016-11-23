@@ -18,9 +18,12 @@ import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.service.DispatcherManager;
 
 /**
- * 
- * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ * This class starts the whole dispatcher component.
+ *
+ * It's started by Spring context or when compiled as stand-alone jar,
+ * main method initialize spring context.
+ *
+ * @author Michal Karm Babacek
  */
 public class DispatcherStarter {
 
@@ -34,14 +37,18 @@ public class DispatcherStarter {
 	@Autowired
 	@Qualifier("perunScheduler")
 	private SchedulerFactoryBean perunScheduler;
-	
+
+	/**
+	 * Initialize stand-alone dispatcher.
+	 *
+	 * @param arg
+	 */
 	public static void main(String[] arg) {
 		DispatcherStarter starter = new DispatcherStarter();
-		
-                starter.springCtx = new ClassPathXmlApplicationContext("/perun-dispatcher.xml", "/perun-dispatcher-scheduler.xml");
-                // no need to call init explicitly, gets called by spring when initializing this bean
+		starter.springCtx = new ClassPathXmlApplicationContext("/perun-dispatcher.xml", "/perun-dispatcher-scheduler.xml");
+		// no need to call init explicitly, gets called by spring when initializing this bean
 	}
-	
+
 	/**
 	 * Initialize integrated dispatcher.
 	 */
@@ -110,4 +117,5 @@ public class DispatcherStarter {
 		dispatcherManager.stopProcessingSystemMessages();
 		dispatcherManager.stopPerunHornetQServer();
 	}
+
 }

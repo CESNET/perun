@@ -16,17 +16,14 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 			<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
 			<property name="jobDataAsMap">
 				<map>
-					<entry key="dispatcherManager" value-ref="dispatcherManager" />
+					<entry key="schedulingPool" value-ref="schedulingPool" />
 				</map>
 			</property>
 		</bean>
 
 		<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 			<property name="jobDetail" ref="maintenanceJob" />
-			<!-- Every 20 minutes -->
-			<!--<property name="cronExpression" value="0 0/20 * * * ?" /> -->
-			<!-- Every 5 seconds -->
-			<property name="cronExpression" value="0/5 * * * * ?" />
+			<property name="cronExpression" value="${dispatcher.cron.maintenance}" />
 		</bean>
 
 		<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
