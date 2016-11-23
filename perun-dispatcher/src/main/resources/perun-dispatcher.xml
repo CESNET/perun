@@ -153,10 +153,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 					<prop key="perun.principal.name">perunDispatcher</prop>
 					<prop key="perun.principal.extSourceName">INTERNAL</prop>
 					<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-					<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
-					<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.propagation">45 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.processpool">0 0/1 * * * ?</prop>
 					<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
-					<prop key="dispatcher.cron.maintenance">0 0 2 * * ?</prop>
+					<prop key="dispatcher.cron.maintenance">0 0 0/2 * * ?</prop>
 					<prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
 				</props>
 			</property>
@@ -170,10 +170,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 					<prop key="perun.principal.name">perunDispatcher</prop>
 					<prop key="perun.principal.extSourceName">INTERNAL</prop>
 					<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-					<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
-					<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.propagation">45 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.processpool">0 0/1 * * * ?</prop>
 					<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
-					<prop key="dispatcher.cron.maintenance">0 0 2 * * ?</prop>
+					<prop key="dispatcher.cron.maintenance">0 0 0/2 * * ?</prop>
 					<prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
 				</props>
 			</property>
