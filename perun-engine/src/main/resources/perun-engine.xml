@@ -17,16 +17,16 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<import resource="classpath:perun-tasks-lib.xml"/>
 	 -->
     <!-- Importing Perun Core... -->
-	<!-- 
+	<!--
     <import resource="classpath:perun-core.xml"/>
     <import resource="classpath:perun-core-jdbc.xml"/>
  	-->
- 	
+
     <!-- Enable @Transactional support -->
-    <!-- 
+    <!--
     <tx:annotation-driven transaction-manager="springTransactionManager"/>
  	-->
- 	
+
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
 
@@ -93,22 +93,22 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
     <!-- DAOs -->
 
-	<!-- 
+	<!--
     <bean id="engineDao" class="cz.metacentrum.perun.engine.dao.jdbc.EngineDaoJdbc" init-method="initialize">
         <property name="dataSource" ref="dataSource"/>
     </bean>
  	-->
- 	
+
     <!-- These DAOs come from taskslib -->
     <!-- we (re)define them here to differentiate between our local and central database -->
-	<!-- 
+	<!--
     <bean id="taskDao" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskDaoJdbc">
         <property name="dataSource" ref="dataSourceLocal"/>
     </bean>
 	-->
-	
+
     <!-- and where should these go? -->
-	<!-- 
+	<!--
     <bean id="taskResult" class="cz.metacentrum.perun.taskslib.dao.jdbc.TaskResultDaoJdbc">
         <property name="dataSource" ref="dataSource"/>
     </bean>
@@ -125,7 +125,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
         <property name="dataSource" ref="dataSource"/>
     </bean>
 	-->
-	
+
     <!--
     <bean id="processingRuleDao" class="cz.metacentrum.perun.engine.dao.jdbc.ProcessingRuleDaoJdbc">
       <property name="dataSource" ref="dataSource"/>
@@ -162,10 +162,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
                     <prop key="perun.principal.name">perunEngine</prop>
                     <prop key="perun.principal.extSourceName">INTERNAL</prop>
                     <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-                    <prop key="engine.cron.propagation">45 0/4 * * * ?</prop>
-                    <prop key="engine.cron.processpool">0 0/2 * * * ?</prop>
-                    <prop key="engine.cron.taskexecutor">0 0/4 * * * ?</prop>
-                    <prop key="engine.thread.gentasks.max">10</prop>
+                    <prop key="engine.cron.propagation">45 0/2 * * * ?</prop>
+                    <prop key="engine.cron.processpool">0 0/1 * * * ?</prop>
+                    <prop key="engine.cron.taskexecutor">0 0/2 * * * ?</prop>
+                    <prop key="engine.thread.gentasks.max">15</prop>
                     <prop key="engine.thread.sendtasks.max">1000</prop>
                     <prop key="engine.genscript.path">gen</prop>
                     <prop key="engine.sendscript.path">send</prop>
@@ -189,10 +189,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
                     <prop key="perun.principal.name">perunEngine</prop>
                     <prop key="perun.principal.extSourceName">INTERNAL</prop>
                     <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-                    <prop key="engine.cron.propagation">45 0/4 * * * ?</prop>
-                    <prop key="engine.cron.processpool">0 0/2 * * * ?</prop>
-                    <prop key="engine.cron.taskexecutor">0 0/4 * * * ?</prop>
-                    <prop key="engine.thread.gentasks.max">10</prop>
+                    <prop key="engine.cron.propagation">45 0/2 * * * ?</prop>
+                    <prop key="engine.cron.processpool">0 0/1 * * * ?</prop>
+                    <prop key="engine.cron.taskexecutor">0 0/2 * * * ?</prop>
+                    <prop key="engine.thread.gentasks.max">15</prop>
                     <prop key="engine.thread.sendtasks.max">1000</prop>
                     <prop key="engine.genscript.path">gen</prop>
                     <prop key="engine.sendscript.path">send</prop>
