@@ -21,7 +21,7 @@ sub toString {
 	$str .= "id: $id, " if ($id);
 	$str .= "voId: $voId, " if ($voId);
 	$str .= "name: $name, " if ($name);
-	$str .= "description: $description" if ($description);
+	$str .= "description: $description," if ($description);
 	$str .= "facilityId: $facilityId" if ($facilityId);
 	$str .= ')';
 
@@ -158,11 +158,11 @@ sub setFacilityId
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->{_id}, $self->{_voId}, $self->{_name}, $self->{_facilityId});
+	return ($self->{_id}, $self->{_voId}, $self->{_name}, $self->{_facilityId}, $self->{_description});
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'VO ID', 'Name', 'Facility ID');
+	return ('ID', 'Name', 'VO ID', 'Facility ID', 'Description');
 }
 
 

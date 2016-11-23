@@ -173,14 +173,17 @@ sub setTitleAfter
 sub getIsServiceUser
 {
 	my $self = shift;
-
-	return $self->{_isServiceUser};
+	return ($self->{_isServiceUser}) ? 'true' : 'false';
 }
 
 sub setIsServiceUser
 {
 	my $self = shift;
-	$self->{_isServiceUser} = shift;
+	my $value = shift;
+	$value eq 'true' || $value eq 1 || ref $value eq "JSON::PP::Boolean"
+		? $value = "JSON::PP::true"
+		: $value = "JSON::PP::false";
+	$self->{_isServiceUser} = $value;
 
 	return;
 }
@@ -189,12 +192,16 @@ sub getIsSponsoredUser
 {
 	my $self = shift;
 
-	return $self->{_isSponsoredUser};
+	return ($self->{_isSponsoredUser}) ? 'true' : 'false';
 }
 
 sub setIsSponsoredUser
 {
 	my $self = shift;
+	my $value = shift;
+	$value eq 'true' || $value eq 1 || ref $value eq "JSON::PP::Boolean"
+		? $value = "JSON::PP::true"
+		: $value = "JSON::PP::false";
 	$self->{_isSponsoredUser} = shift;
 
 	return;

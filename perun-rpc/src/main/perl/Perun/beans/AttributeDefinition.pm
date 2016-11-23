@@ -215,7 +215,7 @@ sub getCommonArrayRepresentation {
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Type', 'Display\nName', 'Description');
+	return ('ID', 'Name', 'Type', 'Display Name', 'Description');
 }
 
 1;

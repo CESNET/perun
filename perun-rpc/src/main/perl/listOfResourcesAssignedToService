@@ -13,7 +13,7 @@ sub help {
 	------------------------------------------------
 	Available options:
 	--serviceId   | -s  service idetifier
-    --serviceName | -S  service name
+	--serviceName | -S  service name
 	--orderById   | -i  order by numeric ID
 	--orderByName | -n  order by name
 	--batch       | -b  batch

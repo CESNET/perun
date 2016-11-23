@@ -389,7 +389,7 @@ sub getCommonArrayRepresentation {
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Rank', 'Year', 'Cathegory ID', 'Locked', 'Authors');
+	return ('ID', 'Name', 'Rank', 'Year', 'Category ID', 'Locked', 'Authors');
 }
 
 1;

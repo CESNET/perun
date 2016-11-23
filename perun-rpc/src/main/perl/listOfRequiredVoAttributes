@@ -9,12 +9,14 @@ use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
-	Lists all required VO attributes. VO id or VO short name is required option.
+	Lists all required VO attributes. VO id or VO short name and Service id or name are required option.
 	-----------------------------------------------------------------------
 	Available options:
 	--voId         | -v VO id
 	--voShortName  | -V  VO short name
 	--orderById    | -i order by attribute id
+	--serviceId    | -s  service idetifier
+	--serviceName  | -S  service name
 	--orderByName  | -n order by attribute friendly name
 	--batch        | -b batch
 	--help         | -h help
@@ -23,13 +25,15 @@ sub help {
 }
 
 our $batch;
-my ($voId, $voShortName, $sortingFunction);
+my ($voId, $voShortName, $serviceId, $serviceName, $sortingFunction);
 GetOptions ("help|h"  => sub {
 		print help();
 		exit 0;
 	}, "batch|b"      => \$batch,
 	"voId|v=i"        => \$voId,
 	"voShortName|V=s" => \$voShortName,
+	"serviceId|s=i"   => \$serviceId,
+	"serviceName|S=s" => \$serviceName,
 	"orderById|i"     => sub { $sortingFunction = getSortingFunction('getId') },
 	"orderByName|n"   => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
 
@@ -37,6 +41,7 @@ unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getFr
 
 # Check options
 unless (defined($voId) or defined($voShortName)) { die "ERROR: voId  or voShotName is required \n";}
+unless (defined($serviceId) or defined($serviceName)) { die "ERROR: serviceId or serviceName is required \n";}
 
 my $agent = Perun::Agent->new();
 
@@ -44,9 +49,13 @@ unless (defined $voId) {
 	my $vo = $agent->getVosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
+unless (defined $serviceId) {
+	my $service = $agent->getServicesAgent->getServiceByName( name => $serviceName );
+	$serviceId = $service->getId;
+}
 
 my $attributesAgent = $agent->getAttributesAgent;
-my @attributes = $attributesAgent->getRequiredAttributes( vo => $voId );
+my @attributes = $attributesAgent->getRequiredAttributes( vo => $voId, service => $serviceId );
 
 unless (@attributes) {
 	printMessage "No required attributes found", $batch;
