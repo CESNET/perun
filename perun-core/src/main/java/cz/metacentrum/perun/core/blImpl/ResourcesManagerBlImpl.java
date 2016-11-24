@@ -276,21 +276,28 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 			throw new ConsistencyErrorException(ex);
 		}
 
-		//fill and check required attributes' values for each member
-		//and set defaultResource attribute if necessary
-		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
-		Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
-		for(Member member : members) {
-			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
-			try {
-				getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
-			} catch(WrongAttributeAssignmentException ex) {
-				throw new ConsistencyErrorException(ex);
-			} catch(AttributeNotExistsException ex) {
-				throw new ConsistencyErrorException(ex);
-			}
-		}
+		List<Member> lastStateOfMembersInGroup = new ArrayList<>();
+		List<Member> actualMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		while (!lastStateOfMembersInGroup.containsAll(actualMembers)) {
+			//fill and check required attributes' values for each member
+			//and set defaultResource attribute if necessary
+			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 
+			List<Member> members = new ArrayList<>(actualMembers);
+			members.removeAll(lastStateOfMembersInGroup);
+			for(Member member : members) {
+				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				try {
+					getPerunBl().getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
+				} catch(WrongAttributeAssignmentException ex) {
+					throw new ConsistencyErrorException(ex);
+				} catch(AttributeNotExistsException ex) {
+					throw new ConsistencyErrorException(ex);
+				}
+			}
+			lastStateOfMembersInGroup = new ArrayList<>(actualMembers);
+			actualMembers = getPerunBl().getGroupsManagerBl().getGroupMembers(sess, group);
+		}
 	}
 
 	public void assignGroupsToResource(PerunSession perunSession, List<Group> groups, Resource resource) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, GroupAlreadyAssignedException {
