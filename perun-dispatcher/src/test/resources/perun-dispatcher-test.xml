@@ -4,10 +4,20 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 ">
+
 	<!-- Import standard app config -->
 	<import resource="classpath:perun-dispatcher.xml"/>
 
-	<!-- in case of integration testing run scheduler -->
+	<!-- Define empty scheduler in order for test context to start
+	     but we don't want scheduled jobs to run in unit/integration tests -->
+	<bean id="perunScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+			</list>
+		</property>
+	</bean>
+
+	<!-- FIXME - in case of integration testing run scheduler - most probably obsolete -->
 
 	<beans profile="integration">
 

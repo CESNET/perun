@@ -15,13 +15,13 @@ public class ProcessPoolJob extends QuartzJobBean {
 
 	private final static Logger log = LoggerFactory.getLogger(ProcessPoolJob.class);
 
-	@Autowired
 	private TaskScheduler taskScheduler;
 
 	public TaskScheduler getTaskScheduler() {
 		return taskScheduler;
 	}
 
+	@Autowired
 	public void setTaskScheduler(TaskScheduler taskScheduler) {
 		this.taskScheduler = taskScheduler;
 	}

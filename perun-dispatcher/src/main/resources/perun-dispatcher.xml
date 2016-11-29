@@ -58,17 +58,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
-	<!-- BEGIN Quartz tasks -->
-	<bean id="perunScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="triggers">
-			<list>
-				<ref bean="maintenanceJobTrigger" />
-				<ref bean="processPoolJobTrigger" />
-				<ref bean="propagationMaintainerJobTrigger" />
-				<ref bean="cleanTaskResultsJobTrigger" />
-			</list>
-		</property>
-	</bean>
+	<!-- Quartz jobs definition - they are not started unless perun-dispatcher-scheduler.xml is imported to context -->
 
 	<bean id="maintenanceJob" class="org.springframework.scheduling.quartz.JobDetailBean">
 		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
@@ -126,7 +116,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="cronExpression" value="${dispatcher.cron.cleantaskresults}" />
 	</bean>
 
-	<!-- END Quartz tasks -->
+	<!-- END of quartz jobs definition -->
 
 	<!-- Dispatcher properties per-profile -->
 

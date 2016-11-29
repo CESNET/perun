@@ -19,13 +19,13 @@ public class PropagationMaintainerJob extends QuartzJobBean {
 
 	private final static Logger log = LoggerFactory.getLogger(PropagationMaintainerJob.class);
 
-	@Autowired
 	private PropagationMaintainer propagationMaintainer;
 
 	public PropagationMaintainer getPropagationMaintainer() {
 		return propagationMaintainer;
 	}
 
+	@Autowired
 	public void setPropagationMaintainer(PropagationMaintainer propagationMaintainer) {
 		this.propagationMaintainer = propagationMaintainer;
 	}

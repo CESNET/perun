@@ -19,13 +19,13 @@ public class CleanTaskResultsJob  extends QuartzJobBean {
 
 	private final static Logger log = LoggerFactory.getLogger(CleanTaskResultsJob.class);
 
-	@Autowired
 	private DispatcherManager dispatcherManager;
 
 	public DispatcherManager getDispatcherManager() {
 		return dispatcherManager;
 	}
 
+	@Autowired
 	public void setDispatcherManager(DispatcherManager dispatcherManager) {
 		this.dispatcherManager = dispatcherManager;
 	}

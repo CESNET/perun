@@ -19,13 +19,13 @@ public class MaintenanceJob extends QuartzJobBean {
 
 	private final static Logger log = LoggerFactory.getLogger(MaintenanceJob.class);
 
-	@Autowired
 	private SchedulingPool schedulingPool;
 
 	public SchedulingPool getSchedulingPool() {
 		return schedulingPool;
 	}
 
+	@Autowired
 	public void setSchedulingPool(SchedulingPool schedulingPool) {
 		this.schedulingPool = schedulingPool;
 	}
