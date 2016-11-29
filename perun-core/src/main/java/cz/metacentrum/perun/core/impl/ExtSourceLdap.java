@@ -116,8 +116,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		String ldapGroupName = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		// Get optional filter for members filtering
 		String filter = attributes.get(GroupsManager.GROUPMEMBERSFILTER_ATTRNAME);
-		// If attribute filter not exists, use optional default filter from extSource definition
-		if(filter == null) filter = filteredQuery;
 
 		try {
 			log.trace("LDAP External Source: searching for group subjects [{}]", ldapGroupName);
@@ -152,6 +150,9 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			}
 
 			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
+
+			// If attribute filter not exists, use optional default filter from extSource definition
+			if(filter == null) filter = filteredQuery;
 
 			// Now query LDAP again and search for each subject
 			for (String ldapSubjectName : ldapGroupSubjects) {
