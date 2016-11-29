@@ -432,6 +432,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 							"Setting GEN dependency task {} to NONE state to regenerate data for completed task {}",
 							taskToBeSetDirty, task);
 					schedulingPool.setTaskStatus(taskToBeSetDirty, TaskStatus.NONE);
+					schedulingPool.addTaskSchedule(taskToBeSetDirty, -1);
 					try {
 						schedulingPool.setQueueForTask(taskToBeSetDirty, null);
 					} catch (InternalErrorException e) {

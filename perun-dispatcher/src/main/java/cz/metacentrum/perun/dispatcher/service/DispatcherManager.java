@@ -36,4 +36,6 @@ public interface DispatcherManager {
 	void loadSchedulingPool();
 	
 	void cleanOldTaskResults();
+
+	void startSchedulingTasks();
 }

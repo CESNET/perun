@@ -1,23 +1,12 @@
 package cz.metacentrum.perun.dispatcher.scheduling.impl;
 
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Properties;
-
-import cz.metacentrum.perun.core.api.PerunClient;
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
+import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -28,13 +17,22 @@ import cz.metacentrum.perun.dispatcher.scheduling.DenialsResolver;
 import cz.metacentrum.perun.dispatcher.scheduling.DependenciesResolver;
 import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 import cz.metacentrum.perun.dispatcher.scheduling.TaskScheduler;
+import cz.metacentrum.perun.taskslib.dao.ExecServiceDependencyDao.DependencyScope;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
-import cz.metacentrum.perun.taskslib.dao.ExecServiceDependencyDao.DependencyScope;
+import cz.metacentrum.perun.taskslib.model.TaskSchedule;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.DelayQueue;
+
 
 @org.springframework.stereotype.Service(value = "taskScheduler")
 public class TaskSchedulerImpl implements TaskScheduler {
@@ -54,24 +52,55 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private DispatcherQueuePool dispatcherQueuePool;
 	@Autowired
 	private DenialsResolver denialsResolver;
-	
+
+
+	/**
+	 * This method runs in separate thread perpetually trying to take tasks from delay queue, blocking if none are available.
+	 * If there is Task ready, we check if it source was updated. If it was, we put the task back to the queue (This
+	 * can happen only limited number of times). If on the other hand it was not updated we perform additional checks using
+	 * method scheduleTask.
+	 */
 	@Override
-	public void processPool() throws InternalErrorException {
-		initPerunSession();
-		log.debug("pool contains " + schedulingPool.getSize()
-				+ " tasks in total");
-		log.debug("  " + schedulingPool.getWaitingTasks().size()
-				+ " tasks are going to be processed");
-		for (Task task : schedulingPool.getWaitingTasks()) {
+	public void run() {
+		try {
+			initPerunSession();
+		} catch (InternalErrorException e1) {
+			String message = "Dispatcher was unable to initialize Perun session.";
+			log.error(message, e1);
+			throw new RuntimeException(message, e1);
+		}
+		log.debug("pool contains {} tasks in total", schedulingPool.getSize());
+		log.debug("   {} tasks are going to be processed", schedulingPool.getWaitingTasks().size());
+		DelayQueue<TaskSchedule> waitingTasksQueue = schedulingPool.getWaitingTasksQueue();
+		while (true) {
+			TaskSchedule schedule;
+			try {
+				schedule = waitingTasksQueue.take();
+			} catch (InterruptedException e) {
+				String message = "Thread was interrupted, cannot continue.";
+				log.error(message, e);
+				throw new RuntimeException(message, e);
+			}
+			Task task = schedule.getTask();
 			if (task.getExecService().getExecServiceType()
 					.equals(ExecServiceType.SEND)) {
-				scheduleTask(task);
+				boolean sendToEngine = true;
+				if (task.isSourceUpdated()) {
+					if (schedule.getDelayCount() > 0) {
+						schedulingPool.addTaskSchedule(task, schedule.getDelayCount() - 1, true);
+						sendToEngine = false;
+					}
+				}
+				if (sendToEngine) {
+					scheduleTask(task);
+				}
 			}
 			// GEN tasks are scheduled only as dependencies
 		}
 	}
 
 	// TODO ensure dependant tasks with scope DESTINATION go to the same engine
+	// TODO Is there problem a problem with other threads calling this method?
 	@Override
 	public void scheduleTask(Task task) {
 		ExecService execService = task.getExecService();
@@ -93,57 +122,57 @@ public class TaskSchedulerImpl implements TaskScheduler {
 			log.warn("Task {} is not assigned to any queue", task.getId());
 		}
 		// check if the engine is still registered
-		if(dispatcherQueue != null && 
+		if (dispatcherQueue != null &&
 				!dispatcherQueuePool.isThereDispatcherQueueForClient(dispatcherQueue.getClientID())) {
 			dispatcherQueue = null;
 		}
 		if (dispatcherQueue == null) {
 			// where should we send the task?
 			dispatcherQueue = dispatcherQueuePool.getAvailableQueue();
-			if(dispatcherQueue != null) {
+			if (dispatcherQueue != null) {
 				try {
 					schedulingPool.setQueueForTask(task, dispatcherQueue);
 				} catch (InternalErrorException e) {
 					log.error("Could not set client queue for task {}: {}", task.getId(), e.getMessage());
 					return;
 				}
-				log.debug("Assigned new queue "
-						+ dispatcherQueue.getQueueName() + " to task "
-						+ task.getId());
+				log.debug("Assigned new queue {} to task {}",
+						dispatcherQueue.getQueueName(),
+						task.getId());
 			} else {
 				// bad luck...
-				log.error("Task "
-						+ task.toString()
-						+ " has no engine assigned and there are no engines registered...");
+				log.error("Task {} has no engine assigned and there are no engines registered...",
+						task.toString());
 				return;
 			}
 		}
 
-		log.debug("Facility to be processed: " + facility.getId()
-				+ ", ExecService to be processed: " + execService.getId());
-		
-		log.debug("Is the execService ID:" + execService.getId() + " enabled globally?");
+		log.debug("Facility to be processed: {}, ExecService to be processed: {}",
+				facility.getId(),
+				execService.getId());
+		log.debug("Is the execService ID: {} enabled globally?", execService.getId());
 		if (execService.isEnabled()) {
 			log.debug("   Yes, it is globally enabled.");
 		} else {
-			log.debug("   No, execService ID: "+ execService.getId() + " is not enabled globally. Task will not run.");
+			log.debug("   No, execService ID: {} is not enabled globally. Task will not run.", execService.getId());
 			return;
 		}
 
-		log.debug("   Is the execService ID: " + execService.getId() + " denied on facility ID:" + facility.getId() + "?");
+		log.debug("   Is the execService ID: {} denied on facility ID: {}?",
+				execService.getId(), facility.getId());
 		try {
 			if (!denialsResolver.isExecServiceDeniedOnFacility(execService, facility)) {
 				log.debug("   No, it is not.");
 			} else {
-				log.debug("   Yes, the execService ID: " + execService.getId() + " is denied on facility ID: "
-						+ facility.getId() + ". Task will not run.");
+				log.debug("   Yes, the execService ID: {} is denied on facility ID: {}. Task will not run.",
+						execService.getId(), facility.getId());
 				return;
 			}
 		} catch (InternalErrorException e) {
 			log.error("Error getting disabled status for execService, task will not run now.");
 			return;
 		}
-		
+
 		List<ExecService> dependantServices = null;
 		List<Pair<ExecService, DependencyScope>> dependencies = null;
 
@@ -151,8 +180,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		// PROCESSING
 		// we will put the ExecService,Facility pair back to the pool.
 		// #################################################################################
-		log.debug("   Is there any execService that depends on ["
-				+ execService.getId() + "] in \"PROCESSING\" state?");
+		log.debug("   Is there any execService that depends on [{}] in \"PROCESSING\" state?", execService.getId());
 		dependantServices = dependenciesResolver.listDependantServices(execService);
 		boolean proceed = true;
 		for (ExecService dependantService : dependantServices) {
@@ -161,9 +189,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 			if (dependantServiceTask != null) {
 				if (dependantServiceTask.getStatus().equals(
 						TaskStatus.PROCESSING)) {
-					log.debug("   There is a service [" + dependantServiceTask.getId()
-							+ "] running that depends on this one ["
-							+ execService + "], so we put this to sleep...");
+					log.debug("   There is a service [{}] running that depends on this one [{}], so we put this to sleep...",
+							dependantServiceTask.getId(), execService);
 					// schedulingPool.addToPool(new Pair<ExecService,
 					// Facility>(execService, facility));
 					proceed = false;
@@ -193,8 +220,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 			// We can skip this for GENERATE type (it has no dependencies by
 			// design).
 			// ########################################################################
-			log.debug("   Check whether the execService ["
-					+ execService.getId() + "] is of type SEND");
+			log.debug("   Check whether the execService [{}] is of type SEND", execService.getId());
 			if (execService.getExecServiceType().equals(ExecServiceType.SEND)) {
 				log.debug("   Well, it is, so we have to check it's dependencies.");
 				// We check the status of all the ExecServices this ExecService
@@ -241,9 +267,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 				// #######################################################################################################
 				proceed = true;
 				dependencies = dependenciesResolver.listDependenciesAndScope(execService);
-				log.debug("   We are about to loop over execService ["
-						+ execService.getId() + "] dependencies.");
-				log.debug("   Number of dependencies:" + dependencies);
+				log.debug("   We are about to loop over execService [{}] dependencies.", execService.getId());
+				log.debug("   Number of dependencies:{}", dependencies);
 				DispatcherQueue dependencyQueue = null;
 				for (Pair<ExecService, DependencyScope> dependencyPair : dependencies) {
 					ExecService dependency = dependencyPair.getLeft();
@@ -252,31 +277,96 @@ public class TaskSchedulerImpl implements TaskScheduler {
 					if (dependencyServiceTask == null) {
 						// Dependency being NULL is equivalent to being in NONE
 						// state.
-						log.info("   Last Task [dependency:"
-								+ dependency.getId() + ", facility:"
-								+ facility.getId()
-								+ "] was NULL, we are gonna propagate.");
+						log.info("   Last Task [dependency:{}, facility:{}] was NULL, we are gonna propagate.", dependency.getId(), facility.getId());
 						scheduleItAndWait(dependency, facility, execService,
 								dispatcherQueue, time);
 						proceed = false;
 					} else {
 						dependencyServiceTask.setPropagationForced(task.isPropagationForced());
 						switch (dependencyServiceTask.getStatus()) {
-						case DONE:
-							switch (dependency.getExecServiceType()) {
-							case GENERATE:
-								if(task.isSourceUpdated()) {
-									// we need to reschedule the GEN task as the source data has changed
-									log.debug("   Dependency ID "
-											+ dependency.getId()
-											+ " is in DONE and is going to be rescheduled as we need fresh data.");
-									rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
+							case DONE:
+								switch (dependency.getExecServiceType()) {
+									case GENERATE:
+										if (task.isSourceUpdated()) {
+											// we need to reschedule the GEN task as the source data has changed
+											log.debug("   Dependency ID "
+													+ dependency.getId()
+													+ " is in DONE and is going to be rescheduled as we need fresh data.");
+											rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
+											proceed = false;
+										} else {
+											log.debug("   Dependency ID "
+													+ dependency.getId()
+													+ " is in DONE and it is of type GENERATE, we can proceed.");
+											// Nothing, we can proceed...
+											try {
+												dependencyQueue = schedulingPool.getQueueForTask(dependencyServiceTask);
+											} catch (InternalErrorException e) {
+												log.error("Could not get queue for task {}", dependencyServiceTask.getId());
+											}
+										}
+										break;
+									case SEND:
+										log.debug("   Dependency ID "
+												+ dependencyServiceTask.getId()
+												+ " is in DONE and it is of type SEND, we can proceed.");
+										// Nothing, we can proceed...
+										break;
+									default:
+										throw new IllegalArgumentException(
+												"Unknown ExecService type. Expected GENERATE or SEND.");
+								}
+								break;
+							case ERROR:
+								switch (dependency.getExecServiceType()) {
+									case GENERATE:
+										log.info("   Dependency ID "
+												+ dependencyServiceTask.getId()
+												+ " is in ERROR and it is of type GENERATE, we are gonna propagate.");
+										// scheduleItAndWait(dependency, facility,
+										// execService, dispatcherQueue);
+										// try to run the generate task again
+										rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
+										proceed = false;
+										break;
+									case SEND:
+										log.info("   Dependency ID "
+												+ dependencyServiceTask.getId()
+												+ " is in ERROR and it is of type SEND, we are gonna end with ERROR.");
+										proceed = false;
+										// We end Task with error immediately.
+										schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+										// manipulateTasks(execService, facility, task);
+
+										// And we set all its GENERATE dependencies as
+										// "dirty" by switching them to NONE state.
+										// Note: Yes, there might have been some stored
+										// from the previous runs...
+										// propagationMaintainer.setAllGenerateDependenciesToNone(dependencies,
+										// facility);
+										break;
+									default:
+										throw new IllegalArgumentException(
+												"Unknown ExecService type. Expected GENERATE or SEND.");
+								}
+								break;
+							case NONE:
+								log.info("   Last Task {} [dependency:"
+										+ dependency.getId() + ", facility:"
+										+ facility.getId()
+										+ "] was NONE, we are gonna propagate.", dependencyServiceTask.getId());
+								rescheduleTask(dependencyServiceTask, execService,
+										dispatcherQueue);
+								proceed = false;
+								break;
+							case PLANNED:
+								log.info("   Dependency ID " + dependencyServiceTask.getId()
+										+ " is in PLANNED so we are gonna wait.");
+								// we do not need to put it back in pool here
+								// justWait(facility, execService);
+								if (dependencyScope.equals(DependencyScope.SERVICE)) {
 									proceed = false;
 								} else {
-									log.debug("   Dependency ID "
-											+ dependency.getId()
-											+ " is in DONE and it is of type GENERATE, we can proceed.");
-									// Nothing, we can proceed...
 									try {
 										dependencyQueue = schedulingPool.getQueueForTask(dependencyServiceTask);
 									} catch (InternalErrorException e) {
@@ -284,116 +374,47 @@ public class TaskSchedulerImpl implements TaskScheduler {
 									}
 								}
 								break;
-							case SEND:
-								log.debug("   Dependency ID "
-										+ dependencyServiceTask.getId()
-										+ " is in DONE and it is of type SEND, we can proceed.");
-								// Nothing, we can proceed...
+							case PROCESSING:
+								log.info("   Dependency ID " + dependencyServiceTask.getId()
+										+ " is in PROCESSING so we are gonna wait.");
+								// we do not need to put it back in pool here
+								// justWait(facility, execService);
+								if (dependencyScope.equals(DependencyScope.SERVICE)) {
+									proceed = false;
+								} else {
+									try {
+										dependencyQueue = schedulingPool.getQueueForTask(dependencyServiceTask);
+									} catch (InternalErrorException e) {
+										log.error("Could not get queue for task {}", dependencyServiceTask.getId());
+									}
+								}
+								if (dependencyServiceTask.isPropagationForced()) {
+									rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
+									// XXX - should we proceed here?
+								}
 								break;
 							default:
 								throw new IllegalArgumentException(
-										"Unknown ExecService type. Expected GENERATE or SEND.");
-							}
-							break;
-						case ERROR:
-							switch (dependency.getExecServiceType()) {
-							case GENERATE:
-								log.info("   Dependency ID "
-										+ dependencyServiceTask.getId()
-										+ " is in ERROR and it is of type GENERATE, we are gonna propagate.");
-								// scheduleItAndWait(dependency, facility,
-								// execService, dispatcherQueue);
-								// try to run the generate task again
-								rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
-								proceed = false;
-								break;
-							case SEND:
-								log.info("   Dependency ID "
-										+ dependencyServiceTask.getId()
-										+ " is in ERROR and it is of type SEND, we are gonna end with ERROR.");
-								proceed = false;
-								// We end Task with error immediately.
-								schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
-								// manipulateTasks(execService, facility, task);
-
-								// And we set all its GENERATE dependencies as
-								// "dirty" by switching them to NONE state.
-								// Note: Yes, there might have been some stored
-								// from the previous runs...
-								// propagationMaintainer.setAllGenerateDependenciesToNone(dependencies,
-								// facility);
-								break;
-							default:
-								throw new IllegalArgumentException(
-										"Unknown ExecService type. Expected GENERATE or SEND.");
-							}
-							break;
-						case NONE:
-							log.info("   Last Task {} [dependency:"
-									+ dependency.getId() + ", facility:"
-									+ facility.getId()
-									+ "] was NONE, we are gonna propagate.", dependencyServiceTask.getId());
-							rescheduleTask(dependencyServiceTask, execService,
-									dispatcherQueue);
-							proceed = false;
-							break;
-						case PLANNED:
-							log.info("   Dependency ID " + dependencyServiceTask.getId()
-									+ " is in PLANNED so we are gonna wait.");
-							// we do not need to put it back in pool here
-							// justWait(facility, execService);
-							if (dependencyScope.equals(DependencyScope.SERVICE)) {
-								proceed = false;
-							} else {
-								try {
-									dependencyQueue = schedulingPool.getQueueForTask(dependencyServiceTask);
-								} catch (InternalErrorException e) {
-									log.error("Could not get queue for task {}", dependencyServiceTask.getId());
-								}
-							}
-							break;
-						case PROCESSING:
-							log.info("   Dependency ID " + dependencyServiceTask.getId()
-									+ " is in PROCESSING so we are gonna wait.");
-							// we do not need to put it back in pool here
-							// justWait(facility, execService);
-							if (dependencyScope.equals(DependencyScope.SERVICE)) {
-								proceed = false;
-							} else {
-								try {
-									dependencyQueue = schedulingPool.getQueueForTask(dependencyServiceTask);
-								} catch (InternalErrorException e) {
-									log.error("Could not get queue for task {}", dependencyServiceTask.getId());
-								}
-							}
-							if(dependencyServiceTask.isPropagationForced()) {
-								rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
-								// XXX - should we proceed here? 
-							}
-							break;
-						default:
-							throw new IllegalArgumentException(
-									"Unknown Task status. Expected DONE, ERROR, NONE, PLANNED or PROCESSING.");
+										"Unknown Task status. Expected DONE, ERROR, NONE, PLANNED or PROCESSING.");
 						}
 					}
 				}
 				// Finally, if we can proceed, we proceed...
 				// #########################################
 				if (proceed) {
-					if(dependencyQueue != null && dependencyQueue != dispatcherQueue) {
+					if (dependencyQueue != null && dependencyQueue != dispatcherQueue) {
 						log.debug("Changing task {} destination queue to {} to match dependency task",
 								task.getId(), dependencyQueue.getClientID());
 						try {
 							schedulingPool.setQueueForTask(task, dependencyQueue);
 						} catch (InternalErrorException e) {
-							log.error("Could not change task {} destination queue: {}", 
+							log.error("Could not change task {} destination queue: {}",
 									task.getId(), e.getMessage());
 						}
-						
+
 					}
-					log.info("   SCHEDULING task [" + task.getId() + "], execService ["
-							+ execService.getId() + "] facility ["
-							+ facility.getId() + "] as PLANNED.");
+					log.info("   SCHEDULING task [{}], execService [{}] facility [{}] as PLANNED.",
+							new Object[] {task.getId(), execService.getId(), facility.getId()});
 					task.setSchedule(time);
 					schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
 					sendToEngine(task);
@@ -404,13 +425,14 @@ public class TaskSchedulerImpl implements TaskScheduler {
 					// The current ExecService,Facility pair should be sleeping
 					// in SchedulingPool at the moment...
 					log.info("   Task {} state set to NONE, will be scheduled again at the next cycle.",
-								task.getId());
+							task.getId());
 					schedulingPool.setTaskStatus(task, TaskStatus.NONE);
+					schedulingPool.addTaskSchedule(task, -1);
 				}
 			} else if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
 				log.debug("   Well, it is not. ExecService of type GENERATE does not have any dependencies by design, so we schedule it immediately.");
-				log.info("   SCHEDULING task [" + task.getId() + "], execService [" + execService.getId()
-						+ "] facility [" + facility.getId() + "] as PLANNED.");
+				log.info("   SCHEDULING task [{}], execService [{}] facility [{}] as PLANNED.",
+						new Object[] {task.getId(), execService.getId(), facility.getId()});
 				task.setSchedule(time);
 				schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
 				sendToEngine(task);
@@ -420,14 +442,14 @@ public class TaskSchedulerImpl implements TaskScheduler {
 						"Unknown ExecService type. Expected GENERATE or SEND.");
 			}
 		} else {
-			log.debug("   We do not proceed, we put the task [" + task.getId() + "], ["
-					+ execService.getId() + "] execService to sleep.");
+			log.debug("   We do not proceed, we put the task [{}], [{}] execService to sleep.",
+					task.getId(), execService.getId());
 		}
 
 	}
 
 	private void scheduleItAndWait(ExecService dependency, Facility facility,
-			ExecService execService, DispatcherQueue dispatcherQueue, Date time) {
+								   ExecService execService, DispatcherQueue dispatcherQueue, Date time) {
 		// this is called to schedule dependencies of given task
 		Task task = new Task();
 		task.setExecService(dependency);
@@ -437,13 +459,13 @@ public class TaskSchedulerImpl implements TaskScheduler {
 			schedulingPool.addToPool(task, dispatcherQueue);
 			scheduleTask(task);
 		} catch (InternalErrorException e) {
-			log.error("Could not schedule new task: " + e.getMessage());
+			log.error("Could not schedule new task: {}", e.getMessage());
 		}
 		// schedulingPool.setTaskStatus(task, TaskStatus.NONE);
 	}
 
 	private void rescheduleTask(Task dependencyServiceTask,
-			ExecService execService, DispatcherQueue dispatcherQueue) {
+								ExecService execService, DispatcherQueue dispatcherQueue) {
 		// task is in the pool already, just go for recursion
 		scheduleTask(dependencyServiceTask);
 	}
@@ -453,8 +475,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		try {
 			dispatcherQueue = schedulingPool.getQueueForTask(task);
 		} catch (InternalErrorException e1) {
-			log.error("No engine set for task " + task.toString()
-					+ ", could not send it!");
+			log.error("No engine set for task {}, could not send it!", task.toString());
 			return;
 		}
 
@@ -469,14 +490,11 @@ public class TaskSchedulerImpl implements TaskScheduler {
 					log.error("Could not assign new queue for task {}: {}", task.getId(), e);
 					return;
 				}
-				log.debug("Assigned new queue "
-						+ dispatcherQueue.getQueueName() + " to task "
-						+ task.getId());
+				log.debug("Assigned new queue {} to task {}",
+						dispatcherQueue.getQueueName(), task.getId());
 			} else {
 				// bad luck...
-				log.error("Task "
-						+ task.toString()
-						+ " has no engine assigned and there are no engines registered...");
+				log.error("Task {} has no engine assigned and there are no engines registered...", task.toString());
 				return;
 			}
 		}
@@ -485,15 +503,14 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		// - the task|[engine_id] part is added by dispatcherQueue
 		List<Destination> destinations = task.getDestinations();
 		if (destinations == null || destinations.isEmpty()) {
-			log.debug("No destinations for task " + task.toString()
-					+ ", trying to query the database...");
+			log.debug("No destinations for task {}, trying to query the database...", task.toString());
 			try {
 				initPerunSession();
 				destinations = perun.getServicesManager().getDestinations(
 						perunSession, task.getExecService().getService(),
 						task.getFacility());
 			} catch (ServiceNotExistsException e) {
-				log.error("No destinations found for task " + task.getId());
+				log.error("No destinations found for task {}", task.getId());
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 				return;
@@ -503,19 +520,18 @@ public class TaskSchedulerImpl implements TaskScheduler {
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 				return;
 			} catch (PrivilegeException e) {
-				log.error("Privilege error accessing the database: "
-						+ e.getMessage());
+				log.error("Privilege error accessing the database: {}", e.getMessage());
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 				return;
 			} catch (InternalErrorException e) {
-				log.error("Internal error: " + e.getMessage());
+				log.error("Internal error: {}", e.getMessage());
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
 				return;
 			}
 		}
-		log.debug("Fetched destinations: " + ( (destinations == null) ?  "[]" : destinations.toString()));
+		log.debug("Fetched destinations: " + ((destinations == null) ? "[]" : destinations.toString()));
 		task.setDestinations(destinations);
 		StringBuilder destinations_s = new StringBuilder("Destinations [");
 		if (destinations != null) {
@@ -536,7 +552,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	}
 
 	private String fixStringSeparators(String data) {
-		if(data.contains("|")) {
+		if (data.contains("|")) {
 			return new String(Base64.encodeBase64(data.getBytes()));
 		} else {
 			return data;
@@ -556,7 +572,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		this.schedulingPool = schedulingPool;
 	}
 
-	private void initPerunSession() throws InternalErrorException {
+	protected void initPerunSession() throws InternalErrorException {
 		if (perunSession == null) {
 			perunSession = perun
 					.getPerunSession(new PerunPrincipal(

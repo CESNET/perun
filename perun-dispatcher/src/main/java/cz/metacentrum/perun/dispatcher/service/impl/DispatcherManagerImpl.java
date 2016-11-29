@@ -1,16 +1,12 @@
 package cz.metacentrum.perun.dispatcher.service.impl;
 
+import cz.metacentrum.perun.dispatcher.scheduling.TaskScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Properties;
 
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.dispatcher.dao.DispatcherDao;
 import cz.metacentrum.perun.dispatcher.exceptions.PerunHornetQServerException;
 import cz.metacentrum.perun.dispatcher.hornetq.PerunHornetQServer;
 import cz.metacentrum.perun.dispatcher.jms.DispatcherQueue;
@@ -50,6 +46,8 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	private ResultManager resultManager;
 	@Autowired
 	private Properties dispatcherPropertiesBean;
+	@Autowired
+	private TaskScheduler taskScheduler;
 
 	@Override
 	public void startPerunHornetQServer() {
@@ -123,19 +121,6 @@ public class DispatcherManagerImpl implements DispatcherManager {
 	public void loadSchedulingPool() {
 		schedulingPool.reloadTasks();
 	}
-
-	/*
-	 * public PerunSession getPerunSession() { if (this.dispatcherSession ==
-	 * null) { try { String perunPrincipal =
-	 * propertiesBean.getProperty("perun.principal.name"); String extSourceName
-	 * = propertiesBean.getProperty("perun.principal.extSourceName"); String
-	 * extSourceType =
-	 * propertiesBean.getProperty("perun.principal.extSourceType");
-	 * PerunPrincipal pp = new PerunPrincipal(perunPrincipal, extSourceName,
-	 * extSourceType); this.dispatcherSession = perun.getPerunSession(pp); }
-	 * catch (InternalErrorException e) { log.error(e.toString()); } } return
-	 * this.dispatcherSession; }
-	 */
 	
 	@Override
 	public void cleanOldTaskResults() {
@@ -147,6 +132,20 @@ public class DispatcherManagerImpl implements DispatcherManager {
 				log.error("Error cleaning old task results for engine {} : {}", queue.getClientID(), e);
 			}
 		}
+	}
+
+	@Override
+	public void startSchedulingTasks() {
+		Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread thread, Throwable throwable) {
+				log.error("Unknow exception was caught in TaskScheduler", throwable);
+			}
+		};
+
+		Thread t = new Thread(taskScheduler);
+		t.setUncaughtExceptionHandler(h);
+		t.start();
 	}
 
 }

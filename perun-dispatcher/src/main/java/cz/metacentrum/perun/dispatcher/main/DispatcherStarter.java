@@ -85,6 +85,8 @@ public class DispatcherStarter {
 			dispatcherManager.startParsingData();
 			// Start Event Processor
 			dispatcherManager.startProcessingEvents();
+			// Start thread for Task scheduling
+			dispatcherManager.startSchedulingTasks();
 			log.info("Done. Perun-Dispatcher has started.");
 		} catch (PerunHornetQServerException e) {
 			log.error(e.toString(), e);

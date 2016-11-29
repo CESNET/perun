@@ -1,15 +1,5 @@
 package cz.metacentrum.perun.dispatcher.scheduling.impl;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -19,19 +9,36 @@ import cz.metacentrum.perun.dispatcher.scheduling.SchedulingPool;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
+import cz.metacentrum.perun.taskslib.model.TaskSchedule;
 import cz.metacentrum.perun.taskslib.service.TaskManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-// TODO: this shares a lot of code with engine.SchedulingPoolImpl - create abstract base with implementation specific indexes
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.DelayQueue;
 
+/**
+ * This class groups together Tasks of all statuses from Dispatcher, and allows basic operations on them.
+ * These include creating, persisting, modifying, deleting and finding Tasks.
+ */
 @org.springframework.stereotype.Service("schedulingPool")
 public class SchedulingPoolImpl implements SchedulingPool {
 
 	private final static Logger log = LoggerFactory.getLogger(SchedulingPoolImpl.class);
-
 	private final Map<Integer, Pair<Task, DispatcherQueue>> tasksById = new ConcurrentHashMap<Integer, Pair<Task, DispatcherQueue>>();
 	private final Map<Pair<Integer, Integer>, Task> tasksByServiceAndFacility = new ConcurrentHashMap<Pair<Integer, Integer>, Task>();
-	private final Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(TaskStatus.class);
+	private final Map<TaskStatus, List<Task>> pool = new EnumMap<TaskStatus, List<Task>>(
+			TaskStatus.class);
+	private final DelayQueue<TaskSchedule> waitingTasksQueue = new DelayQueue<TaskSchedule>();
 
+	@Autowired
+	private Properties dispatcherPropertiesBean;
 	@Autowired
 	private TaskManager taskManager;
 	@Autowired
@@ -48,6 +55,66 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		return tasksById.size();
 	}
 
+	/**
+	 * Adds supplied Task into DelayQueue while also resetting its updated status.
+	 * Used for Tasks with sources that were updated before Tasks sending to Engine.
+	 * @param resetUpdated If true, Tasks sourceUpdated parameter is set to false.
+	 * For other params see AddTaskSchedule(Task, int).
+	 */
+	public void addTaskSchedule(Task task, int delayCount, boolean resetUpdated){
+		if (resetUpdated) {
+			task.setSourceUpdated(false);
+		}
+		addTaskSchedule(task, delayCount);
+	}
+
+	/**
+	 * Adds supplied Task into DelayQueue comprised of other Tasks waiting to be sent to Engine.
+	 * @param task Task which will be added to the queue.
+	 * @param delayCount Time for which the Task will be waiting in the queue.
+	 *                   If the supplied value is lower or equal to 0, the value is read from propertyBean.
+	 */
+	public void addTaskSchedule(Task task, int delayCount) {
+		long newTaskDelay = Long.parseLong(dispatcherPropertiesBean.getProperty("dispatcher.new_task.delay.time"));
+		if (delayCount < 0) {
+			delayCount = Integer.parseInt(dispatcherPropertiesBean.getProperty("dispatcher.new_task.delay.count"));
+		}
+		TaskSchedule schedule = new TaskSchedule(newTaskDelay, task);
+		schedule.setBase(System.currentTimeMillis());
+		schedule.setDelayCount(delayCount);
+		boolean added = waitingTasksQueue.add(schedule);
+		if (!added) {
+			log.error("{}, could not be added to waiting queue", schedule);
+		} else {
+			log.debug("{}, was added to waiting queue", schedule);
+		}
+	}
+
+	/**
+	 * Adds new task into the internal scheduling pools maps. Used by addToPool.
+	 * Note: If the task should be also sent to Dispatcher, addTaskSchedule method must be also used.
+	 * @param task Task which will be added to the pool.
+	 * @param dispatcherQueue dispatcherQueue which will be tied to the Task in the pool.
+	 */
+	private void addTask(Task task, DispatcherQueue dispatcherQueue) {
+		tasksById.put(task.getId(), new Pair<Task, DispatcherQueue>(task, dispatcherQueue));
+		tasksByServiceAndFacility.put(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()), task);
+		List<Task> list = pool.get(task.getStatus());
+		if(list == null) {
+			log.info("Making new list for task status {}", task.getStatus().toString());
+			list = new ArrayList<Task>();
+			pool.put(task.getStatus(), list);
+		}
+		list.add(task);
+	}
+
+	/**
+	 * Adds Task and associated dispatcherQueue into scheduling pools internal maps and also to the database.
+	 * @param task Task which will be added and persisted.
+	 * @param dispatcherQueue dispatcherQueue associated with the Task which will be added and persisted.
+	 * @return Number of Tasks in the pool.
+	 * @throws InternalErrorException Thrown if the Task could not be persisted.
+	 */
 	@Override
 	public int addToPool(Task task, DispatcherQueue dispatcherQueue)
 			throws InternalErrorException {
@@ -58,7 +125,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			// ExecService,Facility pair
 			synchronized (tasksByServiceAndFacility) {
 				if (!tasksByServiceAndFacility.containsKey(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()))) {
-					log.debug("Adding new task to pool " + task);
+					log.debug("Adding new task to pool {}", task);
 					if (null == task.getStatus()) {
 						task.setStatus(TaskStatus.NONE);
 					}
@@ -66,25 +133,11 @@ public class SchedulingPoolImpl implements SchedulingPool {
 						int id = taskManager.scheduleNewTask(task, engineId);
 						task.setId(id);
 					} catch (InternalErrorException e) {
-						log.error("Error storing task " + task
-								+ " into database: " + e.getMessage());
+						log.error("Error storing task {} into database: {}", task, e.getMessage());
 						throw new InternalErrorException(
-								"Could not assign id to newly created task", e);
+								"Could not assign id to newly created task {}", e);
 					}
-					tasksByServiceAndFacility.put(
-							new Pair<Integer, Integer>(task
-									.getExecServiceId(), task.getFacilityId()),
-							task);
-					tasksById.put(task.getId(),
-							new Pair<Task, DispatcherQueue>(task,
-									dispatcherQueue));
-					List<Task> list = pool.get(task.getStatus());
-					if(list == null) {
-						log.info("Making new list for task status " + task.getStatus().toString());
-						list = new ArrayList<Task>();
-						pool.put(task.getStatus(), list);
-					}
-					list.add(task);
+					addTask(task, dispatcherQueue);
 				} else {
 					log.debug("There already is task for given ExecService and Facility pair");
 				}
@@ -93,20 +146,11 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			// weird - we should not be adding tasks with id present...
 			synchronized (tasksById) {
 				if (!tasksById.containsKey(task.getId())) {
-					log.debug("Adding task to pool " + task);
+					log.debug("Adding task to pool {}", task);
 					if (null == task.getStatus()) {
 						task.setStatus(TaskStatus.NONE);
 					}
-					tasksById.put(task.getId(), new Pair<Task, DispatcherQueue>(task, dispatcherQueue));
-					tasksByServiceAndFacility.put(new Pair<Integer, Integer>(task.getExecServiceId(), task.getFacilityId()), task);
-					List<Task> list = pool.get(task.getStatus());
-					if(list == null) {
-						log.info("Making new list for task status " + task.getStatus().toString());
-						list = new ArrayList<Task>();
-						pool.put(task.getStatus(), list);
-					}
-					list.add(task);
-					// pool.get(task.getStatus()).add(task);
+					addTask(task, dispatcherQueue);
 				}
 			}
 			try {
@@ -117,8 +161,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 					taskManager.updateTask(task);
 				}
 			} catch (InternalErrorException e) {
-				log.error("Error storing task " + task + " into database: "
-						+ e.getMessage());
+				log.error("Error storing task {} into database: {}", task, e.getMessage());
 			}
 		}
 		return getSize();
@@ -177,7 +220,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				if(pool.get(status) != null) {
 					pool.get(status).add(task);
 				} else {
-					log.error("no task pool for status " + status.toString());
+					log.error("no task pool for status {}", status.toString());
 				}
 			}
 		}
@@ -196,6 +239,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 	}
 
 	@Override
+	@Deprecated
 	public List<Task> getWaitingTasks() {
 		synchronized(pool) {
 			return new ArrayList<Task>(pool.get(TaskStatus.NONE));
@@ -242,6 +286,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		// taskManager.removeAllTasks();
 	}
 
+	/**
+	 * Loads Tasks persisted in the database into internal scheduling pool maps.
+	 */
 	@Override
 	public void reloadTasks() {
 		log.debug("Going to reload tasks from database...");
@@ -252,31 +299,15 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			if (status == null) {
 				task.setStatus(TaskStatus.NONE);
 			}
-			/* TESTING ONLY: skip all tasks for other facilities than meant for testing */
-			/*
-			if(task.getFacility().getName().equals("alcor.ics.muni.cz") ||
-               task.getFacility().getName().equals("aldor.ics.muni.cz") ||
-               task.getFacility().getName().equals("ascor.ics.muni.cz") ||
-               task.getFacility().getName().equals("torque.ics.muni.cz") ||
-               task.getFacility().getName().equals("nympha-cloud.zcu.cz")) {
-            } else {
-                    log.debug("Skipping task for facility {} not meant for testing.", task.getFacility().getName());
-                    continue;
-            }
-            */
 			if (!pool.get(task.getStatus()).contains(task)) {
 				pool.get(task.getStatus()).add(task);
 			}
 			DispatcherQueue queue = dispatcherQueuePool.getDispatcherQueueByClient(pair.getRight());
 			// XXX should this be synchronized too?
-			tasksById.put(
-					task.getId(),
-					new Pair<Task, DispatcherQueue>(task, queue));
-			tasksByServiceAndFacility.put(
-					new Pair<Integer, Integer>(task.getExecServiceId(),
-								task.getFacilityId()), task);
+			addTask(task, queue);
+			addTaskSchedule(task, 0);
 			// TODO: what about possible duplicates?
-			log.debug("Added task " + task.toString() + " belonging to queue " + pair.getRight());
+			log.debug("Added task {} belonging to queue {}", task.toString(), pair.getRight());
 		}
 		log.info("Pool contains: ");
 		for (TaskStatus status : TaskStatus.class.getEnumConstants()) {
@@ -298,6 +329,10 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		taskManager.updateTaskEngine(task, queueId);
 	}
 
+	/**
+	 * This method cross-checks the internal map structures with the data in database.
+	 * While doing so, it tries to repair any inconsistencies between the two versions.
+	 */
 	@Override
 	public void checkTasksDb() {
 		log.debug("Going to cross-check tasks in database...");
@@ -310,10 +345,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 			}
 			Task local_task = null;
 			TaskStatus local_status = null;
-			log.debug("  checking task " + task.toString());
+			log.debug("  checking task {}", task.toString());
 			if(taskQueue == null) {
-				log.warn("  there is no task queue for client " + pair.getRight());
-				// continue;
+				log.warn("  there is no task queue for client {}", pair.getRight());
 			}
 			synchronized (tasksById) {
 				Pair<Task, DispatcherQueue> local_pair = tasksById.get(task.getId());
@@ -342,8 +376,9 @@ public class SchedulingPoolImpl implements SchedulingPool {
 				try {
 					log.debug("  task not found in any of local structures, adding fresh");
 					addToPool(task, taskQueue);
+					addTaskSchedule(task, -1);
 				} catch(InternalErrorException e) {
-					log.error("Error adding task to the local structures: " + e.getMessage());
+					log.error("Error adding task to the local structures: {}", e.getMessage());
 				}
 			} else {
 				synchronized(tasksById) {
@@ -367,7 +402,7 @@ public class SchedulingPoolImpl implements SchedulingPool {
 						if(pool.get(local_status) != null) {
 							pool.get(local_status).remove(local_task.getId());
 						} else {
-							log.error("  no task list for status " + local_status);
+							log.error("  no task list for status {}", local_status);
 						}
 					}
 					if(pool.get(local_task.getStatus()) != null &&
@@ -380,4 +415,12 @@ public class SchedulingPoolImpl implements SchedulingPool {
 		}
 	}
 
+	@Override
+	public DelayQueue<TaskSchedule> getWaitingTasksQueue() {
+		return waitingTasksQueue;
+	}
+
+	public void setDispatcherPropertiesBean(Properties dispatcherPropertiesBean) {
+		this.dispatcherPropertiesBean = dispatcherPropertiesBean;
+	}
 }
