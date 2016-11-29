@@ -10,6 +10,11 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.dispatcher.scheduling.TaskScheduler;
 
+/**
+ * Job for Task planning, switching states and sending it to engine.
+ *
+ * @author Michal Karm Babacek
+ */
 @org.springframework.stereotype.Service(value = "processPoolJob")
 public class ProcessPoolJob extends QuartzJobBean {
 

@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.dispatcher.scheduling.impl;
 
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
@@ -17,7 +16,6 @@ import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.ServicesManager;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -33,8 +31,6 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 import cz.metacentrum.perun.taskslib.model.Task;
 import cz.metacentrum.perun.taskslib.model.Task.TaskStatus;
 import cz.metacentrum.perun.taskslib.dao.ExecServiceDependencyDao.DependencyScope;
-
-;
 
 @org.springframework.stereotype.Service(value = "taskScheduler")
 public class TaskSchedulerImpl implements TaskScheduler {
@@ -54,7 +50,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private DispatcherQueuePool dispatcherQueuePool;
 	@Autowired
 	private DenialsResolver denialsResolver;
-	
+
 	@Override
 	public void processPool() throws InternalErrorException {
 		initPerunSession();
@@ -93,7 +89,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 			log.warn("Task {} is not assigned to any queue", task.getId());
 		}
 		// check if the engine is still registered
-		if(dispatcherQueue != null && 
+		if(dispatcherQueue != null &&
 				!dispatcherQueuePool.isThereDispatcherQueueForClient(dispatcherQueue.getClientID())) {
 			dispatcherQueue = null;
 		}
@@ -121,7 +117,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 
 		log.debug("Facility to be processed: " + facility.getId()
 				+ ", ExecService to be processed: " + execService.getId());
-		
+
 		log.debug("Is the execService ID:" + execService.getId() + " enabled globally?");
 		if (execService.isEnabled()) {
 			log.debug("   Yes, it is globally enabled.");
@@ -143,7 +139,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 			log.error("Error getting disabled status for execService, task will not run now.");
 			return;
 		}
-		
+
 		List<ExecService> dependantServices = null;
 		List<Pair<ExecService, DependencyScope>> dependencies = null;
 
@@ -368,7 +364,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 							}
 							if(dependencyServiceTask.isPropagationForced()) {
 								rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
-								// XXX - should we proceed here? 
+								// XXX - should we proceed here?
 							}
 							break;
 						default:
@@ -386,10 +382,10 @@ public class TaskSchedulerImpl implements TaskScheduler {
 						try {
 							schedulingPool.setQueueForTask(task, dependencyQueue);
 						} catch (InternalErrorException e) {
-							log.error("Could not change task {} destination queue: {}", 
+							log.error("Could not change task {} destination queue: {}",
 									task.getId(), e.getMessage());
 						}
-						
+
 					}
 					log.info("   SCHEDULING task [" + task.getId() + "], execService ["
 							+ execService.getId() + "] facility ["
