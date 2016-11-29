@@ -432,6 +432,7 @@ public class EditFormItemTabItem implements TabItem {
 		federationAttributes.addItem("IdP Category", "md_entityCategory");
 		federationAttributes.addItem("IdP Affiliation", "affiliation");
 		federationAttributes.addItem("EduPersonScopedAffiliation", "eduPersonScopedAffiliation");
+		federationAttributes.addItem("schacHomeOrganization", "schacHomeOrganization");
 
 		// application types
 		GetAttributesDefinition attrDef = new GetAttributesDefinition(new JsonCallbackEvents() {
