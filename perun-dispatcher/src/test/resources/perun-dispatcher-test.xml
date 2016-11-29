@@ -4,10 +4,20 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 ">
+
 	<!-- Import standard app config -->
 	<import resource="classpath:perun-dispatcher.xml"/>
 
-	<!-- in case of integration testing run scheduler -->
+	<!-- Define empty scheduler in order for test context to start
+	     but we don't want scheduled jobs to run in unit/integration tests -->
+	<bean id="perunScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+			</list>
+		</property>
+	</bean>
+
+	<!-- FIXME - in case of integration testing run scheduler - most probably obsolete -->
 
 	<beans profile="integration">
 
@@ -16,17 +26,14 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 			<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
 			<property name="jobDataAsMap">
 				<map>
-					<entry key="dispatcherManager" value-ref="dispatcherManager" />
+					<entry key="schedulingPool" value-ref="schedulingPool" />
 				</map>
 			</property>
 		</bean>
 
 		<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 			<property name="jobDetail" ref="maintenanceJob" />
-			<!-- Every 20 minutes -->
-			<!--<property name="cronExpression" value="0 0/20 * * * ?" /> -->
-			<!-- Every 5 seconds -->
-			<property name="cronExpression" value="0/5 * * * * ?" />
+			<property name="cronExpression" value="${dispatcher.cron.maintenance}" />
 		</bean>
 
 		<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">

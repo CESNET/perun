@@ -58,34 +58,20 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
-	<!-- BEGIN Quartz tasks -->
-	<bean id="perunScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="triggers">
-			<list>
-				<!--<ref bean="maintenanceJobTrigger" />-->
-				<!-- <ref bean="checkInJobTrigger" /> -->
-				<ref bean="processPoolJobTrigger" />
-				<ref bean="propagationMaintainerJobTrigger" />
-				<ref bean="cleanTaskResultsJobTrigger" />
-			</list>
-		</property>
-	</bean>
+	<!-- Quartz jobs definition - they are not started unless perun-dispatcher-scheduler.xml is imported to context -->
 
 	<bean id="maintenanceJob" class="org.springframework.scheduling.quartz.JobDetailBean">
 		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
 		<property name="jobDataAsMap">
 			<map>
-				<entry key="dispatcherManager" value-ref="dispatcherManager" />
+				<entry key="schedulingPool" value-ref="schedulingPool" />
 			</map>
 		</property>
 	</bean>
 
 	<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="maintenanceJob" />
-		<!-- Every 20 minutes -->
-		<!--<property name="cronExpression" value="0 0/20 * * * ?" /> -->
-		<!-- Every 5 seconds -->
-		<property name="cronExpression" value="0/5 * * * * ?" />
+		<property name="cronExpression" value="${dispatcher.cron.maintenance}" />
 	</bean>
 
 	<bean id="propagationMaintainerJob" class="org.springframework.scheduling.quartz.JobDetailBean">
@@ -130,29 +116,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="cronExpression" value="${dispatcher.cron.cleantaskresults}" />
 	</bean>
 
-	<!--
-	<bean id="checkInJob" class="org.springframework.scheduling.quartz.JobDetailBean">
-		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.CheckInJob" />
-		<property name="jobDataAsMap">
-			<map>
-				<entry key="dispatcherManager" value-ref="dispatcherManager" />
-			</map>
-		</property>
-	</bean>
-    -->
-
-	<!--
-	<bean id="checkInJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-		<property name="jobDetail" ref="checkInJob" /> -->
-	<!-- Every 3 minutes -->
-	<!-- <property name="cronExpression" value="0 0/5 * * * ?" />-->
-	<!-- Every 10 seconds -->
-	<!-- property name="cronExpression" value="0/10 * * * * ?" /-->
-	<!--
-	</bean>
-	-->
-
-	<!-- END Quartz tasks -->
+	<!-- END of quartz jobs definition -->
 
 	<!-- Dispatcher properties per-profile -->
 
@@ -179,10 +143,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 					<prop key="perun.principal.name">perunDispatcher</prop>
 					<prop key="perun.principal.extSourceName">INTERNAL</prop>
 					<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-					<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
-					<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.propagation">45 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.processpool">0 0/1 * * * ?</prop>
 					<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
-					<prop key="dispatcher.cron.maintenance">0 0 2 * * ?</prop>
+					<prop key="dispatcher.cron.maintenance">0 0 0/2 * * ?</prop>
 					<prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
 				</props>
 			</property>
@@ -196,10 +160,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 					<prop key="perun.principal.name">perunDispatcher</prop>
 					<prop key="perun.principal.extSourceName">INTERNAL</prop>
 					<prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-					<prop key="dispatcher.cron.propagation">45 0/4 * * * ?</prop>
-					<prop key="dispatcher.cron.processpool">0 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.propagation">45 0/2 * * * ?</prop>
+					<prop key="dispatcher.cron.processpool">0 0/1 * * * ?</prop>
 					<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
-					<prop key="dispatcher.cron.maintenance">0 0 2 * * ?</prop>
+					<prop key="dispatcher.cron.maintenance">0 0 0/2 * * ?</prop>
 					<prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
 				</props>
 			</property>
