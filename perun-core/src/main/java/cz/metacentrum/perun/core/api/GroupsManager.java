@@ -50,6 +50,8 @@ public interface GroupsManager {
 	// Attributes related to the external groups
 	// Contains query need to get the group members
 	public static final String GROUPMEMBERSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersQuery";
+	// Contains optional filter for members in group
+	public static final String GROUPMEMBERSFILTER_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersFilter";
 	// Define the external source used for accessing the data about external group
 	public static final String GROUPEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupExtSource";
 	// Define the external source used for accessing the data about the group members
@@ -142,20 +144,20 @@ public interface GroupsManager {
 
 	/**
 	 * Delete all groups in list from perun. (Except members group)
-	 * 
+	 *
 	 * If forceDelete is false, delete groups only if none of them (IN MOMENT OF DELETING) has subgroups and members, in other case throw exception.
 	 * if forceDelete is true, delete groups with all subgroups and members.
-	 * 
+	 *
 	 * Groups are deleted in order: from longest name to the shortest
 	 *	- ex: Group A:b:c will be deleted sooner than Group A:b etc.
 	 *	- reason for this: with group are deleted its subgroups too
-	 * 
+	 *
 	 * Important: Groups can be from different VOs.
-	 * 
-	 * @param perunSession 
+	 *
+	 * @param perunSession
 	 * @param groups list of groups to deleted
 	 * @param forceDelete if forceDelete is false, delete groups only if all of them have no subgroups and no members, if is true, delete anyway with all connections
-	 * 
+	 *
 	 * @throws GroupNotExistsException If any group not exists in perun
 	 * @throws InternalErrorException
 	 * @throws PrivilegeException if user has no right to call delete operation on any of these groups
@@ -789,21 +791,21 @@ public interface GroupsManager {
 	/**
 	 * Method return list of groups for selected member which (groups) has set specific attribute.
 	 * Attribute can be only from namespace "GROUP"
-	 * 
+	 *
 	 * @param sess sess
 	 * @param member memer
 	 * @param attribute attribute from "GROUP" namespace
-	 * 
+	 *
 	 * @return list of groups which contain member and have attribute with same value
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 * @throws PrivilegeException
 	 * @throws WrongAttributeAssignmentException
-	 * @throws VoNotExistsException 
+	 * @throws VoNotExistsException
 	 * @throws MemberNotExistsException
 	 * @throws AttributeNotExistsException
 	 */
 	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws PrivilegeException, VoNotExistsException, WrongAttributeAssignmentException, InternalErrorException, MemberNotExistsException, AttributeNotExistsException;
-	
+
 	/**
 	 * Return all member's groups. Included members groups.
 	 *
@@ -815,10 +817,10 @@ public interface GroupsManager {
 	 * @throws MemberNotExistsException
 	 */
 	List<Group> getAllMemberGroups(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
-	
+
 	/**
 	 * Return all RichGroups containing selected attributes
-	 * 
+	 *
 	 * @param sess
 	 * @param vo
 	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
@@ -854,7 +856,7 @@ public interface GroupsManager {
 
 	/**
 	 * Return RichGroup selected by id containing selected attributes
-	 * 
+	 *
 	 * @param sess
 	 * @param groupId
 	 * @param attrNames if attrNames is null method will return RichGroup containing all attributes
@@ -871,7 +873,7 @@ public interface GroupsManager {
 	 * @param resultGroup group to which members are added
 	 * @param operandGroup group from which members are taken
 	 * @return result group
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 * @throws GroupRelationNotAllowed
@@ -879,10 +881,10 @@ public interface GroupsManager {
 	 * @throws PrivilegeException
 	 */
 	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupOperationsException, GroupRelationNotAllowed, GroupRelationAlreadyExists;
-	
+
 	/**
 	 * Removes a union relation between two groups. All indirect members that originate from operand group are removed from result group.
-	 * 
+	 *
 	 * @param sess perun session
 	 * @param resultGroup group from which members are removed
 	 * @param operandGroup group which members are removed from result group
@@ -901,7 +903,7 @@ public interface GroupsManager {
 	 * @param sess perun session
 	 * @param group group
 	 * @param reverseDirection if false get all operand groups of requested result group
-	 *                         if true get all result groups of requested operand group   
+	 *                         if true get all result groups of requested operand group
 	 * @return list of groups.
 	 *
 	 * @throws GroupNotExistsException
