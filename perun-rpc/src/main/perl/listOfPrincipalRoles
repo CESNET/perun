@@ -24,15 +24,17 @@ GetOptions("help|h" => sub { print help; exit 0;} ,
 my $agent = Perun::Agent->new();
 my $authzResolverAgent = $agent->getAuthzResolverAgent;
 
-my @roles = $authzResolverAgent->getPrincipalRoleNames;
-unless(@roles) { printMessage "No Roles found", $batch; exit 0;}
+
+my $role = $authzResolverAgent->getPrincipalRoleNames;
+unless($role) { printMessage "No Roles found", $batch; exit 0;}
 
 #output
 my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 $table->setCols('Role Name');
 
-foreach my $role (@roles) {
-	$table->addRow($role);
+my @roles=@$role;
+foreach my $rol (@roles) {
+    $table->addRow($rol);
 }
 
 print tableToPrint($table, $batch);
