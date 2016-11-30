@@ -1,0 +1,30 @@
+# Systemd unit file for Perun tomcat instance.
+#
+# You must first create it like:
+# mkdir /var/lib/tomcats/perun
+# mkdir /var/lib/tomcats/perun/bin /var/lib/tomcats/perun/logs /var/lib/tomcats/perun/webapps /var/lib/tomcats/perun/work
+# cp -r /usr/share/tomcat/conf /var/lib/tomcats/perun/
+# chown -R perun:perun /var/lib/tomcats/perun/
+#
+# You can configure JAVA_OPTS in
+# /usr/share/tomcat/conf/tomcat.conf
+#
+
+[Unit]
+Description=Apache Tomcat Web Application for Perun
+After=syslog.target network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/tomcat/tomcat.conf
+# Fake environment to be like tomcat@instance service.
+Environment="NAME=perun"
+ExecStart=/usr/libexec/tomcat/server start
+ExecStop=/usr/libexec/tomcat/server stop
+SuccessExitStatus=143
+User=perun
+Group=tomcat
+
+[Install]
+WantedBy=multi-user.target
+
