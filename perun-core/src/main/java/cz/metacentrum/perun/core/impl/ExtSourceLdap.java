@@ -287,9 +287,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 						// It can be byte array with cert or binary file
 						char[] encodedValue = Base64Coder.encode((byte[]) attr.get());
 						tmpAttrValue = new String(encodedValue);
-					} else if (((String) attr.get()).startsWith(": ")) {
-						// Base64 encoded attribute starts with ": "
-						tmpAttrValue = String.valueOf(Base64Coder.decodeString((String) attr.get(i)));
 					} else {
 						tmpAttrValue = (String) attr.get(i);
 					}
