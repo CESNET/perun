@@ -374,6 +374,12 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 	 * @param facility int Facility <code>id</code>
 	 * @return int 1 = true if it is possible, 0 = false if not
 	 */
+	/*#
+	 * Forces service propagation on defined facility.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @return int 1 = true if it is possible, 0 = false if not
+	 */
 	forceServicePropagation {
 		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
 			if(parms.contains("facility")) {
@@ -386,6 +392,36 @@ public enum GeneralServiceManagerMethod implements ManagerMethod {
 				if(ac.getGeneralServiceManager().forceServicePropagation(
 							ac.getSession(),
 							ac.getServiceById(parms.readInt("service")))) return 1;
+				else return 0;
+			}
+		}
+	},
+
+	/*#
+	 * Plans service propagation on defined facility.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @param facility int Facility <code>id</code>
+	 * @return int 1 = true if it is possible, 0 = false if not
+	 */
+	/*#
+	 * Plans service propagation on defined facility.
+	 *
+	 * @param service int Service <code>id</code>
+	 * @return int 1 = true if it is possible, 0 = false if not
+	 */
+	planServicePropagation {
+		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException {
+			if(parms.contains("facility")) {
+				if(ac.getGeneralServiceManager().planServicePropagation(
+						ac.getSession(),
+						ac.getFacilityById(parms.readInt("facility")),
+						ac.getServiceById(parms.readInt("service")))) return 1;
+				else return 0;
+			} else {
+				if(ac.getGeneralServiceManager().planServicePropagation(
+						ac.getSession(),
+						ac.getServiceById(parms.readInt("service")))) return 1;
 				else return 0;
 			}
 		}

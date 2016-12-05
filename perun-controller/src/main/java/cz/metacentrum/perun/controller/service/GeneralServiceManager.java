@@ -210,7 +210,7 @@ public interface GeneralServiceManager {
 	 *
 	 * @param perunSession
 	 * @param facility Facility we want to clear of all the denials.
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	public void freeAllDenialsOnFacility(PerunSession perunSession, Facility facility) throws InternalErrorException;
@@ -221,7 +221,7 @@ public interface GeneralServiceManager {
 	 *
 	 * @param perunSession
 	 * @param destinationId The id of a destination we want to clear of all the denials.
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	public void freeAllDenialsOnDestination(PerunSession perunSession, int destinationId) throws InternalErrorException;
@@ -234,7 +234,7 @@ public interface GeneralServiceManager {
 	 * @param perunSession
 	 * @param execService The execService, the denial of which we want to free on this facility.
 	 * @param facility The facility on which we want to free the denial of the execService.
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	public void freeDenialOfExecServiceOnFacility(PerunSession perunSession, ExecService execService, Facility facility) throws InternalErrorException;
@@ -247,7 +247,7 @@ public interface GeneralServiceManager {
 	 * @param perunSession
 	 * @param execService The execService, the denial of which we want to free on this destination.
 	 * @param destinationId The id of a destination on which we want to free the denial of the execService.
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	public void freeDenialOfExecServiceOnDestination(PerunSession perunSession, ExecService execService, int destinationId) throws InternalErrorException;
@@ -347,6 +347,34 @@ public interface GeneralServiceManager {
 	boolean forceServicePropagation(PerunSession perunSession, Service service) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
 
 	/**
+	 * Plans service propagation on defined facility.
+	 *
+	 * @param perunSession
+	 * @param facility
+	 * @param service
+	 * @return true if it is possible, false if not
+	 *
+	 * @throws ServiceNotExistsException
+	 * @throws FacilityNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	boolean planServicePropagation(PerunSession perunSession, Facility facility, Service service) throws ServiceNotExistsException, FacilityNotExistsException, InternalErrorException, PrivilegeException;
+
+	/**
+	 * Forces service propagation on all facilities where the service is defined on.
+	 *
+	 * @param perunSession
+	 * @param service
+	 * @return true if it is possible, false if not
+	 *
+	 * @throws ServiceNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	boolean planServicePropagation(PerunSession perunSession, Service service) throws ServiceNotExistsException, InternalErrorException, PrivilegeException;
+
+	/**
 	 * Return list of ServiceForGUI assigned on facility, (Service with "allowedOnFacility" property filled).
 	 * 1 - allowed / 0 - one of service exec services is denied on this facility (=> service is denied).
 	 *
@@ -361,7 +389,7 @@ public interface GeneralServiceManager {
 	List<ServiceForGUI> getFacilityAssignedServicesForGUI(PerunSession perunSession, Facility facility) throws PrivilegeException, FacilityNotExistsException, InternalErrorException;
 
 	/**
-	 * Creates 2 ExecServices, first one has type GENERATE, second one has type SEND. 
+	 * Creates 2 ExecServices, first one has type GENERATE, second one has type SEND.
 	 * Method also creates dependency of SEND service on GENERATE service.
 	 *
 	 * @param perunSession
@@ -370,7 +398,7 @@ public interface GeneralServiceManager {
 	 * @param defaultDelay
 	 * @param enabled
 	 * @throws InternalErrorException
-	 * @throws PrivilegeException The method can be executed only by 
+	 * @throws PrivilegeException The method can be executed only by
 	 * PERUNADMIN user, otherwise the PrivilegeException is thrown.
 	 * @throws ServiceExistsException Exception is thrown when you're trying
 	 * to create a service that already exists
