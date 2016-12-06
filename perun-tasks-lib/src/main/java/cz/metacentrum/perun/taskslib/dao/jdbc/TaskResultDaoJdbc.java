@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -84,6 +85,11 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		String errorMessage = null;
 		if(taskResult.getStandardMessage() != null) standardMessage = taskResult.getStandardMessage().length() < 4000 ? taskResult.getStandardMessage() : taskResult.getStandardMessage().substring(0, 3998);
 		if(taskResult.getErrorMessage()    != null) errorMessage    = taskResult.getErrorMessage().length() < 4000 ? taskResult.getErrorMessage() : taskResult.getErrorMessage().substring(0, 3998);
+
+		// CLEAR UTF-8 0x00 bytes, since PostgreSQL can't store them to varchar column (Oracle can).
+		// By java, such byte is displayed as 'empty string' and is not visible in a log.
+		standardMessage = clearZeroBytesFromString(standardMessage);
+		errorMessage = clearZeroBytesFromString(errorMessage);
 
 		this.getJdbcTemplate()
 			.update(
@@ -256,6 +262,23 @@ public class TaskResultDaoJdbc extends JdbcDaoSupport implements TaskResultDao {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	/**
+	 * Clear all Zero bytes (0x00) from UTF-8 String
+	 *
+	 * @param input String to remove zero bytes
+	 * @return Original string without zero bytes
+	 */
+	private static String clearZeroBytesFromString(String input) {
+		if (input == null) return null;
+		byte[] data = input.getBytes(StandardCharsets.UTF_8);
+		String dataOut = "";
+		for (int i = 0; i < data.length; i++) {
+			if (data[i] != 0x00)
+				dataOut += (char)data[i];
+		}
+		return dataOut;
 	}
 
 }
