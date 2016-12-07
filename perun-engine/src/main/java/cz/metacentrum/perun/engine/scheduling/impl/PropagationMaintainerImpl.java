@@ -32,11 +32,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 	/*
 	 * @Autowired private TaskManager taskManager;
-	 * 
+	 *
 	 * @Autowired private ResultManager resultManager;
-	 * 
+	 *
 	 * @Autowired private TaskResultDao taskResultDao;
-	 * 
+	 *
 	 * @Autowired private EngineManager engineManager;
 	 */
 	@Autowired
@@ -51,6 +51,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	private TaskStatusManager taskStatusManager;
 	@Autowired
 	private ThreadPoolTaskScheduler scheduler;
+
+	/**
+	 * After how many minutes is PLANNED/PROCESSING Task considered as stuck and re-scheduled.
+	 */
+	private final static int rescheduleTime = 180;
 
 	/**
 	 * TODO: Improve logic here: i.e.: stuck ExecutorEngine threads vs. Time-Out
@@ -77,24 +82,24 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	/*
 	 * private void checkProcessingTasks() {
 	 * log.info("Gonna list tasks in PROCESSING...");
-	 * 
+	 *
 	 * for(Task task: schedulingPool.getProcessingTasks()) {
 	 * if(task.getExecService
 	 * ().getExecServiceType().equals(ExecService.ExecServiceType.GENERATE))
 	 * continue; log.info("Gonna check results for Task ID:" + task.getId());
-	 * 
+	 *
 	 * }
-	 * 
+	 *
 	 * for (Task task : taskManager.listAllTasksInState(TaskStatus.PROCESSING,
 	 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))) {
 	 * //skip GEN tasks
 	 * if(task.getExecService().getExecServiceType().equals(ExecService
 	 * .ExecServiceType.GENERATE)) continue;
 	 * log.info("Gonna check results for Task ID:" + task.getId());
-	 * 
+	 *
 	 * List<TaskResult> taskResults =
 	 * taskResultDao.getTaskResultsByTask(task.getId());
-	 * 
+	 *
 	 * List<Destination> destinations = null; try { destinations =
 	 * Rpc.ServicesManager.getDestinations(engineManager.getRpcCaller(),
 	 * task.getExecService().getService(), task.getFacility()); }
@@ -116,19 +121,19 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 * log.error("Facility for the task no longer exists. Removing task", ex);
 	 * taskManager.removeTask(task.getId(),
 	 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))); }
-	 * 
+	 *
 	 * switch(task.getType()) {
-	 * 
+	 *
 	 * case SERIAL: collectSerialTaskResults(task, taskResults, destinations);
 	 * break;
-	 * 
+	 *
 	 * case PARALLEL: collectParallelTaskResults(task, taskResults,
 	 * destinations); break;
-	 * 
+	 *
 	 * default: log.error("Unknown task type. Assuming parallel.");
 	 * collectParallelTaskResults(task, taskResults, destinations); break; } } }
-	 * 
-	 * 
+	 *
+	 *
 	 * private void collectSerialTaskResults(Task task, List<TaskResult>
 	 * taskResults, List<Destination> destinations) { if (taskResults.size() <=
 	 * destinations.size()) { // Let's check whether they are all DONE or not...
@@ -139,17 +144,17 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 * FATAL_ERROR: amountFatalError++; break; default: throw new
 	 * IllegalArgumentException("WTF?! " + taskResult.getStatus().toString()); }
 	 * }
-	 * 
+	 *
 	 * if (amountDone > 0) { // Super, at least one task is DONE.
 	 * log.info("Task ID " + task.getId() +
 	 * " has one Tasks_result DONE, so we set it as DONE.");
 	 * task.setStatus(TaskStatus.DONE); task.setEndTime(new
 	 * Date(System.currentTimeMillis())); taskManager.updateTask(task,
 	 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
-	 * 
+	 *
 	 * //Set its GENERATE dependencies as dirty //TODO: Hmm...what to do in case
 	 * of exceptions?
-	 * 
+	 *
 	 * try { log.info("I am going to set all ExecService " +
 	 * task.getExecServiceId() + " dependencies (the GENERATE ones) to NONE.");
 	 * setAllGenerateDependenciesToNone
@@ -168,7 +173,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id"))); //Set
 	 * its GENERATE dependencies as dirty //TODO: Hmm...what to do in case of
 	 * exceptions?
-	 * 
+	 *
 	 * try {
 	 * setAllGenerateDependenciesToNone(dependenciesResolver.listDependencies
 	 * (task.getExecServiceId()), task.getFacilityId()); } catch
@@ -192,7 +197,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 * (ServiceNotExistsException e) { log.error(e.toString(), e); } catch
 	 * (InternalErrorException e) { log.error(e.toString(), e); } catch
 	 * (PrivilegeException e) { log.error(e.toString(), e); } }
-	 * 
+	 *
 	 * if(false) { final long THREE_HOUR = 1000 * 60 * 60 * 3; long
 	 * timeDifference = System.currentTimeMillis() -
 	 * task.getStartTime().getTime(); if(timeDifference > THREE_HOUR) { // //
@@ -210,12 +215,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 * (ServiceNotExistsException e) { log.error(e.toString(), e); } catch
 	 * (InternalErrorException e) { log.error(e.toString(), e); } catch
 	 * (PrivilegeException e) { log.error(e.toString(), e); } }
-	 * 
+	 *
 	 * log.info("There are only " + taskResults.size() +
 	 * " Task_results for Task ID" + task.getId() +
 	 * ", so we ain't gonna do anything."); // Well, we ain't gonna do anything
 	 * bro... // TODO: Time out... } }
-	 * 
+	 *
 	 * private void collectParallelTaskResults(Task task, List<TaskResult>
 	 * taskResults, List<Destination> destinations) { // Do we have the same
 	 * number of Destinations as we have TaskResults? if (taskResults.size() ==
@@ -227,18 +232,18 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 * FATAL_ERROR: amountFatalError++; break; default: throw new
 	 * IllegalArgumentException("WTF?! " + taskResult.getStatus().toString()); }
 	 * }
-	 * 
+	 *
 	 * if (amountDone + amountDenied == taskResults.size()) { // Super, all is
 	 * DONE or we don't care (DENIED) :-) log.info("Task ID " + task.getId() +
 	 * " has all Tasks_results either DONE or DENIED, so we set it as DONE.");
 	 * task.setStatus(TaskStatus.DONE); task.setEndTime(new
 	 * Date(System.currentTimeMillis())); taskManager.updateTask(task,
 	 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
-	 * 
+	 *
 	 * //Set its GENERATE dependencies as dirty //TODO: Hmm...what to do in case
 	 * of exceptions? try { log.info("I am going to set all ExecService " +
 	 * task.getExecServiceId() + " dependencies (the GENERATE ones) to NONE.");
-	 * 
+	 *
 	 * setAllGenerateDependenciesToNone(dependenciesResolver.listDependencies(task
 	 * .getExecServiceId()), task.getFacilityId()); } catch
 	 * (ServiceNotExistsException e) { log.error(e.toString(), e); } catch
@@ -291,7 +296,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 	 * (ServiceNotExistsException e) { log.error(e.toString(), e); } catch
 	 * (InternalErrorException e) { log.error(e.toString(), e); } catch
 	 * (PrivilegeException e) { log.error(e.toString(), e); } }
-	 * 
+	 *
 	 * log.info("There are only " + taskResults.size() +
 	 * " Task_results for Task ID" + task.getId() +
 	 * ", so we ain't gonna do anything."); // Well, we ain't gonna do anything
@@ -405,7 +410,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 							new Date(System.currentTimeMillis()));
 					log.info("TASK [" + task
 							+ "] in ERROR state has been rescheduled.");
-					
+
 					// Also (to be sure) reschedule all Tasks that depend on
 					// this Task
 					//
@@ -431,7 +436,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		/*
 		 * Original implementation:
-		 * 
+		 *
 		 * //TODO: Take into account Recurrence! for (Task task :
 		 * taskManager.listAllTasksInState(TaskStatus.ERROR,
 		 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))) {
@@ -461,7 +466,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		 * facility.getId() + ");"); taskScheduler.propagateService(execService,
 		 * new Date(System.currentTimeMillis()), facility); log.info("TASK [" +
 		 * task + "] in ERROR state has been rescheduled.");
-		 * 
+		 *
 		 * //Also (to be sure) reschedule all execServices which depends on this
 		 * exec service // //While engine starts in state GEN = ERROR, SEND =
 		 * DONE => GEN will be rescheduled but without this SEND will never be
@@ -474,7 +479,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		 * Date(System.currentTimeMillis()), facility);
 		 * log.info("{} was rescheduled because it depends on {}",
 		 * dependantExecService, execService); } }
-		 * 
+		 *
 		 * } catch (InternalErrorException e) { log.error(e.toString(), e); } }
 		 * else { //delete this tasks (SEND and GEN) because service is no
 		 * longer assigned to facility List<ExecService> execServicesGenAndSend
@@ -506,7 +511,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		List<Task> suspiciousTasks = schedulingPool.getProcessingTasks();
 
 		log.debug("There are {} PROCESSING tasks", suspiciousTasks.size());
-		
+
 		suspiciousTasks.addAll(schedulingPool.getPlannedTasks());
 
 		log.debug("There are {} tasks that are PLANNED or PROCESSING", suspiciousTasks.size());
@@ -549,12 +554,12 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				}
 
 			}
-			
+
 			int howManyMinutesAgo = (int) (System.currentTimeMillis() - checkDate
 					.getTime()) / 1000 / 60;
 
 			// If too much time has passed something is broken
-			if (howManyMinutesAgo >= 180) {
+			if (howManyMinutesAgo >= rescheduleTime) {
 				log.error(
 						"ERROR: Task is stuck in PLANNED or PROCESSING state. Switching it to ERROR. {}",
 						task);
@@ -564,7 +569,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		}
 		/*
-		 * 
+		 *
 		 * List<Task> suspiciousTasks =
 		 * taskManager.listAllTasksInState(TaskStatus.PROCESSING,
 		 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")));
@@ -577,7 +582,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		 * howManyMinutesAgo = (int) (System.currentTimeMillis() - (
 		 * task.getStatus().equals(TaskStatus.PLANNED) ? task.getSchedule() :
 		 * task.getStartTime() ).getTime()) / 1000 / 60;
-		 * 
+		 *
 		 * //If too much time has passed something is broken if
 		 * (howManyMinutesAgo >= 180) { log.error(
 		 * "ERROR: Task is stucked in PLANNED or PROCESSING state. Switching it to ERROR. {}"
@@ -620,13 +625,13 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 		}
 		/*
-		 * 
+		 *
 		 * for(Task task : taskManager.listAllTasksInState(TaskStatus.DONE,
 		 * Integer.parseInt(propertiesBean.getProperty("engine.unique.id")))) {
 		 * //skip GEN tasks
 		 * if(task.getExecService().getExecServiceType().equals(
 		 * ExecService.ExecServiceType.GENERATE)) continue;
-		 * 
+		 *
 		 * Date twoDaysAgo = new Date(System.currentTimeMillis() - 1000 * 60 *
 		 * 24 * 2); if(task.getEndTime().before(twoDaysAgo)) { //reschedule the
 		 * task try { taskScheduler.propagateService(task.getExecService(), new
@@ -636,7 +641,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		 * ); } catch (InternalErrorException e) { log.error(
 		 * "Rescheduling of task which wasn't propagated for more than 2 days failed. {}, Exception: {}"
 		 * , task, e); } }
-		 * 
+		 *
 		 * }
 		 */
 	}
@@ -678,17 +683,17 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 	/*
 	 * public TaskManager getTaskManager() { return taskManager; }
-	 * 
+	 *
 	 * public void setTaskManager(TaskManager taskManager) { this.taskManager =
 	 * taskManager; }
-	 * 
+	 *
 	 * public TaskResultDao getTaskResultDao() { return taskResultDao; }
-	 * 
+	 *
 	 * public void setTaskResultDao(TaskResultDao taskResultDao) {
 	 * this.taskResultDao = taskResultDao; }
-	 * 
+	 *
 	 * public EngineManager getEngineManager() { return engineManager; }
-	 * 
+	 *
 	 * public void setEngineManager(EngineManager engineManager) {
 	 * this.engineManager = engineManager; }
 	 */
