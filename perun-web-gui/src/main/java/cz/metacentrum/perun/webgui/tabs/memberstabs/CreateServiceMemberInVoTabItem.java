@@ -1,6 +1,5 @@
 package cz.metacentrum.perun.webgui.tabs.memberstabs;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.regexp.shared.RegExp;
@@ -16,9 +15,9 @@ import cz.metacentrum.perun.webgui.json.GetEntityById;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.membersManager.CreateSpecificMember;
+import cz.metacentrum.perun.webgui.json.membersManager.FindUsersInVo;
 import cz.metacentrum.perun.webgui.json.membersManager.ValidateMemberAsync;
 import cz.metacentrum.perun.webgui.json.usersManager.CreatePassword;
-import cz.metacentrum.perun.webgui.json.usersManager.FindUsers;
 import cz.metacentrum.perun.webgui.json.usersManager.GenerateAccount;
 import cz.metacentrum.perun.webgui.json.usersManager.IsLoginAvailable;
 import cz.metacentrum.perun.webgui.json.usersManager.SetLogin;
@@ -311,7 +310,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				layout.setVisible(false);
 				firstTabLayout.setVisible(true);
 
-				final FindUsers callback = new FindUsers();
+				final FindUsersInVo callback = new FindUsersInVo();
 				// Service users can't own another Service or Guest (Sponsored) account.
 				callback.hideService(true);
 				if (userType.getSelectedValue().equals("SPONSORED")) {
@@ -329,7 +328,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				ExtendedTextBox searchBox = tabMenu.addSearchWidget(new PerunSearchEvent() {
 					@Override
 					public void searchFor(String text) {
-						callback.searchFor(text);
+						callback.searchFor(text, voId);
 						searchString = text;
 					}
 				}, ButtonTranslation.INSTANCE.searchUsers());
@@ -601,7 +600,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 				if(!searchString.equals(""))
 				{
 					searchBox.getTextBox().setText(searchString);
-					callback.searchFor(searchString);
+					callback.searchFor(searchString, voId);
 				}
 
 				final ScrollPanel sp = new ScrollPanel(table);
