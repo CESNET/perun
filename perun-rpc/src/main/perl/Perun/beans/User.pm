@@ -180,10 +180,16 @@ sub setIsServiceUser
 {
 	my $self = shift;
 	my $value = shift;
-	$value eq 'true' || $value eq 1 || ref $value eq "JSON::PP::Boolean"
-		? $value = JSON::PP::true
-		: $value = JSON::PP::false;
-	$self->{_isServiceUser} = $value;
+	if (ref $value eq "JSON::PP::Boolean")
+	{
+		$self->{_isServiceUser} = $value;
+	} elsif ($value eq 'true' || $value eq 1)
+	{
+		$self->{_isServiceUser} = JSON::PP::true;
+	} else
+	{
+		$self->{_isServiceUser} = JSON::PP::false;
+	}
 
 	return;
 }
@@ -199,10 +205,16 @@ sub setIsSponsoredUser
 {
 	my $self = shift;
 	my $value = shift;
-	$value eq 'true' || $value eq 1 || ref $value eq "JSON::PP::Boolean"
-		? $value = JSON::PP::true
-		: $value = JSON::PP::false;
-	$self->{_isSponsoredUser} = $value;
+	if (ref $value eq "JSON::PP::Boolean")
+	{
+		$self->{_isSponsoredUser} = $value;
+	} elsif ($value eq 'true' || $value eq 1)
+	{
+		$self->{_isSponsoredUser} = JSON::PP::true;
+	} else
+	{
+		$self->{_isSponsoredUser} = JSON::PP::false;
+	}
 
 	return;
 }
