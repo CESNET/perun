@@ -20,9 +20,12 @@ sub help {
 }
 
 my ($securityTeamName, $desc, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"securityTeamName|S=s" => \$securityTeamName,
-"description|d=s" => \$desc || die help());
+GetOptions ("help|h"       => sub {
+		print help();
+		exit 0;
+	}, "batch|b"           => \$batch,
+	"securityTeamName|S=s" => \$securityTeamName,
+	"description|d=s"      => \$desc || die help());
 
 # Check options
 unless (defined($securityTeamName)) { die "ERROR: securityTeamName is required \n";}
@@ -32,9 +35,9 @@ my $agent = Perun::Agent->new();
 my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
 
 my $securityTeam = Perun::beans::SecurityTeam->new;
-$securityTeam->setName($securityTeamName);
-$securityTeam->setDescription($desc) if (defined($desc));
+$securityTeam->setName( $securityTeamName );
+$securityTeam->setDescription( $desc ) if (defined($desc));
 
-$securityTeam = $securityTeamsAgent->createSecurityTeam(securityTeam => $securityTeam);
+$securityTeam = $securityTeamsAgent->createSecurityTeam( securityTeam => $securityTeam );
 
 printMessage("SecurityTeam Id:".$securityTeam->getId." successfully created", $batch);

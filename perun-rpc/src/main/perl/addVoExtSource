@@ -22,9 +22,12 @@ sub help {
 }
 
 my ($voId, $voShortName, $extSourceId, $extSourceName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "extSourceId|e=i" => \$extSourceId, "extSourceName|E=s" => \$extSourceName) || die help();
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"voId|v=i"        => \$voId, "voShortName|V=s" => \$voShortName,
+	"extSourceId|e=i" => \$extSourceId, "extSourceName|E=s" => \$extSourceName) || die help();
 
 # Check options
 unless (defined($voShortName) or defined($voId)) {die "ERROR: voId or voShortName is required\n";}
@@ -35,15 +38,15 @@ my $vosAgent = $agent->getVosAgent;
 my $extSourcesAgent = $agent->getExtSourcesAgent;
 
 if (!defined($voId)) {
-	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
 if (!defined($extSourceId)) {
-	my $extSource = $extSourcesAgent->getExtSourceByName(name => $extSourceName);
+	my $extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName );
 	$extSourceId = $extSource->getId;
 }
 
-$extSourcesAgent->addExtSource(vo => $voId, source => $extSourceId);
+$extSourcesAgent->addExtSource( vo => $voId, source => $extSourceId );
 
 printMessage("External source Id:$extSourceId successfully added to the Vo Id:$voId", $batch);

@@ -18,17 +18,20 @@ sub help {
 	};
 }
 
-my ($limit, $batch) ;
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"limit|l=i" => \$limit,
-"batch|b" => \$batch) || die help;
+my ($limit, $batch);
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"limit|l=i"     => \$limit,
+	"batch|b"       => \$batch) || die help;
 
-unless(defined $limit) { $limit = 20; };
+unless (defined $limit) { $limit = 20; };
 
 my $agent = Perun::Agent->new();
 
 my $auditAgent = $agent->getAuditMessagesAgent;
-my @msgs = $auditAgent->getMessages(count => $limit);
+my @msgs = $auditAgent->getMessages( count => $limit );
 
 #output
 my $sortingFunction = getSortingFunction('getId', 0, 1);

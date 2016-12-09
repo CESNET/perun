@@ -22,30 +22,33 @@ sub help {
 }
 
 my ($facilityId, $facilityName, $facilityType, $serviceId, $serviceName, $schedule, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId,
- "facilityName|F=s" => \$facilityName,
- "serviceId|s=i" => \$serviceId,
- "serviceName|S=s" => \$serviceName) || die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+	"serviceId|s=i"    => \$serviceId,
+	"serviceName|S=s"  => \$serviceName) || die help();
 
 # Check options
 unless (defined($serviceId) or defined($serviceName)) { die "ERROR: serviceId or serviceName is required \n";}
 
 my $agent = Perun::Agent->new();
 
-unless($serviceId) {
+unless ($serviceId) {
 	my $servicesAgent = $agent->getServicesAgent;
-	my $service = $servicesAgent->getServiceByName(name => $serviceName);
-	$serviceId=$service->getId;
+	my $service = $servicesAgent->getServiceByName( name => $serviceName );
+	$serviceId = $service->getId;
 }
 
 my %params = (service => $serviceId);
 
-if(defined($facilityId) or (defined($facilityName))) {
-	unless($facilityId) {
+if (defined($facilityId) or (defined($facilityName))) {
+	unless ($facilityId) {
 		my $facilitiesAgent = $agent->getFacilitiesAgent;
-		my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-		$facilityId=$facility->getId;
+		my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+		$facilityId = $facility->getId;
 	}
 
 	$params{facility} = $facilityId;
@@ -53,6 +56,8 @@ if(defined($facilityId) or (defined($facilityName))) {
 
 my $generelServicesAgent = $agent->getGeneralServicesAgent;
 
-$generelServicesAgent->forceServicePropagation(%params);
+$generelServicesAgent->forceServicePropagation( %params );
 
-printMessage("Service Id:$serviceId  propagation is planed " . ($facilityId ? "on the facility Id:$facilityId" : "on all facilities where it's defined."), $batch);
+printMessage(
+	"Service Id:$serviceId  propagation is planed ".($facilityId ? "on the facility Id:$facilityId" : "on all facilities where it's defined.")
+	, $batch);

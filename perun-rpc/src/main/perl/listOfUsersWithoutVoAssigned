@@ -21,18 +21,24 @@ sub help {
 
 my $sortingFunction;
 our $batch;
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-	"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ,
-	"batch|b" => \$batch) || die help;
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"orderById|i"   => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName", 1) },
+	"batch|b"       => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
 
 my @users = $usersAgent->getUsersWithoutVoAssigned();
-unless(@users) { printMessage "No users found", $batch; exit 0; }
+unless (@users) {
+	printMessage "No users found", $batch;
+	exit 0;
+}
 
-print printTable($sortingFunction, @users);
+printTable($sortingFunction, @users);

@@ -27,13 +27,16 @@ sub help {
 }
 
 my ($rgroupId, $rgroupName, $ogroupId, $ogroupName, $voId, $voShortName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"resultGroupId|g=i" => \$rgroupId,
-"resultGroupName|G=s" => \$rgroupName,
-"operandGroupId|o=i" => \$ogroupId,
-"operandGroupName|O=s" => \$ogroupName,
-"voId|v=i" => \$voId, 
-"voShortName|V=s" => \$voShortName) || die help();
+GetOptions ("help|h"       => sub {
+		print help();
+		exit 0;
+	}, "batch|b"           => \$batch,
+	"resultGroupId|g=i"    => \$rgroupId,
+	"resultGroupName|G=s"  => \$rgroupName,
+	"operandGroupId|o=i"   => \$ogroupId,
+	"operandGroupName|O=s" => \$ogroupName,
+	"voId|v=i"             => \$voId,
+	"voShortName|V=s"      => \$voShortName) || die help();
 
 # Check options
 unless (defined($rgroupId) or ((defined($voShortName) or defined($voId)) and defined($rgroupName))) {die "ERROR: resultGroupId or resultGroupName and voId or voShortName is required\n";}
@@ -43,23 +46,22 @@ my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 
-
 if (!defined($rgroupId) or !defined($ogroupId)) {
 	if (!defined($voId)) {
-		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 		$voId = $vo->getId;
 	}
 
-        unless (defined $rgroupId) {
-	    my $rgroup = $groupsAgent->getGroupByName(vo => $voId, name => $rgroupName);
-	    $rgroupId = $rgroup->getId;
-        }
-        unless (defined $ogroupId) {
-	    my $ogroup = $groupsAgent->getGroupByName(vo => $voId, name => $ogroupName);
-	    $ogroupId = $ogroup->getId;
-        }
+	unless (defined $rgroupId) {
+		my $rgroup = $groupsAgent->getGroupByName( vo => $voId, name => $rgroupName );
+		$rgroupId = $rgroup->getId;
+	}
+	unless (defined $ogroupId) {
+		my $ogroup = $groupsAgent->getGroupByName( vo => $voId, name => $ogroupName );
+		$ogroupId = $ogroup->getId;
+	}
 }
 
-$groupsAgent->removeGroupUnion(resultGroup => $rgroupId, operandGroup => $ogroupId);
+$groupsAgent->removeGroupUnion( resultGroup => $rgroupId, operandGroup => $ogroupId );
 
 printMessage("Join between result group $rgroupId and operand group $ogroupId successfully removed", $batch);

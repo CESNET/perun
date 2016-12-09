@@ -24,10 +24,13 @@ sub help {
 
 our $batch;
 my ($groupId, $groupName, $voId, $voShortName, $userId);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"groupId|g=i" => \$groupId, "groupName|G=s" => \$groupName,
- "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "userId|u=i" => \$userId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"groupId|g=i"    => \$groupId, "groupName|G=s" => \$groupName,
+	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
+	"userId|u=i"     => \$userId) || die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
@@ -39,15 +42,15 @@ my $groupsAgent = $agent->getGroupsAgent;
 
 if (!defined($groupId)) {
 	if (!defined($voId)) {
-		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 		$voId = $vo->getId;
 	}
 
-	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
 	$groupId = $group->getId;
 }
 
-$groupsAgent->removeAdmin( group => $groupId, user => $userId);
+$groupsAgent->removeAdmin( group => $groupId, user => $userId );
 
 printMessage("Group Manager (user) Id:$userId successfully removed from the group Id:$groupId", $batch);
 

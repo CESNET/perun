@@ -21,14 +21,17 @@ sub help {
 	};
 }
 
-my ($userId,$extSourceId,$extSourceName,$extSourceLogin,$batch);
-GetOptions ("help|h" => sub { print help(); exit 0;},"userId|u=i" => \$userId,
-"extSourceId|e=i" => \$extSourceId, "extSourceName|E=s" => \$extSourceName,
+my ($userId, $extSourceId, $extSourceName, $extSourceLogin, $batch);
+GetOptions ("help|h"     => sub {
+		print help();
+		exit 0;
+	}, "userId|u=i"      => \$userId,
+	"extSourceId|e=i"    => \$extSourceId, "extSourceName|E=s" => \$extSourceName,
 	"extSourceLogin|l=s" => \$extSourceLogin, "batch|b" => \$batch) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
-unless(defined($extSourceId) or defined($extSourceName)) { die "ERROR: extSourceId or extSourceName is required \n";}
+unless (defined($extSourceId) or defined($extSourceName)) { die "ERROR: extSourceId or extSourceName is required \n";}
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
@@ -36,15 +39,16 @@ my $extSourcesAgent = $agent->getExtSourcesAgent;
 
 my $extSource;
 if ($extSourceId) {
-	$extSource = $extSourcesAgent->getExtSourceById(id => $extSourceId);
+	$extSource = $extSourcesAgent->getExtSourceById( id => $extSourceId );
 }
 if ($extSourceName) {
-	$extSource = $extSourcesAgent->getExtSourceByName(name => $extSourceName);
+	$extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName );
 	$extSourceId = $extSource->getId;
 }
 
-my $userExtSource = $usersAgent->getUserExtSourceByExtLogin("extSource" => $extSource, "extSourceLogin" => $extSourceLogin);
+my $userExtSource = $usersAgent->getUserExtSourceByExtLogin( "extSource" => $extSource, "extSourceLogin" =>
+	$extSourceLogin );
 
-$usersAgent->removeUserExtSource(user => $userId, userExtSource => $userExtSource->getId);
+$usersAgent->removeUserExtSource( user => $userId, userExtSource => $userExtSource->getId );
 
 printMessage("External Source: $extSourceId with login: $extSourceLogin removed from user Id: $userId", $batch);

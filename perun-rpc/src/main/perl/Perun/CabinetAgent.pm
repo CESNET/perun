@@ -70,12 +70,12 @@ sub removeThankFromPublication
 
 sub lockPublication
 {
-	return Perun::Common::callManagerMethod('lockPublication', 'Publication',1, @_);
+	return Perun::Common::callManagerMethod('lockPublication', 'Publication', 1, @_);
 }
 
 sub unLockPublication
 {
-	return Perun::Common::callManagerMethod('lockPublication', 'Publication',0,, @_);
+	return Perun::Common::callManagerMethod('lockPublication', 'Publication', 0,, @_);
 }
 
 sub findAllAuthors

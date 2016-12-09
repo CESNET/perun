@@ -21,14 +21,14 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
 
 	my $userId = $self->{_userId};
 
-	return {id => $id, userId => $userId};
+	return { id => $id, userId => $userId };
 }
 
 sub getId
@@ -62,8 +62,8 @@ sub setUserId
 }
 
 sub getStatus {
-    my $self = shift;
-    return $self->{_status};
+	my $self = shift;
+	return $self->{_status};
 }
 
 sub getMembershipType {

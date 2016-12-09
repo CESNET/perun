@@ -47,7 +47,7 @@ sub fromAttributeDefinition
 {
 	my $class = shift;
 	$class = ref $class if ref $class;
-	my $self = {};
+	my $self = { };
 	my $definition = $_[0];
 
 	$self->{'_id'} = $definition->{'_id'};
@@ -58,7 +58,7 @@ sub fromAttributeDefinition
 	$self->{'_type'} = $definition->{'_type'};
 	$self->{'_value'} = undef;
 
-	bless ($self,$class);
+	bless ($self, $class);
 }
 
 sub TO_JSON
@@ -67,7 +67,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -109,8 +109,8 @@ sub TO_JSON
 		$type = undef;
 	}
 
-	return {id => $id, value => $value, friendlyName => $friendlyName, displayName => $displayName,
-		namespace => $namespace, description => $description, type => $type};
+	return { id   => $id, value => $value, friendlyName => $friendlyName, displayName => $displayName,
+		namespace => $namespace, description => $description, type => $type };
 }
 
 sub getId
@@ -132,7 +132,7 @@ sub getName
 {
 	my $self = shift;
 
-	return ($self->{_namespace} . ':' . $self->{_friendlyName});
+	return ($self->{_namespace}.':'.$self->{_friendlyName});
 }
 
 sub getFriendlyName
@@ -258,13 +258,14 @@ sub getValueAsScalar {
 	switch(ref $value) {
 		case ""       { return $value }
 		case "SCALAR" { return $value }
-		case "ARRAY"  { return '["' . join('", "', @$value) . '"]' }
+		case "ARRAY"  { return '["'.join('", "', @$value).'"]' }
 		case "HASH"   {
 			local $Data::Dumper::Terse = 1;
 			local $Data::Dumper::Indent = 0;
 			local $Data::Dumper::Useqq = 1;
 
-			{ no warnings 'redefine';
+			{
+				no warnings 'redefine';
 				sub Data::Dumper::qquote {
 					my $s = shift;
 					return "'$s'";
@@ -287,37 +288,50 @@ sub setValueFromArray {
 
 	switch ($attribute->getType) {
 		case "string" {
-			if(scalar @_ > 1) { Perun::Common::printMessage("More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
-			$attribute->setValue($_[0]);
+			if (scalar @_ > 1) { Perun::Common::printMessage(
+				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+			$attribute->setValue( $_[0] );
 		}
 		case "integer" {
-			if(scalar @_ > 1) { Perun::Common::printMessage("More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
-			my $attributeIntegerValue = $_[0]*1;
-			$attribute->setValue($attributeIntegerValue);
+			if (scalar @_ > 1) { Perun::Common::printMessage(
+				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+			my $attributeIntegerValue = $_[0] * 1;
+			$attribute->setValue( $attributeIntegerValue );
 		}
 		case "boolean" {
-			if(scalar @_ > 1) { Perun::Common::printMessage("More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
+			if (scalar @_ > 1) { Perun::Common::printMessage(
+				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
 			if (("$_[0]" eq '1') or ("$_[0]" eq 'true')) {
 				my $true = JSON::PP::true;
-				$attribute->setValue($true);
+				$attribute->setValue( $true );
 			} elsif (("$_[0]" eq '0') or ("$_[0]" eq 'false')) {
 				my $false = JSON::PP::false;
-				$attribute->setValue($false);
+				$attribute->setValue( $false );
 			} else {
-				Perun::Common::printMessage("Value is not of boolean type, please use numbers 1/0 or strings true/false as input.", $::batch);
+				Perun::Common::printMessage(
+					"Value is not of boolean type, please use numbers 1/0 or strings true/false as input.", $::batch);
 			}
 		}
 		case "array" {
-			$attribute->setValue(\@_);
+			$attribute->setValue( \@_ );
 		}
 		case "hash" {
 			my %hash = @_;
-			$attribute->setValue(\%hash);
+			$attribute->setValue( \%hash );
 		}
 		else {
-			die "Unknown attribute type. Type=" . $attribute->getType;
+			die "Unknown attribute type. Type=".$attribute->getType;
 		}
 	}
+}
+
+sub getCommonArrayRepresentation {
+	my $self = shift;
+	return ($self->{_id}, $self->getName, $self->getType, $self->getValueAsScalar);
+}
+
+sub getCommonArrayRepresentationHeading {
+	return ('ID', 'Name', 'Type', 'Value');
 }
 
 1;

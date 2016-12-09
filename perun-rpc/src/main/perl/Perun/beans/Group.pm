@@ -21,7 +21,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -42,12 +42,12 @@ sub TO_JSON
 
 	my $voId;
 	if (defined($self->{_voId})) {
-		$voId = $self->{_voId}*1;
+		$voId = $self->{_voId} * 1;
 	} else {
 		$voId = 0;
 	}
 
-	return {id => $id, name => $name, description => $description, voId => $voId, beanName => "Group"};
+	return { id => $id, name => $name, description => $description, voId => $voId, beanName => "Group" };
 }
 
 sub getId

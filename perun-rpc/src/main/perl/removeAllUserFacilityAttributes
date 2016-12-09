@@ -21,24 +21,27 @@ sub help {
 }
 
 my ($facilityId, $facilityName, $userId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,	
-	"facilityId|f=i" => \$facilityId,
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityId|f=i"   => \$facilityId,
 	"facilityName|F=s" => \$facilityName,
-	"userId|u=i" => \$userId) || die help();
+	"userId|u=i"       => \$userId) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
 unless (defined($userId)) { die "ERROR: userId is required \n";}
 
 my $agent = Perun::Agent->new();
-unless($facilityId) {
+unless ($facilityId) {
 	my $facilitiesAgent = $agent->getFacilitiesAgent;
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-	$facilityId=$facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
 
-$attributesAgent->removeAllAttributes(facility => $facilityId, user => $userId);
+$attributesAgent->removeAllAttributes( facility => $facilityId, user => $userId );
 
 printMessage("All attributes removed from the user Id: $userId and the facility Id: $facilityId", $batch);

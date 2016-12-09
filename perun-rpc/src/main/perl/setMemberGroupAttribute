@@ -28,14 +28,17 @@ sub help {
 
 my ($groupId, $groupName, $voId, $voShortName, $memberId, $attributeId, $attributeName, @attributeValue);
 our $batch;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"groupId|g=i" => \$groupId,
-	 "groupName|G=s" => \$groupName,
- "voId|v=i" => \$voId,
-	 "voShortName|V=s" => \$voShortName, 
- "attributeId|a=i" => \$attributeId,
-	 "attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue,
- "memberId|m=i" => \$memberId) || die help();
+GetOptions ("help|h"    => sub {
+		print help();
+		exit 0;
+	}, "batch|b"        => \$batch,
+	"groupId|g=i"       => \$groupId,
+	"groupName|G=s"     => \$groupName,
+	"voId|v=i"          => \$voId,
+	"voShortName|V=s"   => \$voShortName,
+	"attributeId|a=i"   => \$attributeId,
+	"attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue,
+	"memberId|m=i"      => \$memberId) || die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
@@ -47,13 +50,13 @@ my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 
-unless(defined($groupId)) {
+unless (defined($groupId)) {
 	unless (defined($voId)) {
-		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 		$voId = $vo->getId;
 	}
 
-	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
 	$groupId = $group->getId;
 }
 
@@ -61,16 +64,16 @@ my $attributesAgent = $agent->getAttributesAgent;
 my $attributeDefinition;
 
 if (!defined($attributeId)) {
-	$attributeDefinition =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+	$attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
 } else {
-	$attributeDefinition =  $attributesAgent->getAttributeDefinitionById(id => $attributeId);
+	$attributeDefinition = $attributesAgent->getAttributeDefinitionById( id => $attributeId );
 }
 
 # Get the attribute definition and create the attribute
-my $attribute = Perun::beans::Attribute->fromAttributeDefinition($attributeDefinition);
+my $attribute = Perun::beans::Attribute->fromAttributeDefinition( $attributeDefinition );
 
-$attribute->setValueFromArray(@attributeValue);
+$attribute->setValueFromArray( @attributeValue );
 
-$attributesAgent->setAttribute(member => $memberId, group => $groupId, attribute => $attribute);
+$attributesAgent->setAttribute( member => $memberId, group => $groupId, attribute => $attribute );
 
 printMessage("Attribute Id:".$attribute->getId." set for the group Id:$groupId and member Id:$memberId", $batch);

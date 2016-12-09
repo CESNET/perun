@@ -21,10 +21,13 @@ sub help {
 }
 
 my ($securityTeamId, $securityTeamName, $desc, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"securityTeamId|s=i" => \$securityTeamId,
-"securityTeamName|S=s" => \$securityTeamName,
-"description|d=s" => \$desc || die help());
+GetOptions ("help|h"       => sub {
+		print help();
+		exit 0;
+	}, "batch|b"           => \$batch,
+	"securityTeamId|s=i"   => \$securityTeamId,
+	"securityTeamName|S=s" => \$securityTeamName,
+	"description|d=s"      => \$desc || die help());
 
 # Check options
 unless (defined($securityTeamId)) { die "ERROR: securityTeamId is required \n";}
@@ -33,10 +36,10 @@ if (defined $securityTeamName and $securityTeamName =~ /\W/) { die "ERROR: secur
 my $agent = Perun::Agent->new();
 my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
 
-my $securityTeam = $securityTeamsAgent->getSecurityTeamById(id => $securityTeamId);
-$securityTeam->setName($securityTeamName) if (defined $securityTeamName);
-$securityTeam->setDescription($desc) if (defined($desc));
+my $securityTeam = $securityTeamsAgent->getSecurityTeamById( id => $securityTeamId );
+$securityTeam->setName( $securityTeamName ) if (defined $securityTeamName);
+$securityTeam->setDescription( $desc ) if (defined($desc));
 
-$securityTeam = $securityTeamsAgent->updateSecurityTeam(securityTeam => $securityTeam);
+$securityTeam = $securityTeamsAgent->updateSecurityTeam( securityTeam => $securityTeam );
 
 printMessage("SecurityTeam Id:".$securityTeam->getId." successfully updated", $batch);

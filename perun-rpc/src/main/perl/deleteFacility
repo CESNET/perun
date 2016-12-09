@@ -20,9 +20,12 @@ sub help {
 }
 
 my ($facilityId, $facilityName, $facilityType, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId,
- "facilityName|F=s" => \$facilityName) || die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
@@ -30,12 +33,12 @@ unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facility
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
+unless ($facilityId) {
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
 	$facilityId = $facility->getId;
 }
 
-$facilitiesAgent->deleteFacility(facility => $facilityId);
+$facilitiesAgent->deleteFacility( facility => $facilityId );
 
 printMessage("Facility Id:$facilityId successfully deleted", $batch);
 

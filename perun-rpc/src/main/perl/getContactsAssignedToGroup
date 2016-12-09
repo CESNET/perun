@@ -9,7 +9,7 @@ use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 #use Data::Dumper;
 
 sub help {
-        return qq{
+	return qq{
         Lists contacts of group.
         --------------------------
         Available options:
@@ -24,19 +24,22 @@ sub help {
         };
 }
 
-my ($groupId,$groupName, $voId, $voShortName, $batch, $sortingFunction);
+my ($groupId, $groupName, $voId, $voShortName, $batch, $sortingFunction);
 
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch,
-"orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) },
-"groupName|G=s" => \$groupName,
-"voId|v=i" => \$voId,
-"voShortName|V=s" => \$voShortName,
-"groupId|g=s" => \$groupId) or die help();
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"         => \$batch,
+	"orderByName|n"   => sub { $sortingFunction = getSortingFunction("getName", 1) },
+	"groupName|G=s"   => \$groupName,
+	"voId|v=i"        => \$voId,
+	"voShortName|V=s" => \$voShortName,
+	"groupId|g=s"     => \$groupId) or die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
@@ -44,27 +47,30 @@ my $groupsAgent = $agent->getGroupsAgent;
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 if (!defined($groupId)) {
-        if (!defined($voId)) {
-                my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
-                $voId = $vo->getId;
-        }
+	if (!defined($voId)) {
+		my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
+		$voId = $vo->getId;
+	}
 
-        my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
-        $groupId = $group->getId;
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
+	$groupId = $group->getId;
 }
- 
+
 my @contactGroups;
-@contactGroups = $facilitiesAgent->getFacilityContactGroups(group => $groupId);
-unless (@contactGroups) { printMessage "No Contacts found", $batch; exit 0;} 
+@contactGroups = $facilitiesAgent->getFacilityContactGroups( group => $groupId );
+unless (@contactGroups) {
+	printMessage "No Contacts found", $batch;
+	exit 0;
+}
 
 #output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('Name','Facility','facilityId');
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+$table->setCols( 'Name', 'Facility', 'facilityId' );
 
 foreach my $contactGroup (sort $sortingFunction @contactGroups) {
-    my $facility=$contactGroup->getFacility;
-    #print Dumper($facility);
-    $table->addRow($contactGroup->getName, $facility->getName, $facility->getId);
+	my $facility = $contactGroup->getFacility;
+	#print Dumper($facility);
+	$table->addRow( $contactGroup->getName, $facility->getName, $facility->getId );
 }
 
 print tableToPrint($table, $batch);

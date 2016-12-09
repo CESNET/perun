@@ -20,11 +20,14 @@ sub help {
 }
 
 our $batch;
-my ($memberId,$status);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-	"batch|b" => \$batch,
-"newStatus|s=s" => \$status,
- "memberId|m=i" => \$memberId) || die help();
+my ($memberId, $status);
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"        => \$batch,
+	"newStatus|s=s"  => \$status,
+	"memberId|m=i"   => \$memberId) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}
@@ -33,6 +36,6 @@ unless (defined($status)) { die "ERROR: newStatus status is required \n";}
 my $agent = Perun::Agent->new();
 my $membersAgent = $agent->getMembersAgent;
 
-$membersAgent->setStatus(member => $memberId, status => $status);
+$membersAgent->setStatus( member => $memberId, status => $status );
 
 printMessage("Staus of member Id:$memberId successfully set to $status", $batch);

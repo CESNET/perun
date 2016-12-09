@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -14,35 +14,35 @@ sub help {
 	Available options:
 	--resourceId  | -r  Resource idetifier
 	--orderById   | -i  order by numeric ID
+	--orderByName | -n  order by name
 	--batch       | -b  batch
 	--help        | -h  prints this help
 
 	};
 }
 
-my ($resourceId, $batch, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
+our $batch;
+my ($resourceId, $sortingFunction);
+GetOptions("help|h"  => sub {
+		print help;
+		exit 0;
+	},
 	"resourceId|r=i" => \$resourceId,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-#FIXME member nema getName ###     "orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-"batch|b" => \$batch) || die help;
+	"orderById|i"    => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"  => sub {$sortingFunction = getSortingFunction("getSortingName", 1) },
+	"batch|b"        => \$batch) || die help;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId", 1); }
-unless(defined $resourceId) { die "ERROR: resourceId required\n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getId", 1); }
+unless (defined $resourceId) { die "ERROR: resourceId required\n";}
 
 my $agent = Perun::Agent->new();
 my $resourcesAgent = $agent->getResourcesAgent;
-my @users = $resourcesAgent->getAllowedUsers(resource => $resourceId);
-unless(@users) { printMessage "No Member found\n", $batch; exit 0; }
-
-#output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('Id','Name');
-
-foreach my $user (sort $sortingFunction @users) {
-	my $name = $user->getFirstName . " " . ($user->getMiddleName ? $user->getMiddleName . " " : "" ) . $user->getLastName;
-	$table->addRow($user->getId, $name);
+my @users = $resourcesAgent->getAllowedUsers( resource => $resourceId );
+unless (@users) {
+	printMessage "No Member found\n", $batch;
+	exit 0;
 }
 
-print tableToPrint($table, $batch);
+#output
+printTable($sortingFunction, @users);

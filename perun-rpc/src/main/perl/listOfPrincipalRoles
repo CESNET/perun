@@ -13,28 +13,32 @@ sub help {
 	Available options:
 	--batch       | -b batch
 	--help        | -h prints this help
-
 	};
 }
 
 my ($batch);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"batch|b" => \$batch) || die help;
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"batch|b"       => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $authzResolverAgent = $agent->getAuthzResolverAgent;
 
-
 my $role = $authzResolverAgent->getPrincipalRoleNames;
-unless($role) { printMessage "No Roles found", $batch; exit 0;}
+unless ($role) {
+	printMessage "No Roles found", $batch;
+	exit 0;
+}
 
 #output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
+my $table = Text::ASCIITable->new({ reportErrors => 0, utf8 => 0 });
 $table->setCols('Role Name');
 
-my @roles=@$role;
+my @roles = @$role;
 foreach my $rol (@roles) {
-    $table->addRow($rol);
+	$table->addRow($rol);
 }
 
 print tableToPrint($table, $batch);

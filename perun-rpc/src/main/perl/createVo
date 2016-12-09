@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($voFullName, $voShortName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"voFullName|n=s" => \$voFullName,"voShortName|V=s" => \$voShortName) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"voFullName|n=s" => \$voFullName, "voShortName|V=s" => \$voShortName) || die help();
 
 # Check options
 unless (defined($voFullName)) { die "ERROR: voFullName is required \n";}
@@ -33,9 +36,9 @@ my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
 
 my $vo = Perun::beans::Vo->new;
-$vo->setName($voFullName);
-$vo->setShortName($voShortName);
+$vo->setName( $voFullName );
+$vo->setShortName( $voShortName );
 
-$vo = $vosAgent->createVo(vo => $vo);
+$vo = $vosAgent->createVo( vo => $vo );
 
 printMessage("Vo Id:".$vo->getId." successfully created", $batch);

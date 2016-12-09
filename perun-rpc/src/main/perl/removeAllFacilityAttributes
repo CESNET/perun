@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($facilityId, $facilityName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-	"facilityId|f=i" => \$facilityId,
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityId|f=i"   => \$facilityId,
 	"facilityName|F=s" => \$facilityName) || die help();
 
 # Check options
@@ -29,14 +32,14 @@ unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facility
 
 my $agent = Perun::Agent->new();
 
-unless($facilityId) {
+unless ($facilityId) {
 	my $facilitiesAgent = $agent->getFacilitiesAgent;
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-	$facilityId=$facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
 
-$attributesAgent->removeAllAttributes(facility => $facilityId);
+$attributesAgent->removeAllAttributes( facility => $facilityId );
 
 printMessage("All attributes removed from the facility Id:$facilityId", $batch);

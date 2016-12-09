@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
+	return qq{
 Updates a NotifRegex. ID is required field.
 --------------------------------------
 Available options:
@@ -22,8 +22,11 @@ Available options:
 
 our $batch;
 my ($id, $regex, $note);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "NotifRegexId|i=i" => \$id , "regex|r=s" => \$regex,"note|n=s" => \$note) || die help(); 
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"NotifRegexId|i=i" => \$id, "regex|r=s" => \$regex, "note|n=s" => \$note) || die help();
 
 # Check option
 unless (defined($id)) {die "ERROR: NotifRegex: id is required\n"}
@@ -31,17 +34,17 @@ unless (defined($id)) {die "ERROR: NotifRegex: id is required\n"}
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
 
-my $object = $notifAgent->getPerunNotifRegexById(id => $id);
+my $object = $notifAgent->getPerunNotifRegexById( id => $id );
 
 if (defined($regex)) {
-  unless ($regex !~ /^\s*$/) { die "ERROR: regex cannot be empty string\n";}
-  $object->setRegex($regex);
+	unless ($regex !~ /^\s*$/) { die "ERROR: regex cannot be empty string\n";}
+	$object->setRegex( $regex );
 }
 
 if (defined($note)) {
-  $object->setNote($note);
+	$object->setNote( $note );
 }
 
-$object = $notifAgent->updatePerunNotifRegex(regex => $object);
+$object = $notifAgent->updatePerunNotifRegex( regex => $object );
 
 printMessage("NotifRegex Id:".$id." successfully updated", $batch);

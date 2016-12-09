@@ -21,10 +21,13 @@ sub help {
 }
 
 my ($serviceId, $attributeId, $attributeName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"serviceId|s=i" => \$serviceId,
- "attributeName|A=s" => \$attributeName,
- "attributeId|a=i" => \$attributeId) || die help();
+GetOptions ("help|h"    => sub {
+		print help();
+		exit 0;
+	}, "batch|b"        => \$batch,
+	"serviceId|s=i"     => \$serviceId,
+	"attributeName|A=s" => \$attributeName,
+	"attributeId|a=i"   => \$attributeId) || die help();
 
 # Check options
 unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
@@ -35,10 +38,10 @@ my $servicesAgent = $agent->getServicesAgent;
 my $attributesAgent = $agent->getAttributesAgent;
 
 if (!defined($attributeId)) {
-	my $attribute =  $attributesAgent->getAttributeDefinition(attributeName => $attributeName);
+	my $attribute = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
 	$attributeId = $attribute->getId;
 }
 
-$servicesAgent->addRequiredAttribute(service => $serviceId, attribute => $attributeId);
+$servicesAgent->addRequiredAttribute( service => $serviceId, attribute => $attributeId );
 
 printMessage("Attribute Id:$attributeId successfully assigned to the service Id:$serviceId", $batch);

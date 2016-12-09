@@ -23,10 +23,13 @@ sub help {
 }
 
 my ($attributeName, $attributeDisplayName, $attributeNameSpace, $attributeType, $attributeDsc, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"attributeName|N=s" => \$attributeName, "attributeDisplayName|e=s" => \$attributeDisplayName,
-"attributeNameSpace|n=s" => \$attributeNameSpace, "attributeType|t=s" => \$attributeType,
-"attributeDsc|d=s" => \$attributeDsc) || die help();
+GetOptions ("help|h"         => sub {
+		print help();
+		exit 0;
+	}, "batch|b"             => \$batch,
+	"attributeName|N=s"      => \$attributeName, "attributeDisplayName|e=s" => \$attributeDisplayName,
+	"attributeNameSpace|n=s" => \$attributeNameSpace, "attributeType|t=s" => \$attributeType,
+	"attributeDsc|d=s"       => \$attributeDsc) || die help();
 
 # Check options
 unless (defined($attributeName)) { die "ERROR: attributeName is required \n";}
@@ -37,12 +40,12 @@ my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 
 my $attribute = Perun::beans::AttributeDefinition->new;
-$attribute->setFriendlyName($attributeName);
-$attribute->setNamespace($attributeNameSpace);
-$attribute->setDisplayName($attributeDisplayName);
-$attribute->setType($attributeType);
-$attribute->setDescription($attributeDsc) if (defined($attributeDsc));
+$attribute->setFriendlyName( $attributeName );
+$attribute->setNamespace( $attributeNameSpace );
+$attribute->setDisplayName( $attributeDisplayName );
+$attribute->setType( $attributeType );
+$attribute->setDescription( $attributeDsc ) if (defined($attributeDsc));
 
-$attribute = $attributesAgent->createAttribute(attribute => $attribute);
+$attribute = $attributesAgent->createAttribute( attribute => $attribute );
 
 printMessage("Attribute Id:".$attribute->getId." successfully created", $batch);

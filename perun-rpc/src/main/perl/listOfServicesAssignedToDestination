@@ -22,47 +22,56 @@ sub help {
 
 
 my ($destination, $batch);
-GetOptions("help|h" => sub { print help; exit 0; } ,
-"destination|D=s" => \$destination,
-"batch|b" => \$batch) || die help;
+GetOptions("help|h"   => sub {
+		print help;
+		exit 0;
+	},
+	"destination|D=s" => \$destination,
+	"batch|b"         => \$batch) || die help;
 
 #options check
-unless(defined $destination) { die "ERROR: destination is required\n";}
+unless (defined $destination) { die "ERROR: destination is required\n";}
 
 my $agent = Perun::Agent->new();
 
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 my $servicesAgent = $agent->getServicesAgent;
 
-my @facilities = $facilitiesAgent->getFacilitiesByDestination(destination => $destination);
-unless(@facilities) { printMessage "No facilities found", $batch; exit 0;}
+my @facilities = $facilitiesAgent->getFacilitiesByDestination( destination => $destination );
+unless (@facilities) {
+	printMessage "No facilities found", $batch;
+	exit 0;
+}
 
 my %services;
 #relevant services
 while (@facilities) {
-    my $facility=shift(@facilities);
-    my @servs=$servicesAgent->getAssignedServices(facility => $facility->getId());
-    unless (@servs) { printMessage "No service found", $batch; exit 0;}
+	my $facility = shift(@facilities);
+	my @servs = $servicesAgent->getAssignedServices( facility => $facility->getId() );
+	unless (@servs) {
+		printMessage "No service found", $batch;
+		exit 0;
+	}
 
-    while (@servs) {
-        my $serv=shift(@servs);
-        my @dests=$servicesAgent->getDestinations(service => $serv->getId(),facility => $facility->getId());
-        while (@dests) {
-            my $dest=shift(@dests);
-            if ($dest->getDestination() eq $destination) {
-                $services{$serv->getName()}=1;
-            }
-        }
-    }
-} 
+	while (@servs) {
+		my $serv = shift(@servs);
+		my @dests = $servicesAgent->getDestinations( service => $serv->getId(), facility => $facility->getId() );
+		while (@dests) {
+			my $dest = shift(@dests);
+			if ($dest->getDestination() eq $destination) {
+				$services{$serv->getName()} = 1;
+			}
+		}
+	}
+}
 
 #output
 
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('Service for '.$destination);
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+$table->setCols( 'Service for '.$destination );
 
 foreach my $service (sort keys (%services)) {
-    $table->addRow($service);
+	$table->addRow( $service );
 }
 
 print tableToPrint($table, $batch);

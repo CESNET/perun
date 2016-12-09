@@ -22,25 +22,28 @@ sub help {
 
 our $batch;
 my ($ownerName, $ownerContact, $ownerType);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-	"batch|b" => \$batch,
-"ownerName|O=s" => \$ownerName,
-						"ownerContact|c=s" => \$ownerContact,
-					"ownerType|t=s" => \$ownerType,
-			) || die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"          => \$batch,
+	"ownerName|O=s"    => \$ownerName,
+	"ownerContact|c=s" => \$ownerContact,
+	"ownerType|t=s"    => \$ownerType,
+) || die help();
 
 # Check options
-			unless($ownerName) { die "ERROR: ownerName is required \n";}
-			unless($ownerType) { die "ERROR: ownerType is required \n";}
+unless ($ownerName) { die "ERROR: ownerName is required \n";}
+unless ($ownerType) { die "ERROR: ownerType is required \n";}
 
-			my $agent = Perun::Agent->new();
-			my $ownersAgent = $agent->getOwnersAgent;
+my $agent = Perun::Agent->new();
+my $ownersAgent = $agent->getOwnersAgent;
 
-			my $owner=Perun::beans::Owner->new;
-			$owner->setName($ownerName);
-			$owner->setType($ownerType);
-			$owner->setContact($ownerContact) if defined $ownerContact;
+my $owner = Perun::beans::Owner->new;
+$owner->setName( $ownerName );
+$owner->setType( $ownerType );
+$owner->setContact( $ownerContact ) if defined $ownerContact;
 
-			$owner = $ownersAgent->createOwner(owner => $owner);
+$owner = $ownersAgent->createOwner( owner => $owner );
 
-			printMessage("Owner Id:".$owner->getId." successfully created", $batch);
+printMessage("Owner Id:".$owner->getId." successfully created", $batch);

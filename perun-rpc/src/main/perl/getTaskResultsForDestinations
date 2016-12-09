@@ -22,8 +22,11 @@ sub help {
 
 my (@destinations);
 our $batch;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-'destinations|d=s@{1,}' => \@destinations) || die help();
+GetOptions ("help|h"        => sub {
+		print help();
+		exit 0;
+	}, "batch|b"            => \$batch,
+	'destinations|d=s@{1,}' => \@destinations) || die help();
 
 # Check options
 unless (@destinations) { die "ERROR: at least one destination must be specified\n";}
@@ -31,8 +34,11 @@ unless (@destinations) { die "ERROR: at least one destination must be specified\
 my $agent = Perun::Agent->new();
 my $propagationStatsReaderAgent = $agent->getPropagationStatsReaderAgent;
 
-my @taskResults = $propagationStatsReaderAgent->getTaskResultsForDestinations(destinations => \@destinations);
-unless(@taskResults) { printMessage "No tasks results found", $batch; exit 0;}
+my @taskResults = $propagationStatsReaderAgent->getTaskResultsForDestinations( destinations => \@destinations );
+unless (@taskResults) {
+	printMessage "No tasks results found", $batch;
+	exit 0;
+}
 
 my $sortingFunction = getSortingFunction("getDestinationName", 1);
 

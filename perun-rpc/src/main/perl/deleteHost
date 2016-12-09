@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($hostId, $hostName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"hostId|i=i" => \$hostId, "hostName|H=s" => \$hostName) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"hostId|i=i"     => \$hostId, "hostName|H=s" => \$hostName) || die help();
 
 # Check options
 unless (defined($hostId) or defined($hostName)) { die "ERROR: hostId or hostName is required \n";}
@@ -29,12 +32,12 @@ unless (defined($hostId) or defined($hostName)) { die "ERROR: hostId or hostName
 my $agent = Perun::Agent->new();
 my $hostsAgent = $agent->getHostsAgent;
 
-unless($hostId) {
-	my $host = $hostsAgent->getHostByName(name => $hostName);
+unless ($hostId) {
+	my $host = $hostsAgent->getHostByName( name => $hostName );
 	$hostId = $host->getId;
 }
 
-$hostsAgent->deleteHost(host => $hostId);
+$hostsAgent->deleteHost( host => $hostId );
 
 printMessage("Host Id:$hostId successfully deleted", $batch);
 

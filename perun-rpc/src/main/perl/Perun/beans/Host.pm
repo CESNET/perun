@@ -21,7 +21,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -33,7 +33,7 @@ sub TO_JSON
 		$hostname = undef;
 	}
 
-	return {id => $id, hostname => $hostname};
+	return { id => $id, hostname => $hostname };
 }
 
 sub getId
@@ -64,6 +64,15 @@ sub setHostname
 	$self->{_hostname} = shift;
 
 	return;
+}
+
+sub getCommonArrayRepresentation {
+	my $self = shift;
+	return ($self->getId, $self->getHostname);
+}
+
+sub getCommonArrayRepresentationHeading {
+	return ('ID', 'Name');
 }
 
 1;

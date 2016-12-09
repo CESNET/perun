@@ -21,12 +21,15 @@ sub help {
 	};
 }
 
-my ($packageName,$packageId,$serviceName,$serviceId,$batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"packageName|P=s" => \$packageName,
- "packageId|p=i" => \$packageId,
- "serviceName|S=s" => \$serviceName,
- "serviceId|s=i" => \$serviceId) || die help();
+my ($packageName, $packageId, $serviceName, $serviceId, $batch);
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"packageName|P=s" => \$packageName,
+	"packageId|p=i"   => \$packageId,
+	"serviceName|S=s" => \$serviceName,
+	"serviceId|s=i"   => \$serviceId) || die help();
 
 # Check options
 unless (defined($packageName) or defined($packageId)) { die "ERROR: packageName or packageId is required \n";}
@@ -36,17 +39,17 @@ my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
 unless ($packageId) {
-	my $package = $servicesAgent->getServicesPackageByName(name => $packageName);
-	$packageId=$package->getId;
+	my $package = $servicesAgent->getServicesPackageByName( name => $packageName );
+	$packageId = $package->getId;
 }
 
-unless($serviceId) {
-	my $service = $servicesAgent->getServiceByName(name => $serviceName);
-	$serviceId=$service->getId;
+unless ($serviceId) {
+	my $service = $servicesAgent->getServiceByName( name => $serviceName );
+	$serviceId = $service->getId;
 }
 
-$servicesAgent->removeServiceFromServicesPackage(servicesPackage => $packageId, service => $serviceId);
+$servicesAgent->removeServiceFromServicesPackage( servicesPackage => $packageId, service => $serviceId );
 
-printMessage("Service Id:$serviceId removed from service package: $packageId",$batch);
+printMessage("Service Id:$serviceId removed from service package: $packageId", $batch);
 
 

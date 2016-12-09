@@ -19,10 +19,13 @@ sub help {
 	};
 }
 
-my ($attributeId, $batch,$force);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"attributeId|a=i" => \$attributeId,
- "force|f" => \$force) || die help();
+my ($attributeId, $batch, $force);
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"attributeId|a=i" => \$attributeId,
+	"force|f"         => \$force) || die help();
 
 # Check options
 unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
@@ -30,10 +33,10 @@ unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
 my $agent = Perun::Agent->new();
 my $attributesAgent = $agent->getAttributesAgent;
 
-if(defined($force)) {
-	$attributesAgent->deleteAttribute(attribute => $attributeId,force => 1);
+if (defined($force)) {
+	$attributesAgent->deleteAttribute( attribute => $attributeId, force => 1 );
 } else {
-	$attributesAgent->deleteAttribute(attribute => $attributeId)
+	$attributesAgent->deleteAttribute( attribute => $attributeId )
 }
 
 printMessage("Attribute Id:$attributeId successfully deleted", $batch);

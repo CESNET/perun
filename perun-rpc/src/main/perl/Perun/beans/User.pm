@@ -21,7 +21,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -61,8 +61,23 @@ sub TO_JSON
 		$titleAfter = undef;
 	}
 
-	return {id => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
-		titleBefore => $titleBefore, titleAfter => $titleAfter};
+	my $isServiceUser;
+	if (defined($self->{_isServiceUser})) {
+		$isServiceUser = $self->{_isServiceUser};
+	} else {
+		$isServiceUser = undef;
+	}
+
+	my $isSponsoredUser;
+	if (defined($self->{_isSponsoredUser})) {
+		$isSponsoredUser = $self->{_isSponsoredUser};
+	} else {
+		$isSponsoredUser = undef;
+	}
+
+	return { id         => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
+		titleBefore     => $titleBefore, titleAfter => $titleAfter, isServiceUser => $isServiceUser,
+		isSponsoredUser => $isSponsoredUser };
 }
 
 sub getId
@@ -155,33 +170,82 @@ sub setTitleAfter
 	return;
 }
 
+sub getIsServiceUser
+{
+	my $self = shift;
+	return ($self->{_isServiceUser}) ? 'true' : 'false';
+}
+
+sub setIsServiceUser
+{
+	my $self = shift;
+	my $value = shift;
+	if (ref $value eq "JSON::PP::Boolean")
+	{
+		$self->{_isServiceUser} = $value;
+	} elsif ($value eq 'true' || $value eq 1)
+	{
+		$self->{_isServiceUser} = JSON::PP::true;
+	} else
+	{
+		$self->{_isServiceUser} = JSON::PP::false;
+	}
+
+	return;
+}
+
+sub getIsSponsoredUser
+{
+	my $self = shift;
+
+	return ($self->{_isSponsoredUser}) ? 'true' : 'false';
+}
+
+sub setIsSponsoredUser
+{
+	my $self = shift;
+	my $value = shift;
+	if (ref $value eq "JSON::PP::Boolean")
+	{
+		$self->{_isSponsoredUser} = $value;
+	} elsif ($value eq 'true' || $value eq 1)
+	{
+		$self->{_isSponsoredUser} = JSON::PP::true;
+	} else
+	{
+		$self->{_isSponsoredUser} = JSON::PP::false;
+	}
+
+	return;
+}
+
 sub getCommonName
 {
 	my $self = shift;
 
-	return ($self->{_firstName} . ' ' . (defined $self->{_middleName} ? $self->{_middleName} . ' ' : '') . $self->{_lastName});
+	return ($self->{_firstName}.' '.(defined $self->{_middleName} ? $self->{_middleName}.' ' : '').$self->{_lastName});
 }
 
 sub getDisplayName
 {
 	my $self = shift;
 
-	return (($self->{_titleBefore} ? $self->{_titleBefore} . ' ' : "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : "") . ($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_titleAfter} ? $self->{_titleAfter} : ""));
+	return (($self->{_titleBefore} ? $self->{_titleBefore}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : "").($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_titleAfter} ? $self->{_titleAfter} : ""));
 }
 
 # used only for sorting purpose: LastName FirstName MiddleName
 sub getSortingName {
 	my $self = shift;
-	return (($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : ""));
+	return (($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : ""));
 }
 
 sub getCommonArrayRepresentation {
 	my $user = shift;
-	return ($user->getId, $user->getDisplayName);
+	return ($user->getId, $user->getDisplayName, $user->getIsServiceUser, $user->getIsSponsoredUser);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('Id', 'Name');
+	return ('Id', 'Name', 'IsServiceUser', 'IsSponsoredUser');
 }
 
 

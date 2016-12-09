@@ -20,11 +20,16 @@ sub help {
 	};
 }
 
-my ($userId, $sortingFunction, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;}, "batch|b" => \$batch,
-"userId|u=i" => \$userId, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') } ) || die help();
+our $batch;
+my ($userId, $sortingFunction);
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"userId|u=i"     => \$userId, "orderById|i" =>
+	sub { $sortingFunction = getSortingFunction('getId') } ) || die help();
 
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getId", 1); }
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -32,8 +37,11 @@ unless (defined($userId)) { die "ERROR: userId is required \n";}
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
 
-my @extSources = $usersAgent->getUserExtSources(user =>$userId);
+my @extSources = $usersAgent->getUserExtSources( user => $userId );
 
-unless(@extSources) { printMessage "No user extrnal sources found", $batch;  exit 0; }
+unless (@extSources) {
+	printMessage "No user extrnal sources found", $batch;
+	exit 0;
+}
 
-printTable $sortingFunction, @extSources;
+printTable($sortingFunction, @extSources);

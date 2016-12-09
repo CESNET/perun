@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
+	return qq{
 Updates a NotifTemplate. Id of the updated Template is required field.
 --------------------------------------
 Available options:
@@ -29,18 +29,21 @@ Available options:
 
 our $batch;
 my ($id, $name, @properties, $sender);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, "id|i=i" => \$id,
- "name|n=s" => \$name, "primaryProperty|p=s" => \@properties, "sender|s=s" => \$sender) || die help(); 
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch, "id|i=i" => \$id,
+	"name|n=s"       => \$name, "primaryProperty|p=s" => \@properties, "sender|s=s" => \$sender) || die help();
 
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
 
 if (!defined($id)) {die "ERROR: id is required."}
 
-my $object = $notifAgent->getPerunNotifTemplateById(id => $id);
+my $object = $notifAgent->getPerunNotifTemplateById( id => $id );
 
 if (defined($name)) {
-   $object->setName($name);
+	$object->setName( $name );
 }
 
 # if (defined($notifyTrigger)) {
@@ -57,28 +60,28 @@ if (defined($name)) {
 #}
 
 if (defined($sender)) {
-    $object->setSender($sender);
+	$object->setSender( $sender );
 }
 
 if (@properties) {
 
-    foreach (@properties) {
-        if ($_ !~ /=/) {
-            die "ERROR: every primary property has to meet pattern attribute=value";
-        }
-    }
+	foreach (@properties) {
+		if ($_ !~ /=/) {
+			die "ERROR: every primary property has to meet pattern attribute=value";
+		}
+	}
 
-    my (%hashedProperties, @list);
+	my (%hashedProperties, @list);
 
-    foreach (@properties) {
-        @list = split('=', $_);
-        my @values = split('/', $list[1]);
-        $hashedProperties{$list[0]} = \@values;
-    }
+	foreach (@properties) {
+		@list = split('=', $_);
+		my @values = split('/', $list[1]);
+		$hashedProperties{$list[0]} = \@values;
+	}
 
-    $object->setPrimaryProperties(%hashedProperties);
+	$object->setPrimaryProperties( %hashedProperties );
 }
 
-$object = $notifAgent->updatePerunNotifTemplate(template => $object);
+$object = $notifAgent->updatePerunNotifTemplate( template => $object );
 
 printMessage("NotifTemplate Id:".$id." successfully updated", $batch);

@@ -22,22 +22,27 @@ sub help {
 
 our $batch;
 my ($userId, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"userId|f=i" => \$userId,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-"batch|b" => \$batch) || die help;
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"userId|f=i"    => \$userId,
+	"orderById|i"   => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"       => \$batch) || die help;
 
 #options check
-unless(defined $userId) { die "ERROR: userId is required\n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $userId) { die "ERROR: userId is required\n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
 my $facAgent = $agent->getFacilitiesAgent;
 
-
-my @facilities = $facAgent->getAssignedFacilities(user => $userId);
-unless(@facilities) { printMessage "No facility assigned", $batch; exit 0; }
+my @facilities = $facAgent->getAssignedFacilities( user => $userId );
+unless (@facilities) {
+	printMessage "No facility assigned", $batch;
+	exit 0;
+}
 
 #output
 printTable($sortingFunction, @facilities);

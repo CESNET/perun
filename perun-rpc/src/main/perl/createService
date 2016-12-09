@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($serviceName, $ownerId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"serviceName|S=s" => \$serviceName,"ownerId|o=i" => \$ownerId) || die help();
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"serviceName|S=s" => \$serviceName, "ownerId|o=i" => \$ownerId) || die help();
 
 # Check options
 unless (defined($serviceName)) { die "ERROR: serviceName is required \n";}
@@ -31,8 +34,8 @@ my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
 my $service = Perun::beans::Service->new;
-$service->setName($serviceName);
+$service->setName( $serviceName );
 
-$service = $servicesAgent->createService(service => $service, owner => $ownerId);
+$service = $servicesAgent->createService( service => $service, owner => $ownerId );
 
 printMessage("Service Id:".$service->getId." successfully created", $batch);

@@ -22,13 +22,20 @@ sub help {
 
 my $sortingFunction;
 our $batch;
-GetOptions ("help|h" => sub { print help; exit 0;} ,"batch|b" => \$batch, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },"orderByName|n" => sub {$sortingFunction = getSortingFunction("getShortName", 1); } ) || die help;
+GetOptions ("help|h" => sub {
+		print help;
+		exit 0;
+	}, "batch|b"     => \$batch, "orderById|i" => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByName|n"  => sub {$sortingFunction = getSortingFunction("getShortName", 1); } ) || die help;
 
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getShortName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getShortName", 1); }
 
 my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
 my @vos = $vosAgent->getVos;
-unless(@vos) { printMessage "No VOs found", $batch;  exit 0;}
+unless (@vos) {
+	printMessage "No VOs found", $batch;
+	exit 0;
+}
 
 printTable($sortingFunction, @vos);

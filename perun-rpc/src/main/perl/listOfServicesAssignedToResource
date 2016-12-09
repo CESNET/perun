@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -20,29 +20,29 @@ sub help {
 	};
 }
 
-my ($resourceId, $batch, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
+our $batch;
+my ($resourceId, $sortingFunction);
+GetOptions("help|h"  => sub {
+		print help;
+		exit 0;
+	},
 	"resourceId|r=i" => \$resourceId,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-"batch|b" => \$batch) || die help;
+	"orderById|i"    => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"  => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"        => \$batch) || die help;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
-unless(defined $resourceId) { die "ERROR: resourceId required\n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $resourceId) { die "ERROR: resourceId required\n";}
 
 my $agent = Perun::Agent->new();
 my $resourcesAgent = $agent->getResourcesAgent;
 
-my @services = $resourcesAgent->getAssignedServices(resource => $resourceId);
-unless(@services) { printMessage "No Service found", $batch; exit 0; }
-
-#output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('ID','Name');
-
-foreach my $service (sort $sortingFunction @services) {
-	$table->addRow($service->getId, $service->getName);
+my @services = $resourcesAgent->getAssignedServices( resource => $resourceId );
+unless (@services) {
+	printMessage "No Service found", $batch;
+	exit 0;
 }
 
-print tableToPrint($table, $batch);
+#output
+printTable($sortingFunction, @services);

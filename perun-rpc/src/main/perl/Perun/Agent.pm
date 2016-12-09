@@ -4,7 +4,7 @@ my $agentVersion = '3.0.0';
 use strict;
 use warnings;
 use overload
-'""' => sub { return "Perun::Agent object - version: $agentVersion \n"; };
+	'""' => sub { return "Perun::Agent object - version: $agentVersion \n"; };
 
 use Switch;
 use HTTP::Request::Common;
@@ -45,10 +45,10 @@ use fields qw(_url _lwpUserAgent _jsonXs _vosAgent _membersAgent _usersAgent _gr
 
 use constant {
 	AUTHENTICATION_FAILED => "Authentication failed",
-	SERVER_ERROR => "Perun server error",
-	WRONG_URL => "Wrong PERUN_URL",
-	MISSING_URL => "Missing PERUN_URL environment variable",
-	WRONG_AGENT_VERSION => "Version of the command tools and Perun server mismatch",
+	SERVER_ERROR          => "Perun server error",
+	WRONG_URL             => "Wrong PERUN_URL",
+	MISSING_URL           => "Missing PERUN_URL environment variable",
+	WRONG_AGENT_VERSION   => "Version of the command tools and Perun server mismatch",
 };
 
 sub new {
@@ -61,11 +61,11 @@ sub new {
 	}
 
 	# Check if the PERUN_URL is defined
-	if (!defined($ENV{PERUN_URL})) { die Perun::Exception->fromHash({ type => MISSING_URL }); };
+	if (!defined($ENV{PERUN_URL})) { die Perun::Exception->fromHash( { type => MISSING_URL } ); };
 	$self->{_url} = $ENV{PERUN_URL};
 
 	# Extract login/password from ENV if available
-	my ($login,$pass) = split '/',$ENV{PERUN_USER} if $ENV{PERUN_USER};
+	my ($login, $pass) = split '/', $ENV{PERUN_USER} if $ENV{PERUN_USER};
 
 	# Extrat RPC type from ENV (if not defined, use "Perun RPC")
 	my $rpcType = "Perun RPC";
@@ -73,25 +73,26 @@ sub new {
 		$rpcType = $ENV{PERUN_RPC_TYPE};
 	}
 
-	$self->{_lwpUserAgent} = LWP::UserAgent->new(agent => "Agent.pm/$agentVersion", timeout => 600);
+	$self->{_lwpUserAgent} = LWP::UserAgent->new( agent => "Agent.pm/$agentVersion", timeout => 600 );
 	# Enable cookies if enviromental variable with path exists or home env is available
 	if (defined($ENV{PERUN_COOKIE})) {
 		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 });
+		$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{PERUN_COOKIE}, autosave => 1, ignore_discard => 1 } );
 	} elsif (defined($ENV{HOME})) {
 		my $hostname = hostname();
-		my $grp=getpgrp;
+		my $grp = getpgrp;
 		local $SIG{'__WARN__'} = sub { warn @_ unless $_[0] =~ /does not seem to contain cookies$/; };  #supress one concrete warning message from package HTTP::Cookies
-		$self->{_lwpUserAgent}->cookie_jar({ file => $ENV{HOME} . "/perun-cookie-$hostname-$grp.txt", autosave => 1, ignore_discard => 1 });
+		$self->{_lwpUserAgent}->cookie_jar( { file => $ENV{HOME}."/perun-cookie-$hostname-$grp.txt", autosave => 1,
+				ignore_discard                     => 1 } );
 	}
 
 	$self->{_jsonXs} = JSON::XS->new->utf8->convert_blessed->allow_nonref;
 
 	# if $login is defined then use login/password authentication
 	if (defined($login)) {
-		my $uri = URI->new($self->{_url});
+		my $uri = URI->new( $self->{_url} );
 		my $port = defined($uri->port) ? $uri->port : $uri->schema == "https" ? 443 : 80;
-		$self->{_lwpUserAgent}->credentials($uri->host.":".$port, $rpcType, $login => $pass);
+		$self->{_lwpUserAgent}->credentials( $uri->host.":".$port, $rpcType, $login => $pass );
 	}
 
 	# Connect to the Perun server
@@ -103,30 +104,33 @@ sub new {
 
 		# Connection was OK, so check the return code
 		switch($code) {
-			case 401 { die Perun::Exception->fromHash({ type => AUTHENTICATION_FAILED }); }
-			case 500 { die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo => ("HTTP STATUS CODE: $code") }); }
+			case 401 { die Perun::Exception->fromHash( { type => AUTHENTICATION_FAILED } ); }
+			case 500 { die Perun::Exception->fromHash( { type => SERVER_ERROR, errorInfo =>
+						("HTTP STATUS CODE: $code") } ); }
 			case 302 { next; }
 			case 405 { next; }
-			case 404 { die Perun::Exception->fromHash({ type => WRONG_URL, errorInfo => $self->{_url} }); }
-			else { die Perun::Exception->fromHash({ type => SERVER_ERROR, errorInfo => ("HTTP STATUS CODE: $code") }); }
+			case 404 { die Perun::Exception->fromHash( { type => WRONG_URL, errorInfo => $self->{_url} } ); }
+			else { die Perun::Exception->fromHash( { type => SERVER_ERROR, errorInfo =>
+						("HTTP STATUS CODE: $code") } ); }
 		}
 	}
 
 	# Some error occured during connection
-	if($response->is_error) {
-		die Perun::Exception->fromHash({ type => SERVER_ERROR });
+	if ($response->is_error) {
+		die Perun::Exception->fromHash( { type => SERVER_ERROR } );
 	}
 
 	# Check if the reponse contains string 'OK'
-	if($response->content !~ /^OK! /) {
-		die Perun::Exception->fromHash({ type => WRONG_URL, errorInfo => $self->{_url} });
+	if ($response->content !~ /^OK! /) {
+		die Perun::Exception->fromHash( { type => WRONG_URL, errorInfo => $self->{_url} } );
 	}
 
 	# Check the version of the Perun server
 	if ($response->content !~ /Version: $agentVersion/) {
 		$response->content =~ m/Version: ([0-9]+.[0-9]+.[0-9]+)/;
 		my $perunVersion = $1;
-		die Perun::Exception->fromHash({ type => WRONG_AGENT_VERSION, errorInfo => "Tools version $agentVersion, Perun version $perunVersion" });
+		die Perun::Exception->fromHash( { type => WRONG_AGENT_VERSION, errorInfo =>
+					"Tools version $agentVersion, Perun version $perunVersion" } );
 	}
 
 	return $self;
@@ -138,7 +142,7 @@ sub call
 
 	my $fullUrl = "$self->{_url}/$format/$class/$method";
 
-	my $content = $self->{_jsonXs}->encode($hash);
+	my $content = $self->{_jsonXs}->encode( $hash );
 	my $response = $self->{_lwpUserAgent}->request( PUT($fullUrl, Content_Type => $contentType, Content => $content) );
 	my $code = $response->code;
 	my $decodedContent = $response->decoded_content;
@@ -147,19 +151,20 @@ sub call
 	#print "\n\n\n";
 
 	unless ($code == 200 || $code == 400 || $code == 500) {
-		die Perun::Exception->fromHash({ type => 'http', errorInfo => ("HTTP STATUS CODE: $code\nCONTENT:\n" . $decodedContent) });
+		die Perun::Exception->fromHash( { type => 'http', errorInfo =>
+					("HTTP STATUS CODE: $code\nCONTENT:\n".$decodedContent) } );
 	}
 
 	my $returnedHash;
 	eval {
-		$returnedHash = $self->{_jsonXs}->decode($decodedContent);
+		$returnedHash = $self->{_jsonXs}->decode( $decodedContent );
 	};
 	if ($@) {
-		die Perun::Exception->fromHash({ type => 'parse_error', errorInfo => ("CONTENT:\n" . $decodedContent) });
+		die Perun::Exception->fromHash( { type => 'parse_error', errorInfo => ("CONTENT:\n".$decodedContent) } );
 	}
 
 	if ($code == 256 || $code == 400 || $code == 500) {
-		die Perun::Exception->fromHash($returnedHash);
+		die Perun::Exception->fromHash( $returnedHash );
 	}
 
 	return $returnedHash;
@@ -170,7 +175,7 @@ sub getVosAgent
 	my $self = shift;
 
 	if (!$self->{_vosAgent}) {
-		$self->{_vosAgent} = Perun::VosAgent->new($self);
+		$self->{_vosAgent} = Perun::VosAgent->new( $self );
 	}
 
 	return $self->{_vosAgent};
@@ -181,7 +186,7 @@ sub getMembersAgent
 	my $self = shift;
 
 	if (!$self->{_membersAgent}) {
-		$self->{_membersAgent} = Perun::MembersAgent->new($self);
+		$self->{_membersAgent} = Perun::MembersAgent->new( $self );
 	}
 
 	return $self->{_membersAgent};
@@ -192,7 +197,7 @@ sub getUsersAgent
 	my $self = shift;
 
 	if (!$self->{_usersAgent}) {
-		$self->{_usersAgent} = Perun::UsersAgent->new($self);
+		$self->{_usersAgent} = Perun::UsersAgent->new( $self );
 	}
 
 	return $self->{_usersAgent};
@@ -203,7 +208,7 @@ sub getGroupsAgent
 	my $self = shift;
 
 	if (!$self->{_groupsAgent}) {
-		$self->{_groupsAgent} = Perun::GroupsAgent->new($self);
+		$self->{_groupsAgent} = Perun::GroupsAgent->new( $self );
 	}
 
 	return $self->{_groupsAgent};
@@ -214,7 +219,7 @@ sub getExtSourcesAgent
 	my $self = shift;
 
 	if (!$self->{_extSourcesAgent}) {
-		$self->{_extSourcesAgent} = Perun::ExtSourcesAgent->new($self);
+		$self->{_extSourcesAgent} = Perun::ExtSourcesAgent->new( $self );
 	}
 
 	return $self->{_extSourcesAgent};
@@ -225,7 +230,7 @@ sub getServicesAgent
 	my $self = shift;
 
 	if (!$self->{_servicesAgent}) {
-		$self->{_servicesAgent} = Perun::ServicesAgent->new($self);
+		$self->{_servicesAgent} = Perun::ServicesAgent->new( $self );
 	}
 
 	return $self->{_servicesAgent};
@@ -236,7 +241,7 @@ sub getSearcherAgent
 	my $self = shift;
 
 	if (!$self->{_searcherAgent}) {
-		$self->{_searcherAgent} = Perun::SearcherAgent->new($self);
+		$self->{_searcherAgent} = Perun::SearcherAgent->new( $self );
 	}
 
 	return $self->{_searcherAgent};
@@ -247,7 +252,7 @@ sub getFacilitiesAgent
 	my $self = shift;
 
 	if (!$self->{_facilitiesAgent}) {
-		$self->{_facilitiesAgent} = Perun::FacilitiesAgent->new($self);
+		$self->{_facilitiesAgent} = Perun::FacilitiesAgent->new( $self );
 	}
 
 	return $self->{_facilitiesAgent};
@@ -258,7 +263,7 @@ sub getResourcesAgent
 	my $self = shift;
 
 	if (!$self->{_resourcesAgent}) {
-		$self->{_resourcesAgent} = Perun::ResourcesAgent->new($self);
+		$self->{_resourcesAgent} = Perun::ResourcesAgent->new( $self );
 	}
 
 	return $self->{_resourcesAgent};
@@ -269,7 +274,7 @@ sub getControlPanel
 	my $self = shift;
 
 	if (!$self->{_controlPanel}) {
-		$self->{_controlPanel} = Perun::ControlPanel->new($self);
+		$self->{_controlPanel} = Perun::ControlPanel->new( $self );
 	}
 
 	return $self->{_controlPanel};
@@ -280,7 +285,7 @@ sub getAttributesAgent
 	my $self = shift;
 
 	if (!$self->{_attributesAgent}) {
-		$self->{_attributesAgent} = Perun::AttributesAgent->new($self);
+		$self->{_attributesAgent} = Perun::AttributesAgent->new( $self );
 	}
 
 	return $self->{_attributesAgent};
@@ -291,7 +296,7 @@ sub getOwnersAgent
 	my $self = shift;
 
 	if (!$self->{_ownersAgent}) {
-		$self->{_ownersAgent} = Perun::OwnersAgent->new($self);
+		$self->{_ownersAgent} = Perun::OwnersAgent->new( $self );
 	}
 
 	return $self->{_ownersAgent};
@@ -302,7 +307,7 @@ sub getAuthzResolverAgent
 	my $self = shift;
 
 	if (!$self->{_authzResolverAgent}) {
-		$self->{_authzResolverAgent} = Perun::AuthzResolverAgent->new($self);
+		$self->{_authzResolverAgent} = Perun::AuthzResolverAgent->new( $self );
 	}
 
 	return $self->{_authzResolverAgent};
@@ -312,7 +317,7 @@ sub getHostsAgent {
 	my $self = shift;
 
 	if (!$self->{_hostsAgent}) {
-		$self->{_hostsAgent} = Perun::HostsAgent->new($self);
+		$self->{_hostsAgent} = Perun::HostsAgent->new( $self );
 	}
 
 	return $self->{_hostsAgent};
@@ -322,7 +327,7 @@ sub getGeneralServicesAgent {
 	my $self = shift;
 
 	if (!$self->{_generalServiceAgent}) {
-		$self->{_generalServiceAgent} = Perun::GeneralServiceAgent->new($self);
+		$self->{_generalServiceAgent} = Perun::GeneralServiceAgent->new( $self );
 	}
 
 	return $self->{_generalServiceAgent};
@@ -332,7 +337,7 @@ sub getAuditMessagesAgent {
 	my $self = shift;
 
 	if (!$self->{_auditMessagesAgent}) {
-		$self->{_auditMessagesAgent} = Perun::AuditMessagesAgent->new($self);
+		$self->{_auditMessagesAgent} = Perun::AuditMessagesAgent->new( $self );
 	}
 
 	return $self->{_auditMessagesAgent};
@@ -342,7 +347,7 @@ sub getPropagationStatsReaderAgent {
 	my $self = shift;
 
 	if (!$self->{_propagationStatsReaderAgent}) {
-		$self->{_propagationStatsReaderAgent} = Perun::PropagationStatsReaderAgent->new($self);
+		$self->{_propagationStatsReaderAgent} = Perun::PropagationStatsReaderAgent->new( $self );
 	}
 
 	return $self->{_propagationStatsReaderAgent};
@@ -352,7 +357,7 @@ sub getCabinetAgent {
 	my $self = shift;
 
 	if (!$self->{_cabinetAgent}) {
-		$self->{_cabinetAgent} = Perun::CabinetAgent->new($self);
+		$self->{_cabinetAgent} = Perun::CabinetAgent->new( $self );
 	}
 
 	return $self->{_cabinetAgent};
@@ -362,9 +367,9 @@ sub getNotificationsAgent {
 	my $self = shift;
 
 	if (!$self->{_notificationsAgent}) {
-		$self->{_notificationsAgent} = Perun::NotificationsAgent->new($self);
+		$self->{_notificationsAgent} = Perun::NotificationsAgent->new( $self );
 
-	return $self->{_notificationsAgent};
+		return $self->{_notificationsAgent};
 	}
 }
 
@@ -372,7 +377,7 @@ sub getRegistrarAgent {
 	my $self = shift;
 
 	if (!$self->{_registrarAgent}) {
-		$self->{_registrarAgent} = Perun::RegistrarAgent->new($self);
+		$self->{_registrarAgent} = Perun::RegistrarAgent->new( $self );
 
 		return $self->{_registrarAgent};
 	}
@@ -382,9 +387,9 @@ sub getSecurityTeamsAgent {
 	my $self = shift;
 
 	if (!$self->{_securityTeamsAgent}) {
-		$self->{_securityTeamsAgent} = Perun::SecurityTeamsAgent->new($self);
+		$self->{_securityTeamsAgent} = Perun::SecurityTeamsAgent->new( $self );
 
-	return $self->{_securityTeamsAgent};
+		return $self->{_securityTeamsAgent};
 	}
 }
 
@@ -392,9 +397,9 @@ sub getBanOnResourceAgent {
 	my $self = shift;
 
 	if (!$self->{_banOnResourceAgent}) {
-		$self->{_banOnResourceAgent} = Perun::BanOnResourceAgent->new($self);
+		$self->{_banOnResourceAgent} = Perun::BanOnResourceAgent->new( $self );
 
-	return $self->{_banOnResourceAgent};
+		return $self->{_banOnResourceAgent};
 	}
 }
 
@@ -402,9 +407,9 @@ sub getBanOnFacilityAgent {
 	my $self = shift;
 
 	if (!$self->{_banOnFacilityAgent}) {
-		$self->{_banOnFacilityAgent} = Perun::BanOnFacilityAgent->new($self);
+		$self->{_banOnFacilityAgent} = Perun::BanOnFacilityAgent->new( $self );
 
-	return $self->{_banOnFacilityAgent};
+		return $self->{_banOnFacilityAgent};
 	}
 }
 

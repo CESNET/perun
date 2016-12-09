@@ -9,7 +9,7 @@ use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 #use Data::Dumper;
 
 sub help {
-        return qq{
+	return qq{
         Lists contacts of user.
         --------------------------
         Available options:
@@ -23,30 +23,36 @@ sub help {
 
 my ($userId, $batch, $sortingFunction);
 
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch,
-"orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) },
-"userId|u=s" => \$userId) or die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"        => \$batch,
+	"orderByName|n"  => sub { $sortingFunction = getSortingFunction("getName", 1) },
+	"userId|u=s"     => \$userId) or die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
- 
+
 my @contactGroups;
-@contactGroups = $facilitiesAgent->getFacilityContactGroups(user => $userId);
-unless (@contactGroups) { printMessage "No Contacts found", $batch; exit 0;} 
+@contactGroups = $facilitiesAgent->getFacilityContactGroups( user => $userId );
+unless (@contactGroups) {
+	printMessage "No Contacts found", $batch;
+	exit 0;
+}
 
 #output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('Name','Facility','facilityId');
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+$table->setCols( 'Name', 'Facility', 'facilityId' );
 
 foreach my $contactGroup (sort $sortingFunction @contactGroups) {
-    my $facility=$contactGroup->getFacility;
-    #print Dumper($facility);
-    $table->addRow($contactGroup->getName, $facility->getName, $facility->getId);
+	my $facility = $contactGroup->getFacility;
+	#print Dumper($facility);
+	$table->addRow( $contactGroup->getName, $facility->getName, $facility->getId );
 }
 
 print tableToPrint($table, $batch);

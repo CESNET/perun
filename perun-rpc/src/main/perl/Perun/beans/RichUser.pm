@@ -20,7 +20,8 @@ sub TO_JSON
 {
 	my $self = shift;
 
-	return {id => $self->{_id}, userAttributes => $self->{_userAttributes}, userExtSources => $self->{_userExtSources}};
+	return { id => $self->{_id}, userAttributes => $self->{_userAttributes}, userExtSources =>
+		$self->{_userExtSources} };
 }
 
 sub getId {
@@ -29,10 +30,10 @@ sub getId {
 
 sub setId
 {
-        my $self = shift;
-        $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-        return;
+	return;
 }
 
 sub getUserAttributes {
@@ -47,14 +48,14 @@ sub getCommonName
 {
 	my $self = shift;
 
-	return ($self->{_firstName} . ' ' . (defined $self->{_middleName} ? $self->{_middleName} . ' ' : '') . $self->{_lastName});
+	return ($self->{_firstName}.' '.(defined $self->{_middleName} ? $self->{_middleName}.' ' : '').$self->{_lastName});
 }
 
 sub getDisplayName
 {
 	my $self = shift;
 
-	return (($self->{_titleBefore} ? $self->{_titleBefore} . ' ' : "") . ($self->{_firstName} ? $self->{_firstName} . ' ' : "") . ($self->{_middleName} ? $self->{_middleName} . ' ' : "") . ($self->{_lastName} ? $self->{_lastName} . ' ': "") . ($self->{_titleAfter} ? $self->{_titleAfter} : ""));
+	return (($self->{_titleBefore} ? $self->{_titleBefore}.' ' : "").($self->{_firstName} ? $self->{_firstName}.' ' : "").($self->{_middleName} ? $self->{_middleName}.' ' : "").($self->{_lastName} ? $self->{_lastName}.' ' : "").($self->{_titleAfter} ? $self->{_titleAfter} : ""));
 }
 
 

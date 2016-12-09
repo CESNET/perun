@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -46,7 +46,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -57,7 +57,7 @@ sub TO_JSON
 	} else {
 		$friendlyName = undef;
 	}
-	
+
 	my $displayName;
 	if (defined($self->{_displayName})) {
 		$displayName = "$self->{_displayName}";
@@ -86,8 +86,8 @@ sub TO_JSON
 		$type = undef;
 	}
 
-	return {id => $id, friendlyName => $friendlyName, displayName => $displayName,
-		namespace => $namespace, description => $description, type => $type};
+	return { id   => $id, friendlyName => $friendlyName, displayName => $displayName,
+		namespace => $namespace, description => $description, type => $type };
 }
 
 sub getId
@@ -109,7 +109,7 @@ sub getName
 {
 	my $self = shift;
 
-	return ($self->{_namespace} . ':' . $self->{_friendlyName});
+	return ($self->{_namespace}.':'.$self->{_friendlyName});
 }
 
 sub getFriendlyName
@@ -207,6 +207,15 @@ sub setType
 
 	$self->{_type} = $type;
 	return;
+}
+
+sub getCommonArrayRepresentation {
+	my $self = shift;
+	return ($self->getId, $self->getName, $self->getType, $self->getDisplayName, $self->getDescription);
+}
+
+sub getCommonArrayRepresentationHeading {
+	return ('ID', 'Name', 'Type', 'Display Name', 'Description');
 }
 
 1;

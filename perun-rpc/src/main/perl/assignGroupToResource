@@ -23,10 +23,13 @@ sub help {
 }
 
 my ($groupId, $groupName, $voId, $voShortName, $resourceId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName,
- "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "resourceId|r=i" => \$resourceId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"groupId|g=i"    => \$groupId, "groupName|G=s" => \$groupName,
+	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
+	"resourceId|r=i" => \$resourceId) || die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
@@ -39,14 +42,14 @@ my $resourcesAgent = $agent->getResourcesAgent;
 
 if (!defined($groupId)) {
 	if (!defined($voId)) {
-		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 		$voId = $vo->getId;
 	}
 
-	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
 	$groupId = $group->getId;
 }
 
-$resourcesAgent->assignGroupToResource(group => $groupId, resource => $resourceId);
+$resourcesAgent->assignGroupToResource( group => $groupId, resource => $resourceId );
 
 printMessage("Group Id: $groupId successfully assigned to the resource Id:$resourceId", $batch);

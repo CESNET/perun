@@ -21,9 +21,12 @@ sub help {
 }
 
 my ($voId, $voShortName, $force, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "force|f" => \$force) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
+	"force|f"        => \$force) || die help();
 
 # Check options
 unless (defined($voShortName) or defined($voId)) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
@@ -32,14 +35,14 @@ my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
 
 if (!defined($voId)) {
-	my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+	my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
-if(defined($force)) {
-	$vosAgent->deleteVo(vo => $voId, force => 1);
+if (defined($force)) {
+	$vosAgent->deleteVo( vo => $voId, force => 1 );
 } else {
-	$vosAgent->deleteVo(vo => $voId);
+	$vosAgent->deleteVo( vo => $voId );
 }
 
 printMessage("Vo Id:$voId successfully deleted", $batch);

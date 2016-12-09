@@ -21,21 +21,21 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
 
 	my $publicationId;
 	if (defined($self->{_publicationId})) {
-		$publicationId = $self->{_publicationId}*1;
+		$publicationId = $self->{_publicationId} * 1;
 	} else {
 		$publicationId = 0;
 	}
 
 	my $ownerId;
 	if (defined($self->{_ownerId})) {
-		$ownerid = $self->{_ownerId}*1;
+		$ownerid = $self->{_ownerId} * 1;
 	} else {
 		$ownerid = 0;
 	}
@@ -54,7 +54,8 @@ sub TO_JSON
 		$createdDate = undef;
 	}
 
-	return {id => $id, publicationId => $publicationId, ownerId => $userId, createdBy => $createdBy, createdDate => $createdDate};
+	return { id => $id, publicationId => $publicationId, ownerId => $userId, createdBy => $createdBy, createdDate =>
+		$createdDate };
 }
 
 sub getId

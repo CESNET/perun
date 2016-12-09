@@ -24,41 +24,44 @@ sub help {
 }
 
 our $batch;
-my ($resourceName, $resourceDsc, $facilityId, $facilityName,$voId, $voShortName);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"resourceName|R=s" => \$resourceName,
- "facilityId|f=i" => \$facilityId,
- "facilityName|F=s" => \$facilityName,
- "voId|v=i" => \$voId,
- "voShortName|V=s" => \$voShortName,
- "resourceDsc|d=s" => \$resourceDsc ) || die help();
+my ($resourceName, $resourceDsc, $facilityId, $facilityName, $voId, $voShortName);
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"resourceName|R=s" => \$resourceName,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+	"voId|v=i"         => \$voId,
+	"voShortName|V=s"  => \$voShortName,
+	"resourceDsc|d=s"  => \$resourceDsc ) || die help();
 
 # Check options
 unless (defined($resourceName)) { die "ERROR: resourceName is required \n";}
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName+facilityType is required \n";}
-unless(defined $voId) {
-	unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
+unless (defined $voId) {
+	unless (defined $voShortName) { die "ERROR: VO specification required.\n"; }
 }
 
 my $agent = Perun::Agent->new();
 
-unless($facilityId) {
+unless ($facilityId) {
 	my $facilitiesAgent = $agent->getFacilitiesAgent;
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-	$facilityId=$facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
-unless(defined $voId) {
-	unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
-	my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
+unless (defined $voId) {
+	unless (defined $voShortName) { die "ERROR: VO specification required.\n"; }
+	my $vo = $agent->getVosAgent->getVoByShortName( shortName => $voShortName );
 	$voId = $vo->getId;
 }
 
 my $resourcesAgent = $agent->getResourcesAgent;
 
 my $resource = Perun::beans::Resource->new;
-$resource->setName($resourceName);
-$resource->setDescription($resourceDsc) if (defined($resourceDsc));
+$resource->setName( $resourceName );
+$resource->setDescription( $resourceDsc ) if (defined($resourceDsc));
 
-$resource = $resourcesAgent->createResource(resource => $resource, vo => $voId, facility => $facilityId);
+$resource = $resourcesAgent->createResource( resource => $resource, vo => $voId, facility => $facilityId );
 
 printMessage("Resource Id:".$resource->getId." successfully created", $batch);

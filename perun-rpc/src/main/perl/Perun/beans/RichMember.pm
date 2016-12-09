@@ -13,13 +13,13 @@ sub new
 
 sub fromHash
 {
-        my $richMember = Perun::Common::fromHash(@_);
-        for my $memberAttribute (@{$richMember->{_memberAttributes}}) {
-            $memberAttribute = Perun::beans::Attribute::fromHash("Perun::beans::Attribute", $memberAttribute);
-        }
-        for my $userAttribute (@{$richMember->{_userAttributes}}) {
-            $userAttribute = Perun::beans::Attribute::fromHash("Perun::beans::Attribute", $userAttribute);
-        }
+	my $richMember = Perun::Common::fromHash(@_);
+	for my $memberAttribute (@{$richMember->{_memberAttributes}}) {
+		$memberAttribute = Perun::beans::Attribute::fromHash("Perun::beans::Attribute", $memberAttribute);
+	}
+	for my $userAttribute (@{$richMember->{_userAttributes}}) {
+		$userAttribute = Perun::beans::Attribute::fromHash("Perun::beans::Attribute", $userAttribute);
+	}
 	return $richMember;
 }
 
@@ -27,7 +27,9 @@ sub TO_JSON
 {
 	my $self = shift;
 
-	return {user => $self->{_user}, userAttributes => $self->{_userAttributes}, userExtSources => $self->{_userExtSources}, memberAttributes => $self->{_memberAttributes}};
+	return { user                                  => $self->{_user}, userAttributes => $self->{_userAttributes},
+		userExtSources                             => $self->{_userExtSources}, memberAttributes =>
+		$self->{_memberAttributes} };
 }
 
 sub getUserId {
@@ -39,25 +41,25 @@ sub getMemberId {
 }
 
 sub getUserAttributes {
-        my $self = shift;
+	my $self = shift;
 	return @{$self->{_userAttributes}};
 }
 
 sub getMemberAttributes {
-        my $self = shift;
+	my $self = shift;
 	return @{$self->{_memberAttributes}};
 }
 
 sub getLastName {
-       my $user = shift->{_user};
-       my $str = "";
-       $str .= $user->{lastName}          if defined $user->{lastName};
+	my $user = shift->{_user};
+	my $str = "";
+	$str .= $user->{lastName} if defined $user->{lastName};
 
-       return $str;
+	return $str;
 }
 
 sub getStatus {
-        return shift->{_status};
+	return shift->{_status};
 }
 
 sub getMembershipType {
@@ -68,9 +70,9 @@ sub getCommonName {
 	my $user = shift->{_user};
 
 	my $str = "";
-	$str .= $user->{firstName} . ' '   if defined $user->{firstName};
-	$str .= $user->{middleName} . ' '  if defined $user->{middleName};
-	$str .= $user->{lastName}          if defined $user->{lastName};
+	$str .= $user->{firstName}.' ' if defined $user->{firstName};
+	$str .= $user->{middleName}.' ' if defined $user->{middleName};
+	$str .= $user->{lastName} if defined $user->{lastName};
 
 	return $str;
 }
@@ -79,11 +81,11 @@ sub getDisplayName {
 	my $user = shift->{_user};
 
 	my $str = "";
-	$str .= $user->{titleBefore} . ' ' if defined $user->{titleBefore};
-	$str .= $user->{firstName} . ' '   if defined $user->{firstName};
-	$str .= $user->{middleName} . ' '  if defined $user->{middleName};
-	$str .= $user->{lastName} . ' '    if defined $user->{lastName};
-	$str .= $user->{titleAfter}        if defined $user->{titleAfter};
+	$str .= $user->{titleBefore}.' ' if defined $user->{titleBefore};
+	$str .= $user->{firstName}.' ' if defined $user->{firstName};
+	$str .= $user->{middleName}.' ' if defined $user->{middleName};
+	$str .= $user->{lastName}.' ' if defined $user->{lastName};
+	$str .= $user->{titleAfter} if defined $user->{titleAfter};
 
 	return $str;
 }

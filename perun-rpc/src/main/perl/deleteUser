@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($userId, $batch, $force);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"userId|m=i" => \$userId, "force|f" => \$force) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"userId|m=i"     => \$userId, "force|f" => \$force) || die help();
 
 # Check options
 unless (defined($userId)) { die "ERROR: userId is required \n";}
@@ -29,10 +32,10 @@ unless (defined($userId)) { die "ERROR: userId is required \n";}
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
 
-if(defined($force)) {
-	$usersAgent->deleteUser(user => $userId, force => 1);
+if (defined($force)) {
+	$usersAgent->deleteUser( user => $userId, force => 1 );
 } else {
-	$usersAgent->deleteUser(user => $userId);
+	$usersAgent->deleteUser( user => $userId );
 }
 
 printMessage("User Id:$userId successfully deleted", $batch);

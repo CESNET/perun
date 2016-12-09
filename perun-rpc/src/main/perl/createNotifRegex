@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
+	return qq{
 Creates a NotifRegex. Regex is required field.
 --------------------------------------
 Available options:
@@ -21,8 +21,11 @@ Available options:
 
 our $batch;
 my ($regex, $note);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "regex|r=s" => \$regex,"note|n=s" => \$note) || die help(); 
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"regex|r=s"      => \$regex, "note|n=s" => \$note) || die help();
 
 unless (defined($regex)) {die "ERROR: regex is required\n"}
 unless ($regex !~ /^\s*$/) { die "ERROR: regex cannot be empty string\n";}
@@ -30,10 +33,10 @@ unless ($regex !~ /^\s*$/) { die "ERROR: regex cannot be empty string\n";}
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
 
-my $object= Perun::beans::NotifRegex->new;
-$object->setRegex($regex);
-$object->setNote($note);
+my $object = Perun::beans::NotifRegex->new;
+$object->setRegex( $regex );
+$object->setNote( $note );
 
-$object = $notifAgent->createPerunNotifRegex(regex => $object);
+$object = $notifAgent->createPerunNotifRegex( regex => $object );
 
 printMessage("NotifRegex Id:".$object->getId." successfully created", $batch);

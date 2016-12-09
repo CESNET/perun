@@ -23,10 +23,13 @@ sub help {
 our $batch;
 my ($facilityId, $facilityName, $serviceId );
 
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName,
-"serviceId|s=i" => \$serviceId
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+	"serviceId|s=i"    => \$serviceId
 ) || die help();
 
 # Check options
@@ -35,16 +38,16 @@ unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
 
 my $agent = Perun::Agent->new();
 
-unless($facilityId) {
+unless ($facilityId) {
 	my $facilitiesAgent = $agent->getFacilitiesAgent;
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-	$facilityId=$facility->getId;
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 my $servicesAgent = $agent->getServicesAgent;
 
-my $facilitiesAgent= $agent->getFacilitiesAgent;
+my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-$servicesAgent->addDestinationsForAllServicesOnFacility(service => $serviceId, facility => $facilityId);
+$servicesAgent->addDestinationsForAllServicesOnFacility( service => $serviceId, facility => $facilityId );
 
 printMessage("Destinations successfully added for the service Id:$serviceId on the facility Id:$facilityId", $batch);

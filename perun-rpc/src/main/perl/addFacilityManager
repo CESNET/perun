@@ -21,10 +21,13 @@ sub help {
 }
 
 my ($facilityId, $userId, $facilityName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId,
- "facilityName|F=s" => \$facilityName,
- "userId|u=i" => \$userId) || die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName,
+	"userId|u=i"       => \$userId) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
@@ -33,11 +36,11 @@ unless (defined($userId)) {die "ERROR: userId is required\n";}
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
+unless ($facilityId) {
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
 	$facilityId = $facility->getId;
 }
 
-$facilitiesAgent->addAdmin(facility => $facilityId, user => $userId);
+$facilitiesAgent->addAdmin( facility => $facilityId, user => $userId );
 
 printMessage("User Id:$userId successfully added as a Facility Id:$facilityId manager", $batch);

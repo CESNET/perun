@@ -27,7 +27,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -81,7 +81,9 @@ sub TO_JSON
 		@authorships = undef;
 	}
 
-	return {id => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName, titleBefore => $titleBefore, titleAfter => $titleAfter, userExtSources => \@userExtSources, authorships => \@authorships};
+	return { id                  => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
+		titleBefore              => $titleBefore, titleAfter => $titleAfter, userExtSources => \@userExtSources,
+		authorships              => \@authorships };
 }
 
 sub getId

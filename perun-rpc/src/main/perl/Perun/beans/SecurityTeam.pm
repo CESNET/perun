@@ -7,95 +7,94 @@ use Perun::Common;
 
 sub new
 {
-        bless({});
+	bless({});
 }
 
 sub fromHash
 {
-        return Perun::Common::fromHash(@_);
+	return Perun::Common::fromHash(@_);
 }
 
 sub TO_JSON
 {
-        my $self = shift;
- 
-        my $id;
-        if (defined($self->{_id})) {
-                $id = $self->{_id}*1;
-        } else {
-                $id = 0;
-        }
-        
-        my $name;
-        if (defined($self->{_name})) {
-                $name = "$self->{_name}";
-        } else {
-                $name = undef;
-        }
+	my $self = shift;
 
+	my $id;
+	if (defined($self->{_id})) {
+		$id = $self->{_id} * 1;
+	} else {
+		$id = 0;
+	}
 
-        my $description;
-        if (defined($self->{_description})) {
-                $description = "$self->{_description}";
-        } else {
-                $description = undef;
-        }
+	my $name;
+	if (defined($self->{_name})) {
+		$name = "$self->{_name}";
+	} else {
+		$name = undef;
+	}
 
-        return {id => $id, name => $name, description => $description, beanName => "SecurityTeam"};
+	my $description;
+	if (defined($self->{_description})) {
+		$description = "$self->{_description}";
+	} else {
+		$description = undef;
+	}
+
+	return { id => $id, name => $name, description => $description, beanName => "SecurityTeam" };
 }
 
 sub getId
 {
-        my $self = shift;
+	my $self = shift;
 
-        return $self->{_id};
+	return $self->{_id};
 }
 
 sub setId
 {
-        my $self = shift;
-        $self->{_id} = shift;
+	my $self = shift;
+	$self->{_id} = shift;
 
-        return;
+	return;
 }
 
 sub getName
 {
-        my $self = shift;
+	my $self = shift;
 
-        return $self->{_name};
+	return $self->{_name};
 }
 
 sub setName
 {
-        my $self = shift;
-        $self->{_name} = shift;
+	my $self = shift;
+	$self->{_name} = shift;
 
-        return;
+	return;
 }
 
 sub getDescription
 {
-        my $self = shift;
+	my $self = shift;
 
-        return $self->{_description};
+	return $self->{_description};
 }
 
 sub setDescription
 {
-        my $self = shift;
-        $self->{_description} = shift;
+	my $self = shift;
+	$self->{_description} = shift;
 
-        return;
+	return;
 }
 
 sub getCommonArrayRepresentation {
-        my $self = shift;
-        return ($self->{_id}, $self->{_name}, $self->{_description});
+	my $self = shift;
+	return ($self->{_id}, $self->{_name}, $self->{_description});
 }
 
 sub getCommonArrayRepresentationHeading {
-        return ('SecurityTeam id','SecurityTeam name','Description');
+	return ('SecurityTeam id', 'SecurityTeam name', 'Description');
 }
 
 1;

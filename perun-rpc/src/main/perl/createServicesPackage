@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($packageName, $dsc, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"packageName|P=s" => \$packageName,"packageDescription|d=s" => \$dsc) || die help();
+GetOptions ("help|h"  => sub {
+		print help();
+		exit 0;
+	}, "batch|b"      => \$batch,
+	"packageName|P=s" => \$packageName, "packageDescription|d=s" => \$dsc) || die help();
 
 # Check options
 unless (defined($packageName)) { die "ERROR: packageName is required \n";}
@@ -30,9 +33,9 @@ my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
 my $package = Perun::beans::ServicesPackage->new;
-$package->setName($packageName);
-$package->setDescription($dsc);
+$package->setName( $packageName );
+$package->setDescription( $dsc );
 
-$package = $servicesAgent->createServicesPackage(servicesPackage => $package);
+$package = $servicesAgent->createServicesPackage( servicesPackage => $package );
 
 printMessage("Service Package Id:".$package->getId." successfully created", $batch);

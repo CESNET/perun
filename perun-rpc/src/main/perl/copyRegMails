@@ -7,7 +7,7 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-        return qq{
+	return qq{
         Coppies Registration Nitification mails 
         from VO to Group or from Group to VO
         -------------------------------------------------
@@ -26,13 +26,16 @@ sub help {
 }
 
 our $batch;
-my ($fromVo,$toGroup,$fromGroup,$toVo);
+my ($fromVo, $toGroup, $fromGroup, $toVo);
 
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"fromVo|v=i" => \$fromVo,
-"toGroup|G=i" => \$toGroup,
-"fromGroup|g=i" => \$fromGroup,
-"toVo|V=i" => \$toVo) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"fromVo|v=i"     => \$fromVo,
+	"toGroup|G=i"    => \$toGroup,
+	"fromGroup|g=i"  => \$fromGroup,
+	"toVo|V=i"       => \$toVo) || die help();
 
 # Check options
 if (not defined($fromVo) and not defined($fromGroup)) { die "ERROR: One FROM item required \n";}
@@ -44,19 +47,19 @@ my $agent = Perun::Agent->new();
 my $registrarAgent = $agent->getRegistrarAgent;
 
 if (defined($fromVo) and defined($toGroup)) {
-    $registrarAgent->copyMails(fromVo => $fromVo, toGroup => $toGroup);
+	$registrarAgent->copyMails( fromVo => $fromVo, toGroup => $toGroup );
 }
 
 if (defined($fromGroup) and defined($toVo)) {
-    $registrarAgent->copyMails(fromGroup => $fromGroup, toVo => $toVo);
+	$registrarAgent->copyMails( fromGroup => $fromGroup, toVo => $toVo );
 }
 
 if (defined($fromGroup) and defined($toGroup)) {
-    $registrarAgent->copyMails(fromGroup => $fromGroup, toGroup => $toGroup);
+	$registrarAgent->copyMails( fromGroup => $fromGroup, toGroup => $toGroup );
 }
 
 if (defined($fromVo) and defined($toVo)) {
-    $registrarAgent->copyMails(fromVo => $fromVo, toVo => $toVo);
+	$registrarAgent->copyMails( fromVo => $fromVo, toVo => $toVo );
 }
 
-printMessage("Registration mails successfully coppied",$batch);
+printMessage("Registration mails successfully coppied", $batch);

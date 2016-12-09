@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -41,7 +41,7 @@ sub TO_JSON
 		$status = undef;
 	}
 
-	return {status => $status};
+	return { status => $status };
 }
 
 sub getStatus

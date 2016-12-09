@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($serviceId, $attributeId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"serviceId|s=i" => \$serviceId, "attributeId|a=i" => \$attributeId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"serviceId|s=i"  => \$serviceId, "attributeId|a=i" => \$attributeId) || die help();
 
 # Check options
 unless (defined($serviceId)) { die "ERROR: serviceId is required \n";}
@@ -30,6 +33,6 @@ unless (defined($attributeId)) { die "ERROR: attributeId is required \n";}
 my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
 
-$servicesAgent->removeRequiredAttribute(service => $serviceId, attribute => $attributeId);
+$servicesAgent->removeRequiredAttribute( service => $serviceId, attribute => $attributeId );
 
 printMessage("Attribute Id:$attributeId removed from the service Id:$serviceId", $batch);

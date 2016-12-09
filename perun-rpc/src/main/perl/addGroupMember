@@ -23,10 +23,13 @@ sub help {
 }
 
 my ($groupId, $groupName, $voId, $memberId, $voShortName, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"groupId|g=i" => \$groupId,"groupName|G=s" => \$groupName,
- "voId|v=i" => \$voId, "voShortName|V=s" => \$voShortName,
- "memberId|m=i" => \$memberId) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"groupId|g=i"    => \$groupId, "groupName|G=s" => \$groupName,
+	"voId|v=i"       => \$voId, "voShortName|V=s" => \$voShortName,
+	"memberId|m=i"   => \$memberId) || die help();
 
 # Check options
 unless (defined($groupId) or ((defined($voShortName) or defined($voId)) and defined($groupName))) {die "ERROR: groupId or groupName and voId or voShortName is required\n";}
@@ -36,17 +39,16 @@ my $agent = Perun::Agent->new();
 my $vosAgent = $agent->getVosAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 
-
 if (!defined($groupId)) {
 	if (!defined($voId)) {
-		my $vo = $vosAgent->getVoByShortName(shortName => $voShortName);
+		my $vo = $vosAgent->getVoByShortName( shortName => $voShortName );
 		$voId = $vo->getId;
 	}
 
-	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
 	$groupId = $group->getId;
 }
 
-$groupsAgent->addMember(group => $groupId, member => $memberId);
+$groupsAgent->addMember( group => $groupId, member => $memberId );
 
 printMessage("Member Id: $memberId successfully added to the group Id:$groupId", $batch);

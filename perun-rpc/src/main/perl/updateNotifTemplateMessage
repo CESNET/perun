@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
+	return qq{
 Updates a NotifTemplateMessage. Id is required field.
 --------------------------------------
 Available options:
@@ -25,48 +25,50 @@ Available options:
 
 our $batch;
 my ($id, $templateId, $locale, $message, $messageFile, $subject);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch, 
-"NotifTemplateMessageId|i=i" => \$id,
-"templateId|t=i" => \$templateId, 
-"locale|l=s" => \$locale, 
-"message|m=s" => \$message, 
-"messageFile|f=s" => \$messageFile,
-"subject|s=s" => \$subject) || die help(); 
+GetOptions ("help|h"             => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"                    => \$batch,
+	"NotifTemplateMessageId|i=i" => \$id,
+	"templateId|t=i"             => \$templateId,
+	"locale|l=s"                 => \$locale,
+	"message|m=s"                => \$message,
+	"messageFile|f=s"            => \$messageFile,
+	"subject|s=s"                => \$subject) || die help();
 
 unless (defined($id)) {die "ERROR: NotifTemplateMessage: id is required\n"}
 if (defined($message) and defined($messageFile)) {warn "WARNING: if message and messageFile is definned only message is used\n";}
 
 if (defined($messageFile) and !defined($message)) {
-    open MSG, $messageFile or die "ERROR: MessageFile cannot be opened\n";
-    my $lin;
-    while ($lin=<MSG>) {
-        $message=$message.$lin;
-    }
+	open MSG, $messageFile or die "ERROR: MessageFile cannot be opened\n";
+	my $lin;
+	while ($lin = <MSG>) {
+		$message = $message.$lin;
+	}
 }
-
 
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
 
-my $object = $notifAgent->getPerunNotifTemplateMessageById(id => $id);
+my $object = $notifAgent->getPerunNotifTemplateMessageById( id => $id );
 
 if (defined($templateId)) {
-    $object->setTemplateId($templateId);
+	$object->setTemplateId( $templateId );
 }
 
 if (defined($locale)) {
-    $object->setLocale($locale);
+	$object->setLocale( $locale );
 }
 
 if (defined($message)) {
-    $object->setMessage($message);
+	$object->setMessage( $message );
 }
 
 if (defined($subject)) {
-    $object->setSubject($subject);
+	$object->setSubject( $subject );
 }
 
-$object = $notifAgent->updatePerunNotifTemplateMessage(message => $object);
+$object = $notifAgent->updatePerunNotifTemplateMessage( message => $object );
 
 printMessage("NotifTemplateMessage Id:".$id." successfully updates", $batch);

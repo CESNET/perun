@@ -9,7 +9,7 @@ use Perun::Common qw(printMessage tableToPrint getSortingFunction);
 #use Data::Dumper;
 
 sub help {
-        return qq{
+	return qq{
         Lists contacts of facility.
         --------------------------
         Available options:
@@ -25,71 +25,77 @@ sub help {
 
 my ($facilityId, $facilityName, $batch, $sortingFunction, $displayIds);
 
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch,
-"orderByName|n" => sub { $sortingFunction = getSortingFunction("getName", 1) },
-"displayIds|i" => \$displayIds,
-"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName) or die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"          => \$batch,
+	"orderByName|n"    => sub { $sortingFunction = getSortingFunction("getName", 1) },
+	"displayIds|i"     => \$displayIds,
+	"facilityId|f=i"   => \$facilityId,
+	"facilityName|F=s" => \$facilityName) or die help();
 
 # Check options
 unless (defined($facilityId) || (defined($facilityName))) { die "ERROR: facilityId or facilityName are required \n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
- 
+
 my $facility;
 if ($facilityId) {
-    $facility = $facilitiesAgent->getFacilityById(id => $facilityId);
+	$facility = $facilitiesAgent->getFacilityById( id => $facilityId );
 }
 if ($facilityName) {
-    $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-    $facilityId=$facility->getId;
+	$facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 my @contactGroups;
-@contactGroups = $facilitiesAgent->getFacilityContactGroups(facility => $facilityId);
-unless (@contactGroups) { printMessage "No Contact found", $batch; exit 0;} 
+@contactGroups = $facilitiesAgent->getFacilityContactGroups( facility => $facilityId );
+unless (@contactGroups) {
+	printMessage "No Contact found", $batch;
+	exit 0;
+}
 
 #output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 if (defined($displayIds)) {
-    $table->setCols('Name','Owner','OwnerId','User','userId','Group','groupId');
+	$table->setCols( 'Name', 'Owner', 'OwnerId', 'User', 'userId', 'Group', 'groupId' );
 
-    foreach my $contactGroup (sort $sortingFunction @contactGroups) {
-        my @owners = $contactGroup->getOwners;
-        foreach my $owner (@owners) {
-            #print Dumper($owner);
-            $table->addRow($contactGroup->getName(),$owner->getName,$owner->getId);
-        }
-        my @users = $contactGroup->getUsers;
-        foreach my $user (@users) {
-            $table->addRow($contactGroup->getName,'','', $user->getCommonName,$user->getId);
-        }
-        my @groups = $contactGroup->getGroups;
-        foreach my $group (@groups) {
-            $table->addRow($contactGroup->getName,'','','','',$group->getName,$group->getId);
-        }
-    }
+	foreach my $contactGroup (sort $sortingFunction @contactGroups) {
+		my @owners = $contactGroup->getOwners;
+		foreach my $owner (@owners) {
+			#print Dumper($owner);
+			$table->addRow( $contactGroup->getName(), $owner->getName, $owner->getId );
+		}
+		my @users = $contactGroup->getUsers;
+		foreach my $user (@users) {
+			$table->addRow( $contactGroup->getName, '', '', $user->getCommonName, $user->getId );
+		}
+		my @groups = $contactGroup->getGroups;
+		foreach my $group (@groups) {
+			$table->addRow( $contactGroup->getName, '', '', '', '', $group->getName, $group->getId );
+		}
+	}
 } else {
-    $table->setCols('Name','Owner','User','Group');
+	$table->setCols( 'Name', 'Owner', 'User', 'Group' );
 
-    foreach my $contactGroup (sort $sortingFunction @contactGroups) {
-        my @owners = $contactGroup->getOwners;
-        foreach my $owner (@owners) {
-            #print Dumper($owner);
-            $table->addRow($contactGroup->getName(),$owner->getName);
-        }
-        my @users = $contactGroup->getUsers;
-        foreach my $user (@users) {
-            $table->addRow($contactGroup->getName,'', $user->getCommonName);
-        }
-        my @groups = $contactGroup->getGroups;
-        foreach my $group (@groups) {
-            $table->addRow($contactGroup->getName,'','',$group->getName);
-        }
-    }
+	foreach my $contactGroup (sort $sortingFunction @contactGroups) {
+		my @owners = $contactGroup->getOwners;
+		foreach my $owner (@owners) {
+			#print Dumper($owner);
+			$table->addRow( $contactGroup->getName(), $owner->getName );
+		}
+		my @users = $contactGroup->getUsers;
+		foreach my $user (@users) {
+			$table->addRow( $contactGroup->getName, '', $user->getCommonName );
+		}
+		my @groups = $contactGroup->getGroups;
+		foreach my $group (@groups) {
+			$table->addRow( $contactGroup->getName, '', '', $group->getName );
+		}
+	}
 }
 print tableToPrint($table, $batch);
 

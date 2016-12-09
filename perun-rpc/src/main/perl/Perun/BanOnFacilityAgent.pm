@@ -40,18 +40,18 @@ sub getBanById
 
 sub getBan
 {
-        return Perun::Common::callManagerMethod('getBan', 'BanOnFacility', @_);
+	return Perun::Common::callManagerMethod('getBan', 'BanOnFacility', @_);
 }
 
 sub getBansForFacility
 {
-        return Perun::Common::callManagerMethod('getBansForFacility','[]BanOnFacility', @_);
+	return Perun::Common::callManagerMethod('getBansForFacility', '[]BanOnFacility', @_);
 }
 
 sub getBansForUser
 {
-        return Perun::Common::callManagerMethod('getBansForUser','[]BanOnFacility', @_);
+	return Perun::Common::callManagerMethod('getBansForUser', '[]BanOnFacility', @_);
 
 }
- 
+
 1;

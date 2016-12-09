@@ -7,7 +7,7 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
+	return qq{
 Removes NotifRegex from db by id. Id is required field.
 ------------------------
 Available options:
@@ -20,8 +20,11 @@ Available options:
 
 our $batch;
 my $id;
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
- "NotifRegexId|i=i" => \$id)|| die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"NotifRegexId|i=i" => \$id) || die help();
 
 # Check options
 unless (defined($id)) { die "ERROR: NotifRegex: Id is required \n";}
@@ -29,7 +32,7 @@ unless (defined($id)) { die "ERROR: NotifRegex: Id is required \n";}
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent();
 
-$notifAgent->removePerunNotifRegexById(id => $id);
+$notifAgent->removePerunNotifRegexById( id => $id );
 
 #output
 printMessage("NotifRegex Id:$id successfully removed.", $batch);

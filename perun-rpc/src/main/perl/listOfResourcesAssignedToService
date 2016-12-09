@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -13,7 +13,7 @@ sub help {
 	------------------------------------------------
 	Available options:
 	--serviceId   | -s  service idetifier
-    --serviceName | -S  service name
+	--serviceName | -S  service name
 	--orderById   | -i  order by numeric ID
 	--orderByName | -n  order by name
 	--batch       | -b  batch
@@ -21,36 +21,35 @@ sub help {
 	};
 }
 
-my ($serviceId, $serviceName, $batch, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-"serviceId|s=i" => \$serviceId,
-"serviceName|S=s" => \$serviceName,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-"batch|b" => \$batch) || die help;
+our $batch;
+my ($serviceId, $serviceName, $sortingFunction);
+GetOptions("help|h"   => sub {
+		print help;
+		exit 0;
+	},
+	"serviceId|s=i"   => \$serviceId,
+	"serviceName|S=s" => \$serviceName,
+	"orderById|i"     => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"   => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"         => \$batch) || die help;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
-unless(defined $serviceId or defined $serviceName) { die "ERROR: service Id or Name required\n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $serviceId or defined $serviceName) { die "ERROR: service Id or Name required\n";}
 
 my $agent = Perun::Agent->new();
 my $servicesAgent = $agent->getServicesAgent;
-my $resourcesAgent = $agent->getResourcesAgent;
 
 my $service;
-unless(defined $serviceId) {
-    $service = $servicesAgent->getServiceByName(name => $serviceName);
-    $serviceId = $service->getId;
+unless (defined $serviceId) {
+	$service = $servicesAgent->getServiceByName( name => $serviceName );
+	$serviceId = $service->getId;
 }
-my @resources = $servicesAgent->getAssignedResources(service => $serviceId);
-unless(@resources) { printMessage "No Resource found", $batch; exit 0; }
+my @resources = $servicesAgent->getAssignedResources( service => $serviceId );
+unless (@resources) {
+	printMessage "No Resource found", $batch;
+	exit 0;
+}
 
 #output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('ID','Name','VO','Facility');
-
-foreach my $resource (sort $sortingFunction @resources) {
-        $table->addRow($resource->getId, $resource->getName, ($resourcesAgent->getVo(resource => $resource->getId))->getShortName, ($resourcesAgent->getFacility(resource => $resource->getId))->getName);
-}
-
-print tableToPrint($table, $batch);
+printTable($sortingFunction, @resources);

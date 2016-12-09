@@ -20,11 +20,14 @@ sub help {
 }
 
 my (@hosts, $dest, $type, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-	"batch|b" => \$batch,
-'hosts|H=s@{1,}' => \@hosts,
-"destType|t=s" => \$type,
-"dest|d" => \$dest) || die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"        => \$batch,
+	'hosts|H=s@{1,}' => \@hosts,
+	"destType|t=s"   => \$type,
+	"dest|d"         => \$dest) || die help();
 
 # Check options
 unless (@hosts) { die "ERROR: hosts are required \n";}
@@ -36,55 +39,70 @@ my $hostsAgent = $agent->getHostsAgent;
 
 # deleting hosts
 while (@hosts) {
-    my $host=shift(@hosts);
-    my @hostobj=$facilitiesAgent->getHostsByHostname(hostname => $host);
-    unless (@hostobj) {printMessage "No host found for host $host", $batch; exit 0;} 
-    my @hostIds;
-    while (@hostobj) {
-        my $phs=shift(@hostobj);
-        my $hostId=$phs->getId;
-        push (@hostIds,$hostId);
-    } 
-    my @facilities = $facilitiesAgent->getFacilitiesByHostName(hostname => $host);
-    unless (@facilities) { printMessage "No facility found for host $host", $batch; exit 0;}
-    while (@facilities) {
-        my $fac=shift(@facilities);
-        my $facilityId=$fac->getId;
-        $facilitiesAgent->removeHosts(hosts => \@hostIds, facility => $facilityId);
-        printMessage("Host: $host successfully removed from the facility Id:$facilityId", $batch);
-    }
-    # deleting of destinations
-    if (defined $dest) {
-        @facilities = $facilitiesAgent->getFacilitiesByDestination(destination => $host);
-        unless (@facilities) { printMessage "No facility found for destination $host", $batch; exit 0;}
-        foreach my $fac (@facilities) {
-            my $facilityId=$fac->getId;
-            my @services = $servicesAgent->getAssignedServices(facility => $facilityId);
-            my $service;
-            $type="host";
-	    foreach $service (@services) {
-                eval{
-                    $servicesAgent->removeDestination(facility => $facilityId, service => $service->getId, destination => $host, type => $type);
-                    printMessage("Destination: $host removed from the facility Id:$facilityId and service:".$service->getName, $batch);
-		};
-            }
+	my $host = shift(@hosts);
+	my @hostobj = $facilitiesAgent->getHostsByHostname( hostname => $host );
+	unless (@hostobj) {
+		printMessage "No host found for host $host", $batch;
+		exit 0;
 	}
-        # destinations left
-        foreach my $fac (@facilities) {
-            my $facilityId=$fac->getId;
-            my @services = $servicesAgent->getAssignedServices(facility => $facilityId);
-            my $service;
-	    foreach $service (@services) {
-                my @destinations = $servicesAgent->getDestinations(facility => $facilityId, service => $service->getId);
-                while (@destinations) {
-                    my $destination=shift(@destinations);
-                    my $destName=$destination->getDestination;
-                    if ($destName =~ /.*$host.*/) { 
-                        printMessage("WARNING: destination $destName type ".$destination->getType." left on the facility $facilityId for service ".$service->getName."\nFor deleting it use removeFacilityDestination -f $facilityId -s ".$service->getId." -D $destName", $batch);
-                    }
+	my @hostIds;
+	while (@hostobj) {
+		my $phs = shift(@hostobj);
+		my $hostId = $phs->getId;
+		push (@hostIds, $hostId);
+	}
+	my @facilities = $facilitiesAgent->getFacilitiesByHostName( hostname => $host );
+	unless (@facilities) {
+		printMessage "No facility found for host $host", $batch;
+		exit 0;
+	}
+	while (@facilities) {
+		my $fac = shift(@facilities);
+		my $facilityId = $fac->getId;
+		$facilitiesAgent->removeHosts( hosts => \@hostIds, facility => $facilityId );
+		printMessage("Host: $host successfully removed from the facility Id:$facilityId", $batch);
+	}
+	# deleting of destinations
+	if (defined $dest) {
+		@facilities = $facilitiesAgent->getFacilitiesByDestination( destination => $host );
+		unless (@facilities) {
+			printMessage "No facility found for destination $host", $batch;
+			exit 0;
 		}
-            }
+		foreach my $fac (@facilities) {
+			my $facilityId = $fac->getId;
+			my @services = $servicesAgent->getAssignedServices( facility => $facilityId );
+			my $service;
+			$type = "host";
+			foreach $service (@services) {
+				eval {
+					$servicesAgent->removeDestination( facility => $facilityId, service => $service->getId, destination
+																=> $host, type => $type );
+					printMessage(
+						"Destination: $host removed from the facility Id:$facilityId and service:".$service->getName,
+						$batch);
+				};
+			}
+		}
+		# destinations left
+		foreach my $fac (@facilities) {
+			my $facilityId = $fac->getId;
+			my @services = $servicesAgent->getAssignedServices( facility => $facilityId );
+			my $service;
+			foreach $service (@services) {
+				my @destinations = $servicesAgent->getDestinations( facility => $facilityId, service =>
+					$service->getId );
+				while (@destinations) {
+					my $destination = shift(@destinations);
+					my $destName = $destination->getDestination;
+					if ($destName =~ /.*$host.*/) {
+						printMessage(
+							"WARNING: destination $destName type ".$destination->getType." left on the facility $facilityId for service ".$service->getName."\nFor deleting it use removeFacilityDestination -f $facilityId -s ".$service->getId." -D $destName"
+							, $batch);
+					}
+				}
+			}
+		}
 	}
-    }
 }
 

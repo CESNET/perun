@@ -40,8 +40,8 @@ sub getSecurityTeamById
 
 sub getAllSecurityTeams
 {
-        return Perun::Common::callManagerMethod('getAllSecurityTeams', '[]SecurityTeam'
-, @_);
+	return Perun::Common::callManagerMethod('getAllSecurityTeams', '[]SecurityTeam'
+		, @_);
 }
 
 sub addAdmin
@@ -61,17 +61,17 @@ sub getAdmins
 
 sub addUserToBlacklist
 {
-        return Perun::Common::callManagerMethod('addUserToBlacklist', 'null' , @_);
+	return Perun::Common::callManagerMethod('addUserToBlacklist', 'null', @_);
 }
 
 sub removeUserFromBlacklist
 {
-        return Perun::Common::callManagerMethod('removeUserFromBlacklist', 'null' , @_);
+	return Perun::Common::callManagerMethod('removeUserFromBlacklist', 'null', @_);
 }
 
 sub getBlacklist
 {
-        return Perun::Common::callManagerMethod('getBlacklist', '[]User' , @_);
-} 
+	return Perun::Common::callManagerMethod('getBlacklist', '[]User', @_);
+}
 
 1;

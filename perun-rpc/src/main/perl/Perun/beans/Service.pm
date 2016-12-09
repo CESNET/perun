@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -38,7 +38,7 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
@@ -50,7 +50,7 @@ sub TO_JSON
 		$name = undef;
 	}
 
-	return {id => $id, name => $name, beanName => "Service"};
+	return { id => $id, name => $name, beanName => "Service" };
 }
 
 sub getId
@@ -81,6 +81,15 @@ sub setName
 	$self->{_name} = shift;
 
 	return;
+}
+
+sub getCommonArrayRepresentation {
+	my $self = shift;
+	return ($self->{_id}, $self->{_name});
+}
+
+sub getCommonArrayRepresentationHeading {
+	return ('ID', 'Name');
 }
 
 

@@ -40,15 +40,18 @@ sub help {
 
 our $batch;
 my ($groupId, $groupName, $voId, $voShortName, $sortingFunction, @attributes, @statuses);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"groupId|g=i" => \$groupId,
-	"groupName|G=s" => \$groupName,
-	"voId|v=i" => \$voId,
-	"voShortName|V=s" => \$voShortName,
-	'attrList|am=s@{1,}' => \@attributes,
+GetOptions("help|h"       => sub {
+		print help;
+		exit 0;
+	},
+	"groupId|g=i"         => \$groupId,
+	"groupName|G=s"       => \$groupName,
+	"voId|v=i"            => \$voId,
+	"voShortName|V=s"     => \$voShortName,
+	'attrList|am=s@{1,}'  => \@attributes,
 	'statusList|s=s@{0,}' => \@statuses,
-	"orderByName|n" => sub { $sortingFunction = getSortingFunction("getLastName",1) },
-	"batch|b" => \$batch) || die help;
+	"orderByName|n"       => sub { $sortingFunction = getSortingFunction("getLastName", 1) },
+	"batch|b"             => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $groupsAgent = $agent->getGroupsAgent;
@@ -56,54 +59,58 @@ my $attributesAgent = $agent->getAttributesAgent;
 my $membersAgent = $agent->getMembersAgent;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName",1); }
-unless(defined $groupId) {
-	unless(defined $groupName) { die "ERROR: Group specification required.\n"; }
-	unless(defined $voId) {
-		unless(defined $voShortName) { die "ERROR: VO specification required.\n"; }
-		my $vo = $agent->getVosAgent->getVoByShortName(shortName => $voShortName);
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
+unless (defined $groupId) {
+	unless (defined $groupName) { die "ERROR: Group specification required.\n"; }
+	unless (defined $voId) {
+		unless (defined $voShortName) { die "ERROR: VO specification required.\n"; }
+		my $vo = $agent->getVosAgent->getVoByShortName( shortName => $voShortName );
 		$voId = $vo->getId;
 	}
-	my $group = $groupsAgent->getGroupByName(vo => $voId, name => $groupName);
+	my $group = $groupsAgent->getGroupByName( vo => $voId, name => $groupName );
 	$groupId = $group->getId;
 }
 
 unless (defined $statuses[0]) {
-	@statuses=("VALID","INVALID","SUSPENDED");
+	@statuses = ("VALID", "INVALID", "SUSPENDED");
 }
 if (defined $statuses[0] and $statuses[0] eq "") {
-	@statuses=();
+	@statuses = ();
 }
 foreach my $stat (@statuses) {
 	if ($stat ne "VALID" and $stat ne "INVALID" and $stat ne "SUSPENDED" and $stat ne "EXPIRED" and $stat ne "DISABLED") {die "ERROR: wrong status value. \n";}
 }
 
-my $parentGroup=0;
+my $parentGroup = 0;
 my %attrShort;
-my %entities = ("u"=>"user","m"=>"member");
-my %types = ("d"=>"def","o"=>"opt","v"=>"virt","c"=>"core");
+my %entities = ("u" => "user", "m" => "member");
+my %types = ("d" => "def", "o" => "opt", "v" => "virt", "c" => "core");
 
-unless(@attributes) {
-	@attributes=("u:d:preferredMail","m:d:organization");
+unless (@attributes) {
+	@attributes = ("u:d:preferredMail", "m:d:organization");
 }
 foreach my $attr (@attributes) {
-	my $attrName="urn:perun:";
+	my $attrName = "urn:perun:";
 	if ($attr =~ /^(\w)\:(\w)\:(\w+)$/) {
-		$attrName=$attrName.$entities{$1}.":attribute-def:".$types{$2}.":".$3;
-		$attrShort{$attr}=$attrName;
+		$attrName = $attrName.$entities{$1}.":attribute-def:".$types{$2}.":".$3;
+		$attrShort{$attr} = $attrName;
 	} else {
 		printMessage "Wrong attribute name:$attr", $batch;
 	}
 }
 
-my @richMembers = $membersAgent->getCompleteRichMembers(group => $groupId, attrsNames => [values %attrShort], allowedStatuses => \@statuses, lookingInParentGroup => $parentGroup);
-unless(@richMembers) { printMessage "No member found", $batch; exit 0; }
+my @richMembers = $membersAgent->getCompleteRichMembers( group => $groupId, attrsNames => [ values %attrShort ],
+	allowedStatuses                                            => \@statuses, lookingInParentGroup => $parentGroup );
+unless (@richMembers) {
+	printMessage "No member found", $batch;
+	exit 0;
+}
 
 #output
-my $table = Text::ASCIITable->new({utf8=>0});
+my $table = Text::ASCIITable->new( { utf8 => 0 } );
 #my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
 
-$table->setCols('Name', 'Status', sort keys(%attrShort));
+$table->setCols( 'Name', 'Status', sort keys(%attrShort) );
 
 foreach my $richMember (sort $sortingFunction @richMembers) {
 	my @uattributes = $richMember->getUserAttributes;
@@ -113,16 +120,16 @@ foreach my $richMember (sort $sortingFunction @richMembers) {
 	foreach my $shnam (sort keys (%attrShort)) {
 		foreach my $ua (@uattributes) {
 			if ($attrShort{$shnam} eq $ua->getName) {
-				push (@dispAtt,$ua->getValueAsScalar);
+				push (@dispAtt, $ua->getValueAsScalar);
 			}
 		}
 		foreach my $ma (@mattributes) {
 			if ($attrShort{$shnam} eq $ma->getName) {
-				push (@dispAtt,$ma->getValueAsScalar);
+				push (@dispAtt, $ma->getValueAsScalar);
 			}
 		}
 	}
-	$table->addRow($richMember->getDisplayName,$richMember->getStatus,@dispAtt);
+	$table->addRow( $richMember->getDisplayName, $richMember->getStatus, @dispAtt );
 }
 
 print tableToPrint($table, $batch);

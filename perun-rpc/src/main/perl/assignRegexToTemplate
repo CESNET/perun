@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Perun::Agent;
-use Perun::Common qw(printMessage); 
+use Perun::Common qw(printMessage);
 
 sub help {
-return qq{
+	return qq{
 Assigns NotifRegex to NotifTemplate. Both Id are required.
 ------------------------------------
 Available options:
@@ -21,8 +21,11 @@ Available options:
 
 our $batch;
 my ($templateId, $regexId);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch, 
- "NotifTemplateId|t=i" => \$templateId, "NotifRegexId|r=i" => \$regexId) || die help(); 
+GetOptions ("help|h"      => sub {
+		print help();
+		exit 0;
+	}, "batch|b"          => \$batch,
+	"NotifTemplateId|t=i" => \$templateId, "NotifRegexId|r=i" => \$regexId) || die help();
 
 # Check options
 unless (defined($templateId)) {die "ERROR: NotifTemplate: id is required\n";}
@@ -31,6 +34,6 @@ unless (defined($regexId)) {die "ERROR: NotifRegex: id is required\n";}
 my $agent = Perun::Agent->new();
 my $notifAgent = $agent->getNotificationsAgent;
 
-$notifAgent->saveTemplateRegexRelation(templateId => $templateId, regexId => $regexId);
+$notifAgent->saveTemplateRegexRelation( templateId => $templateId, regexId => $regexId );
 
 printMessage("Successfully created relation between NotifTemplate Id:$templateId and NotifRegex Id:$regexId", $batch);

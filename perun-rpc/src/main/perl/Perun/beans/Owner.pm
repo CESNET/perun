@@ -6,7 +6,7 @@ use warnings;
 use Perun::Common;
 
 use overload
-'""' => \&toString;
+	'""' => \&toString;
 
 sub toString {
 	my $self = shift;
@@ -42,13 +42,12 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
 
-
-	return {id => $id, name => $self->{_name}, contact => $self->{_contact}, type => $self->{_type}};
+	return { id => $id, name => $self->{_name}, contact => $self->{_contact}, type => $self->{_type} };
 }
 
 sub getId

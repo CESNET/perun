@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($memberId, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"memberId|m=i" => \$memberId)|| die help();
+GetOptions ("help|h" => sub {
+		print help();
+		exit 0;
+	}, "batch|b"     => \$batch,
+	"memberId|m=i"   => \$memberId) || die help();
 
 # Check options
 unless (defined($memberId)) { die "ERROR: memberId is required \n";}
@@ -29,12 +32,12 @@ unless (defined($memberId)) { die "ERROR: memberId is required \n";}
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
 
-my $user = $usersAgent->getUserByMember(member => $memberId);
+my $user = $usersAgent->getUserByMember( member => $memberId );
 
 #output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('ID','Name');
-my $name = $user->getFirstName . " " . ($user->getMiddleName ? $user->getMiddleName . " " : "" ) . $user->getLastName;
-$table->addRow($user->getId, $name);
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
+$table->setCols( 'ID', 'Name' );
+my $name = $user->getFirstName." ".($user->getMiddleName ? $user->getMiddleName." " : "" ).$user->getLastName;
+$table->addRow( $user->getId, $name );
 print tableToPrint($table, $batch);
 

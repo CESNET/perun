@@ -20,8 +20,11 @@ sub help {
 }
 
 my ($facilityName, $facilityDescription, $batch);
-GetOptions ("help|h" => sub { print help(); exit 0;} ,"batch|b" => \$batch,
-"facilityName|F=s" => \$facilityName, "facilityDsc|d=s" => \$facilityDescription) || die help();
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"facilityName|F=s" => \$facilityName, "facilityDsc|d=s" => \$facilityDescription) || die help();
 
 # Check options
 unless (defined($facilityName)) { die "ERROR: facilityName is required \n";}
@@ -29,13 +32,13 @@ unless (defined($facilityName)) { die "ERROR: facilityName is required \n";}
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
-my $facility=Perun::beans::Facility->new;
-$facility->setName($facilityName);
+my $facility = Perun::beans::Facility->new;
+$facility->setName( $facilityName );
 
 if (defined($facilityDescription)) {
-	$facility->setDescription($facilityDescription);
+	$facility->setDescription( $facilityDescription );
 }
 
-$facility = $facilitiesAgent->createFacility(facility => $facility);
+$facility = $facilitiesAgent->createFacility( facility => $facility );
 
 printMessage("Facility Id:".$facility->getId." successfully created", $batch);

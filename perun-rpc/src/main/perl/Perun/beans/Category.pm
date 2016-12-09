@@ -21,26 +21,26 @@ sub TO_JSON
 
 	my $id;
 	if (defined($self->{_id})) {
-		$id = $self->{_id}*1;
+		$id = $self->{_id} * 1;
 	} else {
 		$id = 0;
 	}
 
 	my $name;
 	if (defined($self->{_name})) {
-		$name="$self->{_name}";
+		$name = "$self->{_name}";
 	} else {
 		$name = undef;
 	}
 
 	my $rank;
 	if (defined($self->{_rank})) {
-		$rank = $self->{_rank}*1;
+		$rank = $self->{_rank} * 1;
 	} else {
 		$rank = 0;
 	}
 
-	return {id => $id, name => $name, rank => $rank};
+	return { id => $id, name => $name, rank => $rank };
 }
 
 sub getId

@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage tableToPrint getSortingFunction);
+use Perun::Common qw(printMessage printTable getSortingFunction);
 
 sub help {
 	return qq{
@@ -20,31 +20,30 @@ sub help {
 	};
 }
 
-my ($hostId, $hostName, $batch, $sortingFunction);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"hostId|H=i" => \$hostId,
-"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getName", 1) },
-"batch|b" => \$batch) || die help;
+our $batch;
+my ($hostId, $hostName, $sortingFunction);
+GetOptions("help|h" => sub {
+		print help;
+		exit 0;
+	},
+	"hostId|H=i"    => \$hostId,
+	"orderById|i"   => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n" => sub {$sortingFunction = getSortingFunction("getName", 1) },
+	"batch|b"       => \$batch) || die help;
 
 #options check
-unless(defined $hostId) { die "ERROR: hostId is required\n";}
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
+unless (defined $hostId) { die "ERROR: hostId is required\n";}
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getName", 1); }
 
 my $agent = Perun::Agent->new();
 
 my $attributesAgent = $agent->getAttributesAgent;
 
-my @attributes = $attributesAgent->getAttributes(host => $hostId);
-unless(@attributes) { printMessage "No Attribute found", $batch; exit 0;}
-
-
-#output
-my $table = Text::ASCIITable->new({reportErrors => 0, utf8 => 0});
-$table->setCols('ID','Name', 'Type', 'Value');
-
-foreach my $attribute (sort $sortingFunction @attributes) {
-	$table->addRow($attribute->getId, $attribute->getName, $attribute->getType, $attribute->getValueAsScalar);
+my @attributes = $attributesAgent->getAttributes( host => $hostId );
+unless (@attributes) {
+	printMessage "No Attribute found", $batch;
+	exit 0;
 }
 
-print tableToPrint($table, $batch);
+#output
+printTable($sortingFunction, @attributes);

@@ -22,27 +22,33 @@ sub help {
 }
 
 my ($facilityId, $userId, $facilityName, $sortingFunction, $batch);
-GetOptions("help|h" => sub { print help; exit 0;} ,
-	"facilityId|f=i" => \$facilityId,
+GetOptions("help|h"    => sub {
+		print help;
+		exit 0;
+	},
+	"facilityId|f=i"   => \$facilityId,
 	"facilityName|F=s" => \$facilityName,
-	"orderById|i" => sub { $sortingFunction = getSortingFunction("getId") } ,
-	"orderByName|n" =>  sub {$sortingFunction = getSortingFunction("getLastName", 1) },
-	"batch|b" => \$batch) || die help;
+	"orderById|i"      => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderByName|n"    => sub {$sortingFunction = getSortingFunction("getLastName", 1) },
+	"batch|b"          => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
 
 #options check
-unless(defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
 
-unless($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
+unless ($facilityId) {
+	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
 	$facilityId = $facility->getId;
 }
 
-my @richUsers = $facilitiesAgent->getRichAdmins(facility => $facilityId, pageSize => 0, pageNum => 0);
-unless(@richUsers) { printMessage "No manager found", $batch; exit 0; }
+my @richUsers = $facilitiesAgent->getRichAdmins( facility => $facilityId, pageSize => 0, pageNum => 0 );
+unless (@richUsers) {
+	printMessage "No manager found", $batch;
+	exit 0;
+}
 
 #output
 printTable($sortingFunction, @richUsers);

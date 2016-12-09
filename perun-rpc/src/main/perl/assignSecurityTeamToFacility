@@ -7,7 +7,7 @@ use Perun::Agent;
 use Perun::Common qw(printMessage);
 
 sub help {
-        return qq{
+	return qq{
         Assigns SecurityTeam to facility
         --------------------------
         Available options:
@@ -22,11 +22,14 @@ sub help {
 
 my ($facilityId, $facilityName, $securityTeamId, $batch);
 
-GetOptions ("help|h" => sub { print help(); exit 0;} ,
-"batch|b" => \$batch,
-"facilityId|f=i" => \$facilityId,
-"facilityName|F=s" => \$facilityName,
-"securityTeamId|s=i" => \$securityTeamId || die help());
+GetOptions ("help|h"     => sub {
+		print help();
+		exit 0;
+	},
+	"batch|b"            => \$batch,
+	"facilityId|f=i"     => \$facilityId,
+	"facilityName|F=s"   => \$facilityName,
+	"securityTeamId|s=i" => \$securityTeamId || die help());
 
 # Check options
 unless (defined($facilityId) || (defined($facilityName))) { die "ERROR: facilityId or facilityName are required \n";}
@@ -34,17 +37,17 @@ unless (defined($securityTeamId)) {die "ERROR: securityTeamId is required \n";}
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
- 
+
 my $facility;
 if ($facilityId) {
-    $facility = $facilitiesAgent->getFacilityById(id => $facilityId);
+	$facility = $facilitiesAgent->getFacilityById( id => $facilityId );
 }
 if ($facilityName) {
-    $facility = $facilitiesAgent->getFacilityByName(name => $facilityName);
-    $facilityId=$facility->getId;
+	$facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
+	$facilityId = $facility->getId;
 }
 
 #print Dumper($contactGroup);
-$facilitiesAgent->assignSecurityTeam(facility => $facilityId, securityTeam => $securityTeamId);
+$facilitiesAgent->assignSecurityTeam( facility => $facilityId, securityTeam => $securityTeamId );
 
-printMessage("securityTeam $securityTeamId has been successfully added to facility ". $facility->getName,$batch); 
+printMessage("securityTeam $securityTeamId has been successfully added to facility ".$facility->getName, $batch); 
