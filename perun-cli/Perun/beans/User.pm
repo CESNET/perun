@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Perun::Common;
+use JSON::PP;
 
 sub new
 {
