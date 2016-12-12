@@ -292,6 +292,7 @@
 						<sourceDirectory>./perun-utils</sourceDirectory>
 						<sourceDirectory>./perun-apps</sourceDirectory>
 						<sourceDirectory>./perun-php</sourceDirectory>
+						<sourceDirectory>./perun-cli</sourceDirectory>
 					</sourceDirectories>
 				</configuration>
 			</plugin>
@@ -310,7 +311,7 @@
 	<dependencyManagement>
 		<dependencies>
 			<!-- FIXME - needed in compile scope for running in local tomcat (mvn jetty:run on perun-rpc) and tests, so include it  -->
-			<!-- FIXME - produciton profile overrides it by setting scope to "provided" -->
+			<!-- FIXME - production profile overrides it by setting scope to "provided" -->
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-dbcp</artifactId>
