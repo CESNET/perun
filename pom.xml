@@ -49,7 +49,7 @@
 		<perun.log>/var/log/perun/</perun.log>
 
 		<!-- libraries versions -->
-		<org.springframework.version>3.1.4.RELEASE</org.springframework.version>
+		<org.springframework.version>3.2.17.RELEASE</org.springframework.version>
 		<junit.version>4.11</junit.version>
 		<log4j.version>1.5.8</log4j.version>
 		<!-- by default we run perun in memory -->
