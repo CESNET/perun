@@ -2,6 +2,7 @@ package cz.metacentrum.perun.registrar.modules;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
@@ -56,6 +57,42 @@ public class Metacentrum implements RegistrarModule {
 				perun.getGroupsManager().addMember(session, group, mem);
 			} catch (AlreadyMemberException ex) {
 
+			}
+		}
+
+		// Support statistic groups
+		String statisticGroupName = "";
+
+		List<ApplicationFormItemData> formData = registrar.getApplicationDataById(session, app.getId());
+		for (ApplicationFormItemData item : formData) {
+			if (Objects.equals("urn:perun:user:attribute-def:def:researchGroupStatistic", item.getFormItem().getPerunDestinationAttribute())) {
+				statisticGroupName = item.getValue();
+				break;
+			}
+		}
+
+		if (statisticGroupName != null && !statisticGroupName.isEmpty()) {
+			Group group;
+			try {
+				group = perun.getGroupsManager().getGroupByName(session, app.getVo(), statisticGroupName);
+			} catch (GroupNotExistsException ex) {
+				// user filled non existing group, just skip adding
+				return app;
+			}
+
+			Attribute isStatisticGroup = perun.getAttributesManager().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroup");
+			Attribute isStatisticGroupAutoFill = perun.getAttributesManager().getAttribute(session, group, "urn:perun:group:attribute-def:def:statisticGroupAutoFill");
+
+			boolean statisticGroup = (isStatisticGroup.getValue() != null) ? (Boolean)isStatisticGroup.getValue() : false;
+			boolean statisticGroupAutoFill = (isStatisticGroupAutoFill.getValue() != null) ? (Boolean)isStatisticGroupAutoFill.getValue() : false;
+
+			if (statisticGroup && statisticGroupAutoFill) {
+				try  {
+					Member mem = perun.getMembersManager().getMemberByUser(session, app.getVo(), app.getUser());
+					perun.getGroupsManager().addMember(session, group, mem);
+				} catch (AlreadyMemberException ex) {
+
+				}
 			}
 		}
 		return app;
