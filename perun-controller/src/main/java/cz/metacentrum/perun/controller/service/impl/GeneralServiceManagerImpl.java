@@ -40,10 +40,11 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 
 	private final static Logger log = LoggerFactory.getLogger(GeneralServiceManagerImpl.class);
 	// Beginning of the auditer message which triggers service propagation
+	public final static String PROPAGATION_PLANNED = "propagation planned: ";
 	public final static String FORCE_PROPAGATION = "force propagation: ";
 	public final static String FREE_ALL_DEN = "free all denials: ";
 	public final static String FREE_DEN_OF_EXECSERVICE = "free denial: ";
-	public final static String BAN_SERVICE = "ban :"; 
+	public final static String BAN_SERVICE = "ban :";
 
 	@Autowired
 	private ExecServiceDao execServiceDao;
@@ -210,6 +211,32 @@ public class GeneralServiceManagerImpl implements GeneralServiceManager {
 		}
 		//Call log method out of transaction
 		sess.getPerun().getAuditer().log(sess, FORCE_PROPAGATION + "On {} ", service);
+		return true;
+	}
+
+	@Override
+	public boolean planServicePropagation(PerunSession perunSession, Facility facility, Service service) throws ServiceNotExistsException, FacilityNotExistsException, InternalErrorException, PrivilegeException {
+		List<ExecService> listOfExecServices = listExecServices(perunSession, service.getId());
+		for(ExecService es: listOfExecServices) {
+			//Global
+			if(!es.isEnabled()) return false;
+			//Local
+			if(execServiceDenialDao.isExecServiceDeniedOnFacility(es.getId(), facility.getId())) return false;
+		}
+		//Call log method out of transaction
+		perunSession.getPerun().getAuditer().log(perunSession, PROPAGATION_PLANNED + "On {} and {}", facility, service);
+		return true;
+	}
+
+	@Override
+	public boolean planServicePropagation(PerunSession perunSession, Service service) throws ServiceNotExistsException, InternalErrorException, PrivilegeException {
+		List<ExecService> listOfExecServices = listExecServices(perunSession, service.getId());
+		for(ExecService es: listOfExecServices) {
+			//Global
+			if(!es.isEnabled()) return false;
+		}
+		//Call log method out of transaction
+		perunSession.getPerun().getAuditer().log(perunSession, PROPAGATION_PLANNED + "On {} ", service);
 		return true;
 	}
 
