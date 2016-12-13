@@ -34,6 +34,7 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.SecurityTeamNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
@@ -411,8 +412,27 @@ public class AuthzResolverBlImpl implements AuthzResolverBl {
 				//if Principal is GroupManager in the vo
 				if(isAuthorized(sess, Role.GROUPADMIN, vo)) return true;
 			}
-			if(roles.contains(Role.FACILITYADMIN)); //Not allowed
-			if(roles.contains(Role.SELF)); //Not allowed
+			if(roles.contains(Role.FACILITYADMIN)) {
+				// is facility manager of any vo resource
+				List<Resource> resourceList = perunBlImpl.getResourcesManagerBl().getResources(sess, vo);
+				for (Resource res : resourceList) {
+					if(isAuthorized(sess, Role.FACILITYADMIN, res)) return true;
+				}
+			}
+			if(roles.contains(Role.SELF)) {
+				if (actionType.equals(ActionType.READ)) {
+					// any user can read
+					return true;
+				} else if (actionType.equals(ActionType.WRITE)) {
+					// only vo member can write
+					try {
+						perunBlImpl.getMembersManagerBl().getMemberByUser(sess, vo, sess.getPerunPrincipal().getUser());
+						return true;
+					} catch (MemberNotExistsException ex) {
+						// not vo member -> not allowed
+					}
+				}
+			}
 		} else if(group != null) {
 			if(roles.contains(Role.VOADMIN)) {
 				if(isAuthorized(sess, Role.VOADMIN, group)) return true;
