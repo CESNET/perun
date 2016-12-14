@@ -146,5 +146,10 @@ sub forceServicePropagation
 	return Perun::Common::callManagerMethod('forceServicePropagation', '', @_);
 }
 
+#service => $serviceId, facility => facility_id
+sub planServicePropagation
+{
+	return Perun::Common::callManagerMethod('planServicePropagation', '', @_);
+}
 
 1;
