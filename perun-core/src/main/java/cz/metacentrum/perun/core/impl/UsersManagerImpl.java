@@ -486,7 +486,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 				jdbc.update("update user_ext_sources set loa=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						userExtSource.getLoa(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
 			}
-			if (userExtSource.getLogin() != null && userExtSourceDb.getLogin().equals(userExtSource.getLogin())) {
+			if (userExtSource.getLogin() != null && !userExtSourceDb.getLogin().equals(userExtSource.getLogin())) {
 				jdbc.update("update user_ext_sources set login_ext=?, modified_by=?, modified_by_uid=?, modified_at=" + Compatibility.getSysdate() + " where id=?",
 						userExtSource.getLogin(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), userExtSource.getId());
 			}
