@@ -3,14 +3,22 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Class for checking logins uniqueness in the namespace and filling ceitec id.
@@ -20,6 +28,9 @@ import org.slf4j.LoggerFactory;
 public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_ceitec.class);
+
+	private final String CEITEC_PROXY_ENTITY_ID = "https://login.ceitec.cz/idp/";
+	private final String CEITEC_PROXY_SCOPE = "ceitec.cz";
 
 	/**
 	 * Checks if the user's login is unique in the namespace organization.
@@ -124,6 +135,80 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 		attr.setType(String.class.getName());
 		attr.setDescription("Logname in namespace 'ceitec'.");
 		return attr;
+	}
+
+	@Override
+	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
+		super.changedAttributeHook(session, user, attribute);
+		log.debug("changedAttributeHook for attr: "+attribute+" and user: "+user);
+		/*
+		 * "Synchornize" this attribute to user extSource. Means it creates, updates and removes userExtSource
+		 * whenever this attribute is added, edited or removed.
+		 *
+		 * Ceitec proxy UserExtSourceLogin has form: {login-namespace:ceitec}@ceitec.cz
+		 */
+		try {
+			ExtSource ceitecProxyIdp = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, CEITEC_PROXY_ENTITY_ID);
+
+			UserExtSource ceitecUes = getCeitecProxyUserExtSource(session, user, ceitecProxyIdp);
+			log.debug("changedAttributeHook UserExtSourceLogin to be synchronized: "+ceitecUes);
+
+			if (attribute.getValue() == null) {
+				// Deleting attribute
+				if (ceitecUes == null) {
+					log.debug("Deleting ceitec login but proxy UES does not exist. Probably ceitec login was not set before.");
+				} else {
+					session.getPerunBl().getUsersManagerBl().removeUserExtSource(session, user, ceitecUes);
+				}
+
+			} else {
+				String newLogin = attribute.getValue() + "@" + CEITEC_PROXY_SCOPE;
+				if (ceitecUes == null) {
+					// Creating UES
+					ceitecUes = new UserExtSource(ceitecProxyIdp, 0, newLogin);
+					session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, ceitecUes);
+				} else {
+					// Updating UES
+					ceitecUes.setLogin(newLogin);
+					session.getPerunBl().getUsersManagerBl().updateUserExtSource(session, ceitecUes);
+				}
+
+			}
+
+		} catch (ExtSourceNotExistsException e) {
+			throw new InternalErrorException(
+					"Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
+							" require extSource with name (entityId): "+CEITEC_PROXY_ENTITY_ID+". User: "+user, e);
+		} catch (UserExtSourceAlreadyRemovedException e) {
+			throw new InternalErrorException(
+					"Inconsistency. Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
+							" tries to delete extSource but it does not exists. " +
+							"extSource with name (entityId): "+CEITEC_PROXY_ENTITY_ID+". User: "+user, e);
+		} catch (UserExtSourceExistsException e) {
+			throw new InternalErrorException(
+					"This module should check if ceitec login already exists " +
+							"and call update method.", e);
+		}
+
+
+	}
+
+	private UserExtSource getCeitecProxyUserExtSource(PerunSessionImpl session, User user, ExtSource ceitecExtSource) throws InternalErrorException {
+		UserExtSource ceitecProxyUserExtSource = null;
+
+		List<UserExtSource> uess = session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user);
+
+		for (UserExtSource ues : uess) {
+			if (ues.getExtSource().equals(ceitecExtSource) && ues.getLogin().endsWith("@"+CEITEC_PROXY_SCOPE)) {
+				if (ceitecProxyUserExtSource != null) {
+					throw new InternalErrorException("Multiple UserExtSourceLogins with Ceitec proxy IdP scope '" +
+							CEITEC_PROXY_SCOPE + "' founded for user: "+user);
+				}
+				ceitecProxyUserExtSource = ues;
+			}
+		}
+		return ceitecProxyUserExtSource;
+
 	}
 
 }
