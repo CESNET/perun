@@ -11,8 +11,6 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
 
-import java.util.LinkedHashMap;
-
 /**
  * Get phone number for VŠUP from all possibilities.
  *
@@ -45,6 +43,12 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
 				return attribute;
 			}
 
+			sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:opt:privatePhoneKos");
+			if (sourceAttribute.getValue() != null) {
+				attribute.setValue(sourceAttribute.getValue());
+				return attribute;
+			}
+
 			return attribute;
 
 		} catch (AttributeNotExistsException ex) {
@@ -61,7 +65,7 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
 		attr.setFriendlyName("preferredPhone");
 		attr.setDisplayName("Preferred phone");
 		attr.setType(String.class.getName());
-		attr.setDescription("Preferred phone resolved from phone, mobilePhone and privatePhone.");
+		attr.setDescription("Preferred phone resolved from phone, mobilePhone and privatePhone (both DC2 and KOS).");
 		return attr;
 	}
 
