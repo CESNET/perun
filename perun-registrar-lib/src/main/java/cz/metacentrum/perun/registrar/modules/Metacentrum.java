@@ -3,6 +3,7 @@ package cz.metacentrum.perun.registrar.modules;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.registrar.RegistrarManager;
 import cz.metacentrum.perun.registrar.RegistrarModule;
@@ -77,6 +78,9 @@ public class Metacentrum implements RegistrarModule {
 				group = perun.getGroupsManager().getGroupByName(session, app.getVo(), statisticGroupName);
 			} catch (GroupNotExistsException ex) {
 				// user filled non existing group, just skip adding
+				return app;
+			} catch (InternalErrorException ex) {
+				// wrong group name
 				return app;
 			}
 
