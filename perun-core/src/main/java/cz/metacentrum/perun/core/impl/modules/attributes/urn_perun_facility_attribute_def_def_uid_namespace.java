@@ -30,6 +30,8 @@ public class urn_perun_facility_attribute_def_def_uid_namespace extends Facility
 	 * Checks if the corresponding attribute u:uid-namespace:[namespace] exists.
 	 */
 	public void checkAttributeValue(PerunSessionImpl session, Facility facility, Attribute attribute) throws WrongAttributeValueException, WrongReferenceAttributeValueException, InternalErrorException, WrongAttributeAssignmentException {
+		if(attribute.getValue() == null) throw new WrongAttributeValueException(attribute, facility, "Missing uid namespace for facility.");
+
 		String userFacilityUidNamespaceAttributeName =
 			AttributesManager.NS_USER_ATTR_DEF + ":" + attribute.getFriendlyName() + ":" + (String) attribute.getValue();
 
