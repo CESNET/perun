@@ -62,23 +62,23 @@ sub TO_JSON
 		$titleAfter = undef;
 	}
 
-	my $isServiceUser;
-	if (defined($self->{_isServiceUser})) {
-		$isServiceUser = $self->{_isServiceUser};
+	my $serviceUser;
+	if (defined($self->{_serviceUser})) {
+		$serviceUser = $self->{_serviceUser};
 	} else {
-		$isServiceUser = undef;
+		$serviceUser = undef;
 	}
 
-	my $isSponsoredUser;
-	if (defined($self->{_isSponsoredUser})) {
-		$isSponsoredUser = $self->{_isSponsoredUser};
+	my $sponsoredUser;
+	if (defined($self->{_sponsoredUser})) {
+		$sponsoredUser = $self->{_sponsoredUser};
 	} else {
-		$isSponsoredUser = undef;
+		$sponsoredUser = undef;
 	}
 
 	return { id         => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
-		titleBefore     => $titleBefore, titleAfter => $titleAfter, isServiceUser => $isServiceUser,
-		isSponsoredUser => $isSponsoredUser };
+		titleBefore     => $titleBefore, titleAfter => $titleAfter, serviceUser => $serviceUser,
+		sponsoredUser => $sponsoredUser };
 }
 
 sub getId
@@ -171,50 +171,50 @@ sub setTitleAfter
 	return;
 }
 
-sub getIsServiceUser
+sub isServiceUser
 {
 	my $self = shift;
-	return ($self->{_isServiceUser}) ? 'true' : 'false';
+	return ($self->{_serviceUser}) ? 'true' : 'false';
 }
 
-sub setIsServiceUser
+sub setServiceUser
 {
 	my $self = shift;
 	my $value = shift;
 	if (ref $value eq "JSON::PP::Boolean")
 	{
-		$self->{_isServiceUser} = $value;
+		$self->{_serviceUser} = $value;
 	} elsif ($value eq 'true' || $value eq 1)
 	{
-		$self->{_isServiceUser} = JSON::PP::true;
+		$self->{_serviceUser} = JSON::PP::true;
 	} else
 	{
-		$self->{_isServiceUser} = JSON::PP::false;
+		$self->{_serviceUser} = JSON::PP::false;
 	}
 
 	return;
 }
 
-sub getIsSponsoredUser
+sub isSponsoredUser
 {
 	my $self = shift;
 
-	return ($self->{_isSponsoredUser}) ? 'true' : 'false';
+	return ($self->{_sponsoredUser}) ? 'true' : 'false';
 }
 
-sub setIsSponsoredUser
+sub setSponsoredUser
 {
 	my $self = shift;
 	my $value = shift;
 	if (ref $value eq "JSON::PP::Boolean")
 	{
-		$self->{_isSponsoredUser} = $value;
+		$self->{_sponsoredUser} = $value;
 	} elsif ($value eq 'true' || $value eq 1)
 	{
-		$self->{_isSponsoredUser} = JSON::PP::true;
+		$self->{_sponsoredUser} = JSON::PP::true;
 	} else
 	{
-		$self->{_isSponsoredUser} = JSON::PP::false;
+		$self->{_sponsoredUser} = JSON::PP::false;
 	}
 
 	return;
@@ -242,11 +242,11 @@ sub getSortingName {
 
 sub getCommonArrayRepresentation {
 	my $user = shift;
-	return ($user->getId, $user->getDisplayName, $user->getIsServiceUser, $user->getIsSponsoredUser);
+	return ($user->getId, $user->getDisplayName, $user->isServiceUser, $user->isSponsoredUser);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('Id', 'Name', 'IsServiceUser', 'IsSponsoredUser');
+	return ('Id', 'Name', 'ServiceUser', 'SponsoredUser');
 }
 
 
