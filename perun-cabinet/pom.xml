@@ -16,9 +16,6 @@
 
 	<name>perun-cabinet</name>
 	<description>Cabinet is a project which aims on retrieving publications from remote sources and allow to report them by perun's users.</description>
-	<scm>
-		<url>https://projekty.ics.muni.cz/perunv3/svn/trunk/perun/perun-cabinet</url>
-	</scm>
 
 	<!-- Properties - version -->
 	<properties>
