@@ -6,13 +6,7 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
@@ -21,15 +15,53 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Class for checking logins uniqueness and filling random unique ID.
+ * ID is defined as UUID.
  *
  * @author Michal Stava <stavamichal@gmail.com>
  */
 public class urn_perun_user_attribute_def_def_login_namespace_fedcloud extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_fedcloud.class);
+
+	/**
+	 * Checks if the user's login is unique in the namespace and pass the regular for UUID.
+	 *
+	 * @param sess PerunSession
+	 * @param user User to check attribute for
+	 * @param attribute Attribute to check value to
+	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
+	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException
+	 * @throws cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException
+	 */
+	@Override
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
+
+		String userLogin = (String) attribute.getValue();
+		if (userLogin == null) throw new WrongAttributeValueException(attribute, user, "Value can't be null");
+
+		//Check attribute regex
+		sess.getPerunBl().getModulesUtilsBl().checkAttributeRegex(attribute, "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+
+		// Get all users who have set attribute urn:perun:user:attribute-def:def:login-namespace:[login-namespace], with the value.
+		List<User> usersWithSameLogin = sess.getPerunBl().getUsersManagerBl().getUsersByAttribute(sess, attribute);
+
+		usersWithSameLogin.remove(user); //remove self
+		if (!usersWithSameLogin.isEmpty()) {
+			if(usersWithSameLogin.size() > 1) throw new ConsistencyErrorException("FATAL ERROR: Duplicated Login detected." +  attribute + " " + usersWithSameLogin);
+			throw new WrongAttributeValueException(attribute, user, "This login " + attribute.getValue() + " is already occupied.");
+		}
+
+		try {
+			sess.getPerunBl().getUsersManagerBl().checkReservedLogins(sess, attribute.getFriendlyNameParameter(), userLogin);
+		} catch (AlreadyReservedLoginException ex) {
+			throw new WrongAttributeValueException(attribute, user, "Login in specific namespace already reserved.", ex);
+		}
+	}
 
 	/**
 	 * Fill unique (not used) login for user defined as number starting from 1
@@ -52,23 +84,13 @@ public class urn_perun_user_attribute_def_def_login_namespace_fedcloud extends u
 			values.add((String) loginAttribute.getValue());
 		}
 
-		int iterator = 0;
-		while (iterator < Integer.MAX_VALUE) {
-			iterator++;
-			String login = String.valueOf(iterator);
-
-			if(values.contains(login)) {
-				//already used login
-				continue;
-			} else {
-				//this one is free
-				filledAttribute.setValue(login);
-				return filledAttribute;
-			}
+		String login = UUID.randomUUID().toString();
+		while(values.contains(login)) {
+			login = UUID.randomUUID().toString();
 		}
 
-		//we can't find any suitable login for fedcloud (all are already used or there is not allowed to use pure number format in common login module anymore), return empty value instead
-		return super.fillAttribute(perunSession, user, attribute);
+		filledAttribute.setValue(login);
+		return filledAttribute;
 	}
 
 	@Override
