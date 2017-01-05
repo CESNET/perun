@@ -8,12 +8,16 @@ import cz.metacentrum.perun.engine.model.Statistics;
 import cz.metacentrum.perun.taskslib.model.ExecService;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 public interface PropagationMaintainer {
 
+	/**
+	 * Check finished Tasks and return them to Dispatcher.
+	 * Check stuck Tasks and end them with error.
+	 */
 	void checkResults();
 
 	Statistics getStatistics();

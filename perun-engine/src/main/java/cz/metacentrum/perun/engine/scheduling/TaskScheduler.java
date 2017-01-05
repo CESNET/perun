@@ -10,9 +10,9 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 import cz.metacentrum.perun.taskslib.model.Task;
 
 /**
- * 
+ *
  * @author Michal Karm Babacek JavaDoc coming soon...
- * 
+ *
  */
 public interface TaskScheduler {
 
@@ -26,6 +26,11 @@ public interface TaskScheduler {
 
 	void rescheduleTask(Task task);
 
+	/**
+	 * Process new Tasks in pool and plan them
+	 *
+	 * @throws InternalErrorException
+	 */
 	void processPool() throws InternalErrorException;
 
 	int getPoolSize();
