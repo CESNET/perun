@@ -92,7 +92,7 @@ public class ExecService extends PerunBean implements Serializable {
 			return false;
 		if(this.getService() == null ? other.getService() != null : !this.getService().equals(other.getService())) 
 			return false;
-		if(this.getScript() == null ? other.getScript() == null : !this.getScript().equals(other.getScript())) 
+		if(this.getScript() == null ? other.getScript() != null : !this.getScript().equals(other.getScript())) 
 			return false;
 		return true;
 	}
