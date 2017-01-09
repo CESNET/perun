@@ -2,6 +2,7 @@ package cz.metacentrum.perun.cabinet.strategy;
 
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.service.CabinetException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 
@@ -36,6 +37,6 @@ public interface IFindPublicationsStrategy {
 	 * @param response HTTP response returned from external PS
 	 * @return List of user's publications. Empty list if nothing found.
 	 */
-	List<Publication> parseHttpResponse(HttpResponse response);
+	List<Publication> parseHttpResponse(HttpResponse response) throws CabinetException;
 
 }
