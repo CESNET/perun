@@ -81,7 +81,7 @@ public class OBD30Strategy implements IFindPublicationsStrategy {
 		try {
 			uri = new URI(ps.getUrl() + URLEncodedUtils.format(formparams, "UTF-8"));
 			// log response into /var/log/perun/perun-cabinet.log
-			// log.debug(uri)
+			//log.debug("URI: {}", uri);
 
 		} catch (URISyntaxException e) {
 			log.error("Wrong URL syntax for contacting OBD 3.0 publication system.", e);
@@ -131,7 +131,7 @@ public class OBD30Strategy implements IFindPublicationsStrategy {
 		XPath xpath = xPathfactory.newXPath();
 		XPathExpression publicationsQuery;
 		try {
-			publicationsQuery = xpath.compile("/zaznam");
+			publicationsQuery = xpath.compile("/zaznamy/zaznam");
 		} catch (XPathExpressionException ex) {
 			throw new CabinetException("Error when compiling xpath query.", ex);
 		}
@@ -176,34 +176,38 @@ public class OBD30Strategy implements IFindPublicationsStrategy {
 
 		Publication publication = new Publication();
 
-		publication.setExternalId(((Double)getValueFromXpath(node, "./@id/text()", XPathConstants.NUMBER)).intValue());
-
-		int year = ((Double)getValueFromXpath(node, "./rok/text()", XPathConstants.NUMBER)).intValue();
-		publication.setYear(year);
+		publication.setExternalId(Integer.valueOf(node.getAttributes().getNamedItem("id").getNodeValue()));
 
 		NodeList titleList = (NodeList) getValueFromXpath(node, "./titul_list/titul", XPathConstants.NODESET);
 		for(int i=0; i<titleList.getLength(); i++) {
 			Node singleNode = titleList.item(i);
-			String title = (String)getValueFromXpath(singleNode, "./original/text()", XPathConstants.STRING);
-			if ("Ne".equalsIgnoreCase(title)) {
+
+			String original = (String)getValueFromXpath(singleNode, "./original/text()", XPathConstants.STRING);
+			// use original name (language) of publication
+			if ("ano".equalsIgnoreCase(original)) {
+				String title = (String) getValueFromXpath(singleNode, "./nazev/text()", XPathConstants.STRING);
 				publication.setTitle((title != null) ? title : "");
 			}
+
 		}
-
-		String title = (String) getValueFromXpath(node, "./titul_list//text()", XPathConstants.STRING);
-		publication.setTitle((title != null) ? title : "");
-
-		String source = (String) getValueFromXpath(node, "./zdroj_nazev/text()", XPathConstants.STRING);
-		source = (source != null) ? source : "";
-
-		String source_year = (String) getValueFromXpath(node, "./rocnik/text()", XPathConstants.STRING);
-		source_year = (source_year != null) ? source_year : "";
 
 		String isbn = (String) getValueFromXpath(node, "./isbn/text()", XPathConstants.STRING);
 		isbn = (isbn != null) ? isbn : "";
 
 		String issn = (String) getValueFromXpath(node, "./issn/text()", XPathConstants.STRING);
 		issn = (issn != null) ? issn : "";
+
+		if (!issn.isEmpty()) publication.setIsbn(issn);
+		if (!isbn.isEmpty()) publication.setIsbn(isbn);
+
+		int year = ((Double)getValueFromXpath(node, "./rok/text()", XPathConstants.NUMBER)).intValue();
+		publication.setYear(year);
+
+		String source = (String) getValueFromXpath(node, "./zdroj_nazev/text()", XPathConstants.STRING);
+		source = (source != null) ? source : "";
+
+		String source_year = (String) getValueFromXpath(node, "./rocnik/text()", XPathConstants.STRING);
+		source_year = (source_year != null) ? source_year : "";
 
 		String pages = (String) getValueFromXpath(node, "./strany/text()", XPathConstants.STRING);
 		pages = (pages != null) ? pages : "";

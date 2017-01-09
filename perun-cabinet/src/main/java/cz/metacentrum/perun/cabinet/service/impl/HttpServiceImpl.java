@@ -29,8 +29,8 @@ public class HttpServiceImpl implements IHttpService {
 	public HttpResponse execute(HttpUriRequest request) throws CabinetException {
 
 		final HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 30000);
-		HttpConnectionParams.setSoTimeout(httpParams, 30000);
+		HttpConnectionParams.setConnectionTimeout(httpParams, 300000);
+		HttpConnectionParams.setSoTimeout(httpParams, 300000);
 		HttpClient httpClient = new DefaultHttpClient(httpParams);
 		HttpResponse response = null;
 		try {
