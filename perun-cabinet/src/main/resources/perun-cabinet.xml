@@ -22,9 +22,9 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
 	<!-- add transaction support for delete publication  -->
 	<aop:config>
-		<aop:advisor advice-ref="txDeletePublication" pointcut="execution(* cz.metacentrum.perun.cabinet.service.IPublicationService.deletePublicationById(..))"/>
-		<aop:advisor advice-ref="txCreateAuthorship" pointcut="execution(* cz.metacentrum.perun.cabinet.service.IAuthorshipService.createAuthorship(..))"/>
-		<aop:advisor advice-ref="txDeleteAuthorship" pointcut="execution(* cz.metacentrum.perun.cabinet.service.IAuthorshipService.deleteAuthorshipById(..))"/>
+		<aop:advisor advice-ref="txDeletePublication" pointcut="execution(* cz.metacentrum.perun.cabinet.bl.PublicationManagerBl.deletePublicationById(..))"/>
+		<aop:advisor advice-ref="txCreateAuthorship" pointcut="execution(* cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl.createAuthorship(..))"/>
+		<aop:advisor advice-ref="txDeleteAuthorship" pointcut="execution(* cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl.deleteAuthorshipById(..))"/>
 	</aop:config>
 	<tx:advice id="txDeletePublication" transaction-manager="perunTransactionManager">
 		<tx:attributes>
@@ -48,11 +48,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	</bean>
 
 	<!-- MyBatis mapper beans -->
-	<bean id="publicationSystemMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-		<property name="mapperInterface"
-		          value="cz.metacentrum.perun.cabinet.dao.mybatis.PublicationSystemMapper" />
-		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
-	</bean>
 	<bean id="categoryMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
 		<property name="mapperInterface"
 		          value="cz.metacentrum.perun.cabinet.dao.mybatis.CategoryMapper" />
@@ -76,102 +71,90 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
 	<!-- dao classes beans -->
 
-	<bean id="publicationDao"
-	      class="cz.metacentrum.perun.cabinet.dao.impl.PublicationDaoImpl">
+	<bean id="publicationManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.PublicationManagerDaoImpl">
 		<property name="publicationMapper" ref="publicationMapper" />
 	</bean>
 
-	<bean id="publicationSystemDao"
-	      class="cz.metacentrum.perun.cabinet.dao.impl.PublicationSystemDaoImpl">
-		<property name="publicationSystemMapper" ref="publicationSystemMapper" />
+	<bean id="publicationSystemManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.PublicationSystemManagerDaoImpl">
+		<constructor-arg ref="dataSource" />
 	</bean>
 
-	<bean id="authorshipDao" class="cz.metacentrum.perun.cabinet.dao.impl.AuthorshipDaoImpl">
+	<bean id="authorshipManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl">
 		<property name="authorshipMapper" ref="authorshipMapper" />
 	</bean>
 
-	<bean id="thanksDao" class="cz.metacentrum.perun.cabinet.dao.impl.ThanksDaoImpl">
+	<bean id="thanksManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl">
 		<property name="thanksMapper" ref="thanksMapper" />
 	</bean>
 
-	<bean id="categoryDao" class="cz.metacentrum.perun.cabinet.dao.impl.CategoryDaoImpl">
+	<bean id="categoryManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.CategoryManagerDaoImpl">
 		<property name="categoryMapper" ref="categoryMapper" />
 	</bean>
 
-	<!-- service classes beans -->
+	<!-- BL classes beans -->
 
-	<bean id="perunService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.PerunServiceImpl" init-method="initialize">
-		<property name="thanksDao" ref="thanksDao" />
+	<bean id="perunManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PerunManagerBlImpl" init-method="initialize">
+		<property name="thanksManagerDao" ref="thanksManagerDao" />
 	</bean>
 
-	<bean id="publicationSystemService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.PublicationSystemServiceImpl"
-	      init-method="initialize">
-		<property name="publicationSystemDao" ref="publicationSystemDao" />
+	<bean id="publicationSystemManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl" init-method="initialize">
+		<property name="publicationSystemManagerDao" ref="publicationSystemManagerDao" />
 	</bean>
 
-	<bean id="publicationService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.PublicationServiceImpl">
-		<property name="publicationDao" ref="publicationDao" />
-		<property name="authorshipService" ref="authorshipService" />
-		<property name="authorService" ref="authorService" />
-		<property name="publicationSystemService" ref="publicationSystemService" />
-		<property name="perunService" ref="perunService" />
-		<property name="thanksService" ref="thanksService" />
+	<bean id="publicationManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PublicationManagerBlImpl">
+		<property name="publicationManagerDao" ref="publicationManagerDao" />
+		<property name="authorshipService" ref="authorshipManagerBl" />
+		<property name="authorService" ref="authorManagerBl" />
+		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
+		<property name="perunService" ref="perunManagerBl" />
+		<property name="thanksService" ref="thanksManagerBl" />
 	</bean>
 
-	<bean id="categoryService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.CategoryServiceImpl">
-		<property name="categoryDao" ref="categoryDao" />
-		<property name="perunService" ref="perunService" />
-		<property name="publicationService" ref="publicationService" />
-		<property name="authorshipService" ref="authorshipService" />
-		<property name="authorService" ref="authorService" />
+	<bean id="categoryManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CategoryManagerBlImpl">
+		<property name="categoryManagerDao" ref="categoryManagerDao" />
+		<property name="perunService" ref="perunManagerBl" />
+		<property name="publicationService" ref="publicationManagerBl" />
+		<property name="authorshipService" ref="authorshipManagerBl" />
+		<property name="authorService" ref="authorManagerBl" />
 	</bean>
 
-	<bean id="authorService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.AuthorServiceImpl">
-		<property name="authorshipDao" ref="authorshipDao" />
+	<bean id="authorManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.AuthorManagerBlImpl">
+		<property name="authorshipManagerDao" ref="authorshipManagerDao" />
 	</bean>
 
-	<bean id="authorshipService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.AuthorshipServiceImpl">
-		<property name="authorshipDao" ref="authorshipDao" />
-		<property name="publicationService" ref="publicationService" />
-		<property name="categoryService" ref="categoryService" />
-		<property name="authorService" ref="authorService" />
-		<property name="perunService" ref="perunService" />
+	<bean id="authorshipManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.AuthorshipServiceImpl">
+		<property name="authorshipManagerDao" ref="authorshipManagerDao" />
+		<property name="publicationService" ref="publicationManagerBl" />
+		<property name="categoryService" ref="categoryManagerBl" />
+		<property name="authorService" ref="authorManagerBl" />
+		<property name="perunService" ref="perunManagerBl" />
 	</bean>
 
-	<bean id="thanksService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.ThanksServiceImpl">
-		<property name="thanksDao" ref="thanksDao" />
-		<property name="authorService" ref="authorService" />
-		<property name="perunService" ref="perunService" />
+	<bean id="thanksManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.ThanksManagerBlImpl">
+		<property name="thanksManagerDao" ref="thanksManagerDao" />
+		<property name="authorService" ref="authorManagerBl" />
+		<property name="perunService" ref="perunManagerBl" />
 	</bean>
 
-	<bean id="httpService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.HttpServiceImpl" />
+	<bean id="httpManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.HttpManagerBlImpl" />
 
-	<bean id="cabinetService"
-	      class="cz.metacentrum.perun.cabinet.service.impl.CabinetServiceImpl">
-		<property name="perunService" ref="perunService" />
-		<property name="httpService" ref="httpService" />
-		<property name="publicationSystemService" ref="publicationSystemService" />
+	<bean id="cabinetManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CabinetManagerBlImpl">
+		<property name="perunService" ref="perunManagerBl" />
+		<property name="httpService" ref="httpManagerBl" />
+		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
 	</bean>
 
 	<!-- api classes beans -->
 
 	<bean id="cabinetApi" class="cz.metacentrum.perun.cabinet.api.impl.CabinetApiImpl">
-		<property name="cabinetService" ref="cabinetService" />
-		<property name="publicationService" ref="publicationService" />
-		<property name="authorService" ref="authorService" />
-		<property name="authorshipService" ref="authorshipService" />
-		<property name="thanksService" ref="thanksService" />
-		<property name="categoryService" ref="categoryService" />
-		<property name="publicationSystemService" ref="publicationSystemService" />
-		<property name="perunService" ref="perunService" />
+		<property name="cabinetService" ref="cabinetManagerBl" />
+		<property name="publicationService" ref="publicationManagerBl" />
+		<property name="authorService" ref="authorManagerBl" />
+		<property name="authorshipService" ref="authorshipManagerBl" />
+		<property name="thanksService" ref="thanksManagerBl" />
+		<property name="categoryService" ref="categoryManagerBl" />
+		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
+		<property name="perunService" ref="perunManagerBl" />
 	</bean>
 
 	<!-- Define compatibility layer for DB specific queries -->

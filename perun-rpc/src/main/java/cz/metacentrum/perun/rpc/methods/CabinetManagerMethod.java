@@ -17,7 +17,7 @@ import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
 
 public enum CabinetManagerMethod implements ManagerMethod {
 
@@ -316,12 +316,12 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-		* Returns all PublicationSystems.
-		* @return List<PublicationSystem> Publication systems
-		*/
+	 * Returns all PublicationSystems.
+	 * @return List<PublicationSystem> Publication systems
+	 */
 	findAllPublicationSystems {
 		public 	List<PublicationSystem> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetManager().findAllPublicationSystems();
+			return ac.getCabinetManager().getPublicationSystems();
 		}
 	},
 

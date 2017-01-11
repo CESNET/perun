@@ -5,25 +5,26 @@ import static org.junit.Assert.*;
 import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.bl.impl.AuthorshipServiceImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
-import cz.metacentrum.perun.cabinet.dao.IAuthorshipDao;
+import cz.metacentrum.perun.cabinet.dao.AuthorshipManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
-import cz.metacentrum.perun.cabinet.service.ErrorCodes;
-import cz.metacentrum.perun.cabinet.service.IAuthorshipService;
-import cz.metacentrum.perun.cabinet.service.SortParam;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
+import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
 public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 
 	@Autowired
-	private IAuthorshipService authorshipService;
+	private AuthorshipManagerBl authorshipService;
 
 	@Autowired
 	PerunBl perun;
@@ -150,9 +151,9 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 		System.out.println("AuthorshipServiceImpl.findAuthorshipsByFilterSPTest");
 
 		//do not use db
-		IAuthorshipDao authorshipDao = Mockito.mock(IAuthorshipDao.class);
+		AuthorshipManagerDao authorshipManagerDao = Mockito.mock(AuthorshipManagerDao.class);
 		AuthorshipServiceImpl authorshipService = new AuthorshipServiceImpl();
-		authorshipService.setAuthorshipDao(authorshipDao);
+		authorshipService.setAuthorshipManagerDao(authorshipManagerDao);
 
 		Authorship report = new Authorship();
 		SortParam sortParam = new SortParam(0, 0, "userIdColumn", false);
@@ -164,7 +165,7 @@ public class AuthorshipServiceImplTest extends BaseIntegrationTest {
 		authorshipService.findAuthorshipsByFilter(report, sortParam2);
 	}
 
-	public void setAuthorshipService(IAuthorshipService authorshipService) {
+	public void setAuthorshipService(AuthorshipManagerBl authorshipService) {
 		this.authorshipService = authorshipService;
 	}
 

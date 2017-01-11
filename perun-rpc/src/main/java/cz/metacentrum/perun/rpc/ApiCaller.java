@@ -6,13 +6,13 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import cz.metacentrum.perun.cabinet.api.CabinetApi;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.oidc.OIDC;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import cz.metacentrum.perun.cabinet.api.ICabinetApi;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.controller.service.PropagationStatsReader;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -89,7 +89,7 @@ public class ApiCaller {
 	private SecurityTeamsManager securityTeamsManager = null;
 	private PropagationStatsReader propagationStatsReader;
 	private Searcher searcher = null;
-	private ICabinetApi cabinetManager;
+	private CabinetApi cabinetManager;
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
 	private VOOT vootManager = null;
@@ -213,7 +213,7 @@ public class ApiCaller {
 		return propagationStatsReader;
 	}
 
-	public ICabinetApi getCabinetManager() {
+	public CabinetApi getCabinetManager() {
 		return cabinetManager;
 	}
 
@@ -413,7 +413,7 @@ public class ApiCaller {
 		this.propagationStatsReader = WebApplicationContextUtils.getWebApplicationContext(context).getBean("propagationStatsReader", PropagationStatsReader.class);
 
 		// Initialize ICabinetApi (cabinet manager)
-		this.cabinetManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("cabinetApi", ICabinetApi.class);
+		this.cabinetManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("cabinetApi", CabinetApi.class);
 
 		// Initialize RegistrarManager
 		this.registrarManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("registrarManager", RegistrarManager.class);

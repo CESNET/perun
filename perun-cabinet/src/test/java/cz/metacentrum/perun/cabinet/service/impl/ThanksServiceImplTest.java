@@ -12,16 +12,16 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.cabinet.model.Thanks;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
-import cz.metacentrum.perun.cabinet.service.ErrorCodes;
-import cz.metacentrum.perun.cabinet.service.IThanksService;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 
 public class ThanksServiceImplTest extends BaseIntegrationTest {
 
 	@Autowired
-	private IThanksService thanksService;
+	private ThanksManagerBl thanksService;
 
-	public void setThanksService(IThanksService thanksService) {
+	public void setThanksService(ThanksManagerBl thanksService) {
 		this.thanksService = thanksService;
 	}
 

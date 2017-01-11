@@ -15,16 +15,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import cz.metacentrum.perun.cabinet.dao.IAuthorshipDao;
-import cz.metacentrum.perun.cabinet.dao.ICategoryDao;
-import cz.metacentrum.perun.cabinet.dao.IPublicationDao;
-import cz.metacentrum.perun.cabinet.dao.IPublicationSystemDao;
+import cz.metacentrum.perun.cabinet.dao.AuthorshipManagerDao;
+import cz.metacentrum.perun.cabinet.dao.CategoryManagerDao;
+import cz.metacentrum.perun.cabinet.dao.PublicationManagerDao;
+import cz.metacentrum.perun.cabinet.dao.PublicationSystemManagerDao;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.service.IAuthorService;
-import cz.metacentrum.perun.cabinet.service.IPerunService;
+import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
+import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -46,40 +46,40 @@ public class BaseIntegrationTest {
 	private boolean init = false;
 	private int p1Id;
 
-	@Autowired protected IAuthorshipDao authorshipDao;
-	@Autowired protected ICategoryDao categoryDao;
-	@Autowired protected IPublicationDao publicationDao;
-	@Autowired protected IPublicationSystemDao publicationSystemDao;
-	@Autowired protected IPerunService perunService;
-	@Autowired protected IAuthorService authorService;
+	@Autowired protected AuthorshipManagerDao authorshipManagerDao;
+	@Autowired protected CategoryManagerDao categoryManagerDao;
+	@Autowired protected PublicationManagerDao publicationManagerDao;
+	@Autowired protected PublicationSystemManagerDao publicationSystemManagerDao;
+	@Autowired protected PerunManagerBl perunService;
+	@Autowired protected AuthorManagerBl authorService;
 	@Autowired protected Properties cabinetProperties;
 	@Autowired PerunBl perun;
 	PerunSession sess;
 
 	// setters -------------------------
 
-	public void setPerunService(IPerunService perunService) {
+	public void setPerunService(PerunManagerBl perunService) {
 		this.perunService = perunService;
 	}
 
-	public void setAuthorService(IAuthorService authorService) {
+	public void setAuthorService(AuthorManagerBl authorService) {
 		this.authorService = authorService;
 	}
 
-	public void setReportDao(IAuthorshipDao reportDao) {
-		this.authorshipDao = reportDao;
+	public void setReportDao(AuthorshipManagerDao reportDao) {
+		this.authorshipManagerDao = reportDao;
 	}
 
-	public void setCategoryDao(ICategoryDao categoryDao) {
-		this.categoryDao = categoryDao;
+	public void setCategoryManagerDao(CategoryManagerDao categoryManagerDao) {
+		this.categoryManagerDao = categoryManagerDao;
 	}
 
-	public void setPublicationDao(IPublicationDao publicationDao) {
-		this.publicationDao = publicationDao;
+	public void setPublicationManagerDao(PublicationManagerDao publicationManagerDao) {
+		this.publicationManagerDao = publicationManagerDao;
 	}
 
-	public void setPublicationSystemDao(IPublicationSystemDao publicationSystemDao) {
-		this.publicationSystemDao = publicationSystemDao;
+	public void setPublicationSystemManagerDao(PublicationSystemManagerDao publicationSystemManagerDao) {
+		this.publicationSystemManagerDao = publicationSystemManagerDao;
 	}
 
 	public void setCabinetProperties(Properties cabinetProperties) {
@@ -115,7 +115,7 @@ public class BaseIntegrationTest {
 		// category
 
 		c1 = new Category(null, "patent", 3.9);
-		int categoryId = categoryDao.createCategory(c1);
+		int categoryId = categoryManagerDao.createCategory(c1);
 		c1.setId(categoryId);
 
 		// publication systems
@@ -126,10 +126,8 @@ public class BaseIntegrationTest {
 		ps.setUrl("http://obd.zcu.cz:6443/fcgi/verso.fpl?");
 		ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.OBD30Strategy");
 
-		int id = publicationSystemDao.createPublicationSystem(ps);
-		pubSysZcu = ps;
-
-		assertTrue(id > 0);
+		pubSysZcu = publicationSystemManagerDao.createPublicationSystem(ps);
+		assertTrue(pubSysZcu.getId() > 0);
 
 		PublicationSystem ps2 = new PublicationSystem();
 		ps2.setFriendlyName("Masarykova Univerzita - Prezentátor");
@@ -139,10 +137,8 @@ public class BaseIntegrationTest {
 		ps2.setPassword(cabinetProperties.getProperty("perun.cabinet.mu.password"));
 		ps2.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
 
-		int id2 = publicationSystemDao.createPublicationSystem(ps2);
-		pubSysMu = ps2;
-
-		assertTrue(id2 > 0);
+		pubSysMu = publicationSystemManagerDao.createPublicationSystem(ps2);
+		assertTrue(pubSysMu.getId() > 0);
 
 		// create publication
 
@@ -174,9 +170,9 @@ public class BaseIntegrationTest {
 		p2.setLocked(false);
 		p2.setDoi("DOI2");
 
-		p1Id = publicationDao.createPublication(sess, p1);
+		p1Id = publicationManagerDao.createPublication(sess, p1);
 		p1.setId(p1Id);
-		int p2Id = publicationDao.createPublication(sess, p2);
+		int p2Id = publicationManagerDao.createPublication(sess, p2);
 		p2.setId(p2Id);
 
 		publicationOne = p1;
@@ -194,9 +190,9 @@ public class BaseIntegrationTest {
 		a2.setPublicationId(p1.getId()); // for PUB 1
 		a2.setUserId(USER_ID_2);
 
-		int aId1 = authorshipDao.create(a1);
+		int aId1 = authorshipManagerDao.create(a1);
 		a1.setId(aId1);
-		int aId2 = authorshipDao.create(a2);
+		int aId2 = authorshipManagerDao.create(a2);
 		a2.setId(aId2);
 
 		authorshipOne = a1;

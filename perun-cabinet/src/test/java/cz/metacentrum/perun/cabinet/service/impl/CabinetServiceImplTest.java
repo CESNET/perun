@@ -11,16 +11,16 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
-import cz.metacentrum.perun.cabinet.service.ErrorCodes;
-import cz.metacentrum.perun.cabinet.service.ICabinetService;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 
 public class CabinetServiceImplTest extends BaseIntegrationTest {
 
-	private ICabinetService cabinetService;
+	private CabinetManagerBl cabinetService;
 
 	@Autowired
-	public void setCabinetService(ICabinetService cabinetService) {
+	public void setCabinetService(CabinetManagerBl cabinetService) {
 		this.cabinetService = cabinetService;
 	}
 

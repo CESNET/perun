@@ -11,23 +11,23 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
-import cz.metacentrum.perun.cabinet.service.ErrorCodes;
-import cz.metacentrum.perun.cabinet.service.IPublicationService;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 
 public class PublicationServiceImplTest extends BaseIntegrationTest {
 
 	@Autowired
-	private IPublicationService publicationService;
+	private PublicationManagerBl publicationService;
 
-	public void setPublicationService(IPublicationService publicationService) {
+	public void setPublicationService(PublicationManagerBl publicationService) {
 		this.publicationService = publicationService;
 	}
 
 	// ------------- TESTS --------------------------------------------
 
 	@Test
-	public void createPublicationTest() throws CabinetException {
+	public void createPublicationTest() throws Exception {
 		System.out.println("PublicationServiceImpl.createPublicationTest");
 
 		Publication p = new Publication();
@@ -53,7 +53,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void createInternalPublicationTest() throws CabinetException {
+	public void createInternalPublicationTest() throws Exception {
 		System.out.println("PublicationServiceImpl.createInternalPublicationTest");
 
 		Publication p = new Publication();
@@ -225,7 +225,7 @@ public class PublicationServiceImplTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void stripPublicationParams() throws CabinetException {
+	public void stripPublicationParams() throws Exception {
 		System.out.println("PublicationServiceImpl.stripPublicationParams");
 
 		Publication p = new Publication();

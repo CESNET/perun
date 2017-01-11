@@ -3,7 +3,7 @@ package cz.metacentrum.perun.cabinet.api.impl;
 import java.util.Date;
 import java.util.List;
 
-import cz.metacentrum.perun.cabinet.api.ICabinetApi;
+import cz.metacentrum.perun.cabinet.api.CabinetApi;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
@@ -15,18 +15,19 @@ import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
-import cz.metacentrum.perun.cabinet.service.ErrorCodes;
-import cz.metacentrum.perun.cabinet.service.IAuthorService;
-import cz.metacentrum.perun.cabinet.service.IAuthorshipService;
-import cz.metacentrum.perun.cabinet.service.ICabinetService;
-import cz.metacentrum.perun.cabinet.service.ICategoryService;
-import cz.metacentrum.perun.cabinet.service.IPerunService;
-import cz.metacentrum.perun.cabinet.service.IPublicationService;
-import cz.metacentrum.perun.cabinet.service.IPublicationSystemService;
-import cz.metacentrum.perun.cabinet.service.IThanksService;
-import cz.metacentrum.perun.cabinet.service.SortParam;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
+import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
+import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
+import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
+import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
+import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
+import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
+import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
+import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 
 /**
@@ -36,57 +37,57 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class CabinetApiImpl implements ICabinetApi {
+public class CabinetApiImpl implements CabinetApi {
 
 	private static final long serialVersionUID = 1L;
 
-	private ICabinetService cabinetService;
-	private IPublicationService publicationService;
-	private IAuthorService authorService;
-	private IAuthorshipService authorshipService;
-	private IThanksService thanksService;
-	private ICategoryService categoryService;
-	private IPerunService perunService;
-	private IPublicationSystemService publicationSystemService;
+	private CabinetManagerBl cabinetService;
+	private PublicationManagerBl publicationService;
+	private AuthorManagerBl authorService;
+	private AuthorshipManagerBl authorshipService;
+	private ThanksManagerBl thanksService;
+	private CategoryManagerBl categoryService;
+	private PerunManagerBl perunService;
+	private PublicationSystemManagerBl publicationSystemManagerBl;
 
 	// setters ==============================================
 
-	public void setCabinetService(ICabinetService cabinetService) {
+	public void setCabinetService(CabinetManagerBl cabinetService) {
 		this.cabinetService = cabinetService;
 	}
 
-	public void setPublicationService(IPublicationService publicationService) {
+	public void setPublicationService(PublicationManagerBl publicationService) {
 		this.publicationService = publicationService;
 	}
 
-	public void setAuthorService(IAuthorService authorService) {
+	public void setAuthorService(AuthorManagerBl authorService) {
 		this.authorService = authorService;
 	}
 
-	public void setAuthorshipService(IAuthorshipService authorshipService) {
+	public void setAuthorshipService(AuthorshipManagerBl authorshipService) {
 		this.authorshipService = authorshipService;
 	}
 
-	public void setThanksService(IThanksService thanksService) {
+	public void setThanksService(ThanksManagerBl thanksService) {
 		this.thanksService = thanksService;
 	}
 
-	public void setCategoryService(ICategoryService categoryService) {
+	public void setCategoryService(CategoryManagerBl categoryService) {
 		this.categoryService = categoryService;
 	}
 
-	public void setPerunService(IPerunService perunService) {
+	public void setPerunService(PerunManagerBl perunService) {
 		this.perunService = perunService;
 	}
 
-	public void setPublicationSystemService(IPublicationSystemService publicationSystemService) {
-		this.publicationSystemService = publicationSystemService;
+	public void setPublicationSystemManagerBl(PublicationSystemManagerBl publicationSystemManagerBl) {
+		this.publicationSystemManagerBl = publicationSystemManagerBl;
 	}
 
 	// delegate methods =======================================
 
 
-	public List<Publication> findExternalPublications(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException {
+	public List<Publication> findExternalPublications(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException, InternalErrorException {
 		return cabinetService.findExternalPublicationsOfUser(sess, userId, yearSince, yearTill, pubSysNamespace);
 	}
 
@@ -94,7 +95,7 @@ public class CabinetApiImpl implements ICabinetApi {
 		return perunService.findAllOwners(sess);
 	}
 
-	public int createPublication(PerunSession sess, Publication p) throws CabinetException {
+	public int createPublication(PerunSession sess, Publication p) throws CabinetException, InternalErrorException {
 		return this.publicationService.createPublication(sess, p);
 	}
 
@@ -239,10 +240,9 @@ public class CabinetApiImpl implements ICabinetApi {
 		return publicationService.getPublicationsCount();
 	}
 
-	public PublicationSystem findPublicationSystemById(
-			Integer publicationSystemId) {
-		return publicationSystemService.findPublicationSystemById(publicationSystemId);
-			}
+	public PublicationSystem getPublicationSystemById(int publicationSystemId) throws CabinetException, InternalErrorException {
+		return publicationSystemManagerBl.getPublicationSystemById(publicationSystemId);
+	}
 
 	public int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException {
 		return publicationService.updatePublicationById(sess, publication);
@@ -280,8 +280,8 @@ public class CabinetApiImpl implements ICabinetApi {
 		return thanksService.deleteThanksById(sess, id);
 	}
 
-	public List<PublicationSystem> findAllPublicationSystems() {
-		return publicationSystemService.findAllPublicationSystems();
+	public List<PublicationSystem> getPublicationSystems() throws InternalErrorException {
+		return publicationSystemManagerBl.getPublicationSystems();
 	}
 
 	public int lockPublications(PerunSession sess, boolean lockState, List<Publication> pubs) throws CabinetException {

@@ -2,7 +2,7 @@ package cz.metacentrum.perun.cabinet.strategy;
 
 import java.util.List;
 
-import cz.metacentrum.perun.cabinet.service.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 

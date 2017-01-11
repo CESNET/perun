@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.cabinet.model.Author;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
-import cz.metacentrum.perun.cabinet.service.IAuthorService;
-import cz.metacentrum.perun.cabinet.service.IPerunService;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
+import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
@@ -21,8 +21,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 
 public class PerunServiceImplTest extends BaseIntegrationTest {
 
-	@Autowired protected IPerunService perunService;
-	@Autowired protected IAuthorService authorService;
+	@Autowired protected PerunManagerBl perunService;
+	@Autowired protected AuthorManagerBl authorService;
 	@Autowired protected PerunBl perun;
 
 	@Test
@@ -72,11 +72,11 @@ public class PerunServiceImplTest extends BaseIntegrationTest {
 
 	// setters -------------------------------------------
 
-	public void setPerunService(IPerunService perunService) {
+	public void setPerunService(PerunManagerBl perunService) {
 		this.perunService = perunService;
 	}
 
-	public void setAuthorService(IAuthorService authorService) {
+	public void setAuthorService(AuthorManagerBl authorService) {
 		this.authorService = authorService;
 	}
 

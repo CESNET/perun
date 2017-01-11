@@ -9,14 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import cz.metacentrum.perun.cabinet.model.Category;
-import cz.metacentrum.perun.cabinet.service.ICategoryService;
+import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
 
 public class CategoryServiceTest extends BaseIntegrationTest {
 
-	private ICategoryService categoryService;
+	private CategoryManagerBl categoryService;
 
 	@Autowired
-	public void setCategoryService(ICategoryService categoryService) {
+	public void setCategoryService(CategoryManagerBl categoryService) {
 		this.categoryService = categoryService;
 	}
 
