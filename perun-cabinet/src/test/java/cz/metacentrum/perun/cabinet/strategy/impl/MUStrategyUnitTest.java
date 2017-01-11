@@ -13,15 +13,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Unit test for MU PublicationSystem strategy
+ *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class MUStrategyTest {
+public class MUStrategyUnitTest {
 
 	private MUStrategy muStrategy = new MUStrategy();
 
 	@Test
 	public void getHttpRequest() throws Exception {
-		System.out.println("MUStrategyTest.getHttpRequest");
+		System.out.println("MUStrategyUnitTest.getHttpRequest");
 
 		PublicationSystem ps = new PublicationSystem();
 		ps.setLoginNamespace("mu");
@@ -36,7 +38,7 @@ public class MUStrategyTest {
 
 	@Test
 	public void parseResponse() throws Exception {
-		System.out.println("MUStrategyTest.parseResponse");
+		System.out.println("MUStrategyUnitTest.parseResponse");
 
 		List<Publication> publications = muStrategy.parseResponse(muPublicationsResponse);
 
@@ -73,7 +75,7 @@ public class MUStrategyTest {
 
 	@Test
 	public void buildRequestKeyfile() throws Exception {
-		System.out.println("MUStrategyTest.buildRequestKeyfile");
+		System.out.println("MUStrategyUnitTest.buildRequestKeyfile");
 
 		String result = muStrategy.buildRequestKeyfile(39700, 2008, 2010);
 		assertNotNull(result);
@@ -86,7 +88,7 @@ public class MUStrategyTest {
 
 	@Test
 	public void buildYearsCriteria() throws Exception {
-		System.out.println("MUStrategyTest.buildYearsCriteria");
+		System.out.println("MUStrategyUnitTest.buildYearsCriteria");
 
 		String keyfile = MUStrategy.buildYearsCriteria(2008, 2010);
 		String expected = "<PUBL_AUTOR UCO=\"uco\"/> and (<PUBL_ROK ROK=\"2008\"/> or "+

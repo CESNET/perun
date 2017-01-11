@@ -9,9 +9,9 @@ import org.junit.Test;
 
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.bl.SortParam;
-import cz.metacentrum.perun.cabinet.service.impl.BaseIntegrationTest;
+import cz.metacentrum.perun.cabinet.service.impl.CabinetBaseIntegrationTest;
 
-public class AuthorshipManagerDaoImplTest extends BaseIntegrationTest {
+public class AuthorshipManagerDaoImplTest extends CabinetBaseIntegrationTest {
 
 
 	@Test

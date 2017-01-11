@@ -19,7 +19,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
-public class PerunServiceImplTest extends BaseIntegrationTest {
+public class PerunServiceImplTest extends CabinetBaseIntegrationTest {
 
 	@Autowired protected PerunManagerBl perunService;
 	@Autowired protected AuthorManagerBl authorService;

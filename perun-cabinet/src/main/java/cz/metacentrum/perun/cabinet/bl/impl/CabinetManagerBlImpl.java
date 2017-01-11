@@ -6,7 +6,6 @@ import java.util.List;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.HttpManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -19,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.strategy.IFindPublicationsStrategy;
+import cz.metacentrum.perun.cabinet.strategy.PublicationSystemStrategy;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
@@ -36,7 +35,6 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 
 	private PerunManagerBl perunService;
 	private PublicationSystemManagerBl publicationSystemManagerBl;
-	private HttpManagerBl httpService;
 
 	private static Logger log = LoggerFactory.getLogger(CabinetManagerBlImpl.class);
 
@@ -51,10 +49,6 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 		this.publicationSystemManagerBl = publicationSystemManagerBl;
 	}
 
-	public void setHttpService(HttpManagerBl httpService) {
-		this.httpService = httpService;
-	}
-
 	// methods --------------------------------------
 
 	public List<Publication> findPublicationsInPubSys(String authorId, int yearSince, int yearTill, PublicationSystem ps) throws CabinetException {
@@ -65,17 +59,17 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 			throw new CabinetException("Publication system cannot be null while searching for publications");
 
 		// authorId must be an publication system internal id i.e. UCO! not memberId, userId etc.
-		IFindPublicationsStrategy prezentator = null;
+		PublicationSystemStrategy prezentator = null;
 		try {
 			log.debug("Attempting to instantiate class [{}]...", ps.getType());
-			prezentator = (IFindPublicationsStrategy) Class.forName(ps.getType()).newInstance();
+			prezentator = (PublicationSystemStrategy) Class.forName(ps.getType()).newInstance();
 			log.debug("Class [{}] successfully created.", ps.getType());
 		} catch (Exception e) {
 			throw new CabinetException(e);
 		}
 
 		HttpUriRequest request = prezentator.getHttpRequest(authorId, yearSince, yearTill, ps);
-		HttpResponse response = httpService.execute(request);
+		HttpResponse response = prezentator.execute(request);
 
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 			throw new CabinetException("Can't contact publication system. HTTP error code: " + response.getStatusLine().getStatusCode(), ErrorCodes.HTTP_IO_EXCEPTION);

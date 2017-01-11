@@ -21,7 +21,7 @@ import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
-public class AuthorshipServiceImplTest extends BaseIntegrationTest {
+public class AuthorshipServiceImplTest extends CabinetBaseIntegrationTest {
 
 	@Autowired
 	private AuthorshipManagerBl authorshipService;

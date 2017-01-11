@@ -136,11 +136,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="perunService" ref="perunManagerBl" />
 	</bean>
 
-	<bean id="httpManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.HttpManagerBlImpl" />
-
 	<bean id="cabinetManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CabinetManagerBlImpl">
 		<property name="perunService" ref="perunManagerBl" />
-		<property name="httpService" ref="httpManagerBl" />
 		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
 	</bean>
 

@@ -16,7 +16,7 @@ import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 
-public class ThanksServiceImplTest extends BaseIntegrationTest {
+public class ThanksServiceImplTest extends CabinetBaseIntegrationTest {
 
 	@Autowired
 	private ThanksManagerBl thanksService;

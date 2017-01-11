@@ -15,7 +15,7 @@ import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 
-public class CabinetServiceImplTest extends BaseIntegrationTest {
+public class CabinetServiceImplTest extends CabinetBaseIntegrationTest {
 
 	private CabinetManagerBl cabinetService;
 

@@ -1,0 +1,72 @@
+package cz.metacentrum.perun.cabinet.strategy;
+
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.model.PublicationSystem;
+import cz.metacentrum.perun.cabinet.service.impl.CabinetBaseIntegrationTest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+/**
+ * Integration tests for retrieving publications using different strategies.
+ *
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
+public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegrationTest {
+
+	@Test
+	public void contactPublicationSystemMUTest() throws Exception {
+		System.out.println("PublicationSystemMapper.contactPublicationSystemMUTest");
+
+		PublicationSystem publicationSystem = publicationSystemManagerDao.getPublicationSystemByNamespace("mu");
+		assertNotNull(publicationSystem);
+
+		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+		assertNotNull(prezentator);
+
+		String authorId = "39700";
+		int yearSince = 2009;
+		int yearTill = 2010;
+		HttpResponse result = prezentator.execute(prezentator.getHttpRequest(authorId, yearSince, yearTill, publicationSystem));
+
+		assertNotNull(result);
+
+	}
+
+	@Test
+	public void contactPublicationSystemOBDTest() throws Exception {
+		System.out.println("PublicationSystemMapper.contactPublicationSystemOBDTest");
+
+		PublicationSystem publicationSystem = publicationSystemManagerDao.getPublicationSystemByNamespace("zcu");
+		assertNotNull(publicationSystem);
+
+		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+		assertNotNull(prezentator);
+
+		PublicationSystemStrategy obd = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
+		assertNotNull(obd);
+
+		String authorId = "Sitera,Jiří";
+		int yearSince = 2006;
+		int yearTill = 2009;
+		HttpUriRequest request = obd.getHttpRequest(authorId, yearSince, yearTill, publicationSystem);
+
+		try {
+			HttpResponse response = obd.execute(request);
+			assertNotNull(response);
+		} catch (CabinetException ex) {
+			if (!ex.getType().equals(ErrorCodes.HTTP_IO_EXCEPTION)) {
+				fail("Different exception code, was: "+ex.getType() +", but expected: HTTP_IO_EXCEPTION.");
+				// fail if different error
+			} else {
+				System.out.println("-- Test silently skipped because of HTTP_IO_EXCEPTION");
+			}
+		}
+
+	}
+
+}

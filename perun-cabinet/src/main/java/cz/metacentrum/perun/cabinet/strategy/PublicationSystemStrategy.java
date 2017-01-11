@@ -18,7 +18,16 @@ import cz.metacentrum.perun.cabinet.model.PublicationSystem;
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  */
-public interface IFindPublicationsStrategy {
+public interface PublicationSystemStrategy {
+
+	/**
+	 * Executes a HTTP request (i.e. HttpGet or HttpPost) and returns obtained httpResponse.
+	 *
+	 * @param request HTTP request which we get from PSStrategy files (required)
+	 * @return HTTP response we pass back to PSStrategy files to be parsed as publications
+	 * @throws CabinetException
+	 */
+	public HttpResponse execute(HttpUriRequest request) throws CabinetException;
 
 	/**
 	 * Create HTTP GET/POST request based on PublicationSystem strategy.

@@ -15,7 +15,7 @@ import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 
-public class PublicationServiceImplTest extends BaseIntegrationTest {
+public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 
 	@Autowired
 	private PublicationManagerBl publicationService;

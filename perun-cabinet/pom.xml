@@ -59,7 +59,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<includes>
-						<include>**/*Test.*</include>
+						<include>**/*IntegrationTest.*</include>
+						<include>**/*UnitTest.*</include>
 					</includes>
 				</configuration>
 			</plugin>

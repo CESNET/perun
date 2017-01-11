@@ -11,7 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
 
-public class CategoryServiceTest extends BaseIntegrationTest {
+public class CategoryServiceTest extends CabinetBaseIntegrationTest {
 
 	private CategoryManagerBl categoryService;
 

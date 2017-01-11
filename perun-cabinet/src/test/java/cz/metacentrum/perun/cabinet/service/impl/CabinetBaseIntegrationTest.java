@@ -7,7 +7,6 @@ import java.util.Properties;
 
 import cz.metacentrum.perun.core.api.*;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,7 +30,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 @ContextConfiguration(locations = { "classpath:perun-cabinet.xml" })
 @Transactional
 @TransactionConfiguration(defaultRollback=true, transactionManager = "springTransactionManager")
-public class BaseIntegrationTest {
+public abstract class CabinetBaseIntegrationTest {
 
 	public Authorship authorshipOne = null;
 	public Authorship authorshipTwo = null;
@@ -200,11 +199,6 @@ public class BaseIntegrationTest {
 
 		init = true;
 
-	}
-
-	@Test
-	public void dummyTest() {
-		// FIXME - Dummy test to prevent JUnit4 'No runnable methods' error.
 	}
 
 }
