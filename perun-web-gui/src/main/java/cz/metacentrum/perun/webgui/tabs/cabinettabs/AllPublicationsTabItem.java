@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.cabinetManager.DeletePublication;
-import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllCategories;
+import cz.metacentrum.perun.webgui.json.cabinetManager.GetCategories;
 import cz.metacentrum.perun.webgui.json.cabinetManager.FindPublicationsByGUIFilter;
 import cz.metacentrum.perun.webgui.json.cabinetManager.LockUnlockPublications;
 import cz.metacentrum.perun.webgui.json.usersManager.GetUsers;
@@ -166,7 +166,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 
 		// fill category listbox
 		final ListBoxWithObjects<Category> filterCategory = new ListBoxWithObjects<Category>();
-		final FindAllCategories call = new FindAllCategories(new JsonCallbackEvents(){
+		final GetCategories call = new GetCategories(new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				filterCategory.removeNotSelectedOption();
 				filterCategory.clear();

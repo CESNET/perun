@@ -7,6 +7,9 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import cz.metacentrum.perun.cabinet.api.CabinetApi;
+import cz.metacentrum.perun.cabinet.api.CabinetManager;
+import cz.metacentrum.perun.cabinet.model.Category;
+import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.oidc.OIDC;
 import cz.metacentrum.perun.registrar.model.Application;
@@ -68,7 +71,7 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  * ApiCaller calls Perun manager methods.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @since 0.1
+ * @autor Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class ApiCaller {
 
@@ -90,6 +93,7 @@ public class ApiCaller {
 	private PropagationStatsReader propagationStatsReader;
 	private Searcher searcher = null;
 	private CabinetApi cabinetManager;
+	private CabinetManager cabinetManager2;
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
 	private VOOT vootManager = null;
@@ -213,8 +217,12 @@ public class ApiCaller {
 		return propagationStatsReader;
 	}
 
-	public CabinetApi getCabinetManager() {
+	public CabinetApi getCabinetApi() {
 		return cabinetManager;
+	}
+
+	public CabinetManager getCabinetManager() {
+		return cabinetManager2;
 	}
 
 	public RegistrarManager getRegistrarManager() {
@@ -400,6 +408,14 @@ public class ApiCaller {
 		return null;
 	}
 
+	public Category getCategoryById(int id) throws PerunException {
+		return getCabinetManager().getCategoryById(id);
+	}
+
+	public Thanks getThanksById(int id) throws PerunException {
+		return getCabinetManager().getThanksById(id);
+	}
+
 	public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal, PerunClient client) throws InternalErrorException {
 		Perun perun = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perun", Perun.class);
 
@@ -414,6 +430,9 @@ public class ApiCaller {
 
 		// Initialize ICabinetApi (cabinet manager)
 		this.cabinetManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("cabinetApi", CabinetApi.class);
+
+		// Initialize CabinetManager
+		this.cabinetManager2 = WebApplicationContextUtils.getWebApplicationContext(context).getBean("cabinetManager", CabinetManager.class);
 
 		// Initialize RegistrarManager
 		this.registrarManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("registrarManager", RegistrarManager.class);

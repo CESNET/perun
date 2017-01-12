@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +169,7 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 	}
 
 	@Test
-	public void updatePublicationTest() throws CabinetException {
+	public void updatePublicationTest() throws Exception {
 		System.out.println("PublicationServiceImpl.updatePublicationTest");
 
 		publicationOne.setMain("NEW MAIN");
@@ -181,7 +182,7 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 	}
 
 	@Test
-	public void updatePublicationWhenNotExistsTest() throws CabinetException {
+	public void updatePublicationWhenNotExistsTest() throws Exception {
 		System.out.println("PublicationServiceImpl.updatePublicationWhenNotExistsTest");
 
 		Publication pub = new Publication();
@@ -197,7 +198,7 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 	}
 
 	@Test (expected=CabinetException.class)
-		public void updatePublicationWhenCantUpdateTest() throws CabinetException {
+		public void updatePublicationWhenCantUpdateTest() throws Exception {
 			System.out.println("PublicationServiceImpl.updatePublicationWhenWhenCantUpdateTest");
 
 			// make pub2 same as pub 1

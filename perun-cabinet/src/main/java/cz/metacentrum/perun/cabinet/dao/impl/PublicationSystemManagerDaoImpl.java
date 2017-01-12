@@ -9,6 +9,7 @@ import cz.metacentrum.perun.cabinet.dao.PublicationSystemManagerDao;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -51,15 +52,16 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 		}
 	};
 
-	// methods ----------------------
+	// methods ------------------------------
 
 	@Override
-	public PublicationSystem createPublicationSystem(PublicationSystem ps) throws InternalErrorException {
+	public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) throws InternalErrorException {
 		try {
 			// Set the new PS id
 			int newId = Utils.getNewId(jdbc, "cabinet_pub_sys_id_seq");
-			jdbc.update("insert into cabinet_publication_systems (id, friendlyName, type, url, username, password, loginNamespace)" +
-					" values (?,?,?,?,?,?,?)", newId, ps.getFriendlyName(), ps.getType(), ps.getUrl(), ps.getUsername(), ps.getPassword(), ps.getLoginNamespace());
+			jdbc.update("insert into cabinet_publication_systems (id, friendlyName, type, url, username, password, loginNamespace, created_by_uid, modified_by_uid)" +
+					" values (?,?,?,?,?,?,?,?,?)", newId, ps.getFriendlyName(), ps.getType(), ps.getUrl(), ps.getUsername(), ps.getPassword(),
+					ps.getLoginNamespace(), session.getPerunPrincipal().getUserId(), session.getPerunPrincipal().getUserId());
 			ps.setId(newId);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
@@ -68,10 +70,10 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	}
 
 	@Override
-	public PublicationSystem updatePublicationSystem(PublicationSystem ps) throws CabinetException, InternalErrorException {
+	public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException, InternalErrorException {
 		try {
-			int numAffected = jdbc.update("update cabinet_publication_systems set (friendlyName,type,url,loginNamespace)" +
-					" values (?,?,?,?) where id=?", ps.getFriendlyName(), ps.getType(), ps.getUrl(), ps.getLoginNamespace(), ps.getId());
+			int numAffected = jdbc.update("update cabinet_publication_systems set friendlyName=?,type=?,url=?,loginNamespace=?,modified_by_uid=?" +
+					" where id=?", ps.getFriendlyName(), ps.getType(), ps.getUrl(), ps.getLoginNamespace(), session.getPerunPrincipal().getUserId(), ps.getId());
 			if(numAffected == 0) throw new CabinetException(ErrorCodes.PUBLICATION_SYSTEM_NOT_EXISTS);
 			if (numAffected > 1) throw new ConsistencyErrorException("There are multiple PS with same id: " + ps.getId());
 		} catch (RuntimeException err) {

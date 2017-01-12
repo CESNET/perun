@@ -3,7 +3,12 @@ package cz.metacentrum.perun.cabinet.bl.impl;
 import java.util.List;
 
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,38 +29,55 @@ public class PublicationSystemManagerBlImpl implements PublicationSystemManagerB
 	private static Logger log = LoggerFactory.getLogger(PublicationSystemManagerBlImpl.class);
 
 	private PublicationSystemManagerDao publicationSystemManagerDao;
+	private PerunBl perunBl;
 
 	@Autowired
 	public void setPublicationSystemManagerDao(PublicationSystemManagerDao publicationSystemManagerDao) {
 		this.publicationSystemManagerDao = publicationSystemManagerDao;
 	}
 
-	public PublicationSystem createPublicationSystem(PublicationSystem ps) throws CabinetException, InternalErrorException {
-		return publicationSystemManagerDao.createPublicationSystem(ps);
+	public PublicationSystemManagerDao getPublicationSystemManagerDao() {
+		return publicationSystemManagerDao;
 	}
 
-	public PublicationSystem updatePublicationSystem(PublicationSystem ps) throws CabinetException, InternalErrorException {
-		return publicationSystemManagerDao.updatePublicationSystem(ps);
+	@Autowired
+	public void setPerunBl(PerunBl perun) {
+		this.perunBl = perun;
+	}
+
+	// methods -----------------------------
+
+	public PublicationSystem createPublicationSystem(PerunSession session, PublicationSystem ps) throws InternalErrorException {
+		PublicationSystem newps = getPublicationSystemManagerDao().createPublicationSystem(session, ps);
+		log.debug("{} created.", newps);
+		return newps;
+	}
+
+	public PublicationSystem updatePublicationSystem(PerunSession session, PublicationSystem ps) throws CabinetException, InternalErrorException {
+		PublicationSystem upps = getPublicationSystemManagerDao().updatePublicationSystem(session, ps);
+		log.debug("{} updated.", upps);
+		return upps;
 	}
 
 	public void deletePublicationSystem(PublicationSystem ps) throws CabinetException, InternalErrorException {
-		publicationSystemManagerDao.deletePublicationSystem(ps);
+		getPublicationSystemManagerDao().deletePublicationSystem(ps);
+		log.debug("{} deleted.", ps);
 	}
 
-	public PublicationSystem getPublicationSystemById(int publicationSystemId) throws InternalErrorException, CabinetException {
-		return publicationSystemManagerDao.getPublicationSystemById(publicationSystemId);
+	public PublicationSystem getPublicationSystemById(int id) throws InternalErrorException, CabinetException {
+		return getPublicationSystemManagerDao().getPublicationSystemById(id);
 	}
 
 	public PublicationSystem getPublicationSystemByName(String name) throws InternalErrorException, CabinetException {
-		return publicationSystemManagerDao.getPublicationSystemByName(name);
+		return getPublicationSystemManagerDao().getPublicationSystemByName(name);
 	}
 
 	public PublicationSystem getPublicationSystemByNamespace(String namespace) throws InternalErrorException, CabinetException {
-		return publicationSystemManagerDao.getPublicationSystemByNamespace(namespace);
+		return getPublicationSystemManagerDao().getPublicationSystemByNamespace(namespace);
 	}
 
 	public List<PublicationSystem> getPublicationSystems() throws InternalErrorException {
-		return publicationSystemManagerDao.getPublicationSystems();
+		return getPublicationSystemManagerDao().getPublicationSystems();
 	}
 
 	/**
@@ -64,9 +86,10 @@ public class PublicationSystemManagerBlImpl implements PublicationSystemManagerB
 	protected void initialize() throws CabinetException, InternalErrorException {
 		// search for internal system
 		try {
-			PublicationSystem ps = publicationSystemManagerDao.getPublicationSystemByName("INTERNAL");
+			getPublicationSystemManagerDao().getPublicationSystemByName("INTERNAL");
 		} catch (CabinetException ex) {
 			if (ErrorCodes.PUBLICATION_SYSTEM_NOT_EXISTS.equals(ex.getType())) {
+				PerunSession session = perunBl.getPerunSession(new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
 				log.error("Internal PS not exists: {}", ex);
 				// create internal if not exists
 				PublicationSystem record = new PublicationSystem();
@@ -76,8 +99,10 @@ public class PublicationSystemManagerBlImpl implements PublicationSystemManagerB
 				record.setUrl("empty");
 				record.setPassword(null);
 				record.setUsername(null);
-				publicationSystemManagerDao.createPublicationSystem(record);
+				createPublicationSystem(session, record);
 			}
+		} catch (Exception ex) {
+			log.error("Unable to determine if Internal PS exists: {}", ex);
 		}
 	}
 

@@ -9,21 +9,19 @@ import java.util.Date;
  */
 public class ThanksForGUI extends Thanks {
 
-	private static final long serialVersionUID = 1L;
-
 	private String ownerName;
 
 	public ThanksForGUI() {
 		super();
 	}
 
-	public ThanksForGUI(Integer id, Integer publicationId, Integer ownerId,
+	public ThanksForGUI(int id, int publicationId, int ownerId,
 			String createdBy, Date createdDate) {
 		super(id, publicationId, ownerId, createdBy, createdDate);
 	}
 
-	public ThanksForGUI(Integer id, Integer publicationId, Integer ownerId,
-			String createdBy, Date createdDate, Integer createByUid) {
+	public ThanksForGUI(int id, int publicationId, int ownerId,
+			String createdBy, Date createdDate, int createByUid) {
 		super(id, publicationId, ownerId, createdBy, createdDate);
 		setCreatedByUid(createByUid);
 	}

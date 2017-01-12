@@ -1,4 +1,4 @@
-package cz.metacentrum.perun.cabinet.service.impl;
+package cz.metacentrum.perun.cabinet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -8,24 +8,14 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 
-public class ThanksServiceImplTest extends CabinetBaseIntegrationTest {
-
-	@Autowired
-	private ThanksManagerBl thanksService;
-
-	public void setThanksService(ThanksManagerBl thanksService) {
-		this.thanksService = thanksService;
-	}
-
-	// ------------- TESTS --------------------------------------------
+public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void createThanksTest() throws Exception {
@@ -37,14 +27,12 @@ public class ThanksServiceImplTest extends CabinetBaseIntegrationTest {
 		t.setOwnerId(1);
 		t.setPublicationId(publicationOne.getId());
 
-		int id = thanksService.createThanks(sess, t);
-
-		assertTrue("Returned ID is not > 0.", id > 0);
-		assertTrue("Returned and stored ID are not same.", id == t.getId());
+		t = getCabinetManager().createThanks(sess, t);
+		assertTrue(t != null);
 
 		/* Test for getting by pub ID */
 
-		List<Thanks> thanks = thanksService.findThanksByPublicationId(publicationOne.getId());
+		List<Thanks> thanks = getCabinetManager().getThanksByPublicationId(publicationOne.getId());
 		assertNotNull("No thanks returned for publicationOne", thanks);
 		assertEquals("Stored and returned thanks should be equals", t, thanks.get(0));
 
@@ -60,9 +48,9 @@ public class ThanksServiceImplTest extends CabinetBaseIntegrationTest {
 		t.setOwnerId(1);
 		t.setPublicationId(publicationOne.getId());
 
-		thanksService.createThanks(sess, t);
+		getCabinetManager().createThanks(sess, t);
 		try {
-			thanksService.createThanks(sess, t);
+			getCabinetManager().createThanks(sess, t);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.THANKS_ALREADY_EXISTS)){
 				fail("Different exception was thrown when creating \"same\" Thanks: "+ex+", but expected: THANKS_ALREADY_EXISTS");
@@ -81,10 +69,9 @@ public class ThanksServiceImplTest extends CabinetBaseIntegrationTest {
 		t.setOwnerId(1);
 		t.setPublicationId(publicationOne.getId());
 
-		thanksService.createThanks(sess, t);
+		getCabinetManager().createThanks(sess, t);
 		try {
-			t.setId(null); // force comparison on owner and publication
-			thanksService.createThanks(sess, t);
+			getCabinetManager().createThanks(sess, t);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.THANKS_ALREADY_EXISTS)){
 				fail("Different exception was thrown when creating \"same\" Thanks: "+ex+", but expected: THANKS_ALREADY_EXISTS");
@@ -102,16 +89,15 @@ public class ThanksServiceImplTest extends CabinetBaseIntegrationTest {
 		t.setCreatedDate(new Date());
 		t.setOwnerId(1);
 		t.setPublicationId(publicationOne.getId());
-		int id = thanksService.createThanks(sess, t);
-		assertTrue(id > 0);
+		t = getCabinetManager().createThanks(sess, t);
 
-		int result = thanksService.deleteThanksById(sess, t.getId());
-		assertTrue("There should be exactly 1 Thanks deleted.", result == 1);
+		assertTrue(t != null);
 
-		List<Thanks> thanks = thanksService.findThanksByPublicationId(publicationOne.getId());
+		getCabinetManager().deleteThanks(sess, t);
+
+		List<Thanks> thanks = getCabinetManager().getThanksByPublicationId(publicationOne.getId());
 		assertTrue("Thanks was not deleted", thanks.size() == 0);
 
 	}
-
 
 }

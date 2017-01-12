@@ -25,12 +25,12 @@ import java.util.ArrayList;
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 
-public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable<Thanks> {
+public class GetRichThanksByPublicationId implements JsonCallback,JsonCallbackTable<Thanks> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// json url
-	static private final String JSON_URL = "cabinetManager/findThanksByPublicationId";
+	static private final String JSON_URL = "cabinetManager/getRichThanksByPublicationId";
 	// Data provider
 	private ListDataProvider<Thanks> dataProvider = new ListDataProvider<Thanks>();
 	// table
@@ -53,7 +53,7 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 	 *
 	 * @param publicationId
 	 */
-	public FindThanksByPublicationId(int publicationId) {
+	public GetRichThanksByPublicationId(int publicationId) {
 		this.publicationId = publicationId;
 	}
 
@@ -63,7 +63,7 @@ public class FindThanksByPublicationId implements JsonCallback,JsonCallbackTable
 	 * @param publicationId
 	 * @param events external events
 	 */
-	public FindThanksByPublicationId(int publicationId, JsonCallbackEvents events) {
+	public GetRichThanksByPublicationId(int publicationId, JsonCallbackEvents events) {
 		this(publicationId);
 		this.events = events;
 	}

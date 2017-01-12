@@ -163,7 +163,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	}
 
 
-	public int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException {
+	public int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
 
 		if (publication.getId() == null || publication.getExternalId() == null || publication.getPublicationSystemId() == null) {
 			// such publication can't exists
@@ -232,8 +232,8 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 				authorshipService.deleteAuthorshipById(sess, a.getId());
 			}
 			// delete thanks
-			for (Thanks t : thanksService.findThanksByPublicationId(id)) {
-				thanksService.deleteThanksById(sess, t.getId());
+			for (Thanks t : thanksService.getThanksByPublicationId(id)) {
+				thanksService.deleteThanks(sess, t);
 			}
 
 			// delete publication

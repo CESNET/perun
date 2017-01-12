@@ -152,7 +152,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 					}
 				}
 			};
-			FindAllCategories categories = new FindAllCategories(events);
+			GetCategories categories = new GetCategories(events);
 			categories.retrieveData();
 
 			final TextBox rank = new TextBox();
@@ -439,7 +439,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 		TabMenu menu = new TabMenu();
 
 		// callback
-		final FindThanksByPublicationId thanksCall = new FindThanksByPublicationId(publicationId);
+		final GetRichThanksByPublicationId thanksCall = new GetRichThanksByPublicationId(publicationId);
 		thanksCall.setCheckable(false);
 
 		if (!publication.getLocked()) {

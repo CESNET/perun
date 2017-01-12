@@ -25,12 +25,12 @@ import java.util.Comparator;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTable<PublicationSystem> {
+public class GetPublicationSystems implements JsonCallback, JsonCallbackTable<PublicationSystem> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
 	// json url
-	static private final String JSON_URL = "cabinetManager/findAllPublicationSystems";
+	static private final String JSON_URL = "cabinetManager/getPublicationSystems";
 	// Data provider
 	private ListDataProvider<PublicationSystem> dataProvider = new ListDataProvider<PublicationSystem>();
 	// table
@@ -51,14 +51,14 @@ public class FindAllPublicationSystems implements JsonCallback, JsonCallbackTabl
 	/**
 	 * Creates a new request
 	 */
-	public FindAllPublicationSystems() {}
+	public GetPublicationSystems() {}
 
 	/**
 	 * Creates a new request
 	 *
 	 * @param events external events
 	 */
-	public FindAllPublicationSystems(JsonCallbackEvents events) {
+	public GetPublicationSystems(JsonCallbackEvents events) {
 		this.events = events;
 	}
 

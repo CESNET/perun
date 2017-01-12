@@ -1,10 +1,11 @@
-package cz.metacentrum.perun.cabinet.service.impl;
+package cz.metacentrum.perun.cabinet;
 
 import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.Properties;
 
+import cz.metacentrum.perun.cabinet.api.CabinetManager;
 import cz.metacentrum.perun.core.api.*;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -15,9 +16,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import cz.metacentrum.perun.cabinet.dao.AuthorshipManagerDao;
-import cz.metacentrum.perun.cabinet.dao.CategoryManagerDao;
 import cz.metacentrum.perun.cabinet.dao.PublicationManagerDao;
-import cz.metacentrum.perun.cabinet.dao.PublicationSystemManagerDao;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
@@ -45,15 +44,14 @@ public abstract class CabinetBaseIntegrationTest {
 	private boolean init = false;
 	private int p1Id;
 
+	protected CabinetManager cabinetManager;
 	@Autowired protected AuthorshipManagerDao authorshipManagerDao;
-	@Autowired protected CategoryManagerDao categoryManagerDao;
 	@Autowired protected PublicationManagerDao publicationManagerDao;
-	@Autowired protected PublicationSystemManagerDao publicationSystemManagerDao;
 	@Autowired protected PerunManagerBl perunService;
 	@Autowired protected AuthorManagerBl authorService;
 	@Autowired protected Properties cabinetProperties;
 	@Autowired PerunBl perun;
-	PerunSession sess;
+	protected PerunSession sess;
 
 	// setters -------------------------
 
@@ -69,16 +67,17 @@ public abstract class CabinetBaseIntegrationTest {
 		this.authorshipManagerDao = reportDao;
 	}
 
-	public void setCategoryManagerDao(CategoryManagerDao categoryManagerDao) {
-		this.categoryManagerDao = categoryManagerDao;
-	}
-
 	public void setPublicationManagerDao(PublicationManagerDao publicationManagerDao) {
 		this.publicationManagerDao = publicationManagerDao;
 	}
 
-	public void setPublicationSystemManagerDao(PublicationSystemManagerDao publicationSystemManagerDao) {
-		this.publicationSystemManagerDao = publicationSystemManagerDao;
+	@Autowired
+	public void setCabinetManager(CabinetManager cabinetManager) {
+		this.cabinetManager = cabinetManager;
+	}
+
+	public CabinetManager getCabinetManager() {
+		return cabinetManager;
 	}
 
 	public void setCabinetProperties(Properties cabinetProperties) {
@@ -113,9 +112,8 @@ public abstract class CabinetBaseIntegrationTest {
 
 		// category
 
-		c1 = new Category(null, "patent", 3.9);
-		int categoryId = categoryManagerDao.createCategory(c1);
-		c1.setId(categoryId);
+		c1 = new Category(0, "patent", 3.9);
+		c1 = getCabinetManager().createCategory(sess, c1);
 
 		// publication systems
 
@@ -125,7 +123,7 @@ public abstract class CabinetBaseIntegrationTest {
 		ps.setUrl("http://obd.zcu.cz:6443/fcgi/verso.fpl?");
 		ps.setType("cz.metacentrum.perun.cabinet.strategy.impl.OBD30Strategy");
 
-		pubSysZcu = publicationSystemManagerDao.createPublicationSystem(ps);
+		pubSysZcu = getCabinetManager().createPublicationSystem(sess, ps);
 		assertTrue(pubSysZcu.getId() > 0);
 
 		PublicationSystem ps2 = new PublicationSystem();
@@ -136,7 +134,7 @@ public abstract class CabinetBaseIntegrationTest {
 		ps2.setPassword(cabinetProperties.getProperty("perun.cabinet.mu.password"));
 		ps2.setType("cz.metacentrum.perun.cabinet.strategy.impl.MUStrategy");
 
-		pubSysMu = publicationSystemManagerDao.createPublicationSystem(ps2);
+		pubSysMu = getCabinetManager().createPublicationSystem(sess, ps2);
 		assertTrue(pubSysMu.getId() > 0);
 
 		// create publication

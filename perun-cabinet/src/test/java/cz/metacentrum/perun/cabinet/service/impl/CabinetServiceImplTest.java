@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

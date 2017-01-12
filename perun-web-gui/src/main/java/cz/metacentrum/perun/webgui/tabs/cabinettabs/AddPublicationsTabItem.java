@@ -429,7 +429,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 		});
 
 		final ListBoxWithObjects<Category> category = new ListBoxWithObjects<Category>();
-		FindAllCategories request = new FindAllCategories(new JsonCallbackEvents(){
+		GetCategories request = new GetCategories(new JsonCallbackEvents(){
 			@Override
 			public void onFinished(JavaScriptObject jso){
 				category.clear();
@@ -580,7 +580,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 
 		// save for import
 		importButton.setEnabled(false);
-		FindAllCategories request = new FindAllCategories(new JsonCallbackEvents(){
+		GetCategories request = new GetCategories(new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso){
 				categories = JsonUtils.jsoAsList(jso);
 				if (!categories.isEmpty()) {
@@ -937,7 +937,7 @@ public class AddPublicationsTabItem implements TabItem, TabItemWithUrl, TabItemW
 			thanksPanel.add(thanksMenu);
 
 			// callback
-			final FindThanksByPublicationId thanksCall = new FindThanksByPublicationId(pub.getId());
+			final GetRichThanksByPublicationId thanksCall = new GetRichThanksByPublicationId(pub.getId());
 			if (pub.getLocked()==true) {
 				// disable modifications if locked
 				thanksCall.setCheckable(false);

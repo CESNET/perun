@@ -3,7 +3,7 @@ package cz.metacentrum.perun.cabinet.strategy;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.service.impl.CabinetBaseIntegrationTest;
+import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Test;
@@ -20,9 +20,9 @@ public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegra
 
 	@Test
 	public void contactPublicationSystemMUTest() throws Exception {
-		System.out.println("PublicationSystemMapper.contactPublicationSystemMUTest");
+		System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemMUTest");
 
-		PublicationSystem publicationSystem = publicationSystemManagerDao.getPublicationSystemByNamespace("mu");
+		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("mu");
 		assertNotNull(publicationSystem);
 
 		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();
@@ -39,9 +39,9 @@ public class PublicationSystemStrategyIntegrationTest extends CabinetBaseIntegra
 
 	@Test
 	public void contactPublicationSystemOBDTest() throws Exception {
-		System.out.println("PublicationSystemMapper.contactPublicationSystemOBDTest");
+		System.out.println("PublicationSystemStrategyIntegrationTest.contactPublicationSystemOBDTest");
 
-		PublicationSystem publicationSystem = publicationSystemManagerDao.getPublicationSystemByNamespace("zcu");
+		PublicationSystem publicationSystem = getCabinetManager().getPublicationSystemByNamespace("zcu");
 		assertNotNull(publicationSystem);
 
 		PublicationSystemStrategy prezentator = (PublicationSystemStrategy) Class.forName(publicationSystem.getType()).newInstance();

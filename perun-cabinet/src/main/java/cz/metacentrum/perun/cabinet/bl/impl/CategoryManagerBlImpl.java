@@ -2,8 +2,10 @@ package cz.metacentrum.perun.cabinet.bl.impl;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,7 @@ import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.core.api.PerunSession;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class for handling Category entity in Cabinet.
@@ -37,6 +40,7 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 
 	// setters ----------------------
 
+	@Autowired
 	public void setCategoryManagerDao(CategoryManagerDao categoryManagerDao) {
 		this.categoryManagerDao = categoryManagerDao;
 	}
@@ -57,36 +61,27 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 		this.authorService = authorService;
 	}
 
+	public CategoryManagerDao getCategoryManagerDao() {
+		return categoryManagerDao;
+	}
+
 	// methods ----------------------
 
-	public int createCategory(Category c) {
-		return categoryManagerDao.createCategory(c);
+	@Override
+	public Category createCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
+		Category newCategory = getCategoryManagerDao().createCategory(sess, category);
+		log.debug("{} created.", newCategory);
+		return newCategory;
 	}
 
-
-	public List<Category> findAllCategories() {
-		return categoryManagerDao.findAllCategories();
-	}
-
-
-	public Category findCategoryById(Integer categoryId) {
-		return categoryManagerDao.findCategoryById(categoryId);
-	}
-
-
-	public int getCount() {
-		return categoryManagerDao.getCount();
-	}
-
-
-	public int updateCategoryById(PerunSession sess, Category category) throws CabinetException {
-
+	@Override
+	public Category updateCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
 		// save original category
-		Category cat = categoryManagerDao.findCategoryById(category.getId());
+		Category cat = getCategoryManagerDao().getCategoryById(category.getId());
 		// update
-		int result = categoryManagerDao.updateCategoryById(category);
+		Category result = getCategoryManagerDao().updateCategory(sess, category);
 		// was rank changed ?
-		if (result > 0 && cat.getRank() != category.getRank()) {
+		if (!Objects.equals(cat.getRank(), category.getRank())) {
 			// yes
 			Publication filter = new Publication();
 			filter.setCategoryId(category.getId());
@@ -102,13 +97,23 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 			}
 			log.debug("Category: [{}] updated to Category: [{}]", cat, category);
 		}
-
 		return result;
-
 	}
 
-	public int deleteCategoryById(Integer id) {
-		return categoryManagerDao.deleteCategoryById(id);
+	@Override
+	public void deleteCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
+		getCategoryManagerDao().deleteCategory(sess, category);
+		log.debug("{} deleted.", category);
+	}
+
+	@Override
+	public List<Category> getCategories() throws InternalErrorException {
+		return getCategoryManagerDao().getCategories();
+	}
+
+	@Override
+	public Category getCategoryById(int id) throws CabinetException, InternalErrorException {
+		return getCategoryManagerDao().getCategoryById(id);
 	}
 
 }

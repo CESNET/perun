@@ -6,25 +6,18 @@ import java.util.List;
 import cz.metacentrum.perun.cabinet.api.CabinetApi;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
-import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
-import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
-import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
-import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -45,10 +38,7 @@ public class CabinetApiImpl implements CabinetApi {
 	private PublicationManagerBl publicationService;
 	private AuthorManagerBl authorService;
 	private AuthorshipManagerBl authorshipService;
-	private ThanksManagerBl thanksService;
-	private CategoryManagerBl categoryService;
 	private PerunManagerBl perunService;
-	private PublicationSystemManagerBl publicationSystemManagerBl;
 
 	// setters ==============================================
 
@@ -68,20 +58,8 @@ public class CabinetApiImpl implements CabinetApi {
 		this.authorshipService = authorshipService;
 	}
 
-	public void setThanksService(ThanksManagerBl thanksService) {
-		this.thanksService = thanksService;
-	}
-
-	public void setCategoryService(CategoryManagerBl categoryService) {
-		this.categoryService = categoryService;
-	}
-
 	public void setPerunService(PerunManagerBl perunService) {
 		this.perunService = perunService;
-	}
-
-	public void setPublicationSystemManagerBl(PublicationSystemManagerBl publicationSystemManagerBl) {
-		this.publicationSystemManagerBl = publicationSystemManagerBl;
 	}
 
 	// delegate methods =======================================
@@ -99,12 +77,8 @@ public class CabinetApiImpl implements CabinetApi {
 		return this.publicationService.createPublication(sess, p);
 	}
 
-	public int createAuthorship(PerunSession sess, Authorship r) throws CabinetException {
+	public int createAuthorship(PerunSession sess, Authorship r) throws CabinetException, InternalErrorException {
 		return authorshipService.createAuthorship(sess, r);
-	}
-
-	public List<Category> findAllCategories() {
-		return categoryService.findAllCategories();
 	}
 
 	public boolean publicationExists(Publication p) {
@@ -131,14 +105,6 @@ public class CabinetApiImpl implements CabinetApi {
 		return publicationService.findRichPublicationsByGUIFilter(p, userId, yearSince, yearTill);
 	}
 
-	public boolean thanksExists(Thanks t) {
-		return thanksService.thanksExists(t);
-	}
-
-	public int createThanks(PerunSession sess, Thanks t) throws CabinetException {
-		return thanksService.createThanks(sess, t);
-	}
-
 	public List<Authorship> findAuthorshipsByFilter(Authorship report) {
 		return authorshipService.findAuthorshipsByFilter(report);
 	}
@@ -147,27 +113,7 @@ public class CabinetApiImpl implements CabinetApi {
 		return publicationService.findRichPublicationsByGUIFilter(null, id, 0, 0);
 	}
 
-	public List<Thanks> findThanksByFilter(Thanks t) {
-		return thanksService.findThanksByFilter(t);
-	}
-
-	public List<Thanks> findThanksByPublicationId(int id) {
-		return thanksService.findThanksByPublicationId(id);
-	}
-
-	public List<ThanksForGUI> findRichThanksByPublicationId(int id) {
-		return thanksService.findRichThanksByPublicationId(id);
-	}
-
-	public Thanks findThanksById(int id) {
-		return thanksService.findThanksById(id);
-	}
-
-	public Category findCategoryById(Integer categoryId) {
-		return categoryService.findCategoryById(categoryId);
-	}
-
-	public Double getRank(Integer userId){
+	public Double getRank(Integer userId) throws InternalErrorException, CabinetException {
 		return authorshipService.calculateNewRank(userId);
 	}
 
@@ -215,11 +161,11 @@ public class CabinetApiImpl implements CabinetApi {
 		return authorshipService.findAuthorshipById(id);
 	}
 
-	public int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException {
+	public int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException, InternalErrorException {
 		return authorshipService.updateAuthorship(sess, report);
 	}
 
-	public int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException {
+	public int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException, InternalErrorException {
 		return authorshipService.deleteAuthorshipById(sess, id);
 	}
 
@@ -240,32 +186,12 @@ public class CabinetApiImpl implements CabinetApi {
 		return publicationService.getPublicationsCount();
 	}
 
-	public PublicationSystem getPublicationSystemById(int publicationSystemId) throws CabinetException, InternalErrorException {
-		return publicationSystemManagerBl.getPublicationSystemById(publicationSystemId);
-	}
-
-	public int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException {
+	public int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
 		return publicationService.updatePublicationById(sess, publication);
 	}
 
 	public int deletePublicationById(PerunSession sess, Integer id) throws CabinetException {
 		return publicationService.deletePublicationById(sess, id);
-	}
-
-	public int getCategoriesCount() {
-		return categoryService.getCount();
-	}
-
-	public int updateCategoryById(PerunSession sess, Category category) throws CabinetException {
-		return categoryService.updateCategoryById(sess, category);
-	}
-
-	public int deleteCategoryById(Integer id) {
-		return categoryService.deleteCategoryById(id);
-	}
-
-	public int createCategory(Category category) {
-		return categoryService.createCategory(category);
 	}
 
 	public List<Author> findAllAuthors() {
@@ -276,20 +202,12 @@ public class CabinetApiImpl implements CabinetApi {
 		return authorService.getAuthorsCount();
 	}
 
-	public int deleteThanksById(PerunSession sess, Integer id) throws CabinetException {
-		return thanksService.deleteThanksById(sess, id);
-	}
-
-	public List<PublicationSystem> getPublicationSystems() throws InternalErrorException {
-		return publicationSystemManagerBl.getPublicationSystems();
-	}
-
 	public int lockPublications(PerunSession sess, boolean lockState, List<Publication> pubs) throws CabinetException {
 		return publicationService.lockPublications(sess, lockState, pubs);
 	}
 
 	@Override
-	public void recalculateThanksAttribute(PerunSession sess) throws CabinetException {
+	public void recalculateThanksAttribute(PerunSession sess) throws CabinetException, InternalErrorException {
 
 		try {
 			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {

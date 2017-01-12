@@ -14,9 +14,10 @@ import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class for handling Thanks entity in Cabinet.
@@ -30,8 +31,11 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 	private AuthorManagerBl authorService;
 	private PerunManagerBl perunService;
 
+	private static Logger log = LoggerFactory.getLogger(ThanksManagerBlImpl.class);
+
 	// setters -------------------------
 
+	@Autowired
 	public void setThanksManagerDao(ThanksManagerDao thanksManagerDao) {
 		this.thanksManagerDao = thanksManagerDao;
 	}
@@ -44,17 +48,22 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		this.perunService = perunService;
 	}
 
+	public ThanksManagerDao getThanksManagerDao() {
+		return thanksManagerDao;
+	}
+
 	// methods -------------------------
 
-	public int createThanks(PerunSession sess, Thanks t) throws CabinetException {
+	public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException, InternalErrorException {
 		if (t.getCreatedDate() == null) {
 			t.setCreatedDate(new Date());
 		}
-		if (thanksExists(t)) {
-			throw new CabinetException("Can't create duplicite thanks.", ErrorCodes.THANKS_ALREADY_EXISTS);
+		if (thanksExist(t)) {
+			throw new CabinetException("Can't create duplicate thanks.", ErrorCodes.THANKS_ALREADY_EXISTS);
 		}
 
-		int id = thanksManagerDao.createThanks(t);
+		t = getThanksManagerDao().createThanks(sess, t);
+		log.debug("{} created.", t);
 
 		// recalculate thanks for all publication's authors
 		List<Author> authors = new ArrayList<Author>();
@@ -62,69 +71,44 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		for (Author a : authors) {
 			perunService.setThanksAttribute(a.getId());
 		}
-
-		return id;
-
+		return t;
 	}
 
-	public boolean thanksExists(Thanks t) {
-		if (t.getId() != null) {
-			return thanksManagerDao.findThanksById(t.getId()) != null;
-		}
-		if (t.getOwnerId() != null && t.getPublicationId() != null) {
-			Thanks filter = new Thanks();
-			filter.setOwnerId(t.getOwnerId());
-			filter.setPublicationId(t.getPublicationId());
-			return thanksManagerDao.findThanksByFilter(filter).size() > 0;
-		}
-		return false;
-	}
-
-
-	public List<Thanks> findThanksByFilter(Thanks t) {
-		return thanksManagerDao.findThanksByFilter(t);
-	}
-
-
-	public int deleteThanksById(PerunSession sess, Integer id) throws CabinetException {
-
-		Thanks t = findThanksById(id);
-		// authorization TODO - better place ??
-		// To delete thanks user must me either PERUNADMIN
-		// or user who created record (thanks.createdBy property)
-		try {
-			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-					(!t.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor())) &&
-					(!t.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId()))) {
-				throw new CabinetException("You are not allowed to delete thanks you didn't created.", ErrorCodes.NOT_AUTHORIZED);
-					}
-		} catch (PerunException pe) {
-			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
-		}
-
+	@Override
+	public void deleteThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException {
 		// recalculate thanks for all publication's authors
-		List<Author> authors = authorService.findAuthorsByPublicationId(t.getPublicationId());
+		List<Author> authors = authorService.findAuthorsByPublicationId(thanks.getPublicationId());
 		for (Author a : authors) {
 			perunService.setThanksAttribute(a.getId());
 		}
 
-		return thanksManagerDao.deleteThanksById(id);
+		getThanksManagerDao().deleteThanks(sess, thanks);
+		log.debug("{} deleted.", thanks);
 	}
 
-	public List<Thanks> findThanksByPublicationId(int id){
-		return thanksManagerDao.findThanksByPublicationId(id);
+	@Override
+	public boolean thanksExist(Thanks thanks) throws InternalErrorException {
+		return getThanksManagerDao().thanksExist(thanks);
 	}
 
-	public Thanks findThanksById(int id){
-		return thanksManagerDao.findThanksById(id);
+	@Override
+	public Thanks getThanksById(int id) throws CabinetException, InternalErrorException {
+		return getThanksManagerDao().getThanksById(id);
 	}
 
-	public List<ThanksForGUI> findRichThanksByPublicationId(int id) {
-		return thanksManagerDao.findRichThanksByPublicationId(id);
+	@Override
+	public List<Thanks> getThanksByPublicationId(int publicationId) throws InternalErrorException {
+		return getThanksManagerDao().getThanksByPublicationId(publicationId);
 	}
 
-	public List<ThanksForGUI> findAllRichThanksByUserId(Integer id) {
-		return thanksManagerDao.findAllRichThanksByUserId(id);
+	@Override
+	public List<ThanksForGUI> getRichThanksByPublicationId(int publicationId) throws InternalErrorException {
+		return getThanksManagerDao().getRichThanksByPublicationId(publicationId);
+	}
+
+	@Override
+	public List<ThanksForGUI> getRichThanksByUserId(int userId) throws InternalErrorException {
+		return getThanksManagerDao().getRichThanksByUserId(userId);
 	}
 
 }

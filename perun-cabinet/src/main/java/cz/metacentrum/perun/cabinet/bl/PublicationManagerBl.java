@@ -63,7 +63,7 @@ public interface PublicationManagerBl {
 
 	int getPublicationsCount();
 
-	int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException;
+	int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Delete Publication by provided ID.

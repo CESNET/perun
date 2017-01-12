@@ -2,67 +2,68 @@ package cz.metacentrum.perun.cabinet.bl;
 
 import java.util.List;
 
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
  * Interface for handling publication's categories
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public interface CategoryManagerBl {
 
 	/**
-	 * Creates new category for publication
+	 * Creates new Category for Publications with specified name and rank.
 	 *
-	 * @param c new Category object
-	 * @return ID of new category
+	 * @param sess PerunSession
+	 * @param category new Category object
+	 * @return Created Category with ID set
+	 * @throws InternalErrorException When implementation fails
 	 */
-	int createCategory(Category c);
-
-	/**
-	 * Return list of all categories in Perun
-	 *
-	 * @return list of all categories
-	 */
-	List<Category> findAllCategories();
-
-	/**
-	 * Find category by it's ID. Return null if
-	 * not found.
-	 *
-	 * @param categoryId ID of category to be found
-	 * @return category
-	 */
-	Category findCategoryById(Integer categoryId);
-
-	/**
-	 * Return count of all categories
-	 *
-	 * @return count of all categories
-	 */
-	int getCount();
+	Category createCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException;
 
 	/**
 	 * Updates publications category in Perun. Category to update
-	 * is found by ID. When category's rank is changed, priorityCoeficient
+	 * is found by ID. When category rank is changed, priorityCoefficient
 	 * for all authors of books from this category, is recalculated.
 	 *
 	 * @param sess PerunSession
 	 * @param category Category to update to
-	 * @return number of updated rows (1 = ok / 0 = not found / other = consistency error)
-	 * @throws CabinetException
+	 * @return Updated category
+	 * @throws CabinetException When Category doesn't exists
+	 * @throws InternalErrorException When implementation fails
 	 */
-	int updateCategoryById(PerunSession sess, Category category) throws CabinetException;
+	Category updateCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException;
 
 	/**
-	 * Delete category by ID. If category contains any publications,
+	 * Delete category by its ID. If category contains any publications,
 	 * it can't be deleted.
 	 *
-	 * @param id ID of category to be deleted
-	 * @return number of deleted row (1 = ok / 0 = not found / other = consistency error)
+	 * @param sess PerunSession
+	 * @param category Category to be deleted
+	 * @throws CabinetException When Category doesn't exists or has publications
+	 * @throws InternalErrorException When implementation fails
 	 */
-	int deleteCategoryById(Integer id);
+	void deleteCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException;
+
+	/**
+	 * Return list of all Categories in Perun or empty list of none present.
+	 *
+	 * @return List of all categories
+	 * @throws InternalErrorException When implementation fails
+	 */
+	List<Category> getCategories() throws InternalErrorException;
+
+	/**
+	 * Get Category by its ID. Throws exception, if not exists.
+	 *
+	 * @param id ID of category to be found
+	 * @return Category by its ID.
+	 * @throws CabinetException When Category doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	Category getCategoryById(int id) throws CabinetException, InternalErrorException;
 
 }

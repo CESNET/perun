@@ -8,6 +8,7 @@ import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
  * Interface for handling Authorship entity in Cabinet.
@@ -27,7 +28,7 @@ public interface AuthorshipManagerBl {
 	 * @return ID of created authorship
 	 * @throws CabinetException When authorship already exists or other exception occurs
 	 */
-	int createAuthorship(PerunSession sess, Authorship a) throws CabinetException;
+	int createAuthorship(PerunSession sess, Authorship a) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Helping function which checks for existence of passed Authorship.
@@ -50,7 +51,7 @@ public interface AuthorshipManagerBl {
 	 * @param userId User to calculate new rank for
 	 * @return new value for priorityCoeficient
 	 */
-	Double calculateNewRank(Integer userId);
+	Double calculateNewRank(Integer userId) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Calculates new priorityCoeficient value based on
@@ -64,7 +65,7 @@ public interface AuthorshipManagerBl {
 	 * @param authorships authorships to get rank by
 	 * @return new value for priorityCoeficient
 	 */
-	Double calculateNewRank(List<Authorship> authorships);
+	Double calculateNewRank(List<Authorship> authorships) throws InternalErrorException, CabinetException;
 
 	/**
 	 * Return date, when was user added as author of his last (newest) publication.
@@ -167,7 +168,7 @@ public interface AuthorshipManagerBl {
 	 * @return Number of updated rows in DB (1 = success / 0 = not found / other = consistency error)
 	 * @throws CabinetException
 	 */
-	int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException;
+	int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Delete Authorship from Perun based on passed ID. After success user's
@@ -178,6 +179,6 @@ public interface AuthorshipManagerBl {
 	 * @return number of deleted rows in DB (1 = success / 0 = not found / other = consistency error)
 	 * @throws CabinetException
 	 */
-	int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException;
+	int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException, InternalErrorException;
 
 }

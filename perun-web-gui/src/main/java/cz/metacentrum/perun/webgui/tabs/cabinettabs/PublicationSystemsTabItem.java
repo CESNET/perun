@@ -7,7 +7,7 @@ import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
-import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllPublicationSystems;
+import cz.metacentrum.perun.webgui.json.cabinetManager.GetPublicationSystems;
 import cz.metacentrum.perun.webgui.model.PublicationSystem;
 import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
@@ -59,7 +59,7 @@ public class PublicationSystemsTabItem implements TabItem, TabItemWithUrl{
 		vp.setCellHeight(menu, "30px");
 		menu.addWidget(UiElements.getRefreshButton(this));
 
-		FindAllPublicationSystems call = new FindAllPublicationSystems();
+		GetPublicationSystems call = new GetPublicationSystems();
 		call.setCheckable(false);
 		CellTable<PublicationSystem> table = call.getTable();
 		table.addStyleName("perun-table");

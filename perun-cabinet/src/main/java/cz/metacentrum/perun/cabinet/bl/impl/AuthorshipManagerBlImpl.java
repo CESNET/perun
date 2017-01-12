@@ -37,7 +37,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class AuthorshipServiceImpl implements AuthorshipManagerBl {
+public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 
 	private static final double DEFAULT_RANK = 1.0;
 	private AuthorshipManagerDao authorshipManagerDao;
@@ -45,7 +45,7 @@ public class AuthorshipServiceImpl implements AuthorshipManagerBl {
 	private CategoryManagerBl categoryService;
 	private AuthorManagerBl authorService;
 	private PerunManagerBl perunService;
-	private static Logger log = LoggerFactory.getLogger(AuthorshipServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(AuthorshipManagerBlImpl.class);
 
 	@Autowired
 	private PerunBl perun;
@@ -75,7 +75,7 @@ public class AuthorshipServiceImpl implements AuthorshipManagerBl {
 	// business methods ===================================
 
 
-	public int createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException {
+	public int createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
 		if (authorshipExists(authorship)) throw new CabinetException(ErrorCodes.AUTHORSHIP_ALREADY_EXISTS);
 		if (authorship.getCreatedDate() == null) {
 			authorship.setCreatedDate(new Date());
@@ -119,20 +119,20 @@ public class AuthorshipServiceImpl implements AuthorshipManagerBl {
 		return false;
 	}
 
-	public Double calculateNewRank(Integer userId) {
+	public Double calculateNewRank(Integer userId) throws CabinetException, InternalErrorException {
 
 		List<Authorship> reports = findAuthorshipsByUserId(userId);
 		return calculateNewRank(reports);
 
 	}
 
-	public synchronized Double calculateNewRank(List<Authorship> authorships) {
+	public synchronized Double calculateNewRank(List<Authorship> authorships) throws InternalErrorException, CabinetException {
 
 		Double rank = DEFAULT_RANK;
 		for (Authorship r : authorships) {
 			Publication p = publicationService.findPublicationById(r.getPublicationId());
 			rank += p.getRank();
-			Category c = categoryService.findCategoryById(p.getCategoryId());
+			Category c = categoryService.getCategoryById(p.getCategoryId());
 			rank += c.getRank();
 		}
 		return rank;
@@ -202,7 +202,7 @@ public class AuthorshipServiceImpl implements AuthorshipManagerBl {
 	}
 
 
-	public int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException {
+	public int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException, InternalErrorException {
 
 		// check if such authorship exists
 		Authorship r = authorshipManagerDao.findById(report.getId());
@@ -254,7 +254,7 @@ public class AuthorshipServiceImpl implements AuthorshipManagerBl {
 	}
 
 
-	public int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException {
+	public int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException, InternalErrorException {
 
 		Authorship a = findAuthorshipById(id);
 		if (a == null) {

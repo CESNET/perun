@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import cz.metacentrum.perun.core.api.OwnerType;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

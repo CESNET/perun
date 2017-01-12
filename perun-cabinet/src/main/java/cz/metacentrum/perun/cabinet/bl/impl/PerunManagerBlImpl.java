@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,9 +124,9 @@ public class PerunManagerBlImpl implements PerunManagerBl {
 
 
 	@Override
-	public synchronized void setThanksAttribute(int userId) throws CabinetException {
+	public synchronized void setThanksAttribute(int userId) throws CabinetException, InternalErrorException {
 
-		List<ThanksForGUI> thanks = thanksManagerDao.findAllRichThanksByUserId(userId);
+		List<ThanksForGUI> thanks = thanksManagerDao.getRichThanksByUserId(userId);
 
 		try {
 			// get user

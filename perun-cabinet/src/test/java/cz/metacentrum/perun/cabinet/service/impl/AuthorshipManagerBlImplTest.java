@@ -5,7 +5,8 @@ import static org.junit.Assert.*;
 import java.util.Date;
 import java.util.List;
 
-import cz.metacentrum.perun.cabinet.bl.impl.AuthorshipServiceImpl;
+import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
+import cz.metacentrum.perun.cabinet.bl.impl.AuthorshipManagerBlImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
-public class AuthorshipServiceImplTest extends CabinetBaseIntegrationTest {
+public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Autowired
 	private AuthorshipManagerBl authorshipService;
@@ -34,7 +35,7 @@ public class AuthorshipServiceImplTest extends CabinetBaseIntegrationTest {
 	@Transactional
 	@Rollback(true)
 	@Test
-	public void createAuthorshipTest() throws CabinetException {
+	public void createAuthorshipTest() throws Exception {
 		System.out.println("AuthorshipServiceImpl.createAuthorshipTest");
 
 		Authorship r = new Authorship();
@@ -53,7 +54,7 @@ public class AuthorshipServiceImplTest extends CabinetBaseIntegrationTest {
 	@Transactional
 	@Rollback(true)
 	@Test
-	public void createAuthorshipWhenAlreadyExistsTest() throws CabinetException {
+	public void createAuthorshipWhenAlreadyExistsTest() throws Exception {
 		System.out.println("AuthorshipServiceImpl.createAuthorshipWhenAlreadyExistsTest");
 
 		Authorship r = new Authorship();
@@ -76,7 +77,7 @@ public class AuthorshipServiceImplTest extends CabinetBaseIntegrationTest {
 	@Transactional
 	@Rollback(true)
 	@Test
-	public void deleteAuthorshipByIdTest() throws CabinetException {
+	public void deleteAuthorshipByIdTest() throws Exception {
 		System.out.println("AuthorshipServiceImpl.deleteAuthorshipByIdTest");
 
 		// delete AuthorshipOne by Michal Procházka for PublicationOne
@@ -92,7 +93,7 @@ public class AuthorshipServiceImplTest extends CabinetBaseIntegrationTest {
 	@Transactional
 	@Rollback(true)
 	@Test
-	public void deleteAuthorshipByIdWhenNotExistsTest() throws CabinetException {
+	public void deleteAuthorshipByIdWhenNotExistsTest() throws Exception {
 		System.out.println("AuthorshipServiceImpl.deleteAuthorshipByIdWhenNotExistsTest");
 
 		// delete not existing authorship
@@ -110,7 +111,7 @@ public class AuthorshipServiceImplTest extends CabinetBaseIntegrationTest {
 	@Transactional
 	@Rollback(true)
 	@Test
-	public void updateAuthorshipTest() throws CabinetException {
+	public void updateAuthorshipTest() throws Exception {
 		System.out.println("AuthorshipServiceImpl.updateAuthorshipTest");
 
 		// transfer autohrshipOne from publicationOne to publicationTwo
@@ -152,7 +153,7 @@ public class AuthorshipServiceImplTest extends CabinetBaseIntegrationTest {
 
 		//do not use db
 		AuthorshipManagerDao authorshipManagerDao = Mockito.mock(AuthorshipManagerDao.class);
-		AuthorshipServiceImpl authorshipService = new AuthorshipServiceImpl();
+		AuthorshipManagerBlImpl authorshipService = new AuthorshipManagerBlImpl();
 		authorshipService.setAuthorshipManagerDao(authorshipManagerDao);
 
 		Authorship report = new Authorship();

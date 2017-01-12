@@ -6,13 +6,9 @@ import java.util.List;
 
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
-import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -89,14 +85,7 @@ public interface CabinetApi extends Serializable {
 	 * @return id of created authorship.
 	 * @throws CabinetException
 	 */
-	int createAuthorship(PerunSession sess, Authorship a) throws CabinetException;
-
-	/**
-	 * Finds all categories in db.
-	 *
-	 * @return list of categories or empty list if none exist
-	 */
-	List<Category> findAllCategories();
+	int createAuthorship(PerunSession sess, Authorship a) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Resolves whether given authorship exists. Authorship is assumed to exists
@@ -143,27 +132,6 @@ public interface CabinetApi extends Serializable {
 	List<PublicationForGUI> findRichPublicationsByGUIFilter(Publication p, Integer userId, int yearSince, int yearTill);
 
 	/**
-	 * Checks whether thanks exists in db. Thanks is supposed to exist if: a/ id
-	 * property is filled and record with given id is in db b/ ownerId and
-	 * reportId properties are filled and given record is in db.
-	 *
-	 * @param t
-	 * @return true if exists, false otherwise
-	 */
-	boolean thanksExists(Thanks t);
-
-	/**
-	 * creates thanks entity. Dependent fields (i.e. reportId) must already
-	 * exist in db. If property createdDate is null, current timestamp will be
-	 * used.
-	 *
-	 * @param sess
-	 * @param t
-	 * @return id of created thanks
-	 */
-	int createThanks(PerunSession sess, Thanks t) throws CabinetException;
-
-	/**
 	 * Finds authorships according to filter. Between properties AND conjunction
 	 * is used. Page and size are for paging. If you search all records, you
 	 * provide empty (but not null) authorship.
@@ -188,46 +156,6 @@ public interface CabinetApi extends Serializable {
 	List<PublicationForGUI> findRichPublicationsOfAuthor(Integer id) throws CabinetException;
 
 	/**
-	 * Finds thanks by filter. Between properties AND conjunction is used.
-	 *
-	 * @param t
-	 * @return list of thanks or empty list if nothing is found.
-	 */
-	List<Thanks> findThanksByFilter(Thanks t);
-
-	/**
-	 * Find thanks related to selected publication
-	 *
-	 * @param id ID of selected publication
-	 * @return thanks related to publication
-	 */
-	List<Thanks> findThanksByPublicationId(int id);
-
-	/**
-	 * Find rich thanks related to selected publication
-	 *
-	 * @param id ID of publication
-	 * @return list of rich thanks
-	 */
-	List<ThanksForGUI> findRichThanksByPublicationId(int id);
-
-	/**
-	 * Return thanks by it's ID property
-	 *
-	 * @param id
-	 * @return thanks
-	 */
-	Thanks findThanksById(int id);
-
-	/**
-	 * Finds category by id in db.
-	 *
-	 * @param categoryId
-	 * @return existing category or null if nothing is found.
-	 */
-	Category findCategoryById(Integer categoryId);
-
-	/**
 	 * Gets the overall rank of given user as sum of all his publications'
 	 * authorships.
 	 *
@@ -235,7 +163,7 @@ public interface CabinetApi extends Serializable {
 	 * @return total rank of user or 1.0 if user has no reports (=authorship)
 	 *         yet (default rank).
 	 */
-	Double getRank(Integer userId);
+	Double getRank(Integer userId) throws InternalErrorException, CabinetException;
 
 	/**
 	 * Gets date of last user's created (last created authorship of his
@@ -340,7 +268,7 @@ public interface CabinetApi extends Serializable {
 	 * @return
 	 * @throws CabinetException
 	 */
-	int updateAuthorship(PerunSession sess, Authorship a) throws CabinetException;
+	int updateAuthorship(PerunSession sess, Authorship a) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Deletes authorship by it's id.
@@ -349,7 +277,7 @@ public interface CabinetApi extends Serializable {
 	 * @return
 	 * @throws CabinetException
 	 */
-	int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException;
+	int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Finds all publications in db.
@@ -369,39 +297,9 @@ public interface CabinetApi extends Serializable {
 
 	int getPublicationsCount();
 
-	PublicationSystem getPublicationSystemById(int publicationSystemId) throws CabinetException, InternalErrorException;
-
-	int updatePublicationById(PerunSession sess, Publication modelObject) throws CabinetException;
+	int updatePublicationById(PerunSession sess, Publication modelObject) throws CabinetException, InternalErrorException;
 
 	int deletePublicationById(PerunSession sess, Integer id) throws CabinetException;
-
-	int getCategoriesCount();
-
-	/**
-	 * Updates category according it's id.
-	 *
-	 * @param sess
-	 * @param category
-	 * @return number of updated rows in db
-	 * @throws CabinetException
-	 */
-	int updateCategoryById(PerunSession sess, Category category) throws CabinetException;
-
-	/**
-	 * Deletes category by it's id.
-	 *
-	 * @param id
-	 * @return number of deleted categories
-	 */
-	int deleteCategoryById(Integer id);
-
-	/**
-	 * Creates a new category in db.
-	 *
-	 * @param modelObject
-	 * @return id of new category
-	 */
-	int createCategory(Category modelObject);
 
 	/**
 	 * Finds all authors in db. Note that Author is kind of User and exists, if
@@ -421,22 +319,6 @@ public interface CabinetApi extends Serializable {
 	int getAuthorsCount();
 
 	/**
-	 * Deletes thanks by its id.
-	 *
-	 * @param id
-	 * @return number of deleted lines in db
-	 * @throws CabinetException
-	 */
-	int deleteThanksById(PerunSession sess, Integer id) throws CabinetException;
-
-	/**
-	 * Finds all publication systems in cabinet db.
-	 *
-	 * @return list of publication systems
-	 */
-	List<PublicationSystem> getPublicationSystems() throws InternalErrorException;
-
-	/**
 	 * Lock / Unlock publications by their ids.
 	 *
 	 * @param sess session to verify as perunadmin
@@ -454,6 +336,6 @@ public interface CabinetApi extends Serializable {
 	 * @param sess
 	 * @throws CabinetException
 	 */
-	void recalculateThanksAttribute(PerunSession sess) throws CabinetException;
+	void recalculateThanksAttribute(PerunSession sess) throws CabinetException, InternalErrorException;
 
 }

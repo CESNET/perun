@@ -7,6 +7,7 @@ import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
  * Encapsulates the Perun itself.
@@ -70,7 +71,7 @@ public interface PerunManagerBl {
 	 * @param userId to set thanks to
 	 * @throws CabinetException
 	 */
-	void setThanksAttribute(int userId) throws CabinetException;
+	void setThanksAttribute(int userId) throws CabinetException, InternalErrorException;
 
 
 	/**
