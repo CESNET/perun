@@ -318,6 +318,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+				task.setPropagationForced(false);
 				continue;
 			}
 
@@ -326,6 +327,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+				task.setPropagationForced(false);
 				continue;
 			}
 
@@ -338,6 +340,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 						task);
 				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, TaskStatus.ERROR);
+				task.setPropagationForced(false);
 			}
 
 		}
@@ -580,6 +583,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 				}
 			}
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.ERROR);
+			completedTask.setPropagationForced(false);
 			log.debug("Task set to ERROR state with remaining destinations: "
 					+ completedTask.getDestinations());
 		}
