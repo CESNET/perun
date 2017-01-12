@@ -8,7 +8,7 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.List;
 
-import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
+import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import org.junit.Test;
 
 import cz.metacentrum.perun.cabinet.model.Thanks;
@@ -19,7 +19,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void createThanksTest() throws Exception {
-		System.out.println("ThanksServiceImpl.createThanksTest");
+		System.out.println("ThanksManagerIntegrationTest.createThanksTest");
 
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
@@ -40,7 +40,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void createThanksWhenExistsByIDTest() throws Exception {
-		System.out.println("ThanksServiceImpl.createThanksWhenExistsByIDTest");
+		System.out.println("ThanksManagerIntegrationTest.createThanksWhenExistsByIDTest");
 
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
@@ -61,7 +61,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void createThanksWhenExistsByOwnerAndPublicationTest() throws Exception {
-		System.out.println("ThanksServiceImpl.createThanksWhenExistsByOwnerAndPublicationTest");
+		System.out.println("ThanksManagerIntegrationTest.createThanksWhenExistsByOwnerAndPublicationTest");
 
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
@@ -82,7 +82,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void deleteThanksTest() throws Exception {
-		System.out.println("ThanksServiceImpl.deleteThanksTest");
+		System.out.println("ThanksManagerIntegrationTest.deleteThanksTest");
 
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
@@ -97,6 +97,82 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 		List<Thanks> thanks = getCabinetManager().getThanksByPublicationId(publicationOne.getId());
 		assertTrue("Thanks was not deleted", thanks.size() == 0);
+
+	}
+
+	@Test
+	public void getThanksByIdTest() throws Exception {
+		System.out.println("ThanksManagerIntegrationTest.getThanksByIdTest");
+
+		Thanks t = new Thanks();
+		t.setCreatedBy(sess.getPerunPrincipal().getActor());
+		t.setCreatedDate(new Date());
+		t.setOwnerId(1);
+		t.setPublicationId(publicationOne.getId());
+
+		t = getCabinetManager().createThanks(sess, t);
+		assertTrue(t != null);
+
+		Thanks thanks = getCabinetManager().getThanksById(t.getId());
+		assertNotNull("No thanks returned for ID", thanks);
+		assertEquals("Stored and returned thanks should be equals", t, thanks);
+
+	}
+
+	@Test
+	public void getThanksByPublicationIdTest() throws Exception {
+		System.out.println("ThanksManagerIntegrationTest.getThanksByPublicationIdTest");
+
+		Thanks t = new Thanks();
+		t.setCreatedBy(sess.getPerunPrincipal().getActor());
+		t.setCreatedDate(new Date());
+		t.setOwnerId(1);
+		t.setPublicationId(publicationOne.getId());
+
+		t = getCabinetManager().createThanks(sess, t);
+		assertTrue(t != null);
+
+		List<Thanks> thanks = getCabinetManager().getThanksByPublicationId(publicationOne.getId());
+		assertNotNull("No thanks returned for publicationOne", thanks);
+		assertEquals("Stored and returned thanks should be equals", t, thanks.get(0));
+
+	}
+
+	@Test
+	public void getRichThanksByPublicationIdTest() throws Exception {
+		System.out.println("ThanksManagerIntegrationTest.getRichThanksByPublicationIdTest");
+
+		Thanks t = new Thanks();
+		t.setCreatedBy(sess.getPerunPrincipal().getActor());
+		t.setCreatedDate(new Date());
+		t.setOwnerId(1);
+		t.setPublicationId(publicationOne.getId());
+
+		t = getCabinetManager().createThanks(sess, t);
+		assertTrue(t != null);
+
+		List<ThanksForGUI> thanks = getCabinetManager().getRichThanksByPublicationId(publicationOne.getId());
+		assertNotNull("No thanks returned for publicationOne", thanks);
+		assertEquals("Stored and returned thanks should be equals", t.getId(), thanks.get(0).getId());
+
+	}
+
+	@Test
+	public void getRichThanksByUserIdTest() throws Exception {
+		System.out.println("ThanksManagerIntegrationTest.getRichThanksByUserIdTest");
+
+		Thanks t = new Thanks();
+		t.setCreatedBy(sess.getPerunPrincipal().getActor());
+		t.setCreatedDate(new Date());
+		t.setOwnerId(1);
+		t.setPublicationId(publicationOne.getId());
+
+		t = getCabinetManager().createThanks(sess, t);
+		assertTrue(t != null);
+
+		List<ThanksForGUI> thanks = getCabinetManager().getRichThanksByUserId(USER_ID);
+		assertNotNull("No thanks returned for user "+USER_ID, thanks);
+		assertEquals("Stored and returned thanks should be equals", t.getId(), thanks.get(0).getId());
 
 	}
 

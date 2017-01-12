@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.cabinet.api.impl;
 
 import cz.metacentrum.perun.cabinet.api.CabinetManager;
+import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
+import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
@@ -29,6 +31,7 @@ public class CabinetManagerImpl implements CabinetManager {
 	private CategoryManagerBl categoryManagerBl;
 	private PublicationSystemManagerBl publicationSystemManagerBl;
 	private ThanksManagerBl thanksManagerBl;
+	private AuthorshipManagerBl authorshipManagerBl;
 
 	@Autowired
 	public void setCategoryManagerBl(CategoryManagerBl categoryManagerBl) {
@@ -45,6 +48,11 @@ public class CabinetManagerImpl implements CabinetManager {
 		this.thanksManagerBl = thanksManagerBl;
 	}
 
+	@Autowired
+	public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
+		this.authorshipManagerBl = authorshipManagerBl;
+	}
+
 	public CategoryManagerBl getCategoryManagerBl() {
 		return categoryManagerBl;
 	}
@@ -55,6 +63,10 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	public ThanksManagerBl getThanksManagerBl() {
 		return thanksManagerBl;
+	}
+
+	public AuthorshipManagerBl getAuthorshipManagerBl() {
+		return authorshipManagerBl;
 	}
 
 
@@ -188,6 +200,15 @@ public class CabinetManagerImpl implements CabinetManager {
 	@Override
 	public List<ThanksForGUI> getRichThanksByUserId(int userId) throws CabinetException, InternalErrorException {
 		return getThanksManagerBl().getRichThanksByUserId(userId);
+	}
+
+
+	// Authorship methods -------------------------------
+
+
+	@Override
+	public Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
+		return getAuthorshipManagerBl().createAuthorship(sess, authorship);
 	}
 
 }

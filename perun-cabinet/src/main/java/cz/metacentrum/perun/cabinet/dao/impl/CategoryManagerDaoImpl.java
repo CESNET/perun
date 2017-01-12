@@ -54,7 +54,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 	@Override
 	public Category createCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
 		try {
-			// Set the new PS id
+			// Set the new Category id
 			int newId = Utils.getNewId(jdbc, "cabinet_categories_id_seq");
 			jdbc.update("insert into cabinet_categories (id, name, rank, created_by_uid, modified_by_uid)" +
 							" values (?,?,?,?,?)", newId, category.getName(), category.getRank(),
@@ -71,8 +71,9 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 		try {
 			int numAffected = jdbc.update("update cabinet_categories set name=?,rank=?,modified_by_uid=?" +
 					" where id=?", category.getName(), category.getRank(), sess.getPerunPrincipal().getUserId(), category.getId());
-			if(numAffected == 0) throw new CabinetException(ErrorCodes.CATEGORY_NOT_EXISTS);
-			if (numAffected > 1) throw new ConsistencyErrorException("There are multiple Categories with same id: " + category.getId());
+			if (numAffected == 0) throw new CabinetException(ErrorCodes.CATEGORY_NOT_EXISTS);
+			if (numAffected > 1)
+				throw new ConsistencyErrorException("There are multiple Categories with same id: " + category.getId());
 		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
@@ -83,7 +84,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 	public void deleteCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
 		try {
 			int numAffected = jdbc.update("delete from cabinet_categories where id=?", category.getId());
-			if(numAffected == 0) throw new CabinetException(ErrorCodes.CATEGORY_NOT_EXISTS);
+			if (numAffected == 0) throw new CabinetException(ErrorCodes.CATEGORY_NOT_EXISTS);
 		} catch (DataIntegrityViolationException ex) {
 			throw new CabinetException(ErrorCodes.CATEGORY_HAS_PUBLICATIONS, ex);
 		} catch (RuntimeException err) {
@@ -98,7 +99,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 					" from cabinet_categories", CATEGORY_ROW_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<Category>();
-		}   catch (RuntimeException err) {
+		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
 	}
@@ -110,7 +111,7 @@ public class CategoryManagerDaoImpl implements CategoryManagerDao {
 					" from cabinet_categories where id=?", CATEGORY_ROW_MAPPER, id);
 		} catch (EmptyResultDataAccessException ex) {
 			throw new CabinetException(ErrorCodes.CATEGORY_NOT_EXISTS, ex);
-		}   catch (RuntimeException err) {
+		} catch (RuntimeException err) {
 			throw new InternalErrorException(err);
 		}
 	}

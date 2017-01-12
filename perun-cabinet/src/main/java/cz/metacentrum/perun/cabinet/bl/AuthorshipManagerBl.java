@@ -19,16 +19,17 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 public interface AuthorshipManagerBl {
 
 	/**
-	 * Creates authorship entity in Cabinet. Everything except current date must be
-	 * already set in Authorship object. Authorship is checked for existence before creation.
-	 * When authorship is successfully created, user's priority coeficient is updated.
+	 * Creates Authorship. Everything except current date must be already set in Authorship object.
+	 * Authorship is checked for existence before creation.
+	 * When authorship is successfully created, users priority coefficient is updated.
 	 *
 	 * @param sess PerunSession
-	 * @param a Authorship to be created
-	 * @return ID of created authorship
+	 * @param authorship Authorship to be created
+	 * @return Created authorship
 	 * @throws CabinetException When authorship already exists or other exception occurs
+	 * @throws InternalErrorException When implementation fails
 	 */
-	int createAuthorship(PerunSession sess, Authorship a) throws CabinetException, InternalErrorException;
+	Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Helping function which checks for existence of passed Authorship.
@@ -36,10 +37,10 @@ public interface AuthorshipManagerBl {
 	 * Comparison is preferably based on ID (if set) or on also unique
 	 * combination of a.userId and a.publicationId property.
 	 *
-	 * @param a Authorship to be checked
+	 * @param authorship Authorship to be checked
 	 * @return true if exists / false if not
 	 */
-	boolean authorshipExists(Authorship a);
+	boolean authorshipExists(Authorship authorship);
 
 	/**
 	 * Calculates new priorityCoeficient value

@@ -75,6 +75,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	</bean>
 
 	<bean id="authorshipManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl">
+		<constructor-arg ref="dataSource" />
 		<property name="authorshipMapper" ref="authorshipMapper" />
 	</bean>
 
@@ -117,7 +118,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<bean id="authorshipManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.AuthorshipManagerBlImpl">
 		<property name="authorshipManagerDao" ref="authorshipManagerDao" />
 		<property name="publicationService" ref="publicationManagerBl" />
-		<property name="categoryService" ref="categoryManagerBl" />
+		<property name="categoryManagerBl" ref="categoryManagerBl" />
 		<property name="authorService" ref="authorManagerBl" />
 		<property name="perunService" ref="perunManagerBl" />
 	</bean>

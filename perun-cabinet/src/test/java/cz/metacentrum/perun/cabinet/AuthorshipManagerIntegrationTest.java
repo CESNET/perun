@@ -1,11 +1,10 @@
-package cz.metacentrum.perun.cabinet.service.impl;
+package cz.metacentrum.perun.cabinet;
 
 import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.List;
 
-import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import cz.metacentrum.perun.cabinet.bl.impl.AuthorshipManagerBlImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -22,7 +21,7 @@ import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
-public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
+public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Autowired
 	private AuthorshipManagerBl authorshipService;
@@ -32,11 +31,9 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	// ------------- TESTS --------------------------------------------
 
-	@Transactional
-	@Rollback(true)
 	@Test
 	public void createAuthorshipTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.createAuthorshipTest");
+		System.out.println("AuthorshipManagerIntegrationTest.createAuthorshipTest");
 
 		Authorship r = new Authorship();
 		r.setPublicationId(publicationTwo.getId()); // Because Pub 2 doesn't have authors yet
@@ -44,18 +41,15 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 		r.setCreatedDate(new Date());
 		r.setCreatedBy(sess.getPerunPrincipal().getActor());
 
-		int id = authorshipService.createAuthorship(sess, r);
-
-		assertTrue("New Authorship ID shouldn't be 0.", id > 0);
-		assertTrue("Returned and Authorship ID doesn't match.", id == r.getId());
+		r = getCabinetManager().createAuthorship(sess, r);
+		assertTrue(r != null);
+		assertTrue("New Authorship ID shouldn't be 0.", r.getId() > 0);
 
 	}
 
-	@Transactional
-	@Rollback(true)
 	@Test
 	public void createAuthorshipWhenAlreadyExistsTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.createAuthorshipWhenAlreadyExistsTest");
+		System.out.println("AuthorshipManagerIntegrationTest.createAuthorshipWhenAlreadyExistsTest");
 
 		Authorship r = new Authorship();
 		r.setPublicationId(publicationOne.getId());
@@ -78,7 +72,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 	@Rollback(true)
 	@Test
 	public void deleteAuthorshipByIdTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.deleteAuthorshipByIdTest");
+		System.out.println("AuthorshipManagerIntegrationTest.deleteAuthorshipByIdTest");
 
 		// delete AuthorshipOne by Michal Procházka for PublicationOne
 		int id = authorshipService.deleteAuthorshipById(sess, authorshipOne.getId());
@@ -94,7 +88,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 	@Rollback(true)
 	@Test
 	public void deleteAuthorshipByIdWhenNotExistsTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.deleteAuthorshipByIdWhenNotExistsTest");
+		System.out.println("AuthorshipManagerIntegrationTest.deleteAuthorshipByIdWhenNotExistsTest");
 
 		// delete not existing authorship
 		try {
@@ -112,7 +106,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 	@Rollback(true)
 	@Test
 	public void updateAuthorshipTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.updateAuthorshipTest");
+		System.out.println("AuthorshipManagerIntegrationTest.updateAuthorshipTest");
 
 		// transfer autohrshipOne from publicationOne to publicationTwo
 		authorshipOne.setPublicationId(publicationTwo.getId());
@@ -138,7 +132,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void findAuthorshipsByFilterSPSQLInjectionTest() {
-		System.out.println("AuthorshipServiceImpl.findAuthorshipsByFilterSPSQLInjectionTest");
+		System.out.println("AuthorshipManagerIntegrationTest.findAuthorshipsByFilterSPSQLInjectionTest");
 
 		String s1 = "a0aSQLinjection_I;d";// semicolon is not allowed
 		Authorship r = new Authorship();
@@ -149,7 +143,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void findAuthorshipsByFilterSPTest() {
-		System.out.println("AuthorshipServiceImpl.findAuthorshipsByFilterSPTest");
+		System.out.println("AuthorshipManagerIntegrationTest.findAuthorshipsByFilterSPTest");
 
 		//do not use db
 		AuthorshipManagerDao authorshipManagerDao = Mockito.mock(AuthorshipManagerDao.class);
@@ -173,7 +167,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 	@Test
 	@Rollback(true)
 	public void authorshipExistsTest() {
-		System.out.println("AuthorshipServiceImpl.authorshipExistsTest");
+		System.out.println("AuthorshipManagerIntegrationTest.authorshipExistsTest");
 
 		// authorshipOne always exists
 		boolean result = authorshipService.authorshipExists(authorshipOne);
@@ -202,7 +196,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void findAuthorsByAuthorshipIdTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.findAuthorsByAuthorshipIdTest");
+		System.out.println("AuthorshipManagerIntegrationTest.findAuthorsByAuthorshipIdTest");
 
 		// store existing author of authorship one
 		Author a = authorService.findAuthorByUserId(USER_ID);
@@ -215,7 +209,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void findAuthorsByAuthorshipIdWhenNotExistsTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.findAuthorsByAuthorshipIdWhenNotExistsTest");
+		System.out.println("AuthorshipManagerIntegrationTest.findAuthorsByAuthorshipIdWhenNotExistsTest");
 
 		try {
 			authorshipService.findAuthorsByAuthorshipId(sess, 0);
@@ -230,7 +224,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void findAllAuthorshipsANDgetAuthorshipCountTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.findAllAuthorshipsANDgetAuthorshipCountTest");
+		System.out.println("AuthorshipManagerIntegrationTest.findAllAuthorshipsANDgetAuthorshipCountTest");
 
 		List<Authorship> list = authorshipService.findAllAuthorships();
 		assertTrue("Returned authorships shouldn't be null.", list != null);
@@ -240,7 +234,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void findAuthorshipsByPublicationIdTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.findAuthorshipsByPublicationIdTest");
+		System.out.println("AuthorshipManagerIntegrationTest.findAuthorshipsByPublicationIdTest");
 
 		List<Authorship> list = authorshipService.findAuthorshipsByPublicationId(publicationOne.getId());
 		assertTrue("Returned authorships shouldn't be null.", list != null);
@@ -250,7 +244,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void findAuthorshipsByUserIdTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.findAuthorshipsByUserIdTest");
+		System.out.println("AuthorshipManagerIntegrationTest.findAuthorshipsByUserIdTest");
 
 		List<Authorship> list = authorshipService.findAuthorshipsByUserId(USER_ID);
 		assertTrue("Returned authorships shouldn't be null.", list != null);
@@ -260,7 +254,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void calculateNewRankTest() throws Exception {
-		System.out.println("AuthorshipServiceImpl.calculateNewRankTest");
+		System.out.println("AuthorshipManagerIntegrationTest.calculateNewRankTest");
 
 		// calculate rank based on DB contant
 		Double rank = authorshipService.calculateNewRank(USER_ID);
@@ -275,7 +269,7 @@ public class AuthorshipManagerBlImplTest extends CabinetBaseIntegrationTest {
 
 	@Test
 	public void findUniqueAuthorsIds() {
-		System.out.println("AuthorshipServiceImpl.findUniqueAuthorsIds");
+		System.out.println("AuthorshipManagerIntegrationTest.findUniqueAuthorsIds");
 
 		List<Integer> list = authorService.findUniqueAuthorsIds();
 		assertTrue("There must be some unique authors",!list.isEmpty());

@@ -69,7 +69,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 	@Override
 	public Thanks createThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException {
 		try {
-			// Set the new PS id
+			// Set the new Thanks id
 			int newId = Utils.getNewId(jdbc, "cabinet_thanks_id_seq");
 			jdbc.update("insert into cabinet_thanks (id, ownerId, publicationId, createdBy, createdDate, created_by_uid, modified_by_uid)" +
 							" values (?,?,?,?,"+ Compatibility.getSysdate()+",?,?)", newId, thanks.getOwnerId(), thanks.getPublicationId(),

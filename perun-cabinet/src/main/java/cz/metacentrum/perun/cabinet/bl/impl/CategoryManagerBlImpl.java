@@ -68,7 +68,7 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 	// methods ----------------------
 
 	@Override
-	public Category createCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException {
+	public Category createCategory(PerunSession sess, Category category) throws CabinetException, InternalErrorException {
 		Category newCategory = getCategoryManagerDao().createCategory(sess, category);
 		log.debug("{} created.", newCategory);
 		return newCategory;

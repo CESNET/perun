@@ -77,10 +77,6 @@ public class CabinetApiImpl implements CabinetApi {
 		return this.publicationService.createPublication(sess, p);
 	}
 
-	public int createAuthorship(PerunSession sess, Authorship r) throws CabinetException, InternalErrorException {
-		return authorshipService.createAuthorship(sess, r);
-	}
-
 	public boolean publicationExists(Publication p) {
 		return publicationService.publicationExists(p);
 	}
@@ -93,6 +89,36 @@ public class CabinetApiImpl implements CabinetApi {
 		return authorshipService.authorshipExists(report);
 	}
 
+	public List<Authorship> findAuthorshipsByFilter(Authorship report) {
+		return authorshipService.findAuthorshipsByFilter(report);
+	}
+
+	public List<Authorship> findAllAuthorships() {
+		return authorshipService.findAllAuthorships();
+	}
+
+	public int getAuthorshipsCount() {
+		return authorshipService.getAuthorshipsCount();
+	}
+
+	public List<Authorship> findAuthorshipsByFilter(Authorship report, SortParam sortParam) {
+		return authorshipService.findAuthorshipsByFilter(report, sortParam);
+	}
+
+
+	public Authorship findAuthorshipById(Integer id) {
+		return authorshipService.findAuthorshipById(id);
+	}
+
+	public int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException, InternalErrorException {
+		return authorshipService.updateAuthorship(sess, report);
+	}
+
+	public int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException, InternalErrorException {
+		return authorshipService.deleteAuthorshipById(sess, id);
+	}
+
+
 	public List<Publication> findPublicationsByFilter(Publication p) {
 		return publicationService.findPublicationsByFilter(p);
 	}
@@ -103,10 +129,6 @@ public class CabinetApiImpl implements CabinetApi {
 
 	public List<PublicationForGUI> findRichPublicationsByGUIFilter(Publication p, Integer userId, int yearSince, int yearTill) {
 		return publicationService.findRichPublicationsByGUIFilter(p, userId, yearSince, yearTill);
-	}
-
-	public List<Authorship> findAuthorshipsByFilter(Authorship report) {
-		return authorshipService.findAuthorshipsByFilter(report);
 	}
 
 	public List<PublicationForGUI> findRichPublicationsOfAuthor(Integer id) throws CabinetException {
@@ -133,18 +155,6 @@ public class CabinetApiImpl implements CabinetApi {
 		return authorService.findAuthorsByPublicationId(id);
 	}
 
-	public List<Authorship> findAllAuthorships() {
-		return authorshipService.findAllAuthorships();
-	}
-
-	public int getAuthorshipsCount() {
-		return authorshipService.getAuthorshipsCount();
-	}
-
-	public List<Authorship> findAuthorshipsByFilter(Authorship report, SortParam sortParam) {
-		return authorshipService.findAuthorshipsByFilter(report, sortParam);
-	}
-
 	public Author findAuthorById(Integer userId) {
 		return authorService.findAuthorByUserId(userId);
 	}
@@ -155,18 +165,6 @@ public class CabinetApiImpl implements CabinetApi {
 
 	public PublicationForGUI findRichPublicationById(Integer publicationId) {
 		return publicationService.findRichPublicationById(publicationId);
-	}
-
-	public Authorship findAuthorshipById(Integer id) {
-		return authorshipService.findAuthorshipById(id);
-	}
-
-	public int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException, InternalErrorException {
-		return authorshipService.updateAuthorship(sess, report);
-	}
-
-	public int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException, InternalErrorException {
-		return authorshipService.deleteAuthorshipById(sess, id);
 	}
 
 	public List<Publication> findAllPublications() {

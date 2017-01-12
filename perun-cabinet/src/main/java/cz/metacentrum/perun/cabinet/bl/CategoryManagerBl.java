@@ -22,7 +22,7 @@ public interface CategoryManagerBl {
 	 * @return Created Category with ID set
 	 * @throws InternalErrorException When implementation fails
 	 */
-	Category createCategory(PerunSession sess, Category category) throws InternalErrorException, CabinetException;
+	Category createCategory(PerunSession sess, Category category) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Updates publications category in Perun. Category to update

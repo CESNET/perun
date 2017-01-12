@@ -126,6 +126,33 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Creates Authorship. Everything except current date must be already set in Authorship object.
+	 * Authorship is checked for existence before creation.
+	 * When authorship is successfully created, users priority coefficient is updated.
+	 *
+	 * @param authorship Authorship Authorship to be created
+	 * @return Authorship Created authorship
+	 * @throw CabinetException When authorship already exists or other exception occurs
+	 */
+	createAuthorship {
+		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
+			ac.stateChangingCheck();
+			Authorship auth = parms.read("authorship", Authorship.class);
+			if (ac.getCabinetApi().authorshipExists(auth)) {
+				// exists - return existing
+				// we must take only unique params, when called multiple time from GUI and entry was created by somebody else
+				Authorship filterAuthorship = new Authorship();
+				filterAuthorship.setPublicationId(auth.getPublicationId());
+				filterAuthorship.setUserId(auth.getUserId());
+				return ac.getCabinetApi().findAuthorshipsByFilter(filterAuthorship).get(0);
+				// pubId and userId are unique and checked before, so we can safely return first and only authorship.
+			} else {
+				return ac.getCabinetManager().createAuthorship(ac.getSession(), parms.read("authorship", Authorship.class));
+			}
+		}
+	},
+
 	// SEARCH METHODS
 	/*#
 	 * Finds publications of perun's user specified in param
@@ -389,31 +416,6 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	},
 
 	// CREATE / UPDATE / DELETE / CHECK METHODS
-
-	/*#
-		* Creates an Authorship.
-		* If the authorship already exists, it's returned.
-		* @param authorship Authorship JSON object
-		* @return Authorship Authorship
-		*/
-	createAuthorship {
-		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
-			Authorship auth = parms.read("authorship", Authorship.class);
-			if (ac.getCabinetApi().authorshipExists(auth)) {
-				// exists - return existing
-				// we must take only unique params, when called multiple time from GUI and entry was created by somebody else
-				Authorship filterAuthorship = new Authorship();
-				filterAuthorship.setPublicationId(auth.getPublicationId());
-				filterAuthorship.setUserId(auth.getUserId());
-				return ac.getCabinetApi().findAuthorshipsByFilter(filterAuthorship).get(0);
-				// pubId and userId are unique and checked before, so we can safely return first and only authorship.
-			} else {
-				int id = ac.getCabinetApi().createAuthorship(ac.getSession(), parms.read("authorship", Authorship.class));
-				return ac.getCabinetApi().findAuthorshipById(id);
-			}
-		}
-	},
 
 	/*#
 		* Updates an Authorship.

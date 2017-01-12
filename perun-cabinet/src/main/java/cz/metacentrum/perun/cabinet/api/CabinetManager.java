@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.cabinet.api;
 
+import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
@@ -220,5 +221,20 @@ public interface CabinetManager {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	List<ThanksForGUI> getRichThanksByUserId(int userId) throws CabinetException, InternalErrorException;
+
+	// Authorships ------------------------------------------
+
+	/**
+	 * Creates Authorship. Everything except current date must be already set in Authorship object.
+	 * Authorship is checked for existence before creation.
+	 * When authorship is successfully created, users priority coefficient is updated.
+	 *
+	 * @param sess PerunSession
+	 * @param authorship Authorship to be created
+	 * @return Created authorship
+	 * @throws CabinetException When authorship already exists or other exception occurs
+	 * @throws InternalErrorException When implementation fails
+	 */
+	Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException;
 
 }

@@ -187,10 +187,8 @@ public abstract class CabinetBaseIntegrationTest {
 		a2.setPublicationId(p1.getId()); // for PUB 1
 		a2.setUserId(USER_ID_2);
 
-		int aId1 = authorshipManagerDao.create(a1);
-		a1.setId(aId1);
-		int aId2 = authorshipManagerDao.create(a2);
-		a2.setId(aId2);
+		a1 = authorshipManagerDao.createAuthorship(sess, a1);
+		a2 = authorshipManagerDao.createAuthorship(sess, a2);
 
 		authorshipOne = a1;
 		authorshipTwo = a2;

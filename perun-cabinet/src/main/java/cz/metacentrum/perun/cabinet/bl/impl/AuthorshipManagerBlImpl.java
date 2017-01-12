@@ -42,7 +42,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	private static final double DEFAULT_RANK = 1.0;
 	private AuthorshipManagerDao authorshipManagerDao;
 	private PublicationManagerBl publicationService;
-	private CategoryManagerBl categoryService;
+	private CategoryManagerBl categoryManagerBl;
 	private AuthorManagerBl authorService;
 	private PerunManagerBl perunService;
 	private static Logger log = LoggerFactory.getLogger(AuthorshipManagerBlImpl.class);
@@ -60,22 +60,34 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		this.perunService = perunService;
 	}
 
-	public void setCategoryService(CategoryManagerBl categoryService) {
-		this.categoryService = categoryService;
-	}
-
 	public void setPublicationService(PublicationManagerBl publicationService) {
 		this.publicationService = publicationService;
 	}
 
+	@Autowired
 	public void setAuthorshipManagerDao(AuthorshipManagerDao authorshipManagerDao) {
 		this.authorshipManagerDao = authorshipManagerDao;
 	}
 
+	@Autowired
+	public void setCategoryManagerBl(CategoryManagerBl categoryManagerBl) {
+		this.categoryManagerBl = categoryManagerBl;
+	}
+
+	public AuthorshipManagerDao getAuthorshipManagerDao() {
+		return authorshipManagerDao;
+	}
+
+	public CategoryManagerBl getCategoryManagerBl() {
+		return categoryManagerBl;
+	}
+
+
 	// business methods ===================================
 
 
-	public int createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
+	public Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
+
 		if (authorshipExists(authorship)) throw new CabinetException(ErrorCodes.AUTHORSHIP_ALREADY_EXISTS);
 		if (authorship.getCreatedDate() == null) {
 			authorship.setCreatedDate(new Date());
@@ -83,9 +95,8 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		if (authorship.getCreatedByUid() == null) {
 			authorship.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 		}
-		int id;
 		try {
-			id = authorshipManagerDao.create(authorship);
+			getAuthorshipManagerDao().createAuthorship(sess, authorship);
 		} catch (DataIntegrityViolationException e) {
 			throw new CabinetException(ErrorCodes.USER_NOT_EXISTS, e);
 		}
@@ -100,7 +111,8 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 
 		perunService.setThanksAttribute(authorship.getUserId());
 
-		return id;
+		return authorship;
+
 	}
 
 
@@ -108,13 +120,13 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		if (authorship == null) throw new NullPointerException("Authorship cannot be null");
 
 		if (authorship.getId() != 0) {
-			return authorshipManagerDao.findById(authorship.getId()) != null;
+			return getAuthorshipManagerDao().findById(authorship.getId()) != null;
 		}
 		if (authorship.getPublicationId() != null && authorship.getUserId() != null) {
 			Authorship filter = new Authorship();
 			filter.setPublicationId(authorship.getPublicationId());
 			filter.setUserId(authorship.getUserId());
-			return authorshipManagerDao.findByFilter(filter).size() > 0;
+			return getAuthorshipManagerDao().findByFilter(filter).size() > 0;
 		}
 		return false;
 	}
@@ -132,7 +144,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		for (Authorship r : authorships) {
 			Publication p = publicationService.findPublicationById(r.getPublicationId());
 			rank += p.getRank();
-			Category c = categoryService.getCategoryById(p.getCategoryId());
+			Category c = getCategoryManagerBl().getCategoryById(p.getCategoryId());
 			rank += c.getRank();
 		}
 		return rank;
@@ -140,18 +152,18 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	}
 
 	public List<Authorship> findAuthorshipsByFilter(Authorship filter) {
-		return authorshipManagerDao.findByFilter(filter);
+		return getAuthorshipManagerDao().findByFilter(filter);
 	}
 
 	public Date getLastCreatedAuthorshipDate(Integer userId) {
-		Authorship report = authorshipManagerDao.findLastestOfUser(userId);
+		Authorship report = getAuthorshipManagerDao().findLastestOfUser(userId);
 		return (report != null) ? report.getCreatedDate() : null;
 	}
 
 	public List<Author> findAuthorsByAuthorshipId(PerunSession sess, Integer id) throws CabinetException {
 		List<Author> result = new ArrayList<Author>();
 
-		Authorship report = authorshipManagerDao.findById(id);
+		Authorship report = getAuthorshipManagerDao().findById(id);
 		if (report == null) {
 			throw new CabinetException("Authorship with ID: "+id+" doesn't exists!", ErrorCodes.AUTHORSHIP_NOT_EXISTS);
 		}
@@ -159,7 +171,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		Authorship filter = new Authorship();
 		filter.setPublicationId(report.getPublicationId());
 
-		List<Authorship> publicationReports = authorshipManagerDao.findByFilter(filter, null);
+		List<Authorship> publicationReports = getAuthorshipManagerDao().findByFilter(filter, null);
 
 		for (Authorship r : publicationReports) {
 			result.add(authorService.findAuthorByUserId(r.getUserId()));
@@ -168,44 +180,44 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	}
 
 	public List<Authorship> findAllAuthorships() {
-		return authorshipManagerDao.findAll();
+		return getAuthorshipManagerDao().findAll();
 	}
 
 
 	public int getAuthorshipsCount() {
-		return authorshipManagerDao.getCount();
+		return getAuthorshipManagerDao().getCount();
 	}
 
 	public int getAuthorshipsCountForUser(Integer userId) {
-		return authorshipManagerDao.getCountForUser(userId);
+		return getAuthorshipManagerDao().getCountForUser(userId);
 	}
 
 	public List<Authorship> findAuthorshipsByFilter(Authorship report, SortParam sortParam) {
 		if (sortParam == null) return findAuthorshipsByFilter(report);
 		if (! sortParam.getProperty().toString().matches("[a-z,A-Z,_,0-9]*")) throw new IllegalArgumentException("sortParam.property is not allowed: "+sortParam.getProperty());
-		return authorshipManagerDao.findByFilter(report, sortParam);
+		return getAuthorshipManagerDao().findByFilter(report, sortParam);
 	}
 
 
 	public Authorship findAuthorshipById(Integer id) {
-		return authorshipManagerDao.findById(id);
+		return getAuthorshipManagerDao().findById(id);
 	}
 
 
 	public List<Authorship> findAuthorshipsByPublicationId(Integer id) {
-		return authorshipManagerDao.findByPublicationId(id);
+		return getAuthorshipManagerDao().findByPublicationId(id);
 	}
 
 
 	public List<Authorship> findAuthorshipsByUserId(Integer id) {
-		return authorshipManagerDao.findByUserId(id);
+		return getAuthorshipManagerDao().findByUserId(id);
 	}
 
 
 	public int updateAuthorship(PerunSession sess, Authorship report) throws CabinetException, InternalErrorException {
 
 		// check if such authorship exists
-		Authorship r = authorshipManagerDao.findById(report.getId());
+		Authorship r = getAuthorshipManagerDao().findById(report.getId());
 		if (r == null) {
 			throw new CabinetException("Authorship with ID: "+report.getId()+" doesn't exists.", ErrorCodes.AUTHORSHIP_NOT_EXISTS);
 		}
@@ -213,14 +225,14 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		Authorship filter = new Authorship();
 		filter.setPublicationId(report.getPublicationId());
 		filter.setUserId(report.getUserId());
-		List<Authorship> list = authorshipManagerDao.findByFilter(filter);
+		List<Authorship> list = getAuthorshipManagerDao().findByFilter(filter);
 		for (Authorship a : list) {
 			if (a.getId() != report.getId()) {
 				throw new CabinetException("Can't update authorship ID="+report.getId()+", same authorship already exists under ID="+a.getId(), ErrorCodes.AUTHORSHIP_ALREADY_EXISTS);
 			}
 		}
 		// update
-		int rows = authorshipManagerDao.update(report);
+		int rows = getAuthorshipManagerDao().update(report);
 
 		// if updated
 		if (rows > 0) {
@@ -275,7 +287,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
 		}
 		// delete
-		int rows = authorshipManagerDao.deleteById(id);
+		int rows = getAuthorshipManagerDao().deleteById(id);
 
 		// if deleted
 		if (rows > 0) {

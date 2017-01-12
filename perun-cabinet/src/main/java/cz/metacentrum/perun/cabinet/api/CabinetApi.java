@@ -79,15 +79,6 @@ public interface CabinetApi extends Serializable {
 	boolean authorExists(Author a);
 
 	/**
-	 * Saves authorship to db.
-	 *
-	 * @param a
-	 * @return id of created authorship.
-	 * @throws CabinetException
-	 */
-	int createAuthorship(PerunSession sess, Authorship a) throws CabinetException, InternalErrorException;
-
-	/**
 	 * Resolves whether given authorship exists. Authorship is assumed to exists
 	 * if: a/ id property is provided and this authorship with the id is in db.
 	 * or b/ if property publicationId and userId are set in some authorship in
