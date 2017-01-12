@@ -31,12 +31,12 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
 
-	final static String PUBLICATION_SYSTEM_SELECT_QUERY = "cabinet_publication_systems.id as ps_id, " +
+	private final static String PUBLICATION_SYSTEM_SELECT_QUERY = "cabinet_publication_systems.id as ps_id, " +
 			"cabinet_publication_systems.friendlyName as ps_friendlyName, cabinet_publication_systems.type as ps_type, " +
 			" cabinet_publication_systems.url as ps_url, cabinet_publication_systems.username as ps_username," +
 			" cabinet_publication_systems.password as ps_password, cabinet_publication_systems.loginNamespace as ps_loginNamespace";
 
-	final static RowMapper<PublicationSystem> PUBLICATION_SYSTEM_ROW_MAPPER = new RowMapper<PublicationSystem>() {
+	private final static RowMapper<PublicationSystem> PUBLICATION_SYSTEM_ROW_MAPPER = new RowMapper<PublicationSystem>() {
 		@Override
 		public PublicationSystem mapRow(ResultSet resultSet, int i) throws SQLException {
 			PublicationSystem ps = new PublicationSystem();
@@ -93,7 +93,8 @@ public class PublicationSystemManagerDaoImpl implements PublicationSystemManager
 	@Override
 	public List<PublicationSystem> getPublicationSystems() throws InternalErrorException {
 		try {
-			return jdbc.query("", PUBLICATION_SYSTEM_ROW_MAPPER);
+			return jdbc.query("select " + PUBLICATION_SYSTEM_SELECT_QUERY +
+					" from cabinet_publication_systems", PUBLICATION_SYSTEM_ROW_MAPPER);
 		} catch (EmptyResultDataAccessException ex) {
 			return new ArrayList<PublicationSystem>();
 		}   catch (RuntimeException err) {
