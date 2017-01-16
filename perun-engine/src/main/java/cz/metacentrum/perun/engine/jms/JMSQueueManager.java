@@ -170,8 +170,8 @@ public class JMSQueueManager {
 				+ task.getId() + ":" + task.getStatus().toString() + ":"
 				+ destinations);
 		// + ":" + task.getId() + ":DONE:Destinations []");
-		message.setJMSPriority(6);
-		producer.send(message);
+		//message.setJMSPriority(6);
+		producer.send(message, DeliveryMode.DEFAULT_DELIVERY_MODE, 6, 0);
 		log.debug("Task result message [" + message.getText()
 				+ "] has been sent...");
 	}
@@ -180,8 +180,8 @@ public class JMSQueueManager {
 		TextMessage message = session.createTextMessage("taskresult:"
 				+ propertiesBean.getProperty("engine.unique.id") + ":"
 				+ (result == null ? "" : result.serializeToString()));
-		message.setJMSPriority(2);
-		producer.send(message);
+		//message.setJMSPriority(2);
+		producer.send(message, DeliveryMode.DEFAULT_DELIVERY_MODE, 2, 0);
 		log.debug("Task destination result message [" + message.getText()
 				+ "] has been sent...");
 	}
