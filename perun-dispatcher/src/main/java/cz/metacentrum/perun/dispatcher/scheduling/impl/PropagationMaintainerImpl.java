@@ -502,7 +502,7 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 
 	@Override
 	public void onTaskComplete(int taskId, int clientID, String status_s,
-			String string) {
+			String endTimestamp, String string) {
 		Task completedTask = schedulingPool.getTaskById(taskId);
 
 		if (completedTask == null) {

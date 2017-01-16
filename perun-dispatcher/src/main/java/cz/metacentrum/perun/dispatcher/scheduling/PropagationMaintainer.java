@@ -22,7 +22,7 @@ public interface PropagationMaintainer {
 
 	void closeTasksForEngine(int clientID);
 
-	void onTaskComplete(int parseInt, int clientID, String status, String string);
+	void onTaskComplete(int parseInt, int clientID, String status, String endTimestamp, String string);
 
 	void onTaskDestinationComplete(int clientID, String string);
 
