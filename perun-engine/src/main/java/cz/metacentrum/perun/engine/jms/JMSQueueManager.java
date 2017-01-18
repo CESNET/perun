@@ -169,7 +169,7 @@ public class JMSQueueManager {
 		TextMessage message = session.createTextMessage("task:"
 				+ propertiesBean.getProperty("engine.unique.id") + ":"
 				+ task.getId() + ":" + task.getStatus().toString() + ":"
-				+ task.getEndTime() + ":" + destinations);
+				+ task.getEndTime().getTime() + ":" + destinations);
 		// + ":" + task.getId() + ":DONE:Destinations []");
 		//message.setJMSPriority(6);
 		producer.send(message, DeliveryMode.PERSISTENT, 6, 0);

@@ -522,7 +522,14 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			status = TaskStatus.ERROR;
 		}
 
-		completedTask.setEndTime(new Date(System.currentTimeMillis()));
+		try {
+			Date endTime = new Date(Long.parseLong(endTimestamp));
+			completedTask.setEndTime(endTime);
+		} catch(NumberFormatException e) {
+			log.error("Engine reported unparsable end time {} for task id {}, setting to current time",
+					endTimestamp, taskId);
+			completedTask.setEndTime(new Date(System.currentTimeMillis()));
+		}
 
 		// if we are going to run this task again, make sure to generate up to
 		// date data
