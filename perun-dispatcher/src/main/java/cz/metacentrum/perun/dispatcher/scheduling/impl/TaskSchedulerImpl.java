@@ -11,6 +11,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
@@ -23,6 +24,7 @@ import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.dispatcher.jms.DispatcherQueue;
 import cz.metacentrum.perun.dispatcher.jms.DispatcherQueuePool;
 import cz.metacentrum.perun.dispatcher.scheduling.DenialsResolver;
@@ -45,7 +47,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	@Autowired
 	private DependenciesResolver dependenciesResolver;
 	@Autowired
-	private Perun perun;
+	private ApplicationContext appCtx;
+	private PerunBl perun;
 	private PerunSession perunSession;
 	@Autowired
 	private Properties dispatcherPropertiesBean;
@@ -55,6 +58,11 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private DenialsResolver denialsResolver;
 	@Autowired
 	private GeneralServiceManager generalServiceManager;
+
+
+	public TaskSchedulerImpl() {
+		perun = appCtx.getBean("perun", PerunBl.class);
+	}
 
 	@Override
 	public void processPool() throws InternalErrorException {
@@ -127,7 +135,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 		Boolean abortTask = false;
 		try {
 			refetchTaskInformation(task);
-			List<Service> assignedServices = perun.getServicesManager().getAssignedServices(perunSession, task.getFacility());
+			List<Service> assignedServices = perun.getServicesManagerBl().getAssignedServices(perunSession, task.getFacility());
 			if (!assignedServices.contains(execService.getService())) {
 				log.debug("Task {} has no longer service {} assigned, aborting.", task.getId(), execService.getId());
 				abortTask = true;
@@ -453,13 +461,19 @@ public class TaskSchedulerImpl implements TaskScheduler {
 					}
 					// manipulateTasks(execService, facility, task);
 				} else {
-					// If we can not proceed, we just end here.
-					// ########################################
-					// The current ExecService,Facility pair should be sleeping
-					// in SchedulingPool at the moment...
-					log.info("   Task {} state set to NONE, will be scheduled again at the next cycle.",
-							task.getId());
-					schedulingPool.setTaskStatus(task, TaskStatus.NONE);
+					if(abortTask) {
+						// the SEND task is going to be aborted now
+						abortTask(task);
+						return false;
+					} else {
+						// If we can not proceed, we just end here.
+						// ########################################
+						// The current ExecService,Facility pair should be sleeping
+						// in SchedulingPool at the moment...
+						log.info("   Task {} state set to NONE, will be scheduled again at the next cycle.",
+								task.getId());
+						schedulingPool.setTaskStatus(task, TaskStatus.NONE);
+					}
 				}
 			} else if (execService.getExecServiceType().equals(ExecServiceType.GENERATE)) {
 				log.debug("   Well, it is not. ExecService of type GENERATE does not have any dependencies by design, so we schedule it immediately.");
@@ -481,19 +495,6 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	}
 
 	private void abortTask(Task task) {
-		// remove this task and its dependencies from database 
-		/*
-		List<Pair<ExecService, DependencyScope>> dependencies = null;
-		dependencies = dependenciesResolver.listDependenciesAndScope(task.getExecService());
-		for (Pair<ExecService, DependencyScope> dependencyPair : dependencies) {
-			ExecService dependency = dependencyPair.getLeft();
-			//DependencyScope dependencyScope = dependencyPair.getRight();
-			Task dependencyServiceTask = schedulingPool.getTask(dependency, task.getFacility());
-			if (dependencyServiceTask != null) {
-				abortTask(dependencyServiceTask);
-			}
-		}
-		*/
 		log.debug("Aborting task {}, removing from pool.", task.getId());
 		schedulingPool.removeTask(task);
 	}
@@ -501,7 +502,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private void refetchTaskInformation(Task task) throws FacilityNotExistsException, InternalErrorException, PrivilegeException, ServiceNotExistsException {
 		// reread facility
 		log.debug("Rereading facility and  exec service for task {}", task.getId());
-		Facility dbFacility = perun.getFacilitiesManager().getFacilityById(perunSession, task.getFacilityId());
+		Facility dbFacility = perun.getFacilitiesManagerBl().getFacilityById(perunSession, task.getFacilityId());
 		if(dbFacility == null) {
 			throw new FacilityNotExistsException("No facility with id " + task.getFacilityId());
 		}
