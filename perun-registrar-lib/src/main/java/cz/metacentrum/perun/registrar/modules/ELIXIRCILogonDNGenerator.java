@@ -42,7 +42,7 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 	final static Logger log = LoggerFactory.getLogger(ELIXIRCILogonDNGenerator.class);
 	
 	final static String LOGINATTRIBUTE = "urn:perun:user:attribute-def:virt:login-namespace:elixir-persistent";
-	final static String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=elixir-europe.org/CN=";
+	final static String DNPREFIX = "/DC=eu/DC=rcauth/DC=rcauth-clients/O=ELIXIR/CN=";
 	final static String CADN = "/DC=eu/DC=rcauth/O=Certification Authorities/CN=Research and Collaboration Authentication Pilot G1 CA";
 
 	public static String RDN_TRUNCATE_SIGN = "...";
