@@ -60,10 +60,6 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	private GeneralServiceManager generalServiceManager;
 
 
-	public TaskSchedulerImpl() {
-		perun = appCtx.getBean("perun", PerunBl.class);
-	}
-
 	@Override
 	public void processPool() throws InternalErrorException {
 		initPerunSession();
@@ -658,6 +654,9 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	}
 
 	private void initPerunSession() throws InternalErrorException {
+		if(perun == null) {
+			perun = appCtx.getBean("perun",  PerunBl.class);
+		}
 		if (perunSession == null) {
 			perunSession = perun
 					.getPerunSession(new PerunPrincipal(
