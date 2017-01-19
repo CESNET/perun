@@ -2,63 +2,94 @@ package cz.metacentrum.perun.cabinet.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.dao.AuthorshipManagerDao;
-import cz.metacentrum.perun.cabinet.dao.mybatis.AuthorshipExample;
-import cz.metacentrum.perun.cabinet.dao.mybatis.AuthorshipMapper;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
-import cz.metacentrum.perun.cabinet.bl.SortParam;
-import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.core.impl.Utils;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
 
 /**
  * Class of DAO layer for handling Authorship entity.
- * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 
 	private JdbcPerunTemplate jdbc;
 
-	private final static String AUTHORSHIP_SELECT_QUERY = "cabinet_categories.id as category_id, " +
-			"cabinet_categories.name as category_name, cabinet_categories.rank as category_rank";
+	private final static String AUTHORSHIP_SELECT_QUERY = "cabinet_authorships.id as authorship_id, " +
+			"cabinet_authorships.userId as authorship_user_id, cabinet_authorships.publicationId as authorship_publication_id," +
+			"cabinet_authorships.createdBy as authorship_created_by, cabinet_authorships.createdDate as authorship_created_date," +
+			"cabinet_authorships.created_by_uid as authorship_created_by_uid, cabinet_authorships.modified_by_uid as authorship_modified_by_uid";
 
-	private final static RowMapper<Category> AUTHORSHIP_ROW_MAPPER = new RowMapper<Category>() {
+	private final static RowMapper<Authorship> AUTHORSHIP_ROW_MAPPER = new RowMapper<Authorship>() {
 		@Override
-		public Category mapRow(ResultSet resultSet, int i) throws SQLException {
-			Category category = new Category();
-			category.setId(resultSet.getInt("category_id"));
-			category.setName(resultSet.getString("category_name"));
-			category.setRank(resultSet.getDouble("category_rank"));
-			return category;
+		public Authorship mapRow(ResultSet resultSet, int i) throws SQLException {
+			Authorship authorship = new Authorship();
+			authorship.setId(resultSet.getInt("authorship_id"));
+			authorship.setUserId(resultSet.getInt("authorship_user_id"));
+			authorship.setPublicationId(resultSet.getInt("authorship_publication_id"));
+			authorship.setCreatedBy(resultSet.getString("authorship_created_by"));
+			authorship.setCreatedDate(resultSet.getDate("authorship_created_date"));
+			authorship.setCreatedByUid(resultSet.getInt("authorship_created_by_uid"));
+			// TODO - modified_by_uid ??
+			return authorship;
 		}
 	};
 
-	private static final String CREATED_DATE_DESC = "createdDate DESC";
-	private static final String DESC = "DESC";
-	private static final String ASC = "ASC";
-	private AuthorshipMapper authorshipMapper;
+	private final static String AUTHOR_SELECT_QUERY = "users.id as users_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
+			"users.middle_name as users_middle_name, users.title_before as users_title_before, users.title_after as users_title_after, " +
+			AUTHORSHIP_SELECT_QUERY;
+
+	private final static RowMapper<Author> AUTHOR_ROW_MAPPER = new RowMapper<Author>() {
+		@Override
+		public Author mapRow(ResultSet resultSet, int i) throws SQLException {
+			Author author = new Author();
+			author.setId(resultSet.getInt("users_id"));
+			author.setFirstName(resultSet.getString("users_first_name"));
+			author.setLastName(resultSet.getString("users_last_name"));
+			author.setTitleBefore(resultSet.getString("users_title_before"));
+			author.setTitleAfter(resultSet.getString("users_title_after"));
+			return author;
+		}
+	};
+
+	private final static ResultSetExtractor<List<Author>> AUTHOR_RESULT_SET_EXTRACTOR = new ResultSetExtractor<List<Author>>() {
+		@Override
+		public List<Author> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+			HashMap<Integer, Author> result = new HashMap<>();
+			while (resultSet.next()) {
+				Author author = AUTHOR_ROW_MAPPER.mapRow(resultSet, resultSet.getRow());
+				if (!result.containsKey(author.getId())) {
+					// new author
+					result.put(author.getId(), author);
+				}
+				// add authorships
+				result.get(author.getId()).getAuthorships().add(AUTHORSHIP_ROW_MAPPER.mapRow(resultSet, resultSet.getRow()));
+			}
+			return new ArrayList<Author>(result.values());
+		}
+	};
+
 
 	public AuthorshipManagerDaoImpl(DataSource perunPool) {
 		this.jdbc = new JdbcPerunTemplate(perunPool);
-	}
-
-	// setters ----------------------
-
-	public void setAuthorshipMapper(AuthorshipMapper authorshipMapper) {
-		this.authorshipMapper = authorshipMapper;
 	}
 
 	// methods ----------------------
@@ -78,109 +109,99 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 		return authorship;
 	}
 
-	public List<Authorship> findByFilter(Authorship filter) {
-		return authorshipMapper.findByFilter(filter);
-	}
-
-
-	public Authorship findById(Integer id) {
-		return authorshipMapper.selectByPrimaryKey(id);
-	}
-
-
-	public Authorship findLastestOfUser(Integer userId) {
-		AuthorshipExample example = new AuthorshipExample();
-		example.createCriteria().andUserIdEqualTo(userId);
-		example.setOrderByClause(CREATED_DATE_DESC);
-		List<Authorship> reports = authorshipMapper.selectByExample(example);
-		return (reports.size() > 0) ? reports.get(0) : null;
-	}
-
-
-	public List<Authorship> findAll() {
-		List<Authorship> reports = authorshipMapper.selectByExample(null);
-		return reports;
-	}
-
-
-	public int getCount() {
-		int result = authorshipMapper.countByExample(null);
-		return result;
-	}
-
-	public int getCountForUser(Integer userId) {
-		AuthorshipExample example = new AuthorshipExample();
-		example.createCriteria().andUserIdEqualTo(userId);
-		int result = authorshipMapper.countByExample(example);
-		return result;
-	}
-
-	public List<Authorship> findByFilter(Authorship filter, SortParam sortParam) {
-
-		if (sortParam == null) {
-			return findByFilter(filter);
+	@Override
+	public void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
+		try {
+			int numAffected = jdbc.update("delete from cabinet_authorships where id=?", authorship.getId());
+			if (numAffected == 0) throw new CabinetException(ErrorCodes.AUTHORSHIP_NOT_EXISTS);
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
 		}
+	}
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("id", filter.getId());
-		params.put("userId", filter.getUserId());
-		params.put("createdBy", filter.getCreatedBy());
-		params.put("createdDate", filter.getCreatedDate());
-		params.put("publicationId", filter.getPublicationId());
-
-		params.put("orderProperty", sortParam.getProperty());//property must match column in db, watch JOIN sql!
-		params.put("orderByClause", sortParam.getProperty() + " " + ((sortParam.isAscending()) ? ASC : DESC));
-		params.put("order", (sortParam.isAscending() ? ASC : DESC));
-		if (sortParam.getPage() != null && sortParam.getSize() != null) {
-			int limit1 = sortParam.getPage() * sortParam.getSize();
-			params.put("limit1", limit1);
-			params.put("limit2", sortParam.getSize());
+	@Override
+	public Authorship getAuthorshipById(int id) throws CabinetException, InternalErrorException {
+		try {
+			return jdbc.queryForObject("select " + AUTHORSHIP_SELECT_QUERY +
+					" from cabinet_authorships where id=?", AUTHORSHIP_ROW_MAPPER, id);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new CabinetException(ErrorCodes.AUTHORSHIP_NOT_EXISTS, ex);
+		}   catch (RuntimeException err) {
+			throw new InternalErrorException(err);
 		}
-
-		List<Authorship> r = authorshipMapper.findByParams(params);
-		return r;
 	}
 
-	public List<Authorship> findByPublicationId(Integer id) {
-
-		AuthorshipExample example = new AuthorshipExample();
-		example.createCriteria().andPublicationIdEqualTo(id);
-		return authorshipMapper.selectByExample(example);
-
+	@Override
+	public List<Authorship> getAuthorshipsByUserId(int id) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + AUTHORSHIP_SELECT_QUERY +
+					" from cabinet_authorships where userId=?", AUTHORSHIP_ROW_MAPPER, id);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<Authorship>();
+		}   catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
 	}
 
-	public List<Authorship> findByUserId(Integer id) {
-
-		AuthorshipExample example = new AuthorshipExample();
-		example.createCriteria().andUserIdEqualTo(id);
-		return authorshipMapper.selectByExample(example);
-
+	@Override
+	public List<Authorship> getAuthorshipsByPublicationId(int id) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + AUTHORSHIP_SELECT_QUERY +
+					" from cabinet_authorships where publicationId=?", AUTHORSHIP_ROW_MAPPER, id);
+		} catch (EmptyResultDataAccessException ex) {
+			return new ArrayList<Authorship>();
+		}   catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
 	}
 
-
-	public int update(Authorship report) {
-		return authorshipMapper.updateByPrimaryKey(report);
+	@Override
+	public Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException, InternalErrorException {
+		try {
+			return jdbc.queryForObject("select " + AUTHORSHIP_SELECT_QUERY +
+					" from cabinet_authorships where userId=? and publicationId=?", AUTHORSHIP_ROW_MAPPER, userId, publicationId);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new CabinetException(ErrorCodes.AUTHORSHIP_NOT_EXISTS, ex);
+		} catch (RuntimeException err) {
+			throw new InternalErrorException(err);
+		}
 	}
 
-
-	public int deleteById(Integer id) {
-		return authorshipMapper.deleteByPrimaryKey(id);
+	@Override
+	public Author getAuthorById(int id) throws CabinetException, InternalErrorException {
+		try {
+			return (Author) jdbc.queryForObject("select " + AUTHOR_SELECT_QUERY +
+					" from users" +
+					" join cabinet_authorships on users.id=cabinet_authorships.userId" +
+					" and users.id=?", AUTHOR_RESULT_SET_EXTRACTOR, id);
+		} catch (EmptyResultDataAccessException ex) {
+			throw new CabinetException(ErrorCodes.AUTHOR_NOT_EXISTS, ex);
+		}   catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
-	public List<Integer> findUniqueAuthorsIds() {
-		return authorshipMapper.selectUniqueAuthorsIds();
+	@Override
+	public List<Author> getAllAuthors() throws InternalErrorException {
+		try {
+			return jdbc.query("select " + AUTHOR_SELECT_QUERY +
+					" from users" +
+					" join cabinet_authorships on users.id=cabinet_authorships.userId", AUTHOR_RESULT_SET_EXTRACTOR);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
-	public Author findAuthorByUserId(Integer userId) {
-		return authorshipMapper.findAuthorByUserId(userId);
-	}
-
-	public List<Author> findAuthorsByPublicationId(Integer publicationId) {
-		return authorshipMapper.findAuthorsByPublicationId(publicationId);
-	}
-
-	public List<Author> findAllAuthors() {
-		return authorshipMapper.findAllAuthors();
+	@Override
+	public List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + AUTHOR_SELECT_QUERY +
+					" from users" +
+					" join cabinet_authorships on users.id=cabinet_authorships.userId" +
+					" and cabinet_authorships.publicationId=?", AUTHOR_RESULT_SET_EXTRACTOR, id);
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
 	}
 
 }

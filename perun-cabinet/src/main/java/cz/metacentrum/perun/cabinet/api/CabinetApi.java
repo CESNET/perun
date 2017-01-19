@@ -70,26 +70,6 @@ public interface CabinetApi extends Serializable {
 	boolean publicationExists(Publication p);
 
 	/**
-	 * Checks whether author exists. Author exists iff author with equal userId
-	 * is in perun.
-	 *
-	 * @param a
-	 * @return true if author with equal property userId is in db. otherwise false
-	 */
-	boolean authorExists(Author a);
-
-	/**
-	 * Resolves whether given authorship exists. Authorship is assumed to exists
-	 * if: a/ id property is provided and this authorship with the id is in db.
-	 * or b/ if property publicationId and userId are set in some authorship in
-	 * db. otherwise returns false
-	 *
-	 * @param authorship
-	 * @return true if authorship exists
-	 */
-	boolean authorshipExists(Authorship authorship);
-
-	/**
 	 * Finds publications in db according to provided instance. All set
 	 * properties are used with conjunction AND.
 	 *
@@ -123,19 +103,6 @@ public interface CabinetApi extends Serializable {
 	List<PublicationForGUI> findRichPublicationsByGUIFilter(Publication p, Integer userId, int yearSince, int yearTill);
 
 	/**
-	 * Finds authorships according to filter. Between properties AND conjunction
-	 * is used. Page and size are for paging. If you search all records, you
-	 * provide empty (but not null) authorship.
-	 *
-	 * @param authorship
-	 * @param sortParam
-	 *            might be null or some properties might be null (then they will
-	 *            be ignored), however it is not safe(exception can raise)
-	 * @return list of selected authorships or empty list if nothing is found.
-	 */
-	List<Authorship> findAuthorshipsByFilter(Authorship authorship, SortParam sortParam);
-
-	/**
 	 * Finds all rich publications in db of given user ID. Returned publications don't
 	 * have filled <authors> property. If you desire authors, you have to search
 	 * for them manually.
@@ -145,28 +112,6 @@ public interface CabinetApi extends Serializable {
 	 * @throws CabinetException
 	 */
 	List<PublicationForGUI> findRichPublicationsOfAuthor(Integer id) throws CabinetException;
-
-	/**
-	 * Gets the overall rank of given user as sum of all his publications'
-	 * authorships.
-	 *
-	 * @param userId
-	 * @return total rank of user or 1.0 if user has no reports (=authorship)
-	 *         yet (default rank).
-	 */
-	Double getRank(Integer userId) throws InternalErrorException, CabinetException;
-
-	/**
-	 * Gets date of last user's created (last created authorship of his
-	 * publication) authorship (when he did it himself). Note, that this is done
-	 * via createdBy property, so another user might create authorship for given
-	 * author with later date. If there is no authorship from this user, null is
-	 * returned.
-	 *
-	 * @param userId
-	 * @return
-	 */
-	Date getLastReportDate(Integer userId);
 
 	/**
 	 * Finds owner by id in db.
@@ -186,48 +131,7 @@ public interface CabinetApi extends Serializable {
 	 * @return list of authors
 	 * @throws CabinetException
 	 */
-	List<Author> findAuthorsByAuthorshipId(PerunSession sess, Integer id) throws CabinetException;
-
-	/**
-	 * Finds all authors of publication by given publicationId
-	 * (users who reported publication)
-	 *
-	 * @param id id of publication
-	 * @return list of authors
-	 */
-	List<Author> findAuthorsByPublicationId(Integer id);
-
-	/**
-	 * Finds all authorships stored in db. If none exists, empty list is
-	 * returned.
-	 *
-	 * @return
-	 */
-	List<Authorship> findAllAuthorships();
-
-	/**
-	 * Returns a count of authorships stored in db.
-	 *
-	 * @return
-	 */
-	int getAuthorshipsCount();
-
-	/**
-	 * Finds records in db according to filter. Between filled properties is
-	 * used conjunction AND. If none result matches, empty array is returned.
-	 *
-	 * @param authorship
-	 * @return
-	 */
-	List<Authorship> findAuthorshipsByFilter(Authorship authorship);
-
-	/**
-	 * Finds author by his userId
-	 *
-	 * @param userId
-	 * @return
-	 */
-	Author findAuthorById(Integer userId);
+	List<Author> findAuthorsByAuthorshipId(PerunSession sess, Integer id) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Finds publication in db by it's id. (Not by it's externalId).
@@ -244,31 +148,6 @@ public interface CabinetApi extends Serializable {
 	 * @return founded publication or null if nothing is found
 	 */
 	PublicationForGUI findRichPublicationById(Integer publicationId);
-
-	/**
-	 * Finds authorship in db.
-	 *
-	 * @param id
-	 * @return authorship or null if record with given id does not exist in db
-	 */
-	Authorship findAuthorshipById(Integer id);
-
-	/**
-	 * Updates authorship
-	 * @param a
-	 * @return
-	 * @throws CabinetException
-	 */
-	int updateAuthorship(PerunSession sess, Authorship a) throws CabinetException, InternalErrorException;
-
-	/**
-	 * Deletes authorship by it's id.
-	 *
-	 * @param id
-	 * @return
-	 * @throws CabinetException
-	 */
-	int deleteAuthorshipById(PerunSession sess, Integer id) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Finds all publications in db.
@@ -293,23 +172,6 @@ public interface CabinetApi extends Serializable {
 	int deletePublicationById(PerunSession sess, Integer id) throws CabinetException;
 
 	/**
-	 * Finds all authors in db. Note that Author is kind of User and exists, if
-	 * the user reports publication. Then author is holder of additional
-	 * information about user and can search in perun after user by author's
-	 * property userId.
-	 *
-	 * @return list of founded authors
-	 */
-	List<Author> findAllAuthors();
-
-	/**
-	 * Gets number of authors in cabinet.
-	 *
-	 * @return count of authors in perun
-	 */
-	int getAuthorsCount();
-
-	/**
 	 * Lock / Unlock publications by their ids.
 	 *
 	 * @param sess session to verify as perunadmin
@@ -319,14 +181,5 @@ public interface CabinetApi extends Serializable {
 	 * @throws CabinetException when not authorized or something is wrong
 	 */
 	int lockPublications(PerunSession sess, boolean lockState, List<Publication> pubs) throws CabinetException;
-
-	/**
-	 * Recalculates "publications" attribute for
-	 * all users who reported any publication
-	 *
-	 * @param sess
-	 * @throws CabinetException
-	 */
-	void recalculateThanksAttribute(PerunSession sess) throws CabinetException, InternalErrorException;
 
 }

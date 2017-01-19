@@ -24,7 +24,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<aop:config>
 		<aop:advisor advice-ref="txDeletePublication" pointcut="execution(* cz.metacentrum.perun.cabinet.bl.PublicationManagerBl.deletePublicationById(..))"/>
 		<aop:advisor advice-ref="txCreateAuthorship" pointcut="execution(* cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl.createAuthorship(..))"/>
-		<aop:advisor advice-ref="txDeleteAuthorship" pointcut="execution(* cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl.deleteAuthorshipById(..))"/>
 	</aop:config>
 	<tx:advice id="txDeletePublication" transaction-manager="perunTransactionManager">
 		<tx:attributes>
@@ -32,11 +31,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		</tx:attributes>
 	</tx:advice>
 	<tx:advice id="txCreateAuthorship" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="false" rollback-for="Exception" />
-		</tx:attributes>
-	</tx:advice>
-	<tx:advice id="txDeleteAuthorship" transaction-manager="perunTransactionManager">
 		<tx:attributes>
 			<tx:method name="*" read-only="false" rollback-for="Exception" />
 		</tx:attributes>
@@ -52,11 +46,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<bean id="publicationMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
 		<property name="mapperInterface"
 		          value="cz.metacentrum.perun.cabinet.dao.mybatis.PublicationMapper" />
-		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
-	</bean>
-	<bean id="authorshipMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-		<property name="mapperInterface"
-		          value="cz.metacentrum.perun.cabinet.dao.mybatis.AuthorshipMapper" />
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>
 
@@ -76,7 +65,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
 	<bean id="authorshipManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl">
 		<constructor-arg ref="dataSource" />
-		<property name="authorshipMapper" ref="authorshipMapper" />
 	</bean>
 
 	<bean id="thanksManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.ThanksManagerDaoImpl">
@@ -96,37 +84,30 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
 	<bean id="publicationManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PublicationManagerBlImpl">
 		<property name="publicationManagerDao" ref="publicationManagerDao" />
-		<property name="authorshipService" ref="authorshipManagerBl" />
-		<property name="authorService" ref="authorManagerBl" />
+		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
 		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
-		<property name="perunService" ref="perunManagerBl" />
-		<property name="thanksService" ref="thanksManagerBl" />
+		<property name="perunManagerBl" ref="perunManagerBl" />
+		<property name="thanksManagerBl" ref="thanksManagerBl" />
 	</bean>
 
 	<bean id="categoryManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CategoryManagerBlImpl">
 		<property name="categoryManagerDao" ref="categoryManagerDao" />
-		<property name="perunService" ref="perunManagerBl" />
-		<property name="publicationService" ref="publicationManagerBl" />
-		<property name="authorshipService" ref="authorshipManagerBl" />
-		<property name="authorService" ref="authorManagerBl" />
-	</bean>
-
-	<bean id="authorManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.AuthorManagerBlImpl">
-		<property name="authorshipManagerDao" ref="authorshipManagerDao" />
+		<property name="perunManagerBl" ref="perunManagerBl" />
+		<property name="publicationManagerBl" ref="publicationManagerBl" />
+		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
 	</bean>
 
 	<bean id="authorshipManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.AuthorshipManagerBlImpl">
 		<property name="authorshipManagerDao" ref="authorshipManagerDao" />
-		<property name="publicationService" ref="publicationManagerBl" />
+		<property name="publicationManagerBl" ref="publicationManagerBl" />
 		<property name="categoryManagerBl" ref="categoryManagerBl" />
-		<property name="authorService" ref="authorManagerBl" />
-		<property name="perunService" ref="perunManagerBl" />
+		<property name="perunManagerBl" ref="perunManagerBl" />
 	</bean>
 
 	<bean id="thanksManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.ThanksManagerBlImpl">
 		<property name="thanksManagerDao" ref="thanksManagerDao" />
-		<property name="authorService" ref="authorManagerBl" />
-		<property name="perunService" ref="perunManagerBl" />
+		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
+		<property name="perunManagerBl" ref="perunManagerBl" />
 	</bean>
 
 	<bean id="cabinetManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CabinetManagerBlImpl">
@@ -144,7 +125,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<bean id="cabinetApi" class="cz.metacentrum.perun.cabinet.api.impl.CabinetApiImpl">
 		<property name="cabinetService" ref="cabinetManagerBl" />
 		<property name="publicationService" ref="publicationManagerBl" />
-		<property name="authorService" ref="authorManagerBl" />
 		<property name="authorshipService" ref="authorshipManagerBl" />
 		<property name="perunService" ref="perunManagerBl" />
 	</bean>

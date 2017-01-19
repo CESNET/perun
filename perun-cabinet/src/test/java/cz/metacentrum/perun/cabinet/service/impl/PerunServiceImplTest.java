@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import cz.metacentrum.perun.core.api.Owner;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -23,7 +22,6 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 public class PerunServiceImplTest extends CabinetBaseIntegrationTest {
 
 	@Autowired protected PerunManagerBl perunService;
-	@Autowired protected AuthorManagerBl authorService;
 	@Autowired protected PerunBl perun;
 
 	@Test
@@ -57,7 +55,7 @@ public class PerunServiceImplTest extends CabinetBaseIntegrationTest {
 	public void findAuthorById() throws Exception {
 		System.out.println("PerunServiceImpl.findAuthorById");
 
-		Author auth = authorService.findAuthorByUserId(USER_ID);
+		Author auth = getCabinetManager().getAuthorById(USER_ID);
 		assertNotNull(auth);
 
 	}
@@ -73,12 +71,8 @@ public class PerunServiceImplTest extends CabinetBaseIntegrationTest {
 
 	// setters -------------------------------------------
 
-	public void setPerunService(PerunManagerBl perunService) {
-		this.perunService = perunService;
-	}
-
-	public void setAuthorService(AuthorManagerBl authorService) {
-		this.authorService = authorService;
+	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
+		this.perunService = perunManagerBl;
 	}
 
 }

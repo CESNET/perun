@@ -10,6 +10,11 @@ import java.util.Objects;
 
 import static org.junit.Assert.*;
 
+/**
+ * Integration tests of AuthorshipManager
+ *
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
 public class PublicationSystemManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Test

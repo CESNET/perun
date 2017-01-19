@@ -4,46 +4,38 @@ import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-import cz.metacentrum.perun.cabinet.bl.impl.AuthorshipManagerBlImpl;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 
-import cz.metacentrum.perun.cabinet.dao.AuthorshipManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
-import cz.metacentrum.perun.cabinet.bl.SortParam;
-import cz.metacentrum.perun.core.bl.PerunBl;
 
+/**
+ * Integration tests of AuthorshipManager
+ *
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
 public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest {
-
-	@Autowired
-	private AuthorshipManagerBl authorshipService;
-
-	@Autowired
-	PerunBl perun;
-
-	// ------------- TESTS --------------------------------------------
 
 	@Test
 	public void createAuthorshipTest() throws Exception {
 		System.out.println("AuthorshipManagerIntegrationTest.createAuthorshipTest");
 
-		Authorship r = new Authorship();
-		r.setPublicationId(publicationTwo.getId()); // Because Pub 2 doesn't have authors yet
-		r.setUserId(USER_ID); // ID from BaseIntegrationTest (Michal Procházka)
-		r.setCreatedDate(new Date());
-		r.setCreatedBy(sess.getPerunPrincipal().getActor());
+		Authorship authorship = new Authorship();
+		authorship.setPublicationId(publicationTwo.getId());
+		authorship.setUserId(USER_ID);
+		authorship.setCreatedDate(new Date());
+		authorship.setCreatedBy(sess.getPerunPrincipal().getActor());
 
-		r = getCabinetManager().createAuthorship(sess, r);
-		assertTrue(r != null);
-		assertTrue("New Authorship ID shouldn't be 0.", r.getId() > 0);
+		authorship = getCabinetManager().createAuthorship(sess, authorship);
+		assertTrue(authorship != null);
+		assertTrue("New Authorship ID shouldn't be 0.", authorship.getId() > 0);
+
+		Authorship retrievedAuthorship = getCabinetManager().getAuthorshipById(authorship.getId());
+		assertEquals(authorship, retrievedAuthorship);
 
 	}
 
@@ -51,14 +43,14 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
 	public void createAuthorshipWhenAlreadyExistsTest() throws Exception {
 		System.out.println("AuthorshipManagerIntegrationTest.createAuthorshipWhenAlreadyExistsTest");
 
-		Authorship r = new Authorship();
-		r.setPublicationId(publicationOne.getId());
-		r.setUserId(USER_ID); // ID from BaseIntegrationTest (Michal Procházka)
-		r.setCreatedDate(new Date());
-		r.setCreatedBy(sess.getPerunPrincipal().getActor());
+		Authorship authorship = new Authorship();
+		authorship.setPublicationId(publicationOne.getId());
+		authorship.setUserId(USER_ID);
+		authorship.setCreatedDate(new Date());
+		authorship.setCreatedBy(sess.getPerunPrincipal().getActor());
 
 		try {
-			authorshipService.createAuthorship(sess, r);
+			getCabinetManager().createAuthorship(sess, authorship);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.AUTHORSHIP_ALREADY_EXISTS)) {
 				fail("Different exception code, was: "+ex.getType() +", but expected: AUTHORSHIP_ALREADY_EXISTS.");
@@ -68,115 +60,34 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
 
 	}
 
-	@Transactional
-	@Rollback(true)
 	@Test
 	public void deleteAuthorshipByIdTest() throws Exception {
 		System.out.println("AuthorshipManagerIntegrationTest.deleteAuthorshipByIdTest");
 
 		// delete AuthorshipOne by Michal Procházka for PublicationOne
-		int id = authorshipService.deleteAuthorshipById(sess, authorshipOne.getId());
-
-		assertTrue("Number od deleted authorships should be exactly 1", id == 1);
-
-		Authorship result = authorshipService.findAuthorshipById(authorshipOne.getId());
-		assertTrue("Authorship ID: "+authorshipOne.getId()+" was not deleted!", result == null);
-
-	}
-
-	@Transactional
-	@Rollback(true)
-	@Test
-	public void deleteAuthorshipByIdWhenNotExistsTest() throws Exception {
-		System.out.println("AuthorshipManagerIntegrationTest.deleteAuthorshipByIdWhenNotExistsTest");
-
-		// delete not existing authorship
+		getCabinetManager().deleteAuthorship(sess, authorshipOne);
 		try {
-			authorshipService.deleteAuthorshipById(sess, 0);
+			getCabinetManager().getAuthorshipById(authorshipOne.getId());
 		} catch (CabinetException ex) {
-			if (!ex.getType().equals(ErrorCodes.AUTHORSHIP_NOT_EXISTS)) {
-				fail("Different exception code, was: "+ex.getType() +", but expected: AUTHORSHIP_NOT_EXISTS.");
-				// fail if different error
+			if (!Objects.equals(ErrorCodes.AUTHORSHIP_NOT_EXISTS, ex.getType())) {
+				throw ex;
 			}
 		}
 
 	}
 
-	@Transactional
-	@Rollback(true)
 	@Test
-	public void updateAuthorshipTest() throws Exception {
-		System.out.println("AuthorshipManagerIntegrationTest.updateAuthorshipTest");
-
-		// transfer autohrshipOne from publicationOne to publicationTwo
-		authorshipOne.setPublicationId(publicationTwo.getId());
-		int result = authorshipService.updateAuthorship(sess, authorshipOne);
-
-		assertTrue("There should be exactly 1 Authorship updated.", result == 1);
-
-		// transfer autohrshipTwo from publicationOne to publicationTwo
-		// and change also USER => such authorship should already exists !!
-		authorshipTwo.setPublicationId(publicationTwo.getId());
-		authorshipTwo.setUserId(USER_ID);
-
-		try {
-			authorshipService.updateAuthorship(sess, authorshipOne);
-		} catch (CabinetException ex) {
-			if (!ex.getType().equals(ErrorCodes.AUTHORSHIP_ALREADY_EXISTS)) {
-				fail("Different exception code, was: "+ex.getType() +", but expected: AUTHORSHIP_ALREADY_EXISTS.");
-				// fail if different error
-			}
-		}
-
-	}
-
-	@Test(expected=IllegalArgumentException.class)
-	public void findAuthorshipsByFilterSPSQLInjectionTest() {
-		System.out.println("AuthorshipManagerIntegrationTest.findAuthorshipsByFilterSPSQLInjectionTest");
-
-		String s1 = "a0aSQLinjection_I;d";// semicolon is not allowed
-		Authorship r = new Authorship();
-		SortParam sp = new SortParam(0, 0, s1, false);
-
-		authorshipService.findAuthorshipsByFilter(r, sp);
-	}
-
-	@Test
-	public void findAuthorshipsByFilterSPTest() {
-		System.out.println("AuthorshipManagerIntegrationTest.findAuthorshipsByFilterSPTest");
-
-		//do not use db
-		AuthorshipManagerDao authorshipManagerDao = Mockito.mock(AuthorshipManagerDao.class);
-		AuthorshipManagerBlImpl authorshipService = new AuthorshipManagerBlImpl();
-		authorshipService.setAuthorshipManagerDao(authorshipManagerDao);
-
-		Authorship report = new Authorship();
-		SortParam sortParam = new SortParam(0, 0, "userIdColumn", false);
-
-
-		authorshipService.findAuthorshipsByFilter(report, sortParam);
-
-		SortParam sortParam2 = new SortParam(0, 0, "userIdColumn_77", false);
-		authorshipService.findAuthorshipsByFilter(report, sortParam2);
-	}
-
-	public void setAuthorshipService(AuthorshipManagerBl authorshipService) {
-		this.authorshipService = authorshipService;
-	}
-
-	@Test
-	@Rollback(true)
-	public void authorshipExistsTest() {
+	public void authorshipExistsTest() throws Exception {
 		System.out.println("AuthorshipManagerIntegrationTest.authorshipExistsTest");
 
 		// authorshipOne always exists
-		boolean result = authorshipService.authorshipExists(authorshipOne);
+		boolean result = getCabinetManager().authorshipExists(authorshipOne);
 		assertTrue("Existing Authorship doesn't exists by checkMethod (by ID).", result);
 
 		// new authorship shouldn't exists by ID
 		Authorship a = new Authorship();
 		a.setId(0);
-		boolean result1 = authorshipService.authorshipExists(a);
+		boolean result1 = getCabinetManager().authorshipExists(a);
 		assertFalse("Authorship with ID: 0 shouldn't exists by checkMethod (by ID).", result1);
 
 		// authorship with USER_ID for publicationOne should always exists
@@ -184,35 +95,35 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
 		a2.setPublicationId(publicationOne.getId());
 		a2.setUserId(USER_ID);
 
-		boolean result2 = authorshipService.authorshipExists(a2);
+		boolean result2 = getCabinetManager().authorshipExists(a2);
 		assertTrue("Existing Authorship doesn't exists by checkMethod (by USER_ID, PUB_ID).", result2);
 
 		// authorship with USER_ID for publication with ID=0 shouldn't exists
 		a2.setPublicationId(0);
-		boolean result3 = authorshipService.authorshipExists(a2);
+		boolean result3 = getCabinetManager().authorshipExists(a2);
 		assertFalse("Authorship with PUB_ID: 0 shouldn't exists by checkMethod (by USER_ID, PUB_ID).", result3);
 
 	}
 
 	@Test
-	public void findAuthorsByAuthorshipIdTest() throws Exception {
-		System.out.println("AuthorshipManagerIntegrationTest.findAuthorsByAuthorshipIdTest");
+	public void getAuthorsByAuthorshipIdTest() throws Exception {
+		System.out.println("AuthorshipManagerIntegrationTest.getAuthorsByAuthorshipIdTest");
 
 		// store existing author of authorship one
-		Author a = authorService.findAuthorByUserId(USER_ID);
+		Author a = getCabinetManager().getAuthorById(USER_ID);
 
-		List<Author> result = authorshipService.findAuthorsByAuthorshipId(sess, authorshipOne.getId());
+		List<Author> result = getCabinetManager().getAuthorsByAuthorshipId(sess, authorshipOne.getId());
 		assertTrue("No authors found by authorship ID when there should be.", (result != null && result.size()>0));
 		assertTrue("Original author should be between returned authors.", result.contains(a));
 
 	}
 
 	@Test
-	public void findAuthorsByAuthorshipIdWhenNotExistsTest() throws Exception {
-		System.out.println("AuthorshipManagerIntegrationTest.findAuthorsByAuthorshipIdWhenNotExistsTest");
+	public void getAuthorsByAuthorshipIdWhenNotExistsTest() throws Exception {
+		System.out.println("AuthorshipManagerIntegrationTest.getAuthorsByAuthorshipIdWhenNotExistsTest");
 
 		try {
-			authorshipService.findAuthorsByAuthorshipId(sess, 0);
+			getCabinetManager().getAuthorsByAuthorshipId(sess, 0);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.AUTHORSHIP_NOT_EXISTS)) {
 				fail("Different exception code, was: "+ex.getType() +", but expected: AUTHORSHIP_NOT_EXISTS.");
@@ -221,58 +132,38 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
 		}
 
 	}
-
 	@Test
-	public void findAllAuthorshipsANDgetAuthorshipCountTest() throws Exception {
-		System.out.println("AuthorshipManagerIntegrationTest.findAllAuthorshipsANDgetAuthorshipCountTest");
+	public void getAuthorshipsByPublicationIdTest() throws Exception {
+		System.out.println("AuthorshipManagerIntegrationTest.getAuthorshipsByPublicationIdTest");
 
-		List<Authorship> list = authorshipService.findAllAuthorships();
-		assertTrue("Returned authorships shouldn't be null.", list != null);
-		assertTrue("Count of all authorships != size of list of all authorships!", list.size() == authorshipService.getAuthorshipsCount());
-
-	}
-
-	@Test
-	public void findAuthorshipsByPublicationIdTest() throws Exception {
-		System.out.println("AuthorshipManagerIntegrationTest.findAuthorshipsByPublicationIdTest");
-
-		List<Authorship> list = authorshipService.findAuthorshipsByPublicationId(publicationOne.getId());
+		List<Authorship> list = getCabinetManager().getAuthorshipsByPublicationId(publicationOne.getId());
 		assertTrue("Returned authorships shouldn't be null.", list != null);
 		assertTrue("There should be exactly 2 authors for publicationOne.", list.size() == 2);
 
 	}
 
 	@Test
-	public void findAuthorshipsByUserIdTest() throws Exception {
-		System.out.println("AuthorshipManagerIntegrationTest.findAuthorshipsByUserIdTest");
+	public void getAuthorshipsByUserIdTest() throws Exception {
+		System.out.println("AuthorshipManagerIntegrationTest.getAuthorshipsByUserIdTest");
 
-		List<Authorship> list = authorshipService.findAuthorshipsByUserId(USER_ID);
+		List<Authorship> list = getCabinetManager().getAuthorshipsByUserId(USER_ID);
 		assertTrue("Returned authorships shouldn't be null.", list != null);
 		assertTrue("There should be some authorships for USER_ID.", list.size() > 0);
 
 	}
 
 	@Test
-	public void calculateNewRankTest() throws Exception {
-		System.out.println("AuthorshipManagerIntegrationTest.calculateNewRankTest");
+	public void getRankTest() throws Exception {
+		System.out.println("AuthorshipManagerIntegrationTest.getRankTest");
 
-		// calculate rank based on DB contant
-		Double rank = authorshipService.calculateNewRank(USER_ID);
+		// calculate rank based on DB constant
+		Double rank = getCabinetManager().getRank(USER_ID);
 		// calculate lowest possible rank based on TEST DATA in DB
 		Double value = 1.0;
 		value += publicationOne.getRank();
 		value += c1.getRank();
 
 		assertTrue("PriorityCoefficient is smaller than it should be!", rank >= value);
-
-	}
-
-	@Test
-	public void findUniqueAuthorsIds() {
-		System.out.println("AuthorshipManagerIntegrationTest.findUniqueAuthorsIds");
-
-		List<Integer> list = authorService.findUniqueAuthorsIds();
-		assertTrue("There must be some unique authors",!list.isEmpty());
 
 	}
 

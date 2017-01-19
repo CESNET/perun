@@ -10,6 +10,11 @@ import org.junit.Test;
 
 import cz.metacentrum.perun.cabinet.model.Category;
 
+/**
+ * Integration tests of AuthorshipManager
+ *
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
 public class CategoryManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Test

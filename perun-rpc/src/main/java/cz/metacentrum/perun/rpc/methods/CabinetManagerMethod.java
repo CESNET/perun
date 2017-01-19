@@ -128,30 +128,85 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 	/*#
 	 * Creates Authorship. Everything except current date must be already set in Authorship object.
-	 * Authorship is checked for existence before creation.
+	 * Authorship is checked for existence before creation, if exists, existing object is returned.
 	 * When authorship is successfully created, users priority coefficient is updated.
 	 *
 	 * @param authorship Authorship Authorship to be created
 	 * @return Authorship Created authorship
-	 * @throw CabinetException When authorship already exists or other exception occurs
 	 */
 	createAuthorship {
-		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
+		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 			Authorship auth = parms.read("authorship", Authorship.class);
-			if (ac.getCabinetApi().authorshipExists(auth)) {
+			if (ac.getCabinetManager().authorshipExists(auth)) {
 				// exists - return existing
 				// we must take only unique params, when called multiple time from GUI and entry was created by somebody else
-				Authorship filterAuthorship = new Authorship();
-				filterAuthorship.setPublicationId(auth.getPublicationId());
-				filterAuthorship.setUserId(auth.getUserId());
-				return ac.getCabinetApi().findAuthorshipsByFilter(filterAuthorship).get(0);
+				return ac.getCabinetManager().getAuthorshipByUserAndPublicationId(auth.getUserId(), auth.getPublicationId());
 				// pubId and userId are unique and checked before, so we can safely return first and only authorship.
 			} else {
 				return ac.getCabinetManager().createAuthorship(ac.getSession(), parms.read("authorship", Authorship.class));
 			}
 		}
 	},
+
+	/*#
+	 * Delete Authorship by its userId and publicationId.
+	 * @param publicationId int Publication <code>id</code>
+	 * @param userId int User <code>id</code>
+	 * @throw CabinetException When Authorship doesn't exists
+	 */
+	deleteAuthorship {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			Authorship authorship = ac.getCabinetManager().getAuthorshipByUserAndPublicationId(parms.readInt("userId"),parms.readInt("publicationId"));
+			ac.getCabinetManager().deleteAuthorship(ac.getSession(), authorship);
+			return null;
+		}
+	},
+
+	/*#
+	 * Gets overall rank of given user as sum of all his publications Authorships.
+	 *
+	 * @param user int ID of user to get Rank for
+	 * @return double Total rank of user or 1.0 if user has no Authorships yet (default rank).
+	 */
+	getRank {
+		public Double call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getCabinetManager().getRank(parms.readInt("user"));
+		}
+	},
+
+	/*#
+	 * Return all Authors of Publication specified by its ID. Empty list of none found.
+	 *
+	 * @param id int ID of Publication to look by
+	 * @return List<Author> List of Authors of Publication specified its ID. Empty list of none found.
+	 */
+	findAuthorsByPublicationId {
+		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getCabinetManager().getAuthorsByPublicationId(parms.readInt("id"));
+		}
+	},
+
+	/*#
+	 * Return all Authors of Publications. Empty list of none found.
+	 *
+	 * @return List<Author> List of all Authors of Publications. Empty list of none found.
+	 */
+	findAllAuthors {
+		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getCabinetManager().getAllAuthors();
+		}
+	},
+
+
+
+
+
+
+
+
+
 
 	// SEARCH METHODS
 	/*#
@@ -360,95 +415,12 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		}
 	},
 
-	/*#
-		* Returns all authorships.
-		* @return List<Authorship> Authorships
-		*/
-	findAllAuthorships {
-		public List<Authorship> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().findAllAuthorships();
-		}
-	},
 
-	/*#
-		* Returns all authorships according to a filter. Between filled properties is
-		* used conjunction AND.
-		*
-		* @param authorship Authorship JSON object
-		* @return List<Authorship> Authorships
-		*/
-	findAuthorshipsByFilter {
-		public List<Authorship> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().findAuthorshipsByFilter(parms.read("authorship", Authorship.class));
-		}
-	},
 
-	/*#
-		* Returns an Authorship by its <code>id</code>.
-		* @param id int Authorship <code>id</code>
-		* @return Authorship found Authorship
-		*/
-	findAuthorshipById {
-		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().findAuthorshipById(parms.readInt("id"));
-		}
-	},
 
-	/*#
-		* Returns all authors.
-		* @return List<Author> Authors
-		*/
-	findAllAuthors {
-		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().findAllAuthors();
-		}
-	},
-
-	/*#
-		* Finds Authors of a Publication.
-		* @param id int Publication <code>id</code>
-		* @return List<Author> Authors
-		*/
-	findAuthorsByPublicationId {
-		public List<Author> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().findAuthorsByPublicationId(parms.readInt("id"));
-		}
-	},
 
 	// CREATE / UPDATE / DELETE / CHECK METHODS
 
-	/*#
-		* Updates an Authorship.
-		* @param authorship Authorship JSON object
-		* @return Authorship Updated Authorship
-		*/
-	updateAuthorship {
-		public Authorship call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
-			Authorship a = parms.read("authorship", Authorship.class);
-			ac.getCabinetApi().updateAuthorship(ac.getSession(), a);
-			return ac.getCabinetApi().findAuthorshipById(a.getId());
-		}
-	},
-
-	/*#
-		* Deletes an Authorship.
-		* @param publicationId int Publication <code>id</code>
-		* @param userId int User <code>id</code>
-		*/
-	deleteAuthorship {
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
-			Authorship filter = new Authorship();
-			filter.setPublicationId(parms.readInt("publicationId"));
-			filter.setUserId(parms.readInt("userId"));
-			// pubId and UserId are unique, so return of first is safe
-			Authorship authorship = ac.getCabinetApi().findAuthorshipsByFilter(filter).get(0);
-			// delete
-			ac.getCabinetApi().deleteAuthorshipById(ac.getSession(), authorship.getId());
-			return null;
-		}
-	},
 
 	/*#
 		* Creates a new Publication.
@@ -547,30 +519,5 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 		}
 	},
-
-	// OTHER METHODS
-
-	/*#
-		* Returns user's rank.
-		*
-		* @param user int User <code>id</code>
-		* @return double User's rank
-		*/
-	getRank {
-		public Double call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().getRank(parms.readInt("user"));
-		}
-	},
-
-	/*#
-		* Recalculates "publications" attribute for
-		* all users who reported any publication
-		*/
-	recalculateThanksAttribute {
-		public Object call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.getCabinetApi().recalculateThanksAttribute(ac.getSession());
-			return null;
-		}
-	};
 
 }

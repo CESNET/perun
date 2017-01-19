@@ -15,6 +15,11 @@ import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 
+/**
+ * Integration tests of AuthorshipManager
+ *
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
 public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	@Test
@@ -24,7 +29,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
 		t.setCreatedDate(new Date());
-		t.setOwnerId(1);
+		t.setOwnerId(owner.getId());
 		t.setPublicationId(publicationOne.getId());
 
 		t = getCabinetManager().createThanks(sess, t);
@@ -45,7 +50,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
 		t.setCreatedDate(new Date());
-		t.setOwnerId(1);
+		t.setOwnerId(owner.getId());
 		t.setPublicationId(publicationOne.getId());
 
 		getCabinetManager().createThanks(sess, t);
@@ -66,7 +71,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
 		t.setCreatedDate(new Date());
-		t.setOwnerId(1);
+		t.setOwnerId(owner.getId());
 		t.setPublicationId(publicationOne.getId());
 
 		getCabinetManager().createThanks(sess, t);
@@ -87,7 +92,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
 		t.setCreatedDate(new Date());
-		t.setOwnerId(1);
+		t.setOwnerId(owner.getId());
 		t.setPublicationId(publicationOne.getId());
 		t = getCabinetManager().createThanks(sess, t);
 
@@ -107,7 +112,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
 		t.setCreatedDate(new Date());
-		t.setOwnerId(1);
+		t.setOwnerId(owner.getId());
 		t.setPublicationId(publicationOne.getId());
 
 		t = getCabinetManager().createThanks(sess, t);
@@ -126,7 +131,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
 		t.setCreatedDate(new Date());
-		t.setOwnerId(1);
+		t.setOwnerId(owner.getId());
 		t.setPublicationId(publicationOne.getId());
 
 		t = getCabinetManager().createThanks(sess, t);
@@ -145,7 +150,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
 		t.setCreatedDate(new Date());
-		t.setOwnerId(1);
+		t.setOwnerId(owner.getId());
 		t.setPublicationId(publicationOne.getId());
 
 		t = getCabinetManager().createThanks(sess, t);
@@ -164,7 +169,7 @@ public class ThanksManagerIntegrationTest extends CabinetBaseIntegrationTest {
 		Thanks t = new Thanks();
 		t.setCreatedBy(sess.getPerunPrincipal().getActor());
 		t.setCreatedDate(new Date());
-		t.setOwnerId(1);
+		t.setOwnerId(owner.getId());
 		t.setPublicationId(publicationOne.getId());
 
 		t = getCabinetManager().createThanks(sess, t);

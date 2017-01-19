@@ -14,7 +14,6 @@ import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
@@ -31,10 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class CategoryManagerBlImpl implements CategoryManagerBl {
 
 	private CategoryManagerDao categoryManagerDao;
-	private PublicationManagerBl publicationService;
-	private PerunManagerBl perunService;
-	private AuthorshipManagerBl authorshipService;
-	private AuthorManagerBl authorService;
+	private PublicationManagerBl publicationManagerBl;
+	private PerunManagerBl perunManagerBl;
+	private AuthorshipManagerBl authorshipManagerBl;
 
 	private static Logger log = LoggerFactory.getLogger(CategoryManagerBlImpl.class);
 
@@ -45,24 +43,35 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 		this.categoryManagerDao = categoryManagerDao;
 	}
 
-	public void setPublicationService(PublicationManagerBl publicationService) {
-		this.publicationService = publicationService;
+	@Autowired
+	public void setPublicationManagerBl(PublicationManagerBl publicationManagerBl) {
+		this.publicationManagerBl = publicationManagerBl;
 	}
 
-	public void setPerunService(PerunManagerBl perunService) {
-		this.perunService = perunService;
+	@Autowired
+	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
+		this.perunManagerBl = perunManagerBl;
 	}
 
-	public void setAuthorshipService(AuthorshipManagerBl authorshipService) {
-		this.authorshipService = authorshipService;
-	}
-
-	public void setAuthorService(AuthorManagerBl authorService) {
-		this.authorService = authorService;
+	@Autowired
+	public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
+		this.authorshipManagerBl = authorshipManagerBl;
 	}
 
 	public CategoryManagerDao getCategoryManagerDao() {
 		return categoryManagerDao;
+	}
+
+	public PublicationManagerBl getPublicationManagerBl() {
+		return publicationManagerBl;
+	}
+
+	public PerunManagerBl getPerunManagerBl() {
+		return perunManagerBl;
+	}
+
+	public AuthorshipManagerBl getAuthorshipManagerBl() {
+		return authorshipManagerBl;
 	}
 
 	// methods ----------------------
@@ -85,15 +94,15 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 			// yes
 			Publication filter = new Publication();
 			filter.setCategoryId(category.getId());
-			List<Publication> pubs = publicationService.findPublicationsByFilter(filter);
+			List<Publication> pubs = getPublicationManagerBl().findPublicationsByFilter(filter);
 
 			// update coef for all authors of all publications in updated category
 			Set<Author> authors = new HashSet<Author>();
 			for (Publication p : pubs) {
-				authors.addAll(authorService.findAuthorsByPublicationId(p.getId()));
+				authors.addAll(getAuthorshipManagerBl().getAuthorsByPublicationId(p.getId()));
 			}
 			for (Author a : authors) {
-				perunService.updatePriorityCoefficient(sess, a.getId(), authorshipService.calculateNewRank(a.getAuthorships()));
+				getPerunManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
 			}
 			log.debug("Category: [{}] updated to Category: [{}]", cat, category);
 		}

@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.dao.ThanksManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -28,8 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ThanksManagerBlImpl implements ThanksManagerBl {
 
 	private ThanksManagerDao thanksManagerDao;
-	private AuthorManagerBl authorService;
-	private PerunManagerBl perunService;
+	private AuthorshipManagerBl authorshipManagerBl;
+	private PerunManagerBl perunManagerBl;
 
 	private static Logger log = LoggerFactory.getLogger(ThanksManagerBlImpl.class);
 
@@ -40,19 +40,29 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		this.thanksManagerDao = thanksManagerDao;
 	}
 
-	public void setAuthorService(AuthorManagerBl authorService) {
-		this.authorService = authorService;
+	@Autowired
+	public void setAuthorshipManagerBl(AuthorshipManagerBl authorshipManagerBl) {
+		this.authorshipManagerBl = authorshipManagerBl;
 	}
 
-	public void setPerunService(PerunManagerBl perunService) {
-		this.perunService = perunService;
+	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
+		this.perunManagerBl = perunManagerBl;
 	}
 
 	public ThanksManagerDao getThanksManagerDao() {
 		return thanksManagerDao;
 	}
 
-	// methods -------------------------
+	public AuthorshipManagerBl getAuthorshipManagerBl() {
+		return authorshipManagerBl;
+	}
+
+	public PerunManagerBl getPerunManagerBl() {
+		return perunManagerBl;
+	}
+
+
+// methods -------------------------
 
 	public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException, InternalErrorException {
 		if (t.getCreatedDate() == null) {
@@ -67,9 +77,9 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 
 		// recalculate thanks for all publication's authors
 		List<Author> authors = new ArrayList<Author>();
-		authors = authorService.findAuthorsByPublicationId(t.getPublicationId());
+		authors = getAuthorshipManagerBl().getAuthorsByPublicationId(t.getPublicationId());
 		for (Author a : authors) {
-			perunService.setThanksAttribute(a.getId());
+			getPerunManagerBl().setThanksAttribute(a.getId());
 		}
 		return t;
 	}
@@ -77,9 +87,9 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 	@Override
 	public void deleteThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException {
 		// recalculate thanks for all publication's authors
-		List<Author> authors = authorService.findAuthorsByPublicationId(thanks.getPublicationId());
+		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
 		for (Author a : authors) {
-			perunService.setThanksAttribute(a.getId());
+			getPerunManagerBl().setThanksAttribute(a.getId());
 		}
 
 		getThanksManagerDao().deleteThanks(sess, thanks);

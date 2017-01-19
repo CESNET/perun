@@ -6,6 +6,7 @@ import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
+import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
@@ -209,6 +210,67 @@ public class CabinetManagerImpl implements CabinetManager {
 	@Override
 	public Authorship createAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException {
 		return getAuthorshipManagerBl().createAuthorship(sess, authorship);
+	}
+
+	@Override
+	public boolean authorshipExists(Authorship authorship) throws InternalErrorException {
+		return getAuthorshipManagerBl().authorshipExists(authorship);
+	}
+
+	@Override
+	public void deleteAuthorship(PerunSession sess, Authorship authorship) throws InternalErrorException, CabinetException, PrivilegeException {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!authorship.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
+				!authorship.getUserId().equals(sess.getPerunPrincipal().getUser().getId()) &&
+				authorship.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
+			throw new PrivilegeException("You are not allowed to delete authorships you didn't created or which doesn't concern you.");
+		}
+		getAuthorshipManagerBl().deleteAuthorship(sess, authorship);
+	}
+
+	@Override
+	public Authorship getAuthorshipById(int id) throws CabinetException, InternalErrorException {
+		return getAuthorshipManagerBl().getAuthorshipById(id);
+	}
+
+	@Override
+	public List<Authorship> getAuthorshipsByUserId(int id) throws InternalErrorException {
+		return getAuthorshipManagerBl().getAuthorshipsByUserId(id);
+	}
+
+	@Override
+	public List<Authorship> getAuthorshipsByPublicationId(int id) throws InternalErrorException {
+		return getAuthorshipManagerBl().getAuthorshipsByPublicationId(id);
+	}
+
+	@Override
+	public Authorship getAuthorshipByUserAndPublicationId(int userId, int publicationId) throws CabinetException, InternalErrorException {
+		return getAuthorshipManagerBl().getAuthorshipByUserAndPublicationId(userId, publicationId);
+	}
+
+	@Override
+	public double getRank(int userId) throws InternalErrorException, CabinetException {
+		return getAuthorshipManagerBl().calculateNewRank(userId);
+	}
+
+	@Override
+	public Author getAuthorById(int id) throws CabinetException, InternalErrorException {
+		return getAuthorshipManagerBl().getAuthorById(id);
+	}
+
+	@Override
+	public List<Author> getAllAuthors() throws InternalErrorException {
+		return getAuthorshipManagerBl().getAllAuthors();
+	}
+
+	@Override
+	public List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException {
+		return getAuthorshipManagerBl().getAuthorsByPublicationId(id);
+	}
+
+	@Override
+	public List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException, InternalErrorException {
+		return getAuthorshipManagerBl().getAuthorsByAuthorshipId(sess, id);
 	}
 
 }

@@ -15,16 +15,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import cz.metacentrum.perun.cabinet.dao.AuthorshipManagerDao;
 import cz.metacentrum.perun.cabinet.dao.PublicationManagerDao;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.bl.AuthorManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 
+/**
+ * Base integration test class, all other tests should extend it.
+ *
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-cabinet.xml" })
 @Transactional
@@ -35,6 +38,7 @@ public abstract class CabinetBaseIntegrationTest {
 	public Authorship authorshipTwo = null;
 	public Publication publicationOne = null;
 	public Publication publicationTwo = null;
+	public Owner owner;
 	public Category c1 = null;
 	public static int USER_ID = 0;
 	public static int USER_ID_2 = 1;
@@ -45,26 +49,16 @@ public abstract class CabinetBaseIntegrationTest {
 	private int p1Id;
 
 	protected CabinetManager cabinetManager;
-	@Autowired protected AuthorshipManagerDao authorshipManagerDao;
 	@Autowired protected PublicationManagerDao publicationManagerDao;
-	@Autowired protected PerunManagerBl perunService;
-	@Autowired protected AuthorManagerBl authorService;
+	@Autowired protected PerunManagerBl perunManagerBl;
 	@Autowired protected Properties cabinetProperties;
 	@Autowired PerunBl perun;
 	protected PerunSession sess;
 
 	// setters -------------------------
 
-	public void setPerunService(PerunManagerBl perunService) {
-		this.perunService = perunService;
-	}
-
-	public void setAuthorService(AuthorManagerBl authorService) {
-		this.authorService = authorService;
-	}
-
-	public void setReportDao(AuthorshipManagerDao reportDao) {
-		this.authorshipManagerDao = reportDao;
+	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
+		this.perunManagerBl = perunManagerBl;
 	}
 
 	public void setPublicationManagerDao(PublicationManagerDao publicationManagerDao) {
@@ -109,6 +103,14 @@ public abstract class CabinetBaseIntegrationTest {
 		user2.setServiceUser(false);
 		user2 = perun.getUsersManagerBl().createUser(sess, user2);
 		USER_ID_2 = user2.getId();
+
+		// owner
+
+		Owner owner = new Owner();
+		owner.setName("PubOwner");
+		owner.setContact("Call me");
+		owner.setType(OwnerType.administrative);
+		this.owner = perun.getOwnersManagerBl().createOwner(sess, owner);
 
 		// category
 
@@ -187,8 +189,8 @@ public abstract class CabinetBaseIntegrationTest {
 		a2.setPublicationId(p1.getId()); // for PUB 1
 		a2.setUserId(USER_ID_2);
 
-		a1 = authorshipManagerDao.createAuthorship(sess, a1);
-		a2 = authorshipManagerDao.createAuthorship(sess, a2);
+		a1 = getCabinetManager().createAuthorship(sess, a1);
+		a2 = getCabinetManager().createAuthorship(sess, a2);
 
 		authorshipOne = a1;
 		authorshipTwo = a2;
