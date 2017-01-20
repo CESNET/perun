@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -58,6 +60,7 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 	private String password;
 
 	private String extSourceNameForLogin = null;
+	public static final Pattern attributePattern = Pattern.compile("[{](.+)[}]");
 
 	private static PerunBlImpl perunBl;
 
@@ -144,12 +147,20 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 			String name = attr.substring(0, index);
 			String value = attr.substring(index +1);
 
-			//Value == attr.name
-			if(value.matches("^.*[{]login[}].*$")) {
-				value = value.replaceFirst("[{]login[}]", login);
-			} else {
+			Matcher attributeMatcher = attributePattern.matcher(value);
+			//Try to find perun attributes in value part
+			if (attributeMatcher.find()) {
+				if(attributeMatcher.group(1).equals("login")) {
+					value = attributeMatcher.replaceFirst(login);
+				} else {
+					value = attributeMatcher.replaceFirst(lookingForValueInRichUserAttributes(attributeMatcher.group(1), richUser));
+				}
+			} else if (value.startsWith("urn:perun:")) {
+				//DEPRECATED, but need to be first removed from all settings of PerunExtSource in perun-extSource.xml file
+				//It is probably old way how to use attribute (without {}) so try to find value for it
 				value = lookingForValueInRichUserAttributes(value, richUser);
 			}
+			//If nothing found, let the value be the same, it is probably static value (without any attribute)
 
 			richUserInMap.put(name.trim(), value);
 		}
