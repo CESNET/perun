@@ -101,8 +101,8 @@ public class ELIXIRCILogonDNGenerator implements RegistrarModule {
 			String hash = Base64.encodeBase64String(digest);
 			// Get just first 16 bytes as is described in EU CILogon - RCauth.eu CA requirements
 			String CILogonHash = hash.substring(0, 16);
-			// Based on the RCauth.eu policy, every '/' must be replaced with '-'
-			CILogonHash = CILogonHash.replaceAll("/","-");
+			// Based on the RCauth.eu policy, every '/' and '+' must be replaced with '-'
+			CILogonHash = CILogonHash.replaceAll("/|\\+","-");
 			
 			// Generate the DN, it must look like /DC=eu/DC=rcauth/DC=rcauth-clients/O=elixir-europe.org/CN=Michal Prochazka rdkfo3rdkfo3kdo
 			String dn = DNPREFIX + displayName + " " + CILogonHash;
