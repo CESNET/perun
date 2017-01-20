@@ -3,25 +3,13 @@ package cz.metacentrum.perun.ldapc.processor.impl;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cz.metacentrum.perun.core.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.ldapc.beans.LdapOperation;
 import cz.metacentrum.perun.auditparser.AuditParser;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AuditMessage;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -49,6 +37,7 @@ import java.util.Set;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
 
 @org.springframework.stereotype.Service(value = "eventProcessor")
 public class EventProcessorImpl implements EventProcessor, Runnable {
@@ -331,7 +320,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				ldapConnector.deleteResource(resource);
 				// 4.2) RESOURCE WILL BE CREATED
 			} else if(created.find()) {
-				ldapConnector.createResource(resource);
+				ldapConnector.createResource(resource, getFacilityEntityIdValue(resource.getFacilityId()));
 				// 4.3) RESOURCE WILL BE UPDATED
 			} else if(updated.find()) {
 				Map<LdapOperation, List<Pair<String,String>>> attributes = new HashMap<LdapOperation, List<Pair<String, String>>>();
@@ -763,6 +752,41 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	}
 
 	/**
+	 * Get entityID value from perun by facilityId.
+	 *
+	 * @param facilityId the facilityId
+	 * @return value of entityID or null, if value is null or user not exists yet
+	 * @throws InternalErrorException if some exception is thrown from RPC
+	 */
+	private String getFacilityEntityIdValue(int facilityId) throws InternalErrorException {
+		Facility facility = null;
+		try {
+			facility = Rpc.FacilitiesManager.getFacilityById(ldapcManager.getRpcCaller(), facilityId);
+		} catch (PrivilegeException ex) {
+			throw new InternalErrorException("There are no privilegies for getting facility by id.", ex);
+		} catch (FacilityNotExistsException ex) {
+			//If facility not exist in perun now, probably will be deleted in next step so its ok. The value is null anyway.
+			return null;
+		}
+
+		cz.metacentrum.perun.core.api.Attribute entityID = null;
+		try {
+			entityID = Rpc.AttributesManager.getAttribute(ldapcManager.getRpcCaller(), facility, AttributesManager.NS_FACILITY_ATTR_DEF + ":entityID");
+		} catch(PrivilegeException ex) {
+			throw new InternalErrorException("There are no privilegies for getting facility attribute.", ex);
+		} catch(AttributeNotExistsException ex) {
+			throw new InternalErrorException("There is no such attribute.", ex);
+		} catch(FacilityNotExistsException ex) {
+			//If facility not exist in perun now, probably will be deleted in next step so its ok. The value is null anyway.
+			return null;
+		} catch(WrongAttributeAssignmentException ex) {
+			throw new InternalErrorException("There is problem with wrong attribute assignment exception.", ex);
+		}
+		if(entityID.getValue() == null) return null;
+		else return (String) entityID.getValue();
+	}
+
+	/**
 	 * Update ldap attribute with attributeName for the user by value with operation.
 	 *
 	 *
@@ -1161,16 +1185,6 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 * If list of beans is empty or null, fill nothing.
 	 *
 	 * @param listOfBeans list of beans already parsed from message
-	 * @param group group in message
-	 * @param parentGroup parentGroup in message
-	 * @param vo vo in message
-	 * @param resource resource in message
-	 * @param member member in message
-	 * @param user user in message
-	 * @param specificUser specificUser in message
-	 * @param attributeDef attributeDefinition in message
-	 * @param attribute attribute in message
-	 * @param userExtSource userExtSource in message
 	 *
 	 * @throws InternalErrorException If there is some inconsistence in number of one type's objects.
 	 */

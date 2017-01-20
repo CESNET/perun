@@ -633,6 +633,28 @@ public class Rpc {
 			}
 		}
 
+		public static Attribute getAttribute(RpcCaller rpcCaller, Facility facility, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, FacilityNotExistsException, WrongAttributeAssignmentException {
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("facility", facility.getId());
+			params.put("attributeName", attributeName);
+
+			try {
+				return rpcCaller.call("attributesManager", "getAttribute", params).read(Attribute.class);
+			} catch (AttributeNotExistsException e) {
+				throw e;
+			} catch (PrivilegeException e) {
+				throw e;
+			} catch (InternalErrorException e) {
+				throw e;
+			} catch (FacilityNotExistsException e) {
+				throw e;
+			} catch (WrongAttributeAssignmentException e) {
+				throw e;
+			} catch (PerunException e) {
+				throw new ConsistencyErrorException(e);
+			}
+		}
+
 		public static Attribute getAttribute(RpcCaller rpcCaller, Vo vo, String attributeName) throws PrivilegeException, InternalErrorException, AttributeNotExistsException, VoNotExistsException, WrongAttributeAssignmentException {
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("vo", vo.getId());
