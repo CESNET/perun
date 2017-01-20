@@ -92,9 +92,9 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 		return thanksManagerBl;
 	}
 
-// business methods --------------------------------
+	// business methods --------------------------------
 
-	public int createPublication(PerunSession sess, Publication p) throws CabinetException, InternalErrorException {
+	public Publication createPublication(PerunSession sess, Publication p) throws CabinetException, InternalErrorException {
 
 		if (p.getCreatedDate() == null)
 			p.setCreatedDate(new Date());
@@ -117,7 +117,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 			//
 			stripLongParams(p);
 			// create internal
-			return getPublicationManagerDao().createInternalPublication(sess, p);
+			return getPublicationManagerDao().createPublication(sess, p);
 		} else {
 			if (publicationExists(p)) throw new CabinetException("Cannot create duplicate publication: "+p, ErrorCodes.PUBLICATION_ALREADY_EXISTS);
 

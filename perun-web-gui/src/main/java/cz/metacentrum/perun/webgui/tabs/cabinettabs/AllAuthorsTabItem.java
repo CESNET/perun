@@ -6,7 +6,9 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
+import cz.metacentrum.perun.webgui.client.localization.ButtonTranslation;
 import cz.metacentrum.perun.webgui.client.mainmenu.MainMenu;
+import cz.metacentrum.perun.webgui.client.resources.PerunSearchEvent;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllAuthors;
 import cz.metacentrum.perun.webgui.model.Author;
@@ -14,6 +16,7 @@ import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
 import cz.metacentrum.perun.webgui.tabs.UrlMapper;
+import cz.metacentrum.perun.webgui.widgets.ExtendedSuggestBox;
 import cz.metacentrum.perun.webgui.widgets.TabMenu;
 
 import java.util.Map;
@@ -65,7 +68,16 @@ public class AllAuthorsTabItem implements TabItem, TabItemWithUrl{
 		vp.setCellHeight(menu, "30px");
 		menu.addWidget(UiElements.getRefreshButton(this));
 
-		FindAllAuthors callback = new FindAllAuthors();
+		final FindAllAuthors callback = new FindAllAuthors();
+
+		menu.addFilterWidget(new ExtendedSuggestBox(callback.getOracle()), new PerunSearchEvent() {
+			@Override
+			public void searchFor(String text) {
+				callback.filterTable(text);
+			}
+		}, ButtonTranslation.INSTANCE.filterAuthors());
+
+
 		CellTable<Author> table = callback.getTable(new FieldUpdater<Author, String>() {
 			public void update(int index, Author object, String value) {
 				if (session.isPerunAdmin()) {

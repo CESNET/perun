@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.rpc.serializer;
 
 import cz.metacentrum.perun.cabinet.model.Authorship;
+import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.rt.PerunRuntimeException;
@@ -69,6 +70,10 @@ public final class JsonSerializerJSONP implements Serializer {
 	private interface AuthorshipMixIn {
 	}
 
+	@JsonIgnoreProperties({})
+	private interface ThanksMixIn {
+	}
+
 	public static final String CONTENT_TYPE = "text/javascript; charset=utf-8";
 	private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -81,6 +86,7 @@ public final class JsonSerializerJSONP implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, ExceptionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(Authorship.class, AuthorshipMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Thanks.class, ThanksMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRequest.class, PerunRequestMixIn.class);
 	}
 

@@ -4,11 +4,13 @@ import cz.metacentrum.perun.cabinet.api.CabinetManager;
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
+import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
+import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
@@ -33,6 +35,7 @@ public class CabinetManagerImpl implements CabinetManager {
 	private PublicationSystemManagerBl publicationSystemManagerBl;
 	private ThanksManagerBl thanksManagerBl;
 	private AuthorshipManagerBl authorshipManagerBl;
+	private PublicationManagerBl publicationManagerBl;
 
 	@Autowired
 	public void setCategoryManagerBl(CategoryManagerBl categoryManagerBl) {
@@ -54,6 +57,11 @@ public class CabinetManagerImpl implements CabinetManager {
 		this.authorshipManagerBl = authorshipManagerBl;
 	}
 
+	@Autowired
+	public void setPublicationManagerBl(PublicationManagerBl publicationManagerBl) {
+		this.publicationManagerBl = publicationManagerBl;
+	}
+
 	public CategoryManagerBl getCategoryManagerBl() {
 		return categoryManagerBl;
 	}
@@ -68,6 +76,10 @@ public class CabinetManagerImpl implements CabinetManager {
 
 	public AuthorshipManagerBl getAuthorshipManagerBl() {
 		return authorshipManagerBl;
+	}
+
+	public PublicationManagerBl getPublicationManagerBl() {
+		return publicationManagerBl;
 	}
 
 
@@ -271,6 +283,11 @@ public class CabinetManagerImpl implements CabinetManager {
 	@Override
 	public List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException, InternalErrorException {
 		return getAuthorshipManagerBl().getAuthorsByAuthorshipId(sess, id);
+	}
+
+	@Override
+	public Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
+		return getPublicationManagerBl().createPublication(sess, publication);
 	}
 
 }

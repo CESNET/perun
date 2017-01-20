@@ -1,50 +1,90 @@
 package cz.metacentrum.perun.cabinet.dao.impl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.dao.PublicationManagerDao;
 import cz.metacentrum.perun.cabinet.dao.mybatis.PublicationExample;
-import cz.metacentrum.perun.cabinet.dao.mybatis.PublicationMapper;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.impl.Compatibility;
+import cz.metacentrum.perun.core.impl.Utils;
+import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import javax.sql.DataSource;
 
 /**
  * Class of DAO layer for handling Publication entity.
- * Provides connection to proper mapper.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
 public class PublicationManagerDaoImpl implements PublicationManagerDao {
 
-	private static final String DESC = "DESC";
-	private static final String ASC = "ASC";
-	private PublicationMapper publicationMapper;
+	private JdbcPerunTemplate jdbc;
 
-	// setters ----------------------
-
-	public void setPublicationMapper(PublicationMapper publicationMapper) {
-		this.publicationMapper = publicationMapper;
+	public PublicationManagerDaoImpl(DataSource perunPool) {
+		this.jdbc = new JdbcPerunTemplate(perunPool);
 	}
+
+	private final static String PUBLICATION_SELECT_QUERY = "cabinet_publications.id as publication_id, " +
+			"cabinet_publications.externalId as publication_externalId, cabinet_publications.publicationSystemId as publication_publicationSystemId," +
+			"cabinet_publications.title as publication_title, cabinet_publications.year as publication_year, cabinet_publications.main as publication_main, " +
+			"cabinet_publications.isbn as publication_isbn, cabinet_publications.categoryId as publication_categoryId, " +
+			"cabinet_publications.createdBy as publication_createdBy, cabinet_publications.created_by_uid as publication_created_by_uid, " +
+			"cabinet_publications.modified_by_uid as publication_modified_by_uid, cabinet_publications.rank as publication_rank, " +
+			"cabinet_publications.doi as publication_doi, cabinet_publications.locked as publication_locked";
+
+	private final static RowMapper<Publication> PUBLICATION_ROW_MAPPER = new RowMapper<Publication>() {
+		@Override
+		public Publication mapRow(ResultSet resultSet, int i) throws SQLException {
+			Publication publication = new Publication();
+
+			return publication;
+		}
+	};
 
 	// methods ----------------------
 
-	public int createPublication(PerunSession sess, Publication p) {
-		publicationMapper.insert(p);
-		return p.getId();
+
+	@Override
+	public Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
+		try {
+			// Set the new Category id
+			int newId = Utils.getNewId(jdbc, "cabinet_publications_id_seq");
+			jdbc.update("insert into cabinet_publications (id, externalId, publicationSystemId, title, year, main," +
+							" isbn, categoryId, createdBy, created_by_uid, createdDate, modified_by_uid, rank, doi, locked)" +
+							" values (?,?,?,?,?,?,?,?,?,?,"+ Compatibility.getSysdate()+",?,?,?,?)",
+					newId, publication.getExternalId(), publication.getPublicationSystemId(),
+					publication.getTitle(), publication.getYear(), publication.getMain(), publication.getIsbn(), publication.getCategoryId(),
+					sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId(),
+					publication.getRank(), publication.getDoi(), publication.getLocked());
+			publication.setId(newId);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+		return publication;
 	}
 
+	@Override
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
 
-	public int createInternalPublication(PerunSession sess, Publication p) {
-		publicationMapper.insertInternal(p);
-		return p.getId();
+
 	}
 
+	@Override
+	public void deletePublication(Publication publication) throws CabinetException, InternalErrorException {
+
+	}
 
 	public List<Publication> findPublicationsByFilter(Publication p) {
 		return publicationMapper.selectByFilter(p);

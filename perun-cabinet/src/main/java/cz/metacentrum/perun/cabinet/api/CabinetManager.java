@@ -3,6 +3,7 @@ package cz.metacentrum.perun.cabinet.api;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
+import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.model.Thanks;
@@ -349,5 +350,20 @@ public interface CabinetManager {
 	 * @throws InternalErrorException When implementation fails
 	 */
 	List<Author> getAuthorsByAuthorshipId(PerunSession sess, int id) throws CabinetException, InternalErrorException;
+
+
+	// Publications ----------------------------------
+
+
+	/**
+	 * Create Publication.
+	 *
+	 * @param sess Session with authorization
+	 * @param publication Publication to create
+	 * @return Created publication with ID set
+	 * @throws CabinetException
+	 * @throws InternalErrorException
+	 */
+	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
 
 }

@@ -61,10 +61,6 @@ public class CabinetApiImpl implements CabinetApi {
 		return perunService.findAllOwners(sess);
 	}
 
-	public int createPublication(PerunSession sess, Publication p) throws CabinetException, InternalErrorException {
-		return this.publicationService.createPublication(sess, p);
-	}
-
 	public boolean publicationExists(Publication p) {
 		return publicationService.publicationExists(p);
 	}

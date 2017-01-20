@@ -11,7 +11,16 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 public interface PublicationManagerBl {
 
-	int createPublication(PerunSession sess, Publication p) throws CabinetException, InternalErrorException;
+	/**
+	 * Create Publication.
+	 *
+	 * @param sess Session with authorization
+	 * @param publication Publication to create
+	 * @return Created publication with ID set
+	 * @throws CabinetException
+	 * @throws InternalErrorException
+	 */
+	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
 
 	boolean publicationExists(Publication p);
 

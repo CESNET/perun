@@ -46,10 +46,8 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 		p.setDoi("DOI");
 		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
-		int id = publicationService.createPublication(sess, p);
-
-		assertTrue("ID of stored and returned Publication doesn't match.", id == p.getId());
-		assertTrue("Returned ID shouldn't be < 0.", id > 0);
+		p = publicationService.createPublication(sess, p);
+		assertTrue("Returned ID shouldn't be < 0.", p.getId() > 0);
 
 	}
 
@@ -72,8 +70,8 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 		p.setDoi("DOI");
 		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
-		int id = publicationService.createPublication(sess, p);
-		assertTrue(id > 0);
+		p = publicationService.createPublication(sess, p);
+		assertTrue(p.getId() > 0);
 
 		// must be reset, since test update object after creation
 		p.setExternalId(0);
@@ -252,11 +250,10 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 		p.setDoi(doi);
 		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
-		int id = publicationService.createPublication(sess, p);
+		p = publicationService.createPublication(sess, p);
 
 		// if stripping works, must have been created
-		assertTrue("ID of stored and returned Publication doesn't match.", id == p.getId());
-		assertTrue("Returned ID shouldn't be < 0.", id > 0);
+		assertTrue("Returned ID shouldn't be < 0.", p.getId() > 0);
 
 		assertTrue("Doi shouldn't be longer than 256.", p.getDoi().length()<=256);
 		assertTrue("Isbn shouldn't be longer than 32.", p.getIsbn().length()<=32);

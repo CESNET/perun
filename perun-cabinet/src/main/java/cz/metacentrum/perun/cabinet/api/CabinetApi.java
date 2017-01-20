@@ -48,16 +48,6 @@ public interface CabinetApi extends Serializable {
 	List<Owner> findAllOwners(PerunSession sess) throws CabinetException;
 
 	/**
-	 * Saves publication. Keep in mind that properties title, year, categoryId, createdBy are obligatory. Also keep in mind, that authors property is irrevelant in this method.
-	 *
-	 * @param sess PerunSession
-	 * @param p publication
-	 * @return id of new publication
-	 * @throws CabinetException
-	 */
-	int createPublication(PerunSession sess, Publication p) throws CabinetException, InternalErrorException;
-
-	/**
 	 * Resolves whether publication exists or not. Publication exists if a/
 	 * property id is provided and publication with this id is in db or b/
 	 * property externalId and publicationSystemId exist in db false

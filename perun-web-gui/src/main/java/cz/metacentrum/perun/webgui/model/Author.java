@@ -27,6 +27,7 @@ public class Author extends JavaScriptObject {
 	 * @return first name of user
 	 */
 	public final native String getFirstName() /*-{
+		if (!this.firstName) { return ""; }
 		return this.firstName;
 	}-*/;
 
@@ -36,6 +37,7 @@ public class Author extends JavaScriptObject {
 	 * @return last name of user
 	 */
 	public final native String getLastName() /*-{
+		if (!this.lastName) { return ""; }
 		return this.lastName;
 	}-*/;
 
@@ -85,10 +87,10 @@ public class Author extends JavaScriptObject {
 			fullName += this.middleName + " ";
 		}
 		if(this.lastName != null){
-			fullName += this.lastName + " ";
+			fullName += this.lastName;
 		}
 		if(this.titleAfter != null){
-			fullName += this.titleAfter + " ";
+			fullName += ", " + this.titleAfter;
 		}
 		return fullName;
 	}-*/;

@@ -46,7 +46,6 @@ public abstract class CabinetBaseIntegrationTest {
 	public PublicationSystem pubSysMu;
 
 	private boolean init = false;
-	private int p1Id;
 
 	protected CabinetManager cabinetManager;
 	@Autowired protected PublicationManagerDao publicationManagerDao;
@@ -169,13 +168,8 @@ public abstract class CabinetBaseIntegrationTest {
 		p2.setLocked(false);
 		p2.setDoi("DOI2");
 
-		p1Id = publicationManagerDao.createPublication(sess, p1);
-		p1.setId(p1Id);
-		int p2Id = publicationManagerDao.createPublication(sess, p2);
-		p2.setId(p2Id);
-
-		publicationOne = p1;
-		publicationTwo = p2;
+		publicationOne = publicationManagerDao.createPublication(sess, p1);
+		publicationTwo = publicationManagerDao.createPublication(sess, p2);
 
 		Authorship a1 = new Authorship();
 		a1.setCreatedBy(sess.getPerunPrincipal().getActor());

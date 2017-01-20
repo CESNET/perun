@@ -2,10 +2,14 @@ package cz.metacentrum.perun.cabinet.dao;
 
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Interface of DAO layer for handling Publication entity.
@@ -15,9 +19,39 @@ import cz.metacentrum.perun.core.api.PerunSession;
  */
 public interface PublicationManagerDao {
 
-	int createPublication(PerunSession sess, Publication p);
+	/**
+	 * Create Publication.
+	 *
+	 * @param sess Session with authorization
+	 * @param publication Publication to create
+	 * @return Created publication with ID set
+	 * @throws CabinetException When publication already exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
+	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
 
-	int createInternalPublication(PerunSession sess, Publication p);
+	/**
+	 * Update existing publication by its ID.
+	 *
+	 * @param sess Session with authorization
+	 * @param publication Publication to update
+	 * @return Updated publication by its ID
+	 * @throws CabinetException When publication already exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Delete publication by its ID.
+	 *
+	 * @param publication Publication to create
+	 * @throws CabinetException When publication not exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
+	public void deletePublication(Publication publication) throws CabinetException, InternalErrorException;
 
 	/**
 	 * Filter result by exact match in any filed (and operator is used between fields)
@@ -72,10 +106,6 @@ public interface PublicationManagerDao {
 	List<Publication> findPublicationsByFilter(Publication publication, SortParam sp);
 
 	int getPublicationsCount();
-
-	int updatePublicationById(Publication publication);
-
-	int deletePublicationById(Integer id);
 
 	int lockPublications(boolean lockState, List<Publication> pubs);
 
