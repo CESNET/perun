@@ -139,6 +139,9 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 			}
 		}
 
+		//Null login is not allowed there
+		if(login == null) throw new InternalErrorException("There is missing login for user " + richUser + " and extSource " + extSourceNameForLogin);
+
 		for(int i=0; i<mappingArray.length; i++) {
 			String attr = mappingArray[i].trim();
 			int index = attr.indexOf("=");
@@ -153,7 +156,11 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 				if(attributeMatcher.group(1).equals("login")) {
 					value = attributeMatcher.replaceFirst(login);
 				} else {
-					value = attributeMatcher.replaceFirst(lookingForValueInRichUserAttributes(attributeMatcher.group(1), richUser));
+					String replacement = lookingForValueInRichUserAttributes(attributeMatcher.group(1), richUser);
+					if(replacement == null) replacement = "";
+					value = attributeMatcher.replaceFirst(replacement);
+					//If whole value is empty because of replacement, it means null for us
+					if(value.isEmpty()) value = null;
 				}
 			} else if (value.startsWith("urn:perun:")) {
 				//DEPRECATED, but need to be first removed from all settings of PerunExtSource in perun-extSource.xml file
