@@ -15,6 +15,7 @@ public class AlreadyAdminException extends PerunException {
 	private Member member;
 	private User user;
 	private Facility facility;
+	private Resource resource;
 	private Vo vo;
 	private Group group;
 	private Group authorizedGroup;
@@ -61,6 +62,12 @@ public class AlreadyAdminException extends PerunException {
 		this.facility = facility;
 	}
 
+	public AlreadyAdminException(String message, Throwable cause, User user, Resource resource) {
+		super(message, cause);
+		this.user = user;
+		this.resource = resource;
+	}
+
 	public AlreadyAdminException(String message, Throwable cause, User user, Group group) {
 		super(message, cause);
 		this.user = user;
@@ -89,6 +96,12 @@ public class AlreadyAdminException extends PerunException {
 		super(message, cause);
 		this.authorizedGroup = authorizedGroup;
 		this.facility = facility;
+	}
+
+	public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, Resource resource) {
+		super(message, cause);
+		this.authorizedGroup = authorizedGroup;
+		this.resource = resource;
 	}
 
 	public AlreadyAdminException(String message, Throwable cause, Group authorizedGroup, User sponsoredUser) {
@@ -154,6 +167,10 @@ public class AlreadyAdminException extends PerunException {
 
 	public Facility getFacility() {
 		return facility;
+	}
+
+	public Resource getResource() {
+		return resource;
 	}
 
 	public Group getGroup() {

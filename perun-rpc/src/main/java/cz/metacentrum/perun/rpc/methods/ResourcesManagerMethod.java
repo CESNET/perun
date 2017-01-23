@@ -4,21 +4,11 @@ package cz.metacentrum.perun.rpc.methods;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.ResourceTag;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
-import cz.metacentrum.perun.core.api.BanOnResource;
 
 public enum ResourcesManagerMethod implements ManagerMethod {
 
@@ -448,6 +438,140 @@ public enum ResourcesManagerMethod implements ManagerMethod {
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
 			return ac.getResourcesManager().getAssignedRichMembers(ac.getSession(),
 				ac.getResourceById(parms.readInt("resource")));
+		}
+	},
+
+	/*#
+	 * Adds a Resource admin.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param user int User <code>id</code>
+	 */
+	/*#
+	 *  Adds a group administrator to the Resource.
+	 *
+	 *  @param resource int Resource <code>id</code>
+	 *  @param authorizedGroup int Group <code>id</code>
+	 */
+	addAdmin {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			if (parms.contains("user")) {
+				ac.getResourcesManager().addAdmin(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getUserById(parms.readInt("user")));
+			} else {
+				ac.getResourcesManager().addAdmin(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getGroupById(parms.readInt("authorizedGroup")));
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Removes a Resource admin.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param user int User <code>id</code>
+	 */
+	/*#
+	 *  Removes a group administrator of the Resource.
+	 *
+	 *  @param resource int Resource <code>id</code>
+	 *  @param authorizedGroup int Group <code>id</code>
+	 */
+	removeAdmin {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			if (parms.contains("user")) {
+				ac.getResourcesManager().removeAdmin(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getUserById(parms.readInt("user")));
+			} else {
+				ac.getResourcesManager().removeAdmin(ac.getSession(),
+						ac.getResourceById(parms.readInt("resource")),
+						ac.getGroupById(parms.readInt("authorizedGroup")));
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Get list of all resource administrators for supported role and given resource.
+	 *
+	 * If onlyDirectAdmins is == true, return only direct admins of the group for supported role.
+	 *
+	 * Supported roles: ResourceAdmin, VOAdmin
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param onlyDirectAdmins boolean if true, get only direct resource administrators (if false, get both direct and indirect)
+	 *
+	 * @return List<User> list of all resource administrators of the given resource for supported role
+	 */
+	getAdmins {
+		@Override
+		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getAdmins(ac.getSession(),
+					ac.getResourceById(parms.readInt("resource")),
+					parms.readBoolean("onlyDirectAdmins"));
+		}
+	},
+
+	/*#
+	 * Get all Resource group admins.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @return List<Group> admins
+	 */
+	getAdminGroups {
+		@Override
+		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+			return ac.getResourcesManager().getAdminGroups(ac.getSession(),
+					ac.getResourceById(parms.readInt("resource")));
+		}
+	},
+
+	/*#
+	 * Get list of all richUser administrators for the resource and supported role with specific attributes.
+	 *
+	 * Supported roles: ResourceAdmin, VOAdmin
+	 *
+	 * If "onlyDirectAdmins" is true, return only direct admins of the resource for supported role with specific attributes.
+	 * If "allUserAttributes" is true, do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param specificAttributes List<String> list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes int if == true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins int if == true, get only direct resource administrators (if false, get both direct and indirect)
+	 *
+	 * @return List<RichUser> list of RichUser administrators for the resource and supported role with attributes
+	 */
+	getRichAdmins {
+		@Override
+		public List<RichUser> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getRichAdmins(ac.getSession(),
+					ac.getResourceById(parms.readInt("resource")),
+					parms.readList("specificAttributes", String.class),
+					parms.readBoolean("allUserAttributes"),
+					parms.readBoolean("onlyDirectAdmins"));
+		}
+	},
+
+	/*#
+	 * Returns list of Resources, where the user is an Administrator.
+	 *
+	 * @param user int User <code>id</code>
+	 * @return List<Resource> Found Resources
+	 */
+	getResourcesWhereUserIsAdmin {
+		@Override
+		public List<Resource> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getResourcesManager().getResourcesWhereUserIsAdmin(ac.getSession(),
+					ac.getUserById(parms.readInt("user")));
 		}
 	},
 

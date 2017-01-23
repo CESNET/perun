@@ -1,31 +1,8 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
-import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import java.util.List;
+import cz.metacentrum.perun.core.api.exceptions.*;
 
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import java.util.List;
 
 /**
  * Manages resources.
@@ -726,6 +703,128 @@ public interface ResourcesManager {
 	 * @throws PrivilegeException
 	 */
 	public void copyGroups(PerunSession sess, Resource sourceResource, Resource destinationResource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException;
+
+	/**
+	 * Get list of all user administrators for supported role and given resource.
+	 *
+	 * If onlyDirectAdmins is true, return only direct users of the group for supported role.
+	 *
+	 * Supported roles: ResourceAdmin, VOAdmin
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of all user administrators of the given resource for supported role
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws ResourceNotExistsException
+	 */
+	List<User> getAdmins(PerunSession perunSession, Resource resource, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, ResourceNotExistsException;
+
+	/**
+	 * Get list of all richUser administrators for the resource and supported role with specific attributes.
+	 *
+	 * Supported roles: ResourceAdmin, VOAdmin
+	 *
+	 * If "onlyDirectAdmins" is "true", return only direct users of the group for supported role with specific attributes.
+	 * If "allUserAttributes" is "true", do not specify attributes through list and return them all in objects richUser. Ignoring list of specific attributes.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 *
+	 * @param specificAttributes list of specified attributes which are needed in object richUser
+	 * @param allUserAttributes if true, get all possible user attributes and ignore list of specificAttributes (if false, get only specific attributes)
+	 * @param onlyDirectAdmins if true, get only direct user administrators (if false, get both direct and indirect)
+	 *
+	 * @return list of RichUser administrators for the resource and supported role with attributes
+	 *
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 * @throws ResourceNotExistsException
+	 */
+	List<RichUser> getRichAdmins(PerunSession perunSession, Resource resource, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException, PrivilegeException, ResourceNotExistsException;
+
+	/**
+	 * Returns list of resources, where the user is an admin.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return list of resources, where the user is an admin.
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws UserNotExistsException
+	 */
+	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException;
+
+	/**
+	 * Gets list of all group administrators of the Resource.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of Group that are admins in the resource.
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException, PrivilegeException, ResourceNotExistsException;
+
+	/**
+	 * Add role resource admin to user for the selected resource.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @param user
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws PrivilegeException
+	 * @throws AlreadyAdminException
+	 * @throws ResourceNotExistsException
+	 */
+	void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException;
+
+	/**
+	 * Add role resource admin to group for the selected resource.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @param group
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws PrivilegeException
+	 * @throws AlreadyAdminException
+	 * @throws ResourceNotExistsException
+	 */
+	void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException;
+
+	/**
+	 * Remove role resource admin from user for the selected resource.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @param user
+	 * @throws InternalErrorException
+	 * @throws UserNotExistsException
+	 * @throws PrivilegeException
+	 * @throws AlreadyAdminException
+	 * @throws ResourceNotExistsException
+	 */
+	void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, UserNotAdminException, ResourceNotExistsException;
+
+	/**
+	 * Remove role resource admin from group for the selected resource.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @param group
+	 * @throws InternalErrorException
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 * @throws GroupNotAdminException
+	 * @throws ResourceNotExistsException
+	 */
+	void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupNotAdminException, ResourceNotExistsException;
 
 	/**
 	 * Set ban for member on resource.

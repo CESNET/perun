@@ -7,6 +7,7 @@ public enum Role {
 	GROUPADMIN ("groupadmin"),
 	SELF ("self"),
 	FACILITYADMIN ("facilityadmin"),
+	RESOURCEADMIN ("resourceadmin"),
 	REGISTRAR ("registrar"),
 	ENGINE ("engine"),
 	RPC ("rpc"),

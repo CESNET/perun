@@ -554,6 +554,48 @@ public interface ResourcesManagerImplApi {
 	List<ResourceTag> getAllResourcesTagsForResource(PerunSession perunSession, Resource resource) throws InternalErrorException;
 
 	/**
+	 * Gets list of all user administrators of the Resource.
+	 * If some group is administrator of the given group, all members are included in the list.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of users who are admins in the resource
+	 * @throws InternalErrorException
+	 */
+	List<User> getAdmins(PerunSession sess, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Gets list of direct user administrators of the Resource.
+	 * 'Direct' means, there aren't included users, who are members of group administrators, in the returned list.
+	 *
+	 * @param perunSession
+	 * @param resource
+	 * @return list of direct admins of the resource
+	 * @throws InternalErrorException
+	 */
+	List<User> getDirectAdmins(PerunSession perunSession, Resource resource) throws InternalErrorException;
+
+	/**
+	 * Returns list of resources, where the user is an admin.
+	 *
+	 * @param sess
+	 * @param user
+	 * @return list of resources, where the user is an admin
+	 * @throws InternalErrorException
+	 */
+	List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException;
+
+	/**
+	 * Gets list of all group administrators of the Resource.
+	 *
+	 * @param sess
+	 * @param resource
+	 * @return list of groups who are admins in the resource
+	 * @throws InternalErrorException
+	 */
+	List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException;
+
+	/**
 	 * Get true if any ban for member and resource exists.
 	 *
 	 * @param sess

@@ -150,6 +150,16 @@ public class AuthzResolverIntegrationTest extends AbstractPerunIntegrationTest {
 	}
 
 	@Test
+	public void isResourceAdmin() {
+		System.out.println(CLASS_NAME + "isResourceAdmin");
+
+		sess = mock(PerunSession.class, RETURNS_DEEP_STUBS);
+		when(sess.getPerunPrincipal().getRoles().hasRole(Role.RESOURCEADMIN)).thenReturn(true);
+
+		assertTrue(AuthzResolver.isResourceAdmin(sess));
+	}
+
+	@Test
 	public void isVoAdminUnit() {
 		System.out.println(CLASS_NAME + "isVoAdminUnit");
 
