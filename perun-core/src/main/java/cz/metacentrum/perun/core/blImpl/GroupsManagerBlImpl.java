@@ -1614,6 +1614,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				user = getPerunBl().getUsersManagerBl().getUserByUserExtSource(sess, userExtSource);
 				if(!idsOfUsersInGroup.containsKey(user.getId())) {
 					candidate = new Candidate(user, userExtSource);
+					//for lightweight synchronization we want to skip all update of attributes
+					candidate.setAttributes(new HashMap<String, String>());
 				}
 			} catch (UserExtSourceNotExistsException | UserNotExistsException ex) {
 				//If not find, get more information about him from member extSource
