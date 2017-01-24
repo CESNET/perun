@@ -199,12 +199,163 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		}
 	},
 
+	/*#
+	 * Create Publication. If exists by its ID or EXT_ID,PUB_SYS_ID then existing publication is returned.
+	 *
+	 * @param publication Publication Publication to create
+	 * @return Publication Created publication with ID set
+	 * @throw CabinetException
+	 */
+	createPublication {
+		public Publication call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
+			ac.stateChangingCheck();
+			Publication pub = parms.read("publication", Publication.class);
+			if (ac.getCabinetManager().publicationExists(pub)) {
+				// get for external pubs
+				if (pub.getExternalId() != 0 && pub.getPublicationSystemId() != 0) {
+					// externalId and publicationSystemId are unique and checked before so we can safely return first and only publication.
+					return ac.getCabinetManager().getRichPublicationByExternalId(pub.getExternalId(), pub.getPublicationSystemId());
+					// for internal pubs
+				}
+			}
+			// else create one
+			Publication returnedPub = ac.getCabinetManager().createPublication(ac.getSession(), parms.read("publication", Publication.class));
+			return ac.getCabinetManager().getRichPublicationById(returnedPub.getId());
+		}
+	},
 
+	/*#
+	 * Update existing publication by its ID.
+	 *
+	 * @param publication Publication Publication to update
+	 * @return Publication Updated publication by its ID
+	 * @throw CabinetException When same Publication already exists
+	 */
+	updatePublication {
+		public PublicationForGUI call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
+			ac.stateChangingCheck();
+			Publication pub = parms.read("publication", Publication.class);
+			ac.getCabinetManager().updatePublication(ac.getSession(), pub);
+			return ac.getCabinetManager().getRichPublicationById(pub.getId());
+		}
+	},
 
+	/*#
+	 * Delete publication by its ID. Only Author of the record or PerunAdmin can do this.
+	 *  - Author deletes Authorships and Thanks from publication.
+	 *  - PerunAdmin also delete publication record.
+	 *
+	 * @param id int ID of Publication to delete
+	 * @throw CabinetException When publication not exists
+	 */
+	deletePublication {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			ac.getCabinetManager().deletePublication(ac.getSession(), ac.getPublicationById(parms.readInt("id")));
+			return null;
+		}
+	},
 
+	/*#
+	 * Return Publication by its ID.
+	 *
+	 * @param id int ID of Publication
+	 * @return PublicationForGUI by its ID
+	 * @throw CabinetException When such Publication doesn't exists
+	 */
+	findPublicationById {
+		public PublicationForGUI call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getCabinetManager().getRichPublicationById(parms.readInt("id"));
+		}
+	},
 
+	/*#
+	 * Finds rich publications in Cabinet by GUI filter:
+	 *
+	 * id = exact match (used when search for publication of authors)
+	 * title = if "like" this substring
+	 * year = exact match
+	 * isbn = if "like" this substring
+	 * category = exact match
+	 * yearSince = if year >= yearSince
+	 * yearTill = if year <= yearTill
+	 * userId = exact match or 0
+	 *
+	 * If you don't want to filter by publication params, do not include the attribute in the query.
+	 *
+	 * @param id int Publication <code>id</code>
+	 * @param title String Title
+	 * @param isbn String ISBN
+	 * @param year int Year
+	 * @param category int Category
+	 * @param doi String DOI
+	 * @param yearSince int Year since
+	 * @param yearTill int Year till
+	 * @param userId int User <code>id</code>
+	 * @return List<PublicationForGUI> Found publications
+	*/
+	findPublicationsByGUIFilter {
+		public List<PublicationForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
 
+			// set filter
+			Publication filter = new Publication();
+			int yearSince = 0;
+			int yearTill = 0;
+			int userId = 0;
 
+			if (parms.contains("id")) {
+				filter.setId(parms.readInt("id"));
+			}
+			if (parms.contains("title")) {
+				filter.setTitle(parms.readString("title"));
+			}
+			if (parms.contains("isbn")) {
+				filter.setIsbn(parms.readString("isbn"));
+			}
+			if (parms.contains("year")) {
+				filter.setYear(parms.readInt("year"));
+			}
+			if (parms.contains("category")) {
+				filter.setCategoryId(parms.readInt("category"));
+			}
+			if (parms.contains("doi")) {
+				filter.setDoi(parms.readString("doi"));
+			}
+			if (parms.contains("yearSince")) {
+				yearSince = parms.readInt("yearSince");
+			}
+			if (parms.contains("yearTill")) {
+				yearTill = parms.readInt("yearTill");
+			}
+			if (parms.contains("userId")) {
+				userId = parms.readInt("userId");
+			}
+
+			// result list
+			List<PublicationForGUI> result = new ArrayList<PublicationForGUI>();
+
+			result = ac.getCabinetManager().getRichPublicationsByFilter(filter, userId, yearSince, yearTill);
+
+			return result;
+
+		}
+	},
+
+	/**
+	 * (Un)Lock passed Publications for changes.
+	 *
+	 * @param lock boolean TRUE (lock) / FALSE (unlock)
+	 * @param publications List<Publication> Publications to (un)lock
+	 */
+	lockPublications {
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+			List<Publication> pubs = parms.readList("publications", Publication.class);
+			boolean lock = parms.readBoolean("lock");
+			ac.getCabinetManager().lockPublications(ac.getSession(), lock, pubs);
+			return null;
+		}
+	},
 
 
 
@@ -222,22 +373,10 @@ public enum CabinetManagerMethod implements ManagerMethod {
 	 */
 	findExternalPublications {
 		public List<Publication> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().findExternalPublications(ac.getSession(), parms.readInt("user"), parms.readInt("yearSince"), parms.readInt("yearTill"), parms.readString("pubSysNamespace"));
+			return ac.getCabinetManager().findExternalPublications(ac.getSession(), parms.readInt("user"), parms.readInt("yearSince"), parms.readInt("yearTill"), parms.readString("pubSysNamespace"));
 		}
 	},
 
-	/*#
-		* Finds publications according to provided instance. All set
-		* properties are used with conjunction AND.
-		*
-		* @param publication Publication JSON object
-		* @return List<Publication> Found publications
-		*/
-	findPublicationByFilter {
-		public List<Publication> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().findPublicationsByFilter(parms.read("publication", Publication.class));
-		}
-	},
 
 	/*#
 		* Finds similar publications
@@ -305,217 +444,19 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			if (parms.contains("title")) {
 				Publication filter = new Publication();
 				filter.setTitle(parms.readString("title"));
-				result.addAll(ac.getCabinetApi().findRichPublicationsByGUIFilter(filter, userId, yearSince, yearTill));
+				result.addAll(ac.getCabinetManager().getRichPublicationsByFilter(filter, userId, yearSince, yearTill));
 			}
 			if (parms.contains("isbn")) {
 				Publication filter = new Publication();
 				filter.setIsbn(parms.readString("isbn"));
-				result.addAll(ac.getCabinetApi().findRichPublicationsByGUIFilter(filter, userId, yearSince, yearTill));
+				result.addAll(ac.getCabinetManager().getRichPublicationsByFilter(filter, userId, yearSince, yearTill));
 			}
 			if (parms.contains("doi")) {
 				Publication filter = new Publication();
 				filter.setDoi(parms.readString("doi"));
-				result.addAll(ac.getCabinetApi().findRichPublicationsByGUIFilter(filter, userId, yearSince, yearTill));
+				result.addAll(ac.getCabinetManager().getRichPublicationsByFilter(filter, userId, yearSince, yearTill));
 			}
 			return result;
-
-		}
-	},
-
-	/*#
-		* Finds rich publications in Cabinet by GUI filter:
-		*
-		* id = exact match (used when search for publication of authors)
-		* title = if "like" this substring
-		* year = exact match
-		* isbn = if "like" this substring
-		* category = exact match
-		* yearSince = if year >= yearSince
-		* yearTill = if year <= yearTill
-		*
-		* If you don't want to filter by publication params, do not include the attribute in the query.
-		*
-		* @param id int Publication <code>id</code>
-		* @param title String Title
-		* @param isbn String ISBN
-		* @param year int Year
-		* @param category int Category
-		* @param doi String DOI
-		* @param locked boolean Publication locked
-		* @param yearSince int Year since
-		* @param yearTill int Year till
-		* @param userId int User <code>id</code>
-		* @return List<PublicationForGUI> Found publications
-		*/
-	findPublicationsByGUIFilter {
-		public List<PublicationForGUI> call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-
-			// set filter
-			Publication filter = new Publication();
-			int yearSince = 0;
-			int yearTill = 0;
-			Integer userId = null;
-
-			if (parms.contains("id")) {
-				filter.setId(parms.readInt("id"));
-			}
-			if (parms.contains("title")) {
-				filter.setTitle(parms.readString("title"));
-			}
-			if (parms.contains("isbn")) {
-				filter.setIsbn(parms.readString("isbn"));
-			}
-			if (parms.contains("year")) {
-				filter.setYear(parms.readInt("year"));
-			}
-			if (parms.contains("category")) {
-				filter.setCategoryId(parms.readInt("category"));
-			}
-			if (parms.contains("doi")) {
-				filter.setDoi(parms.readString("doi"));
-			}
-			if (parms.contains("locked")) {
-				if (parms.readString("locked").equalsIgnoreCase("false")) {
-					filter.setLocked(false);
-				} else if (parms.readString("locked").equalsIgnoreCase("true")) {
-					filter.setLocked(true);
-				}
-			}
-			if (parms.contains("yearSince")) {
-				yearSince = parms.readInt("yearSince");
-			}
-			if (parms.contains("yearTill")) {
-				yearTill = parms.readInt("yearTill");
-			}
-			if (parms.contains("userId")) {
-				// just to be safe
-				if (parms.readInt("userId") != 0) {
-					userId = parms.readInt("userId");
-				}
-			}
-
-			// result list
-			List<PublicationForGUI> result = new ArrayList<PublicationForGUI>();
-
-			result = ac.getCabinetApi().findRichPublicationsByGUIFilter(filter, userId, yearSince, yearTill);
-
-			return result;
-
-		}
-	},
-
-	/*#
-		* Returns a Publication by its <code>id</code>.
-		* @param id int Publication <code>id</code>
-		* @return PublicationForGUI found Publication
-		*/
-	findPublicationById {
-		public PublicationForGUI call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			return ac.getCabinetApi().findRichPublicationById(parms.readInt("id"));
-		}
-	},
-
-
-
-
-
-	// CREATE / UPDATE / DELETE / CHECK METHODS
-
-
-	/*#
-		* Creates a new Publication.
-		* If publication already exists, it's returned.
-		*
-		* @param publication Publication JSON object
-		* @return Publication Publication
-		*/
-	createPublication {
-		public Publication call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
-			Publication pub = parms.read("publication", Publication.class);
-			if (ac.getCabinetApi().publicationExists(pub)) {
-				// if publication exists, do not create new
-				Publication filter = new Publication();
-				// get for external pubs
-				if (pub.getExternalId() != 0 && pub.getPublicationSystemId() != 0) {
-					filter.setExternalId(pub.getExternalId());
-					filter.setPublicationSystemId(pub.getPublicationSystemId());
-					// externalId and publicationSystemId are unique and checked before so we can safely return first and only publication.
-					return ac.getCabinetApi().findRichPublicationsByFilter(filter, null).get(0);
-					// for internal pubs
-				}
-			}
-			// else create one
-			int id = ac.getCabinetApi().createPublication(ac.getSession(), parms.read("publication", Publication.class));
-			return ac.getCabinetApi().findRichPublicationById(id);
-		}
-	},
-
-	/*#
-		* Updates a Publication.
-		*
-		* @param publication Publication JSON object
-		* @return Publication Updated Publication
-		*/
-	updatePublication {
-		public PublicationForGUI call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
-			Publication pub = parms.read("publication", Publication.class);
-			ac.getCabinetApi().updatePublicationById(ac.getSession(), pub);
-			return ac.getCabinetApi().findRichPublicationById(pub.getId());
-		}
-	},
-
-	/*#
-		* Deletes a Publication.
-		* @param id int Publication <code>id</code>
-		*/
-	deletePublication {
-		public Void call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
-			ac.getCabinetApi().deletePublicationById(ac.getSession(), parms.readInt("id"));
-			return null;
-		}
-	},
-
-	/*#
-		* Checks whether a publication exists.
-		* If you don't want to filter by a publication param, do not include the attribute in the query.
-		*
-		* @param externalId int External <code>id</code>
-		* @param pubSysId int PubSys <code>id</code>
-		* @param isbn String ISBN
-		* @return boolean True if exists
-		*/
-	checkPublicationExists {
-		public Boolean call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			Publication pub = new Publication();
-			if (parms.contains("externalId")) {
-				pub.setExternalId(parms.readInt("externalId"));
-			}
-			if (parms.contains("pubSysId")) {
-				pub.setPublicationSystemId(parms.readInt("pubSysId"));
-			}
-			if (parms.contains("isbn")) {
-				pub.setIsbn(parms.readString("isbn"));
-			}
-			return ac.getCabinetApi().publicationExists(pub);
-		}
-	},
-
-	/*#
-	 * Locks and unlocks publications.
-	 * @param publications List<Publication> Publications
-	 * @param lock boolean true = lock, false = unlock
-	 * @return int Number of updated rows
-	 */
-	lockPublications {
-		public Integer call(ApiCaller ac, Deserializer parms) throws PerunException, CabinetException {
-			ac.stateChangingCheck();
-
-			List<Publication> pubs = parms.readList("publications", Publication.class);
-			boolean lockState = parms.readBoolean("lock");
-			return ac.getCabinetApi().lockPublications(ac.getSession(), lockState, pubs);
 
 		}
 	},

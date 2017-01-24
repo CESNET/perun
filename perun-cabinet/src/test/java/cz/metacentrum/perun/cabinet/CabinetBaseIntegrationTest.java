@@ -48,21 +48,11 @@ public abstract class CabinetBaseIntegrationTest {
 	private boolean init = false;
 
 	protected CabinetManager cabinetManager;
-	@Autowired protected PublicationManagerDao publicationManagerDao;
-	@Autowired protected PerunManagerBl perunManagerBl;
 	@Autowired protected Properties cabinetProperties;
 	@Autowired PerunBl perun;
 	protected PerunSession sess;
 
 	// setters -------------------------
-
-	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
-		this.perunManagerBl = perunManagerBl;
-	}
-
-	public void setPublicationManagerDao(PublicationManagerDao publicationManagerDao) {
-		this.publicationManagerDao = publicationManagerDao;
-	}
 
 	@Autowired
 	public void setCabinetManager(CabinetManager cabinetManager) {
@@ -168,8 +158,8 @@ public abstract class CabinetBaseIntegrationTest {
 		p2.setLocked(false);
 		p2.setDoi("DOI2");
 
-		publicationOne = publicationManagerDao.createPublication(sess, p1);
-		publicationTwo = publicationManagerDao.createPublication(sess, p2);
+		publicationOne = getCabinetManager().createPublication(sess, p1);
+		publicationTwo = getCabinetManager().createPublication(sess, p2);
 
 		Authorship a1 = new Authorship();
 		a1.setCreatedBy(sess.getPerunPrincipal().getActor());

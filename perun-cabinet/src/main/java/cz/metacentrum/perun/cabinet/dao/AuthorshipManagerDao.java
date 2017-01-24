@@ -38,7 +38,7 @@ public interface AuthorshipManagerDao {
 	 * @throws CabinetException When Authorship by ID doesn't exist
 	 * @throws InternalErrorException When implementation fails
 	 */
-	@Transactional
+	@Transactional(rollbackFor = Exception.class, propagation = Propagation.NESTED)
 	void deleteAuthorship(PerunSession sess, Authorship authorship) throws CabinetException, InternalErrorException;
 
 	/**

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	private AuthorshipManagerDao authorshipManagerDao;
 	private PublicationManagerBl publicationManagerBl;
 	private CategoryManagerBl categoryManagerBl;
-	private PerunManagerBl perunManagerBl;
+	private CabinetManagerBl cabinetManagerBl;
 	private static Logger log = LoggerFactory.getLogger(AuthorshipManagerBlImpl.class);
 
 	@Autowired
@@ -45,8 +46,8 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	// setters ===========================================
 
 	@Autowired
-	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
-		this.perunManagerBl = perunManagerBl;
+	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+		this.cabinetManagerBl = cabinetManagerBl;
 	}
 
 	@Autowired
@@ -76,8 +77,8 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		return publicationManagerBl;
 	}
 
-	public PerunManagerBl getPerunManagerBl() {
-		return perunManagerBl;
+	public CabinetManagerBl getCabinetManagerBl() {
+		return cabinetManagerBl;
 	}
 
 	// business methods ===================================
@@ -101,9 +102,9 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		// log
 		perun.getAuditer().log(sess, "Authorship {} created.", authorship);
 
-		getPerunManagerBl().updatePriorityCoefficient(sess, authorship.getUserId(), calculateNewRank(authorship.getUserId()));
+		getCabinetManagerBl().updatePriorityCoefficient(sess, authorship.getUserId(), calculateNewRank(authorship.getUserId()));
 
-		getPerunManagerBl().setThanksAttribute(authorship.getUserId());
+		getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
 
 		return authorship;
 
@@ -139,11 +140,11 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		log.debug("{} deleted.", authorship);
 
 		int userId = authorship.getUserId();
-		getPerunManagerBl().updatePriorityCoefficient(sess, userId, calculateNewRank(userId));
+		getCabinetManagerBl().updatePriorityCoefficient(sess, userId, calculateNewRank(userId));
 
 		perun.getAuditer().log(sess, "Authorship {} deleted.", authorship);
 
-		getPerunManagerBl().setThanksAttribute(authorship.getUserId());
+		getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
 
 	}
 
@@ -178,7 +179,7 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 
 		double rank = DEFAULT_RANK;
 		for (Authorship r : authorships) {
-			Publication p = getPublicationManagerBl().findPublicationById(r.getPublicationId());
+			Publication p = getPublicationManagerBl().getPublicationById(r.getPublicationId());
 			rank += p.getRank();
 			Category c = getCategoryManagerBl().getCategoryById(p.getCategoryId());
 			rank += c.getRank();

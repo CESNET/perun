@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
+import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.cabinet.dao.ThanksManagerDao;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Thanks;
@@ -29,7 +30,7 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 
 	private ThanksManagerDao thanksManagerDao;
 	private AuthorshipManagerBl authorshipManagerBl;
-	private PerunManagerBl perunManagerBl;
+	private CabinetManagerBl cabinetManagerBl;
 
 	private static Logger log = LoggerFactory.getLogger(ThanksManagerBlImpl.class);
 
@@ -45,8 +46,9 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		this.authorshipManagerBl = authorshipManagerBl;
 	}
 
-	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
-		this.perunManagerBl = perunManagerBl;
+	@Autowired
+	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+		this.cabinetManagerBl = cabinetManagerBl;
 	}
 
 	public ThanksManagerDao getThanksManagerDao() {
@@ -57,8 +59,8 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		return authorshipManagerBl;
 	}
 
-	public PerunManagerBl getPerunManagerBl() {
-		return perunManagerBl;
+	public CabinetManagerBl getCabinetManagerBl() {
+		return cabinetManagerBl;
 	}
 
 
@@ -79,7 +81,7 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		List<Author> authors = new ArrayList<Author>();
 		authors = getAuthorshipManagerBl().getAuthorsByPublicationId(t.getPublicationId());
 		for (Author a : authors) {
-			getPerunManagerBl().setThanksAttribute(a.getId());
+			getCabinetManagerBl().setThanksAttribute(a.getId());
 		}
 		return t;
 	}
@@ -89,7 +91,7 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		// recalculate thanks for all publication's authors
 		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
 		for (Author a : authors) {
-			getPerunManagerBl().setThanksAttribute(a.getId());
+			getCabinetManagerBl().setThanksAttribute(a.getId());
 		}
 
 		getThanksManagerDao().deleteThanks(sess, thanks);

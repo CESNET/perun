@@ -16,13 +16,9 @@
 
 	<name>perun-cabinet</name>
 	<description>Cabinet is a project which aims on retrieving publications from remote sources and allow to report them by perun's users.</description>
-	<scm>
-		<url>https://projekty.ics.muni.cz/perunv3/svn/trunk/perun/perun-cabinet</url>
-	</scm>
 
 	<!-- Properties - version -->
 	<properties>
-		<logback.version>0.9.30</logback.version>
 	</properties>
 
 	<build>
@@ -90,27 +86,11 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- DB -->
-
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis</artifactId>
-			<version>3.4.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis-spring</artifactId>
-			<version>1.3.0</version>
-		</dependency>
-
 		<!-- SPRING -->
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
-			<!-- gmaven needs outside test scope -->
-			<scope>compile</scope>
 		</dependency>
 
 		<!-- TESTS -->
@@ -118,15 +98,6 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<!-- gmaven needs outside test scope -->
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.8.5</version>
-			<scope>test</scope>
 		</dependency>
 
 		<!-- LOGGING -->

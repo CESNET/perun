@@ -4,6 +4,7 @@ import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
+import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.model.Thanks;
@@ -361,9 +362,141 @@ public interface CabinetManager {
 	 * @param sess Session with authorization
 	 * @param publication Publication to create
 	 * @return Created publication with ID set
-	 * @throws CabinetException
-	 * @throws InternalErrorException
+	 * @throws CabinetException When same publication already exist
+	 * @throws InternalErrorException When implementation fails
 	 */
 	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return TRUE if Publication exists by ID or EXT_ID and PUB_SYS_ID, FALSE otherwise.
+	 *
+	 * @param publication Publication to check for existence
+	 * @return TRUE if same Publication exists (by its ID, EXT_ID,PUB_SYS_ID), FALSE otherwise.
+	 * @throws InternalErrorException When implementation fails
+	 */
+	boolean publicationExists(Publication publication) throws InternalErrorException;
+
+	/**
+	 * Update existing publication by its ID.
+	 *
+	 * @param sess Session with authorization
+	 * @param publication Publication to update
+	 * @return Updated publication by its ID
+	 * @throws CabinetException When publication already exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException, PrivilegeException;
+
+	/**
+	 * Delete publication by its ID.
+	 * Only author of the record or PerunAdmin can do this.
+	 *  - Author deletes authorships and thanks from publication.
+	 *  - PerunAdmin also delete publication record.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param publication Publication to delete
+	 * @throws CabinetException When publication not exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException, PrivilegeException;
+
+	/**
+	 * Return Publication by its ID.
+	 *
+	 * @param id ID of Publication
+	 * @return Publication by its ID
+	 * @throws CabinetException When such Publication doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return Publication by its External ID and PublicationSystem ID.
+	 *
+	 * @param externalId ID of Publication in external system
+	 * @param publicationSystem ID of external Publication System
+	 * @return Publication by its External ID and PublicationSystem ID
+	 * @throws CabinetException When such Publication doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return Publications by their Category ID or empty list.
+	 *
+	 * @param categoryId ID of Publications category
+	 * @return Publications by their category ID
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException;
+
+	/**
+	 * Return PublicationForGUI by its ID.
+	 *
+	 * @param id ID of PublicationForGUI
+	 * @return PublicationForGUI by its ID
+	 * @throws CabinetException When such Publication doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return Publication by its External ID and PublicationSystem ID.
+	 *
+	 * @param externalId ID of Publication in external system
+	 * @param publicationSystem ID of external Publication System
+	 * @return Publication by its External ID and PublicationSystem ID
+	 * @throws CabinetException When such Publication doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return PublicationForGUI with every property set directly from DB.
+	 * Apply GUI filter when searching.
+	 *
+	 * id = exact match (used when search for publication of authors)
+	 * title = if "like" this substring
+	 * year = exact match
+	 * isbn = if "like" this substring
+	 * category = exact match
+	 * userId = exact match if not 0
+	 * yearTill = if year <= yearTill
+	 * yearSince = if year >= yearSince
+	 *
+	 * @param p Publication to search for by properties (null if not used)
+	 * @param userId ID of User to search publications for
+	 * @param yearSince year range
+	 * @param yearTill year range
+	 * @return publication with everything set
+	 */
+	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException;
+
+	/**
+	 * (Un)Lock passed Publications for changes.
+	 *
+	 * @param sess PerunSession for authz
+	 * @param lockState TRUE (lock) / FALSE (unlock)
+	 * @param publications Publications to (un)lock
+	 * @throws InternalErrorException When implementation fails
+	 */
+	void lockPublications(PerunSession sess, boolean lockState, List<Publication> publications) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Finds publications of perun's user specified in param
+	 * Search is done in external publication systems (MU, ZCU)
+	 * All parameters are required.
+	 *
+	 * @param sess
+	 * @param userId from Perun
+	 * @param yearSince
+	 * @param yearTill (must be equal or greater then yearSince)
+	 * @param pubSysNamespace (MU or ZCU)
+	 * @throws CabinetException
+	 *
+	 * @return list of publications or empty list if nothing is found
+	 * @throws CabinetException
+	 */
+	List<Publication> findExternalPublications(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException, InternalErrorException;
 
 }

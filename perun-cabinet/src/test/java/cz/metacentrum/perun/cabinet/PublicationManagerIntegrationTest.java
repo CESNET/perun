@@ -1,29 +1,20 @@
-package cz.metacentrum.perun.cabinet.service.impl;
+package cz.metacentrum.perun.cabinet;
 
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-import cz.metacentrum.perun.cabinet.CabinetBaseIntegrationTest;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 
-public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
-
-	@Autowired
-	private PublicationManagerBl publicationService;
-
-	public void setPublicationService(PublicationManagerBl publicationService) {
-		this.publicationService = publicationService;
-	}
+public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTest {
 
 	// ------------- TESTS --------------------------------------------
 
@@ -46,7 +37,7 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 		p.setDoi("DOI");
 		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
-		p = publicationService.createPublication(sess, p);
+		p = getCabinetManager().createPublication(sess, p);
 		assertTrue("Returned ID shouldn't be < 0.", p.getId() > 0);
 
 	}
@@ -70,7 +61,7 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 		p.setDoi("DOI");
 		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
-		p = publicationService.createPublication(sess, p);
+		p = getCabinetManager().createPublication(sess, p);
 		assertTrue(p.getId() > 0);
 
 		// must be reset, since test update object after creation
@@ -79,7 +70,7 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 
 		// double-check existence (based on isbn)
 		try {
-			publicationService.createPublication(sess, p);
+			getCabinetManager().createPublication(sess, p);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.PUBLICATION_ALREADY_EXISTS)){
 				fail("Different exception was thrown when creating \"same\" internal publication: "+ex);
@@ -89,61 +80,33 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 	}
 
 	@Test
-	public void findPublicationsByFilterTest() throws Exception {
-		System.out.println("PublicationServiceImpl.findPublicationsByFilterTest");
+	public void getPublicationByIdOrExtIdTest() throws Exception {
+		System.out.println("PublicationServiceImpl.getPublicationByIdOrExtIdTest");
 
 		// search base on publicationOne ID
-		Publication pub = new Publication();
-		pub.setId(publicationOne.getId());
-		List<Publication> list = publicationService.findPublicationsByFilter(pub);
-		assertTrue("Returned publications can't be null or empty.", (list != null && !list.isEmpty()));
-		assertTrue("There should be exactly 1 publication returned.", list.size() == 1);
-		assertTrue("Returned publication shoud be same as publicationOne.", list.contains(publicationOne));
+		Publication retrievedPub = getCabinetManager().getPublicationById(publicationOne.getId());
+		assertTrue("Returned publications can't be null or empty.", (retrievedPub != null));
+		assertTrue("Returned publication should be same as publicationOne.", Objects.equals(publicationOne, retrievedPub));
 
-		// search base on publicationOne EXT_ID, PUBSYS_ID
-		pub = new Publication();
-		pub.setExternalId(publicationOne.getExternalId());
-		pub.setPublicationSystemId(publicationOne.getPublicationSystemId());
-		list = publicationService.findPublicationsByFilter(pub);
-		assertTrue("Returned publications can't be null or empty.", (list != null && !list.isEmpty()));
-		assertTrue("There should be exactly 1 publication returned.", list.size() == 1);
-		assertTrue("Returned publication should be same as publicationOne.", list.contains(publicationOne));
+		// search base on publicationOne EXT_ID, PUB_SYS_ID
+		retrievedPub = getCabinetManager().getPublicationByExternalId(publicationOne.getExternalId(), publicationOne.getPublicationSystemId());
+		assertTrue("Returned publications can't be null or empty.", (retrievedPub != null));
+		assertTrue("Returned publication should be same as publicationOne.", Objects.equals(publicationOne, retrievedPub));
 
 	}
 
 	@Test
-	public void getPublicationsCountTest() throws Exception {
-		System.out.println("PublicationServiceImpl.getPublicationsCountTest");
-
-		int result = publicationService.getPublicationsCount();
-		assertTrue("There should be at least 2 testing publications!", result >= 2);
-
-
-	}
-
-	@Test
-	public void deletePublicationTest() throws CabinetException {
+	public void deletePublicationTest() throws Exception {
 		System.out.println("PublicationServiceImpl.deletePublicationTest");
 
 		// publicationTwo can be deleted - doesn't have authors or thanks
-		int id = publicationService.deletePublicationById(sess, publicationTwo.getId());
-		assertTrue("There should be exactly 1 row deleted.",id == 1);
+		getCabinetManager().deletePublication(sess, publicationTwo);
 
 		// shouldn't find it after deletion
-		Publication result = publicationService.findPublicationById(publicationTwo.getId());
-		assertTrue("PublicationTwo was not deleted!", result == null);
-
-	}
-
-	@Test
-	public void deletePublicationWhenNotExistsTest() throws CabinetException {
-		System.out.println("PublicationServiceImpl.deletePublicationWhenNotExistsTest");
-
 		try {
-			publicationService.deletePublicationById(sess, 0);
+			getCabinetManager().getPublicationById(publicationTwo.getId());
 		} catch (CabinetException ex) {
-			if (ex.getType() != ErrorCodes.PUBLICATION_NOT_EXISTS) {
-				// fail if different error
+			if (!Objects.equals(ex.getType(), ErrorCodes.PUBLICATION_NOT_EXISTS)) {
 				fail();
 			}
 		}
@@ -151,12 +114,12 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 	}
 
 	@Test
-	public void deletePublicationWhenHaveAuthorsOrThanksTest() throws CabinetException {
+	public void deletePublicationWhenHaveAuthorsOrThanksTest() throws Exception {
 		System.out.println("PublicationServiceImpl.deletePublicationWhenHaveAuthorsOrThanksTest");
 
 		// publicationTwo can be deleted - doesn't have authors or thanks
 		try {
-			publicationService.deletePublicationById(sess, publicationOne.getId());
+			getCabinetManager().deletePublication(sess, publicationOne);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.PUBLICATION_HAS_AUTHORS_OR_THANKS)) {
 				fail("Different exception code, was: "+ex.getType() +", but expected: PUBLICATION_HAS_AUTHORS_OR_THANKS.");
@@ -171,11 +134,11 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 		System.out.println("PublicationServiceImpl.updatePublicationTest");
 
 		publicationOne.setMain("NEW MAIN");
-		int result = publicationService.updatePublicationById(sess, publicationOne);
-		assertTrue("There should be exactly 1 publication updated.", result == 1);
+		getCabinetManager().updatePublication(sess, publicationOne);
 
-		Publication pub = publicationService.findPublicationById(publicationOne.getId());
+		Publication pub = getCabinetManager().getPublicationById(publicationOne.getId());
 		assertEquals("Returned publication should be updated.", pub, publicationOne);
+		assertEquals("Returned publication should be updated.", pub.getMain(), publicationOne.getMain());
 
 	}
 
@@ -185,7 +148,7 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 
 		Publication pub = new Publication();
 		try {
-			publicationService.updatePublicationById(sess, pub);
+			getCabinetManager().updatePublication(sess, pub);
 		} catch (CabinetException ex) {
 			if (!ex.getType().equals(ErrorCodes.PUBLICATION_NOT_EXISTS)) {
 				fail("Different exception code, was: "+ex.getType() +", but expected: PUBLICATION_NOT_EXISTS.");
@@ -203,22 +166,22 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 			publicationTwo.setPublicationSystemId(publicationOne.getPublicationSystemId());
 			publicationTwo.setExternalId(publicationOne.getExternalId());
 
-			publicationService.updatePublicationById(sess, publicationTwo);
+			getCabinetManager().updatePublication(sess, publicationTwo);
 
 		}
 
 	@Test
-	public void lockPublicationsTest() throws CabinetException {
+	public void lockPublicationsTest() throws Exception {
 		System.out.println("PublicationServiceImpl.lockPublicationsTest");
 
 		List<Publication> pubs = new ArrayList<Publication>();
 		pubs.add(publicationOne);
 		pubs.add(publicationTwo);
 		boolean lock = publicationOne.getLocked();
-		publicationService.lockPublications(sess, !lock, pubs); // switch lock to opposite
-		Publication result = publicationService.findPublicationById(publicationOne.getId());
+		getCabinetManager().lockPublications(sess, !lock, pubs); // switch lock to opposite
+		Publication result = getCabinetManager().getPublicationById(publicationOne.getId());
 		assertTrue("PublicationOne was not locked/unlocked", result.getLocked() != lock);
-		Publication result2 = publicationService.findPublicationById(publicationTwo.getId());
+		Publication result2 = getCabinetManager().getPublicationById(publicationTwo.getId());
 		assertTrue("PublicationTwo was not locked/unlocked", result2.getLocked() != lock);
 
 	}
@@ -250,7 +213,7 @@ public class PublicationServiceImplTest extends CabinetBaseIntegrationTest {
 		p.setDoi(doi);
 		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
-		p = publicationService.createPublication(sess, p);
+		p = getCabinetManager().createPublication(sess, p);
 
 		// if stripping works, must have been created
 		assertTrue("Returned ID shouldn't be < 0.", p.getId() > 0);

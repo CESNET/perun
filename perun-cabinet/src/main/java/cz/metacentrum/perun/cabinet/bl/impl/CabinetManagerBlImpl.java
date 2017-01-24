@@ -1,14 +1,23 @@
 package cz.metacentrum.perun.cabinet.bl.impl;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
+import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
+import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.bl.PerunBl;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -19,9 +28,6 @@ import org.slf4j.LoggerFactory;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.strategy.PublicationSystemStrategy;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -33,20 +39,48 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class CabinetManagerBlImpl implements CabinetManagerBl {
 
-	private PerunManagerBl perunService;
 	private PublicationSystemManagerBl publicationSystemManagerBl;
+	private ThanksManagerBl thanksManagerBl;
+	private PerunSession cabinetSession;
+	private PerunBl perun;
 
 	private static Logger log = LoggerFactory.getLogger(CabinetManagerBlImpl.class);
 
-	// setter ----------------------------------------
+	private static final String ATTR_COEF_TYPE = "java.lang.String";
+	private static final String ATTR_COEF_NAMESPACE = "urn:perun:user:attribute-def:def";
+	private static final String ATTR_COEF_FRIENDLY_NAME = "priorityCoeficient";
+	private static final String ATTR_COEF_DESCRIPTION = "Priority coefficient based on user's publications.";
+	private static final String ATTR_COEF_DISPLAY_NAME = "Priority coefficient";
 
-	public void setPerunService(PerunManagerBl perunService) {
-		this.perunService = perunService;
-	}
+	private static final String ATTR_PUBS_TYPE = "java.util.LinkedHashMap";
+	private static final String ATTR_PUBS_NAMESPACE = "urn:perun:user:attribute-def:def";
+	private static final String ATTR_PUBS_FRIENDLY_NAME = "publications";
+	private static final String ATTR_PUBS_DESCRIPTION = "Number of acknowledgements per resource provider.";
+	private static final String ATTR_PUBS_DISPLAY_NAME = "Publications";
+
+	// setter ----------------------------------------
 
 	@Autowired
 	public void setPublicationSystemManagerBl(PublicationSystemManagerBl publicationSystemManagerBl) {
 		this.publicationSystemManagerBl = publicationSystemManagerBl;
+	}
+
+	@Autowired
+	public void setThanksManagerBl(ThanksManagerBl thanksManagerBl) {
+		this.thanksManagerBl = thanksManagerBl;
+	}
+
+	@Autowired
+	public void setPerun(PerunBl perun) {
+		this.perun = perun;
+	}
+
+	public PublicationSystemManagerBl getPublicationSystemManagerBl() {
+		return publicationSystemManagerBl;
+	}
+
+	public ThanksManagerBl getThanksManagerBl() {
+		return thanksManagerBl;
 	}
 
 	// methods --------------------------------------
@@ -89,12 +123,13 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 	public List<Publication> findExternalPublicationsOfUser(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException, InternalErrorException {
 
 		// get PubSys
-		PublicationSystem ps = publicationSystemManagerBl.getPublicationSystemByNamespace(pubSysNamespace);
+		PublicationSystem ps = getPublicationSystemManagerBl().getPublicationSystemByNamespace(pubSysNamespace);
 		// get user
-		User user = perunService.findUserById(sess, userId);
-		// check - because of exception is not thrown when user not found
-		if (user == null) {
-			throw new CabinetException("User with ID: "+userId+" doesn't exists.", ErrorCodes.PERUN_EXCEPTION);
+		User user;
+		try {
+			user = perun.getUsersManagerBl().getUserById(sess, userId);
+		} catch (UserNotExistsException ex) {
+			throw new CabinetException("User with ID: "+userId+" doesn't exists.", ErrorCodes.PERUN_EXCEPTION, ex);
 		}
 
 		// result list
@@ -103,7 +138,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 		// PROCESS MU PUB SYS
 		if (ps.getLoginNamespace().equalsIgnoreCase("mu")) {
 			// get UCO
-			List<UserExtSource> ues = perunService.getUsersLogins(sess, user);
+			List<UserExtSource> ues = perun.getUsersManagerBl().getUserExtSources(sess, user);
 			String authorId = "";
 			for (UserExtSource es : ues) {
 				// get login from LDAP
@@ -138,6 +173,131 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 			throw new CabinetException("PubSys namespace found but not supported for import.");
 		}
 
+	}
+
+	public void updatePriorityCoefficient(PerunSession sess, Integer userId, Double rank) throws CabinetException {
+
+		try {
+			// get definition
+			AttributeDefinition attrDef = perun.getAttributesManager().getAttributeDefinition(cabinetSession, ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME);
+			// Set attribute value
+			Attribute attr = new Attribute(attrDef);
+			DecimalFormat twoDForm = new DecimalFormat("#.##");
+			attr.setValue(String.valueOf(twoDForm.format(rank)));
+			// get user
+			User user = perun.getUsersManager().getUserById(cabinetSession, userId);
+			// assign or update user's attribute
+			perun.getAttributesManager().setAttribute(cabinetSession, user, attr);
+		} catch (PerunException e) {
+			throw new CabinetException("Failed to update priority coeficient in Perun.",ErrorCodes.PERUN_EXCEPTION, e);
+		}
+
+	}
+
+	@Override
+	public synchronized void setThanksAttribute(int userId) throws CabinetException, InternalErrorException {
+
+		List<ThanksForGUI> thanks = getThanksManagerBl().getRichThanksByUserId(userId);
+
+		try {
+			// get user
+			User u = perun.getUsersManager().getUserById(cabinetSession, userId);
+			// get attribute
+			AttributeDefinition attrDef = perun.getAttributesManager().getAttributeDefinition(cabinetSession, ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME);
+			Attribute attr = new Attribute(attrDef);
+			// if there are thanks to set
+			if (thanks != null && !thanks.isEmpty()) {
+				// create new values map
+				LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+				for (ThanksForGUI t : thanks) {
+					Integer count = 1;
+					if (map.containsKey(t.getOwnerName())) {
+						// if contains value already, do +1
+						String value = map.get(t.getOwnerName());
+						count = Integer.parseInt(value);
+						count = count + 1;
+					}
+					map.put(t.getOwnerName(), count.toString());
+				}
+				attr.setValue(map);
+				perun.getAttributesManager().setAttribute(cabinetSession, u, attr);
+			} else {
+				// empty or null thanks - update to: remove
+				perun.getAttributesManager().removeAttribute(cabinetSession, u, attrDef);
+			}
+
+		} catch (PerunException e) {
+			throw new CabinetException("Failed to update "+ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME+" in Perun.",ErrorCodes.PERUN_EXCEPTION, e);
+		}
+
+
+	}
+
+	/**
+	 * Init method
+	 *
+	 * Checks if attribute priorityCoefficient exists in DB,
+	 * if not, it's created.
+	 *
+	 * @throws PerunException
+	 */
+	protected void initialize() throws PerunException {
+
+		// createCabinet
+		final PerunPrincipal pp = new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		cabinetSession = perun.getPerunSession(pp, new PerunClient());
+
+		AttributeDefinition attrDef;
+		try {
+			// check if attr exists
+			attrDef = perun.getAttributesManager().getAttributeDefinition(cabinetSession,ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME);
+		} catch (AttributeNotExistsException e) {
+			// if not - create it
+			log.warn("Attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" does not exist in Perun. Attempting to create it.");
+			AttributeDefinition attributeDefinition = new AttributeDefinition();
+			attributeDefinition.setDisplayName(ATTR_COEF_DISPLAY_NAME);
+			attributeDefinition.setDescription(ATTR_COEF_DESCRIPTION);
+			attributeDefinition.setFriendlyName(ATTR_COEF_FRIENDLY_NAME);
+			attributeDefinition.setNamespace(ATTR_COEF_NAMESPACE);
+			attributeDefinition.setType(ATTR_COEF_TYPE);
+			try {
+				// create attribute
+				attrDef = perun.getAttributesManager().createAttribute(cabinetSession, attributeDefinition);
+				// set attribute rights
+				List<AttributeRights> rights = new ArrayList<AttributeRights>();
+				rights.add(new AttributeRights(attrDef.getId(), Role.SELF, Arrays.asList(ActionType.READ)));
+				perun.getAttributesManager().setAttributeRights(cabinetSession, rights);
+			} catch (PerunException pe) {
+				log.error("Failed to create attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" in Perun.");
+				throw new CabinetException("Failed to create attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" in Perun.", ErrorCodes.PERUN_EXCEPTION, pe);
+			}
+			log.debug("Attribute "+ ATTR_COEF_NAMESPACE+":"+ATTR_COEF_FRIENDLY_NAME +" successfully created.");
+		}
+		AttributeDefinition attrDef2;
+		try {
+			// check if attr exists
+			attrDef2 = perun.getAttributesManager().getAttributeDefinition(cabinetSession,ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME);
+		} catch (AttributeNotExistsException e) {
+			// if not - create it
+			log.warn("Attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" does not exist in Perun. Attempting to create it.");
+			AttributeDefinition attributeDefinition = new AttributeDefinition();
+			attributeDefinition.setDisplayName(ATTR_PUBS_DISPLAY_NAME);
+			attributeDefinition.setDescription(ATTR_PUBS_DESCRIPTION);
+			attributeDefinition.setFriendlyName(ATTR_PUBS_FRIENDLY_NAME);
+			attributeDefinition.setNamespace(ATTR_PUBS_NAMESPACE);
+			attributeDefinition.setType(ATTR_PUBS_TYPE);
+			try {
+				attrDef2 = perun.getAttributesManager().createAttribute(cabinetSession, attributeDefinition);
+				// set attribute rights
+				List<AttributeRights> rights = new ArrayList<AttributeRights>();
+				rights.add(new AttributeRights(attrDef2.getId(), Role.SELF, Arrays.asList(ActionType.READ)));
+				perun.getAttributesManager().setAttributeRights(cabinetSession, rights);
+			} catch (PerunException pe) {
+				log.error("Failed to create attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" in Perun.");
+				throw new CabinetException("Failed to create attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" in Perun.", ErrorCodes.PERUN_EXCEPTION, pe);
+			}
+			log.debug("Attribute "+ ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME +" successfully created.");
+		}
 	}
 
 }

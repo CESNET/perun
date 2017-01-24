@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  * external PS based on user's identity and PS namespace.
  *
  * @author Jiri Harazim <harazim@mail.muni.cz>
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 public interface CabinetManagerBl {
 
@@ -42,5 +43,23 @@ public interface CabinetManagerBl {
 	 * @throws CabinetException
 	 */
 	List<Publication> findPublicationsInPubSys(String authorId, int yearSince, int yearTill, PublicationSystem ps) throws CabinetException;
+
+	/**
+	 * Updates priority coefficient for User
+	 *
+	 * @param sess session
+	 * @param userId ID of user
+	 * @param rank new value
+	 * @throws CabinetException
+	 */
+	void updatePriorityCoefficient(PerunSession sess, Integer userId, Double rank) throws CabinetException;
+
+	/**
+	 * Calculate and set new value for user's publications thanks
+	 *
+	 * @param userId to set thanks to
+	 * @throws CabinetException
+	 */
+	void setThanksAttribute(int userId) throws CabinetException, InternalErrorException;
 
 }

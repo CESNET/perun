@@ -247,7 +247,7 @@ public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 			main = main.substring(0, main.length()-3)+ ". ";
 		}
 		main += publication.getTitle() + ". ";
-		main += (publication.getYear() != null) ? publication.getYear()+". " : "";
+		main += (publication.getYear() != 0) ? publication.getYear()+". " : "";
 
 		main += (!source.isEmpty()) ? source+"," : "";
 		main += (!source_year.isEmpty()) ? " roč. "+source_year+"," : "";

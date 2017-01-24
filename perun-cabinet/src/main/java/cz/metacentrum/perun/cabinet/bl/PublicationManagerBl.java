@@ -2,8 +2,6 @@ package cz.metacentrum.perun.cabinet.bl;
 
 import java.util.List;
 
-import cz.metacentrum.perun.cabinet.bl.CabinetException;
-import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.core.api.PerunSession;
@@ -17,85 +15,122 @@ public interface PublicationManagerBl {
 	 * @param sess Session with authorization
 	 * @param publication Publication to create
 	 * @return Created publication with ID set
-	 * @throws CabinetException
-	 * @throws InternalErrorException
+	 * @throws CabinetException When same publication already exist
+	 * @throws InternalErrorException When implementation fails
 	 */
 	Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
 
-	boolean publicationExists(Publication p);
-
-	List<Publication> findPublicationsByFilter(Publication p);
-
 	/**
-	 * Return list of PublicationForGUI with all properties set filtered by params.
+	 * Return TRUE if Publication exists by ID or EXT_ID and PUB_SYS_ID, FALSE otherwise.
 	 *
-	 * @param p Publication with properties to filter by (exact match of each, using AND between them)
-	 * 			'null' or 'new Publication()' when don't want to use it to filter
-	 * @param userId filter results also by author of publications (null if not used)
-	 * @return filtered list of PublicationForGUI
+	 * @param publication Publication to check for existence
+	 * @return TRUE if same Publication exists (by its ID, EXT_ID,PUB_SYS_ID), FALSE otherwise.
+	 * @throws InternalErrorException When implementation fails
 	 */
-	List<PublicationForGUI> findRichPublicationsByFilter(Publication p, Integer userId);
-
-	Publication findPublicationById(Integer publicationId);
+	boolean publicationExists(Publication publication) throws InternalErrorException;
 
 	/**
-	 * Return PublicationForGUI with all properties set
-	 * filtered by publicationId (primary key)
+	 * Update existing publication by its ID.
 	 *
-	 * @param publicationId filter by primary key
-	 * @return PublicationForGUI found by ID / NULL if not found
+	 * @param sess Session with authorization
+	 * @param publication Publication to update
+	 * @return Updated publication by its ID
+	 * @throws CabinetException When publication already exists
+	 * @throws InternalErrorException When implementation fails
 	 */
-	PublicationForGUI findRichPublicationById(Integer publicationId);
-
-	List<Publication> findAllPublications();
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
 
 	/**
-	 * Return list of all PublicationForGUI stored in cabinet
+	 * Delete publication by its ID.
 	 *
-	 * @return list of all PublicationForGUI
+	 * @param sess PerunSession for authz
+	 * @param publication Publication to delete
+	 * @throws CabinetException When publication not exists
+	 * @throws InternalErrorException When implementation fails
 	 */
-	List<PublicationForGUI> findAllRichPublications();
-
-	List<Publication> findPublicationsByFilter(Publication publication, SortParam sp);
+	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
 
 	/**
-	 * List of PublicationForGUI filtered by GUI filter =>
-	 * @see for details on filter see javadoc of same method in api layer
+	 * Return Publication by its ID.
 	 *
-	 * @param publication filter by publication params ('null' or 'new Publication()' when not used)
-	 * @param userId filter results by author
+	 * @param id ID of Publication
+	 * @return Publication by its ID
+	 * @throws CabinetException When such Publication doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return Publication by its External ID and PublicationSystem ID.
+	 *
+	 * @param externalId ID of Publication in external system
+	 * @param publicationSystem ID of external Publication System
+	 * @return Publication by its External ID and PublicationSystem ID
+	 * @throws CabinetException When such Publication doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return Publications by their Category ID or empty list.
+	 *
+	 * @param categoryId ID of Publications category
+	 * @return Publications by their category ID
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException;
+
+	/**
+	 * Return PublicationForGUI by its ID.
+	 *
+	 * @param id ID of PublicationForGUI
+	 * @return PublicationForGUI by its ID
+	 * @throws CabinetException When such Publication doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return Publication by its External ID and PublicationSystem ID.
+	 *
+	 * @param externalId ID of Publication in external system
+	 * @param publicationSystem ID of external Publication System
+	 * @return Publication by its External ID and PublicationSystem ID
+	 * @throws CabinetException When such Publication doesn't exists
+	 * @throws InternalErrorException When implementation fails
+	 */
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException;
+
+	/**
+	 * Return PublicationForGUI with every property set directly from DB.
+	 * Apply GUI filter when searching.
+	 *
+	 * id = exact match (used when search for publication of authors)
+	 * title = if "like" this substring
+	 * year = exact match
+	 * isbn = if "like" this substring
+	 * category = exact match
+	 * userId = exact match if not 0
+	 * yearTill = if year <= yearTill
+	 * yearSince = if year >= yearSince
+	 *
+	 * @param p Publication to search for by properties (null if not used)
+	 * @param userId ID of User to search publications for
 	 * @param yearSince year range
 	 * @param yearTill year range
-	 * @return Filtered list of PublicationForGUI
+	 * @return publication with everything set
 	 */
-	List<PublicationForGUI> findRichPublicationsByGUIFilter(Publication publication, Integer userId, int yearSince, int yearTill);
-
-	int getPublicationsCount();
-
-	int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException;
+	List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException;
 
 	/**
-	 * Delete Publication by provided ID.
-	 * Only author of the record or PerunAdmin can do this.
-	 *  - Author deletes authorships and thanks from publication.
-	 *  - PerunAdmin also delete publication record.
+	 * (Un)Lock passed Publications for changes.
 	 *
-	 * @param sess session
-	 * @param id publicationId
-	 * @return number of updated rows (1=ok / 0 not found)
-	 * @throws CabinetException when not authorized or constraint
+	 * @param lockState TRUE (lock) / FALSE (unlock)
+	 * @param publications Publications to (un)lock
+	 * @throws InternalErrorException When implementation fails
 	 */
-	int deletePublicationById(PerunSession sess, Integer id) throws CabinetException;
+	void lockPublications(boolean lockState, List<Publication> publications) throws InternalErrorException;
 
-	/**
-	 * Lock / Unlock publications by their ids.
-	 *
-	 * @param sess session to verify as perunadmin
-	 * @param lockState true=lock / false=unlock
-	 * @param pubs publications to update
-	 * @return number of updated rows
-	 * @throws CabinetException when not authorized or something is wrong
-	 */
-	int lockPublications(PerunSession sess, boolean lockState, List<Publication> pubs) throws CabinetException;
+
 
 }

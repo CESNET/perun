@@ -3,7 +3,9 @@ package cz.metacentrum.perun.cabinet.api.impl;
 import cz.metacentrum.perun.cabinet.api.CabinetManager;
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
@@ -11,6 +13,7 @@ import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
 import cz.metacentrum.perun.cabinet.model.Category;
 import cz.metacentrum.perun.cabinet.model.Publication;
+import cz.metacentrum.perun.cabinet.model.PublicationForGUI;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
@@ -18,6 +21,7 @@ import cz.metacentrum.perun.core.api.AuthzResolver;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +40,7 @@ public class CabinetManagerImpl implements CabinetManager {
 	private ThanksManagerBl thanksManagerBl;
 	private AuthorshipManagerBl authorshipManagerBl;
 	private PublicationManagerBl publicationManagerBl;
+	private CabinetManagerBl cabinetManagerBl;
 
 	@Autowired
 	public void setCategoryManagerBl(CategoryManagerBl categoryManagerBl) {
@@ -62,6 +67,11 @@ public class CabinetManagerImpl implements CabinetManager {
 		this.publicationManagerBl = publicationManagerBl;
 	}
 
+	@Autowired
+	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+		this.cabinetManagerBl = cabinetManagerBl;
+	}
+
 	public CategoryManagerBl getCategoryManagerBl() {
 		return categoryManagerBl;
 	}
@@ -82,6 +92,9 @@ public class CabinetManagerImpl implements CabinetManager {
 		return publicationManagerBl;
 	}
 
+	public CabinetManagerBl getCabinetManagerBl() {
+		return cabinetManagerBl;
+	}
 
 	// PublicationSystem methods --------------------------
 
@@ -285,9 +298,92 @@ public class CabinetManagerImpl implements CabinetManager {
 		return getAuthorshipManagerBl().getAuthorsByAuthorshipId(sess, id);
 	}
 
+
+	// Publications ----------------------------------------
+
+
 	@Override
 	public Publication createPublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
 		return getPublicationManagerBl().createPublication(sess, publication);
+	}
+
+	@Override
+	public boolean publicationExists(Publication publication) throws InternalErrorException {
+		return getPublicationManagerBl().publicationExists(publication);
+	}
+
+	@Override
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException, PrivilegeException {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!publication.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
+				publication.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
+			// not perun admin or author of record
+			// FIXME - allow update to authors ??
+			throw new PrivilegeException("You are not allowed to update publications you didn't created.");
+		}
+		return getPublicationManagerBl().updatePublication(sess, publication);
+	}
+
+	@Override
+	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException, PrivilegeException {
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
+				!publication.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
+				publication.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
+			// not perun admin or author of record
+			throw new PrivilegeException("You are not allowed to delete publications you didn't created.");
+		}
+		getPublicationManagerBl().deletePublication(sess, publication);
+	}
+
+	@Override
+	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException {
+		return getPublicationManagerBl().getPublicationById(id);
+	}
+
+	@Override
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException {
+		return getPublicationManagerBl().getPublicationByExternalId(externalId, publicationSystem);
+	}
+
+	@Override
+	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException {
+		return getPublicationManagerBl().getPublicationsByCategoryId(categoryId);
+	}
+
+	@Override
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException {
+		return getPublicationManagerBl().getRichPublicationById(id);
+	}
+
+	@Override
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException {
+		return getPublicationManagerBl().getRichPublicationByExternalId(externalId, publicationSystem);
+	}
+
+	@Override
+	public List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException {
+		return getPublicationManagerBl().getRichPublicationsByFilter(p, userId, yearSince, yearTill);
+	}
+
+	@Override
+	public void lockPublications(PerunSession sess, boolean lockState, List<Publication> publications) throws InternalErrorException, PrivilegeException {
+
+		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+				throw new PrivilegeException("lockPublications");
+		}
+
+		// check input
+		if (publications == null || publications.isEmpty()) {
+			throw new InternalErrorException("Publications to lock/unlock can't be null");
+		}
+
+		getPublicationManagerBl().lockPublications(lockState, publications);
+
+	}
+
+	@Override
+	public List<Publication> findExternalPublications(PerunSession sess, int userId, int yearSince, int yearTill, String pubSysNamespace) throws CabinetException, InternalErrorException {
+		return getCabinetManagerBl().findExternalPublicationsOfUser(sess, userId, yearSince, yearTill, pubSysNamespace);
 	}
 
 }

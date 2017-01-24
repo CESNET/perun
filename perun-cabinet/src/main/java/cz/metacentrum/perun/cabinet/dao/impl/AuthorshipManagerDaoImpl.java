@@ -53,11 +53,11 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 		}
 	};
 
-	private final static String AUTHOR_SELECT_QUERY = "users.id as users_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
+	protected final static String AUTHOR_SELECT_QUERY = "users.id as users_id, users.first_name as users_first_name, users.last_name as users_last_name, " +
 			"users.middle_name as users_middle_name, users.title_before as users_title_before, users.title_after as users_title_after, " +
 			AUTHORSHIP_SELECT_QUERY;
 
-	private final static RowMapper<Author> AUTHOR_ROW_MAPPER = new RowMapper<Author>() {
+	protected final static RowMapper<Author> AUTHOR_ROW_MAPPER = new RowMapper<Author>() {
 		@Override
 		public Author mapRow(ResultSet resultSet, int i) throws SQLException {
 			Author author = new Author();

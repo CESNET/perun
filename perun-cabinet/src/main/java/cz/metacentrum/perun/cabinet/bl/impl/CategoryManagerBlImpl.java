@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
-import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.core.api.PerunSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 
 	private CategoryManagerDao categoryManagerDao;
 	private PublicationManagerBl publicationManagerBl;
-	private PerunManagerBl perunManagerBl;
+	private CabinetManagerBl cabinetManagerBl;
 	private AuthorshipManagerBl authorshipManagerBl;
 
 	private static Logger log = LoggerFactory.getLogger(CategoryManagerBlImpl.class);
@@ -49,8 +49,8 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 	}
 
 	@Autowired
-	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
-		this.perunManagerBl = perunManagerBl;
+	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+		this.cabinetManagerBl = cabinetManagerBl;
 	}
 
 	@Autowired
@@ -66,8 +66,8 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 		return publicationManagerBl;
 	}
 
-	public PerunManagerBl getPerunManagerBl() {
-		return perunManagerBl;
+	public CabinetManagerBl getCabinetManagerBl() {
+		return cabinetManagerBl;
 	}
 
 	public AuthorshipManagerBl getAuthorshipManagerBl() {
@@ -92,9 +92,7 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 		// was rank changed ?
 		if (!Objects.equals(cat.getRank(), category.getRank())) {
 			// yes
-			Publication filter = new Publication();
-			filter.setCategoryId(category.getId());
-			List<Publication> pubs = getPublicationManagerBl().findPublicationsByFilter(filter);
+			List<Publication> pubs = getPublicationManagerBl().getPublicationsByCategoryId(category.getId());
 
 			// update coef for all authors of all publications in updated category
 			Set<Author> authors = new HashSet<Author>();
@@ -102,7 +100,7 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 				authors.addAll(getAuthorshipManagerBl().getAuthorsByPublicationId(p.getId()));
 			}
 			for (Author a : authors) {
-				getPerunManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
+				getCabinetManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
 			}
 			log.debug("Category: [{}] updated to Category: [{}]", cat, category);
 		}

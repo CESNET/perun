@@ -39,7 +39,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 			" cabinet_thanks.createdBy as thanks_created_by, cabinet_thanks.created_by_uid as thanks_created_by_uid," +
 			" cabinet_thanks.createdDate as thanks_created_at";
 
-	private final static String THANKS_FOR_GUI_SELECT_QUERY = THANKS_SELECT_QUERY + ",owners.name as thanks_own_name";
+	protected final static String THANKS_FOR_GUI_SELECT_QUERY = THANKS_SELECT_QUERY + ",owners.name as thanks_own_name";
 
 	private final static RowMapper<Thanks> THANKS_ROW_MAPPER = new RowMapper<Thanks>() {
 		@Override
@@ -55,7 +55,7 @@ public class ThanksManagerDaoImpl implements ThanksManagerDao {
 		}
 	};
 
-	private final static RowMapper<ThanksForGUI> THANKS_FOR_GUI_ROW_MAPPER = new RowMapper<ThanksForGUI>() {
+	protected final static RowMapper<ThanksForGUI> THANKS_FOR_GUI_ROW_MAPPER = new RowMapper<ThanksForGUI>() {
 		@Override
 		public ThanksForGUI mapRow(ResultSet resultSet, int i) throws SQLException {
 			ThanksForGUI thanks = new ThanksForGUI(THANKS_ROW_MAPPER.mapRow(resultSet, i));

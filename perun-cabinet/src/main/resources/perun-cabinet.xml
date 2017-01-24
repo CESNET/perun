@@ -15,39 +15,10 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	<import resource="classpath:perun-core-transaction-manager.xml" />
 
 	<!-- Enable @Transactional support -->
-	<!-- <tx:annotation-driven transaction-manager="transactionManager"/>  -->
+	<tx:annotation-driven transaction-manager="perunTransactionManager"/>
 
 	<!-- Enable @AspectJ support -->
 	<!-- <aop:aspectj-autoproxy/> -->
-
-	<!-- add transaction support for delete publication  -->
-	<aop:config>
-		<aop:advisor advice-ref="txDeletePublication" pointcut="execution(* cz.metacentrum.perun.cabinet.bl.PublicationManagerBl.deletePublicationById(..))"/>
-		<aop:advisor advice-ref="txCreateAuthorship" pointcut="execution(* cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl.createAuthorship(..))"/>
-	</aop:config>
-	<tx:advice id="txDeletePublication" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="false" rollback-for="Exception"/>
-		</tx:attributes>
-	</tx:advice>
-	<tx:advice id="txCreateAuthorship" transaction-manager="perunTransactionManager">
-		<tx:attributes>
-			<tx:method name="*" read-only="false" rollback-for="Exception" />
-		</tx:attributes>
-	</tx:advice>
-
-	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="databaseIdProvider" ref="databaseIdProvider" />
-	</bean>
-
-	<!-- MyBatis mapper beans -->
-
-	<bean id="publicationMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-		<property name="mapperInterface"
-		          value="cz.metacentrum.perun.cabinet.dao.mybatis.PublicationMapper" />
-		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
-	</bean>
 
 	<!-- dao classes beans -->
 
@@ -60,7 +31,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 	</bean>
 
 	<bean id="publicationManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.PublicationManagerDaoImpl">
-		<property name="publicationMapper" ref="publicationMapper" />
+		<constructor-arg ref="dataSource" />
 	</bean>
 
 	<bean id="authorshipManagerDao" class="cz.metacentrum.perun.cabinet.dao.impl.AuthorshipManagerDaoImpl">
@@ -73,10 +44,6 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
 	<!-- BL classes beans -->
 
-	<bean id="perunManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PerunManagerBlImpl" init-method="initialize">
-		<property name="thanksManagerDao" ref="thanksManagerDao" />
-	</bean>
-
 	<bean id="publicationSystemManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl" init-method="initialize">
 		<property name="publicationSystemManagerDao" ref="publicationSystemManagerDao" />
 		<property name="perunBl" ref="perun" />
@@ -86,13 +53,13 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="publicationManagerDao" ref="publicationManagerDao" />
 		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
 		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
-		<property name="perunManagerBl" ref="perunManagerBl" />
+		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
 		<property name="thanksManagerBl" ref="thanksManagerBl" />
 	</bean>
 
 	<bean id="categoryManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CategoryManagerBlImpl">
 		<property name="categoryManagerDao" ref="categoryManagerDao" />
-		<property name="perunManagerBl" ref="perunManagerBl" />
+		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
 		<property name="publicationManagerBl" ref="publicationManagerBl" />
 		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
 	</bean>
@@ -101,47 +68,27 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="authorshipManagerDao" ref="authorshipManagerDao" />
 		<property name="publicationManagerBl" ref="publicationManagerBl" />
 		<property name="categoryManagerBl" ref="categoryManagerBl" />
-		<property name="perunManagerBl" ref="perunManagerBl" />
+		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
 	</bean>
 
 	<bean id="thanksManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.ThanksManagerBlImpl">
 		<property name="thanksManagerDao" ref="thanksManagerDao" />
 		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
-		<property name="perunManagerBl" ref="perunManagerBl" />
+		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
 	</bean>
 
-	<bean id="cabinetManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CabinetManagerBlImpl">
-		<property name="perunService" ref="perunManagerBl" />
+	<bean id="cabinetManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.CabinetManagerBlImpl" init-method="initialize">
 		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
 	</bean>
 
-	<!-- api classes beans -->
+	<!-- api classes bean -->
 
 	<bean id="cabinetManager" class="cz.metacentrum.perun.cabinet.api.impl.CabinetManagerImpl">
 		<property name="categoryManagerBl" ref="categoryManagerBl" />
 		<property name="publicationSystemManagerBl" ref="publicationSystemManagerBl" />
-	</bean>
-
-	<bean id="cabinetApi" class="cz.metacentrum.perun.cabinet.api.impl.CabinetApiImpl">
-		<property name="cabinetService" ref="cabinetManagerBl" />
-		<property name="publicationService" ref="publicationManagerBl" />
-		<property name="authorshipService" ref="authorshipManagerBl" />
-		<property name="perunService" ref="perunManagerBl" />
-	</bean>
-
-	<!-- Define compatibility layer for DB specific queries -->
-	<bean id="vendorProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="PostgreSQL">postgresql</prop>
-				<prop key="Oracle">oracle</prop>
-				<prop key="HSQL">hsql</prop>
-			</props>
-		</property>
-	</bean>
-
-	<bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
-		<property name="properties" ref="vendorProperties"/>
+		<property name="thanksManagerBl" ref="thanksManagerBl" />
+		<property name="authorshipManagerBl" ref="authorshipManagerBl" />
+		<property name="publicationManagerBl" ref="publicationManagerBl" />
 	</bean>
 
 	<beans profile="devel,production">

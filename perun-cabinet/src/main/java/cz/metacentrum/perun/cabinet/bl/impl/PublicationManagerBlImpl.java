@@ -3,7 +3,10 @@ package cz.metacentrum.perun.cabinet.bl.impl;
 import java.util.Date;
 import java.util.List;
 
+import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -17,15 +20,12 @@ import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
-import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationSystemManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
-import cz.metacentrum.perun.cabinet.bl.SortParam;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.api.AuthzResolver;
 
 /**
@@ -39,11 +39,10 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	private PublicationManagerDao publicationManagerDao;
 	private AuthorshipManagerBl authorshipManagerBl;
 	private PublicationSystemManagerBl publicationSystemManagerBl;
-	private PerunManagerBl perunManagerBl;
+	private CabinetManagerBl cabinetManagerBl;
 	private ThanksManagerBl thanksManagerBl;
 
-	@Autowired
-	private PerunBl perun;
+	private static Logger log = LoggerFactory.getLogger(PublicationManagerBlImpl.class);
 
 	// setters ----------------------------------------
 
@@ -63,8 +62,8 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	}
 
 	@Autowired
-	public void setPerunManagerBl(PerunManagerBl perunManagerBl) {
-		this.perunManagerBl = perunManagerBl;
+	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
+		this.cabinetManagerBl = cabinetManagerBl;
 	}
 
 	@Autowired
@@ -84,8 +83,8 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 		return publicationSystemManagerBl;
 	}
 
-	public PerunManagerBl getPerunManagerBl() {
-		return perunManagerBl;
+	public CabinetManagerBl getCabinetManagerBl() {
+		return cabinetManagerBl;
 	}
 
 	public ThanksManagerBl getThanksManagerBl() {
@@ -94,17 +93,13 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 
 	// business methods --------------------------------
 
+	@Override
 	public Publication createPublication(PerunSession sess, Publication p) throws CabinetException, InternalErrorException {
 
-		if (p.getCreatedDate() == null)
-			p.setCreatedDate(new Date());
-		if (p.getLocked() == null) {
-			p.setLocked(false);
-		}
-		if (p.getCreatedByUid() == null && sess != null) {
-			p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
-		}
+		if (p.getCreatedDate() == null) p.setCreatedDate(new Date());
+		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
+		Publication createdPublication;
 		if (p.getExternalId() == 0 && p.getPublicationSystemId() == 0) {
 			// check existence
 			if (publicationExists(p)) {
@@ -117,74 +112,40 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 			//
 			stripLongParams(p);
 			// create internal
-			return getPublicationManagerDao().createPublication(sess, p);
+			createdPublication = getPublicationManagerDao().createPublication(sess, p);
 		} else {
 			if (publicationExists(p)) throw new CabinetException("Cannot create duplicate publication: "+p, ErrorCodes.PUBLICATION_ALREADY_EXISTS);
 
 			stripLongParams(p);
 
-			return getPublicationManagerDao().createPublication(sess, p);
+			createdPublication = getPublicationManagerDao().createPublication(sess, p);
 		}
+		log.debug("{} created.", createdPublication);
+		return createdPublication;
+
 	}
 
-	public boolean publicationExists(Publication p) {
-		if (p.getId() != null && p.getId() !=0) {
-			return getPublicationManagerDao().findPublicationById(p.getId()) != null;
+	@Override
+	public boolean publicationExists(Publication publication) throws InternalErrorException {
+		if (publication.getId() !=0) {
+			try {
+				getPublicationManagerDao().getPublicationById(publication.getId());
+				return true;
+			} catch (CabinetException ex){}
 		}
-		if (p.getExternalId() != null && p.getExternalId() != 0 && p.getPublicationSystemId() != null && p.getPublicationSystemId() != 0) {
-			Publication filter = new Publication();
-			filter.setExternalId(p.getExternalId());
-			filter.setPublicationSystemId(p.getPublicationSystemId());
-			return getPublicationManagerDao().findPublicationsByFilter(filter).size() >= 1;
+		if (publication.getExternalId() != 0 && publication.getPublicationSystemId() != 0) {
+			try {
+				getPublicationManagerDao().getPublicationByExternalId(publication.getExternalId(), publication.getPublicationSystemId());
+				return true;
+			} catch (CabinetException ex) {}
 		}
 		return false;
 	}
 
+	@Override
+	public Publication updatePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
 
-	public List<Publication> findPublicationsByFilter(Publication p) {
-		return getPublicationManagerDao().findPublicationsByFilter(p);
-	}
-
-	public List<PublicationForGUI> findRichPublicationsByFilter(Publication p, Integer userId) {
-		return getPublicationManagerDao().findRichPublicationsByFilter(p, userId);
-	}
-
-	public List<PublicationForGUI> findRichPublicationsByGUIFilter(Publication p, Integer userId, int yearSince, int yearTill) {
-		return getPublicationManagerDao().findRichPublicationsByGUIFilter(p, userId, yearSince, yearTill);
-	}
-
-	public Publication findPublicationById(Integer publicationId) {
-		return getPublicationManagerDao().findPublicationById(publicationId);
-	}
-
-	public PublicationForGUI findRichPublicationById(Integer publicationId) {
-		return getPublicationManagerDao().findRichPublicationById(publicationId);
-	}
-
-	public List<Publication> findAllPublications() {
-		return getPublicationManagerDao().findAllPublications();
-	}
-
-	public List<PublicationForGUI> findAllRichPublications() {
-		return getPublicationManagerDao().findRichPublicationsByGUIFilter(null, null, 0, 0);
-	}
-
-	public List<Publication> findPublicationsByFilter(Publication publication,
-			SortParam sp) {
-		if (sp == null) return findPublicationsByFilter(publication);
-		if (! sp.getProperty().toString().matches("[a-z,A-Z,_,0-9]*")) throw new IllegalArgumentException("sortParam.property contains not allowed symbols: "+sp.getProperty());
-		return getPublicationManagerDao().findPublicationsByFilter(publication, sp);
-	}
-
-
-	public int getPublicationsCount() {
-		return getPublicationManagerDao().getPublicationsCount();
-	}
-
-
-	public int updatePublicationById(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
-
-		if (publication.getId() == null || publication.getExternalId() == null || publication.getPublicationSystemId() == null) {
+		if (publication.getId() == 0 || publication.getExternalId() == 0 || publication.getPublicationSystemId() == 0) {
 			// such publication can't exists
 			throw new CabinetException("Publication doesn't exists: "+publication, ErrorCodes.PUBLICATION_NOT_EXISTS);
 		}
@@ -193,106 +154,95 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 		stripLongParams(publication);
 
 		//don't create already existing publication (same id or externalId&&pubSysId)
-		Publication filter = new Publication(); // for ext_id & pubSysId
-
-		filter.setPublicationSystemId(publication.getPublicationSystemId());
-		filter.setExternalId(publication.getExternalId());
-		List<Publication> publications = findPublicationsByFilter(filter);
-
-		if (publications.size() > 1) {
-			throw new CabinetException("Consistency error: more than one unique publications found by ExtID and PubSysID.");
-		}
-		if (publications.size() > 0 && !(publication.getId().equals((publications.get(0).getId())))) {
+		Publication dbPublication = getPublicationByExternalId(publication.getExternalId(), publication.getPublicationSystemId());
+		if (publication.getId() != (dbPublication.getId())) {
 			throw new CabinetException("Cannot update to duplicate publication: "+publication, ErrorCodes.PUBLICATION_ALREADY_EXISTS);
 		}
 
-		// save old pub (must be Rich to contain all authors)
-		Publication oldPub = findPublicationById(publication.getId());
+		// save old pub
+		Publication oldPub = getPublicationById(publication.getId());
 
 		// update publication in DB
-		int result = getPublicationManagerDao().updatePublicationById(publication);
+		getPublicationManagerDao().updatePublication(sess, publication);
+		log.debug("{} updated.", publication);
 
 		// if updated and rank or category was changed
-		if (result > 0 && ((oldPub.getRank() != publication.getRank()) || (oldPub.getCategoryId() != publication.getCategoryId()))) {
-			// update coeficient for all it's authors
+		if ((oldPub.getRank() != publication.getRank()) || (oldPub.getCategoryId() != publication.getCategoryId())) {
+			// update coefficient for all it's authors
 			List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(oldPub.getId());
 			for (Author a : authors) {
-				getPerunManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
+				getCabinetManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
 			}
 		}
 
-		return result;
+		return publication;
 
 	}
 
-	public int deletePublicationById(PerunSession sess, Integer id) throws CabinetException {
+	@Override
+	public void deletePublication(PerunSession sess, Publication publication) throws CabinetException, InternalErrorException {
 
-		Publication pub = findPublicationById(id);
-		if (pub == null) throw new CabinetException(ErrorCodes.PUBLICATION_NOT_EXISTS);
-
-		// To delete publication user must be either PERUNADMIN
-		// or user who created record (publication.createdBy==actor property)
-		try {
-			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) &&
-					!pub.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
-					!pub.getCreatedByUid().equals(sess.getPerunPrincipal().getUserId())) {
-				// not perun admin or author of record
-				throw new CabinetException("You are not allowed to delete publications you didn't created.", ErrorCodes.NOT_AUTHORIZED);
-					}
-		} catch (PerunException pe) {
-			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, pe);
-		}
-
-		// delete action
 		try {
 
 			// delete authors
-			for (Authorship a : getAuthorshipManagerBl().getAuthorshipsByPublicationId(id)) {
+			for (Authorship a : getAuthorshipManagerBl().getAuthorshipsByPublicationId(publication.getId())) {
 				getAuthorshipManagerBl().deleteAuthorship(sess, a);
 			}
 			// delete thanks
-			for (Thanks t : getThanksManagerBl().getThanksByPublicationId(id)) {
+			for (Thanks t : getThanksManagerBl().getThanksByPublicationId(publication.getId())) {
 				getThanksManagerBl().deleteThanks(sess, t);
 			}
 
 			// delete publication
 			if (AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-
 				// only perun admin can actually delete publication
-				return getPublicationManagerDao().deletePublicationById(id);
-
-			} else {
-
-				return 1; // for others return as OK - perunadmin then deletes pubs manually
-
+				getPublicationManagerDao().deletePublication(publication);
+				log.debug("{} deleted.", publication);
 			}
 
+			// publications without authors are: "to be deleted by perun admin"
+
 		} catch (DataIntegrityViolationException ex) {
-			throw new CabinetException("Can't delete publication with authors or thanks. Please remove them first in order to delete publication.", ErrorCodes.PUBLICATION_HAS_AUTHORS_OR_THANKS);
+			throw new CabinetException("Can't delete publication with Authors or Thanks. Please remove them first in order to delete publication.", ErrorCodes.PUBLICATION_HAS_AUTHORS_OR_THANKS);
 		} catch (PerunException ex) {
 			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, ex);
 		}
 
 	}
 
-	public int lockPublications(PerunSession sess, boolean lock, List<Publication> pubs) throws CabinetException {
+	@Override
+	public Publication getPublicationById(int id) throws CabinetException, InternalErrorException {
+		return getPublicationManagerDao().getPublicationById(id);
+	}
 
-		// AUTHZ
-		try {
-			if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
-				throw new CabinetException("lockPublications()", ErrorCodes.NOT_AUTHORIZED);
-			}
-		} catch (PerunException ex) {
-			throw new CabinetException(ErrorCodes.PERUN_EXCEPTION, ex);
-		}
-		// check input
-		if (pubs == null) {
-			throw new NullPointerException("Publications to lock/unlock can't be null");
-		}
+	@Override
+	public Publication getPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException {
+		return  getPublicationManagerDao().getPublicationByExternalId(externalId, publicationSystem);
+	}
 
-		// GO
-		return getPublicationManagerDao().lockPublications(lock, pubs);
+	@Override
+	public List<Publication> getPublicationsByCategoryId(int categoryId) throws InternalErrorException {
+		return getPublicationManagerDao().getPublicationsByCategoryId(categoryId);
+	}
 
+	@Override
+	public PublicationForGUI getRichPublicationById(int id) throws CabinetException, InternalErrorException {
+		return getPublicationManagerDao().getRichPublicationById(id);
+	}
+
+	@Override
+	public PublicationForGUI getRichPublicationByExternalId(int externalId, int publicationSystem) throws CabinetException, InternalErrorException {
+		return getPublicationManagerDao().getRichPublicationByExternalId(externalId, publicationSystem);
+	}
+
+	@Override
+	public List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException {
+		return getPublicationManagerDao().getRichPublicationsByFilter(p, userId, yearSince, yearTill);
+	}
+
+	@Override
+	public void lockPublications(boolean lockState, List<Publication> publications) throws InternalErrorException {
+		getPublicationManagerDao().lockPublications(lockState, publications);
 	}
 
 	/**
@@ -301,7 +251,7 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 	 *
 	 * @param p publication to check
 	 */
-	protected void stripLongParams(Publication p) {
+	private void stripLongParams(Publication p) {
 
 		if (p.getTitle() != null && p.getTitle().length() > 1024) {
 			p.setTitle(p.getTitle().substring(0, 1024));

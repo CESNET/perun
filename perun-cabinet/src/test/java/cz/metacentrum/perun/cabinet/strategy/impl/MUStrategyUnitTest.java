@@ -52,7 +52,7 @@ public class MUStrategyUnitTest {
 		assertTrue(p.getMain().contains(title));
 		assertEquals(title, p.getTitle());
 		assertEquals("missing isbn should be default (=empty string)", "", p.getIsbn());
-		assertEquals(year, p.getYear());
+		assertTrue(year == p.getYear());
 		assertNotNull(p.getExternalId());
 		assertTrue(p.getExternalId() > 0);
 
