@@ -15,6 +15,6 @@ public interface TaskScheduler {
 
 	int getPoolSize();
 
-	void scheduleTask(Task task);
+	Boolean scheduleTask(Task task);
 
 }
