@@ -99,27 +99,21 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 		if (p.getCreatedDate() == null) p.setCreatedDate(new Date());
 		p.setCreatedByUid(sess.getPerunPrincipal().getUserId());
 
+		// check existence
+		if (publicationExists(p)) {
+			throw new CabinetException("Cannot create duplicate publication: "+p, ErrorCodes.PUBLICATION_ALREADY_EXISTS);
+		}
+
 		Publication createdPublication;
 		if (p.getExternalId() == 0 && p.getPublicationSystemId() == 0) {
-			// check existence
-			if (publicationExists(p)) {
-				throw new CabinetException("Cannot create duplicate publication: "+p, ErrorCodes.PUBLICATION_ALREADY_EXISTS);
-			}
 			// get internal pub. system
 			PublicationSystem ps = getPublicationSystemManagerBl().getPublicationSystemByName("INTERNAL");
 			// There is only one internal system so, get(0) is safe
 			p.setPublicationSystemId(ps.getId());
-			//
-			stripLongParams(p);
-			// create internal
-			createdPublication = getPublicationManagerDao().createPublication(sess, p);
-		} else {
-			if (publicationExists(p)) throw new CabinetException("Cannot create duplicate publication: "+p, ErrorCodes.PUBLICATION_ALREADY_EXISTS);
-
-			stripLongParams(p);
-
-			createdPublication = getPublicationManagerDao().createPublication(sess, p);
 		}
+		stripLongParams(p);
+		createdPublication = getPublicationManagerDao().createPublication(sess, p);
+
 		log.debug("{} created.", createdPublication);
 		return createdPublication;
 

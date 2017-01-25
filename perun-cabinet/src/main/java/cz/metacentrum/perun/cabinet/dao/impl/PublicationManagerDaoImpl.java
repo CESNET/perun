@@ -101,6 +101,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 			Map<Integer, PublicationForGUI> publications = new HashMap<>();
 
 			while (resultSet.next()) {
+
 				PublicationForGUI publication = new PublicationForGUI(PUBLICATION_ROW_MAPPER.mapRow(resultSet, resultSet.getRow()));
 				if (publications.get(publication.getId()) == null) {
 					publications.put(publication.getId(), publication);
@@ -109,13 +110,19 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 				resultPub.setCategoryName(resultSet.getString("category_name"));
 				resultPub.setPubSystemName(resultSet.getString("ps_friendlyName"));
 
-				HashSet<Author> authors = new HashSet<Author>(resultPub.getAuthors());
-				authors.add(AUTHOR_ROW_MAPPER.mapRow(resultSet, resultSet.getRow()));
-				resultPub.setAuthors(new ArrayList<>(authors));
+				if (resultSet.getInt("users_id") != 0) {
+					// if author is present in a row
+					HashSet<Author> authors = new HashSet<Author>(resultPub.getAuthors());
+					authors.add(AUTHOR_ROW_MAPPER.mapRow(resultSet, resultSet.getRow()));
+					resultPub.setAuthors(new ArrayList<>(authors));
+				}
 
-				HashSet<ThanksForGUI> thanks = new HashSet<ThanksForGUI>(resultPub.getThanks());
-				thanks.add(THANKS_FOR_GUI_ROW_MAPPER.mapRow(resultSet, resultSet.getRow()));
-				resultPub.setThanks(new ArrayList<>(thanks));
+				if (resultSet.getInt("thanks_id") != 0) {
+					// if thanks is present in a row
+					HashSet<ThanksForGUI> thanks = new HashSet<ThanksForGUI>(resultPub.getThanks());
+					thanks.add(THANKS_FOR_GUI_ROW_MAPPER.mapRow(resultSet, resultSet.getRow()));
+					resultPub.setThanks(new ArrayList<>(thanks));
+				}
 
 			}
 
@@ -135,7 +142,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 			jdbc.update("insert into cabinet_publications (id, externalId, publicationSystemId, title, year, main," +
 							" isbn, categoryId, createdBy, createdDate, rank, doi, locked, created_by_uid, modified_by_uid)" +
 							" values (?,?,?,?,?,?,?,?,?,"+ Compatibility.getSysdate()+",?,?,?,?,?)",
-					newId, publication.getExternalId(), publication.getPublicationSystemId(),
+					newId, (publication.getExternalId() == 0) ? newId : publication.getExternalId(), publication.getPublicationSystemId(),
 					publication.getTitle(), publication.getYear(), publication.getMain(), publication.getIsbn(), publication.getCategoryId(),
 					sess.getPerunPrincipal().getActor(), publication.getRank(), publication.getDoi(), (publication.getLocked()) ? 1 : 0,
 					sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId());

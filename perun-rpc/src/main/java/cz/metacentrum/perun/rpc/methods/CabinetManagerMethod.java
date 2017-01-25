@@ -439,7 +439,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 
 			int yearSince = 0;
 			int yearTill = 0;
-			Integer userId = null;
+			int userId = 0;
 
 			if (parms.contains("title")) {
 				Publication filter = new Publication();

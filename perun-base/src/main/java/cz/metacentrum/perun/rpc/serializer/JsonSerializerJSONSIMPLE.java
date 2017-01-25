@@ -1,6 +1,9 @@
 package cz.metacentrum.perun.rpc.serializer;
 
+import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Authorship;
+import cz.metacentrum.perun.cabinet.model.Category;
+import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
@@ -56,12 +59,9 @@ public final class JsonSerializerJSONSIMPLE implements Serializer {
 	private interface PerunRequestMixIn {
 	}
 
+	/* FOR Cabinet PerunBeans we need createdBy etc. data */
 	@JsonIgnoreProperties({})
-	private interface AuthorshipMixIn {
-	}
-
-	@JsonIgnoreProperties({})
-	private interface ThanksMixIn {
+	private interface CabinetMixIn {
 	}
 
 	public static final String CONTENT_TYPE = "application/json; charset=utf-8";
@@ -75,9 +75,12 @@ public final class JsonSerializerJSONSIMPLE implements Serializer {
 		mapper.getSerializationConfig().addMixInAnnotations(PerunException.class, ExceptionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRuntimeException.class, ExceptionMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunBean.class, PerunBeanMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Authorship.class, AuthorshipMixIn.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Thanks.class, ThanksMixIn.class);
 		mapper.getSerializationConfig().addMixInAnnotations(PerunRequest.class, PerunRequestMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Authorship.class, CabinetMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Author.class, CabinetMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Category.class, CabinetMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Publication.class, CabinetMixIn.class);
+		mapper.getSerializationConfig().addMixInAnnotations(Thanks.class, CabinetMixIn.class);
 	}
 
 	private static final JsonFactory jsonFactory = new JsonFactory();

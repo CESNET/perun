@@ -194,7 +194,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 			ft.setWidget(7, 1, doi);
 			ft.setWidget(8, 1, main);
 			ft.setHTML(9, 1, String.valueOf(publication.getCreatedBy()));
-			ft.setHTML(10, 1, DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long)publication.getCreatedDate())));
+			ft.setHTML(10, 1, String.valueOf(publication.getCreatedDate()));
 
 			// update button
 
@@ -264,7 +264,7 @@ public class PublicationDetailTabItem implements TabItem, TabItemWithUrl {
 			ft.setHTML(7, 1, publication.getDoi());
 			ft.setHTML(8, 1, publication.getMain());
 			ft.setHTML(9, 1, String.valueOf(publication.getCreatedBy()));
-			ft.setHTML(10, 1, DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM).format(new Date((long) publication.getCreatedDate())));
+			ft.setHTML(10, 1, String.valueOf(publication.getCreatedDate()));
 
 		}
 

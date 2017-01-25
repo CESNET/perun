@@ -240,14 +240,6 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 		});
 		menu.addWidget(showButton);
 
-		// refresh table button
-		menu.addWidget(new CustomButton("Refresh table", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				callback.clearTable();
-				callback.retrieveData();
-			}
-		}));
-
 		// filter objects
 		final TextBox filterTitle = new TextBox();
 		filterTitle.setWidth("80px");
@@ -469,8 +461,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 
 	public final static String URL = "userpubs";
 
-	public String getUrl()
-	{
+	public String getUrl() {
 		return URL;
 	}
 

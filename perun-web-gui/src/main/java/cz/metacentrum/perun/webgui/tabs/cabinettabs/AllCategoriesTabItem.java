@@ -33,7 +33,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
-public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
+public class AllCategoriesTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session

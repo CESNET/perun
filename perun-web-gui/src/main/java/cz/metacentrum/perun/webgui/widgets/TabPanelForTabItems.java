@@ -46,6 +46,11 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	private boolean addingFinished = false;
 	private PerunWebSession session = PerunWebSession.getInstance();
 
+	/**
+	 * Tab containing this TabPanelForTabItems
+	 */
+	private TabItem parentTab;
+
 
 	/**
 	 * Creates a new "smallTabPanel" for including TabItems.
@@ -76,17 +81,16 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 		// styles, resizing
 		this.addStyleName("smallTabPanel");
 		session.getUiElements().resizeSmallTabPanel(this, 100, parentTab);
+		this.parentTab = parentTab;
 
 		// selection handler draws the tab
 		this.addSelectionHandler(new SelectionHandler<Integer>() {
 			public void onSelection(SelectionEvent<Integer> event) {
 
 				// adding finished?
-				if(!addingFinished)
-				{
+				if(!addingFinished) {
 					return;
 				}
-
 				int i = event.getSelectedItem();
 				runOnSelectEvent(i);
 			}
@@ -211,7 +215,11 @@ public class TabPanelForTabItems extends TabLayoutPanel {
 	{
 
 		// run resize commands for parent tab
-		UiElements.runResizeCommands();
+		if (parentTab != null) {
+			UiElements.runResizeCommands(parentTab);
+		} else {
+			UiElements.runResizeCommands();
+		}
 
 		// selected tab
 		setLastTabId(i, false);

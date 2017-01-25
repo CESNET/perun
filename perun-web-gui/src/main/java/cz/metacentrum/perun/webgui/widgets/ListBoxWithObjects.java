@@ -27,54 +27,116 @@ public class ListBoxWithObjects<T> extends ListBox {
 	 * @return string value that represents name of object
 	 */
 	private native final String getValueName(T value) /*-{
-        // this is a GWT hack - not quite universal, but working
-        if (!value.beanName) {
-            // OLD WAY
-            // execService
-            if (!value.name) {
-                if (!value.user) {
-                    if (!value.lastName) {
-                        if (!value.description) {
-                            if (value.execServiceType) {
-                                return value.service.name + " " + value.execServiceType;
-                            }
-                        } else {
-                            return "(" + value.id + ") " + value.description;
-                        }
-                    }
-                }
-            }
-            // User
-            if (!value.name){
-                if (!value.user) { return value.lastName + " " +value.firstName; }
-            }
-            // RichMember
-            if (!value.name) { return value.user.lastName + " " +value.user.firstName; }
-            // everything else
-            return value.name;
-        } else {
-            // NEW WAY
-            if (value.beanName == "RichMember") {
-                return value.user.lastName + " " +value.user.firstName;
-            } else if (value.beanName == "User") {
-                return value.lastName + " " +value.firstName;
-            } else if (value.beanName == "RichUser") {
-                return value.lastName + " " +value.firstName;
-            } else if (value.beanName == "Author") {
-                return value.lastName + " " +value.firstName;
-            } else if (value.beanName == "ExecService") {
-                return value.service.name + " " + value.execServiceType;
-            } else if (value.beanName == "AttributeDefinition") {
-                return value.displayName;
-            } else if (value.beanName == "Publication") {
-                return value.title;
-            } else if (value.beanName == "Host") {
-                return value.hostname;
-            } else {
-                return value.name;
-            }
-        }
-    }-*/;
+		// this is a GWT hack - not quite universal, but working
+		if (!value.beanName) {
+			// OLD WAY
+			// execService
+			if (!value.name) {
+				if (!value.user) {
+					if (!value.lastName) {
+						if (!value.description) {
+							if (value.execServiceType) {
+								return value.service.name + " " + value.execServiceType;
+							}
+						} else {
+							return "(" + value.id + ") " + value.description;
+						}
+					}
+				}
+			}
+			// User
+			if (!value.name){
+				if (!value.user) {
+					result = "";
+					if (value.lastName) {
+						result += value.lastName;
+					}
+					if (value.lastName && value.firstName) { result += " "; }
+					if (value.firstName) {
+						result += value.firstName;
+					}
+					return result;
+				}
+			}
+			// RichMember
+			if (!value.name) {
+
+				result = "";
+				if (value.user) {
+					if (value.user.lastName) {
+						result += value.user.lastName;
+					}
+					if (value.user.lastName && value.user.firstName) { result += " "; }
+					if (value.user.firstName) {
+						result += value.user.firstName;
+					}
+				}
+				return result;
+
+			}
+			// everything else
+			return value.name;
+		} else {
+			// NEW WAY
+			if (value.beanName == "RichMember") {
+				result = "";
+				if (value.user.lastName) {
+					result += value.user.lastName;
+				}
+				if (value.user.lastName && value.user.firstName) { result += " "; }
+				if (value.user.firstName) {
+					result += value.user.firstName;
+				}
+				return result;
+			} else if (value.beanName == "User") {
+
+				result = "";
+				if (value.lastName) {
+					result += value.lastName;
+				}
+				if (value.lastName && value.firstName) { result += " "; }
+				if (value.firstName) {
+					result += value.firstName;
+				}
+				return result;
+
+			} else if (value.beanName == "RichUser") {
+
+				result = "";
+				if (value.lastName) {
+					result += value.lastName;
+				}
+				if (value.lastName && value.firstName) { result += " "; }
+				if (value.firstName) {
+					result += value.firstName;
+				}
+				return result;
+
+			} else if (value.beanName == "Author") {
+
+				result = "";
+				if (value.lastName) {
+					result += value.lastName;
+				}
+				if (value.lastName && value.firstName) { result += " "; }
+				if (value.firstName) {
+					result += value.firstName;
+				}
+				return result;
+
+			} else if (value.beanName == "ExecService") {
+				return value.service.name + " " + value.execServiceType;
+			} else if (value.beanName == "AttributeDefinition") {
+				return value.displayName;
+			} else if (value.beanName == "Publication") {
+				return value.title;
+			} else if (value.beanName == "Host") {
+				return value.hostname;
+			} else {
+				return value.name;
+			}
+		}
+	}-*/;
 
 	/**
 	 * Adds an item to the ListBox (at the end of the list)
