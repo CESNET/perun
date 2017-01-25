@@ -45,7 +45,7 @@ public class LdapConnectorImpl implements LdapConnector {
 
 	//------------------RESOURCE MODIFICATION METHODS----------------------------
 
-	public void createResource(Resource resource) throws InternalErrorException {
+	public void createResource(Resource resource, String entityID) throws InternalErrorException {
 		// Create a set of attributes
 		Attributes attributes = new BasicAttributes();
 
@@ -61,6 +61,9 @@ public class LdapConnectorImpl implements LdapConnector {
 		attributes.put("perunFacilityId", String.valueOf(resource.getFacilityId()));
 		attributes.put("perunVoId", String.valueOf(resource.getVoId()));
 		if(resource.getDescription() != null && !resource.getDescription().isEmpty()) attributes.put("description", resource.getDescription());
+
+		// get info about entityID attribute if exists
+		if(entityID != null) attributes.put("entityID", entityID);
 
 		// Create the entry
 		try {
@@ -447,7 +450,7 @@ public class LdapConnectorImpl implements LdapConnector {
 	 * Get Resource DN using VoId, FacilityId and ResourceId.
 	 *
 	 * @param voId vo id
-	 * @param groupId group id
+	 * @param resourceId group id
 	 * @return DN in String
 	 */
 	private String getResourceDN(String voId, String resourceId) {

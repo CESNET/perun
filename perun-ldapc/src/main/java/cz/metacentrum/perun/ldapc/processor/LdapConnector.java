@@ -36,9 +36,10 @@ public interface LdapConnector {
 	 * Add resource to LDAP.
 	 *
 	 * @param resource resource from Perun
+	 * @param entityID entityID if exists, or null if not
 	 * @throws InternalErrorException if NameNotFoundException is thrown
 	 */
-	public void createResource(Resource resource) throws InternalErrorException;
+	public void createResource(Resource resource, String entityID) throws InternalErrorException;
 
 	/**
 	 * Return true if resource attribute with ldapAttributeName in ldap exists.
