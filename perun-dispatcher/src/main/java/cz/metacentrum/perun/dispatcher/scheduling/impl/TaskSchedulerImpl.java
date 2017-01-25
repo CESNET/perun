@@ -11,12 +11,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 import cz.metacentrum.perun.core.api.Destination;
 import cz.metacentrum.perun.core.api.Facility;
 import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.Perun;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.Service;
@@ -39,15 +37,14 @@ import cz.metacentrum.perun.taskslib.dao.ExecServiceDependencyDao.DependencyScop
 
 @org.springframework.stereotype.Service(value = "taskScheduler")
 public class TaskSchedulerImpl implements TaskScheduler {
-	private final static Logger log = LoggerFactory
-			.getLogger(TaskSchedulerImpl.class);
+
+	private final static Logger log = LoggerFactory.getLogger(TaskSchedulerImpl.class);
 
 	@Autowired
 	private SchedulingPool schedulingPool;
 	@Autowired
 	private DependenciesResolver dependenciesResolver;
 	@Autowired
-	private ApplicationContext appCtx;
 	private PerunBl perun;
 	private PerunSession perunSession;
 	@Autowired
@@ -126,7 +123,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 
 		log.debug("Facility to be processed: " + facility.getId()
 				+ ", ExecService to be processed: " + execService.getId());
-		
+
 
 		Boolean abortTask = false;
 		try {
@@ -159,8 +156,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 
 		// We have to be carefull from now on - the facility and/or exec service contained
 		// in this task may no longer be valid with respect to the actual database (ie. when abortTask == true).
-		// On the other hand, the objects themselves are still here, so they may be referenced in code. 
-		
+		// On the other hand, the objects themselves are still here, so they may be referenced in code.
+
 		// do not perform further checks for task that is going to be aborted
 		if(!abortTask) {
 
@@ -443,10 +440,10 @@ public class TaskSchedulerImpl implements TaskScheduler {
 							try {
 								schedulingPool.setQueueForTask(task, dependencyQueue);
 							} catch (InternalErrorException e) {
-								log.error("Could not change task {} destination queue: {}", 
+								log.error("Could not change task {} destination queue: {}",
 										task.getId(), e.getMessage());
 							}
-						
+
 						}
 						log.info("   SCHEDULING task [" + task.getId() + "], execService ["
 								+ execService.getId() + "] facility ["
@@ -654,9 +651,6 @@ public class TaskSchedulerImpl implements TaskScheduler {
 	}
 
 	private void initPerunSession() throws InternalErrorException {
-		if(perun == null) {
-			perun = appCtx.getBean("perun",  PerunBl.class);
-		}
 		if (perunSession == null) {
 			perunSession = perun
 					.getPerunSession(new PerunPrincipal(
