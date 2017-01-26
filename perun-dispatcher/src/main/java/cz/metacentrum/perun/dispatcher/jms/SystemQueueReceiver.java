@@ -29,7 +29,6 @@ public class SystemQueueReceiver implements Runnable {
 	private Queue queue = null;
 	private boolean running = true;
 	private int timeout = 5000; // ms
-	private int periodicity = 1000; // ms
 	private Session session = null;
 	private String queueName = null;
 
@@ -89,7 +88,6 @@ public class SystemQueueReceiver implements Runnable {
 						log.debug("No message available...");
 					}
 				}
-				Thread.sleep(periodicity);
 			} catch (JMSException e) {
 				log.error(e.toString(), e);
 				systemQueueProcessor.stopProcessingSystemMessages();
@@ -100,9 +98,6 @@ public class SystemQueueReceiver implements Runnable {
 					log.error(ex.toString(), ex);
 					stop();
 				}
-			} catch (InterruptedException e) {
-				log.error(e.toString(), e);
-				stop();
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 				stop();
