@@ -180,11 +180,13 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 				if (UiElements.cantSaveEmptyListDialogBox(list)) {
 					for (int i = 0; i < list.size(); i++) {
 						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
-						BanExecServiceOnFacility request = new BanExecServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(allowButton));
+						BanExecServiceOnFacility request = new BanExecServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(blockButton));
+						if (list.get(i).getGenTask() != null) request.banExecService(list.get(i).getGenTask().getExecService().getId());
 						// last event
+						BanExecServiceOnFacility sendRequest = new BanExecServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(blockButton));
 						JsonCallbackEvents events = JsonCallbackEvents.disableButtonEvents(blockButton, JsonCallbackEvents.refreshTableEvents(callback));
-						if (i == list.size()-1) request.setEvents(events);
-						if (list.get(i).getSendTask() != null) request.banExecService(list.get(i).getSendTask().getExecService().getId());
+						if (i == list.size()-1) sendRequest.setEvents(events);
+						if (list.get(i).getSendTask() != null) sendRequest.banExecService(list.get(i).getSendTask().getExecService().getId());
 					}
 				}
 			}
@@ -198,10 +200,12 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 					for (int i = 0; i < list.size(); i++) {
 						// TODO - SHOULD HAVE ONLY ONE CALLBACK TO CORE !!
 						FreeDenialOfExecServiceOnFacility request = new FreeDenialOfExecServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(allowButton));
+						if (list.get(i).getGenTask() != null) request.freeDenialOfExecService(list.get(i).getGenTask().getExecService().getId());
 						// last event
+						FreeDenialOfExecServiceOnFacility sendRequest = new FreeDenialOfExecServiceOnFacility(facilityId, JsonCallbackEvents.disableButtonEvents(allowButton));
 						JsonCallbackEvents events = JsonCallbackEvents.disableButtonEvents(allowButton, JsonCallbackEvents.refreshTableEvents(callback));
-						if (i == list.size()-1) request.setEvents(events);
-						if (list.get(i).getSendTask() != null) request.freeDenialOfExecService(list.get(i).getSendTask().getExecService().getId());
+						if (i == list.size()-1) sendRequest.setEvents(events);
+						if (list.get(i).getSendTask() != null) sendRequest.freeDenialOfExecService(list.get(i).getSendTask().getExecService().getId());
 					}
 				}
 			}
