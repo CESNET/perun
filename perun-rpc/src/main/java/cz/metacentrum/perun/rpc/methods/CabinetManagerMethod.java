@@ -341,7 +341,7 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		}
 	},
 
-	/**
+	/*#
 	 * (Un)Lock passed Publications for changes.
 	 *
 	 * @param lock boolean TRUE (lock) / FALSE (unlock)
@@ -357,9 +357,6 @@ public enum CabinetManagerMethod implements ManagerMethod {
 		}
 	},
 
-
-
-	// SEARCH METHODS
 	/*#
 	 * Finds publications of perun's user specified in param
 	 * Search is done in external publication systems (MU, ZCU)
@@ -376,7 +373,6 @@ public enum CabinetManagerMethod implements ManagerMethod {
 			return ac.getCabinetManager().findExternalPublications(ac.getSession(), parms.readInt("user"), parms.readInt("yearSince"), parms.readInt("yearTill"), parms.readString("pubSysNamespace"));
 		}
 	},
-
 
 	/*#
 		* Finds similar publications

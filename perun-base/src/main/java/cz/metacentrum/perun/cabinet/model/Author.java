@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import cz.metacentrum.perun.core.api.Attribute;
 import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.UserExtSource;
 
 /**
  * Class representing author. Author it's not stored in cabinet DB.
@@ -29,11 +29,7 @@ public class Author extends PerunBean {
 	private String titleBefore;
 	private String titleAfter;
 
-	/**
-	 * List of logins in UserExtSources from Perun.
-	 * !! This property must be filled manually !!
-	 */
-	private List<UserExtSource> logins = new ArrayList<UserExtSource>();
+	private List<Attribute> attributes = new ArrayList<>();
 
 	/**
 	 * Authorships related to this author.
@@ -95,12 +91,12 @@ public class Author extends PerunBean {
 		this.titleAfter = titleAfter;
 	}
 
-	public void setLogins(List<UserExtSource> logins) {
-		this.logins = logins;
+	public void setAttributes(List<Attribute> attributes) {
+		this.attributes = attributes;
 	}
 
-	public List<UserExtSource> getLogins() {
-		return this.logins;
+	public List<Attribute> getAttributes() {
+		return this.attributes;
 	}
 
 	public List<Authorship> getAuthorships() {
@@ -136,7 +132,7 @@ public class Author extends PerunBean {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		return str.append(getClass().getSimpleName()).append(":[id=").append(getId()).append(", firstName=").append(firstName).append(", lastName=").append(lastName).append(", displayName=").append(this.getDisplayName()).append(", logins=").append(logins).append(", authorships=").append(authorships).append("]").toString();
+		return str.append(getClass().getSimpleName()).append(":[id=").append(getId()).append(", firstName=").append(firstName).append(", lastName=").append(lastName).append(", displayName=").append(this.getDisplayName()).append(", attributes=").append(attributes).append(", authorships=").append(authorships).append("]").toString();
 	}
 
 	@Override

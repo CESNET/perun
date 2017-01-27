@@ -77,7 +77,7 @@ public class Authorship extends PerunBean {
 		return createdByUid;
 	}
 
-	public void setCreatedByUid(Integer createdByUid) {
+	public void setCreatedByUid(int createdByUid) {
 		this.createdByUid = createdByUid;
 	}
 

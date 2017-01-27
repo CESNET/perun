@@ -20,7 +20,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void createPublicationTest() throws Exception {
-		System.out.println("PublicationServiceImpl.createPublicationTest");
+		System.out.println("PublicationManagerIntegrationTest.createPublicationTest");
 
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());
@@ -44,7 +44,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void createInternalPublicationTest() throws Exception {
-		System.out.println("PublicationServiceImpl.createInternalPublicationTest");
+		System.out.println("PublicationManagerIntegrationTest.createInternalPublicationTest");
 
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());
@@ -81,7 +81,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void getPublicationByIdOrExtIdTest() throws Exception {
-		System.out.println("PublicationServiceImpl.getPublicationByIdOrExtIdTest");
+		System.out.println("PublicationManagerIntegrationTest.getPublicationByIdOrExtIdTest");
 
 		// search base on publicationOne ID
 		Publication retrievedPub = getCabinetManager().getPublicationById(publicationOne.getId());
@@ -97,7 +97,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void deletePublicationTest() throws Exception {
-		System.out.println("PublicationServiceImpl.deletePublicationTest");
+		System.out.println("PublicationManagerIntegrationTest.deletePublicationTest");
 
 		// publicationTwo can be deleted - doesn't have authors or thanks
 		getCabinetManager().deletePublication(sess, publicationTwo);
@@ -115,7 +115,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void deletePublicationWhenHaveAuthorsOrThanksTest() throws Exception {
-		System.out.println("PublicationServiceImpl.deletePublicationWhenHaveAuthorsOrThanksTest");
+		System.out.println("PublicationManagerIntegrationTest.deletePublicationWhenHaveAuthorsOrThanksTest");
 
 		// publicationTwo can be deleted - doesn't have authors or thanks
 		try {
@@ -131,7 +131,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void updatePublicationTest() throws Exception {
-		System.out.println("PublicationServiceImpl.updatePublicationTest");
+		System.out.println("PublicationManagerIntegrationTest.updatePublicationTest");
 
 		publicationOne.setMain("NEW MAIN");
 		getCabinetManager().updatePublication(sess, publicationOne);
@@ -144,7 +144,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void updatePublicationWhenNotExistsTest() throws Exception {
-		System.out.println("PublicationServiceImpl.updatePublicationWhenNotExistsTest");
+		System.out.println("PublicationManagerIntegrationTest.updatePublicationWhenNotExistsTest");
 
 		Publication pub = new Publication();
 		try {
@@ -160,7 +160,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test (expected=CabinetException.class)
 		public void updatePublicationWhenCantUpdateTest() throws Exception {
-			System.out.println("PublicationServiceImpl.updatePublicationWhenWhenCantUpdateTest");
+			System.out.println("PublicationManagerIntegrationTest.updatePublicationWhenWhenCantUpdateTest");
 
 			// make pub2 same as pub 1
 			publicationTwo.setPublicationSystemId(publicationOne.getPublicationSystemId());
@@ -172,7 +172,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void lockPublicationsTest() throws Exception {
-		System.out.println("PublicationServiceImpl.lockPublicationsTest");
+		System.out.println("PublicationManagerIntegrationTest.lockPublicationsTest");
 
 		List<Publication> pubs = new ArrayList<Publication>();
 		pubs.add(publicationOne);
@@ -188,7 +188,7 @@ public class PublicationManagerIntegrationTest extends CabinetBaseIntegrationTes
 
 	@Test
 	public void stripPublicationParams() throws Exception {
-		System.out.println("PublicationServiceImpl.stripPublicationParams");
+		System.out.println("PublicationManagerIntegrationTest.stripPublicationParams");
 
 		Publication p = new Publication();
 		p.setCategoryId(publicationOne.getCategoryId());

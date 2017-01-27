@@ -1,10 +1,17 @@
 package cz.metacentrum.perun.cabinet.bl.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import cz.metacentrum.perun.cabinet.bl.CabinetManagerBl;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.PerunClient;
+import cz.metacentrum.perun.core.api.PerunPrincipal;
+import cz.metacentrum.perun.core.api.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +26,6 @@ import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
 import cz.metacentrum.perun.cabinet.bl.AuthorshipManagerBl;
 import cz.metacentrum.perun.cabinet.bl.CategoryManagerBl;
-import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.PublicationManagerBl;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -40,10 +46,15 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 	private CabinetManagerBl cabinetManagerBl;
 	private static Logger log = LoggerFactory.getLogger(AuthorshipManagerBlImpl.class);
 
-	@Autowired
 	private PerunBl perun;
+	private PerunSession session;
 
 	// setters ===========================================
+
+	@Autowired
+	public void setPerun(PerunBl perun) {
+		this.perun = perun;
+	}
 
 	@Autowired
 	public void setCabinetManagerBl(CabinetManagerBl cabinetManagerBl) {
@@ -190,17 +201,17 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 
 	@Override
 	public Author getAuthorById(int id) throws CabinetException, InternalErrorException {
-		return getAuthorshipManagerDao().getAuthorById(id);
+		return convertAuthorToAuthorWithAttributes(getAuthorshipManagerDao().getAuthorById(id));
 	}
 
 	@Override
 	public List<Author> getAllAuthors() throws InternalErrorException {
-		return getAuthorshipManagerDao().getAllAuthors();
+		return convertAuthorsToAuthorsWithAttributes(getAuthorshipManagerDao().getAllAuthors());
 	}
 
 	@Override
 	public List<Author> getAuthorsByPublicationId(int id) throws InternalErrorException {
-		return getAuthorshipManagerDao().getAuthorsByPublicationId(id);
+		return convertAuthorsToAuthorsWithAttributes(getAuthorshipManagerDao().getAuthorsByPublicationId(id));
 	}
 
 	@Override
@@ -217,7 +228,30 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		for (Authorship r : publicationReports) {
 			result.add(getAuthorshipManagerDao().getAuthorById(r.getUserId()));
 		}
+		return convertAuthorsToAuthorsWithAttributes(result);
+	}
+
+	private List<Author> convertAuthorsToAuthorsWithAttributes(List<Author> authors) {
+		List<Author> result = new ArrayList<>();
+		for (Author author : authors) {
+			result.add(convertAuthorToAuthorWithAttributes(author));
+		}
 		return result;
+	}
+
+	private Author convertAuthorToAuthorWithAttributes(Author author) {
+		try {
+			if (session == null) {
+				session = perun.getPerunSession(new PerunPrincipal("perunCabinet", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL), new PerunClient());
+			}
+			User user = perun.getUsersManagerBl().getUserById(session, author.getId());
+			Attribute a = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":preferredMail");
+			Attribute b = perun.getAttributesManagerBl().getAttribute(session, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
+			author.setAttributes(Arrays.asList(a,b));
+		} catch (Exception ex) {
+			log.error("Unable to get attributes for {}: {}", author, ex);
+		}
+		return author;
 	}
 
 }

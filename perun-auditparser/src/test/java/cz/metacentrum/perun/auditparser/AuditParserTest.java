@@ -229,7 +229,7 @@ public class AuditParserTest {
 
 		//FOR USER
 		User user = new User(8, null, textMismatch, null, textMismatch, null, true, true);
-		
+
 		List<PerunBean> userInList = AuditParser.parseLog(user.serializeToString());
 		assertEquals(user.toString(), ((User) userInList.get(0)).toString());
 		assertEquals(user.getFirstName(), ((User) userInList.get(0)).getFirstName());
@@ -400,7 +400,7 @@ public class AuditParserTest {
 		List<PerunBean> trList = AuditParser.parseLog(taskResult1.serializeToString());
 		TaskResult taskResult2 = (TaskResult)trList.get(0);
 		assertEquals(taskResult1.toString(), taskResult2.toString());
-		
+
 
 		//FOR BAN ON RESOURCE
 		List<PerunBean> banOnResourceInList = AuditParser.parseLog(banOnResource1.serializeToString());
@@ -505,7 +505,7 @@ public class AuditParserTest {
 		authorship2.setUserId(18);
 		authorship2.setCreatedBy(null);
 		authorship2.setCreatedDate(null);
-		authorship2.setCreatedByUid(null);
+		authorship2.setCreatedByUid(0);
 		List<PerunBean> authorship1InList = AuditParser.parseLog(authorship1.serializeToString());
 		List<PerunBean> authorship2InList = AuditParser.parseLog(authorship2.serializeToString());
 		assertEquals(authorship1.toString(), ((Authorship) authorship1InList.get(0)).toString());

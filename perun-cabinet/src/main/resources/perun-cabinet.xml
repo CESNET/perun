@@ -69,6 +69,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		<property name="publicationManagerBl" ref="publicationManagerBl" />
 		<property name="categoryManagerBl" ref="categoryManagerBl" />
 		<property name="cabinetManagerBl" ref="cabinetManagerBl" />
+		<property name="perun" ref="perun" />
 	</bean>
 
 	<bean id="thanksManagerBl" class="cz.metacentrum.perun.cabinet.bl.impl.ThanksManagerBlImpl">

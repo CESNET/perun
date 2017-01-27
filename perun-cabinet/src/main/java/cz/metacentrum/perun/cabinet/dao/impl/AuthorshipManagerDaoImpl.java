@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
@@ -82,6 +83,13 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 				}
 				// add authorships
 				result.get(author.getId()).getAuthorships().add(AUTHORSHIP_ROW_MAPPER.mapRow(resultSet, resultSet.getRow()));
+
+				if (resultSet.getInt("authorship_id") != 0) {
+					HashSet<Authorship> authorships = new HashSet<Authorship>(result.get(author.getId()).getAuthorships());
+					authorships.add(AUTHORSHIP_ROW_MAPPER.mapRow(resultSet, resultSet.getRow()));
+					result.get(author.getId()).setAuthorships(new ArrayList<>(authorships));
+				}
+
 			}
 			return new ArrayList<Author>(result.values());
 		}
