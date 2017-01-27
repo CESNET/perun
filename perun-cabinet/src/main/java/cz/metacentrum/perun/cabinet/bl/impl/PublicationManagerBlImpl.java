@@ -231,7 +231,14 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 
 	@Override
 	public List<PublicationForGUI> getRichPublicationsByFilter(Publication p, int userId, int yearSince, int yearTill) throws InternalErrorException {
-		return getPublicationManagerDao().getRichPublicationsByFilter(p, userId, yearSince, yearTill);
+		List<PublicationForGUI> publications = getPublicationManagerDao().getRichPublicationsByFilter(p, userId, yearSince, yearTill);
+		if (userId != 0) {
+			// add rest of publication authors, which are omitted by select conditions (userId)
+			for (PublicationForGUI pub : publications) {
+				pub.setAuthors(getAuthorshipManagerBl().getAuthorsByPublicationId(pub.getId()));
+			}
+		}
+		return publications;
 	}
 
 	@Override

@@ -12,6 +12,10 @@ sub help {
 	Prints list of publications.
 	------------------------------
 	Available options:
+	--since        | -s  year since (>=)
+	--till         | -t  year till (<=)
+	--year         | -y  exact year
+	--userId       | -u  ID of user
 	--orderById    | -i  order by identifier of publication
 	--orderByName  | -n  order by title of publication
 	--batch        | -b  batch
@@ -22,10 +26,19 @@ sub help {
 our $batch;
 my ($sortingFunction);
 
-GetOptions("help|h" => sub {
+my $since = 0;
+my $till = 0;
+my $year = 0;
+my $userId = 0;
+
+	GetOptions("help|h" => sub {
 		print help;
 		exit 0;
 	},
+	"since|s=i"    => \$since,
+	"till|t=i"    => \$till,
+	"year|y=i"    => \$year,
+	"userId|u=i"    => \$userId,
 	"orderById|i"   => sub { $sortingFunction = getSortingFunction("getId") },
 	"orderByName|n" => sub { $sortingFunction = getSortingFunction("getTitle", 1) },
 	"batch|b"       => \$batch) || die help;
@@ -36,7 +49,19 @@ my $cabinetAgent = $agent->getCabinetAgent;
 #options check
 unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getTitle", 1); }
 
-my @publications = $cabinetAgent->findPublicationsByGUIFilter();
+my @publications;
+if ($since != 0 and $till == 0) {
+	@publications = $cabinetAgent->findPublicationsByGUIFilter( yearSince => $since , userId => $userId );
+} elsif ($since == 0 and $till != 0) {
+	@publications = $cabinetAgent->findPublicationsByGUIFilter( yearTill => $till , userId => $userId );
+} elsif ($since != 0 and $till != 0) {
+	@publications = $cabinetAgent->findPublicationsByGUIFilter( yearSince => $since , yearTill => $till , userId => $userId );
+} elsif ($year) {
+	@publications = $cabinetAgent->findPublicationsByGUIFilter( year => $year , userId => $userId);
+} else {
+	@publications = $cabinetAgent->findPublicationsByGUIFilter( userId => $userId);
+}
+
 unless (@publications) {
 	printMessage "No publications found", $batch;
 	exit 0;

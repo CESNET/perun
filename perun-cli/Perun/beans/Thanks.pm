@@ -35,9 +35,9 @@ sub TO_JSON
 
 	my $ownerId;
 	if (defined($self->{_ownerId})) {
-		$ownerid = $self->{_ownerId} * 1;
+		$ownerId = $self->{_ownerId} * 1;
 	} else {
-		$ownerid = 0;
+		$ownerId = 0;
 	}
 
 	my $createdBy;

@@ -67,13 +67,6 @@ sub TO_JSON
 		$titleAfter = undef;
 	}
 
-	my @userExtSources;
-	if (defined($self->{_logins})) {
-		@userExtSources = "$self->{_logins}";
-	} else {
-		@userExtSources = undef;
-	}
-
 	my @authorships;
 	if (defined($self->{_authorships})) {
 		@authorships = "$self->{_authorships}";
@@ -82,7 +75,7 @@ sub TO_JSON
 	}
 
 	return { id                  => $id, firstName => $firstName, lastName => $lastName, middleName => $middleName,
-		titleBefore              => $titleBefore, titleAfter => $titleAfter, userExtSources => \@userExtSources,
+		titleBefore              => $titleBefore, titleAfter => $titleAfter,
 		authorships              => \@authorships };
 }
 
@@ -174,13 +167,6 @@ sub setTitleAfter
 	$self->{_titleAfter} = shift;
 
 	return;
-}
-
-sub getUsersExtSources
-{
-	my $self = shift;
-
-	return @{$self->{_logins}};
 }
 
 sub getAuthorships

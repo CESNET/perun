@@ -132,6 +132,7 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
 		}
 
 	}
+
 	@Test
 	public void getAuthorshipsByPublicationIdTest() throws Exception {
 		System.out.println("AuthorshipManagerIntegrationTest.getAuthorshipsByPublicationIdTest");
@@ -149,6 +150,16 @@ public class AuthorshipManagerIntegrationTest extends CabinetBaseIntegrationTest
 		List<Authorship> list = getCabinetManager().getAuthorshipsByUserId(USER_ID);
 		assertTrue("Returned authorships shouldn't be null.", list != null);
 		assertTrue("There should be some authorships for USER_ID.", list.size() > 0);
+
+	}
+
+	@Test
+	public void getAuthorsByPublicationIdTest() throws Exception {
+		System.out.println("AuthorshipManagerIntegrationTest.getAuthorsByPublicationIdTest");
+
+		List<Author> list = getCabinetManager().getAuthorsByPublicationId(publicationOne.getId());
+		assertTrue("Returned authorships shouldn't be null.", list != null);
+		assertTrue("There should be exactly 2 authors for publicationOne.", list.size() == 2);
 
 	}
 

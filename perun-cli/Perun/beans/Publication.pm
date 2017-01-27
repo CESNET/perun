@@ -82,21 +82,21 @@ sub TO_JSON
 	if (defined($self->{_rank})) {
 		$rank = $self->{_rank} * 1;
 	} else {
-		$rank = undef;
+		$rank = 0;
 	}
 
 	my $externalId;
 	if (defined($self->{_externalId})) {
 		$externalId = $self->{_externalId} * 1;
 	} else {
-		$externalId = undef;
+		$externalId = 0;
 	}
 
 	my $publicationSystemId;
 	if (defined($self->{_publicationSystemId})) {
 		$publicationSystemId = $self->{_publicationSystemId} * 1;
 	} else {
-		$publicationSystemId = undef;
+		$publicationSystemId = 0;
 	}
 
 	my $year;
@@ -110,7 +110,7 @@ sub TO_JSON
 	if (defined($self->{_categoryId})) {
 		$categoryId = $self->{_categoryId} * 1;
 	} else {
-		$categoryId = undef;
+		$categoryId = 0;
 	}
 
 	my $main;
@@ -152,7 +152,7 @@ sub TO_JSON
 	if (defined($self->{_locked})) {
 		$locked = $self->{_locked} * 1;
 	} else {
-		$locked = undef;
+		$locked = 0;
 	}
 
 	my @authors;
@@ -303,6 +303,21 @@ sub setCategoryId
 	return;
 }
 
+sub getCategoryName
+{
+	my $self = shift;
+
+	return $self->{_categoryName};
+}
+
+sub setCategoryName
+{
+	my $self = shift;
+	$self->{_categoryName} = shift;
+
+	return;
+}
+
 sub getCreatedBy
 {
 	my $self = shift;
@@ -376,20 +391,29 @@ sub printAuthors
 	my @authors = $self->getAuthors;
 	my @result;
 	foreach my $author (@authors) {
-		push @result, $author->getFirstName.' '.$author->getLastName;
+		my $name = "";
+		if ($author->getLastName) {
+			$name = $name . $author->getLastName;
+			if ($author->getFirstName) {
+				$name = $name . ' ' . $author->getFirstName;
+			}
+		} else {
+			if ($author->getFirstName) {
+				$name = $name . $author->getFirstName;
+			}
+		}
+		push @result, $name;
 	}
-
-	return '['.join(', ', @result).']';
+	return join(', ', sort @result);
 }
 
 sub getCommonArrayRepresentation {
 	my $self = shift;
-	return ($self->getId, $self->getTitle, $self->getRank, $self->getYear, $self->getCategoryId, $self->getLocked,
-		$self->printAuthors);
+	return ($self->getId, $self->getYear, $self->getTitle, $self->printAuthors, $self->getCategoryName, $self->getRank, $self->getLocked);
 }
 
 sub getCommonArrayRepresentationHeading {
-	return ('ID', 'Name', 'Rank', 'Year', 'Category ID', 'Locked', 'Authors');
+	return ('ID', 'Year', 'Name', 'Authors', 'Category', 'Rank', 'Locked');
 }
 
 1;

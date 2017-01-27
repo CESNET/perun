@@ -194,7 +194,8 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 		try {
 			return jdbc.query("select " + AUTHOR_SELECT_QUERY +
 					" from users" +
-					" join cabinet_authorships on users.id=cabinet_authorships.userId", AUTHOR_RESULT_SET_EXTRACTOR);
+					" join cabinet_authorships on users.id=cabinet_authorships.userId" +
+					" order by users_last_name, users_first_name", AUTHOR_RESULT_SET_EXTRACTOR);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -206,7 +207,8 @@ public class AuthorshipManagerDaoImpl implements AuthorshipManagerDao {
 			return jdbc.query("select " + AUTHOR_SELECT_QUERY +
 					" from users" +
 					" join cabinet_authorships on users.id=cabinet_authorships.userId" +
-					" and cabinet_authorships.publicationId=?", AUTHOR_RESULT_SET_EXTRACTOR, id);
+					" and cabinet_authorships.publicationId=?" +
+					" order by users_last_name, users_first_name", AUTHOR_RESULT_SET_EXTRACTOR, id);
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
