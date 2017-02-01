@@ -6,6 +6,10 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.ResourceTransactionManager;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 
 public class PerunTransactionManager extends DataSourceTransactionManager implements ResourceTransactionManager, InitializingBean {
@@ -13,7 +17,7 @@ public class PerunTransactionManager extends DataSourceTransactionManager implem
 	private static final long serialVersionUID = 1L;
 
 	private Auditer auditer;
-	
+
 	@Override
 	protected void doBegin(Object transaction, TransactionDefinition definition) {
 		this.getAuditer().newTopLevelTransaction();
@@ -35,6 +39,7 @@ public class PerunTransactionManager extends DataSourceTransactionManager implem
 	@Override
 	protected void doCleanupAfterCompletion(Object transaction) {
 		super.doCleanupAfterCompletion(transaction);
+		PerunLocksUtils.unlockAll((List<Lock>) TransactionSynchronizationManager.getResource(PerunLocksUtils.uniqueKey));
 		this.getAuditer().clean();
 	}
 
