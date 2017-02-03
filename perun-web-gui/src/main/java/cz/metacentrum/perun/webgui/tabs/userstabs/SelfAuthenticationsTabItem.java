@@ -144,7 +144,7 @@ public class SelfAuthenticationsTabItem implements TabItem, TabItemWithUrl {
 
 				int row = 0;
 
-				if (user.isServiceUser()) {
+				if (user.isServiceUser() || user.isSponsoredUser()) {
 					CustomButton addLogin = TabMenu.getPredefinedButton(ButtonType.ADD, "Add new login (only for supported namespaces)");
 					addLogin.addClickHandler(new ClickHandler() {
 						@Override
