@@ -13,7 +13,7 @@ import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.cabinetManager.DeleteCategory;
-import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllCategories;
+import cz.metacentrum.perun.webgui.json.cabinetManager.GetCategories;
 import cz.metacentrum.perun.webgui.json.cabinetManager.UpdateCategory;
 import cz.metacentrum.perun.webgui.model.Category;
 import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
@@ -33,7 +33,7 @@ import java.util.Map;
  * @author Vaclav Mach <374430@mail.muni.cz>
  */
 
-public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
+public class AllCategoriesTabItem implements TabItem, TabItemWithUrl {
 
 	/**
 	 * Perun web session
@@ -64,7 +64,7 @@ public class AllCategoriesTabItem implements TabItem, TabItemWithUrl{
 		VerticalPanel vp = new VerticalPanel();
 		vp.setSize("100%", "100%");
 
-		final FindAllCategories callback = new FindAllCategories();
+		final GetCategories callback = new GetCategories();
 
 		final JsonCallbackEvents events = JsonCallbackEvents.refreshTableEvents(callback);
 

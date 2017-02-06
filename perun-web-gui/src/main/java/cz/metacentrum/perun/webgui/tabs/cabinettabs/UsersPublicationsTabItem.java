@@ -16,7 +16,7 @@ import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.cabinetManager.DeleteAuthorship;
 import cz.metacentrum.perun.webgui.json.cabinetManager.DeletePublication;
-import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllCategories;
+import cz.metacentrum.perun.webgui.json.cabinetManager.GetCategories;
 import cz.metacentrum.perun.webgui.json.cabinetManager.FindPublicationsByGUIFilter;
 import cz.metacentrum.perun.webgui.model.Category;
 import cz.metacentrum.perun.webgui.model.PerunError;
@@ -192,7 +192,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 
 		// fill category listbox
 		final ListBoxWithObjects<Category> filterCategory = new ListBoxWithObjects<Category>();
-		final FindAllCategories call = new FindAllCategories(new JsonCallbackEvents(){
+		final GetCategories call = new GetCategories(new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				filterCategory.clear();
 				filterCategory.addNotSelectedOption();
@@ -239,14 +239,6 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 			}
 		});
 		menu.addWidget(showButton);
-
-		// refresh table button
-		menu.addWidget(new CustomButton("Refresh table", SmallIcons.INSTANCE.updateIcon(), new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				callback.clearTable();
-				callback.retrieveData();
-			}
-		}));
 
 		// filter objects
 		final TextBox filterTitle = new TextBox();
@@ -469,8 +461,7 @@ public class UsersPublicationsTabItem implements TabItem, TabItemWithUrl{
 
 	public final static String URL = "userpubs";
 
-	public String getUrl()
-	{
+	public String getUrl() {
 		return URL;
 	}
 

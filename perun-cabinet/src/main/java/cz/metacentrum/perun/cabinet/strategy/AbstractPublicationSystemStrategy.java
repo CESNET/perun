@@ -1,73 +1,84 @@
 package cz.metacentrum.perun.cabinet.strategy;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.cabinet.model.Publication;
-import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
-import cz.metacentrum.perun.cabinet.service.ErrorCodes;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import org.w3c.dom.Node;
 
-public abstract class AbstractPublicationSystemStrategy {
+import javax.xml.namespace.QName;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+/**
+ * Shared logic for PublicationSystem strategies.
+ *
+ * @author Pavel Zlámal <zlamal@cesnet.cz>
+ */
+public abstract class AbstractPublicationSystemStrategy implements PublicationSystemStrategy {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	protected PublicationSystem configuration;
 
-	public AbstractPublicationSystemStrategy(PublicationSystem config) {
-		this.configuration = config;
-	}
+	@Override
+	public HttpResponse execute(HttpUriRequest request) throws CabinetException {
 
-	public List<Publication> findPublications(int year1, int year2, int authorId) throws CabinetException {
-
-		HttpResponse response;
+		final HttpParams httpParams = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParams, 300000);
+		HttpConnectionParams.setSoTimeout(httpParams, 300000);
+		HttpClient httpClient = new DefaultHttpClient(httpParams);
+		HttpResponse response = null;
 		try {
-			log.debug("Getting http request.");
-			HttpUriRequest request = getFindPublicationsRequest(year1, year2, authorId);
-			if (request == null)
-				throw new NullPointerException("http request cannot be null");
-			log.debug("Got http request.");
-			HttpClient httpClient = new DefaultHttpClient();
-			log.debug("Attemping to execute HTTP request...");
+			log.debug("Attempting to execute HTTP request...");
 			response = httpClient.execute(request);
-			log.debug("HTTP request executed. Http response received succesfully.");
+			log.debug("HTTP request executed.");
 		} catch (IOException ioe) {
 			log.error("Failed to execute HTTP request.");
-			throw new CabinetException(ErrorCodes.HTTP_IO_EXCEPTION, ioe);
+			throw new CabinetException(ErrorCodes.HTTP_IO_EXCEPTION,ioe);
 		}
-		List<Publication> publications = null;
+		return response;
+	}
+
+	/**
+	 * Get xml Node and xpath expression to get value from node by this xpath.
+	 *
+	 * @param node node for getting value from
+	 * @param xpathExpression expression for xpath to looking for value in node
+	 * @param resultType type of resulting / expected object (string number node nodelist ...)
+	 * @return object extracted from node by xpath
+	 * @throws InternalErrorException
+	 */
+	protected Object getValueFromXpath(Node node, String xpathExpression, QName resultType) throws InternalErrorException {
+		//Prepare xpath expression
+		XPathFactory xPathfactory = XPathFactory.newInstance();
+		XPath xpath = xPathfactory.newXPath();
+		XPathExpression expr;
 		try {
-			log.debug("Attemping to parse http response...");
-			String xml = EntityUtils.toString(response.getEntity(),
-					"utf-8");
-			xml = xml.replaceAll("&", "&amp;");
-			publications = parse(xml);
-			log.debug("Http response parsed successfuly. Received {} publications",publications.size());
-		} catch (IOException ioe) {
-			log.error("Failed to parse http response [{}].", response.toString());
-			throw new CabinetException(ErrorCodes.IO_EXCEPTION, ioe);
-		} //catch (org.xml.sax.SAXParseException spe) {
+			expr = xpath.compile(xpathExpression);
+		} catch (XPathExpressionException ex) {
+			throw new InternalErrorException("Error when compiling xpath query.", ex);
+		}
 
-		//}
-		return (publications != null) ? publications
-			: new ArrayList<Publication>();
+		Object result;
+		try {
+			result = expr.evaluate(node, resultType);
+		} catch (XPathExpressionException ex) {
+			throw new InternalErrorException("Error when evaluate xpath query on node.", ex);
+		}
+
+		return result;
 	}
-
-	protected String capitalize(String name) {
-		return StringUtils.capitalize(name.toLowerCase());
-	}
-
-	public abstract List<Publication> parse(String xml);
-
-	public abstract HttpUriRequest getFindPublicationsRequest(int year1, int year2, int authorId);
 
 }

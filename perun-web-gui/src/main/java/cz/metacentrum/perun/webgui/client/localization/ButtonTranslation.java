@@ -691,6 +691,12 @@ public interface ButtonTranslation extends Messages {
 	@DefaultMessage("Filter resources tags by name")
 	String filterTags();
 
+	/* CABINET */
+
+	@DefaultMessage("Filter authors by name")
+	String filterAuthors();
+
+
 	/* ======= TITLES FOR DISABLED BUTTONS =============== */
 
 	@DefaultMessage("Click to logout from Perun GUI")

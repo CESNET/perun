@@ -3,7 +3,6 @@ package cz.metacentrum.perun.rpclib.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import cz.metacentrum.perun.core.api.ExtSource;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;

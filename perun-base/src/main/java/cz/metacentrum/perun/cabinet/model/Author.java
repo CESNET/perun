@@ -1,10 +1,11 @@
 package cz.metacentrum.perun.cabinet.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.PerunBean;
 
 /**
  * Class representing author. Author it's not stored in cabinet DB.
@@ -20,22 +21,15 @@ import cz.metacentrum.perun.core.api.UserExtSource;
  * @author Jiri Harazim <harazim@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class Author implements Serializable {
+public class Author extends PerunBean {
 
-	private static final long serialVersionUID = 1L;
-
-	private Integer id;
 	private String firstName;
 	private String lastName;
 	private String middleName;
 	private String titleBefore;
 	private String titleAfter;
 
-	/**
-	 * List of logins in UserExtSources from Perun.
-	 * !! This property must be filled manually !!
-	 */
-	private List<UserExtSource> logins = new ArrayList<UserExtSource>();
+	private List<Attribute> attributes = new ArrayList<>();
 
 	/**
 	 * Authorships related to this author.
@@ -47,22 +41,14 @@ public class Author implements Serializable {
 
 	public Author() { }
 
-	public Author(Integer id, String firstName, String lastName,
+	public Author(int id, String firstName, String lastName,
 			String middleName, String titleBefore, String titleAfter) {
-		this.id = id;
+		super(id);
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.middleName = middleName;
 		this.titleBefore = titleBefore;
 		this.titleAfter = titleAfter;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getFirstName() {
@@ -105,12 +91,12 @@ public class Author implements Serializable {
 		this.titleAfter = titleAfter;
 	}
 
-	public void setLogins(List<UserExtSource> logins) {
-		this.logins = logins;
+	public void setAttributes(List<Attribute> attributes) {
+		this.attributes = attributes;
 	}
 
-	public List<UserExtSource> getLogins() {
-		return this.logins;
+	public List<Attribute> getAttributes() {
+		return this.attributes;
 	}
 
 	public List<Authorship> getAuthorships() {
@@ -119,10 +105,6 @@ public class Author implements Serializable {
 
 	public void setAuthorships(List<Authorship> authorships) {
 		this.authorships = authorships;
-	}
-
-	public String getBeanName() {
-		return this.getClass().getSimpleName();
 	}
 
 	public String getDisplayName() {
@@ -150,68 +132,25 @@ public class Author implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
+		return str.append(getClass().getSimpleName()).append(":[id=").append(getId()).append(", firstName=").append(firstName).append(", lastName=").append(lastName).append(", displayName=").append(this.getDisplayName()).append(", attributes=").append(attributes).append(", authorships=").append(authorships).append("]").toString();
+	}
 
-		return str.append(getClass().getSimpleName()).append(":[id=").append(id).append(", firstName=").append(firstName).append(", lastName=").append(lastName).append(", displayName=").append(this.getDisplayName()).append(", logins=").append(logins).append(", authorships=").append(authorships).append("]").toString();
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Author)) return false;
+		if (!super.equals(o)) return false;
+		Author author = (Author) o;
+		return Objects.equals(firstName, author.firstName) &&
+				Objects.equals(lastName, author.lastName) &&
+				Objects.equals(middleName, author.middleName) &&
+				Objects.equals(titleBefore, author.titleBefore) &&
+				Objects.equals(titleAfter, author.titleAfter);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-			+ ((firstName == null) ? 0 : firstName.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result
-			+ ((lastName == null) ? 0 : lastName.hashCode());
-		result = prime * result
-			+ ((middleName == null) ? 0 : middleName.hashCode());
-		result = prime * result
-			+ ((titleAfter == null) ? 0 : titleAfter.hashCode());
-		result = prime * result
-			+ ((titleBefore == null) ? 0 : titleBefore.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Author other = (Author) obj;
-		if (firstName == null) {
-			if (other.firstName != null)
-				return false;
-		} else if (!firstName.equals(other.firstName))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (lastName == null) {
-			if (other.lastName != null)
-				return false;
-		} else if (!lastName.equals(other.lastName))
-			return false;
-		if (middleName == null) {
-			if (other.middleName != null)
-				return false;
-		} else if (!middleName.equals(other.middleName))
-			return false;
-		if (titleAfter == null) {
-			if (other.titleAfter != null)
-				return false;
-		} else if (!titleAfter.equals(other.titleAfter))
-			return false;
-		if (titleBefore == null) {
-			if (other.titleBefore != null)
-				return false;
-		} else if (!titleBefore.equals(other.titleBefore))
-			return false;
-		return true;
+		return Objects.hash(super.hashCode(), firstName, lastName, middleName, titleBefore, titleAfter);
 	}
 
 }

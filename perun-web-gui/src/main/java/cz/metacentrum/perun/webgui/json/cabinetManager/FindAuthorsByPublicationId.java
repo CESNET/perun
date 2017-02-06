@@ -153,33 +153,49 @@ public class FindAuthorsByPublicationId implements JsonCallback, JsonCallbackTab
 		});
 		table.addColumn(nameColumn, "Name");
 
-		/*
-		// qualified COLUMN
-		Column<Author, String> qualifiedColumn = JsonUtils.addColumn(
-		new CustomClickableTextCell(), "",
-		new JsonUtils.GetValue<Author, String>() {
-		public String getValue(Author object) {
-		return String.valueOf(object.isQualified());
-		}
-		}, this.tableFieldUpdater);
-		table.addColumn(qualifiedColumn, "Qualified");
-		*/
-
-		// login COLUMN
-		Column<Author, String> loginColumn = JsonUtils.addColumn(
+		// organization
+		Column<Author, String> organizationColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Author, String>() {
 					public String getValue(Author object) {
-						return object.getLogins();
+						String val1 = object.getAttribute("urn:perun:user:attribute-def:def:organization").getValue();
+						if (val1 == null || val1.equalsIgnoreCase("null")) val1 = "";
+						return val1;
 					}
 				}, this.tableFieldUpdater);
 
-		loginColumn.setSortable(true);
-		columnSortHandler.setComparator(loginColumn, new Comparator<Author>(){
+		organizationColumn.setSortable(true);
+		columnSortHandler.setComparator(organizationColumn, new Comparator<Author>(){
 			public int compare(Author o1, Author o2) {
-				return o1.getLogins().compareToIgnoreCase(o2.getLogins());
+				String val1 = o1.getAttribute("urn:perun:user:attribute-def:def:organization").getValue();
+				String val2 = o2.getAttribute("urn:perun:user:attribute-def:def:organization").getValue();
+				if (val1 == null || val1.equalsIgnoreCase("null")) val1 = "";
+				if (val2 == null || val2.equalsIgnoreCase("null")) val2 = "";
+				return val1.compareToIgnoreCase(val2);
 			}
 		});
-		table.addColumn(loginColumn, "Logins");
+		table.addColumn(organizationColumn, "Organization");
+
+		// mail
+		Column<Author, String> emailColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<Author, String>() {
+					public String getValue(Author object) {
+						String val1 = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue();
+						if (val1 == null || val1.equalsIgnoreCase("null")) val1 = "";
+						return val1;
+					}
+				}, this.tableFieldUpdater);
+
+		emailColumn.setSortable(true);
+		columnSortHandler.setComparator(emailColumn, new Comparator<Author>(){
+			public int compare(Author o1, Author o2) {
+				String val1 = o1.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue();
+				String val2 = o2.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue();
+				if (val1 == null || val1.equalsIgnoreCase("null")) val1 = "";
+				if (val2 == null || val2.equalsIgnoreCase("null")) val2 = "";
+				return val1.compareToIgnoreCase(val2);
+			}
+		});
+		table.addColumn(emailColumn, "Email");
 
 		// createdBy COLUMN
 		Column<Author, String> createdByColumn = JsonUtils.addColumn(

@@ -6,13 +6,16 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import cz.metacentrum.perun.cabinet.api.CabinetManager;
+import cz.metacentrum.perun.cabinet.model.Category;
+import cz.metacentrum.perun.cabinet.model.Publication;
+import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.oidc.OIDC;
 import cz.metacentrum.perun.registrar.model.Application;
 import cz.metacentrum.perun.voot.VOOT;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import cz.metacentrum.perun.cabinet.api.ICabinetApi;
 import cz.metacentrum.perun.controller.service.GeneralServiceManager;
 import cz.metacentrum.perun.controller.service.PropagationStatsReader;
 import cz.metacentrum.perun.core.api.Attribute;
@@ -68,7 +71,7 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  * ApiCaller calls Perun manager methods.
  *
  * @author Jan Klos <ddd@mail.muni.cz>
- * @since 0.1
+ * @autor Pavel Zlámal <zlamal@cesnet.cz>
  */
 public class ApiCaller {
 
@@ -89,7 +92,7 @@ public class ApiCaller {
 	private SecurityTeamsManager securityTeamsManager = null;
 	private PropagationStatsReader propagationStatsReader;
 	private Searcher searcher = null;
-	private ICabinetApi cabinetManager;
+	private CabinetManager cabinetManager;
 	private RegistrarManager registrarManager;
 	private PerunNotifNotificationManager notificationManager;
 	private VOOT vootManager = null;
@@ -213,7 +216,7 @@ public class ApiCaller {
 		return propagationStatsReader;
 	}
 
-	public ICabinetApi getCabinetManager() {
+	public CabinetManager getCabinetManager() {
 		return cabinetManager;
 	}
 
@@ -400,6 +403,18 @@ public class ApiCaller {
 		return null;
 	}
 
+	public Category getCategoryById(int id) throws PerunException {
+		return getCabinetManager().getCategoryById(id);
+	}
+
+	public Thanks getThanksById(int id) throws PerunException {
+		return getCabinetManager().getThanksById(id);
+	}
+
+	public Publication getPublicationById(int id) throws PerunException {
+		return getCabinetManager().getPublicationById(id);
+	}
+
 	public ApiCaller(ServletContext context, PerunPrincipal perunPrincipal, PerunClient client) throws InternalErrorException {
 		Perun perun = WebApplicationContextUtils.getWebApplicationContext(context).getBean("perun", Perun.class);
 
@@ -412,8 +427,8 @@ public class ApiCaller {
 		// Initialize PropagationStatsReader
 		this.propagationStatsReader = WebApplicationContextUtils.getWebApplicationContext(context).getBean("propagationStatsReader", PropagationStatsReader.class);
 
-		// Initialize ICabinetApi (cabinet manager)
-		this.cabinetManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("cabinetApi", ICabinetApi.class);
+		// Initialize CabinetManager
+		this.cabinetManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("cabinetManager", CabinetManager.class);
 
 		// Initialize RegistrarManager
 		this.registrarManager = WebApplicationContextUtils.getWebApplicationContext(context).getBean("registrarManager", RegistrarManager.class);

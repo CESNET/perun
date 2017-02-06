@@ -27,6 +27,7 @@ public class Author extends JavaScriptObject {
 	 * @return first name of user
 	 */
 	public final native String getFirstName() /*-{
+		if (!this.firstName) { return ""; }
 		return this.firstName;
 	}-*/;
 
@@ -36,6 +37,7 @@ public class Author extends JavaScriptObject {
 	 * @return last name of user
 	 */
 	public final native String getLastName() /*-{
+		if (!this.lastName) { return ""; }
 		return this.lastName;
 	}-*/;
 
@@ -85,30 +87,27 @@ public class Author extends JavaScriptObject {
 			fullName += this.middleName + " ";
 		}
 		if(this.lastName != null){
-			fullName += this.lastName + " ";
+			fullName += this.lastName;
 		}
 		if(this.titleAfter != null){
-			fullName += this.titleAfter + " ";
+			fullName += ", " + this.titleAfter;
 		}
 		return fullName;
 	}-*/;
 
 	/**
-	 * Gets all logins for this author
+	 * Get specified user attribute stored in Author
 	 *
-	 * @return users logins stored for this user
+	 * @param urn URN of attribute to get
+	 * @return user attribute or null if not present
 	 */
-	public final String getLogins() {
-		String logins = "";
-		for (int i=0; i<getUserExtSources().length(); i++){
-			logins = logins + getUserExtSources().get(i).getLogin() + ", ";
+	public final native Attribute getAttribute(String urn) /*-{
+		for(var i in this.attributes){
+			if(this.attributes[i].namespace + ":" + this.attributes[i].friendlyName == urn){
+				return this.attributes[i];
+			}
 		}
-		if (logins.length() > 2) { logins = logins.substring(0, logins.length()-2); }
-		return logins;
-	}
-
-	private final native JsArray<UserExtSource> getUserExtSources()/*-{
-		return this.logins;
+		return null;
 	}-*/;
 
 

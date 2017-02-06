@@ -16,6 +16,7 @@ import cz.metacentrum.perun.webgui.model.Author;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.widgets.AjaxLoaderImage;
 import cz.metacentrum.perun.webgui.widgets.PerunTable;
+import cz.metacentrum.perun.webgui.widgets.UnaccentMultiWordSuggestOracle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,7 +26,7 @@ import java.util.Comparator;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
+public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author>, JsonCallbackOracle<Author> {
 
 	// session
 	private PerunWebSession session = PerunWebSession.getInstance();
@@ -48,6 +49,8 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 
 	private boolean checkable = false;
 
+	private UnaccentMultiWordSuggestOracle oracle = new UnaccentMultiWordSuggestOracle();
+	private ArrayList<Author> backupList = new ArrayList<>();
 
 	/**
 	 * Creates a new request
@@ -116,7 +119,21 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 
 		// ID COLUMN
 		table.addIdColumn("User Id", tableFieldUpdater, 90);
-		table.addNameColumn(tableFieldUpdater);
+
+		// NAME COLUMN
+		Column<Author, String> nameColumn = JsonUtils.addColumn(new JsonUtils.GetValue<Author, String>() {
+			public String getValue(Author user) {
+				return user.getDisplayName(); // display full name with titles
+			}
+		},tableFieldUpdater);
+
+		nameColumn.setSortable(true);
+		columnSortHandler.setComparator(nameColumn, new Comparator<Author>() {
+			public int compare(Author o1, Author o2) {
+				return o1.getFullName().compareToIgnoreCase(o2.getFullName());  // sort by name without titles
+			}
+		});
+		table.addColumn(nameColumn, "Name");
 
 		// publications count COLUMN
 		Column<Author, String> pubCountColumn = JsonUtils.addColumn(
@@ -127,21 +144,49 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 				}, this.tableFieldUpdater);
 		table.addColumn(pubCountColumn, "#publications");
 
-		// login COLUMN
-		Column<Author, String> loginColumn = JsonUtils.addColumn(
+		// organization
+		Column<Author, String> organizationColumn = JsonUtils.addColumn(
 				new JsonUtils.GetValue<Author, String>() {
 					public String getValue(Author object) {
-						return object.getLogins();
+						String val1 = object.getAttribute("urn:perun:user:attribute-def:def:organization").getValue();
+						if (val1 == null || val1.equalsIgnoreCase("null")) val1 = "";
+						return val1;
 					}
 				}, this.tableFieldUpdater);
 
-		loginColumn.setSortable(true);
-		columnSortHandler.setComparator(loginColumn, new Comparator<Author>(){
+		organizationColumn.setSortable(true);
+		columnSortHandler.setComparator(organizationColumn, new Comparator<Author>(){
 			public int compare(Author o1, Author o2) {
-				return o1.getLogins().compareToIgnoreCase(o2.getLogins());
+				String val1 = o1.getAttribute("urn:perun:user:attribute-def:def:organization").getValue();
+				String val2 = o2.getAttribute("urn:perun:user:attribute-def:def:organization").getValue();
+				if (val1 == null || val1.equalsIgnoreCase("null")) val1 = "";
+				if (val2 == null || val2.equalsIgnoreCase("null")) val2 = "";
+				return val1.compareToIgnoreCase(val2);
 			}
 		});
-		table.addColumn(loginColumn, "Logins");
+		table.addColumn(organizationColumn, "Organization");
+
+		// mail
+		Column<Author, String> emailColumn = JsonUtils.addColumn(
+				new JsonUtils.GetValue<Author, String>() {
+					public String getValue(Author object) {
+						String val1 = object.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue();
+						if (val1 == null || val1.equalsIgnoreCase("null")) val1 = "";
+						return val1;
+					}
+				}, this.tableFieldUpdater);
+
+		emailColumn.setSortable(true);
+		columnSortHandler.setComparator(emailColumn, new Comparator<Author>(){
+			public int compare(Author o1, Author o2) {
+				String val1 = o1.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue();
+				String val2 = o2.getAttribute("urn:perun:user:attribute-def:def:preferredMail").getValue();
+				if (val1 == null || val1.equalsIgnoreCase("null")) val1 = "";
+				if (val2 == null || val2.equalsIgnoreCase("null")) val2 = "";
+				return val1.compareToIgnoreCase(val2);
+			}
+		});
+		table.addColumn(emailColumn, "Email");
 
 		return table;
 	}
@@ -170,6 +215,7 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 	 */
 	public void addToTable(Author object) {
 		list.add(object);
+		oracle.add(object.getFullName());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -192,6 +238,7 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 	public void clearTable(){
 		loaderImage.loadingStart();
 		list.clear();
+		oracle.clear();
 		selectionModel.clear();
 		dataProvider.flush();
 		dataProvider.refresh();
@@ -243,6 +290,7 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 
 	public void insertToTable(int index, Author object) {
 		list.add(index, object);
+		oracle.add(object.getFullName());
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -258,6 +306,9 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 	public void setList(ArrayList<Author> list) {
 		clearTable();
 		this.list.addAll(list);
+		for (Author a : list) {
+			oracle.add(a.getFullName());
+		}
 		dataProvider.flush();
 		dataProvider.refresh();
 	}
@@ -275,4 +326,51 @@ public class FindAllAuthors implements JsonCallback, JsonCallbackTable<Author> {
 		this.events = event;
 	}
 
+	public void filterTable(String text){
+
+		// store list only for first time
+		if (backupList.isEmpty() || backupList == null) {
+			backupList.addAll(list);
+		}
+
+		// always clear selected items
+		selectionModel.clear();
+		list.clear();
+
+		if (text.equalsIgnoreCase("")) {
+			list.addAll(backupList);
+		} else {
+			for (Author a : backupList){
+				// store facility by filter
+				if (a.getFullName().toLowerCase().startsWith(text.toLowerCase())) {
+					list.add(a);
+				} else if (a.getFirstName().toLowerCase().startsWith(text.toLowerCase())) {
+					list.add(a);
+				} else if (a.getLastName().toLowerCase().startsWith(text.toLowerCase())) {
+					list.add(a);
+				}
+			}
+		}
+
+		if (list.isEmpty() && !text.isEmpty()) {
+			loaderImage.setEmptyResultMessage("No author matching '"+text+"' found.");
+		} else {
+			loaderImage.setEmptyResultMessage("There are no publications authors.");
+		}
+
+		dataProvider.flush();
+		dataProvider.refresh();
+		loaderImage.loadingFinished();
+
+	}
+
+	@Override
+	public UnaccentMultiWordSuggestOracle getOracle() {
+		return oracle;
+	}
+
+	@Override
+	public void setOracle(UnaccentMultiWordSuggestOracle oracle) {
+		this.oracle = oracle;
+	}
 }

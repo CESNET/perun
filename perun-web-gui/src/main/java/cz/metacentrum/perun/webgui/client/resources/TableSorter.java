@@ -351,6 +351,49 @@ public class TableSorter<T> {
 	 * @return name / fullName of object
 	 */
 	private final native String getName(T value) /*-{
+
+		if (value.beanName) {
+
+			if (value.beanName == "RichMember") {
+
+				result = "";
+				if (value.user.lastName) {
+					result += value.user.lastName;
+				}
+				if (value.user.lastName && value.user.firstName) { result += " "; }
+				if (value.user.firstName) {
+					result += value.user.firstName;
+				}
+				return result;
+
+			} else if (value.beanName == "RichUser" || value.beanName == "User") {
+
+				result = "";
+				if (value.lastName) {
+					result += value.lastName;
+				}
+				if (value.lastName && value.firstName) { result += " "; }
+				if (value.firstName) {
+					result += value.firstName;
+				}
+				return result;
+
+			} else if (value.beanName == "Author") {
+
+				result = "";
+				if (value.lastName) {
+					result += value.lastName;
+				}
+				if (value.lastName && value.firstName) { result += " "; }
+				if (value.firstName) {
+					result += value.firstName;
+				}
+				return result;
+
+			}
+
+		}
+
 		// for members etc.
 		if (value.name == null) {
 			if (value.firstName == null && value.lastName == null) {

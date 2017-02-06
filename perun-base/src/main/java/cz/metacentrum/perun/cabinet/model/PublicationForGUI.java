@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.cabinet.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -8,51 +9,33 @@ import java.util.List;
  *
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
-public class PublicationForGUI extends Publication{
-
-	private static final long serialVersionUID = 1L;
+public class PublicationForGUI extends Publication {
 
 	private String pubSystemName;
 	private String categoryName;
-	private List<ThanksForGUI> thanks;
+	private List<ThanksForGUI> thanks = new ArrayList<>();
 
-	public PublicationForGUI() {
-		super();
-	}
-
-	public PublicationForGUI(List<Author> authors, Double rank, Integer id,
-			Integer externalId, Integer publicationSystemId, String title,
-			Integer year, String main, String isbn, Integer categoryId,
-			String createdBy, Date createdDate, String doi, Boolean locked) {
+	public PublicationForGUI(List<Author> authors, double rank, int id,
+			int externalId, int publicationSystemId, String title,
+			int year, String main, String isbn, int categoryId,
+			String createdBy, Date createdDate, String doi, boolean locked) {
 		super(authors, rank, id, externalId, publicationSystemId, title, year, main,
 				isbn, categoryId, createdBy, createdDate, doi, locked);
 	}
 
-	public PublicationForGUI(List<Author> authors, Double rank, Integer id,
-			Integer externalId, Integer publicationSystemId, String title,
-			Integer year, String main, String isbn, Integer categoryId,
-			String createdBy, Date createdDate, String doi, Boolean locked, Integer createdByUid) {
+	public PublicationForGUI(List<Author> authors, double rank, int id,
+			int externalId, int publicationSystemId, String title,
+			int year, String main, String isbn, int categoryId,
+			String createdBy, Date createdDate, String doi, boolean locked, int createdByUid) {
 		super(authors, rank, id, externalId, publicationSystemId, title, year, main,
 				isbn, categoryId, createdBy, createdDate, doi, locked);
 		setCreatedByUid(createdByUid);
 	}
 
 	public PublicationForGUI(Publication pub){
-		setId(pub.getId());
-		setTitle(pub.getTitle());
-		setMain(pub.getMain());
-		setYear(pub.getYear());
-		setIsbn(pub.getIsbn());
-		setCreatedBy(pub.getCreatedBy());
-		setCreatedDate(pub.getCreatedDate());
-		setCategoryId(pub.getCategoryId());
-		setExternalId(pub.getExternalId());
-		setPublicationSystemId(pub.getPublicationSystemId());
-		setAuthors(pub.getAuthors());
-		setRank(pub.getRank());
-		setDoi(pub.getDoi());
-		setLocked(pub.getLocked());
-		setCreatedByUid(pub.getCreatedByUid());
+		this(pub.getAuthors(), pub.getRank(), pub.getId(), pub.getExternalId(), pub.getPublicationSystemId(),
+				pub.getTitle(), pub.getYear(), pub.getMain(), pub.getIsbn(), pub.getCategoryId(), pub.getCreatedBy(),
+				pub.getCreatedDate(), pub.getDoi(), pub.getLocked(), pub.getCreatedByUid());
 	}
 
 	public List<ThanksForGUI> getThanks() {

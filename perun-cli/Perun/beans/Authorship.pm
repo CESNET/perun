@@ -13,7 +13,6 @@ sub new
 sub fromHash
 {
 	my $authorship = Perun::Common::fromHash(@_);
-	$authorship->{_createdDate} /= 1000;
 	return $authorship;
 }
 
@@ -51,7 +50,7 @@ sub TO_JSON
 
 	my $createdDate;
 	if (defined($self->{_createdDate})) {
-		$createdDate = "".$self->{_createdDate} * 1000;
+		$createdDate = $self->{_createdDate};
 	} else {
 		$createdDate = undef;
 	}

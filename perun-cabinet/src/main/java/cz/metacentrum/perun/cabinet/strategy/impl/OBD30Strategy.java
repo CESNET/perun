@@ -3,9 +3,10 @@ package cz.metacentrum.perun.cabinet.strategy.impl;
 import cz.metacentrum.perun.cabinet.model.Author;
 import cz.metacentrum.perun.cabinet.model.Publication;
 import cz.metacentrum.perun.cabinet.model.PublicationSystem;
-import cz.metacentrum.perun.cabinet.service.CabinetException;
-import cz.metacentrum.perun.cabinet.service.ErrorCodes;
-import cz.metacentrum.perun.cabinet.strategy.IFindPublicationsStrategy;
+import cz.metacentrum.perun.cabinet.bl.CabinetException;
+import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
+import cz.metacentrum.perun.cabinet.strategy.AbstractPublicationSystemStrategy;
+import cz.metacentrum.perun.cabinet.strategy.PublicationSystemStrategy;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -45,7 +46,7 @@ import java.util.List;
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class OBD30Strategy implements IFindPublicationsStrategy {
+public class OBD30Strategy extends AbstractPublicationSystemStrategy {
 
 	private Logger log = LoggerFactory.getLogger(OBD30Strategy.class);
 
@@ -246,7 +247,7 @@ public class OBD30Strategy implements IFindPublicationsStrategy {
 			main = main.substring(0, main.length()-3)+ ". ";
 		}
 		main += publication.getTitle() + ". ";
-		main += (publication.getYear() != null) ? publication.getYear()+". " : "";
+		main += (publication.getYear() != 0) ? publication.getYear()+". " : "";
 
 		main += (!source.isEmpty()) ? source+"," : "";
 		main += (!source_year.isEmpty()) ? " roč. "+source_year+"," : "";
@@ -258,36 +259,6 @@ public class OBD30Strategy implements IFindPublicationsStrategy {
 
 		return publication;
 
-	}
-
-	/**
-	 * Get xml Node and xpath expression to get value from node by this xpath.
-	 *
-	 * @param node node for getting value from
-	 * @param xpathExpression expression for xpath to looking for value in node
-	 * @param resultType type of resulting / expected object (string number node nodelist ...)
-	 * @return object extracted from node by xpath
-	 * @throws InternalErrorException
-	 */
-	private Object getValueFromXpath(Node node, String xpathExpression, QName resultType) throws InternalErrorException {
-		//Prepare xpath expression
-		XPathFactory xPathfactory = XPathFactory.newInstance();
-		XPath xpath = xPathfactory.newXPath();
-		XPathExpression expr;
-		try {
-			expr = xpath.compile(xpathExpression);
-		} catch (XPathExpressionException ex) {
-			throw new InternalErrorException("Error when compiling xpath query.", ex);
-		}
-
-		Object result;
-		try {
-			result = expr.evaluate(node, resultType);
-		} catch (XPathExpressionException ex) {
-			throw new InternalErrorException("Error when evaluate xpath query on node.", ex);
-		}
-
-		return result;
 	}
 
 }

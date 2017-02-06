@@ -16,14 +16,14 @@ import cz.metacentrum.perun.webgui.client.resources.TableSorter;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.json.cabinetManager.DeletePublication;
-import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllCategories;
+import cz.metacentrum.perun.webgui.json.cabinetManager.FindAllAuthors;
+import cz.metacentrum.perun.webgui.json.cabinetManager.GetCategories;
 import cz.metacentrum.perun.webgui.json.cabinetManager.FindPublicationsByGUIFilter;
 import cz.metacentrum.perun.webgui.json.cabinetManager.LockUnlockPublications;
-import cz.metacentrum.perun.webgui.json.usersManager.GetUsers;
+import cz.metacentrum.perun.webgui.model.Author;
 import cz.metacentrum.perun.webgui.model.Category;
 import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.Publication;
-import cz.metacentrum.perun.webgui.model.User;
 import cz.metacentrum.perun.webgui.tabs.CabinetTabs;
 import cz.metacentrum.perun.webgui.tabs.TabItem;
 import cz.metacentrum.perun.webgui.tabs.TabItemWithUrl;
@@ -95,7 +95,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		TabMenu menu = new TabMenu();
 		final HTML userHtml = new HTML("<strong>User:</strong>");
 		userHtml.setVisible(false);
-		final ListBoxWithObjects<User> users = new ListBoxWithObjects<User>();
+		final ListBoxWithObjects<Author> users = new ListBoxWithObjects<Author>();
 		users.setVisible(false);
 		final TabMenu filterMenu = new TabMenu();
 		filterMenu.setVisible(false);
@@ -133,13 +133,13 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 		menu.addWidget(removeButton);
 
 		// fill users listbox
-		final GetUsers userCall = new GetUsers(new JsonCallbackEvents(){
+		final FindAllAuthors userCall = new FindAllAuthors(new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				users.removeNotSelectedOption();
 				users.clear();
 				users.addNotSelectedOption();
-				ArrayList<User> list = JsonUtils.jsoAsList(jso.cast());
-				list = new TableSorter<User>().sortByName(list);
+				ArrayList<Author> list = JsonUtils.jsoAsList(jso.cast());
+				list = new TableSorter<Author>().sortByName(list);
 				for (int i=0; i<list.size(); i++){
 					users.addItem(list.get(i));
 					if (lastUserId != 0) {
@@ -166,7 +166,7 @@ public class AllPublicationsTabItem implements TabItem, TabItemWithUrl {
 
 		// fill category listbox
 		final ListBoxWithObjects<Category> filterCategory = new ListBoxWithObjects<Category>();
-		final FindAllCategories call = new FindAllCategories(new JsonCallbackEvents(){
+		final GetCategories call = new GetCategories(new JsonCallbackEvents(){
 			public void onFinished(JavaScriptObject jso) {
 				filterCategory.removeNotSelectedOption();
 				filterCategory.clear();
