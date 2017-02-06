@@ -4,6 +4,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.*;
 import cz.metacentrum.perun.webgui.client.PerunWebSession;
 import cz.metacentrum.perun.webgui.client.UiElements;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonCallbackEvents;
 import cz.metacentrum.perun.webgui.json.JsonPostClient;
 import cz.metacentrum.perun.webgui.model.Member;
@@ -11,6 +12,8 @@ import cz.metacentrum.perun.webgui.model.PerunError;
 import cz.metacentrum.perun.webgui.model.User;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Ajax query to create service member in VO
@@ -168,11 +171,24 @@ public class CreateSpecificMember {
 		newCandidate.put("attributes", attrs);
 		newCandidate.put("additionalUserExtSources", null);
 		newCandidate.put("id", null);
-		newCandidate.put("firstName", new JSONString(""));
-		newCandidate.put("lastName", new JSONString(name));
 		newCandidate.put("middleName", null);
 		newCandidate.put("titleAfter", null);
 		newCandidate.put("titleBefore", null);
+
+		if (Objects.equals(specificUserType, "SERVICE")) {
+			newCandidate.put("firstName", new JSONString(""));
+			newCandidate.put("lastName", new JSONString(name));
+		} else if (Objects.equals(specificUserType, "SPONSORED")) {
+			Map<String,String> parsedName = Utils.parseCommonName(name);
+			String firstName = parsedName.get("firstName");
+			String lastName = parsedName.get("lastName");
+			String titleAfter = parsedName.get("titleAfter");
+			String titleBefore = parsedName.get("titleBefore");
+			newCandidate.put("firstName", (firstName != null) ? new JSONString(firstName) : null);
+			newCandidate.put("lastName", (lastName != null) ? new JSONString(lastName) : null);
+			newCandidate.put("titleAfter", (titleAfter != null) ? new JSONString(titleAfter) : null);
+			newCandidate.put("titleBefore", (titleBefore != null) ? new JSONString(titleBefore) : null);
+		}
 
 		if (!certDN.isEmpty() && !caCertDN.isEmpty()) {
 

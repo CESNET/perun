@@ -635,7 +635,6 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 						}
 					}
 				});
-
 			}
 		});
 
