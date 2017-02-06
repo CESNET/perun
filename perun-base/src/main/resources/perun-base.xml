@@ -93,6 +93,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 					<prop key="perun.readOnlyPerun">false</prop>
 					<prop key="perun.DBInitializatorEnabled">false</prop>
 					<prop key="perun.userExtSources.persistent">PERUN,[\w\d]*</prop>
+					<prop key="perun.proxyIdPs"></prop>
 				</props>
 			</property>
 		</bean>

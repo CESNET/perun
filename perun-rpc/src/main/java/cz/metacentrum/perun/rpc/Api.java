@@ -76,9 +76,24 @@ public class Api extends HttpServlet {
 		return this.setupPerunPrincipal(req, null);
 	}
 
-	protected String getExtSourceName(HttpServletRequest req, Deserializer des) throws RpcException {
+	protected String getExtSourceName(HttpServletRequest req, Deserializer des) throws RpcException, InternalErrorException {
 		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
-			return (String) req.getHeader("Shib-Identity-Provider");
+			// If IdP is proxy and we want to save original source IdP behind Proxy.
+			List<String> proxyIdPs = Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.proxyIdPs").split(","));
+			if (req.getHeader("sourceIdPEntityID") != null
+					&& !req.getHeader("sourceIdPEntityID").isEmpty()) {
+				if (proxyIdPs.contains(req.getHeader("Shib-Identity-Provider"))) {
+					return req.getHeader("sourceIdPEntityID");
+				} else {
+					log.warn("sourceIdPEntityID attrribute found with value " + req.getHeader("sourceIdPEntityID") +
+							" in request but IdP with entityID: '" + req.getHeader("Shib-Identity-Provider") +
+							"' was not found in perun configuration property 'perun.proxyIdPs'=" + proxyIdPs +
+							". serving classical entityID instead of sourceIdPEntityID.");
+					return req.getHeader("Shib-Identity-Provider");
+				}
+			} else {
+				return req.getHeader("Shib-Identity-Provider");
+			}
 		} else if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
 			return req.getHeader("OIDC_CLAIM_extSourceName");
 		} else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && ((String) req.getAttribute("SSL_CLIENT_VERIFY")).equals("SUCCESS")){
@@ -136,7 +151,22 @@ public class Api extends HttpServlet {
 
 		// If we have header Shib-Identity-Provider, then the user uses identity federation to authenticate
 		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
-			extSourceName = (String) req.getHeader("Shib-Identity-Provider");
+			// If IdP is proxy and we want to save original source IdP behind Proxy.
+			List<String> proxyIdPs = Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.proxyIdPs").split(","));
+			if (req.getHeader("sourceIdPEntityID") != null
+					&& !req.getHeader("sourceIdPEntityID").isEmpty()) {
+				if (proxyIdPs.contains(req.getHeader("Shib-Identity-Provider"))) {
+					extSourceName = req.getHeader("sourceIdPEntityID");
+				} else {
+					log.warn("sourceIdPEntityID attrribute found with value " + req.getHeader("sourceIdPEntityID") +
+							" in request but IdP with entityID: '" + req.getHeader("Shib-Identity-Provider") +
+							"' was not found in perun configuration property 'perun.proxyIdPs'=" + proxyIdPs +
+							". serving classical entityID instead of sourceIdPEntityID.");
+					extSourceName = req.getHeader("Shib-Identity-Provider");
+				}
+			} else {
+				extSourceName = req.getHeader("Shib-Identity-Provider");
+			}
 			extSourceType = ExtSourcesManager.EXTSOURCE_IDP;
 			if (req.getHeader("loa") != null && ! req.getHeader("loa").isEmpty()) {
 				extSourceLoaString = req.getHeader("loa");
