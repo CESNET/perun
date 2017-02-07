@@ -1059,8 +1059,13 @@ public enum UsersManagerMethod implements ManagerMethod {
 		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
 			ac.stateChangingCheck();
 
+			String referer = parms.getServletRequest().getHeader("Referer");
+			if (referer == null || referer.isEmpty()) {
+				throw new RpcException(RpcException.Type.MISSING_VALUE, "Missing \"Referer\" header in HTTP request. Please check your browser settings.");
+			}
+
 			ac.getUsersManager().requestPreferredEmailChange(ac.getSession(),
-					parms.getServletRequest().getHeader("Referer"),
+					referer,
 					ac.getUserById(parms.readInt("user")),
 					parms.readString("email"));
 
