@@ -46,13 +46,13 @@ public class Utils {
 	private static Properties properties;
 	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
-	private static final Pattern titleBeforePattern = Pattern.compile("^([\\p{L}]+[.])|(et)$");
+	private static final Pattern titleBeforePattern = Pattern.compile("^(([\\p{L}]+[.])|(et))$");
 	private static final Pattern firstNamePattern = Pattern.compile("^[\\p{L}-']+$");
-	private static final Pattern lastNamePattern = Pattern.compile("^([\\p{L}-']+)|([\\p{L}][.])$");
-	
+	private static final Pattern lastNamePattern = Pattern.compile("^(([\\p{L}-']+)|([\\p{L}][.]))$");
+
 	private static final String userPhoneAttribute = "urn:perun:user:attribute-def:def:phone";
 	private static final String memberPhoneAttribute = "urn:perun:member:attribute-def:def:phone";
-	
+
 	/**
 	 * Replaces dangerous characters.
 	 * Replaces : with - and spaces with _.
@@ -247,7 +247,7 @@ public class Utils {
 		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
 
 		String url = "";
-	
+
 		// try to deduce database type from jdbc connection metadata
 		try {
 			if (jdbc instanceof JdbcTemplate) {
@@ -264,7 +264,7 @@ public class Utils {
 			dbType = "oracle";
 		} else if(url.matches("postgresql")) {
 			dbType = "postgresql";
-		}	
+		}
 
 		String query = "";
 		if (dbType.equals("oracle")) {
@@ -990,11 +990,11 @@ public class Utils {
 			throw new WrongPatternException("Destination type " + destinationType + " is not supported.");
 		}
 	}
-	
+
 	/**
 	 * Sends SMS to the phone number of a user with the given message.
 	 * The phone number is taken from the user attribute urn:perun:user:attribute-def:def:phone.
-	 * 
+	 *
 	 * @param sess session
 	 * @param user receiver of the message
 	 * @param message sms message to send
@@ -1021,11 +1021,11 @@ public class Utils {
 		}
 		sendSMS(telNumber, message);
 	}
-	
+
 	/**
 	 * Sends SMS to the phone number of a member with the given message.
 	 * The phone number is taken from the user attribute urn:perun:member:attribute-def:def:phone.
-	 * 
+	 *
 	 * @param sess session
 	 * @param member receiver of the message
 	 * @param message sms message to send
@@ -1046,12 +1046,12 @@ public class Utils {
 		}
 		sendSMS(telNumber, message);
 	}
-	
+
 	/**
 	 * Sends SMS to the phone number with the given message.
 	 * The sending provides external program for sending sms.
 	 * Its path is saved in the perun property perun.sms.program.
-	 * 
+	 *
 	 * @param telNumber phone number of the receiver
 	 * @param message sms message to send
 	 * @throws InternalErrorException when there is something wrong with external program
@@ -1059,19 +1059,19 @@ public class Utils {
 	 */
 	public static void sendSMS(String telNumber, String message) throws InternalErrorException {
 		log.info("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + ".");
-		
+
 		try {
 			// create properties list
 			List<String> processProperties = new ArrayList<>();
 			// pass the location of external program for sending sms
-			processProperties.add(BeansUtils.getPropertyFromConfiguration("perun.sms.program"));			
+			processProperties.add(BeansUtils.getPropertyFromConfiguration("perun.sms.program"));
 			// pass program options
 			processProperties.add("-p");
 			processProperties.add(telNumber);
 			processProperties.add("-m");
 			processProperties.add(message);
 			// execute
-			ProcessBuilder pb = new ProcessBuilder(processProperties);			
+			ProcessBuilder pb = new ProcessBuilder(processProperties);
 			Process process;
 			process = pb.start();
 			int exitValue;
@@ -1082,7 +1082,7 @@ public class Utils {
 				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
 				throw new InternalErrorException(errMsg, ex);
 			}
-			
+
 			// handle response
 			if (exitValue == 0) {
 				// successful
@@ -1098,12 +1098,12 @@ public class Utils {
 				log.error("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
 				throw new InternalErrorException(errMsg);
 			}
-			
+
 		} catch (IOException ex) {
 			log.info("Sending SMS with text \"" + message + "\" to tel. number " + telNumber + " failed.");
 			throw new InternalErrorException("Cannot access the sms external application.", ex);
 		}
-		
+
 	}
 
 	/**
@@ -1145,7 +1145,7 @@ public class Utils {
 		//return result format with metric
 		return stringWithMetric;
 	}
-	
+
 	private static String getStringFromInputStream(InputStream is) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder out = new StringBuilder();
