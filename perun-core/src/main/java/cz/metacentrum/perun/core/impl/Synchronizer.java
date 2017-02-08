@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cz.metacentrum.perun.core.api.*;
@@ -80,6 +81,8 @@ public class Synchronizer {
 
 		try {
 
+			log.debug("Processing checkMemberState() on (to be) expired members.");
+
 			// we must retrieve current date only once per method run
 			Calendar compareDate = Calendar.getInstance();
 
@@ -90,32 +93,67 @@ public class Synchronizer {
 				vosMap.put(vo.getId(), vo);
 			}
 
+			Calendar monthBefore = Calendar.getInstance();
+			monthBefore.add(Calendar.MONTH, 1);
+
 			// log message for all members which will expire in 30 days
-			compareDate.add(Calendar.DAY_OF_MONTH, 30);
-			List<Member> expireIn30Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
-			for (Member m : expireIn30Days) {
-				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 30, vosMap.get(m.getVoId()));
+
+			List<Member> expireInAMonth = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", monthBefore);
+			for (Member m : expireInAMonth) {
+				try {
+					perunBl.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
+					getPerun().getAuditer().log(sess, "{} will expire in a month in {}.", m, vosMap.get(m.getVoId()));
+				} catch (ExtendMembershipException ex) {
+					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+						// we don't care about other reasons (LoA), user can update it later
+						getPerun().getAuditer().log(sess, "{} will expire in a month in {}.", m, vosMap.get(m.getVoId()));
+					}
+				}
 			}
 
 			// log message for all members which will expire in 14 days
-			compareDate.add(Calendar.DAY_OF_MONTH, -16);
+			compareDate.add(Calendar.DAY_OF_MONTH, 14);
 			List<Member> expireIn14Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
 			for (Member m : expireIn14Days) {
-				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+				try {
+					perunBl.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
+					getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+				} catch  (ExtendMembershipException ex) {
+					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+						// we don't care about other reasons (LoA), user can update it later
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+					}
+				}
 			}
 
 			// log message for all members which will expire in 7 days
 			compareDate.add(Calendar.DAY_OF_MONTH, -7);
 			List<Member> expireIn7Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
 			for (Member m : expireIn7Days) {
-				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+				try {
+					perunBl.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
+					getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+				} catch  (ExtendMembershipException ex) {
+					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+						// we don't care about other reasons (LoA), user can update it later
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+					}
+				}
 			}
 
 			// log message for all members which will expire tomorrow
 			compareDate.add(Calendar.DAY_OF_MONTH, -6);
 			List<Member> expireIn1Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
 			for (Member m : expireIn1Days) {
-				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+				try {
+					perunBl.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
+					getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+				} catch  (ExtendMembershipException ex) {
+					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+						// we don't care about other reasons (LoA), user can update it later
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+					}
+				}
 			}
 
 			// log message for all members which expired 7 days ago
