@@ -162,8 +162,8 @@ public class GetApplicationDataById implements JsonCallback{
 			RegistrarFormItemGenerator gen = new RegistrarFormItemGenerator(item.getFormItem(), item.getValue(), locale);
 			this.applFormGenerators.add(gen);
 
-			// show only visible items - show also hidden to perun admin and vo admin
-			if(!gen.isVisible() && !(session.isPerunAdmin() || session.isVoAdmin())){
+			// show only visible items - show also hidden to perun admin and vo/group admin
+			if(!gen.isVisible() && !(session.isPerunAdmin() || session.isVoAdmin() || session.isGroupAdmin())){
 				continue;
 			}
 
