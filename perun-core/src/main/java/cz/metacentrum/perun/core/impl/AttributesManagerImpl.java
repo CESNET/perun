@@ -126,7 +126,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public static final char KEY_VALUE_DELIMITER = ':';
 	private static final String ATTRIBUTES_MODULES_PACKAGE = "cz.metacentrum.perun.core.impl.modules.attributes";
 	private static final int MERGE_TRY_CNT = 10;
-	private static final long MERGE_RAND_SLEEP_MAX = 100;  //max sleep time between SQL merge atempt in milisecond
+	private static final long MERGE_RAND_SLEEP_MAX = 100;  //max sleep time between SQL merge attempt in millisecond
 
 	private final static Logger log = LoggerFactory.getLogger(AttributesManagerImpl.class);
 
@@ -379,14 +379,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					//
 					if (value == null) {
 						// No need to convert NULL value (for String it caused NULL->"null" conversion)
-					} else if(attribute.getType().equals(String.class.getName()) && !(value instanceof String)) {
+					} else if((attribute.getType().equals(String.class.getName()) || attribute.getType().equals("java.lang.LargeString")) && !(value instanceof String)) {
 						//TODO check exceptions
 						value = String.valueOf(value);
 					} else if(attribute.getType().equals(Integer.class.getName()) && !(value instanceof Integer)) {
 						//TODO try to cast to integer
 					} else if(attribute.getType().equals(Boolean.class.getName()) && !(value instanceof Boolean)) {
 						//TODO try to cast to boolean
-					} else if(attribute.getType().equals(ArrayList.class.getName()) && !(value instanceof ArrayList)) {
+					} else if((attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals("java.util.LargeArrayList")) && !(value instanceof ArrayList)) {
 						if(value instanceof List) {
 							value = new ArrayList<String>((List)value);
 						} else {
@@ -3331,7 +3331,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public boolean isLargeAttribute(PerunSession sess, AttributeDefinition attribute) {
-		return attribute.getType().equals(LinkedHashMap.class.getName());
+		return (attribute.getType().equals(LinkedHashMap.class.getName()) ||
+				attribute.getType().equals("java.lang.LargeString") ||
+				attribute.getType().equals("java.util.LargeArrayList"));
 	}
 
 	public void checkNamespace(PerunSession sess, AttributeDefinition attribute, String namespace) throws WrongAttributeAssignmentException {
@@ -3864,7 +3866,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			throw new InternalErrorException("Required attribute module isn't MemberGroupVirtualAttributesModuleImplApi");
 		}
 	}
-	
+
 	/**
 	 * Get UserExtSource attribute module for the attribute.
 	 *

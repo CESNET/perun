@@ -243,7 +243,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 		if (attr.getType().equals("java.lang.Boolean")) {
 			return generateValueFromBoolean(attr, getUniqueCellId(attr));
 		}
-		if (attr.getType().equals("java.util.ArrayList")) {
+		if (attr.getType().equals("java.util.ArrayList") || attr.getType().equals("java.util.LargeArrayList")) {
 			return generateValueFromList(attr, getUniqueCellId(attr));
 		}
 
@@ -401,7 +401,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 			return generateNumberBox(attr.getValue(), attr.isWritable());
 		} else if (attr.getType().equals("java.lang.Boolean")) {
 			return generateCheckBox(attr.getValue(), attr.isWritable());
-		} else if (attr.getType().equals("java.util.ArrayList")) {
+		} else if (attr.getType().equals("java.util.ArrayList") || attr.getType().equals("java.util.LargeArrayList")) {
 			return generateList(attr.getValueAsJsArray(), attr.isWritable());
 		}
 

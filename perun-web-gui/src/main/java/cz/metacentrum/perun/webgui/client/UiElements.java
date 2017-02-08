@@ -403,11 +403,11 @@ public class UiElements {
 
 		String text = "";
 		String name = object.getDisplayName();
-		if (object.getType().equalsIgnoreCase("java.lang.String")) {
+		if (object.getType().equalsIgnoreCase("java.lang.String") || object.getType().equalsIgnoreCase("java.lang.LargeString")) {
 			text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxWrongString(name);
 		} else if (object.getType().equalsIgnoreCase("java.lang.Integer")) {
 			text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxWrongInteger(name);
-		} else if (object.getType().equalsIgnoreCase("java.util.ArrayList")) {
+		} else if (object.getType().equalsIgnoreCase("java.util.ArrayList") || object.getType().equalsIgnoreCase("java.util.LargeArrayList")) {
 			text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxWrongList(name);
 		} else {
 			text = WidgetTranslation.INSTANCE.cantSaveAttributeValueDialogBoxGeneral(name);

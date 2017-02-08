@@ -209,7 +209,7 @@ public class Attribute extends JavaScriptObject {
 				return false;
 			}
 		}
-		if (this.type == "java.util.ArrayList") {
+		if (this.type == "java.util.ArrayList" || this.type == "java.util.LargeArrayList") {
 			this.value = [];
 			var count = 0;
 			var input = "";

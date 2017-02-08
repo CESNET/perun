@@ -955,7 +955,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public void setCoreAttributeWithoutCheck(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 
 		if(!attribute.getName().equals("urn:perun:member:attribute-def:core:status")) {
-			throw new InternalErrorException("We can set only urn:perun:meber:attribute-def:core:status from member's core attribtes. Others are not permitted.");
+			throw new InternalErrorException("We can set only urn:perun:member:attribute-def:core:status from member's core attributes. Others are not permitted.");
 		}
 
 		//defensive construction
@@ -965,7 +965,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		} catch(MemberNotExistsException ex) {
 			throw new ConsistencyErrorException(ex);
 		}
-		if(!member.equals(storedMember)) throw new InternalErrorException("You wan't to store core attribute for member which is not equals to meber from DB (with same Id)");
+		if(!member.equals(storedMember)) throw new InternalErrorException("You wan't to store core attribute for member which is not equals to member from DB (with same Id)");
 
 		String methodName = "set" + Character.toUpperCase(attribute.getFriendlyName().charAt(0)) + attribute.getFriendlyName().substring(1);
 		Method method;
@@ -1934,7 +1934,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//check if attribute.type is valid class name
 		try {
-			Class.forName(attribute.getType());
+			if (!attribute.getType().equals("java.lang.LargeString") &&
+					!attribute.getType().equals("java.util.LargeArrayList")) {
+				Class.forName(attribute.getType());
+			}
 		} catch(ClassNotFoundException ex) {
 			//TODO dat nejakou jinou vyjimku
 			throw new InternalErrorException("Wrong attribute type", ex);
@@ -4247,7 +4250,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public Object stringToAttributeValue(String value, String type) throws InternalErrorException {
-		if (type.equals(ArrayList.class.getName()) || type.equals(LinkedHashMap.class.getName())) {
+		if (type.equals(ArrayList.class.getName()) || type.equals(LinkedHashMap.class.getName()) ||
+				type.equals("java.util.LargeArrayList")) {
 			if (value != null && !value.isEmpty() && !value.endsWith(String.valueOf(AttributesManagerImpl.LIST_DELIMITER))) {
 				value = value.concat(String.valueOf(AttributesManagerImpl.LIST_DELIMITER));
 			}
@@ -4318,7 +4322,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public Attribute mergeAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
 				 WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 					 // Check type ArrayList
-					 if (attribute.getType().equals(ArrayList.class.getName())) {
+					 if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals("java.util.LargeArrayList")) {
 						 Attribute storedAttribute = null;
 						 try {
 							 // Get current values
@@ -6329,7 +6333,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//if attributeToConvert has already null value, return it
 		if(attributeToConvert.getValue() == null) return attributeToConvert;
 		String testAttributeType = attributeToConvert.getType();
-		if (testAttributeType.equals(String.class.getName()) && attributeToConvert.getValue().equals("")) {
+		if ((testAttributeType.equals(String.class.getName()) || testAttributeType.equals("java.lang.LargeString"))
+				&& attributeToConvert.getValue().equals("")) {
 			attributeToConvert.setValue(null);
 		}
 		return attributeToConvert;

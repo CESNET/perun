@@ -14,10 +14,12 @@ sub help {
 	--attributeName       | -N attribute friendly name
 	--attributeNameSpace  | -n namespace
 	--attributeDisplayName| -e attribute display name
-	--attributeType       | -t attribute type (integer/string/array/hash/boolean)
+	--attributeType       | -t attribute type (integer/string/array/hash/boolean/largestring*/largearray*)
 	--attributeDsc        | -d description
 	--batch               | -b batch
 	--help                | -h prints this help
+
+	*) If you expect values larger than 4000 chars, you should user large version of string/array.
 
 	};
 }

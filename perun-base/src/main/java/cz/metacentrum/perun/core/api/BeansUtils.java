@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -197,17 +198,23 @@ public class BeansUtils {
 		if(attribute == null) throw new InternalErrorException(new NullPointerException("attribute is null"));
 		if(attribute.getValue() == null) return null;
 
-		if(!attribute.getType().equals(attribute.getValue().getClass().getName())) {
+
+		String attributeType = attribute.getType();
+		// convert internal "large" types to generic java types
+		if (Objects.equals(attributeType, "java.lang.LargeString")) attributeType = String.class.getName();
+		if (Objects.equals(attributeType, "java.util.LargeArrayList")) attributeType = ArrayList.class.getName();
+
+		if(!Objects.equals(attributeType, attribute.getValue().getClass().getName())) {
 			throw new InternalErrorException("Attribute's type mismatch " + attribute + ". The type of attribute's value (" + attribute.getValue().getClass().getName() + ") doesn't match the type of attribute (" + attribute.getType() + ").");
 		}
 
-		if(attribute.getType().equals(String.class.getName())) {
+		if(Objects.equals(attributeType, String.class.getName())) {
 			return (String) attribute.getValue();
-		} else if(attribute.getType().equals(Integer.class.getName())) {
+		} else if(Objects.equals(attributeType, Integer.class.getName())) {
 			return Integer.toString((Integer) attribute.getValue());
-		} else if(attribute.getType().equals(Boolean.class.getName())) {
+		} else if(Objects.equals(attributeType, Boolean.class.getName())) {
 			return Boolean.toString((Boolean) attribute.getValue());
-		} else if(attribute.getType().equals(ArrayList.class.getName())) {
+		} else if(Objects.equals(attributeType, ArrayList.class.getName())) {
 			StringBuilder sb = new StringBuilder();
 			for(String item : (List<String>) attribute.getValue()) {
 				if(item == null) {
@@ -220,7 +227,7 @@ public class BeansUtils {
 				sb.append(LIST_DELIMITER);
 			}
 			return sb.toString();
-		} else if(attribute.getType().equals(LinkedHashMap.class.getName())) {
+		} else if(Objects.equals(attributeType, LinkedHashMap.class.getName())) {
 			StringBuilder sb = new StringBuilder();
 			for(Map.Entry<String, String> entry : ((Map<String, String>) attribute.getValue()).entrySet()) {
 				String key = entry.getKey();
@@ -314,7 +321,15 @@ public class BeansUtils {
 
 		Class<?> attributeClass;
 		try {
-			attributeClass = Class.forName(type);
+			// convert internal "large" types to generic java types
+			if (Objects.equals(type, "java.lang.LargeString")) {
+				attributeClass = Class.forName(String.class.getName());
+			} else if (Objects.equals(type, "java.util.LargeArrayList")) {
+				attributeClass = Class.forName(ArrayList.class.getName());
+			} else {
+				// is already generic java type
+				attributeClass = Class.forName(type);
+			}
 		} catch (ClassNotFoundException e) {
 			throw new InternalErrorException("Unknown attribute type", e);
 		} catch (NoClassDefFoundError e) {
@@ -508,7 +523,7 @@ public class BeansUtils {
 	/**
 	 * Convert list of beans ids to one string with ',' between ids
 	 *
-	 * @param beans List of ids to construct string with
+	 * @param beansIds List of ids to construct string with
 	 * @return string representation of list of ids
 	 */
 	public static String beanIdsToString(List<Integer> beansIds) {
@@ -689,7 +704,7 @@ public class BeansUtils {
 		log.debug("Read only configuration found='{}', set to false.", initializatorEnabled);
 		return false;
 	}
-	
+
 	/**
 	 * Checks whether the object is null or not.
 	 *

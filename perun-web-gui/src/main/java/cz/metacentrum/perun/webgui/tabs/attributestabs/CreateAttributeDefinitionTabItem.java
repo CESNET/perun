@@ -153,6 +153,8 @@ public class CreateAttributeDefinitionTabItem implements TabItem {
 		typeListBox.addItem("Boolean", "java.lang.Boolean");
 		typeListBox.addItem("Array", "java.util.ArrayList");
 		typeListBox.addItem("LinkedHashMap", "java.util.LinkedHashMap");
+		typeListBox.addItem("LargeString", "java.lang.LargeString");
+		typeListBox.addItem("LargeArrayList", "java.util.LargeArrayList");
 
 		// prepare layout for this tab
 		FlexTable layout = new FlexTable();
