@@ -83,7 +83,6 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 
 				// task.setStatus(returnCode == 0 ? TaskStatus.DONE :
 				// TaskStatus.ERROR);
-				task.setEndTime(new Date(System.currentTimeMillis()));
 				if (returnCode != 0) {
 					log.info("GEN task failed. Ret code " + returnCode
 							+ ". STDOUT: {}  STDERR: {}. Task: " + task.getId(),
@@ -99,12 +98,10 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 			} catch (IOException e) {
 				log.error(e.toString(), e);
 				// task.setStatus(TaskStatus.ERROR);
-				task.setEndTime(new Date(System.currentTimeMillis()));
 				resultListener.onTaskDestinationError(task, destination, null);
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 				// task.setStatus(TaskStatus.ERROR);
-				task.setEndTime(new Date(System.currentTimeMillis()));
 				resultListener.onTaskDestinationError(task, destination, null);
 			} finally {
 				String ret = returnCode == -1 ? "unknown" : String
@@ -149,7 +146,6 @@ public class ExecutorEngineWorkerImpl implements ExecutorEngineWorker {
 				taskResult.setTimestamp(new Date(System.currentTimeMillis()));
 				taskResult.setService(execService.getService());
 				
-				task.setEndTime(new Date(System.currentTimeMillis()));
 				if (taskResult.getStatus().equals(TaskResultStatus.ERROR)) {
 					resultListener.onTaskDestinationError(task, destination,
 							taskResult);
