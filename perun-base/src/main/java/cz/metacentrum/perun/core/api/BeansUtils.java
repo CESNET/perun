@@ -38,6 +38,9 @@ public class BeansUtils {
 	public final static String configurationsLocations = "/etc/perun/";
 	private static Properties properties;
 	private static Boolean isPerunReadOnly = null;
+	public final static String largeStringClassName = "java.lang.LargeString";
+	public final static String largeArrayListClassName = "java.util.LargeArrayList";
+
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -201,8 +204,8 @@ public class BeansUtils {
 
 		String attributeType = attribute.getType();
 		// convert internal "large" types to generic java types
-		if (Objects.equals(attributeType, "java.lang.LargeString")) attributeType = String.class.getName();
-		if (Objects.equals(attributeType, "java.util.LargeArrayList")) attributeType = ArrayList.class.getName();
+		if (Objects.equals(attributeType, BeansUtils.largeStringClassName)) attributeType = String.class.getName();
+		if (Objects.equals(attributeType, BeansUtils.largeArrayListClassName)) attributeType = ArrayList.class.getName();
 
 		if(!Objects.equals(attributeType, attribute.getValue().getClass().getName())) {
 			throw new InternalErrorException("Attribute's type mismatch " + attribute + ". The type of attribute's value (" + attribute.getValue().getClass().getName() + ") doesn't match the type of attribute (" + attribute.getType() + ").");
@@ -322,9 +325,9 @@ public class BeansUtils {
 		Class<?> attributeClass;
 		try {
 			// convert internal "large" types to generic java types
-			if (Objects.equals(type, "java.lang.LargeString")) {
+			if (Objects.equals(type, BeansUtils.largeStringClassName)) {
 				attributeClass = Class.forName(String.class.getName());
-			} else if (Objects.equals(type, "java.util.LargeArrayList")) {
+			} else if (Objects.equals(type, BeansUtils.largeArrayListClassName)) {
 				attributeClass = Class.forName(ArrayList.class.getName());
 			} else {
 				// is already generic java type

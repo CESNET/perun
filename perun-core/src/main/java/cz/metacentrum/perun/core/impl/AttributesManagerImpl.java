@@ -379,14 +379,14 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					//
 					if (value == null) {
 						// No need to convert NULL value (for String it caused NULL->"null" conversion)
-					} else if((attribute.getType().equals(String.class.getName()) || attribute.getType().equals("java.lang.LargeString")) && !(value instanceof String)) {
+					} else if((attribute.getType().equals(String.class.getName()) || attribute.getType().equals(BeansUtils.largeStringClassName)) && !(value instanceof String)) {
 						//TODO check exceptions
 						value = String.valueOf(value);
 					} else if(attribute.getType().equals(Integer.class.getName()) && !(value instanceof Integer)) {
 						//TODO try to cast to integer
 					} else if(attribute.getType().equals(Boolean.class.getName()) && !(value instanceof Boolean)) {
 						//TODO try to cast to boolean
-					} else if((attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals("java.util.LargeArrayList")) && !(value instanceof ArrayList)) {
+					} else if((attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) && !(value instanceof ArrayList)) {
 						if(value instanceof List) {
 							value = new ArrayList<String>((List)value);
 						} else {
@@ -3332,8 +3332,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	public boolean isLargeAttribute(PerunSession sess, AttributeDefinition attribute) {
 		return (attribute.getType().equals(LinkedHashMap.class.getName()) ||
-				attribute.getType().equals("java.lang.LargeString") ||
-				attribute.getType().equals("java.util.LargeArrayList"));
+				attribute.getType().equals(BeansUtils.largeStringClassName) ||
+				attribute.getType().equals(BeansUtils.largeArrayListClassName));
 	}
 
 	public void checkNamespace(PerunSession sess, AttributeDefinition attribute, String namespace) throws WrongAttributeAssignmentException {

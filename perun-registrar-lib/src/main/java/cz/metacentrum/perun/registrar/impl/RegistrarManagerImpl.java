@@ -2575,7 +2575,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 					if (a.getType().equalsIgnoreCase("java.util.LinkedHashMap")) {
 						// FIXME do not set hash map attributes - not supported in GUI and registrar
 						continue;
-					} else if (a.getType().equalsIgnoreCase("java.util.ArrayList") || a.getType().equalsIgnoreCase("java.util.LargeArrayList")) {
+					} else if (a.getType().equalsIgnoreCase("java.util.ArrayList") || a.getType().equalsIgnoreCase(BeansUtils.largeArrayListClassName)) {
 						// we expects that list contains strings
 						ArrayList<String> value = ((ArrayList<String>)a.getValue());
 						// if value not present in list => add

@@ -181,16 +181,16 @@ sub getType
 		$type = 'integer';
 	} elsif ($type eq 'java.lang.String') {
 		$type = 'string';
-	} elsif ($type eq 'java.util.ArrayList') {
-		$type = 'array';
-	} elsif ($type eq 'java.util.LinkedHashMap') {
-		$type = 'hash';
 	} elsif ($type eq 'java.lang.LargeString') {
 		$type = 'largestring';
-	} elsif ($type eq 'java.util.LargeArrayList') {
+	} elsif ($type eq 'java.util.ArrayList') {
+		$type = 'array';
+	}  elsif ($type eq 'java.util.LargeArrayList') {
 		$type = 'largearray';
-	} elsif ($type eq 'boolean') {
-		$type = 'java.lang.Boolean';
+	} elsif ($type eq 'java.util.LinkedHashMap') {
+		$type = 'hash';
+	} elsif ($type eq 'java.lang.Boolean') {
+		$type = 'boolean';
 	}
 
 	return $type;
@@ -205,16 +205,16 @@ sub setType
 		$type = 'java.lang.Integer';
 	} elsif ($type eq 'string') {
 		$type = 'java.lang.String';
-	} elsif ($type eq 'array') {
-		$type = 'java.util.ArrayList';
-	} elsif ($type eq 'hash') {
-		$type = 'java.util.LinkedHashMap';
 	} elsif ($type eq 'largestring') {
 		$type = 'java.lang.LargeString';
+	} elsif ($type eq 'array') {
+		$type = 'java.util.ArrayList';
 	} elsif ($type eq 'largearray') {
 		$type = 'java.util.LargeArrayList';
-	} elsif ($type eq 'java.lang.Boolean') {
-		$type = 'boolean';
+	} elsif ($type eq 'hash') {
+		$type = 'java.util.LinkedHashMap';
+	} elsif ($type eq 'boolean') {
+		$type = 'java.lang.Boolean';
 	}
 
 	$self->{_type} = $type;

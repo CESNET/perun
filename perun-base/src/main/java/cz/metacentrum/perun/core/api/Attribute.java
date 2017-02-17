@@ -111,9 +111,9 @@ public class Attribute extends AttributeDefinition {
 	 * @return true if the attribute value contains value.
 	 */
 	public boolean valueContains(String value) {
-		if (this.getType().equals(String.class.getName()) || this.getType().equals("java.lang.LargeString")) {
+		if (this.getType().equals(String.class.getName()) || this.getType().equals(BeansUtils.largeStringClassName)) {
 			return value == null ? this.getValue() == null : value.equals(this.getValue());
-		} else if (this.getType().equals(ArrayList.class.getName()) || this.getType().equals("java.util.LargeArrayList")) {
+		} else if (this.getType().equals(ArrayList.class.getName()) || this.getType().equals(BeansUtils.largeArrayListClassName)) {
 			return this.getValue() == null ? value == null : ((ArrayList<String>) this.getValue()).contains(value);
 		} else if (this.getType().equals(LinkedHashMap.class.getName())) {
 			return this.getValue() == null ? value == null :

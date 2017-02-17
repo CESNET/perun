@@ -1934,8 +1934,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		//check if attribute.type is valid class name
 		try {
-			if (!attribute.getType().equals("java.lang.LargeString") &&
-					!attribute.getType().equals("java.util.LargeArrayList")) {
+			if (!attribute.getType().equals(BeansUtils.largeStringClassName) &&
+					!attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
 				Class.forName(attribute.getType());
 			}
 		} catch(ClassNotFoundException ex) {
@@ -4251,7 +4251,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	public Object stringToAttributeValue(String value, String type) throws InternalErrorException {
 		if (type.equals(ArrayList.class.getName()) || type.equals(LinkedHashMap.class.getName()) ||
-				type.equals("java.util.LargeArrayList")) {
+				type.equals(BeansUtils.largeArrayListClassName)) {
 			if (value != null && !value.isEmpty() && !value.endsWith(String.valueOf(AttributesManagerImpl.LIST_DELIMITER))) {
 				value = value.concat(String.valueOf(AttributesManagerImpl.LIST_DELIMITER));
 			}
@@ -4322,7 +4322,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	public Attribute mergeAttributeValue(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException,
 				 WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 					 // Check type ArrayList
-					 if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals("java.util.LargeArrayList")) {
+					 if (attribute.getType().equals(ArrayList.class.getName()) || attribute.getType().equals(BeansUtils.largeArrayListClassName)) {
 						 Attribute storedAttribute = null;
 						 try {
 							 // Get current values
@@ -6333,7 +6333,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		//if attributeToConvert has already null value, return it
 		if(attributeToConvert.getValue() == null) return attributeToConvert;
 		String testAttributeType = attributeToConvert.getType();
-		if ((testAttributeType.equals(String.class.getName()) || testAttributeType.equals("java.lang.LargeString"))
+		if ((testAttributeType.equals(String.class.getName()) || testAttributeType.equals(BeansUtils.largeStringClassName))
 				&& attributeToConvert.getValue().equals("")) {
 			attributeToConvert.setValue(null);
 		}

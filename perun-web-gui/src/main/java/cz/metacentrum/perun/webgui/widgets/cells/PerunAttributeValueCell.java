@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Image;
 import cz.metacentrum.perun.webgui.client.UiElements;
 import cz.metacentrum.perun.webgui.client.localization.WidgetTranslation;
 import cz.metacentrum.perun.webgui.client.resources.SmallIcons;
+import cz.metacentrum.perun.webgui.client.resources.Utils;
 import cz.metacentrum.perun.webgui.json.JsonUtils;
 import cz.metacentrum.perun.webgui.model.Attribute;
 
@@ -243,7 +244,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 		if (attr.getType().equals("java.lang.Boolean")) {
 			return generateValueFromBoolean(attr, getUniqueCellId(attr));
 		}
-		if (attr.getType().equals("java.util.ArrayList") || attr.getType().equals("java.util.LargeArrayList")) {
+		if (attr.getType().equals("java.util.ArrayList") || attr.getType().equals(Utils.largeArrayListClassName)) {
 			return generateValueFromList(attr, getUniqueCellId(attr));
 		}
 
@@ -401,7 +402,7 @@ public class PerunAttributeValueCell extends AbstractSafeHtmlCell<Attribute> {
 			return generateNumberBox(attr.getValue(), attr.isWritable());
 		} else if (attr.getType().equals("java.lang.Boolean")) {
 			return generateCheckBox(attr.getValue(), attr.isWritable());
-		} else if (attr.getType().equals("java.util.ArrayList") || attr.getType().equals("java.util.LargeArrayList")) {
+		} else if (attr.getType().equals("java.util.ArrayList") || attr.getType().equals(Utils.largeArrayListClassName)) {
 			return generateList(attr.getValueAsJsArray(), attr.isWritable());
 		}
 
