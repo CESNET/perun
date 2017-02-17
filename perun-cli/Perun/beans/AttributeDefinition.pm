@@ -185,6 +185,12 @@ sub getType
 		$type = 'array';
 	} elsif ($type eq 'java.util.LinkedHashMap') {
 		$type = 'hash';
+	} elsif ($type eq 'java.lang.LargeString') {
+		$type = 'largestring';
+	} elsif ($type eq 'java.util.LargeArrayList') {
+		$type = 'largearray';
+	} elsif ($type eq 'boolean') {
+		$type = 'java.lang.Boolean';
 	}
 
 	return $type;
@@ -203,6 +209,12 @@ sub setType
 		$type = 'java.util.ArrayList';
 	} elsif ($type eq 'hash') {
 		$type = 'java.util.LinkedHashMap';
+	} elsif ($type eq 'largestring') {
+		$type = 'java.lang.LargeString';
+	} elsif ($type eq 'largearray') {
+		$type = 'java.util.LargeArrayList';
+	} elsif ($type eq 'java.lang.Boolean') {
+		$type = 'boolean';
 	}
 
 	$self->{_type} = $type;

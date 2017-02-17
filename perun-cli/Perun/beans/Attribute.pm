@@ -295,7 +295,7 @@ sub setValueFromArray {
 	my $attribute = shift; #self
 
 	switch ($attribute->getType) {
-		case ("string" || "largestring") {
+		case /^string$|^largestring$/ {
 			if (scalar @_ > 1) { Perun::Common::printMessage(
 				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
 			$attribute->setValue( $_[0] );
