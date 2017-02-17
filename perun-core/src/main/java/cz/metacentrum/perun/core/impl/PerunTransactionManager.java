@@ -1,6 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -9,13 +11,14 @@ import org.springframework.transaction.support.ResourceTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 
 public class PerunTransactionManager extends DataSourceTransactionManager implements ResourceTransactionManager, InitializingBean {
 
+	private final static Logger log = LoggerFactory.getLogger(PerunLocksUtils.class);
 	private static final long serialVersionUID = 1L;
-
 	private Auditer auditer;
 
 	@Override
@@ -39,7 +42,13 @@ public class PerunTransactionManager extends DataSourceTransactionManager implem
 	@Override
 	protected void doCleanupAfterCompletion(Object transaction) {
 		super.doCleanupAfterCompletion(transaction);
-		PerunLocksUtils.unlockAll((List<Lock>) TransactionSynchronizationManager.getResource(PerunLocksUtils.uniqueKey));
+
+		List<Lock> locks = (List<Lock>) TransactionSynchronizationManager.getResource(PerunLocksUtils.uniqueKey.get());
+		PerunLocksUtils.unlockAll(locks);
+
+		//Because we are recycle threads, we need to unbind all resources after completion if any exist
+		TransactionSynchronizationManager.unbindResourceIfPossible(PerunLocksUtils.uniqueKey.get());
+
 		this.getAuditer().clean();
 	}
 
