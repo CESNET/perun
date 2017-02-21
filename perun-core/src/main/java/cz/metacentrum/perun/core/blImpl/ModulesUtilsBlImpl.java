@@ -301,23 +301,24 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		else {
 			Map<String,String> usedGidsValue = (Map<String, String>) usedGids.getValue();
 			Set<String> keys = usedGidsValue.keySet();
-			
+
 			for(String key: keys) {
 				allGids.add(Integer.parseInt(usedGidsValue.get(key)));
 			}
 		}
-		
+
 		for(int i = minGid; i < maxGid; i++) {
 			if(!allGids.contains(i)) {
 				return i;
 			}
 		}
-		
+
 		return null;
 	}
 
 	public Integer getCommonGIDOfGroupsWithSameNameInSameNamespace(PerunSessionImpl sess, List<Group> groupsWithSameGroupNameInSameNamespace, String gidNamespace, Integer commonGID) throws InternalErrorException, WrongAttributeAssignmentException {
-		if(groupsWithSameGroupNameInSameNamespace == null || groupsWithSameGroupNameInSameNamespace.isEmpty()) return null;
+		//If there are no groups, return commonGID from param (it can be null)
+		if(groupsWithSameGroupNameInSameNamespace == null || groupsWithSameGroupNameInSameNamespace.isEmpty()) return commonGID;
 		Utils.notNull(gidNamespace, "gidNamespace");
 
 		Group commonGIDGroup = null;  //only for more verbose exception messages
@@ -341,7 +342,8 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	}
 
 	public Integer getCommonGIDOfResourcesWithSameNameInSameNamespace(PerunSessionImpl sess, List<Resource> resourcesWithSameGroupNameInSameNamespace, String gidNamespace, Integer commonGID) throws InternalErrorException, WrongAttributeAssignmentException {
-		if(resourcesWithSameGroupNameInSameNamespace == null || resourcesWithSameGroupNameInSameNamespace.isEmpty()) return null;
+		//If there are no resources, return commonGID from param (it can be null)
+		if(resourcesWithSameGroupNameInSameNamespace == null || resourcesWithSameGroupNameInSameNamespace.isEmpty()) return commonGID;
 		Utils.notNull(gidNamespace,"gidNamespace");
 
 		Resource commonGIDResource = null;   //only for more verbose exception messages
@@ -674,7 +676,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		if(firstPlaceholder == null) throw new InternalErrorException("Missing first mandatory placeHolder (PerunBean).");
 		//Quotas attribute must exists with not null value
 		if(quotasAttribute == null || quotasAttribute.getValue() == null) throw new InternalErrorException("Attribute quotas for checking and transfering can't be null.");
-		
+
 		//Prepare result container and value of attribute
 		Map<String, Pair<BigDecimal, BigDecimal>> transferedQuotas = new HashMap<>();
 		Map<String, String> defaultQuotasMap = (Map<String, String>) quotasAttribute.getValue();
