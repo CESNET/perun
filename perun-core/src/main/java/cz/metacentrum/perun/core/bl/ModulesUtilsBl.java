@@ -78,13 +78,16 @@ public interface ModulesUtilsBl {
 	int haveTheSameAttributeWithTheSameNamespace(PerunSessionImpl sess, Group group, Attribute attr) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
-	 * If there are commong GID in the list of resources, get it.
-	 * If there is some collision (more than one have the other GID in the same namespace) throw exception
+	 * This method is looking for exactly one commonGID for all objects in list.
+	 * If commonGID in parameter is not null, it checks that all objects in list have this one set as gid.
+	 *
+	 * If list of groups is empty, return always commonGID from parameter (it can be null).
+	 * If there are more than one different commonGIDs, throw ConsistencyErrorException
 	 *
 	 * @param sess
 	 * @param resourcesWithSameGroupNameInSameNamespace
 	 * @param nameOfAttribute
-	 * @param commonGID can be null if no commonGID exists
+	 * @param commonGID if any common gid already exists (for example from Resources) use it to compare, null in other case
 	 * @return common GID, if no exists return null
 	 *
 	 * @throws InternalErrorException
@@ -108,13 +111,16 @@ public interface ModulesUtilsBl {
 	void checkIfListOfGIDIsWithinRange(PerunSessionImpl sess,User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, AttributeNotExistsException, WrongAttributeValueException;
 
 	/**
-	 * If there are commong GID in the list of groups, get it.
-	 * If there is some collision (more than one have the other GID in the same namespace) throw exception
+	 * This method is looking for exactly one commonGID for all objects in list.
+	 * If commonGID in parameter is not null, it checks that all objects in list have this one set as gid.
+	 *
+	 * If list of groups is empty, return always commonGID from parameter (it can be null).
+	 * If there are more than one different commonGIDs, throw ConsistencyErrorException
 	 *
 	 * @param sess
 	 * @param groupsWithSameGroupNameInSameNamespace
 	 * @param nameOfAttribute
-	 * @param commonGID can bu null if no commonGID exists
+	 * @param commonGID if any common gid already exists (for example from Resources) use it to compare, null in other case
 	 * @return common GID, if no exists return null
 	 *
 	 * @throws InternalErrorException
@@ -236,10 +242,10 @@ public interface ModulesUtilsBl {
 	 * If attribute is null, then it's ok.
 	 * For unpermitted user logins this method firstly tries to read perun-namespaces.properties file.
 	 * If there is no property in this file, it reads the default hardcoded values.
-	 * 
+	 *
 	 * @param loginAttribute login-namespace
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeValueException 
+	 * @throws WrongAttributeValueException
 	 */
 	void checkUnpermittedUserLogins(Attribute loginAttribute) throws InternalErrorException, WrongAttributeValueException;
 
@@ -385,9 +391,9 @@ public interface ModulesUtilsBl {
 	 * Every record in list is merged quotas map with value from resource attribute and resource-member attribute where user has allowed member.
 	 *
 	 * Quotas for same paths are sum together. If value is '0' then result is also '0', because 0 means unlimited.
-	 * 
+	 *
 	 * Example: /path/to/volume 30G:50G , /path/to/volume 40G:0 => /path/to/volume 70G:0
-	 * 
+	 *
 	 * @param allUserQuotas list
 	 *
 	 * @return counted user facility quotas
