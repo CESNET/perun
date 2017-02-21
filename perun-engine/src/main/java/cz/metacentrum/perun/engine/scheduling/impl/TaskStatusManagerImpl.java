@@ -1,5 +1,6 @@
 package cz.metacentrum.perun.engine.scheduling.impl;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -72,6 +73,7 @@ public class TaskStatusManagerImpl implements TaskStatusManager,
 			}
 		}
 		if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+			task.setEndTime(new Date(System.currentTimeMillis()));
 			schedulingPool.setTaskStatus(task, cz.metacentrum.perun.taskslib.model.Task.TaskStatus.DONE);
 		} else {
 			TaskStatus taskStatus = this.getTaskStatus(task);
@@ -84,6 +86,7 @@ public class TaskStatusManagerImpl implements TaskStatusManager,
 						+ ": " + e.getMessage());
 			}
 			if (taskStatus.isTaskFinished()) {
+				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, taskStatus.getTaskStatus());
 			}
 		}
@@ -115,6 +118,7 @@ public class TaskStatusManagerImpl implements TaskStatusManager,
 			}
 		}
 		if(task.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
+			task.setEndTime(new Date(System.currentTimeMillis()));
 			schedulingPool.setTaskStatus(task, cz.metacentrum.perun.taskslib.model.Task.TaskStatus.ERROR);
 		} else {
 			TaskStatus taskStatus = this.getTaskStatus(task);
@@ -127,6 +131,7 @@ public class TaskStatusManagerImpl implements TaskStatusManager,
 						+ ": " + e.getMessage());
 			}
 			if (taskStatus.isTaskFinished()) {
+				task.setEndTime(new Date(System.currentTimeMillis()));
 				schedulingPool.setTaskStatus(task, taskStatus.getTaskStatus());
 			}
 		}
