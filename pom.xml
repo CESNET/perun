@@ -82,14 +82,14 @@
 					<version>2.5</version>
 				</plugin>
 
-				<!-- mvn compile - compile as Java 1.7 app in UTF-8 -->
+				<!-- mvn compile - compile as Java 8 app in UTF-8 -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.1</version>
 					<configuration>
-						<source>1.7</source>
-						<target>1.7</target>
+						<source>8</source>
+						<target>8</target>
 						<verbose>false</verbose>
 						<encoding>UTF-8</encoding>
 					</configuration>
