@@ -309,6 +309,7 @@ public class TaskSchedulerImpl implements TaskScheduler {
 						}
 						proceed = false;
 					} else {
+						boolean wasDependencyServiceTaskForced = dependencyServiceTask.isPropagationForced();
 						dependencyServiceTask.setPropagationForced(task.isPropagationForced());
 						switch (dependencyServiceTask.getStatus()) {
 						case DONE:
@@ -415,7 +416,8 @@ public class TaskSchedulerImpl implements TaskScheduler {
 									log.error("Could not get queue for task {}", dependencyServiceTask.getId());
 								}
 							}
-							if(dependencyServiceTask.isPropagationForced()) {
+							if(dependencyServiceTask.isPropagationForced() && !wasDependencyServiceTaskForced) {
+								// reschedule dependant only if originally was not forced !!!
 								rescheduleTask(dependencyServiceTask, execService, dispatcherQueue);
 								// XXX - should we proceed here?
 							}
