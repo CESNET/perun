@@ -34,7 +34,7 @@ public class Utils {
 	private static final RegExp lastNamePattern = RegExp.compile("^((["+pL+"'-]+)|(["+pL+"][.]))$");
 
 	public final static String largeStringClassName = "java.lang.LargeString";
-	public final static String largeArrayListClassName = "java.lang.LargeArrayList";
+	public final static String largeArrayListClassName = "java.util.LargeArrayList";
 
 	/**
 	 * Try to parse rawName to keys: "titleBefore" "firstName" "lastName" "titleAfter"
