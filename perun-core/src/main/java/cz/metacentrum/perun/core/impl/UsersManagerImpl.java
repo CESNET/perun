@@ -676,7 +676,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	public List<User> getUsersByAttributeValue(PerunSession sess, AttributeDefinition attributeDefinition, String attributeValue) throws InternalErrorException {
-		String value = "";;
+		String value = "";
 		String operator = "=";
 		if (attributeDefinition.getType().equals(String.class.getName())) {
 			value = attributeValue.trim();
@@ -694,6 +694,9 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 			value = "%" + attributeValue.trim() + "%";
 			operator = "like";
 		}
+
+		// FIXME - this doesn't work for map attributes, since they are not in attr_value column
+		// if fixed, we could add LargeString and LargeArrayList
 
 		String query = "select " + userMappingSelectQuery + " from users, user_attr_values where " +
 			" user_attr_values.attr_value " + operator + " :value and users.id=user_attr_values.user_id and user_attr_values.attr_id=:attr_id";

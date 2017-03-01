@@ -1,5 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,8 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.tomcat.dbcp.dbcp.DriverManagerConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,7 +218,27 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 							log.trace("Adding attribute {} with value {}", attributeName, rs.getString(i));
 						}
 
-						String attributeValue = rs.getString(i);
+						String attributeValue = null;
+						if (Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
+							// source column is binary
+							try {
+								InputStream inputStream = rs.getBinaryStream(i);
+								ByteArrayOutputStream result = new ByteArrayOutputStream();
+								byte[] buffer = new byte[1024];
+								int length;
+								while ((length = inputStream.read(buffer)) != -1) {
+									result.write(buffer, 0, length);
+								}
+								byte[] bytes = Base64.encodeBase64(result.toByteArray());
+								attributeValue = new String(bytes, "UTF-8");
+							} catch (IOException ex) {
+								log.error("Unable to read BLOB for column {}", columnName);
+								throw new InternalErrorException("Unable to read BLOB data for column: "+columnName, ex);
+							}
+						} else {
+							// let driver to convert type to string
+							attributeValue = rs.getString(i);
+						}
 						if (rs.wasNull()) {
 							map.put(attributeName, null);
 						} else {

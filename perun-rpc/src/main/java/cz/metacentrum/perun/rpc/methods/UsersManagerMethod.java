@@ -646,11 +646,11 @@ public enum UsersManagerMethod implements ManagerMethod {
 
 					if(attr.getType().equals(Integer.class.getName())) {
 						attr.setValue(parms.readInt("attributeValue"));
-					} else if(attr.getType().equals(String.class.getName())) {
+					} else if(attr.getType().equals(String.class.getName()) || attr.getType().equals(BeansUtils.largeStringClassName)) {
 						attr.setValue(parms.readString("attributeValue"));
 					} else if(attr.getType().equals(Boolean.class.getName())) {
 						attr.setValue(parms.readBoolean("attributeValue"));
-					} else if(attr.getType().equals(ArrayList.class.getName())) {
+					} else if(attr.getType().equals(ArrayList.class.getName()) || attr.getType().equals(BeansUtils.largeArrayListClassName)) {
 						attr.setValue(parms.readList("attributeValue", String.class));
 					} else if(attr.getType().equals(LinkedHashMap.class.getName())) {
 						attr.setValue(parms.read("attributeValue", LinkedHashMap.class));

@@ -219,8 +219,12 @@ sub getType
 		$type = 'integer';
 	} elsif ($type eq 'java.lang.String') {
 		$type = 'string';
+	} elsif ($type eq 'java.lang.LargeString') {
+		$type = 'largestring';
 	} elsif ($type eq 'java.util.ArrayList') {
 		$type = 'array';
+	}  elsif ($type eq 'java.util.LargeArrayList') {
+		$type = 'largearray';
 	} elsif ($type eq 'java.util.LinkedHashMap') {
 		$type = 'hash';
 	} elsif ($type eq 'java.lang.Boolean') {
@@ -239,8 +243,12 @@ sub setType
 		$type = 'java.lang.Integer';
 	} elsif ($type eq 'string') {
 		$type = 'java.lang.String';
+	} elsif ($type eq 'largestring') {
+		$type = 'java.lang.LargeString';
 	} elsif ($type eq 'array') {
 		$type = 'java.util.ArrayList';
+	} elsif ($type eq 'largearray') {
+		$type = 'java.util.LargeArrayList';
 	} elsif ($type eq 'hash') {
 		$type = 'java.util.LinkedHashMap';
 	} elsif ($type eq 'boolean') {
@@ -287,7 +295,7 @@ sub setValueFromArray {
 	my $attribute = shift; #self
 
 	switch ($attribute->getType) {
-		case "string" {
+		case /^string$|^largestring$/ {
 			if (scalar @_ > 1) { Perun::Common::printMessage(
 				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
 			$attribute->setValue( $_[0] );
@@ -312,7 +320,7 @@ sub setValueFromArray {
 					"Value is not of boolean type, please use numbers 1/0 or strings true/false as input.", $::batch);
 			}
 		}
-		case "array" {
+		case /^array$|^largearray$/ {
 			$attribute->setValue( \@_ );
 		}
 		case "hash" {
