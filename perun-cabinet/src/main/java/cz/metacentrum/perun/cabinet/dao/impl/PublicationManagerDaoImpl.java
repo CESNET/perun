@@ -53,7 +53,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 	}
 
 	private final static String PUBLICATION_SELECT_QUERY = "cabinet_publications.id as publication_id, " +
-			"cabinet_publications.externalId as publication_externalId, cabinet_publications.publicationSystemId as publication_publicationSystemId," +
+			"cabinet_publications.externalId as publication_externalId, cabinet_publications.publicationSystemId as publication_pubSystemId," +
 			"cabinet_publications.title as publication_title, cabinet_publications.year as publication_year, cabinet_publications.main as publication_main, " +
 			"cabinet_publications.isbn as publication_isbn, cabinet_publications.categoryId as publication_categoryId, " +
 			"cabinet_publications.createdBy as publication_createdBy, cabinet_publications.created_by_uid as publication_created_by_uid, " +
@@ -71,7 +71,7 @@ public class PublicationManagerDaoImpl implements PublicationManagerDao {
 			Publication publication = new Publication();
 			publication.setId(resultSet.getInt("publication_id"));
 			publication.setExternalId(resultSet.getInt("publication_externalId"));
-			publication.setPublicationSystemId(resultSet.getInt("publication_publicationSystemId"));
+			publication.setPublicationSystemId(resultSet.getInt("publication_pubSystemId"));
 
 			publication.setTitle(resultSet.getString("publication_title"));
 			publication.setYear(resultSet.getInt("publication_year"));
