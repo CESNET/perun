@@ -79,17 +79,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>2.5</version>
+					<version>3.0.0</version>
 				</plugin>
 
 				<!-- mvn compile - compile as Java 8 app in UTF-8 -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
+					<version>3.6.1</version>
 					<configuration>
-						<source>8</source>
-						<target>8</target>
+						<source>1.8</source>
+						<target>1.8</target>
 						<verbose>false</verbose>
 						<encoding>UTF-8</encoding>
 					</configuration>
@@ -99,7 +99,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>2.4</version>
+					<version>2.5.2</version>
 				</plugin>
 
 
@@ -107,7 +107,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9</version>
+					<version>2.10.4</version>
 					<configuration>
 						<detectLinks/>
 						<links>
@@ -120,35 +120,35 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>2.2.1</version>
+					<version>3.0.1</version>
 				</plugin>
 
 				<!-- mvn jar:jar - creates final jar -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.4</version>
+					<version>3.0.2</version>
 				</plugin>
 
 				<!-- mvn jar:jar - creates final war -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
-					<version>2.4</version>
+					<version>3.0.0</version>
 				</plugin>
 
 				<!-- mvn shade - creates shaded jar (1 jar containing e.g. core + spring) -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
-					<version>2.1</version>
+					<version>3.0.0</version>
 				</plugin>
 
 				<!-- plugin used to apply jUnit tests settings in maven and to generate report (target/surefire-reports)-->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.15</version>
+					<version>2.19.1</version>
 					<configuration>
 						<!-- disable logging for maven's tests / Test in you IDE will log normally -->
 						<argLine>-Dlog4j.configuration=</argLine>
@@ -161,14 +161,14 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>2.8</version>
+					<version>3.0.0</version>
 				</plugin>
 
 				<!-- Executing plug-in: mvn exec:java -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.2.1</version>
+					<version>1.5.0</version>
 				</plugin>
 
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
@@ -207,7 +207,7 @@
 											maven-war-plugin
 										</artifactId>
 										<versionRange>
-											[2.4,)
+											[3.0.0,)
 										</versionRange>
 										<goals>
 											<goal>exploded</goal>
@@ -226,7 +226,7 @@
 											serviceloader-maven-plugin
 										</artifactId>
 										<versionRange>
-											[1.0.2,)
+											[1.0.7,)
 										</versionRange>
 										<goals>
 											<goal>generate</goal>

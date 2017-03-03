@@ -60,7 +60,7 @@
 			<plugin>
 				<groupId>eu.somatik.serviceloader-maven-plugin</groupId>
 				<artifactId>serviceloader-maven-plugin</artifactId>
-				<version>1.0.2</version>
+				<version>1.0.7</version>
 				<configuration>
 					<services>
 						<param>cz.metacentrum.perun.core.implApi.modules.attributes.AttributesModuleImplApi</param>
@@ -328,7 +328,7 @@
 		<dependency>
 			<groupId>eu.somatik.serviceloader-maven-plugin</groupId>
 			<artifactId>serviceloader-maven-plugin</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.7</version>
 		</dependency>
 
 		<dependency>
