@@ -109,20 +109,31 @@ public class SearcherBlImpl implements SearcherBl {
 		Set<AttributeDefinition> keys = coreAttributesWithSearchingValues.keySet();
 		for(Iterator<User> userIter = users.iterator(); userIter.hasNext();) {
 			User userFromIterator = userIter.next();
+
+			//Compare all needed attributes and their value to the attributes of every user. If he does not fit, remove him from the array of returned users.
 			for(AttributeDefinition attrDef: keys) {
 				boolean userIsAccepted = true;
 				String value = coreAttributesWithSearchingValues.get(attrDef);
 				Attribute attrForUser = getPerunBl().getAttributesManagerBl().getAttribute(sess, userFromIterator, attrDef.getName());
-				if(attrForUser.getType().equals("java.lang.String")) {
-					String attrValue = (String) attrForUser.getValue();
-					if(!attrValue.equals(value)) userIsAccepted = false;
-				} else if(attrForUser.getType().equals("java.lang.Integer")) {
-					Integer attrValue = (Integer) attrForUser.getValue();
-					Integer valueInInteger = Integer.valueOf(value);
-					if(attrValue.intValue() != valueInInteger.intValue()) userIsAccepted = false;
+
+				if(attrForUser.getValue() == null) {
+					//We are looking for users with null value in this core attribute
+					if(value!=null && !value.isEmpty()) userIsAccepted = false;
 				} else {
-					throw new InternalErrorException("Core attribute: " + attrForUser + " is not type of String or Integer!");
+					//We need to compare those values, if they are equals,
+					if (attrForUser.getValue() instanceof String) {
+						String attrValue = (String) attrForUser.getValue();
+						if (!attrValue.equals(value)) userIsAccepted = false;
+					} else if (attrForUser.getValue() instanceof Integer) {
+						Integer attrValue = (Integer) attrForUser.getValue();
+						Integer valueInInteger = Integer.valueOf(value);
+						if (attrValue.intValue() != valueInInteger.intValue()) userIsAccepted = false;
+					} else {
+						throw new InternalErrorException("Core attribute: " + attrForUser + " is not type of String or Integer!");
+					}
 				}
+
+				//One of attributes is not equal so remove him and continue with next user
 				if(!userIsAccepted) {
 					userIter.remove();
 					break;

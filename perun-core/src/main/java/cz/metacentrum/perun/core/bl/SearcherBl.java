@@ -23,8 +23,6 @@ public interface SearcherBl {
 	 * This method get Map of Attributes with searching values and try to find all users, which have specific attributes in format.
 	 * Better information about format below. When there are more than 1 attribute in Map, it means all must be true "looking for all of them" (AND)
 	 *
-	 * IMPORTANT: can't get CORE ATTRIBUTES
-	 *
 	 * @param sess perun session
 	 * @param attributesWithSearchingValues map of attributes names
 	 *        when attribute is type String, so value is string and we are looking for total match (Partial is not supported now, will be supported later by symbol *)
@@ -34,7 +32,6 @@ public interface SearcherBl {
 	 *        IMPORTANT: In map there is not allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
 	 * @return list of users who have attributes with specific values (behavior above)
 	 *        if no user exist, return empty list of users
-	 *        if attributeWithSearchingValues is empty, return allUsers
 	 *
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
@@ -62,7 +59,7 @@ public interface SearcherBl {
 	 * or using "<" and +1 day shift.
 	 *
 	 * Method ignores current member state, just compares expiration date !
-	 * 
+	 *
 	 * @param sess PerunSession
 	 * @param operator One of "=", "<", ">", "<=", ">=". If null, "=" is anticipated.
 	 * @param days X days before/after today
@@ -86,5 +83,5 @@ public interface SearcherBl {
 	 * @throws InternalErrorException
 	 */
 	List<Member> getMembersByExpiration(PerunSession sess, String operator, Calendar date) throws InternalErrorException;
-	
+
 }

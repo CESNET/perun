@@ -8,6 +8,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.implApi.SearcherImplApi;
 
+import java.beans.Beans;
 import java.util.*;
 
 import javax.sql.DataSource;
@@ -54,17 +55,14 @@ public class SearcherImpl implements SearcherImplApi {
 			query.append("left join user_attr_values val" + counter + " ");
 			query.append("on val" + counter + ".user_id=users.id and val" + counter + ".attr_id=" + key.getId() + " ");
 			query.append("left join attr_names nam" + counter + " on val" + counter + ".attr_id=nam" + counter + ".id ");
-			if (value == null) {
-				if(key.getType().equals(LinkedHashMap.class.getName())) {
+
+			if (value == null || value.isEmpty()) {
+				if(key.getType().equals(LinkedHashMap.class.getName()) ||
+						key.getType().equals(BeansUtils.largeStringClassName) ||
+						key.getType().equals(BeansUtils.largeArrayListClassName)) {
 					whereClauses.add("val" + counter + ".attr_value_text IS NULL ");
 				} else {
 					whereClauses.add("val" + counter + ".attr_value IS NULL ");
-				}
-			} else if(value.isEmpty()) {
-				if(key.getType().equals(LinkedHashMap.class.getName())) {
-					whereClauses.add("val" + counter + ".attr_value_text IS NOT NULL ");
-				} else {
-					whereClauses.add("val" + counter + ".attr_value IS NOT NULL ");
 				}
 			} else {
 				if (key.getType().equals(Integer.class.getName())) {
@@ -75,9 +73,15 @@ public class SearcherImpl implements SearcherImplApi {
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
 				} else if (key.getType().equals(String.class.getName())) {
 					key.setValue(value);
-					whereClauses.add("lower("+Compatibility.convertToAscii("val" + counter + ".attr_value")+")=lower("+Compatibility.convertToAscii(":v"+counter)+") ");
+					whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value") + ")=lower(" + Compatibility.convertToAscii(":v" + counter) + ") ");
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, String.class.getName().toString());
+					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
+				} else if (key.getType().equals(BeansUtils.largeStringClassName)) {
+					key.setValue(value);
+					whereClauses.add("lower(" + Compatibility.convertToAscii("val" + counter + ".attr_value_text") + ") LIKE lower(" + Compatibility.convertToAscii(":v" + counter) + ") ");
+					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+					parameters.addValue("n" + counter, BeansUtils.largeStringClassName);
 					parameters.addValue("v" + counter, BeansUtils.attributeValueToString(key));
 				} else if (key.getType().equals(Boolean.class.getName())) {
 					key.setValue(value);
@@ -92,6 +96,14 @@ public class SearcherImpl implements SearcherImplApi {
 					whereClauses.add("val" + counter + ".attr_value LIKE :v" + counter + " ");
 					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
 					parameters.addValue("n" + counter, ArrayList.class.getName().toString());
+					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length() - 1) + '%');
+				} else if (key.getType().equals(BeansUtils.largeArrayListClassName)) {
+					List<String> list = new ArrayList<String>();
+					list.add(value);
+					key.setValue(list);
+					whereClauses.add("val" + counter + ".attr_value_text LIKE :v" + counter + " ");
+					whereClauses.add("nam" + counter + ".type=:n" + counter + " ");
+					parameters.addValue("n" + counter, BeansUtils.largeArrayListClassName);
 					parameters.addValue("v" + counter, '%' + BeansUtils.attributeValueToString(key).substring(0, BeansUtils.attributeValueToString(key).length() - 1) + '%');
 				} else if (key.getType().equals(LinkedHashMap.class.getName())) {
 					String[] splitMapItem = value.split("=");
