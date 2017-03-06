@@ -31,7 +31,6 @@ public interface Searcher {
 	 *        IMPORTANT: In map there is not allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
 	 * @return list of users who have attributes with specific values (behaviour above)
 	 *        if no user exist, return empty list of users
-	 *        if attributeWithSearchingValues is empty, return allUsers
 	 *
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
@@ -57,7 +56,6 @@ public interface Searcher {
 	 *        IMPORTANT: In map there is not allowed char '=' in key. First char '=' is delimiter in MAP item key=value!!!
 	 * @return list of users who have attributes with specific values (behaviour above)
 	 *        if no user exist, return empty list of users
-	 *        if attributeWithSearchingValues is empty, return allUsers
 	 *
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
