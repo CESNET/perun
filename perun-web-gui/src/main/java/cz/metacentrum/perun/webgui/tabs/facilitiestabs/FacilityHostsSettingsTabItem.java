@@ -246,7 +246,7 @@ public class FacilityHostsSettingsTabItem implements TabItem, TabItemWithUrl {
 	public int hashCode() {
 		final int prime = 739;
 		int result = 1;
-		result = prime * result + facilityId;
+		result = prime * result + facilityId + lastSelectedHostId;
 		return result;
 	}
 
@@ -260,6 +260,8 @@ public class FacilityHostsSettingsTabItem implements TabItem, TabItemWithUrl {
 			return false;
 		FacilityHostsSettingsTabItem other = (FacilityHostsSettingsTabItem) obj;
 		if (facilityId != other.facilityId)
+			return false;
+		if (lastSelectedHostId != other.lastSelectedHostId)
 			return false;
 		return true;
 	}

@@ -130,6 +130,8 @@ public class GroupMembersTabItem implements TabItem, TabItemWithUrl {
 		final GetCompleteRichMembers members = new GetCompleteRichMembers(PerunEntity.GROUP, groupId, null);
 		final FindCompleteRichMembers findMembers = new FindCompleteRichMembers(PerunEntity.GROUP, groupId, "", null);
 		members.excludeDisabled(!wasDisabled);
+		members.setIndirectCheckable(false);
+		findMembers.setIndirectCheckable(false);
 
 		final CustomButton searchButton = TabMenu.getPredefinedButton(ButtonType.SEARCH, ButtonTranslation.INSTANCE.searchMemberInGroup());
 		final CustomButton listAllButton = TabMenu.getPredefinedButton(ButtonType.LIST_ALL_MEMBERS, ButtonTranslation.INSTANCE.listAllMembersInGroup());
