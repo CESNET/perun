@@ -1,10 +1,15 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.PerunPrincipal;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cz.metacentrum.perun.core.api.*;
@@ -73,15 +78,19 @@ public class Synchronizer {
 	 * Method is triggered by Spring scheduler (at midnight everyday).
 	 */
 	public void checkMembersState() {
-		if(perunBl.isPerunReadOnly()) {
+		if (perunBl.isPerunReadOnly()) {
 			log.debug("This instance is just read only so skip checking members states.");
 			return;
 		}
 
 		try {
 
-			// we must retrieve current date only once per method run
-			Calendar compareDate = Calendar.getInstance();
+			log.debug("Processing checkMemberState() on (to be) expired members.");
+
+			// Only members with following statuses will be notified
+			List<Status> allowedStatuses = new ArrayList<Status>();
+			allowedStatuses.add(Status.VALID);
+			allowedStatuses.add(Status.SUSPENDED);
 
 			// get all available VOs
 			List<Vo> vos = perunBl.getVosManagerBl().getVos(sess);
@@ -90,44 +99,105 @@ public class Synchronizer {
 				vosMap.put(vo.getId(), vo);
 			}
 
+			Calendar monthBefore = Calendar.getInstance();
+			monthBefore.add(Calendar.MONTH, 1);
+
 			// log message for all members which will expire in 30 days
-			compareDate.add(Calendar.DAY_OF_MONTH, 30);
-			List<Member> expireIn30Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
-			for (Member m : expireIn30Days) {
-				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 30, vosMap.get(m.getVoId()));
+
+			List<Member> expireInAMonth = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", monthBefore);
+			for (Member m : expireInAMonth) {
+				try {
+					if (allowedStatuses.contains(m.getStatus())) {
+						perunBl.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
+						getPerun().getAuditer().log(sess, "{} will expire in a month in {}.", m, vosMap.get(m.getVoId()));
+					} else {
+						log.debug("{} not notified about expiration, is not in VALID or SUSPENDED state.", m);
+					}
+				} catch (ExtendMembershipException ex) {
+					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+						// we don't care about other reasons (LoA), user can update it later
+						getPerun().getAuditer().log(sess, "{} will expire in a month in {}.", m, vosMap.get(m.getVoId()));
+					}
+				}
 			}
 
 			// log message for all members which will expire in 14 days
-			compareDate.add(Calendar.DAY_OF_MONTH, -16);
-			List<Member> expireIn14Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			Calendar expireInA14Days = Calendar.getInstance();
+			expireInA14Days.add(Calendar.DAY_OF_MONTH, 14);
+			List<Member> expireIn14Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", expireInA14Days);
 			for (Member m : expireIn14Days) {
-				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+				try {
+					if (allowedStatuses.contains(m.getStatus())) {
+						perunBl.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+					} else {
+						log.debug("{} not notified about expiration, is not in VALID or SUSPENDED state.", m);
+					}
+				} catch (ExtendMembershipException ex) {
+					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+						// we don't care about other reasons (LoA), user can update it later
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 14, vosMap.get(m.getVoId()));
+					}
+				}
 			}
 
 			// log message for all members which will expire in 7 days
-			compareDate.add(Calendar.DAY_OF_MONTH, -7);
-			List<Member> expireIn7Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			Calendar expireInA7Days = Calendar.getInstance();
+			expireInA7Days.add(Calendar.DAY_OF_MONTH, 7);
+			List<Member> expireIn7Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", expireInA7Days);
 			for (Member m : expireIn7Days) {
-				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+				try {
+					if (allowedStatuses.contains(m.getStatus())) {
+						perunBl.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+					} else {
+						log.debug("{} not notified about expiration, is not in VALID or SUSPENDED state.", m);
+					}
+				} catch (ExtendMembershipException ex) {
+					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+						// we don't care about other reasons (LoA), user can update it later
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 7, vosMap.get(m.getVoId()));
+					}
+				}
 			}
 
 			// log message for all members which will expire tomorrow
-			compareDate.add(Calendar.DAY_OF_MONTH, -6);
-			List<Member> expireIn1Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			Calendar expireInADay = Calendar.getInstance();
+			expireInADay.add(Calendar.DAY_OF_MONTH, 1);
+			List<Member> expireIn1Days = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", expireInADay);
 			for (Member m : expireIn1Days) {
-				getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+				try {
+					if (allowedStatuses.contains(m.getStatus())) {
+						perunBl.getMembersManagerBl().canExtendMembershipWithReason(sess, m);
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+					} else {
+						log.debug("{} not notified about expiration, is not in VALID or SUSPENDED state.", m);
+					}
+				} catch (ExtendMembershipException ex) {
+					if (!Objects.equals(ex.getReason(), ExtendMembershipException.Reason.OUTSIDEEXTENSIONPERIOD)) {
+						// we don't care about other reasons (LoA), user can update it later
+						getPerun().getAuditer().log(sess, "{} will expire in {} days in {}.", m, 1, vosMap.get(m.getVoId()));
+					}
+				}
 			}
 
 			// log message for all members which expired 7 days ago
-			compareDate.add(Calendar.DAY_OF_MONTH, -8);
-			List<Member> expired7DaysAgo = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", compareDate);
+			Calendar expiredWeekAgo = Calendar.getInstance();
+			expiredWeekAgo.add(Calendar.DAY_OF_MONTH, -7);
+			List<Member> expired7DaysAgo = perunBl.getSearcherBl().getMembersByExpiration(sess, "=", expiredWeekAgo);
+			// include expired in this case
+			allowedStatuses.add(Status.EXPIRED);
 			for (Member m : expired7DaysAgo) {
-				getPerun().getAuditer().log(sess, "{} has expired {} days ago in {}.", m, 7, vosMap.get(m.getVoId()));
+				if (allowedStatuses.contains(m.getStatus())) {
+					getPerun().getAuditer().log(sess, "{} has expired {} days ago in {}.", m, 7, vosMap.get(m.getVoId()));
+				} else {
+					log.debug("{} not notified about expiration, is not in VALID, SUSPENDED or EXPIRED state.", m);
+				}
 			}
 
 			// switch members, which expire today
-			compareDate.add(Calendar.DAY_OF_MONTH, 7);
-			List<Member> shouldBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, "<=", compareDate);
+			Calendar expireToday = Calendar.getInstance();
+			List<Member> shouldBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, "<=", expireToday);
 			for (Member member : shouldBeExpired) {
 				if (member.getStatus().equals(Status.VALID)) {
 					try {
@@ -140,7 +210,7 @@ public class Synchronizer {
 			}
 
 			// switch members, which shouldn't be expired
-			List<Member> shouldntBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, ">", compareDate);
+			List<Member> shouldntBeExpired = perunBl.getSearcherBl().getMembersByExpiration(sess, ">", expireToday);
 			for (Member member : shouldntBeExpired) {
 				if (member.getStatus().equals(Status.EXPIRED)) {
 					try {
@@ -154,14 +224,13 @@ public class Synchronizer {
 				}
 			}
 
-		} catch (InternalErrorException e) {
+		} catch(InternalErrorException e){
 			log.error("Synchronizer: checkMembersState, exception {}", e);
-		} catch (AttributeNotExistsException e) {
+		} catch(AttributeNotExistsException e){
 			log.warn("Synchronizer: checkMembersState, attribute definition for membershipExpiration doesn't exist, exception {}", e);
-		} catch (WrongAttributeAssignmentException e) {
+		} catch(WrongAttributeAssignmentException e){
 			log.error("Synchronizer: checkMembersState, attribute name is from wrong namespace, exception {}", e);
 		}
-
 	}
 
 	public void removeAllExpiredBans() {
