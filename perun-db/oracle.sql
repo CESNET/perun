@@ -1,4 +1,4 @@
--- database version 3.1.41 (don't forget to update insert statement at the end of file)
+-- database version 3.1.42 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -171,6 +171,18 @@ create table facility_contacts (
 	owner_id integer,
 	user_id integer,
 	group_id integer
+);
+
+create table facility_services (
+	service_id integer not null,
+	facility_id integer not null,
+	created_at date default sysdate not null,
+	created_by nvarchar2(1300) default user not null,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1300) default user not null,
+	status char(1) default '0' not null,
+	created_by_uid integer,
+	modified_by_uid integer
 );
 
 create table groups (
@@ -1246,6 +1258,8 @@ create index IDX_FK_SRVREQATTR_SRV on service_required_attrs(service_id);
 create index IDX_FK_SRVREQATTR_ATTR on service_required_attrs(attr_id);
 create index IDX_FK_RESRCSRV_SRV on resource_services(service_id);
 create index IDX_FK_RESRCSRV_RSRC on resource_services(resource_id);
+create index IDX_FK_FACSRV_SRV on facility_services(service_id);
+create index IDX_FK_FACSRV_FAC on facility_services(facility_id);
 create index IDX_FK_ENGRR_ENG on engine_routing_rule(engine_id);
 create index IDX_FK_ENGRR_RR on engine_routing_rule(routing_rule_id);
 create index IDX_FK_SERVPR_SERV on service_processing_rule(service_id);
@@ -1495,6 +1509,11 @@ alter table resource_services add(
 constraint RESRCSRV_PK primary key (service_id,resource_id),
 constraint RESRCSRV_SRV_FK foreign key (service_id) references services(id),
 constraint RESRCSRV_RSRC_FK foreign key (resource_id) references resources(id)
+);
+alter table facility_services add(
+constraint FACSRV_PK primary key (service_id,facility_id),
+constraint FACSRV_SRV_FK foreign key (service_id) references services(id),
+constraint FACSRV_FAC_FK foreign key (facility_id) references facilities(id)
 );
 alter table routing_rules add (
 constraint ROUTRUL_PK primary key (id)
@@ -1801,7 +1820,7 @@ constraint UESATTRVAL_ATTR_FK foreign key (attr_id) references attr_names(id)
 );
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.41');
+insert into configurations values ('DATABASE VERSION','3.1.42');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

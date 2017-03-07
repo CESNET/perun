@@ -133,6 +133,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		resource = setUpResource();
 		service = setUpService();
 
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		perun.getServicesManager().deleteService(sess, service);
@@ -243,6 +244,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		resource = setUpResource();
 		service = setUpService();
 
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Resource> resources = perun.getServicesManager().getAssignedResources(sess, service);
@@ -816,7 +818,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		vo = setUpVo();
 		facility = setUpNonClusterFacilityWithTwoHosts();
 		resource = setUpResource();
-		assignServicesOnResource(resource, services);
+		assignServicesOnResource(resource, facility, services);
 
 		assertTrue("There are 2 assigned services on resource.", perun.getServicesManagerBl().getAssignedServices(sess, facility).size() == 2);
 
@@ -841,6 +843,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		resource = setUpResource();
 
 		// Assign service to the resource
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Destination> newDestinations = perun.getServicesManager().addDestinationsForAllServicesOnFacility(sess, facility, destination);
@@ -1097,6 +1100,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
 
 		// finally assign service
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		// create second (but same) resource
@@ -1241,6 +1245,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		perun.getServicesManager().addRequiredAttribute(sess, service, reqMemAttr);
 
 		// finally assign service
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		// create second (but same) resource
@@ -1491,8 +1496,9 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		return services;
 	}
 
-	private void assignServicesOnResource(Resource resource, List<Service> services) throws Exception {
+	private void assignServicesOnResource(Resource resource, Facility facility, List<Service> services) throws Exception {
 		for(Service s: services) {
+			perun.getFacilitiesManager().assignService(sess, facility, s);
 			perun.getResourcesManagerBl().assignService(sess, resource, s);
 		}
 	}

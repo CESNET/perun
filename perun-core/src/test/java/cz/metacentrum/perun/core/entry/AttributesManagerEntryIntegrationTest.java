@@ -379,8 +379,11 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		perun.getAttributesManagerBl().setAttribute(sess, f2, GIDNamespaceForFacilities);
 
 		//create new service and assigne it to resources
+		facility = setUpFacility();
 		Service s1 = new Service(0, "testService01");
 		s1 = perun.getServicesManagerBl().createService(sess, s1);
+		perun.getFacilitiesManager().assignService(sess, f1, s1);
+		perun.getFacilitiesManager().assignService(sess, f2, s1);
 		perun.getResourcesManagerBl().assignService(sess, r1, s1);
 		perun.getResourcesManagerBl().assignService(sess, r2, s1);
 
@@ -420,6 +423,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		perun.getResourcesManagerBl().assignGroupToResource(sess, topGroup, resource);
 		service = setUpService();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManagerBl().assignService(sess, resource, service);
 
 		String namespace = "testing";
@@ -5129,6 +5133,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 		attributesManager.setAttribute(sess, facility, attributes.get(0));
 
@@ -5153,6 +5158,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attributes.addAll(setUpUserAttribute());
 		attributes.addAll(setUpMemberResourceAttribute());
 		attributes.addAll(setUpFacilityUserAttribute());
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		perun.getAttributesManagerBl().setRequiredAttributes(sess, facility, resource, user, member);
@@ -5168,6 +5174,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		group = setUpGroup();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 		for(Attribute a: attributes) {
 			if(attributesManager.isFromNamespace(sess, a, AttributesManager.NS_GROUP_ATTR)) {
@@ -5202,6 +5209,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 		attributesManager.setAttribute(sess, resource, attributes.get(3));
 
@@ -5230,6 +5238,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, resource, member);
@@ -5248,10 +5257,12 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		Service service2 = setUpService2();
 		Attribute attr = setUpResourceRequiredAttributeForService(service2);
+		perun.getFacilitiesManager().assignService(sess, facility, service2);
 		perun.getResourcesManager().assignService(sess, resource, service2);
 
 		List<Service> serviceList = new ArrayList<>();
@@ -5305,6 +5316,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		Resource fakeResource = new Resource();
@@ -5351,6 +5363,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, resource, member, true);
@@ -5397,6 +5410,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		Resource fakeResource = new Resource();
@@ -5443,6 +5457,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member, group);
@@ -5488,6 +5503,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		Resource fakeResource = new Resource();
@@ -5526,6 +5542,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member, group, true);
@@ -5571,6 +5588,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		Resource fakeResource = new Resource();
@@ -5607,6 +5625,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 		group = setUpGroup();
 		perun.getResourcesManager().assignGroupToResource(sess, group, resource);
@@ -5674,6 +5693,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		Resource fakeResource = new Resource();
@@ -5700,6 +5720,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, member);
@@ -5758,6 +5779,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		User user = perun.getUsersManager().getUserByMember(sess, member);
@@ -5822,6 +5844,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, resource, group);
@@ -5868,6 +5891,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		Resource fakeResource = new Resource();
@@ -5914,6 +5938,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, group);
@@ -5976,6 +6001,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getResourceRequiredAttributes(sess, resource, host);
@@ -6061,6 +6087,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, facility);
@@ -6098,6 +6125,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource);
@@ -6140,6 +6168,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, member);
@@ -6162,6 +6191,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attributes = setUpRequiredAttributes();
 		group = setUpGroup(vo, member);
 		resourcesManager.assignGroupToResource(sess, group, resource);
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		HashMap<Member, List<Attribute>> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, members);
@@ -6223,6 +6253,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource, member, true);
@@ -6288,6 +6319,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attributes = setUpRequiredAttributes();
 		group = setUpGroup(vo, member);
 		resourcesManager.assignGroupToResource(sess, group, resource);
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		HashMap<Member, List<Attribute>> reqAttr = attributesManager.getRequiredAttributes(sess, resource, service, members);
@@ -6306,6 +6338,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, member);
@@ -6328,6 +6361,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, member, true);
@@ -6370,6 +6404,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		resource = setUpResource();
 		service = setUpService();
 		attributes = setUpRequiredAttributes();
+		perun.getFacilitiesManager().assignService(sess, facility, service);
 		perun.getResourcesManager().assignService(sess, resource, service);
 
 		List<Attribute> reqAttr = attributesManager.getRequiredAttributes(sess, service, resource,group);

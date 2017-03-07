@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
+import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -1017,6 +1019,17 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
+	public List<Service> getAssignedServices(PerunSession sess, Facility facility) throws InternalErrorException {
+		try {
+			return jdbc.query("SELECT " + ServicesManagerImpl.serviceMappingSelectQuery + " " +
+					"FROM facility_services JOIN services ON facility_services.service_id = services.id " +
+					"WHERE facility_id = ?", ServicesManagerImpl.SERVICE_MAPPER, facility.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public void assignSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
 		try {
 			jdbc.update("insert into security_teams_facilities(security_team_id, facility_id, created_by, created_at, modified_by, modified_at, created_by_uid, modified_by_uid) " +
@@ -1028,10 +1041,41 @@ public class FacilitiesManagerImpl implements FacilitiesManagerImplApi {
 	}
 
 	@Override
+	public void assignService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, ServiceAlreadyAssignedException {
+		try {
+			if (0 < jdbc.queryForInt("SELECT count(*) FROM facility_services WHERE service_id = ? AND facility_id = ?", 
+					service.getId(), facility.getId())
+					) {
+				throw new ServiceAlreadyAssignedException(service);
+			}
+			jdbc.update("INSERT INTO facility_services(service_id, facility_id, created_by, created_at, modified_by, " +
+					"modified_at, created_by_uid, modified_by_uid) VALUES (?,?,?," + Compatibility.getSysdate() + 
+							",?," + Compatibility.getSysdate() + ",?,?)",
+					service.getId(), facility.getId(), sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getActor(),
+					sess.getPerunPrincipal().getUserId(), sess.getPerunPrincipal().getUserId()
+			);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public void removeSecurityTeam(PerunSession sess, Facility facility, SecurityTeam securityTeam) throws InternalErrorException {
 		try {
 			jdbc.update("delete from security_teams_facilities where security_team_id=? and facility_id=?",
 					securityTeam.getId(), facility.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
+	public void removeService(PerunSession sess, Facility facility, Service service) throws InternalErrorException, ServiceNotAssignedException {
+		try {
+			if (0 == jdbc.update("DELETE FROM facility_services WHERE service_id = ? AND facility_id = ?", 
+					service.getId(), facility.getId())) {
+				throw new ServiceNotAssignedException(service);
+			}
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
