@@ -310,6 +310,46 @@ public class AuthzResolverImpl implements AuthzResolverImplApi {
 		}
 	}
 
+	public void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, AlreadyAdminException {
+		try {
+			jdbc.update("insert into authz (user_id, role_id, resource_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.RESOURCEADMIN.getRoleName(), resource.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("User id=" + user.getId() + " is already admin of the resource " + resource, e, user, resource);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, AlreadyAdminException {
+		try {
+			jdbc.update("insert into authz (authorized_group_id, role_id, resource_id) values (?, (select id from roles where name=?), ?)", group.getId(), Role.RESOURCEADMIN.getRoleName(), resource.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new AlreadyAdminException("Group id=" + group.getId() + " is already admin of the resource " + resource, e, group, resource);
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where user_id=? and resource_id=? and role_id=(select id from roles where name=?)", user.getId(), resource.getId(), Role.RESOURCEADMIN.getRoleName())) {
+				throw new UserNotAdminException("User id=" + user.getId() + " is not admin of the resource " + resource);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException {
+		try {
+			if (0 == jdbc.update("delete from authz where authorized_group_id=? and resource_id=? and role_id=(select id from roles where name=?)", group.getId(), resource.getId(), Role.RESOURCEADMIN.getRoleName())) {
+				throw new GroupNotAdminException("Group id=" + group.getId() + " is not admin of the resource " + resource);
+			}
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
 	public void addAdmin(PerunSession sess, User sponsoredUser, User user) throws InternalErrorException, AlreadyAdminException {
 		try {
 			jdbc.update("insert into authz (user_id, role_id, sponsored_user_id) values (?, (select id from roles where name=?), ?)", user.getId(), Role.SPONSOR.getRoleName(), sponsoredUser.getId());

@@ -1,35 +1,21 @@
 package cz.metacentrum.perun.core.entry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.HashMap;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.*;
-import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.SubGroupCannotBeRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+
 import java.util.ArrayList;
 import java.util.Date;
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Integration tests of ResourcesManager.
@@ -1325,6 +1311,169 @@ public class ResourcesManagerEntryIntegrationTest extends AbstractPerunIntegrati
 
 		bansOnResource = resourcesManager.getBansForResource(sess, banOnResource.getResourceId());
 		assertTrue(bansOnResource.size() == 1);
+	}
+
+	@Test
+	public void addAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "addAdmin");
+		vo = setUpVo();
+		member = setUpMember(vo);
+		facility = setUpFacility();
+		resource = setUpResource();
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		resourcesManager.addAdmin(sess, resource, u);
+		final List<User> admins = resourcesManager.getAdmins(sess, resource, false);
+
+		assertNotNull(admins);
+		assertTrue(admins.size() > 0);
+	}
+
+	@Test
+	public void addAdminWithGroup() throws Exception {
+		System.out.println(CLASS_NAME + "addAdminWithGroup");
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.addAdmin(sess, resource, group);
+		final List<Group> admins = resourcesManager.getAdminGroups(sess, resource);
+
+		assertNotNull(admins);
+		assertTrue(admins.size() > 0);
+		assertTrue(admins.contains(group));
+	}
+
+	@Test
+	public void getAdmins() throws Exception {
+		System.out.println(CLASS_NAME + "getAdmins");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		// Set up resource admin
+		member = setUpMember(vo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		resourcesManager.addAdmin(sess, resource, user);
+
+		// Set up resource admin group
+		group = setUpGroup(vo, member);
+		resourcesManager.addAdmin(sess, resource, group);
+
+		// Set up second resource admin
+		Candidate candidate = new Candidate();
+		candidate.setFirstName("Josef");
+		candidate.setId(4);
+		candidate.setMiddleName("");
+		candidate.setLastName("Novak");
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		UserExtSource userExtSource = new UserExtSource(new ExtSource(0, "testExtSource",
+				"cz.metacentrum.perun.core.impl.ExtSourceInternal"), Long.toHexString(Double.doubleToLongBits(Math.random())));
+		candidate.setUserExtSource(userExtSource);
+		candidate.setAttributes(new HashMap<String,String>());
+
+		Member member2 = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate);
+		User user2 = perun.getUsersManagerBl().getUserByMember(sess, member2);
+		perun.getGroupsManager().addMember(sess, group, member2);
+
+		// Test all admins
+		List<User> admins = resourcesManager.getAdmins(sess, resource, false);
+		assertTrue("list shoud have 2 admins", admins.size() == 2);
+		assertTrue("our member as direct user should be admin", admins.contains(user));
+		assertTrue("our member as member of admin group should be admin", admins.contains(user2));
+
+		// Test only direct admins (without groups of admins)
+		admins = resourcesManager.getAdmins(sess, resource, true);
+		assertTrue("list should have only 1 admin", admins.size() == 1);
+		assertTrue("our member as direct user should be in list of admins", admins.contains(user));
+		assertTrue("our member as member of admin group shouldn't be in list of admins", !admins.contains(user2));
+	}
+
+	@Test
+	public void getAdminsIfNotExist() throws Exception {
+		System.out.println(CLASS_NAME + "getAdminsIfNotExist");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		assertTrue(resourcesManager.getAdmins(sess, resource, false).isEmpty());
+	}
+
+	@Test
+	public void getAdminGroups() throws Exception {
+		System.out.println(CLASS_NAME + "getAdminGroups");
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.addAdmin(sess, resource, group);
+
+		assertTrue(resourcesManager.getAdminGroups(sess, resource).contains(group));
+	}
+
+	@Test(expected=UserNotAdminException.class)
+	public void removeAdminWhichNotExists() throws Exception {
+		System.out.println(CLASS_NAME + "removeAdminWhichNotExists");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		resourcesManager.removeAdmin(sess, resource, u);
+	}
+
+	@Test
+	public void removeAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "removeAdmin");
+		vo = setUpVo();
+		facility = setUpFacility();
+		resource = setUpResource();
+		member = setUpMember(vo);
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		resourcesManager.addAdmin(sess, resource, u);
+		assertEquals(u, resourcesManager.getAdmins(sess, resource, false).get(0));
+
+		resourcesManager.removeAdmin(sess, resource, u);
+		assertFalse(resourcesManager.getAdmins(sess, resource, false).contains(u));
+	}
+
+	@Test
+	public void removeAdminWithGroup() throws Exception {
+		System.out.println(CLASS_NAME + "removeAdminWithGroup");
+		vo = setUpVo();
+		member = setUpMember(vo);
+		group = setUpGroup(vo, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		resourcesManager.addAdmin(sess, resource, group);
+		assertTrue(resourcesManager.getAdminGroups(sess, resource).contains(group));
+
+		resourcesManager.removeAdmin(sess, resource, group);
+		assertFalse(resourcesManager.getAdminGroups(sess, resource).contains(group));
+	}
+
+	@Test
+	public void getResourcesWhereUserIsAdmin() throws Exception {
+		System.out.println(CLASS_NAME + "getResourcesWhereUserIsAdmin");
+		vo = setUpVo();
+		member = setUpMember(vo);
+		facility = setUpFacility();
+		resource = setUpResource();
+		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		resourcesManager.addAdmin(sess, resource, u);
+		List<Resource> resources = resourcesManager.getResourcesWhereUserIsAdmin(sess, u);
+
+		assertNotNull(resources);
+		assertTrue(resources.contains(resource));
 	}
 
 	// PRIVATE METHODS -----------------------------------------------------------

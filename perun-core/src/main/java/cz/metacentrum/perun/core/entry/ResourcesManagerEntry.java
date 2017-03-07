@@ -2,51 +2,11 @@ package cz.metacentrum.perun.core.entry;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.BanOnResource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.ResourceTag;
-import cz.metacentrum.perun.core.api.ResourcesManager;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
-import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -290,7 +250,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) {
 			throw new PrivilegeException(sess, "assignGroupToResource");
 		}
 
@@ -305,7 +266,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(perunSession, resource);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource)) {
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.RESOURCEADMIN, resource)) {
 			throw new PrivilegeException(perunSession, "assignGroupsToResource");
 		}
 
@@ -338,7 +300,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(sess, resource);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) {
 			throw new PrivilegeException(sess, "removeGroupFromResource");
 		}
 
@@ -353,7 +316,8 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		getResourcesManagerBl().checkResourceExists(perunSession, resource);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource)) {
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.RESOURCEADMIN, resource)) {
 			throw new PrivilegeException(perunSession, "removeGroupsFromResource");
 		}
 
@@ -795,6 +759,113 @@ public class ResourcesManagerEntry implements ResourcesManager {
 		}
 
 		getResourcesManagerBl().copyGroups(sess, sourceResource, destinationResource);
+	}
+
+	public List<User> getAdmins(PerunSession perunSession, Resource resource, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, ResourceNotExistsException {
+		Utils.checkPerunSession(perunSession);
+		getResourcesManagerBl().checkResourceExists(perunSession, resource);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.RESOURCEADMIN, resource)) {
+			throw new PrivilegeException(perunSession, "getAdmins");
+		}
+
+		return getResourcesManagerBl().getAdmins(perunSession, resource, onlyDirectAdmins);
+	}
+
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Resource resource, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException, PrivilegeException, ResourceNotExistsException {
+		Utils.checkPerunSession(perunSession);
+		getResourcesManagerBl().checkResourceExists(perunSession, resource);
+
+		if(!allUserAttributes) Utils.notNull(specificAttributes, "specificAttributes");
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(perunSession, Role.RESOURCEADMIN, resource)) {
+			throw new PrivilegeException(perunSession, "getRichAdmins");
+		}
+
+		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getResourcesManagerBl().getRichAdmins(perunSession, resource, specificAttributes, allUserAttributes, onlyDirectAdmins));
+	}
+
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "getResourcesWhereUserIsAdmin");
+		}
+
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		return getResourcesManagerBl().getResourcesWhereUserIsAdmin(sess, user);
+	}
+
+	public List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException, ResourceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
+				!AuthzResolver.isAuthorized(sess, Role.RESOURCEADMIN, resource)) {
+			throw new PrivilegeException(sess, "getAdminGroups");
+		}
+
+		return getResourcesManagerBl().getAdminGroups(sess, resource);
+	}
+
+	public void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+			throw new PrivilegeException(sess, "addAdmin");
+		}
+
+		getResourcesManagerBl().addAdmin(sess, resource, user);
+	}
+
+	public void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, AlreadyAdminException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+			throw new PrivilegeException(sess, "addAdmin");
+		}
+
+		getResourcesManagerBl().addAdmin(sess, resource, group);
+	}
+
+	public void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException, UserNotAdminException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+			throw new PrivilegeException(sess, "removeAdmin");
+		}
+
+		getResourcesManagerBl().removeAdmin(sess, resource, user);
+	}
+
+	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupNotAdminException, ResourceNotExistsException {
+		Utils.checkPerunSession(sess);
+		getResourcesManagerBl().checkResourceExists(sess, resource);
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource)) {
+			throw new PrivilegeException(sess, "removeAdmin");
+		}
+
+		getResourcesManagerBl().removeAdmin(sess, resource, group);
+
 	}
 
 	@Override

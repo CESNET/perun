@@ -2,12 +2,11 @@ package cz.metacentrum.perun.core.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -18,20 +17,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.BanOnResource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.ResourceTag;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
@@ -46,7 +31,6 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.implApi.ResourcesManagerImplApi;
 import java.sql.Date;
-import java.util.Map;
 
 /**
  *
@@ -745,6 +729,65 @@ public class ResourcesManagerImpl implements ResourcesManagerImplApi {
 			return jdbc.queryForInt("select count(*) from resources");
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
+		}
+	}
+
+	public List<User> getAdmins(PerunSession sess, Resource resource) throws InternalErrorException {
+		try {
+			Set<User> setOfAdmins = new HashSet<>();
+			// Direct admins
+			setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
+							"  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
+					UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.getRoleName()));
+
+			// Admins through a group
+			List<Group> listOfGroupAdmins = getAdminGroups(sess, resource);
+			for(Group authorizedGroup : listOfGroupAdmins) {
+				setOfAdmins.addAll(jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from users join members on users.id=members.user_id " +
+						"join groups_members on groups_members.member_id=members.id where groups_members.group_id=?", UsersManagerImpl.USER_MAPPER, authorizedGroup.getId()));
+			}
+
+			return new ArrayList(setOfAdmins);
+
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<User> getDirectAdmins(PerunSession perunSession, Resource resource) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
+							"  where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
+					UsersManagerImpl.USER_MAPPER, resource.getId(), Role.RESOURCEADMIN.getRoleName());
+
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
+							" where authz.resource_id=? and authz.role_id=(select id from roles where name=?)",
+					GroupsManagerImpl.GROUP_MAPPER, resource.getId(), Role.RESOURCEADMIN.getRoleName());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			return jdbc.query("select " + resourceMappingSelectQuery + " from resources, authz where authz.user_id=? and " +
+							"authz.role_id=(select id from roles where name=?) and authz.resource_id=resources.id",
+					RESOURCE_MAPPER, user.getId(), Role.RESOURCEADMIN.getRoleName());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
 		}
 	}
 

@@ -2,51 +2,11 @@ package cz.metacentrum.perun.core.blImpl;
 
 import java.util.*;
 
-import cz.metacentrum.perun.core.api.exceptions.ResourceExistsException;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.BanOnResource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.ResourceTag;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichResource;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServicesPackage;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
-import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotDefinedOnResourceException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ResourceTagNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceAlreadyAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotAssignedException;
-import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ServicesPackageNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.AttributesManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
@@ -669,6 +629,64 @@ public class ResourcesManagerBlImpl implements ResourcesManagerBl {
 				throw new InternalErrorException("Copying of groups failed.", ex);
 			}
 		}
+	}
+
+	public List<User> getAdmins(PerunSession perunSession, Resource resource, boolean onlyDirectAdmins) throws InternalErrorException {
+		if(onlyDirectAdmins) {
+			return getResourcesManagerImpl().getDirectAdmins(perunSession, resource);
+		} else {
+			return getResourcesManagerImpl().getAdmins(perunSession, resource);
+		}
+	}
+
+	public List<RichUser> getRichAdmins(PerunSession perunSession, Resource resource, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, UserNotExistsException {
+		List<User> users = this.getAdmins(perunSession, resource, onlyDirectAdmins);
+		List<RichUser> richUsers;
+
+		if(allUserAttributes) {
+			richUsers = perunBl.getUsersManagerBl().getRichUsersWithAttributesFromListOfUsers(perunSession, users);
+		} else {
+			try {
+				richUsers = getPerunBl().getUsersManagerBl().convertUsersToRichUsersWithAttributes(perunSession, perunBl.getUsersManagerBl().getRichUsersFromListOfUsers(perunSession, users), getPerunBl().getAttributesManagerBl().getAttributesDefinition(perunSession, specificAttributes));
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("One of Attribute not exist.", ex);
+			}
+		}
+		return richUsers;
+	}
+
+	public List<Resource> getResourcesWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
+		return resourcesManagerImpl.getResourcesWhereUserIsAdmin(sess, user);
+	}
+
+    public List<Group> getAdminGroups(PerunSession sess, Resource resource) throws InternalErrorException {
+        return resourcesManagerImpl.getAdminGroups(sess, resource);
+    }
+
+	public void addAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, AlreadyAdminException {
+		AuthzResolverBlImpl.setRole(sess, user, resource, Role.RESOURCEADMIN);
+		getPerunBl().getAuditer().log(sess, "{} was added as admin of {}.", user, resource);
+	}
+
+	public void addAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, AlreadyAdminException {
+		List<Group> listOfAdmins = getAdminGroups(sess, resource);
+		if (listOfAdmins.contains(group)) throw new AlreadyAdminException(group);
+
+		AuthzResolverBlImpl.setRole(sess, group, resource, Role.RESOURCEADMIN);
+		getPerunBl().getAuditer().log(sess, "Group {} was added as admin of {}.", group, resource);
+	}
+
+	public void removeAdmin(PerunSession sess, Resource resource, User user) throws InternalErrorException, UserNotAdminException {
+		AuthzResolverBlImpl.unsetRole(sess, user, resource, Role.RESOURCEADMIN);
+		getPerunBl().getAuditer().log(sess, "{} was removed from admins of {}.", user, resource);
+	}
+
+	public void removeAdmin(PerunSession sess, Resource resource, Group group) throws InternalErrorException, GroupNotAdminException {
+		List<Group> listOfAdmins = getAdminGroups(sess, resource);
+		if (!listOfAdmins.contains(group)) throw new GroupNotAdminException(group);
+
+		AuthzResolverBlImpl.unsetRole(sess, group, resource, Role.RESOURCEADMIN);
+		getPerunBl().getAuditer().log(sess, "Group {} was removed from admins of {}.", group, resource);
 	}
 
 	public BanOnResource setBan(PerunSession sess, BanOnResource banOnResource) throws InternalErrorException, BanAlreadyExistsException {
