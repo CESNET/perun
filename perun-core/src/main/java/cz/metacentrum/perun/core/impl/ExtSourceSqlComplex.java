@@ -228,14 +228,16 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 							// source column is binary
 							try {
 								InputStream inputStream = rs.getBinaryStream(i);
-								ByteArrayOutputStream result = new ByteArrayOutputStream();
-								byte[] buffer = new byte[1024];
-								int length;
-								while ((length = inputStream.read(buffer)) != -1) {
-									result.write(buffer, 0, length);
+								if (inputStream != null) {
+									ByteArrayOutputStream result = new ByteArrayOutputStream();
+									byte[] buffer = new byte[1024];
+									int length;
+									while ((length = inputStream.read(buffer)) != -1) {
+										result.write(buffer, 0, length);
+									}
+									byte[] bytes = Base64.encodeBase64(result.toByteArray());
+									attributeValue = new String(bytes, "UTF-8");
 								}
-								byte[] bytes = Base64.encodeBase64(result.toByteArray());
-								attributeValue = new String(bytes, "UTF-8");
 							} catch (IOException ex) {
 								log.error("Unable to read BLOB for column {}", columnName);
 								throw new InternalErrorException("Unable to read BLOB data for column: "+columnName, ex);
