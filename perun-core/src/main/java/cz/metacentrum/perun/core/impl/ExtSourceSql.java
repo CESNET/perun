@@ -204,7 +204,12 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 							log.error("Unknown attribute type '{}' for user {} {}, attributeRaw {}", new Object[] {attributeRaw[1], map.get("firstName"), map.get("lastName"), attributeRaw});
 						} else {
 							attributeName = attributeNameMapping.get(attributeRaw[0]) + attributeNameMapping.get(attributeRaw[1]) + attributeRaw[2];
-							log.trace("Adding attribute {} with value {}", attributeName, rs.getString(i));
+							if (!Objects.equals(rs.getMetaData().getColumnTypeName(i), "BLOB")) {
+								// trace only string data
+								log.trace("Adding attribute {} with value {}", attributeName, rs.getString(i));
+							} else {
+								log.trace("Adding attribute {} with BLOB value", attributeName);
+							}
 						}
 
 						String attributeValue = null;
