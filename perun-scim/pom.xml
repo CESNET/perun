@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>perun</artifactId>
+        <groupId>cz.metacentrum</groupId>
+        <version>3.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>cz.metacentrum.perun</groupId>
+    <artifactId>perun-scim</artifactId>
+    <version>3.0.1-SNAPSHOT-${perun.build.type}</version>
+
+    <name>perun-scim</name>
+    <description>Utility to handle SCIM protocol</description>
+
+    <properties>
+        <!-- common properties used by this module and all profiles -->
+    </properties>
+
+    <!-- COMMON BUILD SETTINGS USED BY ALL PROFILES -->
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+
+        <resources>
+            <resource>
+                <!-- get common resources -->
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
+    </build>
+
+    <dependencies>
+
+        <!-- Perun -->
+
+        <dependency>
+            <groupId>cz.metacentrum.perun</groupId>
+            <artifactId>perun-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.6</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0.1</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.7.6</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+            <version>2.23.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- PROFILES -->
+
+    <profiles>
+
+        <profile>
+
+            <id>devel</id>
+
+            <activation>
+                <property>
+                    <name>devel</name>
+                </property>
+            </activation>
+
+            <properties>
+                <perun.build.type>devel</perun.build.type>
+                <spring.profiles.default>devel</spring.profiles.default>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <!-- Make "devel" tests to run against real DB -->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <spring.profiles.default>devel</spring.profiles.default>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+
+        <profile>
+
+            <id>production</id>
+
+            <activation>
+                <property>
+                    <name>production</name>
+                </property>
+            </activation>
+
+            <properties>
+                <perun.build.type>production</perun.build.type>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+
+        </profile>
+
+    </profiles>
+</project>

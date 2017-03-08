@@ -65,6 +65,7 @@ public class Api extends HttpServlet {
 	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
 	private final static String OIDCMANAGER = "oidcManager";
+	private final static String SCIMMANAGER = "scimManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
 	@Override
@@ -580,7 +581,12 @@ public class Api extends HttpServlet {
 				result = caller.getOIDCManager().process(caller.getSession(), method, des);
 				if (perunRequest != null) perunRequest.setResult(result);
 				ser.write(result);
-			} else {
+			} else if (SCIMMANAGER.equals(manager)) {
+                                // Process SCIM protocol
+                                result = caller.getSCIMManager().process(caller.getSession(), method, des.readAll());
+				if (perunRequest != null) perunRequest.setResult(result);
+				ser.write(result);
+                        } else {
 				//Save only exceptions from caller to result
 				try {
 					result = caller.call(manager, method, des);
