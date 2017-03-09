@@ -310,6 +310,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 		List<Task> tasklist = schedulingPool.getDoneTasks();
 		log.debug("There are {} DONE tasks", tasklist.size());
 		for (Task task : tasklist) {
+			if (task.getEndTime() == null) {
+				log.error("RECOVERY FROM INCONSISTENT STATE: DONE task does not have end_time! Setting end_time to now.");
+				Date endTime = new Date(System.currentTimeMillis());
+				task.setEndTime(endTime);
+			}
 			log.debug("TASK " + task.toString() + " finished");
 			try {
 				log.debug("TASK reported as finished at "
