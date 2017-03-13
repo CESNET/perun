@@ -154,6 +154,16 @@ public class ResourceDetailTabItem implements TabItem, TabItemWithUrl {
 			menu.getFlexCellFormatter().setWidth(0, column, "25px");
 			column++;
 		}
+
+		if (facilityId > 0) {
+			// facility admin view
+			menu.setHTML(0, column, "<strong>VO:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getVoId()+" / "+resource.getVo().getShortName()+"</span>");
+			column++;
+			menu.setHTML(0, column, "&nbsp;");
+			menu.getFlexCellFormatter().setWidth(0, column, "25px");
+			column++;
+		}
+
 		menu.setHTML(0, column, "<strong>Description:</strong><br/><span class=\"inputFormInlineComment\">"+resource.getDescription()+"&nbsp;</span>");
 
 		if (session.isFacilityAdmin(resource.getFacilityId())) {
