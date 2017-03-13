@@ -375,7 +375,9 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 											return;
 										}
 
-										if (namespace.getSelectedValue().equals("mu")) {
+										final String namespaceValue = namespace.getSelectedValue();
+
+										if ("mu".equals(namespaceValue)) {
 
 											final GenerateAccount req = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
 												public void onFinished(JavaScriptObject jso) {
@@ -387,8 +389,6 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 														@Override
 														public void onFinished(JavaScriptObject jso) {
 
-															UiElements.generateInfo("Assigned login", "You were assigned with login <b>"+login+"</b> in namespace MU.");
-
 															// VALIDATE PASSWORD - SET EXT SOURCES AND VALIDATE MEMBER
 															CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
 																@Override
@@ -399,7 +399,10 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 																	req2.validateMemberAsync(member);
 																}
 															}));
-															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
+															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespaceValue);
+
+															// show assigned login
+															UiElements.generateInfo("Assigned login", "You were assigned with login <b>"+login+"</b> in namespace MU.");
 
 														}
 														@Override
@@ -429,7 +432,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 													params.put("urn:perun:user:attribute-def:core:lastName", rm.getUser().getLastName());
 													params.put("urn:perun:member:attribute-def:def:mail", serviceUserEmail.getTextBox().getValue().trim());
 
-													req.generateAccount(namespace.getValue(namespace.getSelectedIndex()), serviceUserPassword.getTextBox().getValue().trim(), params);
+													req.generateAccount(namespaceValue, serviceUserPassword.getTextBox().getValue().trim(), params);
 
 												}
 											}));
@@ -445,7 +448,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 													req2.validateMemberAsync(member);
 												}
 											}));
-											req.createPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()), serviceUserPassword.getTextBox().getValue().trim());
+											req.createPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespaceValue, serviceUserPassword.getTextBox().getValue().trim());
 
 										}
 
@@ -456,7 +459,9 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 								skipButton.addClickHandler(new ClickHandler() {
 									public void onClick(ClickEvent clickEvent) {
 
-										if (namespace.getSelectedValue().equals("mu")) {
+										final String namespaceValue = namespace.getSelectedValue();
+
+										if ("mu".equals(namespaceValue)) {
 
 											final GenerateAccount req = new GenerateAccount(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents() {
 												@Override
@@ -469,8 +474,6 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 														@Override
 														public void onFinished(JavaScriptObject jso) {
 
-															UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
-
 															// VALIDATE PASSWORD - SET EXT SOURCES AND VALIDATE MEMBER
 															CreatePassword req = new CreatePassword(JsonCallbackEvents.disableButtonEvents(button, new JsonCallbackEvents(){
 																@Override
@@ -481,7 +484,10 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 																	req2.validateMemberAsync(member);
 																}
 															}));
-															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
+															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespaceValue);
+
+															// show assigned login
+															UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
 
 														}
 														@Override
@@ -509,7 +515,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 													params.put("urn:perun:user:attribute-def:core:lastName", rm.getUser().getLastName());
 													params.put("urn:perun:member:attribute-def:def:mail", serviceUserEmail.getTextBox().getValue().trim());
 
-													req.generateAccount(namespace.getValue(namespace.getSelectedIndex()), null, params);
+													req.generateAccount(namespaceValue, null, params);
 
 												}
 											}));
@@ -526,7 +532,7 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 												}
 											}));
 											// set empty password for service member if "skipped"
-											req.createRandomPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespace.getValue(namespace.getSelectedIndex()));
+											req.createRandomPassword(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespaceValue);
 
 										}
 

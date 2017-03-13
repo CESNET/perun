@@ -26,6 +26,8 @@ public class ValidateMemberAsync {
 	private JsonCallbackEvents events = new JsonCallbackEvents();
 	// params
 	private Member member;
+	// by default we care about result
+	private boolean hidden = false;
 
 	/**
 	 * Creates a new request
@@ -76,6 +78,7 @@ public class ValidateMemberAsync {
 
 		// sending data
 		JsonPostClient jspc = new JsonPostClient(newEvents);
+		jspc.setHidden(hidden);
 		jspc.sendData(JSON_URL, prepareJSONObject());
 
 	}
@@ -114,6 +117,14 @@ public class ValidateMemberAsync {
 		jsonQuery.put("member", new JSONNumber(member.getId()));
 		return jsonQuery;
 
+	}
+
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 
 }
