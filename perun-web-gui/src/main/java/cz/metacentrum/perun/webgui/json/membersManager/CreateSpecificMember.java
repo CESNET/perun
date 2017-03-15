@@ -95,6 +95,7 @@ public class CreateSpecificMember {
 				// call validation asynchronously
 				Member mem = jso.cast();
 				ValidateMemberAsync request = new ValidateMemberAsync();
+				request.setHidden(true);
 				request.validateMemberAsync(mem);
 
 				events.onFinished(jso);
