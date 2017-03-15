@@ -106,8 +106,10 @@ public class FacilityStatusTabItem implements TabItem, TabItemWithUrl {
 		final CellTable<ServiceState> table = callback.getTable(new FieldUpdater<ServiceState, String>(){
 			// on row click
 			public void update(int index, final ServiceState object, String value) {
-				// show results
-				session.getTabManager().addTab(new TaskResultsTabItem(object.getSendTask()));
+				// show results if any present
+				if (object.getSendTask() != null) {
+					session.getTabManager().addTab(new TaskResultsTabItem(object.getSendTask()));
+				}
 			}
 		});
 
