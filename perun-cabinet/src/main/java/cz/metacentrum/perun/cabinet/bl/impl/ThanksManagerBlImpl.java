@@ -1,6 +1,7 @@
 package cz.metacentrum.perun.cabinet.bl.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import cz.metacentrum.perun.cabinet.model.Thanks;
 import cz.metacentrum.perun.cabinet.model.ThanksForGUI;
 import cz.metacentrum.perun.cabinet.bl.CabinetException;
 import cz.metacentrum.perun.cabinet.bl.ErrorCodes;
-import cz.metacentrum.perun.cabinet.bl.PerunManagerBl;
 import cz.metacentrum.perun.cabinet.bl.ThanksManagerBl;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -64,7 +64,7 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 	}
 
 
-// methods -------------------------
+	// methods -------------------------
 
 	public Thanks createThanks(PerunSession sess, Thanks t) throws CabinetException, InternalErrorException {
 		if (t.getCreatedDate() == null) {
@@ -80,6 +80,8 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		// recalculate thanks for all publication's authors
 		List<Author> authors = new ArrayList<Author>();
 		authors = getAuthorshipManagerBl().getAuthorsByPublicationId(t.getPublicationId());
+		// sort to prevent locking
+		Collections.sort(authors);
 		for (Author a : authors) {
 			getCabinetManagerBl().setThanksAttribute(a.getId());
 		}
@@ -90,6 +92,8 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 	public void deleteThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException {
 		// recalculate thanks for all publication's authors
 		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
+		// sort to prevent locking
+		Collections.sort(authors);
 		for (Author a : authors) {
 			getCabinetManagerBl().setThanksAttribute(a.getId());
 		}
