@@ -91,16 +91,19 @@ public class CategoryManagerBlImpl implements CategoryManagerBl {
 		Category result = getCategoryManagerDao().updateCategory(sess, category);
 		// was rank changed ?
 		if (!Objects.equals(cat.getRank(), category.getRank())) {
-			// yes
-			List<Publication> pubs = getPublicationManagerBl().getPublicationsByCategoryId(category.getId());
+			synchronized (CabinetManagerBlImpl.class) {
+				// yes
+				List<Publication> pubs = getPublicationManagerBl().getPublicationsByCategoryId(category.getId());
 
-			// update coef for all authors of all publications in updated category
-			Set<Author> authors = new HashSet<Author>();
-			for (Publication p : pubs) {
-				authors.addAll(getAuthorshipManagerBl().getAuthorsByPublicationId(p.getId()));
-			}
-			for (Author a : authors) {
-				getCabinetManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
+				// update coef for all authors of all publications in updated category
+				Set<Author> authors = new HashSet<Author>();
+				for (Publication p : pubs) {
+					authors.addAll(getAuthorshipManagerBl().getAuthorsByPublicationId(p.getId()));
+				}
+
+				for (Author a : authors) {
+					getCabinetManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
+				}
 			}
 			log.debug("Category: [{}] updated to Category: [{}]", cat, category);
 		}

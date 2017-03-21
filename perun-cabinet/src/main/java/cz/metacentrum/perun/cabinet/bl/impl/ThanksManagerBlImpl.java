@@ -81,25 +81,29 @@ public class ThanksManagerBlImpl implements ThanksManagerBl {
 		List<Author> authors = new ArrayList<Author>();
 		authors = getAuthorshipManagerBl().getAuthorsByPublicationId(t.getPublicationId());
 		// sort to prevent locking
-		Collections.sort(authors);
-		for (Author a : authors) {
-			getCabinetManagerBl().setThanksAttribute(a.getId());
+		synchronized (ThanksManagerBlImpl.class) {
+			for (Author a : authors) {
+				getCabinetManagerBl().setThanksAttribute(a.getId());
+			}
 		}
 		return t;
 	}
 
 	@Override
 	public void deleteThanks(PerunSession sess, Thanks thanks) throws InternalErrorException, CabinetException {
-		// recalculate thanks for all publication's authors
-		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
-		// sort to prevent locking
-		Collections.sort(authors);
-		for (Author a : authors) {
-			getCabinetManagerBl().setThanksAttribute(a.getId());
-		}
 
 		getThanksManagerDao().deleteThanks(sess, thanks);
 		log.debug("{} deleted.", thanks);
+
+		// recalculate thanks for all publication's authors
+		List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(thanks.getPublicationId());
+
+		synchronized (ThanksManagerBlImpl.class) {
+			for (Author a : authors) {
+				getCabinetManagerBl().setThanksAttribute(a.getId());
+			}
+		}
+
 	}
 
 	@Override

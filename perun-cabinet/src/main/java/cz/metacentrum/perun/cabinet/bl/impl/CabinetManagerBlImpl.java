@@ -189,13 +189,13 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 			// assign or update user's attribute
 			perun.getAttributesManager().setAttribute(cabinetSession, user, attr);
 		} catch (PerunException e) {
-			throw new CabinetException("Failed to update priority coeficient in Perun.",ErrorCodes.PERUN_EXCEPTION, e);
+			throw new CabinetException("Failed to update priority coefficient in Perun.",ErrorCodes.PERUN_EXCEPTION, e);
 		}
 
 	}
 
 	@Override
-	public synchronized void setThanksAttribute(int userId) throws CabinetException, InternalErrorException {
+	public void setThanksAttribute(int userId) throws CabinetException, InternalErrorException {
 
 		List<ThanksForGUI> thanks = getThanksManagerBl().getRichThanksByUserId(userId);
 
@@ -203,7 +203,7 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 			// get user
 			User u = perun.getUsersManager().getUserById(cabinetSession, userId);
 			// get attribute
-			AttributeDefinition attrDef = perun.getAttributesManager().getAttributeDefinition(cabinetSession, ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME);
+			AttributeDefinition attrDef = perun.getAttributesManager().getAttributeDefinition(cabinetSession, ATTR_PUBS_NAMESPACE + ":" + ATTR_PUBS_FRIENDLY_NAME);
 			Attribute attr = new Attribute(attrDef);
 			// if there are thanks to set
 			if (thanks != null && !thanks.isEmpty()) {
@@ -227,9 +227,8 @@ public class CabinetManagerBlImpl implements CabinetManagerBl {
 			}
 
 		} catch (PerunException e) {
-			throw new CabinetException("Failed to update "+ATTR_PUBS_NAMESPACE+":"+ATTR_PUBS_FRIENDLY_NAME+" in Perun.",ErrorCodes.PERUN_EXCEPTION, e);
+			throw new CabinetException("Failed to update " + ATTR_PUBS_NAMESPACE + ":" + ATTR_PUBS_FRIENDLY_NAME + " in Perun.", ErrorCodes.PERUN_EXCEPTION, e);
 		}
-
 
 	}
 
