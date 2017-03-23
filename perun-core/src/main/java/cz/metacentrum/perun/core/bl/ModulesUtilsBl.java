@@ -399,4 +399,15 @@ public interface ModulesUtilsBl {
 	 * @return counted user facility quotas
 	 */
 	Map<String, Pair<BigDecimal, BigDecimal>> countUserFacilityQuotas(List<Map<String, Pair<BigDecimal, BigDecimal>>> allUserQuotas);
+
+	/**
+	 * Checks fully qualified domain name and returns true, if it is valid.
+	 *
+	 * @param sess
+	 * @param fqdn fully qualified domain name
+	 *
+	 * @return true if the fqdn is valid
+	 */
+	boolean isFQDNValid(PerunSessionImpl sess, String fqdn);
+
 }

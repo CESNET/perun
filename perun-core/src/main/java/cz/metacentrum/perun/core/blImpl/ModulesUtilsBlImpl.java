@@ -65,6 +65,7 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 	public static final Pattern quotaWithoutMetricsPattern = Pattern.compile("^([0-9]+)(:)([0-9]+)$");
 	public static final Pattern numberPattern = Pattern.compile("[0-9]+([.][0-9]+)?");
 	public static final Pattern letterPattern = Pattern.compile("[A-Z]");
+	public static final Pattern fqdnPattern = Pattern.compile("^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63}\\.?$");
 
 	public final static List<String> reservedNamesForUnixGroups = Arrays.asList("root", "daemon", "tty", "bin", "sys", "sudo", "nogroup",
 	          "hadoop", "hdfs", "mapred", "yarn", "hsqldb", "derby", "jetty", "hbase", "zookeeper", "users");
@@ -934,6 +935,13 @@ public class ModulesUtilsBlImpl implements ModulesUtilsBl {
 		}
 		//return result map
 		return resultTransferredQuotas;
+	}
+
+	@Override
+	public boolean isFQDNValid(PerunSessionImpl sess, String fqdn) {
+		if (fqdn == null) return false;
+		Matcher fqdnMatcher = fqdnPattern.matcher(fqdn);
+		return fqdnMatcher.find();
 	}
 
 	/**
