@@ -204,7 +204,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			if (getAttributes().get("ldapMapping") == null) {
 				throw new InternalErrorException("ldapMapping attributes is required");
 			}
-			String ldapMapping[] = ((String) getAttributes().get("ldapMapping")).trim().split(",");
+			String ldapMapping[] = ((String) getAttributes().get("ldapMapping")).trim().split(",\n");
 			mapping = new HashMap<String, String>();
 			for (String entry: ldapMapping) {
 				String values[] = entry.trim().split("=", 2);
@@ -219,7 +219,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 	}
 
 	protected Map<String,String> getSubjectAttributes(Attributes attributes) throws InternalErrorException {
-		Pattern pattern = Pattern.compile("\\{([^\\}])*\\}");;
+		Pattern pattern = Pattern.compile("\\{([^\\}])*\\}");
 		Map<String, String> map = new HashMap<String, String>();
 
 		for (String key: mapping.keySet()) {
