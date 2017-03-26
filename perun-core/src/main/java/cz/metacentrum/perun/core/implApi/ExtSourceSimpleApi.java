@@ -3,6 +3,8 @@ package cz.metacentrum.perun.core.implApi;
 import java.util.List;
 import java.util.Map;
 
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
@@ -59,12 +61,16 @@ public interface ExtSourceSimpleApi {
 	/**
 	 * Get the list of the subjects in the external group.
 	 *
-	 * @param attributes map of attributes used for quering the external source
-	 * @return list of maps, which contains attr_name-&gt;attr_value, e.g. firstName-&gt;Michal
+	 *
+	 *
+	 * @param sess
+	 * @param group map of attributes used for quering the external source
+	 * @param status
+	 * @param subjects
 	 * @throws InternalErrorException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException;
+	String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException, ExtSourceUnsupportedOperationException;
 
 	/**
 	 * If extSource needs to be closed, this method must be called.
