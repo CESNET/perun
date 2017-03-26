@@ -3,7 +3,34 @@ package cz.metacentrum.perun.core.api;
 import java.util.List;
 import java.util.Map;
 
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExternallyManagedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.GroupAlreadyRemovedFromResourceException;
+import cz.metacentrum.perun.core.api.exceptions.GroupExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationAlreadyExists;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationCannotBeRemoved;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationDoesNotExist;
+import cz.metacentrum.perun.core.api.exceptions.GroupRelationNotAllowed;
+import cz.metacentrum.perun.core.api.exceptions.GroupSynchronizationAlreadyRunningException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 
 /**
@@ -16,28 +43,44 @@ import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException
  *
  * @author  Michal Prochazka
  * @author  Slavek Licehammer
+ * @author  Jan Zverina
  * @see Perun
  */
 public interface GroupsManager {
 
 	// Attributes related to the external groups
 	// Contains query need to get the group members
-	public static final String GROUPMEMBERSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersQuery";
+	String GROUPMEMBERSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersQuery";
 	// Contains optional filter for members in group
-	public static final String GROUPMEMBERSFILTER_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersFilter";
+	String GROUPMEMBERSFILTER_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersFilter";
 	// Define the external source used for accessing the data about external group
-	public static final String GROUPEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupExtSource";
+	String GROUPEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupExtSource";
 	// Define the external source used for accessing the data about the group members
-	public static final String GROUPMEMBERSEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersExtSource";
+	String GROUPMEMBERSEXTSOURCE_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":groupMembersExtSource";
 	// If the synchronization is enabled/disabled, value is true/false
-	public static final String GROUPSYNCHROENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationEnabled";
+	String GROUPSYNCHROENABLED_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationEnabled";
 	// Defines the interval, when the group has to be synchronized. It is fold of 5 minutes
-	public static final String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
+	String GROUPSYNCHROINTERVAL_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":synchronizationInterval";
 	// Defines if we want to skip updating already existing members in group from extSource (updating attributes etc.)
-	public static final String GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":lightweightSynchronization";
+	String GROUPLIGHTWEIGHTSYNCHRONIZATION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":lightweightSynchronization";
+	// Defines attribute which stores group value for change detection
+	String GROUPCHANGEDETECTION_ATTRNAME = AttributesManager.NS_GROUP_ATTR_OPT + ":groupChangeDetectionValue";
+	// Defines attribute which stores group value for change detection
+	String GROUPCHANGEDETECTIONQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_OPT + ":groupChangeDetectionQuery";
+	// Contains query need to get the modified group members
+	String GROUPMODIFIEDMEMBERSQUERY_ATTRNAME = AttributesManager.NS_GROUP_ATTR_OPT + ":groupModifiedMembersQuery";
+	// Defines timestamp with start of last successful synchronization
+	String GROUPSTARTOFLASTSUCCESSSYNC_ATTRNAME = AttributesManager.NS_GROUP_ATTR_DEF + ":startOfLastSuccessSynchronizationTimestamp";
 
-	public static final String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
-	public static final String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
+	String GROUP_SHORT_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+$";
+	String GROUP_FULL_NAME_REGEXP = "^[-a-zA-Z.0-9_ ]+([:][-a-zA-Z.0-9_ ]+)*";
+
+	// Detects that group synchronization is obtaining all data about members from external source
+	String GROUP_SYNC_STATUS_FULL = "full";
+	// Detects that group synchronization is lightweight
+	String GROUP_SYNC_STATUS_LIGHTWEIGHT = "lightweight";
+	// Detects that group synchronization is obtaining only modified data about members from external source
+	String GROUP_SYNC_STATUS_MODIFIED = "modified";
 
 	/**
 	 * Creates a new top-level group and associates it with the VO from parameter.

@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.core.api.*;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,12 +17,72 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.PerunBean;
+import cz.metacentrum.perun.core.api.Role;
+import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
+import cz.metacentrum.perun.core.api.exceptions.AlreadySponsorException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
+import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
+import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotSponsoredException;
+import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
+import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
+import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
+import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
+import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
+import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.UserNotInRoleException;
+import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.AttributesManager;
+import cz.metacentrum.perun.core.api.AuthzResolver;
+import cz.metacentrum.perun.core.api.BanOnResource;
+import cz.metacentrum.perun.core.api.Candidate;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Facility;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.Member;
+import cz.metacentrum.perun.core.api.MembersManager;
+import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.Resource;
+import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.MembershipType;
+import cz.metacentrum.perun.core.api.SpecificUserType;
+import cz.metacentrum.perun.core.api.Status;
+import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.VosManager;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
@@ -99,16 +157,23 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			throw new InternalErrorException(e);
 		}
 
-		// Remove member's  attributes (namespaces: member and resource-member)
+		// Remove member's  attributes (namespaces: member, resource-member, member-group)
 		try {
 			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member);
 			List<Resource> resources = getPerunBl().getResourcesManagerBl().getResources(sess, vo);
 			for(Resource resource : resources) {
 				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, resource, member);
 			}
+
+			List<Group> groups = getPerunBl().getGroupsManagerBl().getMemberGroups(sess, member);
+			for(Group g: groups) {
+				getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, member, g);
+			}
 		} catch(AttributeValueException ex) {
 			throw new ConsistencyErrorException("Member is removed from all groups. There are no required attribute for this member. Member's attributes can be removed without problem.", ex);
 		} catch (MemberResourceMismatchException ex) {
+			throw new InternalErrorException(ex);
+		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
 		}
 
@@ -343,10 +408,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	//MAIN METHOD
 	public Member createMember(PerunSession sess, Vo vo, SpecificUserType specificUserType, Candidate candidate, List<Group> groups, List<String> overwriteUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, GroupOperationsException {
 		log.debug("Creating member for VO {} from candidate {}", vo, candidate);
-
 		// Get the user
 		User user = null;
-
 		if (candidate.getUserExtSources() != null) {
 			for (UserExtSource ues: candidate.getUserExtSources()) {
 				// Check if the extSource exists
@@ -416,6 +479,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		List<Attribute> membersAttributes = new ArrayList<Attribute>();
 		List<Attribute> usersAttributesToMerge = new ArrayList<>();
 		List<Attribute> usersAttributesToModify = new ArrayList<>();
+		Attribute hashCode = null;
 		if (candidate.getAttributes() != null) {
 			for (String attributeName: candidate.getAttributes().keySet()) {
 				AttributeDefinition attributeDefinition;
@@ -430,6 +494,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 						getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManager.NS_MEMBER_ATTR_OPT)) {
 					// This is member's attribute
 					membersAttributes.add(attribute);
+				} else if (attributeName.equals(MembersManager.MEMBERGROUPHASHCODE_ATTRNAME)) {
+					// This should be hashCode
+					hashCode = attribute;
 				} else if (getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR_DEF) ||
 						getPerunBl().getAttributesManagerBl().isFromNamespace(sess, attribute, AttributesManager.NS_USER_ATTR_OPT)) {
 					if(overwriteUserAttributes != null && !overwriteUserAttributes.isEmpty() && overwriteUserAttributes.contains(attribute.getName())) {
@@ -443,7 +510,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		// Store the attributes
 		try {
-			//if empty, skip setting or merging empty arrays of attributes at all
+			// If empty, skip setting or merging empty arrays of attributes at all
 			if(!membersAttributes.isEmpty()) getPerunBl().getAttributesManagerBl().setAttributes(sess, member, membersAttributes);
 			if(!usersAttributesToMerge.isEmpty()) getPerunBl().getAttributesManagerBl().mergeAttributesValues(sess, user, usersAttributesToMerge);
 			if(!usersAttributesToModify.isEmpty()) getPerunBl().getAttributesManagerBl().setAttributes(sess, user, usersAttributesToModify);
@@ -459,26 +526,48 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			Attribute loa = getPerunBl().getAttributesManagerBl().getAttribute(sess, member, AttributesManager.NS_MEMBER_ATTR_VIRT + ":loa");
 			memberLoa = (String) loa.getValue();
 		} catch (AttributeNotExistsException e) {
-			// user has no loa defined - if required by VO, it will be stopped in checking method later
+			// User has no loa defined - if required by VO, it will be stopped in checking method later
 		} catch (WrongAttributeAssignmentException e) {
 			throw new InternalErrorException(e);
 		}
 
-		// check if user can be member
+		// Check if user can be member
 		this.canBeMemberInternal(sess, vo, user, memberLoa, true);
 
-		// set initial membership expiration
+		// Set initial membership expiration
 		this.extendMembership(sess, member);
 
 		insertToMemberGroup(sess, member, vo);
+		// Fill hash code of data gained from external source to member-group attribute.
+		if (hashCode != null)  {
+			Group membersGroup = null;
+			try {
+				membersGroup = getPerunBl().getGroupsManagerBl().getGroupByName(sess, vo, VosManager.MEMBERS_GROUP);
+				perunBl.getAttributesManagerBl().setAttributeInNestedTransaction(sess, member, membersGroup, hashCode);
+			} catch (GroupNotExistsException e) {
+				throw new ConsistencyErrorException(e);
+			} catch (WrongAttributeAssignmentException ex) {
+				throw new InternalErrorException("Attribute " + hashCode + " cannot be assigned to member - group relationship. Member:  " + member + " and group: " + membersGroup, ex);
+			} catch (AttributeNotExistsException ex) {
+				throw new InternalErrorException("Attribute " + hashCode + " does not exist.", ex);
+			}
+		}
 
-		// add member also to all groups in list
+		// Add member also to all groups in list
 		if(groups != null && !groups.isEmpty()) {
 			for(Group group: groups) {
 				try {
 					perunBl.getGroupsManagerBl().addMember(sess, group, member);
+					// Fill hash code of data gained from external source to member-group attribute.
+					if (hashCode != null)  {
+						perunBl.getAttributesManagerBl().setAttributeInNestedTransaction(sess, member, group, hashCode);
+					}
 				} catch (GroupNotExistsException e) {
 					throw new ConsistencyErrorException(e);
+				} catch (WrongAttributeAssignmentException ex) {
+					throw new InternalErrorException("Attribute " + hashCode + " cannot be assigned to member - group relationship. Member:  " + member + " and group: " + group, ex);
+				} catch (AttributeNotExistsException ex) {
+					throw new InternalErrorException("Attribute " + hashCode + " does not exist.", ex);
 				}
 			}
 		}

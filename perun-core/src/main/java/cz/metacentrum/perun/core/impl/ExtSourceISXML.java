@@ -1,6 +1,11 @@
 package cz.metacentrum.perun.core.impl;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import java.io.IOException;
@@ -15,6 +20,8 @@ import javax.net.ssl.SSLSocketFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import org.apache.commons.codec.binary.Base64;
 import java.util.Random;
 import org.slf4j.Logger;
@@ -37,13 +44,24 @@ public class ExtSourceISXML extends ExtSourceXML {
 	private String groupName = null;
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
-		// Get the query for the group
-		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		Attribute queryForGroupAttribute = null;
+		try {
+			queryForGroupAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		} catch (WrongAttributeAssignmentException e) {
+			// Should not happen
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " is not from group namespace.");
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must exists.");
+		}
+
+		// Get the query for the group subjects
+		String queryForGroup = BeansUtils.attributeValueToString(queryForGroupAttribute);
+
 		//If there is no query for group, throw exception
-		if(queryForGroup == null || queryForGroup.isEmpty()) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+		if(queryForGroup == null || queryForGroup.isEmpty()) throw new InternalErrorException("Attribute value " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
 		//Expected value like "workplaceId:groupName" with ':' as separator
-		if(!queryForGroup.contains(":")) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " has to contain separator ':' between workplaceId and groupName.");
+		if(!queryForGroup.contains(":")) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " has to contain separator ':' between workplaceId and groupName.");
 
 		//Parse workplace and groupName from queryForGroup
 		String parsedQuery[] = queryForGroup.split(":");
@@ -59,7 +77,8 @@ public class ExtSourceISXML extends ExtSourceXML {
 		//Get file or uri of xml
 		prepareEnvironment();
 
-		return xpathParsing(query, 0);
+		xpathParsing(query, 0, subjects);
+		return GroupsManager.GROUP_SYNC_STATUS_FULL;
 	}
 
 	@Override

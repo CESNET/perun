@@ -7,27 +7,30 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 
 /**
@@ -57,15 +60,26 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 		throw new ExtSourceUnsupportedOperationException();
 	}
 
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException {
 		// Get the url query for the group subjects
-		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		Attribute queryForGroupAttribute = null;
+		try {
+			queryForGroupAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		} catch (WrongAttributeAssignmentException e) {
+			// Should not happen
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " is not from group namespace.");
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must exists.");
+		}
 
-		return this.querySource(queryForGroup, null, 0);
+		// Get the query for the group subjects
+		String queryForGroup = BeansUtils.attributeValueToString(queryForGroupAttribute);
+
+		querySource(queryForGroup, null, 0, subjects);
+		return GroupsManager.GROUP_SYNC_STATUS_FULL;
 	}
 
-	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
-
+	protected void querySource(String query, String searchString, int maxResults, List<Map<String, String>> subjects) throws InternalErrorException {
 		// Get the URL, if query was provided it has precedence over url attribute defined in extSource
 		String url = null;
 		if (query != null && !query.isEmpty()) {
@@ -116,8 +130,6 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line = null;
 
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
-
 			while ((line = reader.readLine()) != null) {
 				Map<String, String> map = new HashMap<String, String>();
 
@@ -148,8 +160,6 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 
 				subjects.add(map);
 			}
-
-			return subjects;
 		}
 		catch (IOException e) {
 			throw new InternalErrorException(e);

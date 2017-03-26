@@ -1,7 +1,5 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.util.*;
-
 import cz.metacentrum.perun.core.api.ActionType;
 import java.io.IOException;
 
@@ -12,6 +10,14 @@ import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
@@ -75,10 +81,8 @@ import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.GroupResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.ModuleNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberResourceMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.ResourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
@@ -4247,7 +4251,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDisplayName("Group members query");
 		attributes.add(attr);
 
-		//urn:perun:group:attribute-def:def:synchronizatinEnabled
+		//urn:perun:group:attribute-def:def:synchronizationEnabled
 		attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		attr.setType(String.class.getName());
@@ -4281,6 +4285,24 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		attr.setDescription("If group is synchronized, there will be the last timestamp of group synchronization.");
 		attr.setFriendlyName("lastSynchronizationTimestamp");
 		attr.setDisplayName("Last Synchronization timestamp");
+		attributes.add(attr);
+
+		//urn:perun:group:attribute-def:def:startOfLastSuccessSynchronizationTimestamp
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setDescription("Timestamp of start of last successful synchronization.");
+		attr.setFriendlyName("startOfLastSuccessSynchronizationTimestamp");
+		attr.setDisplayName("Start of last success synchronization");
+		attributes.add(attr);
+
+		//urn:perun:member_group:attribute-def:def:hashCode
+		attr = new AttributeDefinition();
+		attr.setNamespace(AttributesManager.NS_MEMBER_GROUP_ATTR_DEF);
+		attr.setType(String.class.getName());
+		attr.setDescription("Hashcode of attribute map received from external source.");
+		attr.setFriendlyName("hashCode");
+		attr.setDisplayName("Hash Code");
 		attributes.add(attr);
 
 		if(perun.isPerunReadOnly()) log.debug("Loading attributes manager init in readOnly version.");

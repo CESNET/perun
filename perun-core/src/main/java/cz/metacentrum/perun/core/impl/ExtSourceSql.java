@@ -13,22 +13,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
+import cz.metacentrum.perun.core.api.BeansUtils;
+import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
+import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
+import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 
 /**
  * @author Michal Prochazka michalp@ics.muni.cz
+ * @author Jan Zverina <zverina@cesnet.cz>
  */
 public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
@@ -74,8 +86,9 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		if (query == null) {
 			throw new InternalErrorException("query attribute is required");
 		}
-
-		return this.querySource(query, searchString, maxResults);
+		List<Map<String, String>> subjects = new ArrayList<>();
+		this.querySource(query, searchString, maxResults, subjects);
+		return subjects;
 	}
 
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
@@ -84,7 +97,8 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			throw new InternalErrorException("loginQuery attribute is required");
 		}
 
-		List<Map<String, String>> subjects = this.querySource(query, login, 0);
+		List<Map<String, String>> subjects = new ArrayList<>();
+		this.querySource(query, login, 0, subjects);
 
 		if (subjects.size() < 1) {
 			throw new SubjectNotExistsException("Login: " + login);
@@ -96,14 +110,147 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		return subjects.get(0);
 	}
 
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
-		// Get the sql query for the group subjects
-		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException {
+		// Get all group attributes and store them to map (info like query, time interval etc.)
+		List<Attribute> groupAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, group);
+		Map<String, String> groupAttributesMap = new HashMap<>();
+		for (Attribute attr: groupAttributes) {
+			String value = BeansUtils.attributeValueToString(attr);
+			String name = attr.getName();
+			groupAttributesMap.put(name, value);
+		}
 
-		return this.querySource(sqlQueryForGroup, null, 0);
+		// Get url of database
+		if (getAttributes().get("url") == null) {
+			throw new InternalErrorException("url attribute is required");
+		}
+
+		// Register driver if the attribute has been defined
+		if (getAttributes().get("driver") != null) {
+			try {
+				Class.forName(getAttributes().get("driver"));
+			} catch (ClassNotFoundException e) {
+				throw new InternalErrorException("Driver " + getAttributes().get("driver") + " cannot be registered", e);
+			}
+		}
+
+		// Query for members (can be changed later, if we can get only modified members)
+		String queryForMembers = groupAttributesMap.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		if (queryForMembers == null || queryForMembers.isEmpty()) {
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must be defined for group " + group + ".");
+		}
+
+		// Status of synchronization process (if we get all subjects from extSource or only modified)
+		String extSourceStatus = GroupsManager.GROUP_SYNC_STATUS_FULL;
+		// Check if we need to save new value of CRC to group change detection value
+		boolean saveCheck = false;
+		// Get query for group change detection
+		String queryForChangeDetection = groupAttributesMap.get(GroupsManager.GROUPCHANGEDETECTIONQUERY_ATTRNAME);
+		// String storing new value of CRC
+		String crc = null;
+
+		// Prepare statement and result for queries
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			// Check if we have existing connection. In case of Oracle also checks the connection validity
+			if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
+				this.createConnection();
+			}
+
+			// If group has filled group detection query
+			if (queryForChangeDetection != null && !queryForChangeDetection.isEmpty()) {
+				st = this.con.prepareStatement(queryForChangeDetection);
+				rs = st.executeQuery();
+
+				while (rs.next()) {
+					crc = rs.getString("crc");
+					log.info("CRC: {}", crc);
+				}
+
+				// Get format of modifyTimestamp from definition of extSource
+				String dateFormat = getAttributes().get("timestampFormat");
+				if (dateFormat == null || dateFormat.isEmpty()) {
+					throw new InternalErrorException("ExtSourceSQL: Format of timestamp is not defined. Declare timestampFormat attribute in definition of external source: " + this);
+				}
+
+				// Get query to get modified members
+				String modifiedMembersQuery = groupAttributesMap.get(GroupsManager.GROUPMODIFIEDMEMBERSQUERY_ATTRNAME);
+				if (modifiedMembersQuery == null || modifiedMembersQuery.isEmpty()) {
+					throw new InternalErrorException("ExtSourceSQL: Group [" + group + "] has filled query for change detection, but doesn't have defined query for modified members.");
+				}
+
+				// Get group attribute with change detection value
+				String groupChangeDetection = groupAttributesMap.get(GroupsManager.GROUPCHANGEDETECTION_ATTRNAME);
+				if (groupChangeDetection != null && !groupChangeDetection.isEmpty()) {
+					// Compare obtained CRC with the stored one in change detection value
+					if (groupChangeDetection.equals(crc)) {
+						// If its Lightweight synchronization, we don't need to gain data from extSource in this case
+						if (status.equals(GroupsManager.GROUP_SYNC_STATUS_LIGHTWEIGHT)) {
+							return GroupsManager.GROUP_SYNC_STATUS_MODIFIED;
+						}
+
+						String startOfLastSuccessSync = groupAttributesMap.get(GroupsManager.GROUPSTARTOFLASTSUCCESSSYNC_ATTRNAME);
+						try {
+							if (startOfLastSuccessSync != null && !startOfLastSuccessSync.isEmpty()) {
+								java.util.Date startDate = BeansUtils.getDateFormatter().parse(startOfLastSuccessSync);
+								SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+								String date = sdf.format(startDate);
+								String tmp = modifiedMembersQuery.replace("?", date);
+								queryForMembers = tmp;
+								extSourceStatus = GroupsManager.GROUP_SYNC_STATUS_MODIFIED;
+							}
+						} catch (ParseException e) {
+							// Should not happen
+							log.error("ExtSourceSQL: Attribute " + GroupsManager.GROUPSTARTOFLASTSUCCESSSYNC_ATTRNAME + " has bad format: {}", startOfLastSuccessSync);
+							throw new InternalErrorException("Error in parsing of date with start of last success sync: " + startOfLastSuccessSync, e);
+						}
+					} else {
+						// We need to update value of change detection
+						saveCheck = true;
+					}
+				} else {
+					// We don't have stored CRC value in change detection attribute yet, so we need to store it
+					saveCheck = true;
+				}
+			}
+
+		} catch (SQLException e) {
+			log.error("SQL exception during query '{}'", queryForChangeDetection);
+			throw new InternalErrorRuntimeException(e);
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (st != null) st.close();
+			} catch (SQLException e) {
+				log.error("SQL exception during closing the resultSet {} or statement {}.", rs, st);
+				throw new InternalErrorRuntimeException(e);
+			}
+		}
+		log.info("STATUS: {}", extSourceStatus);
+		log.info("QUERY: {}", queryForMembers);
+
+		// Query external sources for members
+		this.querySource(queryForMembers, null, 0, subjects);
+
+		// Save new value of change detection if needed
+		if (saveCheck) {
+			log.info("Saving new Group's change detection value {}", crc);
+			// Save new LDAP modify timestamp to group
+			try {
+				AttributeDefinition attributeDefinition = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPCHANGEDETECTION_ATTRNAME);
+				Attribute newChangeDetectionValue = new Attribute(attributeDefinition);
+				newChangeDetectionValue.setValue(crc);
+				perunBl.getAttributesManagerBl().setAttributeInNestedTransaction(sess, group, newChangeDetectionValue);
+			} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
+				throw new InternalErrorException("There is a problem with saving of change detection value attribute to group "
+						+ group + ". New value is " + crc + ".");
+			}
+		}
+		return extSourceStatus;
 	}
 
-	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
+	protected void querySource(String query, String searchString, int maxResults, List<Map<String, String>> subjects) throws InternalErrorException {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 
@@ -144,8 +291,6 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 
 			}
 			rs = st.executeQuery();
-
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
 
 			log.trace("Query {}", query);
 
@@ -250,10 +395,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 				}
 				subjects.add(map);
 			}
-
 			log.debug("Returning {} subjects from external source {} for searchString {}", new Object[] {subjects.size(), this, searchString});
-			return subjects;
-
 		} catch (SQLException e) {
 			log.error("SQL exception during searching for subject '{}'", query);
 			throw new InternalErrorRuntimeException(e);

@@ -1,16 +1,25 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.BeansUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.RichMember;
+import cz.metacentrum.perun.core.api.RichUser;
+import cz.metacentrum.perun.core.api.UserExtSource;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 
@@ -24,12 +33,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.core.api.exceptions.RpcException;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.rpc.deserializer.JsonDeserializer;
 import java.io.IOException;
@@ -91,8 +94,8 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 				richUsers = richUsers.subList(0, maxResults);
 			}
 		}
-
-		List<Map<String,String>> subjects = convertRichUsersToListOfSubjects(richUsers);
+		List<Map<String,String>> subjects = new ArrayList<>();
+		convertRichUsersToListOfSubjects(richUsers, subjects);
 		return subjects;
 	}
 
@@ -102,27 +105,34 @@ public class ExtSourcePerun extends ExtSource implements ExtSourceApi {
 		return subject;
 	}
 
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		setEnviroment();
+		Attribute queryForGroupAttribute = null;
+		try {
+			queryForGroupAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		} catch (WrongAttributeAssignmentException e) {
+			// Should not happen
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " is not from group namespace.");
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must exists.");
+		}
+
 		// Get the query for the group subjects
-		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		String queryForGroup = BeansUtils.attributeValueToString(queryForGroupAttribute);
 
 		//If there is no query for group, throw exception
-		if(queryForGroup == null) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+		if(queryForGroup == null) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
 
 		Integer groupId = Integer.valueOf(queryForGroup);
 
-		List<Map<String,String>> subjectsFromGroup = convertRichUsersToListOfSubjects(findRichUsers(groupId));
-
-		return subjectsFromGroup;
+		convertRichUsersToListOfSubjects(findRichUsers(groupId), subjects);
+		return GroupsManager.GROUP_SYNC_STATUS_FULL;
 	}
 
-	private List<Map<String, String>> convertRichUsersToListOfSubjects(List<RichUser> richUsers) throws InternalErrorException {
-		List<Map<String, String>> listOfSubjects = new ArrayList<>();
+	private void convertRichUsersToListOfSubjects(List<RichUser> richUsers, List<Map<String, String>> subjects) throws InternalErrorException {
 		for(RichUser ru: richUsers) {
-			listOfSubjects.add(covertRichUserToSubject(ru));
+			subjects.add(covertRichUserToSubject(ru));
 		}
-		return listOfSubjects;
 	}
 
 	private Map<String, String> covertRichUserToSubject(RichUser richUser) throws InternalErrorException {

@@ -10,11 +10,18 @@ import com.google.api.services.admin.directory.Directory;
 import com.google.api.services.admin.directory.DirectoryScopes;
 import com.google.api.services.admin.directory.model.Member;
 import com.google.api.services.admin.directory.model.Members;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.ExtSource;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.PerunSession;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import java.io.FileNotFoundException;
@@ -123,8 +130,9 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 
 			//Get connection to Google Groups
 			prepareEnvironment();
-
-			return querySource(query, maxResults);
+			List<Map<String, String>> subjects = new ArrayList<>();
+			querySource(query, maxResults, subjects);
+			return subjects;
 
 		} catch (IOException ex) {
 			log.error("IOException in findSubjects() method while parsing data from Google Groups", ex);
@@ -163,8 +171,8 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 
 			//Get connection to Google Groups
 			prepareEnvironment();
-
-			List<Map<String, String>> subjects = this.querySource(query, 0);
+			List<Map<String, String>> subjects = new ArrayList<>();
+			querySource(query, 0, subjects);
 
 			if (subjects.isEmpty()) {
 				throw new SubjectNotExistsException("Login: " + login);
@@ -185,10 +193,27 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	}
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		try {
 			// Get the query for the group subjects
-			String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+			Attribute queryForGroupAttribute = null;
+			try {
+				queryForGroupAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+			} catch (WrongAttributeAssignmentException e) {
+				// Should not happen
+				throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " is not from group namespace.");
+			} catch (AttributeNotExistsException e) {
+				throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must exists.");
+			}
+
+			// Get the query for the group subjects
+			String queryForGroup = BeansUtils.attributeValueToString(queryForGroupAttribute);
+
+			//If there is no query for group, throw exception
+			if (queryForGroup == null) {
+				throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
+			}
+
 			domainName = getAttributes().get("domain");
 			groupName = getAttributes().get("group");
 
@@ -200,22 +225,17 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 				throw new InternalErrorException("groupName attribute is required");
 			}
 
-			//If there is no query for group, throw exception
-			if (queryForGroup == null) {
-				throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
-			}
-
 			//Get connection to Google Groups
 			prepareEnvironment();
 
-			return querySource(queryForGroup, 0);
+			querySource(queryForGroup, 0, subjects);
 
 		} catch (IOException ex) {
 			log.error("IOException in getGroupSubjects() method while parsing data from Google Groups", ex);
 		} catch (GeneralSecurityException ex) {
 			log.error("GeneralSecurityException while trying to connect to Google Apps account", ex);
 		}
-		return null;
+		return GroupsManager.GROUP_SYNC_STATUS_FULL;
 	}
 
 	@Override
@@ -327,9 +347,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * processGoogleMappingAttribute() method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> executeQueryTypeID(String value, int maxResults) throws InternalErrorException {
-		List<Map<String, String>> subjects = new ArrayList<>();
-
+	private void executeQueryTypeID(String value, int maxResults, List<Map<String, String>> subjects) throws InternalErrorException {
 		try {
 			Members result = service.members().list(groupName).execute();
 			List<Member> membersInGroup = result.getMembers();
@@ -354,8 +372,6 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 		} catch (IOException ex) {
 			log.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
 		}
-
-		return subjects;
 	}
 
 	/**
@@ -374,11 +390,8 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * processGoogleMappingAttribute() method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> executeQueryTypeEmail(String value, int maxResults) throws InternalErrorException {
-		List<Map<String, String>> subjects = new ArrayList<>();
-
+	private void executeQueryTypeEmail(String value, int maxResults, List<Map<String, String>> subjects) throws InternalErrorException {
 		try {
-
 			Members result = service.members().list(groupName).execute();
 			List<Member> membersInGroup = result.getMembers();
 
@@ -402,8 +415,6 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 		} catch (IOException ex) {
 			log.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
 		}
-
-		return subjects;
 	}
 
 	/**
@@ -418,20 +429,17 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * groupname
 	 * @param maxResults max number of results for this query that should be
 	 * returned by this method
-	 * @return List<Map<String, String>>, list of maps returned by
-	 * processGoogleMappingAttribute() method
+	 * @param subjects
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> executeQueryTypeGroupSubjects(String value, int maxResults) throws InternalErrorException {
-		List<Map<String, String>> subjects = new ArrayList<>();
-
+	private void executeQueryTypeGroupSubjects(String value, int maxResults, List<Map<String, String>> subjects) throws InternalErrorException {
 		if (value.contains("@" + this.domainName)) {
 			try {
 				Members result = service.members().list(value).execute();
 				List<Member> membersInGroup = result.getMembers();
 
 				for (Member member : membersInGroup) {
-					Map<String, String> map = new HashMap<>();
+					Map<String, String> map;
 					map = processGoogleMappingAttribute(member.getId());
 
 					if (!map.isEmpty()) {
@@ -450,8 +458,6 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 		} else {
 			throw new IllegalArgumentException("You are trying to get users from nonexistin group, please check name if your group name is something like 'groupname@domainname.com'.");
 		}
-
-		return subjects;
 	}
 
 	/**
@@ -465,13 +471,11 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * reached) are stored together in list, that is returned by method.
 	 *
 	 * @param value part of email address
-	 * @return List<Map<String, String>>, list of maps returned by
+	 * @param subjects list of maps of strings which contains pontentional members
 	 * processGoogleMappingAttribute() method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> executeQueryTypeContains(String value) throws InternalErrorException {
-		List<Map<String, String>> subjects = new ArrayList<>();
-
+	private void executeQueryTypeContains(String value, List<Map<String, String>> subjects) throws InternalErrorException {
 		try {
 			Members result = service.members().list(groupName).execute();
 			List<Member> membersInGroup = result.getMembers();
@@ -490,8 +494,6 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 		} catch (IOException ex) {
 			log.error("Problem with I/O operation while accesing Google Group API in ExtSourceGoogle class.", ex);
 		}
-
-		return subjects;
 	}
 
 	/**
@@ -509,12 +511,10 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 	 * executing method
 	 * @throws InternalErrorException
 	 */
-	private List<Map<String, String>> querySource(String query, int maxResults) throws InternalErrorException, FileNotFoundException, IOException {
-		List<Map<String, String>> subjects = new ArrayList<>();
-
-		// symbol '=' indicates getSubjectByLogin() or getGroupSubjects method
+	private void querySource(String query, int maxResults, List<Map<String, String>> subjects) throws InternalErrorException, FileNotFoundException, IOException {
+		// Symbol '=' indicates getSubjectByLogin() or getGroupSubjects method
 		int index = query.indexOf("=");
-		// word 'contains' indicates findSubjects() method
+		// Word 'contains' indicates findSubjects() method
 		int indexContains = query.indexOf("contains");
 
 		if (index != -1) {
@@ -524,15 +524,15 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 			// (after '=' symbol) and add him to map
 			switch (queryType) {
 				case "id":
-					subjects = executeQueryTypeID(value, maxResults);
+					executeQueryTypeID(value, maxResults, subjects);
 					break;
 
 				case "email":
-					subjects = executeQueryTypeEmail(value, maxResults);
+					executeQueryTypeEmail(value, maxResults, subjects);
 					break;
 
 				case "group":
-					subjects = executeQueryTypeGroupSubjects(value, maxResults);
+					executeQueryTypeGroupSubjects(value, maxResults, subjects);
 					break;
 
 				default:
@@ -545,7 +545,7 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 				String value = query.substring(indexContains + "contains".trim().length());
 
 				if (queryType.equals("email")) {
-					subjects = executeQueryTypeContains(value.trim());
+					executeQueryTypeContains(value.trim(), subjects);
 				} else {
 					throw new IllegalArgumentException("Search for substrings is possible only for 'email' attribute.");
 				}
@@ -554,8 +554,6 @@ public class ExtSourceGoogle extends ExtSource implements ExtSourceApi {
 				throw new InternalErrorException("Wrong query!");
 			}
 		}
-
-		return subjects;
 	}
 
 	public String getDomainName() {
