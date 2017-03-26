@@ -56,6 +56,7 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
  *
  * @author  Michal Prochazka
  * @author  Slavek Licehammer
+ * @author  Jan Zverina
  * @see Perun
  */
 public interface GroupsManagerBl {
@@ -1085,6 +1086,7 @@ public interface GroupsManagerBl {
 	 * IMPORTANT: This method runs in new transaction (because of using in synchronization of groups)
 	 *
 	 * Set timestamp to attribute "group_def_lastSynchronizationTimestamp"
+	 * Set timestamp to attribute "group_def_startOfLastSuccessSynchronizationTimestamp"
 	 * Set exception message to attribute "group_def_lastSynchronizationState"
 	 *
 	 * FailedDueToException is true means group synchronization failed at all.
@@ -1100,7 +1102,7 @@ public interface GroupsManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongAttributeValueException
 	 */
-	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
+	void saveInformationAboutGroupSynchronization(PerunSession sess, Group group, long startTime, boolean failedDueToException, String exceptionMessage) throws AttributeNotExistsException, InternalErrorException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException, WrongAttributeValueException;
 
 	/**
 	 * Get all groups in specific vo with assigned extSource
