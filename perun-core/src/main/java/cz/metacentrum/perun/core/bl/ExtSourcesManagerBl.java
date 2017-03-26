@@ -192,11 +192,13 @@ public interface ExtSourcesManagerBl {
 	List<User> getInvalidUsers(PerunSession perunSession, ExtSource source) throws InternalErrorException;
 
 	/**
-	 * Get the candidate from the ExtSource defined by the extsource login.
+	 * Get the candidate from the ExtSource.
+	 * Login of candidate will be used to gain data from ExtSource.
 	 *
-	 * @param perunSession
-	 * @param source
-	 * @param login
+	 * @param perunSession Perun session
+	 * @param source External source which will be used to get data about candidate
+	 * @param login Login of candidate
+	 *
 	 * @return a Candidate object
 	 * @throws InternalErrorException
 	 * @throws ExtSourceNotExistsException
@@ -206,14 +208,14 @@ public interface ExtSourcesManagerBl {
 	Candidate getCandidate(PerunSession perunSession, ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
 
 	/**
-	 * Get the candidate from subjectData where at least login must exists.
+	 * Get the candidate from subject where at least login must exists.
 	 *
 	 * IMPORTANT: expected, that these subjectData was get from the ExtSource before using.
 	 *
-	 * @param perunSession
-	 * @param subjectData
-	 * @param source
-	 * @param login
+	 * @param perunSession Perun session
+	 * @param subject Subject with data about candidate
+	 * @param source External source, which was used to gain subject
+	 * @param login Login of candidate
 	 *
 	 * @return a Candidate object
 	 * @throws InternalErrorException
@@ -221,7 +223,7 @@ public interface ExtSourcesManagerBl {
 	 * @throws CandidateNotExistsException
 	 * @throws ExtSourceUnsupportedOperationException
 	 */
-	Candidate getCandidate(PerunSession perunSession, Map<String,String> subjectData ,ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
+	Candidate getCandidate(PerunSession perunSession, Map<String,String> subject ,ExtSource source, String login) throws InternalErrorException, ExtSourceNotExistsException, CandidateNotExistsException, ExtSourceUnsupportedOperationException;
 
 	void checkExtSourceExists(PerunSession sess, ExtSource extSource) throws InternalErrorException, ExtSourceNotExistsException;
 
