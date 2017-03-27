@@ -6,7 +6,6 @@ import cz.metacentrum.perun.core.api.Holder;
 import cz.metacentrum.perun.core.api.PerunSession;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
 
 import java.util.List;
 
@@ -365,7 +364,7 @@ public interface CacheManagerApi {
 	 * @param attributesManager attributes manager impl
 	 * @throws InternalErrorException
 	 */
-	void deleteAttribute(int id, PerunSession session, AttributesManagerImpl attributesManager) throws InternalErrorException;
+	void deleteAttribute(int id, PerunSession session, AttributesManagerImplApi attributesManager) throws InternalErrorException;
 
 	/**
 	 * Unset particular attribute for holders. If secondary holder is null, it unsets attribute for the primary holder.
@@ -434,5 +433,5 @@ public interface CacheManagerApi {
 	 * @param attributesManagerImpl attributes manager impl
 	 * @throws InternalErrorException
 	 */
-	void initialize(PerunSession sess, AttributesManagerImpl attributesManagerImpl) throws InternalErrorException;
+	void initialize(PerunSession sess, AttributesManagerImplApi attributesManagerImpl) throws InternalErrorException;
 }
