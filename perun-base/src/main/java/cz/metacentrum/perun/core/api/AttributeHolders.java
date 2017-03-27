@@ -81,8 +81,24 @@ public class AttributeHolders extends Attribute implements Serializable {
 
 	public AttributeHolders(Attribute attribute, Holder primaryHolder, Holder secondaryHolder, SavedBy savedBy) throws InternalErrorException {
 		super(attribute, true);
-		this.primaryHolder = primaryHolder;
-		this.secondaryHolder = secondaryHolder;
+
+		if (primaryHolder != null && secondaryHolder != null) {
+			if (secondaryHolder.getType().equals(Holder.HolderType.GROUP) && (!primaryHolder.getType().equals(Holder.HolderType.MEMBER))
+					|| (secondaryHolder.getType().equals(Holder.HolderType.MEMBER))
+					|| (secondaryHolder.getType().equals(Holder.HolderType.USER))) {
+				this.primaryHolder = secondaryHolder;
+				this.secondaryHolder = primaryHolder;
+			}
+			else {
+				this.primaryHolder = primaryHolder;
+				this.secondaryHolder = secondaryHolder;
+			}
+		}
+		else {
+			this.primaryHolder = primaryHolder;
+			this.secondaryHolder = secondaryHolder;
+		}
+
 		this.nameForSearch = attribute.getNamespace() + ":" + attribute.getFriendlyName();
 		this.namespaceForSearch = attribute.getNamespace();
 		this.friendlyNameForSearch = attribute.getFriendlyName();

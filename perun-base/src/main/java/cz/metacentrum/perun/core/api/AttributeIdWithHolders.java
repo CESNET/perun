@@ -20,10 +20,25 @@ public class AttributeIdWithHolders implements Serializable {
 	private String subject;
 
 	public AttributeIdWithHolders(Integer attributeId, String attributeName, Holder primaryHolder, Holder secondaryHolder, String subject) {
+		if (primaryHolder != null && secondaryHolder != null) {
+			if (secondaryHolder.getType().equals(Holder.HolderType.GROUP) && (!primaryHolder.getType().equals(Holder.HolderType.MEMBER))
+					|| (secondaryHolder.getType().equals(Holder.HolderType.MEMBER))
+					|| (secondaryHolder.getType().equals(Holder.HolderType.USER))) {
+				this.primaryHolder = secondaryHolder;
+				this.secondaryHolder = primaryHolder;
+			}
+			else {
+				this.primaryHolder = primaryHolder;
+				this.secondaryHolder = secondaryHolder;
+			}
+		}
+		else {
+			this.primaryHolder = primaryHolder;
+			this.secondaryHolder = secondaryHolder;
+		}
+
 		this.attributeId = attributeId;
 		this.attributeName = attributeName;
-		this.primaryHolder = primaryHolder;
-		this.secondaryHolder = secondaryHolder;
 		this.subject = subject;
 	}
 

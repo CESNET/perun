@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import cz.metacentrum.perun.core.api.ResourcesManager;
+import cz.metacentrum.perun.core.impl.CacheManager;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -50,6 +51,8 @@ import cz.metacentrum.perun.core.api.exceptions.ServiceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
+import sun.misc.Cache;
+
 import java.util.Set;
 
 /**
@@ -274,7 +277,7 @@ public abstract class AttributesManagerEntryIntegrationTestAbstract extends Abst
 		Attribute g_gn_AAA = new Attribute(g_gn_AAA_def);
 		g_gn_AAA.setValue("testGroupName");
 
-		//create attribute group_name in namespace aaa
+		//create attribute group_name in namespace bbb
 		AttributeDefinition g_gn_BBB_def = new AttributeDefinition();
 		g_gn_BBB_def.setNamespace(AttributesManager.NS_GROUP_ATTR_DEF);
 		g_gn_BBB_def.setDescription("groupName in namespace BBB");
@@ -306,7 +309,7 @@ public abstract class AttributesManagerEntryIntegrationTestAbstract extends Abst
 		r_gn_AAA_def.setType(String.class.getName());
 		r_gn_AAA_def = perun.getAttributesManagerBl().createAttribute(sess, r_gn_AAA_def);
 
-		//create attribute group_name in namespace aaa
+		//create attribute group_name in namespace bbb
 		AttributeDefinition r_gn_BBB_def = new AttributeDefinition();
 		r_gn_BBB_def.setNamespace(AttributesManager.NS_RESOURCE_ATTR_DEF);
 		r_gn_BBB_def.setDescription("groupName in namespace BBB");
@@ -2944,7 +2947,6 @@ public abstract class AttributesManagerEntryIntegrationTestAbstract extends Abst
 		facility = setUpFacility();
 		resource = setUpResource();
 		attributes = setUpGroupResourceAttribute();
-
 		attributesManager.setAttributes(sess, resource, group, attributes);
 
 		Attribute retAttr = attributesManager.getAttribute(sess, resource, group,"urn:perun:group_resource:attribute-def:opt:group-resource-test-attribute");

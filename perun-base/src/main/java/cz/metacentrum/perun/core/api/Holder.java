@@ -22,7 +22,7 @@ public class Holder implements Serializable {
 	private HolderType type;
 
 	public enum HolderType {
-		FACILITY, MEMBER, VO, GROUP, HOST, RESOURCE, USER
+		FACILITY, MEMBER, VO, GROUP, HOST, RESOURCE, USER, UES
 	}
 
 	public Holder(int id, HolderType type) {

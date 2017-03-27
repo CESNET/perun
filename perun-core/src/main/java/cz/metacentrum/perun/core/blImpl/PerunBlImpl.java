@@ -1,58 +1,19 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.core.impl.AttributesManagerImpl;
-import cz.metacentrum.perun.core.api.PerunClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.AuditMessagesManager;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.DatabaseManager;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.FacilitiesManager;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.MembersManager;
-import cz.metacentrum.perun.core.api.OwnersManager;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.RTMessagesManager;
-import cz.metacentrum.perun.core.api.ResourcesManager;
-import cz.metacentrum.perun.core.api.Searcher;
-import cz.metacentrum.perun.core.api.SecurityTeamsManager;
-import cz.metacentrum.perun.core.api.ServicesManager;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.UsersManager;
-import cz.metacentrum.perun.core.api.VosManager;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.bl.AttributesManagerBl;
-import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
-import cz.metacentrum.perun.core.bl.AuthzResolverBl;
-import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
-import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
-import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
-import cz.metacentrum.perun.core.bl.GroupsManagerBl;
-import cz.metacentrum.perun.core.bl.MembersManagerBl;
-import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
-import cz.metacentrum.perun.core.bl.OwnersManagerBl;
-import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
-import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
-import cz.metacentrum.perun.core.bl.SearcherBl;
-import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
-import cz.metacentrum.perun.core.bl.ServicesManagerBl;
-import cz.metacentrum.perun.core.bl.UsersManagerBl;
-import cz.metacentrum.perun.core.bl.VosManagerBl;
+import cz.metacentrum.perun.core.bl.*;
 import cz.metacentrum.perun.core.impl.Auditer;
-import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.impl.CacheManager;
+import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -99,7 +60,7 @@ public class PerunBlImpl implements PerunBl {
 
 	private Auditer auditer = null;
 	private CacheManager cacheManager = null;
-	private AttributesManagerImpl attributesManagerImpl = null;
+	private AttributesManagerImplApi attributesManagerImpl = null;
 
 	final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
 
@@ -443,7 +404,7 @@ public class PerunBlImpl implements PerunBl {
 		this.cacheManager = cacheManager;
 	}
 
-	public void setAttributesManagerImpl(AttributesManagerImpl attributesManagerImpl) {
+	public void setAttributesManagerImpl(AttributesManagerImplApi attributesManagerImpl) {
 		this.attributesManagerImpl = attributesManagerImpl;
 	}
 
