@@ -429,7 +429,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 	protected static class AttributeHoldersRowMapper implements RowMapper<AttributeHolders> {
 		private final PerunSession sess;
-		private final AttributesManagerImpl attributesManagerImpl;
+		private final AttributesManagerImplApi attributesManagerImpl;
 		private final Holder.HolderType primaryHolderType;
 		private final Holder.HolderType secondaryHolderType;
 
@@ -440,7 +440,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		 * @param primaryHolderType Facility, Resource or Member for which you want the attribute value
 		 * @param secondaryHolderType secondary Facility, Resource or Member for which you want the attribute value
 		 */
-		public AttributeHoldersRowMapper(PerunSession sess, AttributesManagerImpl attributesManagerImpl, Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) {
+		public AttributeHoldersRowMapper(PerunSession sess, AttributesManagerImplApi attributesManagerImpl, Holder.HolderType primaryHolderType, Holder.HolderType secondaryHolderType) {
 			this.sess = sess;
 			this.attributesManagerImpl = attributesManagerImpl;
 			this.primaryHolderType = primaryHolderType;
@@ -647,7 +647,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				throw new ConsistencyErrorRuntimeException("Second attribute holder of group-resource attribute isn't resource");
 
 			try {
-				ResourceGroupVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getResourceGroupVirtualAttributeModule(sess, attribute);
+				ResourceGroupVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceGroupVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder2, (Group) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
 				throw new InternalErrorRuntimeException(ex);
@@ -660,7 +660,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				throw new ConsistencyErrorRuntimeException("Second attribute holder of member_resource attribute isn't resource");
 
 			try {
-				ResourceMemberVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
+				ResourceMemberVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getResourceMemberVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (Resource) attributeHolder, (Member) attributeHolder2, attribute);
 			} catch (InternalErrorException ex) {
 				throw new InternalErrorRuntimeException(ex);
@@ -671,7 +671,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 				throw new ConsistencyErrorRuntimeException("Attribute holder of UserExtSource attribute isn't UserExtSource");
 
 			try {
-				UserExtSourceVirtualAttributesModuleImplApi attributeModule = this.attributesManagerImpl.getUserExtSourceVirtualAttributeModule(sess, attribute);
+				UserExtSourceVirtualAttributesModuleImplApi attributeModule = attributesManagerImpl.getUserExtSourceVirtualAttributeModule(sess, attribute);
 				return attributeModule.getAttributeValue((PerunSessionImpl) sess, (UserExtSource) attributeHolder, attribute);
 			} catch (InternalErrorException ex) {
 				throw new InternalErrorRuntimeException(ex);
@@ -1429,6 +1429,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues, List<String> attrNames) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled()) {
+			List<String> controlledAttrNames = new ArrayList<>();
+
+			for(String attributeName: attrNames) {
+				// Check namespace
+				if(attributeName.startsWith(AttributesManager.NS_UES_ATTR)) controlledAttrNames.add(attributeName);
+			}
+
+			List<Attribute> attrs = perun.getCacheManager().getAttributesByNames(controlledAttrNames, new Holder(ues.getId(), Holder.HolderType.UES), null);
+			return this.setValuesOfAttributes(sess, attrs, ues, null);
+		}
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("uesId", ues.getId());
@@ -1451,6 +1462,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public List<Attribute> getVirtualAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
+			List<Attribute> attrs = perun.getCacheManager().getVirtualAttributes(Holder.HolderType.UES, null);
+			return this.setValuesOfAttributes(sess, attrs, ues, null);
+		}
+
 		try {
 			return jdbc.query("select " + attributeDefinitionMappingSelectQuery + ", null as attr_value from attr_names " +
 					"where namespace=?",
@@ -1497,6 +1513,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public List<Attribute> getAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
+			List<Attribute> attrs = perun.getCacheManager().getAllNonEmptyAttributes(new Holder(ues.getId(), Holder.HolderType.UES));
+			return this.setValuesOfAttributes(sess, attrs, ues, null);
+		}
+
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("ues") + " from attr_names " +
 					"left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=? " +
@@ -1519,8 +1540,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			else {
 				//If there is no such entityless attribute, create new one with null value and return null (insert is for transaction same like select for update)
 				Attribute attr = new Attribute(this.getAttributeDefinitionById(sess, attrId));
-				this.setAttributeCreatedAndModified(sess, attr);
-				this.setAttributeWithNullValue(sess, key, attr);
+				setAttributeCreatedAndModified(sess, attr);
+				self.setAttributeWithNullValue(sess, key, attr);
 				perun.getCacheManager().setEntitylessAttribute(attr, key);
 				return null;
 			}
@@ -1822,6 +1843,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public Attribute getAttribute(PerunSession sess, UserExtSource ues, String attributeName) throws InternalErrorException, AttributeNotExistsException {
+		if(!CacheManager.isCacheDisabled()) {
+			Attribute attr = perun.getCacheManager().getAttributeByName(attributeName, new Holder(ues.getId(), Holder.HolderType.UES), null);
+			return setValueOfAttribute(sess, attr, ues, null);
+		}
+
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("user_ext_source_attr_values") + " from attr_names " +
 					"left join user_ext_source_attr_values on id=attr_id and user_ext_source_id=? " +
@@ -2077,6 +2103,11 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException {
+		if(!CacheManager.isCacheDisabled()) {
+			Attribute attr = perun.getCacheManager().getAttributeById(id, new Holder(ues.getId(), Holder.HolderType.UES), null);
+			return setValueOfAttribute(sess, attr, ues, null);
+		}
+
 		try {
 			return jdbc.queryForObject("select " + getAttributeMappingSelectQuery("ues") + " from attr_names left join user_ext_source_attr_values ues on id=ues.attr_id and user_ext_source_id=? where id=?", new AttributeRowMapper(sess, this, ues), ues.getId(), id);
 		} catch(EmptyResultDataAccessException ex) {
@@ -2092,6 +2123,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		String columnName;
 		Object identificator;
 		String namespace;
+		Holder holder = null;
 
 		// check whether the object is String or Perun Bean:
 		if (object instanceof String) {
@@ -2116,6 +2148,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			tableName = name + "_attr_values";
 			columnName = name + "_id";
 			identificator = bean.getId();
+			holder = createHolderTypeByStringAndId((Integer) identificator, name);
 		} else {
 			throw new InternalErrorException(new IllegalArgumentException("Object " + object + " must be either String or PerunBean."));
 		}
@@ -2128,8 +2161,13 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		params.put("attr_id", attribute.getId());
 		params.put(columnName, identificator);
 
-		// save attribute
-		return setAttributeInDB(sess, attribute, tableName, params);
+
+		// Save attribute
+		if (object instanceof String) {
+			return setAttributeInDB(sess, attribute, tableName, params, object, null);
+		} else {
+			return setAttributeInDB(sess, attribute, tableName, params, holder, null);
+		}
 	}
 
 	@Override
@@ -2138,6 +2176,8 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		String namespace;
 		Integer identificator1;
 		Integer identificator2;
+		Holder holder1;
+		Holder holder2;
 
 		// get bean names
 		String name1 = bean1.getBeanName().toLowerCase();
@@ -2153,6 +2193,9 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		namespace = NAMESPACES_BEANS_MAP.get(name1 + "_" + name2);
 		identificator1 = bean1.getId();
 		identificator2 = bean2.getId();
+		holder1 = createHolderTypeByStringAndId(identificator1, name1);
+		holder2 = createHolderTypeByStringAndId(identificator2, name2);
+
 		if (namespace == null) {
 			// swap the names and beans and try again
 			String nameTmp = name1;
@@ -2178,10 +2221,10 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		params.put(name2 + "_id", identificator2);
 
 		// save attribute
-		return setAttributeInDB(sess, attribute, tableName, params);
+		return setAttributeInDB(sess, attribute, tableName, params, holder1, holder2);
 	}
 
-	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, final Map<String, Object> params) throws InternalErrorException {
+	private boolean setAttributeInDB(final PerunSession sess, final Attribute attribute, final String tableName, final Map<String, Object> params, Object holder1, Object holder2) throws InternalErrorException {
 		// get two sorted lists for parameter names and values
 		List<String> columnNames = new ArrayList<>();
 		List<Object> columnValues = new ArrayList<>();
@@ -2191,11 +2234,20 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		}
 
 		try {
-			// deleting the attibute if the given attribute value is null
+			// deleting the attribute if the given attribute value is null
 			if (attribute.getValue() == null) {
 				int numAffected = jdbc.update("delete from " + tableName + " where " + buildParameters(columnNames, "=?", " and "), columnValues.toArray());
 				if (numAffected > 1) {
 					throw new ConsistencyErrorException(String.format("Too much rows to delete (" + numAffected + " rows). SQL: delete from " + tableName + " where " + buildParameters(columnNames, "=%s", " and "), columnValues.toArray()));
+				}
+				if (holder2 != null) {
+					if(!CacheManager.isCacheDisabled() && numAffected == 1) perun.getCacheManager().removeAttribute(attribute, (Holder) holder1, (Holder) holder2);
+				} else {
+					if (holder1 instanceof String) {
+						perun.getCacheManager().removeEntitylessAttribute(attribute, (String) holder1);
+					} else {
+						if(!CacheManager.isCacheDisabled() && numAffected == 1) perun.getCacheManager().removeAttribute(attribute, (Holder) holder1, null);
+					}
 				}
 				return numAffected == 1;
 			}
@@ -2224,7 +2276,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					case 0: {
 						// value doesn't exist -> insert
 						try {
-							return self.insertAttribute(sess, valueColName, attribute, tableName, columnNames, columnValues);
+							boolean check = self.insertAttribute(sess, valueColName, attribute, tableName, columnNames, columnValues);
+							if (holder2 != null) {
+								if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setAttribute(attribute, (Holder) holder1, (Holder) holder2);
+							} else {
+								if (holder1 instanceof String) {
+									perun.getCacheManager().setEntitylessAttribute(attribute, (String) holder1);
+								} else {
+									if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setAttribute(attribute, (Holder) holder1, null);
+								}
+							}
+							return check;
 						} catch (DataAccessException ex) {
 							// unsuccessful insert, do it again in while loop
 							if (++repetatCounter > MERGE_TRY_CNT) {
@@ -2240,7 +2302,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					case 1: {
 						// value exists -> update
 						try {
-							return self.updateAttribute(sess, valueColName, attribute, tableName, columnNames, columnValues);
+							boolean check = self.updateAttribute(sess, valueColName, attribute, tableName, columnNames, columnValues);
+							if (holder2 != null) {
+								if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setAttributeWithExistenceCheck(attribute, (Holder) holder1, (Holder) holder2);
+							} else {
+								if (holder1 instanceof String) {
+									perun.getCacheManager().setEntitylessAttributeWithExistenceCheck(attribute, (String) holder1);
+								} else {
+									if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setAttributeWithExistenceCheck(attribute, (Holder) holder1, null);
+								}
+							}
+							return check;
 						} catch (DataAccessException ex) {
 							// unsuccessful insert, do it again in while loop
 							if (++repetatCounter > MERGE_TRY_CNT) {
@@ -2260,6 +2332,43 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	private Holder createHolderTypeByStringAndId(Integer id, String type) {
+		if (id == null || type == null) {
+			return null;
+		}
+
+		Holder holder;
+		switch (type) {
+			case "facility":
+				holder = new Holder(id, Holder.HolderType.FACILITY);
+				break;
+			case "member":
+				holder = new Holder(id, Holder.HolderType.MEMBER);
+				break;
+			case "vo":
+				holder = new Holder(id, Holder.HolderType.VO);
+				break;
+			case "group":
+				holder = new Holder(id, Holder.HolderType.GROUP);
+				break;
+			case "host":
+				holder = new Holder(id, Holder.HolderType.HOST);
+				break;
+			case "resource":
+				holder = new Holder(id, Holder.HolderType.RESOURCE);
+				break;
+			case "user":
+				holder = new Holder(id, Holder.HolderType.USER);
+				break;
+			case "ues":
+				holder = new Holder(id, Holder.HolderType.UES);
+				break;
+			default:
+				holder = null;
+		}
+		return holder;
 	}
 
 	/**
@@ -3064,6 +3173,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public HashMap<Member, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Resource resource, List<Member> members) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
+			List<Integer> attrIds = getRequiredAttributeIds(service);
+			HashMap<Member, List<Attribute>> hashMap = new HashMap<>();
+			for (Member member: members) {
+				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(member.getId(), Holder.HolderType.MEMBER), new Holder(resource.getId(), Holder.HolderType.RESOURCE));
+				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, member, resource);
+				hashMap.put(member, setAttrs);
+			}
+			return hashMap;
+		}
+
 		try {
 			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("mem") + ", members.id FROM attr_names " +
 							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
@@ -3094,6 +3214,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, Facility facility, List<User> users) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
+			List<Integer> attrIds = getRequiredAttributeIds(service);
+			HashMap<User, List<Attribute>> hashMap = new HashMap<>();
+			for (User user: users) {
+				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER), new Holder(facility.getId(), Holder.HolderType.FACILITY));
+				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, user, facility);
+				hashMap.put(user, setAttrs);
+			}
+			return hashMap;
+		}
+
 		try {
 			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr_fac") + ", users.id FROM attr_names " +
 							"JOIN service_required_attrs ON attr_names.id=service_required_attrs.attr_id AND service_required_attrs.service_id=? " +
@@ -3109,6 +3240,17 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	public HashMap<User, List<Attribute>> getRequiredAttributes(PerunSession sess, Service service, List<User> users) throws InternalErrorException {
+		if(!CacheManager.isCacheDisabled() && !perun.getCacheManager().wasCacheUpdatedInTransaction()) {
+			List<Integer> attrIds = getRequiredAttributeIds(service);
+			HashMap<User, List<Attribute>> hashMap = new HashMap<>();
+			for (User user: users) {
+				List<Attribute> attrs = perun.getCacheManager().getAttributesByIds(attrIds, new Holder(user.getId(), Holder.HolderType.USER));
+				List<Attribute> setAttrs = this.setValuesOfAttributes(sess, attrs, user, null);
+				hashMap.put(user, setAttrs);
+			}
+			return hashMap;
+		}
+
 		//user and user core attributes
 		try {
 			return jdbc.query("SELECT " + getAttributeMappingSelectQuery("usr") + ", users.id FROM attr_names " +
@@ -3613,6 +3755,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public void removeAllMemberResourceAttributes(PerunSession sess, Resource resource) throws InternalErrorException {
 		try {
 			jdbc.update("delete from member_resource_attr_values where resource_id=?", resource.getId());
+			if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(Holder.HolderType.MEMBER, new Holder(resource.getId(), Holder.HolderType.RESOURCE));
 		} catch (RuntimeException ex) {
 			throw new InternalErrorException(ex);
 		}
@@ -3920,6 +4063,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public boolean removeAttribute(PerunSession sess, UserExtSource ues, AttributeDefinition attribute) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from user_ext_source_attr_values where attr_id=? and user_ext_source_id=?", attribute.getId(), ues.getId())) {
+				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAttribute(attribute, new Holder(ues.getId(), Holder.HolderType.UES), null);
 				log.info("Attribute (its value) was removed from user external source. Attribute={}, UserExtSource={}", attribute, ues);
 				return true;
 			}
@@ -3932,6 +4076,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	public void removeAllAttributes(PerunSession sess, UserExtSource ues) throws InternalErrorException {
 		try {
 			if(0 < jdbc.update("delete from user_ext_source_attr_values where user_ext_source_id=?", ues.getId())) {
+				if (!CacheManager.isCacheDisabled()) perun.getCacheManager().removeAllAttributes(new Holder(ues.getId(), Holder.HolderType.UES));
 				log.info("All attributes (their values) were removed from user external source. UserExtSource={}", ues);
 			}
 		} catch(RuntimeException ex) {

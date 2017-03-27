@@ -5,6 +5,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +35,7 @@ public class CacheManagerTransactionsTest extends AbstractPerunIntegrationTest {
 	private CacheManager cacheManager;
 
 	@Autowired
-	private AttributesManagerImpl attributesManagerImpl;
+	private AttributesManagerImplApi attributesManagerImpl;
 
 	private static int id = 0;
 
