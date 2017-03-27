@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.impl;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
+import cz.metacentrum.perun.core.implApi.AttributesManagerImplApi;
 import cz.metacentrum.perun.core.implApi.CacheManagerApi;
 import org.infinispan.Cache;
 import org.infinispan.CacheSet;
@@ -246,6 +247,9 @@ public class CacheManager implements CacheManagerApi {
 		} else if(primaryHolderType == Holder.HolderType.USER && secondaryHolderType == null) {
 			nonEmptyAttrsNamespaces.add(AttributesManager.NS_USER_ATTR_DEF);
 			nonEmptyAttrsNamespaces.add(AttributesManager.NS_USER_ATTR_OPT);
+		} else if(primaryHolderType == Holder.HolderType.UES && secondaryHolderType == null) {
+			nonEmptyAttrsNamespaces.add(AttributesManager.NS_UES_ATTR_DEF);
+			nonEmptyAttrsNamespaces.add(AttributesManager.NS_UES_ATTR_OPT);
 		} else if(primaryHolderType == null && secondaryHolderType == null) {
 			nonEmptyAttrsNamespaces.add(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 			nonEmptyAttrsNamespaces.add(AttributesManager.NS_ENTITYLESS_ATTR_OPT);
@@ -280,6 +284,8 @@ public class CacheManager implements CacheManagerApi {
 			attrsNamespaces.add(AttributesManager.NS_RESOURCE_ATTR_CORE);
 		} else if(primaryHolderType == Holder.HolderType.USER) {
 			attrsNamespaces.add(AttributesManager.NS_USER_ATTR_CORE);
+		} else if(primaryHolderType == Holder.HolderType.UES) {
+			attrsNamespaces.add(AttributesManager.NS_UES_ATTR_CORE);
 		} else {
 			throw new InternalErrorException("Holder type " + primaryHolderType + " is not defined.");
 		}
@@ -318,6 +324,8 @@ public class CacheManager implements CacheManagerApi {
 			virtualAttrNamespace = AttributesManager.NS_RESOURCE_ATTR_VIRT;
 		} else if(primaryHolderType == Holder.HolderType.USER && secondaryHolderType == null) {
 			virtualAttrNamespace = AttributesManager.NS_USER_ATTR_VIRT;
+		} else if(primaryHolderType == Holder.HolderType.UES && secondaryHolderType == null) {
+			virtualAttrNamespace = AttributesManager.NS_UES_ATTR_VIRT;
 		} else {
 			throw new InternalErrorException("Holder type combination " + primaryHolderType + "," + secondaryHolderType + " is not defined.");
 		}
@@ -386,6 +394,11 @@ public class CacheManager implements CacheManagerApi {
 			attrsNamespaces.add(AttributesManager.NS_HOST_ATTR_CORE);
 			attrsNamespaces.add(AttributesManager.NS_HOST_ATTR_DEF);
 			attrsNamespaces.add(AttributesManager.NS_HOST_ATTR_OPT);
+		} else if(primaryHolderType == Holder.HolderType.UES && secondaryHolderType == null) {
+			attrsNamespaces.add(AttributesManager.NS_UES_ATTR_CORE);
+			attrsNamespaces.add(AttributesManager.NS_UES_ATTR_DEF);
+			attrsNamespaces.add(AttributesManager.NS_UES_ATTR_OPT);
+			attrsNamespaces.add(AttributesManager.NS_UES_ATTR_VIRT);
 		} else {
 			throw new InternalErrorException("Holder type combination " + primaryHolderType + "," + secondaryHolderType + " is not defined.");
 		}
@@ -556,6 +569,9 @@ public class CacheManager implements CacheManagerApi {
 				break;
 			case "user":
 				primaryHolderType = Holder.HolderType.USER;
+				break;
+			case "user_ext_source":
+				primaryHolderType = Holder.HolderType.UES;
 				break;
 			case "member_resource":
 				primaryHolderType = Holder.HolderType.MEMBER;
@@ -1285,7 +1301,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void deleteAttribute(int id, PerunSession session, AttributesManagerImpl attributesManager) throws InternalErrorException {
+	public void deleteAttribute(int id, PerunSession session, AttributesManagerImplApi attributesManager) throws InternalErrorException {
 
 		/* if cache was updated in transaction, we need to reinitialize it
 		It is because there is a possibility that the query by id would not return all attributes that should be deleted and the cache would end up in inconsistent state */
@@ -1594,7 +1610,7 @@ public class CacheManager implements CacheManagerApi {
 	}
 
 	@Override
-	public void initialize(PerunSession sess, AttributesManagerImpl attributesManagerImpl) throws InternalErrorException  {
+	public void initialize(PerunSession sess, AttributesManagerImplApi attributesManagerImpl) throws InternalErrorException  {
 		Cache<Object, Object> cache = this.getCache(AccessType.SET);
 
 		//clear the cache
@@ -1618,6 +1634,7 @@ public class CacheManager implements CacheManagerApi {
 		saveAttributesForInit(sess, attributesManagerImpl, "resource", Holder.HolderType.RESOURCE);
 		saveAttributesForInit(sess, attributesManagerImpl, "member", Holder.HolderType.MEMBER);
 		saveAttributesForInit(sess, attributesManagerImpl, "user", Holder.HolderType.USER);
+		saveAttributesForInit(sess, attributesManagerImpl, "user_ext_source", Holder.HolderType.UES);
 		saveAttributesForInit(sess, attributesManagerImpl, "member", "resource", Holder.HolderType.MEMBER, Holder.HolderType.RESOURCE);
 		saveAttributesForInit(sess, attributesManagerImpl, "member", "group", Holder.HolderType.MEMBER, Holder.HolderType.GROUP);
 		saveAttributesForInit(sess, attributesManagerImpl, "user", "facility", Holder.HolderType.USER, Holder.HolderType.FACILITY);
@@ -1641,7 +1658,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @param primaryHolderType primary holder type
 	 * @throws InternalErrorException
 	 */
-	private void saveAttributesForInit(PerunSession sess, AttributesManagerImpl attributesManagerImpl, String primaryHolder, Holder.HolderType primaryHolderType) throws InternalErrorException {
+	private void saveAttributesForInit(PerunSession sess, AttributesManagerImplApi attributesManagerImpl, String primaryHolder, Holder.HolderType primaryHolderType) throws InternalErrorException {
 		String tableName = primaryHolder + "_attr_values";
 
 		List<AttributeHolders> attrs = jdbc.query("select " + AttributesManagerImpl.getAttributeMappingSelectQuery(tableName)
@@ -1663,7 +1680,7 @@ public class CacheManager implements CacheManagerApi {
 	 * @param secHolderType secondary holder type
 	 * @throws InternalErrorException
 	 */
-	private void saveAttributesForInit(PerunSession sess, AttributesManagerImpl attrManagerImpl, String primHolder, String secHolder, Holder.HolderType primHolderType, Holder.HolderType secHolderType) throws InternalErrorException {
+	private void saveAttributesForInit(PerunSession sess, AttributesManagerImplApi attrManagerImpl, String primHolder, String secHolder, Holder.HolderType primHolderType, Holder.HolderType secHolderType) throws InternalErrorException {
 		String tableName = primHolder + "_" + secHolder + "_attr_values";
 
 		List<AttributeHolders> attrs = jdbc.query("select " + AttributesManagerImpl.getAttributeMappingSelectQuery(tableName) +
