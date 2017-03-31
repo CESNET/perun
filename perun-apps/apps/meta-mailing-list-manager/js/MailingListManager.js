@@ -1,28 +1,26 @@
 // Empty initial perunSession object
-var voShortName = 'meta';
-var serviceName = "mailman_meta";
+var voId = 21; // voShortName: "meta";
+var serviceId = 421; // serviceName: "mailman_meta";
 
 function entryPoint(user) {
     //loadUserAttributes(user);
-    getMember(user, voShortName);
+    getMember(user, voId);
 }
 
-function getMember(user, voShortName) {
+function getMember(user, voId) {
     // Get VO id
-    callPerun("vosManager", "getVoByShortName", { shortName : voShortName }, function(vo) {
+    callPerun("vosManager", "getVoById", { id : voId }, function(vo) {
         // Get member
         callPerun("membersManager", "getMemberByUser", { vo : vo.id, user : user.id }, function(member) {
-            getResourcesAll(serviceName, member);
+            getResourcesAll(serviceId, member);
         });
     });
 }
 
-function getResourcesAll(serviceName, member) {
-    callPerun("servicesManager", "getServiceByName", { name : serviceName }, function(service) {
-        callPerun("resourcesManager", "getAssignedResources", { member : member.id , service: service.id }, function(resourcesAll) {
-            fillResources(resourcesAll, member);
-        });
-    });
+function getResourcesAll(serviceId, member) {
+	callPerun("resourcesManager", "getAssignedResources", { member : member.id , service: serviceId }, function(resourcesAll) {
+		fillResources(resourcesAll, member);
+	});
 }
 
 function fillResources(resourcesAll, member) {
