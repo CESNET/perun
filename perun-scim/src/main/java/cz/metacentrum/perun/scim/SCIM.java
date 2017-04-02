@@ -46,7 +46,7 @@ public class SCIM {
 			String userId = pathArray[1];
 
 			if (userId != null) {
-				return controller.getUser(userId.replace('/', ' '));
+				return controller.getUser(userId.replaceAll("/", ""));
 			} else {
 				throw new SCIMException("invalid_request");
 			}
@@ -58,7 +58,7 @@ public class SCIM {
 			String groupId = pathArray[1];
 
 			if (groupId != null) {
-				return controller.getGroup(groupId.replace('/', ' '));
+				return controller.getGroup(groupId.replaceAll("/", ""));
 			} else {
 				throw new SCIMException("invalid_request");
 			}

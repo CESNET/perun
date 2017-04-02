@@ -8,7 +8,7 @@ package cz.metacentrum.perun.scim.api;
  */
 public class SCIMDefaults {
 
-	public static final String BASE_PATH = "/api/v2";
+	public static final String BASE_PATH = "api/v2";
 	public static final String USERS_PATH = "/Users";
 	public static final String GROUPS_PATH = "/Groups";
 	public static final String SERVICE_PROVIDER_CONFIGS_PATH = "/ServiceProviderConfigs";

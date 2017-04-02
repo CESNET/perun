@@ -5,6 +5,8 @@ import cz.metacentrum.perun.core.api.AttributesManager;
 import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.CoreConfig;
 
+import javax.ws.rs.core.Response;
+
 import cz.metacentrum.perun.core.api.ExtSourcesManager;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.PerunPrincipal;
@@ -704,7 +706,13 @@ public class Api extends HttpServlet {
 				// Process SCIM protocol
 				result = caller.getSCIMManager().process(caller.getSession(), method, des.readAll());
 				if (perunRequest != null) perunRequest.setResult(result);
-				ser.write(result);
+				if (!(result instanceof Response)) throw new InternalErrorException("SCIM manager returned unexpected result: " + result);
+				resp.setStatus(((Response) result).getStatus());
+				String response = (String) ((Response) result).getEntity();
+				PrintWriter printWriter = new PrintWriter(resp.getOutputStream());
+				printWriter.println(response);
+				printWriter.flush();
+				printWriter.close();
 			} else {
 				//Save only exceptions from caller to result
 				try {
