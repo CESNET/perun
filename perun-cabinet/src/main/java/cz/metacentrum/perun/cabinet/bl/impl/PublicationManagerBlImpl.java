@@ -162,10 +162,12 @@ public class PublicationManagerBlImpl implements PublicationManagerBl {
 
 		// if updated and rank or category was changed
 		if ((oldPub.getRank() != publication.getRank()) || (oldPub.getCategoryId() != publication.getCategoryId())) {
-			// update coefficient for all it's authors
-			List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(oldPub.getId());
-			for (Author a : authors) {
-				getCabinetManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
+			synchronized (CabinetManagerBlImpl.class) {
+				// update coefficient for all it's authors
+				List<Author> authors = getAuthorshipManagerBl().getAuthorsByPublicationId(oldPub.getId());
+				for (Author a : authors) {
+					getCabinetManagerBl().updatePriorityCoefficient(sess, a.getId(), getAuthorshipManagerBl().calculateNewRank(a.getAuthorships()));
+				}
 			}
 		}
 

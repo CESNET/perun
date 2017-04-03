@@ -110,12 +110,16 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 			throw new CabinetException(ErrorCodes.USER_NOT_EXISTS, e);
 		}
 		log.debug("{} created.", authorship);
+
+		synchronized (CabinetManagerBlImpl.class) {
+			getCabinetManagerBl().updatePriorityCoefficient(sess, authorship.getUserId(), calculateNewRank(authorship.getUserId()));
+		}
+		synchronized (ThanksManagerBlImpl.class) {
+			getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
+		}
+
 		// log
 		perun.getAuditer().log(sess, "Authorship {} created.", authorship);
-
-		getCabinetManagerBl().updatePriorityCoefficient(sess, authorship.getUserId(), calculateNewRank(authorship.getUserId()));
-
-		getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
 
 		return authorship;
 
@@ -151,11 +155,15 @@ public class AuthorshipManagerBlImpl implements AuthorshipManagerBl {
 		log.debug("{} deleted.", authorship);
 
 		int userId = authorship.getUserId();
-		getCabinetManagerBl().updatePriorityCoefficient(sess, userId, calculateNewRank(userId));
+
+		synchronized (CabinetManagerBlImpl.class) {
+			getCabinetManagerBl().updatePriorityCoefficient(sess, userId, calculateNewRank(userId));
+		}
+		synchronized (ThanksManagerBlImpl.class) {
+			getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
+		}
 
 		perun.getAuditer().log(sess, "Authorship {} deleted.", authorship);
-
-		getCabinetManagerBl().setThanksAttribute(authorship.getUserId());
 
 	}
 
