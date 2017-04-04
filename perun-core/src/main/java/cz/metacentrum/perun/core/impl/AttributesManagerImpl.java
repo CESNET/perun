@@ -2259,7 +2259,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 					if(!CacheManager.isCacheDisabled() && numAffected == 1) perun.getCacheManager().removeAttribute(attribute, (Holder) holder1, (Holder) holder2);
 				} else {
 					if (holder1 instanceof String) {
-						perun.getCacheManager().removeEntitylessAttribute(attribute, (String) holder1);
+						if(!CacheManager.isCacheDisabled() && numAffected == 1) perun.getCacheManager().removeEntitylessAttribute(attribute, (String) holder1);
 					} else {
 						if(!CacheManager.isCacheDisabled() && numAffected == 1) perun.getCacheManager().removeAttribute(attribute, (Holder) holder1, null);
 					}
@@ -2296,7 +2296,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 								if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setAttribute(attribute, (Holder) holder1, (Holder) holder2);
 							} else {
 								if (holder1 instanceof String) {
-									perun.getCacheManager().setEntitylessAttribute(attribute, (String) holder1);
+									if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setEntitylessAttribute(attribute, (String) holder1);
 								} else {
 									if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setAttribute(attribute, (Holder) holder1, null);
 								}
@@ -2322,7 +2322,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 								if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setAttributeWithExistenceCheck(attribute, (Holder) holder1, (Holder) holder2);
 							} else {
 								if (holder1 instanceof String) {
-									perun.getCacheManager().setEntitylessAttributeWithExistenceCheck(attribute, (String) holder1);
+									if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setEntitylessAttributeWithExistenceCheck(attribute, (String) holder1);
 								} else {
 									if(!CacheManager.isCacheDisabled()) perun.getCacheManager().setAttributeWithExistenceCheck(attribute, (Holder) holder1, null);
 								}
