@@ -19,6 +19,9 @@ dependency-reduced-pom.xml
 *.iws
 .idea/
 
+# Ignore Intellij Perl5 plugin - de-parsed system subs used for resolution
+_Deparsed_XSubs.pm
+
 # Ignore Eclipse project files #
 
 *.pydevproject
