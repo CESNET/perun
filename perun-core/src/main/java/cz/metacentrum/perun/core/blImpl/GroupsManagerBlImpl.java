@@ -1447,6 +1447,58 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return filteredRichGroups;
 	}
 
+	public List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, boolean useContext) throws InternalErrorException {
+
+		//If no context should be used - every attribute is unique in context of group (for every group test access rights for all attributes again)
+		if(!useContext) return filterOnlyAllowedAttributes(sess, richGroups);
+
+		//If context should be used - every attribute is unique in a context of users authz_roles for a group + friendlyName
+		// (every attribute test only once per authz+friendlyName)
+		List<RichGroup> filteredRichGroups = new ArrayList<RichGroup>();
+		if(richGroups == null || richGroups.isEmpty()) return filteredRichGroups;
+
+		// context+attr_name to boolean where null means - no rights at all, false means no write rights, true means read and write rights
+		Map<String, Boolean> contextMap = new HashMap<>();
+
+		for(RichGroup rg : richGroups) {
+
+			String voadmin = ((AuthzResolver.isAuthorized(sess, Role.VOADMIN, rg) ? "VOADMIN" : ""));
+			String voobserver = ((AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rg) ? "VOOBSERVER" : ""));
+			String groupadmin = ((AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, rg) ? "GROUPADMIN" : ""));
+			String key = voadmin + voobserver + groupadmin;
+
+			//Filtering group attributes
+			if(rg.getAttributes() != null) {
+				List<Attribute> groupAttributes = rg.getAttributes();
+				List<Attribute> allowedGroupAttributes = new ArrayList<Attribute>();
+				for(Attribute groupAttr: groupAttributes) {
+					//if there is record in contextMap, use it
+					if(contextMap.containsKey(key + groupAttr.getFriendlyName())) {
+						Boolean isWritable = contextMap.get(key + groupAttr.getFriendlyName());
+						if(isWritable != null) {
+							groupAttr.setWritable(isWritable);
+							allowedGroupAttributes.add(groupAttr);
+						}
+						//if not, get information about authz rights and set record to contextMap
+					} else {
+						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, null)) {
+							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, null);
+							groupAttr.setWritable(isWritable);
+							allowedGroupAttributes.add(groupAttr);
+							contextMap.put(key + groupAttr.getFriendlyName(), isWritable);
+						} else {
+							contextMap.put(key + groupAttr.getFriendlyName(), null);
+						}
+					}
+				}
+				rg.setAttributes(allowedGroupAttributes);
+			}
+			filteredRichGroups.add(rg);
+		}
+		return filteredRichGroups;
+
+	}
+
 	public void setPerunBl(PerunBl perunBl) {
 		this.perunBl = perunBl;
 	}

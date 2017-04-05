@@ -871,14 +871,14 @@ public interface GroupsManagerBl {
 	/**
 	 * Method return list of groups for selected member which (groups) has set specific attribute.
 	 * Attribute can be only from namespace "GROUP"
-	 * 
+	 *
 	 * @param sess sess
 	 * @param member member
 	 * @param attribute attribute from "GROUP" namespace
-	 * 
+	 *
 	 * @return list of groups which contain member and have attribute with same value
-	 * 
-	 * @throws InternalErrorException 
+	 *
+	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
 	List<Group> getMemberGroupsByAttribute(PerunSession sess, Member member, Attribute attribute) throws WrongAttributeAssignmentException, InternalErrorException;
@@ -973,47 +973,65 @@ public interface GroupsManagerBl {
 	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups) throws InternalErrorException;
 
 	/**
+	 * For list of richGroups filter all their group attributes and remove all which principal has no access to.
+	 *
+	 * Context means same "combination of authz role for a group"+"attribute_friendlyName". Since privileges are resolved by roles on group and attribute type.
+	 *
+	 * if useContext is true: every attribute is unique in a context of authz roles combination and it's friendlyName. So for each combination of
+	 * users authz roles granted for the group, attributes with same friendlyName has same privilege.
+	 *
+	 * if useContext is false: every attribute is unique in context of group, which means every attribute for more groups need to be check separately,
+	 * because for example groups can be from different vos where user has different authz (better authorization check, worse performance)
+	 *
+	 * @param sess
+	 * @param richGroups
+	 * @return list of RichGroups with only allowed attributes
+	 * @throws InternalErrorException
+	 */
+	List<RichGroup> filterOnlyAllowedAttributes(PerunSession sess, List<RichGroup> richGroups, boolean useContext) throws InternalErrorException;
+
+	/**
 	 * This method takes group and creates RichGroup containing all attributes
-	 * 
-	 * @param sess 
-	 * @param group 
+	 *
+	 * @param sess
+	 * @param group
 	 * @return RichGroup
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	RichGroup convertGroupToRichGroupWithAttributes(PerunSession sess, Group group) throws InternalErrorException;
 
 	/**
 	 * This method takes group and creates RichGroup containing selected attributes
-	 * 
-	 * @param sess 
+	 *
+	 * @param sess
 	 * @param group
 	 * @param attrNames list of selected attributes
 	 * @return RichGroup
 	 * @throws InternalErrorException
 	 */
 	RichGroup convertGroupToRichGroupWithAttributesByName(PerunSession sess, Group group, List<String> attrNames) throws InternalErrorException;
-	
+
 	/**
 	 * This method takes list of groups and creates list of RichGroups containing all attributes
-	 * 
-	 * @param sess 
+	 *
+	 * @param sess
 	 * @param groups list of groups
 	 * @return RichGroup
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups) throws InternalErrorException;
 
 	/**
 	 * This method takes list of groups and creates list of RichGroups containing selected attributes
-	 * 
-	 * @param sess 
+	 *
+	 * @param sess
 	 * @param groups list of groups
 	 * @param attrNames list of selected attributes
 	 * @return RichGroup
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups, List<String> attrNames) throws InternalErrorException;
-	
+
 	/**
 	 * Returns all RichGroups containing selected attributes
 	 *
@@ -1021,18 +1039,18 @@ public interface GroupsManagerBl {
 	 * @param vo
 	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
 	 * @return List of RichGroups
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames) throws InternalErrorException;
-	
+
 	/**
 	 * Returns RichSubGroups from parentGroup containing selected attributes (only 1 level subgroups)
-	 * 
+	 *
 	 * @param sess
 	 * @param parentGroup
 	 * @param attrNames if attrNames is null method will return RichGroups containing all attributes
 	 * @return List of RichGroups
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException;
 
@@ -1049,12 +1067,12 @@ public interface GroupsManagerBl {
 
 	/**
 	 * Returns RichGroup selected by id containing selected attributes
-	 * 
+	 *
 	 * @param sess
 	 * @param groupId
 	 * @param attrNames if attrNames is null method will return RichGroup containing all attributes
-	 * @return RichGroup 
-	 * @throws InternalErrorException 
+	 * @return RichGroup
+	 * @throws InternalErrorException
 	 * @throws GroupNotExistsException
 	 */
 	RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException;
@@ -1095,7 +1113,7 @@ public interface GroupsManagerBl {
 	List<Group> getGroupsWithAssignedExtSourceInVo(PerunSession sess, ExtSource source, Vo vo) throws InternalErrorException;
 
 	/**
-  	 * Method recalculates all relations between groups. Based on <code>addition</code> parameter 
+  	 * Method recalculates all relations between groups. Based on <code>addition</code> parameter
 	 * it recursively adds or removes members from groups and all their relations. The method is called in case of:
 	 * 1) added or removed relation
 	 * 2) added or removed member
@@ -1114,7 +1132,7 @@ public interface GroupsManagerBl {
 	 * @throws GroupOperationsException when any error occurs which prevent operation to finish.
 	 */
 	void processRelationMembers(PerunSession sess, Group resultGroup, List<Member> changedMembers, int sourceGroupId, boolean addition) throws GroupOperationsException;
-	
+
 	/**
 	 * Performs union operation on two groups. Members from operand group are added to result group as indirect.
 	 *
@@ -1130,7 +1148,7 @@ public interface GroupsManagerBl {
 	 * @throws InternalErrorException
 	 */
 	Group createGroupUnion(PerunSession sess, Group resultGroup, Group operandGroup, boolean parentFlag) throws GroupOperationsException, InternalErrorException, GroupRelationAlreadyExists, GroupRelationNotAllowed;
-				
+
 	/**
 	 * Removes a union relation between two groups. All indirect members that originate from operand group are removed from result group.
 	 *
@@ -1138,7 +1156,7 @@ public interface GroupsManagerBl {
 	 * @param resultGroup group from which members are removed
 	 * @param operandGroup group which members are removed from result group
 	 * @param parentFlag if true union cannot be deleted; false otherwise (it flags relations created by hierarchical structure)
-	 *    
+	 *
 	 * @throws GroupOperationsException
 	 * @throws GroupRelationDoesNotExist
 	 * @throws GroupRelationCannotBeRemoved
@@ -1151,9 +1169,9 @@ public interface GroupsManagerBl {
 	 * @param sess perun session
 	 * @param group group
 	 * @param reverseDirection if false get all operand groups of requested result group
-	 *                         if true get all result groups of requested operand group   
+	 *                         if true get all result groups of requested operand group
 	 * @return list of groups.
-	 * 
+	 *
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupUnions(PerunSession sess, Group group, boolean reverseDirection) throws InternalErrorException;
