@@ -664,7 +664,6 @@ public class UsersManagerEntry implements UsersManager {
 
 		getUsersManagerBl().checkUserExists(sess, user);
 
-		if(user.isServiceUser() || user.isSponsoredUser()) throw new NotSpecificUserExpectedException(user);
 		// Authorization
 		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
 			throw new PrivilegeException(sess, "makeUserPerunAdmin");
