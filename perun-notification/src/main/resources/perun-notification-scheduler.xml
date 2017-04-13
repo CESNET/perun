@@ -22,7 +22,7 @@
 
 	</bean>
 
-	<bean id="doNotificationTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="doNotificationTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="doNotificationJobDetail" />
 		<!-- start every day at 2:00 AM -->
 		<!--detailed options could be find at http://quartz.sourceforge.net/javadoc/org/quartz/CronTrigger.html -->

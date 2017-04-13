@@ -154,15 +154,17 @@
 			<artifactId>spring-context</artifactId>
 		</dependency>
 
+		<!-- TESTS -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 
-		<!-- TESTS -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- LOGGING -->
@@ -175,25 +177,21 @@
 		<dependency>
 			<groupId>org.hornetq</groupId>
 			<artifactId>hornetq-core-client</artifactId>
-			<version>2.2.16.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hornetq</groupId>
 			<artifactId>hornetq-jms-client</artifactId>
-			<version>2.2.16.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
-			<version>3.2.1.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jboss.javaee</groupId>
 			<artifactId>jboss-jms-api</artifactId>
-			<version>1.1.0.GA</version>
 		</dependency>
 
 	</dependencies>

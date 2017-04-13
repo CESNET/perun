@@ -1,32 +1,14 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.io.*;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
-import java.math.BigDecimal;
-import java.text.StringCharacterIterator;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
-
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -35,6 +17,21 @@ import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.sql.DataSource;
+import java.io.*;
+import java.lang.IllegalArgumentException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
+import java.text.StringCharacterIterator;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utilities.
@@ -243,53 +240,50 @@ public class Utils {
 	 * @return new ID
 	 * @throws InternalErrorException
 	 */
-	public static int getNewId(Object jdbc, String sequenceName) throws InternalErrorException {
-		String dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
-
+	public static int getNewId(JdbcTemplate jdbc, String sequenceName) throws InternalErrorException {
+		String dbType;
 		String url = "";
-
+		String query;
 		// try to deduce database type from jdbc connection metadata
 		try {
-			if (jdbc instanceof JdbcTemplate) {
-				DataSource ds = ((JdbcTemplate)jdbc).getDataSource();
-				if(ds instanceof BasicDataSource)
-				url = ((BasicDataSource)ds).getUrl();
-				// c.close();
+			DataSource ds = jdbc.getDataSource();
+			if (ds instanceof BasicDataSource) {
+				url = ((BasicDataSource) ds).getUrl();
 			}
 		} catch (Exception e) {
-		}
-		if(url.matches("hsqldb")) {
-			dbType = "hsqldb";
-		} else if(url.matches("oracle")) {
-			dbType = "oracle";
-		} else if(url.matches("postgresql")) {
-			dbType = "postgresql";
+			log.error("cannot get JDBC url", e);
 		}
 
-		String query = "";
-		if (dbType.equals("oracle")) {
-			query = "select " + sequenceName + ".nextval from dual";
-		} else if (dbType.equals("postgresql")) {
-			query = "select nextval('" + sequenceName + "')";
- 		} else if (dbType.equals("hsqldb")) {
- 			query = "call next value for " + sequenceName + ";";
- 		} else {
-			throw new InternalErrorException("Unsupported DB type");
+		if (url.contains("hsqldb")) {
+			dbType = "hsqldb";
+		} else if (url.contains("oracle")) {
+			dbType = "oracle";
+		} else if (url.contains("postgresql")) {
+			dbType = "postgresql";
+		} else {
+			dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
+		}
+
+		switch (dbType) {
+			case "oracle":
+				query = "select " + sequenceName + ".nextval from dual";
+				break;
+			case "postgresql":
+				query = "select nextval('" + sequenceName + "')";
+				break;
+			case "hsqldb":
+				query = "call next value for " + sequenceName + ";";
+				break;
+			default:
+				throw new InternalErrorException("Unsupported DB type");
 		}
 
 		// Decide which type of the JdbcTemplate is provided
 		try {
-			if (jdbc instanceof SimpleJdbcTemplate) {
-				return ((SimpleJdbcTemplate) jdbc).queryForInt(query);
-			} else if (jdbc instanceof JdbcTemplate) {
-				return ((JdbcTemplate) jdbc).queryForInt(query);
-			}
+			return jdbc.queryForObject(query, Integer.class);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
-
-		// Shouldn't ever happened
-		throw new InternalErrorException("Unsupported DB type");
 	}
 
 	/**

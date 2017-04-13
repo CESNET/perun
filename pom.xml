@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -8,6 +9,16 @@
 	<artifactId>perun</artifactId>
 	<version>3.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
+
+	<!-- Spring Platform as parent project - this project inherits versions of dependencies and plugins -->
+	<!-- see http://docs.spring.io/platform/docs/current/reference/htmlsingle/#getting-started-using-spring-io-platform-maven -->
+	<!-- update Spring by changing the version here to the current release displayed at http://platform.spring.io/platform/ -->
+	<parent>
+		<groupId>io.spring.platform</groupId>
+		<artifactId>platform-bom</artifactId>
+		<version>Brussels-SR1</version>
+		<relativePath/>
+	</parent>
 
 	<!-- PERUN MODULES -->
 	<modules>
@@ -24,11 +35,11 @@
 		<module>perun-notification</module>
 		<module>perun-dispatcher</module>
 		<module>perun-engine</module>
-		<module>perun-web-gui</module>
 		<module>perun-voot</module>
 		<module>perun-auditer-exporter</module>
 		<module>perun-ldapc-initializer</module>
 		<module>perun-oidc</module>
+		<module>perun-web-gui</module>
 	</modules>
 
 	<!-- common environmental and version properties-->
@@ -48,12 +59,30 @@
 		<perun.ldapc>file:${perun.conf}perun-ldapc.properties</perun.ldapc>
 		<perun.log>/var/log/perun/</perun.log>
 
-		<!-- libraries versions -->
-		<org.springframework.version>3.2.17.RELEASE</org.springframework.version>
-		<junit.version>4.11</junit.version>
-		<log4j.version>1.5.8</log4j.version>
 		<!-- by default we run perun in memory -->
 		<spring.profiles.default>default</spring.profiles.default>
+
+		<!-- redefine versions of some libraries defined by Spring platform -->
+		<postgresql.version>42.0.0</postgresql.version>
+		<tomcat.version>7.0.77</tomcat.version>
+		<hsqldb.version>2.3.2</hsqldb.version> <!-- 2.3.3 fails GroupsManagerEntryIntegrationTest.addAdminWhenAlreadyAdmin test -->
+
+		<!-- versions of libraries not defined by the Spring platform-->
+		<cglib-nodep.version>2.2.2</cglib-nodep.version>
+		<dumbster.version>1.6</dumbster.version>
+		<expiringmap.version>0.4.3</expiringmap.version>
+		<google-api-services-admin-directory.version>directory_v1-rev78-1.22.0</google-api-services-admin-directory.version>
+		<google-client.version>1.22.0</google-client.version>
+		<hornetq.version>2.2.21.Final</hornetq.version>
+		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
+		<jcip.version>1.0</jcip.version>
+		<jdom.version>1.0</jdom.version>
+		<netty.version>3.2.1.Final</netty.version>
+		<opencsv.version>3.3</opencsv.version>
+		<oracle.version>12.1.0.2.0</oracle.version>
+		<powermock.version>1.4.8</powermock.version>
+		<recaptcha4j.version>0.0.7</recaptcha4j.version>
+		<smack.version>3.1.0</smack.version>
 	</properties>
 
 	<!-- DEFAULT MAVEN BUILD SETTINGS
@@ -79,19 +108,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.0.0</version>
 				</plugin>
 
 				<!-- mvn compile - compile as Java 8 app in UTF-8 -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.6.1</version>
 					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
+						<source>8</source>
+						<target>8</target>
 						<verbose>false</verbose>
-						<encoding>UTF-8</encoding>
+						<!--<compilerArgument>-Xlint:unchecked,deprecation</compilerArgument>-->
 					</configuration>
 				</plugin>
 
@@ -99,21 +126,18 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>2.5.2</version>
 				</plugin>
-
 
 				<!-- mvn javadoc - creates javadoc from source (we do append spring javadoc if found) -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.10.4</version>
 					<configuration>
 						<!-- disable hard errors when generating javadoc -->
 						<additionalparam>-Xdoclint:none</additionalparam>
 						<detectLinks/>
 						<links>
-							<link>http://static.springsource.org/spring/docs/3.0.x/javadoc-api/</link>
+							<link>http://docs.spring.io/spring/docs/current/javadoc-api/</link>
 						</links>
 					</configuration>
 				</plugin>
@@ -122,35 +146,33 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.1</version>
 				</plugin>
 
 				<!-- mvn jar:jar - creates final jar -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.0.2</version>
 				</plugin>
 
 				<!-- mvn jar:jar - creates final war -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
-					<version>3.0.0</version>
 				</plugin>
 
 				<!-- mvn shade - creates shaded jar (1 jar containing e.g. core + spring) -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
-					<version>3.0.0</version>
+					<configuration>
+						<createDependencyReducedPom>false</createDependencyReducedPom>
+					</configuration>
 				</plugin>
 
 				<!-- plugin used to apply jUnit tests settings in maven and to generate report (target/surefire-reports)-->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version>
 					<configuration>
 						<!-- disable logging for maven's tests / Test in you IDE will log normally -->
 						<argLine>-Dlog4j.configuration=</argLine>
@@ -163,16 +185,20 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.0.0</version>
 				</plugin>
 
 				<!-- Executing plug-in: mvn exec:java -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.5.0</version>
 				</plugin>
 
+				<plugin>
+					<groupId>eu.somatik.serviceloader-maven-plugin</groupId>
+					<artifactId>serviceloader-maven-plugin</artifactId>
+					<version>1.0.7</version>
+				</plugin>
+				
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -197,7 +223,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -216,7 +242,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -235,7 +261,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -283,149 +309,154 @@
 
 	<!-- DEFAULT MAVEN DEPENDENCY SETTINGS
 
+     - most dependency versions are inherited from platform-bom, specify only those that are not defined by the platform
 	 - child modules inherits settings (e.g. version, scope), not dependency itself
 	 - to explicitly use one of listed dependencies in module just specify groupId and artifactId in it's dependencies section
 	 - child module can override any setting by defining value in child module (or it's profile)
 	 - beware, that default action on dependency configuration is MERGE !!
-	 - if merged values are defined in both (parent and child module), than module value if used
+	 - if merged values are defined in both (parent and child module), than module value is used
 
 	-->
 	<dependencyManagement>
 		<dependencies>
-			<!-- FIXME - needed in compile scope for running in local tomcat (mvn jetty:run on perun-rpc) and tests, so include it  -->
-			<!-- FIXME - production profile overrides it by setting scope to "provided" -->
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-dbcp</artifactId>
-				<version>7.0.28</version>
-			</dependency>
 
-			<!-- DBs -->
-			<!-- PostgreSQL driver -->
-			<dependency>
-				<groupId>postgresql</groupId>
-				<artifactId>postgresql</artifactId>
-				<version>9.1-901.jdbc4</version>
-			</dependency>
 			<!-- Oracle jdbc driver -->
 			<dependency>
 				<groupId>com.oracle</groupId>
 				<artifactId>ojdbc7</artifactId>
-				<version>12.1.0.2.0</version>
+				<version>${oracle.version}</version>
 			</dependency>
 			<!-- Oracle internationalization -->
 			<dependency>
 				<groupId>com.oracle</groupId>
 				<artifactId>orai18n</artifactId>
-				<version>12.1.0.2.0</version>
-			</dependency>
-			<!-- SQL Lite -->
-			<dependency>
-				<groupId>org.xerial</groupId>
-				<artifactId>sqlite-jdbc</artifactId>
-				<version>3.7.2</version>
-			</dependency>
-			<!-- Mysql -->
-			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.31</version>
-			</dependency>
-			<!--HSQL-->
-			<dependency>
-				<groupId>org.hsqldb</groupId>
-				<artifactId>hsqldb</artifactId>
-				<version>2.3.2</version>
-			</dependency>
-
-			<!-- SPRING -->
-
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>${org.springframework.version}</version>
-				<exclusions>
-					<!-- Exclude Commons Logging in favor of SLF4j -->
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-				</exclusions>
+				<version>${oracle.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context-support</artifactId>
-				<version>${org.springframework.version}</version>
-				<exclusions>
-					<!-- Exclude Commons Logging in favor of SLF4j -->
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-				</exclusions>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-module-junit4</artifactId>
+				<version>${powermock.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-jdbc</artifactId>
-				<version>${org.springframework.version}</version>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<version>${powermock.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-web</artifactId>
-				<version>${org.springframework.version}</version>
+				<groupId>cglib</groupId>
+				<artifactId>cglib-nodep</artifactId>
+				<version>${cglib-nodep.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-test</artifactId>
-				<version>${org.springframework.version}</version>
-				<scope>test</scope>
-			</dependency>
-
-			<!-- TESTS -->
-
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>${junit.version}</version>
-				<scope>test</scope>
-			</dependency>
-
-			<!-- LOGGING -->
-
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
-				<version>${log4j.version}</version>
+				<groupId>net.jcip</groupId>
+				<artifactId>jcip-annotations</artifactId>
+				<version>${jcip.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>${log4j.version}</version>
-			</dependency>
-
-			<!-- OTHERS -->
-
-			<dependency>
-				<groupId>org.aspectj</groupId>
-				<artifactId>aspectjweaver</artifactId>
-				<version>1.6.9</version>
+				<groupId>com.opencsv</groupId>
+				<artifactId>opencsv</artifactId>
+				<version>${opencsv.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.codehaus.jackson</groupId>
-				<artifactId>jackson-core-asl</artifactId>
-				<version>1.7.4</version>
+				<groupId>com.google.apis</groupId>
+				<artifactId>google-api-services-admin-directory</artifactId>
+				<version>${google-api-services-admin-directory.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.codehaus.jackson</groupId>
-				<artifactId>jackson-mapper-asl</artifactId>
-				<version>1.7.4</version>
+				<groupId>com.google.http-client</groupId>
+				<artifactId>google-http-client-jackson2</artifactId>
+				<version>${google-client.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.api-client</groupId>
+				<artifactId>google-api-client</artifactId>
+				<version>${google-client.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>jdom</groupId>
+				<artifactId>jdom</artifactId>
+				<version>${jdom.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.jodah</groupId>
+				<artifactId>expiringmap</artifactId>
+				<version>${expiringmap.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.tanesha.recaptcha4j</groupId>
+				<artifactId>recaptcha4j</artifactId>
+				<version>${recaptcha4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>dumbster</groupId>
+				<artifactId>dumbster</artifactId>
+				<version>${dumbster.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>jivesoftware</groupId>
+				<artifactId>smack</artifactId>
+				<version>${smack.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>jivesoftware</groupId>
+				<artifactId>smackx</artifactId>
+				<version>${smack.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hornetq</groupId>
+				<artifactId>hornetq-core</artifactId>
+				<version>${hornetq.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hornetq</groupId>
+				<artifactId>hornetq-jms</artifactId>
+				<version>${hornetq.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hornetq</groupId>
+				<artifactId>hornetq-logging</artifactId>
+				<version>${hornetq.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hornetq</groupId>
+				<artifactId>hornetq-core-client</artifactId>
+				<version>${hornetq.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hornetq</groupId>
+				<artifactId>hornetq-jms-client</artifactId>
+				<version>${hornetq.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.netty</groupId>
+				<artifactId>netty</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jboss.javaee</groupId>
+				<artifactId>jboss-jms-api</artifactId>
+				<version>${jboss-jms-api.version}</version>
 			</dependency>
 
 		</dependencies>

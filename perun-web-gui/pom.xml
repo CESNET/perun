@@ -27,11 +27,13 @@
 		<!-- Convenience property to set the GWT version -->
 		<gwtVersion>2.7.0</gwtVersion>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
-		<gui.url.modifier></gui.url.modifier>
+		<gui.url.modifier/>
+		<maven.compiler.source>1.7</maven.compiler.source>
 	</properties>
 
 	<!-- common build settings used by all profiles -->
 	<build>
+		<finalName>perun-web-gui-${perun.build.type}</finalName>
 		<plugins>
 
 			<plugin>
@@ -99,7 +101,6 @@
 				</executions>
 				<configuration>
 					<webappDirectory>${webappDirectory}</webappDirectory>
-					<warName>perun-web-gui-${perun.build.type}</warName>
 				</configuration>
 			</plugin>
 
@@ -163,19 +164,19 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
+			<version>${javax-validation.version}</version>
 			<classifier>sources</classifier>
 			<scope>provided</scope>
 		</dependency>

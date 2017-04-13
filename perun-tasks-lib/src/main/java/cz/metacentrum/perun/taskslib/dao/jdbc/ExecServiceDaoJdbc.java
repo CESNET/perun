@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
@@ -91,9 +92,14 @@ public class ExecServiceDaoJdbc extends JdbcDaoSupport implements ExecServiceDao
 				new Integer[] { serviceId }, ExecServiceDaoJdbc.EXEC_SERVICE_ROWMAPPER);
 	}
 
+	private int queryForInt(String sql, Object... args) throws DataAccessException {
+		Integer i = getJdbcTemplate().queryForObject(sql, args, Integer.class);
+		return (i != null ? i : 0);
+	}
+
 	@Override
 	public int countExecServices() {
-		return this.getJdbcTemplate().queryForInt("select count(*) from exec_services");
+		return queryForInt("select count(*) from exec_services");
 	}
 
 	@Override

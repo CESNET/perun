@@ -3,10 +3,8 @@ package cz.metacentrum.perun.core.api;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import cz.metacentrum.perun.core.api.AttributeDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 
 /**
@@ -15,6 +13,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
  *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
+@SuppressWarnings({"RedundantIfStatement", "SimplifiableIfStatement"})
 public class Attribute extends AttributeDefinition {
 
 	private final static Logger log = LoggerFactory.getLogger(Attribute.class);
@@ -107,9 +106,10 @@ public class Attribute extends AttributeDefinition {
 	/**
 	 * Check if the attribute value contains value. In case of list, it uses method contains. In case of array it searches in both keys and values.
 	 *
-	 * @param value
+	 * @param value value
 	 * @return true if the attribute value contains value.
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean valueContains(String value) {
 		if (this.getType().equals(String.class.getName()) || this.getType().equals(BeansUtils.largeStringClassName)) {
 			return value == null ? this.getValue() == null : value.equals(this.getValue());
@@ -168,14 +168,12 @@ public class Attribute extends AttributeDefinition {
 
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-				"id='").append(getId()).append('\'').append(
-				", friendlyName='").append(getFriendlyName()).append('\'').append(
-				", namespace='").append(getNamespace()).append('\'').append(
-				", type='").append(getType()).append('\'').append(
-				", value='").append(getValue()).append('\'').append(
-				']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id='" + getId() + '\'' +
+				", friendlyName='" + getFriendlyName() + '\'' +
+				", namespace='" + getNamespace() + '\'' +
+				", type='" + getType() + '\'' +
+				", value='" + getValue() + '\'' +
+				']';
 	}
 }

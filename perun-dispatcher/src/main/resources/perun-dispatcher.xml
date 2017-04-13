@@ -60,7 +60,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 
 	<!-- Quartz jobs definition - they are not started unless perun-dispatcher-scheduler.xml is imported to context -->
 
-	<bean id="maintenanceJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+	<bean id="maintenanceJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.MaintenanceJob" />
 		<property name="jobDataAsMap">
 			<map>
@@ -69,12 +69,12 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		</property>
 	</bean>
 
-	<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="maintenanceJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="maintenanceJob" />
 		<property name="cronExpression" value="${dispatcher.cron.maintenance}" />
 	</bean>
 
-	<bean id="propagationMaintainerJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+	<bean id="propagationMaintainerJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.PropagationMaintainerJob" />
 		<property name="jobDataAsMap">
 			<map>
@@ -83,12 +83,12 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		</property>
 	</bean>
 
-	<bean id="propagationMaintainerJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="propagationMaintainerJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="propagationMaintainerJob" />
 		<property name="cronExpression" value="${dispatcher.cron.propagation}" />
 	</bean>
 
-	<bean id="processPoolJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+	<bean id="processPoolJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.ProcessPoolJob" />
 		<property name="jobDataAsMap">
 			<map>
@@ -97,12 +97,12 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		</property>
 	</bean>
 
-	<bean id="processPoolJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="processPoolJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="processPoolJob" />
 		<property name="cronExpression" value="${dispatcher.cron.processpool}" />
 	</bean>
 
-	<bean id="cleanTaskResultsJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+	<bean id="cleanTaskResultsJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="cz.metacentrum.perun.dispatcher.job.CleanTaskResultsJob" />
 		<property name="jobDataAsMap">
 			<map>
@@ -111,7 +111,7 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 		</property>
 	</bean>
 
-	<bean id="cleanTaskResultsJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="cleanTaskResultsJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="cleanTaskResultsJob" />
 		<property name="cronExpression" value="${dispatcher.cron.cleantaskresults}" />
 	</bean>

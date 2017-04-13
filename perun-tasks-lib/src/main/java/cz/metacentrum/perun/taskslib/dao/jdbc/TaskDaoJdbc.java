@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -449,18 +450,23 @@ public class TaskDaoJdbc extends JdbcDaoSupport implements TaskDao {
 		this.getJdbcTemplate().update("delete from tasks where id = ?", id);
 	}
 
+	private int queryForInt(String sql, Object... args) throws DataAccessException {
+		Integer i = getJdbcTemplate().queryForObject(sql, args, Integer.class);
+		return (i != null ? i : 0);
+	}
+
 	@Override
 	public int countTasks(int engineID) {
 		if(engineID < 0) {
-			return this.getJdbcTemplate().queryForInt("select count(*) from tasks where engine_id is null");
+			return queryForInt("select count(*) from tasks where engine_id is null");
 		} else {
-			return this.getJdbcTemplate().queryForInt("select count(*) from tasks where engine_id = ?", engineID );
+			return queryForInt("select count(*) from tasks where engine_id = ?", engineID );
 		}
 	}
 
 	@Override
 	public int countTasks() {
-		return this.getJdbcTemplate().queryForInt("select count(*) from tasks");
+		return queryForInt("select count(*) from tasks");
 
 	}
 }

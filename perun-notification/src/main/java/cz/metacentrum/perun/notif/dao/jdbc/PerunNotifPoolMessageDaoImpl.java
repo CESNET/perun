@@ -7,23 +7,18 @@ import cz.metacentrum.perun.notif.dao.PerunNotifPoolMessageDao;
 import cz.metacentrum.perun.notif.dto.PoolMessage;
 import cz.metacentrum.perun.notif.entities.PerunNotifPoolMessage;
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.joda.time.Days;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
+import java.util.*;
 
 @Repository("perunNotifPoolMessageDao")
 @Transactional(propagation = Propagation.REQUIRED)
@@ -51,9 +46,9 @@ public class PerunNotifPoolMessageDaoImpl extends JdbcDaoSupport implements Peru
 			message.setCreated(new DateTime());
 		}
 		this.getJdbcTemplate().update(
-			"insert into pn_pool_message" + "(id, regex_id, template_id, key_attributes, notif_message, created) " + "values (?,?,?,?,?,?)",
-			newMessageId, message.getRegexId(), message.getTemplateId(), serializedKeyAttributes, message.getNotifMessage(),
-			new Timestamp(message.getCreated().getMillis()));
+				"insert into pn_pool_message" + "(id, regex_id, template_id, key_attributes, notif_message, created) " + "values (?,?,?,?,?,?)",
+				newMessageId, message.getRegexId(), message.getTemplateId(), serializedKeyAttributes, message.getNotifMessage(),
+				new Timestamp(message.getCreated().getMillis()));
 
 		message.setId(newMessageId);
 
