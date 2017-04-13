@@ -9,6 +9,7 @@ import cz.metacentrum.perun.core.api.PerunClient;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -30,16 +31,13 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  * <ul>
  * <li>Reference for Perun instance from Spring's application context.</li>
  * <li>Automatical transaction support (via Spring ContextTest Framework) with
- * default rollback feature. If you don't wish the rollback to be performed, use
- * @Rollback(false).</li>
+ * default rollback feature.
  * </ul>
  *
  * Your class can provide/overwrite it's own configuration of Spring's
  * application context
  *
- * @see http
- *      ://static.springsource.org/spring/docs/current/spring-framework-reference
- *      /html/testing.html#testcontext-framework
+ * @see <a href="http://static.springsource.org/spring/docs/current/spring-framework-reference/html/testing.html#testcontext-framework">testing</a>
  *
  *      You can use Mockito and PowerMock testing frameworks as well.
  *
@@ -52,8 +50,8 @@ import cz.metacentrum.perun.core.bl.PerunBl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-core-jdbc.xml" })
-@TransactionConfiguration(transactionManager = "springTransactionManager", defaultRollback = true)
-@Transactional
+@Rollback
+@Transactional(transactionManager = "springTransactionManager")
 public abstract class AbstractPerunIntegrationTest {
 
 	@Autowired

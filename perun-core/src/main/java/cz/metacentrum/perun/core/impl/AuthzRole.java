@@ -65,7 +65,7 @@ public class AuthzRole {
 
 	public String toString() {
 		return getClass().getSimpleName() +
-			"role='" + role == null ? "null" : role + "', " +
-			"complementaryObject='" + complementaryObject == null ? "null" : complementaryObject + "']";
+			"role='" + ((role == null) ? "null" : role) + "', " +
+			"complementaryObject='" + ((complementaryObject == null) ? "null" : complementaryObject + "']");
 	}
 }

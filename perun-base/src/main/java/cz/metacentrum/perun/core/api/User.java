@@ -12,7 +12,6 @@ import cz.metacentrum.perun.core.api.BeansUtils;
  */
 public class User extends Auditable implements Comparable<PerunBean> {
 
-	protected int id;
 	protected String firstName;
 	protected String lastName;
 	protected String middleName;

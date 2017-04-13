@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,11 @@ import cz.metacentrum.perun.taskslib.model.ExecService.ExecServiceType;
 @Transactional
 public class ExecServiceDependencyDaoJdbc extends JdbcDaoSupport implements ExecServiceDependencyDao {
 	private final static Logger log = LoggerFactory.getLogger(ExecServiceDependencyDaoJdbc.class);
+
+	private int queryForInt(String sql, Object... args) throws DataAccessException {
+		Integer i = getJdbcTemplate().queryForObject(sql, args, Integer.class);
+		return (i != null ? i : 0);
+	}
 
 	private static final String scopeMappingSelectQuery = " service_dependencies.type as service_dependencies_type ";
 
@@ -58,8 +64,7 @@ public class ExecServiceDependencyDaoJdbc extends JdbcDaoSupport implements Exec
 	@Override
 	public boolean isThereDependency(int dependantExecServiceId, int execServiceId) {
 		int dependency = 0;
-		dependency = this.getJdbcTemplate().queryForInt("select count(*) from service_dependencies where dependency_id = ? and exec_service_id = ?",
-				new Object[] { execServiceId, dependantExecServiceId });
+		dependency = queryForInt("select count(*) from service_dependencies where dependency_id = ? and exec_service_id = ?", execServiceId, dependantExecServiceId );
 		if (dependency > 0) {
 			return true;
 		}

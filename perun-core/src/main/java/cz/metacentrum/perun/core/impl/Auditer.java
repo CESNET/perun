@@ -242,7 +242,7 @@ public class Auditer {
 		Object[] objects = new Object[2];
 		objects[0] = serializeObject(arg1);
 		objects[1] = serializeObject(arg2);
-		String formatedMessage = MessageFormatter.arrayFormat(message, objects);
+		String formatedMessage = MessageFormatter.arrayFormat(message, objects).getMessage();
 		storeMessageToDb(sess, formatedMessage);
 	}
 
@@ -256,7 +256,7 @@ public class Auditer {
 	 */
 	public void log(PerunSession sess, String message, Object arg1, Object arg2) throws InternalErrorException {
 		message = BeansUtils.createEscaping(message);
-		String formatedMessage = MessageFormatter.format(message, this.serializeObject(arg1), this.serializeObject(arg2));
+		String formatedMessage = MessageFormatter.format(message, this.serializeObject(arg1), this.serializeObject(arg2)).getMessage();
 		log(sess, formatedMessage);
 	}
 
@@ -266,7 +266,7 @@ public class Auditer {
 		objects[0] = serializeObject(arg1);
 		objects[1] = serializeObject(arg2);
 		objects[2] = serializeObject(arg3);
-		String formatedMessage = MessageFormatter.arrayFormat(message, objects);
+		String formatedMessage = MessageFormatter.arrayFormat(message, objects).getMessage();
 		log(sess, formatedMessage);
 	}
 
@@ -277,7 +277,7 @@ public class Auditer {
 		objects[1] = serializeObject(arg2);
 		objects[2] = serializeObject(arg3);
 		objects[3] = serializeObject(arg4);
-		String formatedMessage = MessageFormatter.arrayFormat(message, objects);
+		String formatedMessage = MessageFormatter.arrayFormat(message, objects).getMessage();
 		log(sess, formatedMessage);
 	}
 

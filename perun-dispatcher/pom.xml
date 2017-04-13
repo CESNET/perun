@@ -101,24 +101,6 @@
 				</executions>
 			</plugin>
 
-			<!-- Executing plug-in:  mvn exec:java -->
-			<!--<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>java</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<mainClass>cz.metacentrum.perun.dispatcher.main.DispatcherStarter</mainClass>
-				</configuration>
-			</plugin>
-			-->
-
 		</plugins>
 
 		<resources>
@@ -160,14 +142,6 @@
 
 		<!-- DB -->
 
-		<!-- use tomcat dbcp instead
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>1.4</version>
-		</dependency>
- 		-->
-
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-dbcp</artifactId>
@@ -186,33 +160,28 @@
 
 
 		<dependency>
-			<groupId>postgresql</groupId>
+			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 		</dependency>
 
 		<!-- SPRING -->
 
-		<!--
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-		-->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
 		</dependency>
 
+		<!-- TESTS -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 
-		<!-- TESTS -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- LOGGING -->
@@ -229,9 +198,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>quartz</groupId>
+			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
-			<version>1.5.2</version>
 		</dependency>
 
 		<!-- HORNET-Q  -->
@@ -239,31 +207,26 @@
 		<dependency>
 			<groupId>org.hornetq</groupId>
 			<artifactId>hornetq-core</artifactId>
-			<version>2.2.21.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hornetq</groupId>
 			<artifactId>hornetq-jms</artifactId>
-			<version>2.2.21.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hornetq</groupId>
 			<artifactId>hornetq-logging</artifactId>
-			<version>2.2.21.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
-			<version>3.2.1.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jboss.javaee</groupId>
 			<artifactId>jboss-jms-api</artifactId>
-			<version>1.1.0.GA</version>
 		</dependency>
 
 	</dependencies>

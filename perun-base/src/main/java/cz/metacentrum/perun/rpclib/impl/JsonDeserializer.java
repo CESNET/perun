@@ -23,6 +23,7 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
  * @author Jan Klos <ddd@mail.muni.cz>
  * @since 0.1
  */
+@SuppressWarnings("WeakerAccess")
 public class JsonDeserializer extends Deserializer {
 
 	@JsonIgnoreProperties({"name", "baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
@@ -57,7 +58,7 @@ public class JsonDeserializer extends Deserializer {
 
 	private interface MemberMixIn {
 		@JsonIgnore
-		public void setStatus(String status);
+		void setStatus(String status);
 	}
 
 	private static final ObjectMapper mapper = new ObjectMapper();
@@ -98,11 +99,7 @@ public class JsonDeserializer extends Deserializer {
 
 	@Override
 	public boolean contains(String name) {
-		if (root.get(name) != null) {
-			return true;
-		} else {
-			return false;
-		}
+		return root.get(name) != null;
 	}
 
 	@Override
@@ -112,7 +109,6 @@ public class JsonDeserializer extends Deserializer {
 		if (name == null) {
 			// The object is not under root, but directly in the response
 			node = root;
-			name = "root";
 		} else {
 			node = root.get(name);
 		}
@@ -124,7 +120,7 @@ public class JsonDeserializer extends Deserializer {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as String");
 		}
 
-		return node.getValueAsText();
+		return node.asText();
 	}
 
 	@Override
@@ -176,7 +172,6 @@ public class JsonDeserializer extends Deserializer {
 		if (name == null) {
 			// The object is not under root, but directly in the response
 			node = root;
-			name = "root";
 		} else {
 			node = root.get(name);
 		}
@@ -228,8 +223,7 @@ public class JsonDeserializer extends Deserializer {
 		}
 
 		try {
-			T obj = mapper.readValue(node, valueType);
-			return obj;
+			return mapper.readValue(node, valueType);
 		} catch (IOException ex) {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName(), ex);
 		}
@@ -263,7 +257,7 @@ public class JsonDeserializer extends Deserializer {
 		}
 
 		try {
-			List<T> list = new ArrayList<T>(node.size());
+			List<T> list = new ArrayList<>(node.size());
 			for (JsonNode e : node) {
 				list.add(mapper.readValue(e, valueType));
 			}

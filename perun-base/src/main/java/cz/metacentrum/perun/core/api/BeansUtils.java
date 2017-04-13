@@ -197,6 +197,7 @@ public class BeansUtils {
 	 *
 	 * @throws InternalErrorException
 	 */
+	@SuppressWarnings("unchecked")
 	public static String attributeValueToString(Attribute attribute) throws InternalErrorException {
 		if(attribute == null) throw new InternalErrorException(new NullPointerException("attribute is null"));
 		if(attribute.getValue() == null) return null;

@@ -3,6 +3,7 @@ package cz.metacentrum.perun.taskslib.dao.jdbc;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,26 +61,21 @@ public class ExecServiceDenialDaoJdbc extends JdbcDaoSupport implements ExecServ
 		}
 	}
 
+	private int queryForInt(String sql, Object... args) throws DataAccessException {
+		Integer i = getJdbcTemplate().queryForObject(sql, args, Integer.class);
+		return (i != null ? i : 0);
+	}
+
 	@Override
 	public boolean isExecServiceDeniedOnFacility(int execServiceId, int facilityId) {
-		int denials = 0;
-		denials = this.getJdbcTemplate().queryForInt("select count(*) from service_denials where exec_service_id = ? and facility_id = ?",
-				new Object[] { execServiceId, facilityId });
-		if (denials > 0) {
-			return true;
-		}
-		return false;
+		int denials = queryForInt("select count(*) from service_denials where exec_service_id = ? and facility_id = ?",	execServiceId, facilityId );
+		return denials > 0;
 	}
 
 	@Override
 	public boolean isExecServiceDeniedOnDestination(int execServiceId, int destinationId) {
-		int denials = 0;
-		denials = this.getJdbcTemplate().queryForInt("select count(*) from service_denials where exec_service_id = ? and destination_id = ?",
-				new Object[] { execServiceId, destinationId });
-		if (denials > 0) {
-			return true;
-		}
-		return false;
+		int denials = queryForInt("select count(*) from service_denials where exec_service_id = ? and destination_id = ?", execServiceId, destinationId );
+		return denials > 0;
 	}
 
 	@Override

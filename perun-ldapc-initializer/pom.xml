@@ -18,8 +18,7 @@
 	<description>LDAP connector initialization script</description>
 
 	<properties>
-		<!-- common module settings used by all profiles -->
-		<org.springframework.ldap.version>1.3.2.RELEASE</org.springframework.ldap.version>
+		<start-class>cz.metacentrum.perun.ldapc.initializer.main.Main</start-class>
 	</properties>
 
 	<!-- common build settings used by all profiles -->
@@ -60,35 +59,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<!-- which class should be run when the JAR is executed -->
-									<mainClass>cz.metacentrum.perun.ldapc.initializer.main.Main</mainClass>
-								</transformer>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource>META-INF/spring.handlers</resource>
-								</transformer>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource>META-INF/spring.schemas</resource>
-								</transformer>
-							</transformers>
-							<artifactSet>
-								<excludes>
-									<!-- test artifacts are excluded by default -->
-									<!-- we don't need maven build plugins in our application -->
-									<exclude>org.apache.maven*</exclude>
-								</excludes>
-							</artifactSet>
-						</configuration>
-					</execution>
-				</executions>
+				<!-- Main-Class taken from property ${start-class} -->
 			</plugin>
 
 			<!-- Copy dependencies plug-in -->

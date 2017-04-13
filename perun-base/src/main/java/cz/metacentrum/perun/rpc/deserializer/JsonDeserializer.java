@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Jan Klos <ddd@mail.muni.cz>
  * @author Pavel Zlamal <256627@mail.muni.cz>
  */
+@SuppressWarnings("Duplicates")
 public class JsonDeserializer extends Deserializer {
 
 	@JsonIgnoreProperties({"name","baseFriendlyName", "friendlyNameParameter", "entity", "beanName"})
@@ -67,6 +68,7 @@ public class JsonDeserializer extends Deserializer {
 	@JsonIgnoreProperties({"persistent","beanName"})
 	private interface UserExtSourceMixIn {}
 
+	@SuppressWarnings("unused")
 	private interface MemberMixIn {
 		@JsonIgnore
 		void setStatus(String status);
@@ -147,11 +149,7 @@ public class JsonDeserializer extends Deserializer {
 
 	@Override
 	public boolean contains(String name) {
-		if (root.get(name) != null) {
-			return true;
-		} else {
-			return false;
-		}
+		return root.get(name) != null;
 	}
 
 	@Override
@@ -168,7 +166,7 @@ public class JsonDeserializer extends Deserializer {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as String");
 		}
 
-		return node.getValueAsText();
+		return node.asText();
 	}
 
 	@Override
@@ -185,7 +183,7 @@ public class JsonDeserializer extends Deserializer {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as Boolean");
 		}
 
-		return node.getValueAsBoolean();
+		return node.asBoolean();
 	}
 
 	@Override
@@ -264,8 +262,7 @@ public class JsonDeserializer extends Deserializer {
 		}
 
 		try {
-			T obj = mapper.readValue(node, valueType);
-			return obj;
+			return mapper.readValue(node, valueType);
 		} catch (IOException ex) {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as " + valueType.getSimpleName(), ex);
 		}
@@ -294,7 +291,7 @@ public class JsonDeserializer extends Deserializer {
 		}
 
 		try {
-			List<T> list = new ArrayList<T>(node.size());
+			List<T> list = new ArrayList<>(node.size());
 			for (JsonNode e : node) {
 				list.add(mapper.readValue(e, valueType));
 			}
@@ -319,13 +316,11 @@ public class JsonDeserializer extends Deserializer {
 		}
 
 		try {
-			String beanName = "cz.metacentrum.perun.core.api." + node.get("beanName").getTextValue();
-
+			String beanName = node.get("beanName").getTextValue();
 			if(beanName == null) {
 				throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - missing beanName info");
 			}
-			PerunBean obj = (PerunBean) mapper.readValue(node, Class.forName(beanName));
-			return obj;
+			return (PerunBean) mapper.readValue(node, Class.forName("cz.metacentrum.perun.core.api." + beanName));
 		} catch (ClassNotFoundException ex) {
 			throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - class not found");
 		} catch (IOException ex) {
@@ -355,14 +350,14 @@ public class JsonDeserializer extends Deserializer {
 		}
 
 		try {
-			List<PerunBean> list = new ArrayList<PerunBean>(node.size());
+			List<PerunBean> list = new ArrayList<>(node.size());
 			for (JsonNode e : node) {
-				String beanName = "cz.metacentrum.perun.core.api." + e.get("beanName").getTextValue();
+				String beanName = e.get("beanName").getTextValue();
 
 				if(beanName == null) {
 					throw new RpcException(RpcException.Type.CANNOT_DESERIALIZE_VALUE, node.toString() + " as List<PerunBean> - missing beanName info");
 				}
-				list.add((PerunBean) mapper.readValue(e, Class.forName(beanName)));
+				list.add((PerunBean) mapper.readValue(e, Class.forName("cz.metacentrum.perun.core.api." + beanName)));
 			}
 			return list;
 		} catch (ClassNotFoundException ex) {
