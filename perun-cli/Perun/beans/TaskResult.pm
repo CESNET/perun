@@ -279,4 +279,11 @@ sub getServiceName
 
 	return $service->{service};
 }
+
+sub getServiceId
+{
+	my $service = shift->{_service};
+
+	return $service->{id};
+}
 1;
