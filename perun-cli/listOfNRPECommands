@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction printTable);
+
+# NEEDED AGENTS
+my $agent = Perun::Agent->new();
+my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $servicesAgent = $agent->getServicesAgent;
+my $resourcesAgent = $agent->getResourcesAgent;
+
+# CONSTANTS
+my $PERUN_CLI_PATH = '/opt/perun-cli/lib';
+my $CHECK_COMMAND = 'checkLastTaskResult';
+
+# HELP
+sub help {
+	return qq{
+	Returns list of commands for NRPE server in format:
+	"command[SERVICE+DESTINATION]=PATH/CHECK_COMMAND -S SERVICE 
+	-D DESTINATION" per line where '+' is needed separator,
+	PATH is where CLI scripts are and CHECK_COMMAND is command for checking
+	if the newest task_result for combination SERVICE and DESTINATION (names)
+	ends not late than two days back and without error.
+	---------------------------------------------------------------
+	Available options:
+	--help    | -h prints this help
+	};
+}
+
+# READING ARGUMENTS
+GetOptions ("help|h" => sub {
+	print help();
+	exit 0;
+}) || die help();
+
+# MAIN CODE
+my @facilities = $facilitiesAgent->getFacilities;
+for my $facility (@facilities) {
+	my %facilityServices = ();
+	my $facilityId = $facility->getId;
+	my @services = $servicesAgent->getAssignedServices( facility => $facilityId );
+
+	for my $service (@services) {
+		my $serviceId = $service->getId;
+		my $serviceName = $service->getName;
+		my @destinations = $servicesAgent->getDestinations( facility => $facilityId, service => $serviceId );
+		for my $destination (@destinations) {
+			my $destinationName = $destination->getDestination;
+			print "command[$serviceName+$destinationName]=$PERUN_CLI_PATH/$CHECK_COMMAND -S \"$serviceName\" -D \"$destinationName\"\n";
+		}
+	}
+}
+
+exit 0;
