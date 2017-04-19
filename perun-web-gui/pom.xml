@@ -33,7 +33,7 @@
 
 	<!-- common build settings used by all profiles -->
 	<build>
-		<finalName>perun-web-gui-${perun.build.type}</finalName>
+		<finalName>${project.name}-${project.version}</finalName>
 		<plugins>
 
 			<plugin>
