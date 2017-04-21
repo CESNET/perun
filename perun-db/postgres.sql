@@ -1436,6 +1436,7 @@ alter table user_ext_sources add constraint usrex_usersrc_fk foreign key(ext_sou
 alter table members add constraint mem_pk primary key(id);
 alter table members add constraint mem_user_fk foreign key(user_id) references users(id);
 alter table members add constraint mem_vo_fk foreign key(vo_id) references vos(id);
+alter table members add constraint mem_user_vo_u unique (vo_id, user_id);
 
 alter table owners add constraint ow_pk primary key (id);
 alter table owners add constraint ow_u unique (name);
@@ -1849,7 +1850,7 @@ grant all on membership_types to perun;
 grant all on user_ext_source_attr_values to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.41');
+insert into configurations values ('DATABASE VERSION','3.1.42');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
