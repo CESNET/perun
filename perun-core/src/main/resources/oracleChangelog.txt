@@ -3,6 +3,10 @@
 -- Directly under version number should be version commands. They will be executed in the order they are written here.
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
+3.1.42
+alter table members add constraint MEM_USER_VO_U unique (vo_id, user_id);
+update configurations set value='3.1.42' where property='DATABASE VERSION';
+
 3.1.41
 alter table tasks add ( constraint TASK_U unique (exec_service_id, facility_id) );
 update configurations set value='3.1.41' where property='DATABASE VERSION';
