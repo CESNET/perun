@@ -68,7 +68,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 		"destinations.modified_by_uid as destinations_modified_by_uid, destinations.created_by_uid as destinations_created_by_uid";
 
 	public final static String facilityDestinationMappingSelectQuery = destinationMappingSelectQuery + ", facility_service_destinations.propagation_type as f_s_des_propagation_type ";
-			
+
 	public final static String richDestinationMappingSelectQuery = " destinations.id as destinations_id, destinations.destination as destinations_destination, " +
 		"destinations.type as destinations_type, destinations.created_at as destinations_created_at, destinations.created_by as destinations_created_by, " +
 		"destinations.modified_by as destinations_modified_by, destinations.modified_at as destinations_modified_at, " +
@@ -630,7 +630,7 @@ public class ServicesManagerImpl implements ServicesManagerImplApi {
 
 	public List<Destination> getFacilitiesDestinations(PerunSession sess, Vo vo) throws InternalErrorException {
 		try {
-			return jdbc.query("select distinct " + destinationMappingSelectQuery + " from destinations, facility_service_destinations, facilities, resources, vos " +
+			return jdbc.query("select distinct " + destinationMappingSelectQuery + " from destinations, facility_service_destinations, facilities, resources " +
 					"where destinations.id = facility_service_destinations.destination_id and facilities.id = facility_service_destinations.facility_id " +
 					"and facilities.id = resources.facility_id and resources.vo_id = ?", DESTINATION_MAPPER, vo.getId());
 		} catch (RuntimeException e) {
