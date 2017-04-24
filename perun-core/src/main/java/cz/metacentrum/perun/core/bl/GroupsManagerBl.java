@@ -974,11 +974,12 @@ public interface GroupsManagerBl {
 
 	/**
 	 * For list of richGroups filter all their group attributes and remove all which principal has no access to.
+	 * Context usage is safe even for groups from different VOs.
 	 *
-	 * Context means same "combination of authz role for a group"+"attribute_friendlyName". Since privileges are resolved by roles on group and attribute type.
+	 * Context means same "combination of authz role for a group"+"attribute_urn (name)". Since privileges are resolved by roles on group and attribute type.
 	 *
-	 * if useContext is true: every attribute is unique in a context of authz roles combination and it's friendlyName. So for each combination of
-	 * users authz roles granted for the group, attributes with same friendlyName has same privilege.
+	 * if useContext is true: every attribute is unique in a context of authz roles combination and its URN. So for each combination of
+	 * users authz roles granted for the group, attributes with same URN has same privilege.
 	 *
 	 * if useContext is false: every attribute is unique in context of group, which means every attribute for more groups need to be check separately,
 	 * because for example groups can be from different vos where user has different authz (better authorization check, worse performance)

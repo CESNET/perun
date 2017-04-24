@@ -1452,7 +1452,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		//If no context should be used - every attribute is unique in context of group (for every group test access rights for all attributes again)
 		if(!useContext) return filterOnlyAllowedAttributes(sess, richGroups);
 
-		//If context should be used - every attribute is unique in a context of users authz_roles for a group + friendlyName
+		//If context should be used - every attribute is unique in a context of users authz_roles for a group + attribute URN
 		// (every attribute test only once per authz+friendlyName)
 		List<RichGroup> filteredRichGroups = new ArrayList<RichGroup>();
 		if(richGroups == null || richGroups.isEmpty()) return filteredRichGroups;
@@ -1473,21 +1473,22 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 				List<Attribute> allowedGroupAttributes = new ArrayList<Attribute>();
 				for(Attribute groupAttr: groupAttributes) {
 					//if there is record in contextMap, use it
-					if(contextMap.containsKey(key + groupAttr.getFriendlyName())) {
-						Boolean isWritable = contextMap.get(key + groupAttr.getFriendlyName());
+					if(contextMap.containsKey(key + groupAttr.getName())) {
+						Boolean isWritable = contextMap.get(key + groupAttr.getName());
 						if(isWritable != null) {
 							groupAttr.setWritable(isWritable);
 							allowedGroupAttributes.add(groupAttr);
 						}
-						//if not, get information about authz rights and set record to contextMap
+						// no READ for attribute
 					} else {
+						//if not, get information about authz rights and set record to contextMap
 						if(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, groupAttr, rg, null)) {
 							boolean isWritable = AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, groupAttr, rg, null);
 							groupAttr.setWritable(isWritable);
 							allowedGroupAttributes.add(groupAttr);
-							contextMap.put(key + groupAttr.getFriendlyName(), isWritable);
+							contextMap.put(key + groupAttr.getName(), isWritable);
 						} else {
-							contextMap.put(key + groupAttr.getFriendlyName(), null);
+							contextMap.put(key + groupAttr.getName(), null);
 						}
 					}
 				}
