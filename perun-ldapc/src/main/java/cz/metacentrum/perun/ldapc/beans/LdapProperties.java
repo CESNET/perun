@@ -5,38 +5,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * LdapProperties data from properties file.
- *
- * @author norexan
  */
 public class LdapProperties {
 
-	private Properties ldapcProperties;
 	private String ldapConsumerName;
 	private String ldapBase;
 	private String ldapLoginNamespace;
 
-	@Autowired
-	public LdapProperties(Properties ldapcProperties) {
-		this.ldapcProperties=ldapcProperties;
+	public LdapProperties(String ldapConsumerName, String ldapBase, String ldapLoginNamespace) {
+		this.ldapConsumerName = ldapConsumerName;
+		this.ldapBase = ldapBase;
+		this.ldapLoginNamespace = ldapLoginNamespace;
 	}
 
-	public Properties getLdapcProperties() {
-		return ldapcProperties;
+	public boolean propsLoaded() {
+		return ldapConsumerName!=null&&ldapBase!=null&&ldapLoginNamespace!=null;
 	}
 
 	public String getLdapConsumerName() {
-		return this.getLdapcProperties().getProperty("ldap.consumerName");
+		return ldapConsumerName;
 	}
 
 	public String getLdapBase() {
-		return this.getLdapcProperties().getProperty("ldap.base");
+		return ldapBase;
 	}
 
 	public String getLdapLoginNamespace() {
-		return this.getLdapcProperties().getProperty("ldap.loginNamespace");
-	}
-
-	public void setLdapcProperties(Properties ldapcProperties) {
-		this.ldapcProperties = ldapcProperties;
+		return ldapLoginNamespace;
 	}
 }

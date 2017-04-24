@@ -116,7 +116,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 	 */
 	public void run() {
 
-		if(ldapProperties.getLdapcProperties() == null) throw new RuntimeException("LdapcProperties is not autowired correctly!");
+		if(!ldapProperties.propsLoaded()) throw new RuntimeException("LdapcProperties is not autowired correctly!");
 
 		//Get instance of auditerConsumer and set runnig to true
 
