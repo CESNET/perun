@@ -12,8 +12,8 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <!-- -Dperun.conf.custom=/etc/perun/filename -->
     <context:property-placeholder
             ignore-resource-not-found="true" ignore-unresolvable="true"
-            location="${perun.jdbc}, file:${perun.conf.custom}jdbc.properties,
-            ${perun.ldapc}, file:${perun.conf.custom}perun-ldapc.properties"/>
+            location="@perun.jdbc@, file:${perun.conf.custom}jdbc.properties,
+            @perun.ldapc@, file:${perun.conf.custom}perun-ldapc.properties"/>
 
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
@@ -22,20 +22,10 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <context:component-scan base-package="cz.metacentrum.perun.ldapc"/>
     <context:annotation-config/>
 
-    <!-- Properties Bean -->
-    <bean id="ldapcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <value>file:${perun.conf}perun-ldapc.properties</value>
-                <value>file:${perun.conf.custom}perun-ldapc.properties</value>
-            </list>
-        </property>
-        <property name="ignoreResourceNotFound">
-            <value>true</value>
-        </property>
-    </bean>
     <bean id="ldapProperties" class="cz.metacentrum.perun.ldapc.beans.LdapProperties">
-        <constructor-arg ref="ldapcProperties" />
+        <constructor-arg name="ldapConsumerName" index="0" value="${ldap.consumerName}" />
+        <constructor-arg name="ldapBase" index="1" value="${ldap.base}" />
+        <constructor-arg name="ldapLoginNamespace" index="2" value="${ldap.loginNamespace}" />
     </bean>
 
     <!-- These beans are for define ldapTemplate -->

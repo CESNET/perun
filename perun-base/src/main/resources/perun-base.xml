@@ -21,7 +21,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<bean id="coreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<property name="locations">
 				<list>
-					<value>file:${perun.conf}perun.properties</value>
+					<value>file:@perun.conf@perun.properties</value>
 					<value>file:${perun.conf.custom}perun.properties</value>
 				</list>
 			</property>

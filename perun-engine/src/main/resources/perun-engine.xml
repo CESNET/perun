@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 "
        default-lazy-init="true"
         >
@@ -133,72 +131,44 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     -->
 
     <!-- PROPERTIES BEAN -->
-
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="ignoreUnresolvablePlaceholders" value="true" />
-        <property name="properties" ref="propertiesBean" />
+    <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <!-- set where perun-engine JSM runs -->
+                <prop key="engine.unique.id">1</prop>
+                <prop key="engine.ip.address">127.0.0.1</prop>
+                <prop key="engine.port">6061</prop>
+                <!-- set where perun-dispatcher JMS runs -->
+                <prop key="dispatcher.ip.address">127.0.0.1</prop>
+                <prop key="dispatcher.port">6071</prop>
+                <!-- set internal config -->
+                <prop key="perun.principal.name">perunEngine</prop>
+                <prop key="perun.principal.extSourceName">INTERNAL</prop>
+                <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
+                <prop key="engine.cron.propagation">45 0/2 * * * ?</prop>
+                <prop key="engine.cron.processpool">0 0/1 * * * ?</prop>
+                <prop key="engine.cron.taskexecutor">0 0/2 * * * ?</prop>
+                <prop key="engine.thread.gentasks.max">15</prop>
+                <prop key="engine.thread.sendtasks.max">1000</prop>
+                <prop key="engine.genscript.path">gen</prop>
+                <prop key="engine.sendscript.path">send</prop>
+            </props>
+        </property>
     </bean>
 
     <beans profile="devel,production">
-        <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-            <property name="locations">
-                <list>
-                    <value>file:${perun.conf}perun-engine.properties</value>
-                    <value>file:${perun.conf.custom}perun-engine.properties</value>
-                </list>
-            </property>
-            <property name="ignoreResourceNotFound" value="true"/>
-            <!-- We still want to have backup values when config is missing in file -->
-            <property name="properties">
-                <props>
-                    <!-- set where perun-engine JSM runs -->
-                    <prop key="engine.unique.id">1</prop>
-                    <prop key="engine.ip.address">127.0.0.1</prop>
-                    <prop key="engine.port">6061</prop>
-                    <!-- set where perun-dispatcher JMS runs -->
-                    <prop key="dispatcher.ip.address">127.0.0.1</prop>
-                    <prop key="dispatcher.port">6071</prop>
-                    <!-- set internal config -->
-                    <prop key="perun.principal.name">perunEngine</prop>
-                    <prop key="perun.principal.extSourceName">INTERNAL</prop>
-                    <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-                    <prop key="engine.cron.propagation">45 0/2 * * * ?</prop>
-                    <prop key="engine.cron.processpool">0 0/1 * * * ?</prop>
-                    <prop key="engine.cron.taskexecutor">0 0/2 * * * ?</prop>
-                    <prop key="engine.thread.gentasks.max">15</prop>
-                    <prop key="engine.thread.sendtasks.max">1000</prop>
-                    <prop key="engine.genscript.path">gen</prop>
-                    <prop key="engine.sendscript.path">send</prop>
-                </props>
-            </property>
-        </bean>
+        <context:property-placeholder
+                ignore-resource-not-found="true" ignore-unresolvable="true"
+                properties-ref="propertiesBean"
+                location="file:@perun.conf@perun-engine.properties, file:${perun.conf.custom}perun-engine.properties"
+        />
     </beans>
 
     <beans profile="default">
-        <bean id="propertiesBean" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-            <property name="properties">
-                <props>
-                    <!-- set where perun-engine JSM runs -->
-                    <prop key="engine.unique.id">1</prop>
-                    <prop key="engine.ip.address">127.0.0.1</prop>
-                    <prop key="engine.port">6061</prop>
-                    <!-- set where perun-dispatcher JMS runs -->
-                    <prop key="dispatcher.ip.address">127.0.0.1</prop>
-                    <prop key="dispatcher.port">6071</prop>
-                    <!-- set internal config -->
-                    <prop key="perun.principal.name">perunEngine</prop>
-                    <prop key="perun.principal.extSourceName">INTERNAL</prop>
-                    <prop key="perun.principal.extSourceType">cz.metacentrum.perun.core.impl.ExtSourceInternal</prop>
-                    <prop key="engine.cron.propagation">45 0/2 * * * ?</prop>
-                    <prop key="engine.cron.processpool">0 0/1 * * * ?</prop>
-                    <prop key="engine.cron.taskexecutor">0 0/2 * * * ?</prop>
-                    <prop key="engine.thread.gentasks.max">15</prop>
-                    <prop key="engine.thread.sendtasks.max">1000</prop>
-                    <prop key="engine.genscript.path">gen</prop>
-                    <prop key="engine.sendscript.path">send</prop>
-                </props>
-            </property>
-        </bean>
+        <context:property-placeholder
+                ignore-resource-not-found="true" ignore-unresolvable="true"
+                properties-ref="propertiesBean"
+        />
     </beans>
 
 </beans>
