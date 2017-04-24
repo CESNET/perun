@@ -32,6 +32,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 	private final String CEITEC_PROXY_ENTITY_ID = "https://login.ceitec.cz/idp/";
 	private final String CEITEC_PROXY_SCOPE = "ceitec.cz";
 
+	private final String CEITEC_PROXY_ENTITY_ID_AD = "https://login.ceitec.cz/idp-ad/";
+	private final String CEITEC_PROXY_SCOPE_AD = "ceitec.local";
+
 	/**
 	 * Checks if the user's login is unique in the namespace organization.
 	 * Check if maximum length is 20 chars, because of MSAD limitations.
@@ -141,6 +144,14 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 	public void changedAttributeHook(PerunSessionImpl session, User user, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
 		super.changedAttributeHook(session, user, attribute);
 		log.debug("changedAttributeHook for attr: "+attribute+" and user: "+user);
+
+		handleChangedAttributeHook(session, user, attribute, CEITEC_PROXY_ENTITY_ID, CEITEC_PROXY_SCOPE);
+		handleChangedAttributeHook(session, user, attribute, CEITEC_PROXY_ENTITY_ID_AD, CEITEC_PROXY_SCOPE_AD);
+
+	}
+
+	private void handleChangedAttributeHook(PerunSessionImpl session, User user, Attribute attribute, String entityId, String scope) throws InternalErrorException {
+
 		/*
 		 * "Synchornize" this attribute to user extSource. Means it creates, updates and removes userExtSource
 		 * whenever this attribute is added, edited or removed.
@@ -148,9 +159,9 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 		 * Ceitec proxy UserExtSourceLogin has form: {login-namespace:ceitec}@ceitec.cz
 		 */
 		try {
-			ExtSource ceitecProxyIdp = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, CEITEC_PROXY_ENTITY_ID);
+			ExtSource ceitecProxyIdp = session.getPerunBl().getExtSourcesManagerBl().getExtSourceByName(session, entityId);
 
-			UserExtSource ceitecUes = getCeitecProxyUserExtSource(session, user, ceitecProxyIdp);
+			UserExtSource ceitecUes = getCeitecProxyUserExtSource(session, user, ceitecProxyIdp, scope);
 			log.debug("changedAttributeHook UserExtSourceLogin to be synchronized: "+ceitecUes);
 
 			if (attribute.getValue() == null) {
@@ -162,7 +173,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 				}
 
 			} else {
-				String newLogin = attribute.getValue() + "@" + CEITEC_PROXY_SCOPE;
+				String newLogin = attribute.getValue() + "@" + scope;
 				if (ceitecUes == null) {
 					// Creating UES
 					ceitecUes = new UserExtSource(ceitecProxyIdp, 0, newLogin);
@@ -178,31 +189,30 @@ public class urn_perun_user_attribute_def_def_login_namespace_ceitec extends urn
 		} catch (ExtSourceNotExistsException e) {
 			throw new InternalErrorException(
 					"Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
-							" require extSource with name (entityId): "+CEITEC_PROXY_ENTITY_ID+". User: "+user, e);
+							" require extSource with name (entityId): "+entityId+". User: "+user, e);
 		} catch (UserExtSourceAlreadyRemovedException e) {
 			throw new InternalErrorException(
 					"Inconsistency. Attribute module 'urn_perun_user_attribute_def_def_login_namespace_ceitec' " +
 							" tries to delete extSource but it does not exists. " +
-							"extSource with name (entityId): "+CEITEC_PROXY_ENTITY_ID+". User: "+user, e);
+							"extSource with name (entityId): "+entityId+". User: "+user, e);
 		} catch (UserExtSourceExistsException e) {
 			throw new InternalErrorException(
 					"This module should check if ceitec login already exists " +
 							"and call update method.", e);
 		}
 
-
 	}
 
-	private UserExtSource getCeitecProxyUserExtSource(PerunSessionImpl session, User user, ExtSource ceitecExtSource) throws InternalErrorException {
+	private UserExtSource getCeitecProxyUserExtSource(PerunSessionImpl session, User user, ExtSource ceitecExtSource, String scope) throws InternalErrorException {
 		UserExtSource ceitecProxyUserExtSource = null;
 
 		List<UserExtSource> uess = session.getPerunBl().getUsersManagerBl().getUserExtSources(session, user);
 
 		for (UserExtSource ues : uess) {
-			if (ues.getExtSource().equals(ceitecExtSource) && ues.getLogin().endsWith("@"+CEITEC_PROXY_SCOPE)) {
+			if (ues.getExtSource().equals(ceitecExtSource) && ues.getLogin().endsWith("@"+scope)) {
 				if (ceitecProxyUserExtSource != null) {
 					throw new InternalErrorException("Multiple UserExtSourceLogins with Ceitec proxy IdP scope '" +
-							CEITEC_PROXY_SCOPE + "' founded for user: "+user);
+							scope + "' founded for user: "+user);
 				}
 				ceitecProxyUserExtSource = ues;
 			}
