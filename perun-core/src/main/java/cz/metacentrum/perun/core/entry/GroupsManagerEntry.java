@@ -962,7 +962,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups);
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, true);
 	}
 
 	public List<RichGroup> getRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException {
@@ -989,7 +989,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups);
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, true);
 	}
 
 	public List<RichGroup> getAllRichSubGroupsWithAttributesByNames(PerunSession sess, Group parentGroup, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException {
@@ -1016,7 +1016,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			}
 		}
 
-		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups);
+		return getGroupsManagerBl().filterOnlyAllowedAttributes(sess, richGroups, true);
 	}
 
 	public RichGroup getRichGroupByIdWithAttributesByNames(PerunSession sess, int groupId, List<String> attrNames) throws InternalErrorException, GroupNotExistsException, VoNotExistsException, PrivilegeException {
