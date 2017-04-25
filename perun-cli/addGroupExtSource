@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Adds an external source to the Group. Group id or name and external source id or name are required fields.
+	------------------------------------
+	Available options:
+	--groupId       | -g group id
+	--groupName     | -G group short name
+	--extSourceId   | -e external source id
+	--extSourceName | -E external source name
+	--batch         | -b batch
+	--help          | -h prints this help
+
+	};
+}
+
+my ($groupId, $groupName, $extSourceId, $extSourceName, $batch);
+GetOptions("help|h"            => sub { print help(); exit 0; },
+           "batch|b"           => \$batch,
+           "groupId|g=i"       => \$groupId,
+           "groupName|G=s"     => \$groupName,
+           "extSourceId|e=i"   => \$extSourceId,
+           "extSourceName|E=s" => \$extSourceName
+          ) || die help();
+
+# Check options
+unless(defined($groupName) or defined($groupId)) {die "ERROR: groupId or groupName is required\n";}
+unless(defined($extSourceName) or defined($extSourceId)) {die "ERROR: extSourceId or extSourceName is required\n";}
+
+my $agent = Perun::Agent->new();
+my $groupsAgent = $agent->getGroupsAgent;
+my $extSourcesAgent = $agent->getExtSourcesAgent;
+
+if(!defined($groupId)) {
+	my $group = $groupsAgent->getGroupByName( name => $groupName );
+	$groupId = $group->getId;
+}
+
+if(!defined($extSourceId)) {
+	my $extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName );
+	$extSourceId = $extSource->getId;
+}
+
+$extSourcesAgent->addExtSource( group => $groupId, source => $extSourceId );
+
+printMessage("External source Id: $extSourceId successfully added to the Group Id: $groupId", $batch);
