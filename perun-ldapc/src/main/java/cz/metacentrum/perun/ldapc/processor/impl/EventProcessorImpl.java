@@ -469,6 +469,15 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 							updateUserAttribute("o", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 						}
 					}
+					//USER PHONE WILL BE SET
+				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":phone")) {
+					if(this.attribute.getValue() != null) {
+						updateUserAttribute("telephoneNumber", (String) attribute.getValue(), LdapOperation.REPLACE_ATTRIBUTE, this.user);
+					} else {
+						if(ldapConnector.userAttributeExist(this.user, "telephoneNumber")) {
+							updateUserAttribute("telephoneNumber", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+						}
+					}
 					//USER CERT DNS WILL BE SET (special method for updating)
 				} else if(this.attribute.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
 					Map<String, String> certDNsMap = new HashMap<String, String>();
@@ -552,6 +561,10 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":organization")) {
 					if(ldapConnector.userAttributeExist(this.user, "o")) {
 						updateUserAttribute("o", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
+					}
+				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_DEF + ":phone")) {
+					if(ldapConnector.userAttributeExist(this.user, "telephoneNumber")) {
+						updateUserAttribute("telephoneNumber", null, LdapOperation.REMOVE_ATTRIBUTE, this.user);
 					}
 				} else if(this.attributeDef.getName().equals(cz.metacentrum.perun.core.api.AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs")) {
 					if(ldapConnector.userAttributeExist(this.user, "userCertificateSubject")) {
@@ -718,6 +731,7 @@ public class EventProcessorImpl implements EventProcessor, Runnable {
 		optionalAttributes.add("uidNumber");
 		optionalAttributes.add("login");
 		optionalAttributes.add("userPassword");
+		optionalAttributes.add("telephoneNumber");
 
 		for(String s: optionalAttributes) {
 			if(attributeName.startsWith(s)) return true;
