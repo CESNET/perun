@@ -162,6 +162,12 @@ sub removeAllRequiredAttributes
 	return Perun::Common::callManagerMethod('removeAllRequiredAttributes', '', @_);
 }
 
+#( id => $destinationId)
+sub getDestinationById
+{
+	return Perun::Common::callManagerMethod('getDestinationById', 'Destination', @_); 
+}
+
 #( service => $serviceId, facility => $facilityId)
 sub getDestinations
 {

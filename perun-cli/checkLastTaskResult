@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage getSortingFunction printTable);
+
+# NEEDED AGENTS
+my $agent = Perun::Agent->new();
+my $servicesAgent = $agent->getServicesAgent;
+my $propagationStatsReaderAgent = $agent->getPropagationStatsReaderAgent;
+
+# Constants
+my $CORRECT_STATUS = "DONE";
+my $MAX_TIME_FOR_TASK_RESULT = 172800;
+
+# HELP
+sub help {
+	return qq{
+	Returns 0 (OK) if task exists for Service+Destination and it's last
+	finish ends without error. Not 0 code with error in other case.
+	---------------------------------------------------------------
+	Available options:
+	--serviceId       | -s service id
+	--serviceName     | -S service name
+	--destinationId   | -d destination id
+	--destinationName | -D destination name
+	--help            | -h prints this help
+	};
+}
+
+# READING ARGUMENTS
+my ($serviceId, $serviceName, $destinationId, $destinationName);
+GetOptions ("help|h"        => sub {
+		print help();
+		exit 0;
+	}, 
+	"destinationId|d=i"   => \$destinationId,
+	"destinationName|D=s" => \$destinationName,
+	"serviceName|S=s"     => \$serviceName,
+	"serviceId|s=i"       => \$serviceId
+) || die help();
+
+# CHECKS
+unless (defined $serviceId) {
+	unless (defined $serviceName) {
+		die "ERROR: Service id or service name is required.\n";
+	}
+}
+
+unless (defined $destinationId) {
+	unless (defined $destinationName) {
+		die "ERROR: Destination id or name is required.\n";
+	}
+}
+
+# MAIN CODE
+if(defined $destinationId) {
+	my $destination = $servicesAgent->getDestinationById( id => $destinationId );
+	$destinationName = $destination->getDestination;
+}
+
+my $service;
+if(defined $serviceId) {
+	$service = $servicesAgent->getServiceById( id => $serviceId );
+} else {
+	$service = $servicesAgent->getServiceByName( name => $serviceName );
+	$serviceId = $service->getId;
+}
+
+my @destinations = ( $destinationName );
+my @taskResults = $propagationStatsReaderAgent->getTaskResultsForDestinations( destinations => \@destinations );
+unless (@taskResults) {
+	die "Can't found any task for combination of service=$serviceName and destination=$destinationName\n";
+}
+# GET TASK RESULT with the biggest ID (probably the last one) 
+my $lastTaskResult;
+for my $taskResult (@taskResults) {
+	unless($serviceId==$taskResult->getServiceId) { next; }
+	unless($lastTaskResult) { $lastTaskResult = $taskResult; }
+	if($lastTaskResult->getId < $taskResult->getId) { $lastTaskResult = $taskResult; }
+}
+
+#Task result not exists
+unless($lastTaskResult) {
+	die "Can't found last task result for combination of service=$serviceName and destination=$destinationName is older than 2 days!\n";
+}
+
+my $taskResultId = $lastTaskResult->getId;
+my $taskId = $lastTaskResult->getTaskId;
+my $taskResultStatus = $lastTaskResult->getStatus;
+my $taskResultTimestamp = $lastTaskResult->getTimestamp / 1000;
+
+#Can't be older than 2 days
+if(($taskResultTimestamp+$MAX_TIME_FOR_TASK_RESULT) < time) {
+	die "Last taskResult $taskResultId for combination of service=$serviceName and destination=$destinationName is older than 2 days!\n";
+}
+#We are looking for correct status
+if($taskResultStatus eq $CORRECT_STATUS) {
+	#This is the only correct end of this script (task_result exist and has correct status)
+	print "OK - TaskResult ends without error.\n";
+	exit 0;
+} else {
+	die "Last taskResult $taskResultId end with nonOK status: $taskResultStatus\n";
+}
+
+die "Can't found destination for combination of service=$serviceName and destination=$destinationName\n";
