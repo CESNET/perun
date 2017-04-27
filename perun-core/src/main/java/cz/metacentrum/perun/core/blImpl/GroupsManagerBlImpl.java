@@ -2241,14 +2241,32 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 					member = getPerunBl().getMembersManagerBl().createMemberSync(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate, null, overwriteUserAttributesList);
 					log.info("Group synchronization {}: New member id {} created during synchronization.", group, member.getId());
 				} catch (AlreadyMemberException e1) {
-					throw new ConsistencyErrorException("Trying to add existing member");
+					//Probably race condition, give him another chance to fix this mess
+					// Check if the member is already in the VO (just not in the group)
+					try {
+						member = getPerunBl().getMembersManagerBl().getMemberByUserExtSources(sess, getPerunBl().getGroupsManagerBl().getVo(sess, group), candidate.getUserExtSources());
+						// member exists - update attribute
+						Map<Candidate,RichMember> memberMap = new HashMap<>();
+						memberMap.put(candidate, getPerunBl().getMembersManagerBl().getRichMember(sess, member));
+						try {
+							updateExistingMembersWhileSynchronization(sess, group, memberMap, overwriteUserAttributesList);
+						} catch (WrongAttributeAssignmentException | AttributeNotExistsException e2) {
+							// if update fails, skip him
+							log.warn("Can't update member from candidate {} due to attribute value exception {}.", candidate, e);
+							skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when updating member from candidate: Exception: " + e.getName() + " => '" + e2.getMessage() + "'");
+							continue;
+						}
+					} catch (Exception e2) {
+						//Something is still wrong, thrown consistency exception
+						throw new ConsistencyErrorException("Trying to add existing member (it is not possible to get him by userExtSource even if is also not possible to create him in DB)!");
+					}
 				} catch (AttributeValueException e1) {
 					log.warn("Can't create member from candidate {} due to attribute value exception {}.", candidate, e1);
 					skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because there was problem when createing member from candidate: Exception: " + e1.getName() + " => '" + e1.getMessage() + "'");
 					continue;
-				} catch (ExtendMembershipException ex) {
-					log.warn("Can't create member from candidate {} due to membership expiration exception {}.", candidate, ex);
-					skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because membership expiration: Exception: " + ex.getName() + " => " + ex.getMessage() + "]");
+				} catch (ExtendMembershipException e1) {
+					log.warn("Can't create member from candidate {} due to membership expiration exception {}.", candidate, e1);
+					skippedMembers.add("MemberEntry:[" + candidate + "] was skipped because membership expiration: Exception: " + e1.getName() + " => " + e1.getMessage() + "]");
 					continue;
 				}
 			}

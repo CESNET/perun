@@ -9,8 +9,10 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,10 +26,6 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 
 public class MembersManagerImpl implements MembersManagerImplApi {
@@ -84,6 +82,8 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 
 			member = new Member(newId, user.getId(), vo.getId(), Status.INVALID);
 
+		} catch (DuplicateKeyException e) {
+			throw new AlreadyMemberException(e);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
