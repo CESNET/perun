@@ -1,47 +1,23 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.implApi.UsersManagerImplApi;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.exceptions.SpecificUserOwnerAlreadyRemovedException;
-import java.util.Calendar;
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import org.springframework.jdbc.core.ResultSetExtractor;
 
 /**
  * UsersManager implementation.
@@ -77,21 +53,15 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	static {
 		// Prepare userExtSourcePersistentPatterns for matching regex from perun property file.
 		// It is done in advance because of performance.
-		try {
-			userExtSourcePersistentPatterns = new HashMap<>();
-			String persistentConfig = BeansUtils.getPropertyFromConfiguration("perun.userExtSources.persistent");
-			for (String extSource : persistentConfig.split(";")) {
-				String[] extSourceTuple = extSource.split(",", 2);
-				if (extSourceTuple.length > 1) {
-					userExtSourcePersistentPatterns.put(extSourceTuple[0], Pattern.compile(extSourceTuple[1]));
-				} else {
-					userExtSourcePersistentPatterns.put(extSource, Pattern.compile(".*"));
-				}
+		userExtSourcePersistentPatterns = new HashMap<>();
+		String persistentConfig = BeansUtils.getCoreConfig().getUserExtSourcesPersistent();
+		for (String extSource : persistentConfig.split(";")) {
+			String[] extSourceTuple = extSource.split(",", 2);
+			if (extSourceTuple.length > 1) {
+				userExtSourcePersistentPatterns.put(extSourceTuple[0], Pattern.compile(extSourceTuple[1]));
+			} else {
+				userExtSourcePersistentPatterns.put(extSource, Pattern.compile(".*"));
 			}
-		} catch (InternalErrorException e) {
-			log.info("Error when reading property perun.userExtSources.persistent. Serving default behavior.", e);
-			// If error occurred no persistent user ext sources are considered. e.g. property is not set.
-			userExtSourcePersistentPatterns = new HashMap<>();
 		}
 	}
 
@@ -1094,12 +1064,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 		int changeId = Integer.parseInt(i, Character.MAX_RADIX);
 
-		int validWindow = VALIDATION_ALLOWED_HOURS;
-		try {
-			validWindow = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
-		} catch (Exception ex) {
-			log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
-		}
+		int validWindow = BeansUtils.getCoreConfig().getMailchangeValidationWindow();
 
 		// get new email if possible
 		String newEmail = "";
@@ -1131,12 +1096,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	public List<String> getPendingPreferredEmailChanges(PerunSession sess, User user) throws InternalErrorException {
 
-		int validWindow = VALIDATION_ALLOWED_HOURS;
-		try {
-			validWindow = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.mailchange.validationWindow"));
-		} catch (Exception ex) {
-			log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
-		}
+		int validWindow = BeansUtils.getCoreConfig().getMailchangeValidationWindow();
 
 		try {
 			if (Compatibility.isPostgreSql()) {
@@ -1166,12 +1126,7 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	public String loadPasswordResetRequest(User user, int requestId) throws InternalErrorException {
 
-		int validWindow = VALIDATION_ALLOWED_HOURS;
-		try {
-			validWindow = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.pwdreset.validationWindow"));
-		} catch (Exception ex) {
-			log.error("Unable to load validation window interval from perun.properties. Falling back to default in source-code.");
-		}
+		int validWindow = BeansUtils.getCoreConfig().getPwdresetValidationWindow();
 
 		String result = "";
 		try {

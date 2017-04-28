@@ -1455,7 +1455,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		// use good old way
 
 		// Check validity of original password
-		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getPropertyFromConfiguration("perun.passwordManager.program"),
+		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getCoreConfig().getPasswordManagerProgram(),
 				operation, loginNamespace, userLogin);
 
 		Process process;
@@ -1558,7 +1558,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		if(passwordId == null) passwordId = Long.toString(System.currentTimeMillis());
 
 		//Prepare process builder
-		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getPropertyFromConfiguration("perun.alternativePasswordManager.program"), operation, loginNamespace, Integer.toString(user.getId()), passwordId);
+		ProcessBuilder pb = new ProcessBuilder(BeansUtils.getCoreConfig().getAlternativePasswordManagerProgram(), operation, loginNamespace, Integer.toString(user.getId()), passwordId);
 
 		//Set password in Perun to attribute
 		if (operation.equals(PASSWORD_CREATE)) {
@@ -1574,14 +1574,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				userAlternativePassword.setValue(altPassValue);
 				//set new attribute with value to perun
 				getPerunBl().getAttributesManagerBl().setAttribute(sess, user, userAlternativePassword);
-			} catch (WrongAttributeAssignmentException ex) {
+			} catch (WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException ex) {
 				throw new InternalErrorException(ex);
 			} catch (AttributeNotExistsException ex) {
 				throw new ConsistencyErrorException(ex);
-			} catch (WrongAttributeValueException ex) {
-				throw new InternalErrorException(ex);
-			} catch (WrongReferenceAttributeValueException ex) {
-				throw new InternalErrorException(ex);
 			}
 		} else if (operation.equals(PASSWORD_DELETE)) {
 			try {

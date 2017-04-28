@@ -1087,7 +1087,7 @@ public enum RegistrarManagerMethod implements ManagerMethod {
 
 			ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
 
-			reCaptcha.setPrivateKey(BeansUtils.getPropertyFromConfiguration("perun.recaptcha.privatekey"));
+			reCaptcha.setPrivateKey(BeansUtils.getCoreConfig().getRecaptchaPrivateKey());
 			reCaptcha.setRecaptchaServer(ReCaptchaImpl.HTTPS_SERVER);
 
 			// we don't need caller's address since our key is global

@@ -77,7 +77,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_kypo extends urn_p
 	 */
 	private StringBuilder sha1HashCount(User user) throws InternalErrorException {
 		try {
-			String salt = BeansUtils.getPropertyFromConfiguration("perun.id.salt");
+			String salt = BeansUtils.getCoreConfig().getIdSalt();
 			MessageDigest mDigest = MessageDigest.getInstance("SHA1");
 			// counts sha1hash and converts output to hex
 			byte[] result = new byte[0];

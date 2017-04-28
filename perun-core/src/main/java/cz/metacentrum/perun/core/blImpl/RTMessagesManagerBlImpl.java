@@ -11,7 +11,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.http.HttpResponse;
@@ -46,21 +45,22 @@ import cz.metacentrum.perun.core.impl.Utils;
  */
 public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 
-	private String rtURL;
-	private PerunBl perunBl;
 	private final static org.slf4j.Logger log = LoggerFactory.getLogger(RTMessagesManagerBlImpl.class);
-	private final String defaultQueue = BeansUtils.getPropertyFromConfiguration("perun.rt.defaultQueue");
+
+	private final PerunBl perunBl;
+	private final String rtURL;
+	private final String rtDefaultQueue;
 
 	private Pattern ticketNumberPattern = Pattern.compile("^# Ticket ([0-9]+) created.");
 
-	public RTMessagesManagerBlImpl(PerunBl perunBl) throws InternalErrorException {
-		this();
+	public RTMessagesManagerBlImpl(PerunBl perunBl, String rtURL, String rtDefaultQueue) {
 		this.perunBl = perunBl;
-		rtURL = BeansUtils.getPropertyFromConfiguration("perun.rt.url");
+		this.rtURL = rtURL;
+		this.rtDefaultQueue = rtDefaultQueue;
 	}
 
-	public RTMessagesManagerBlImpl() throws InternalErrorException {
-		rtURL = BeansUtils.getPropertyFromConfiguration("perun.rt.url");
+	public PerunBl getPerunBl() {
+		return this.perunBl;
 	}
 
 	public RTMessage sendMessageToRT(PerunSession sess, int voId, String subject, String text) throws InternalErrorException {
@@ -222,8 +222,8 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 				}
 				if(voQueue.getValue() != null) {
 					queue = (String) voQueue.getValue();
-				} else queue = defaultQueue;
-			} else queue = defaultQueue;
+				} else queue = rtDefaultQueue;
+			} else queue = rtDefaultQueue;
 		}
 		//If subject is null or empty, use Unspecified instead
 		if(subject == null || subject.isEmpty()) subject = "(No subject)";
@@ -231,8 +231,8 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		if(text == null) text = "";
 
 		//Prepare credentials
-		String username = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.username");
-		String password = BeansUtils.getPropertyFromConfiguration("perun.rt.serviceuser.password");
+		String username = BeansUtils.getCoreConfig().getRtServiceuserUsername();
+		String password = BeansUtils.getCoreConfig().getRtServiceuserPassword();
 
 		//Prepare content of message
 		MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
@@ -264,11 +264,6 @@ public class RTMessagesManagerBlImpl implements RTMessagesManagerBl {
 		return post;
 	}
 
-	public PerunBl getPerunBl() {
-		return this.perunBl;
-	}
 
-	public void setPerunBl(PerunBl perunBl) {
-		this.perunBl = perunBl;
-	}
+
 }

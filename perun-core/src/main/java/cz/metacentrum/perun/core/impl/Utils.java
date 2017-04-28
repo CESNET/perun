@@ -261,7 +261,7 @@ public class Utils {
 		} else if (url.contains("postgresql")) {
 			dbType = "postgresql";
 		} else {
-			dbType = BeansUtils.getPropertyFromConfiguration("perun.db.type");
+			dbType = BeansUtils.getCoreConfig().getDbType();
 		}
 
 		switch (dbType) {
@@ -714,7 +714,7 @@ public class Utils {
 			throw new NullPointerException("input must not be null");
 		try {
 			Mac mac = Mac.getInstance("HmacSHA256");
-			mac.init(new SecretKeySpec(BeansUtils.getPropertyFromConfiguration("perun.mailchange.secretKey").getBytes("UTF-8"),"HmacSHA256"));
+			mac.init(new SecretKeySpec(BeansUtils.getCoreConfig().getMailchangeSecretKey().getBytes("UTF-8"),"HmacSHA256"));
 			byte[] macbytes = mac.doFinal(input.getBytes("UTF-8"));
 			return new BigInteger(macbytes).toString(Character.MAX_RADIX);
 		} catch (Exception e) {
@@ -741,14 +741,9 @@ public class Utils {
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
-		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+		message.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
 
-		String instanceName = "Perun";
-		try {
-			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
-		} catch (InternalErrorException ex) {
-			// this is not a reason not to send notification
-		}
+		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		message.setSubject("["+instanceName+"] New email address verification");
 
@@ -825,14 +820,9 @@ public class Utils {
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
-		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+		message.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
 
-		String instanceName = "Perun";
-		try {
-			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
-		} catch (InternalErrorException ex) {
-			// this is not a reason not to send notification
-		}
+		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
 
@@ -892,14 +882,9 @@ public class Utils {
 		// create message
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
-		message.setFrom(BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom"));
+		message.setFrom(BeansUtils.getCoreConfig().getMailchangeBackupFrom());
 
-		String instanceName = "Perun";
-		try {
-			instanceName = BeansUtils.getPropertyFromConfiguration("perun.instanceName");
-		} catch (InternalErrorException ex) {
-			// this is not a reason not to send notification
-		}
+		String instanceName = BeansUtils.getCoreConfig().getInstanceName();
 
 		message.setSubject("["+instanceName+"] Password reset in namespace: "+namespace);
 
@@ -910,7 +895,7 @@ public class Utils {
 			// Build message
 			String text = "Dear "+user.getDisplayName()+",\n\nyour password in namespace \""+namespace+"\" was successfully reset."+
 					"\n\nThis message is automatically sent to all your email addresses registered in "+instanceName+" in order to prevent malicious password reset without your knowledge.\n\n" +
-					"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getPropertyFromConfiguration("perun.mailchange.backupFrom")+" to resolve this security issue.\n\n" +
+					"If you didn't request / perform password reset, please notify your administrators and support at "+BeansUtils.getCoreConfig().getMailchangeBackupFrom()+" to resolve this security issue.\n\n" +
 					"Message is automatically generated." +
 					"\n----------------------------------------------------------------" +
 					"\nPerun - Identity & Access Management System";
@@ -935,8 +920,8 @@ public class Utils {
 
 		try {
 
-			String encryptionKey = BeansUtils.getPropertyFromConfiguration("perun.pwdreset.secretKey");
-			String initVector = BeansUtils.getPropertyFromConfiguration("perun.pwdreset.initVector");
+			String encryptionKey = BeansUtils.getCoreConfig().getPwdresetSecretKey();
+			String initVector = BeansUtils.getCoreConfig().getPwdresetInitVector();
 
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5PADDING");
 			SecretKeySpec k = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
@@ -1058,7 +1043,7 @@ public class Utils {
 			// create properties list
 			List<String> processProperties = new ArrayList<>();
 			// pass the location of external program for sending sms
-			processProperties.add(BeansUtils.getPropertyFromConfiguration("perun.sms.program"));
+			processProperties.add(BeansUtils.getCoreConfig().getSmsProgram());
 			// pass program options
 			processProperties.add("-p");
 			processProperties.add(telNumber);

@@ -1109,8 +1109,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 
 		// Get the default synchronization interval and synchronization timeout from the configuration file
-		int intervalMultiplier = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.group.synchronization.interval"));
-		int timeout = Integer.parseInt(BeansUtils.getPropertyFromConfiguration("perun.group.synchronization.timeout"));
+		int intervalMultiplier = BeansUtils.getCoreConfig().getGroupSynchronizationInterval();
+		int timeout = BeansUtils.getCoreConfig().getGroupSynchronizationTimeout();
 
 		// Get the number of seconds from the epoch, so we can divide it by the synchronization interval value
 		long minutesFromEpoch = System.currentTimeMillis()/1000/60;

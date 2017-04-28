@@ -2,8 +2,8 @@ package cz.metacentrum.perun.core.impl.modules.attributes;
 
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,7 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace.class);
 
-	protected final static List<String> generatedNamespaces = ModulesUtilsBlImpl.getGeneratedLoginNamespaces();
+	protected final static List<String> generatedNamespaces = BeansUtils.getCoreConfig().getGeneratedLoginNamespaces();
 
 	/**
 	 * Checks if the user's login is unique in the namespace organization
