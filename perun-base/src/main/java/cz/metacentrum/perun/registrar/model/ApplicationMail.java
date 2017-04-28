@@ -27,7 +27,7 @@ public class ApplicationMail {
 	 */
 	public static Locale getNativeLanguage() {
 		try {
-			String loc = BeansUtils.getPropertyFromConfiguration("perun.native.language").split(",")[0];
+			String loc = BeansUtils.getCoreConfig().getNativeLanguage().split(",")[0];
 			if (loc != null && loc.trim().isEmpty()) {
 				return null;
 			}

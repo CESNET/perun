@@ -32,15 +32,14 @@ public class BeansUtils {
 
 	private final static Pattern patternForCommonNameParsing = Pattern.compile("(([\\w]*. )*)([\\p{L}-']+) ([\\p{L}-']+)[, ]*(.*)");
 	private final static Pattern richBeanNamePattern = Pattern.compile("^Rich([A-Z].*$)");
-	public static final char LIST_DELIMITER = ',';
-	public static final char KEY_VALUE_DELIMITER = ':';
+	private static final char LIST_DELIMITER = ',';
+	private static final char KEY_VALUE_DELIMITER = ':';
 	private final static int MAX_SIZE_OF_ITEMS_IN_SQL_IN_CLAUSE = 1000;
-	public final static String configurationsLocations = "/etc/perun/";
-	private static Properties properties;
-	private static Boolean isPerunReadOnly = null;
+	private final static String configurationsLocations = "/etc/perun/";
 	public final static String largeStringClassName = "java.lang.LargeString";
 	public final static String largeArrayListClassName = "java.util.LargeArrayList";
 
+	private static CoreConfig coreConfig;
 
 	/**
 	 * Method create formatter with default settings for perun timestamps and set lenient on false
@@ -177,7 +176,7 @@ public class BeansUtils {
 	 * @param map
 	 * @return string of escaped map
 	 */
-	public static String serializeMapToString(Map<String, String> map) {
+	static String serializeMapToString(Map<String, String> map) {
 		if(map == null) return "\\0";
 		Map<String, String> attrNew = new HashMap<String, String>(map);
 		Set<String> keys = new HashSet<String>(attrNew.keySet());
@@ -530,7 +529,7 @@ public class BeansUtils {
 	 * @param beansIds List of ids to construct string with
 	 * @return string representation of list of ids
 	 */
-	public static String beanIdsToString(List<Integer> beansIds) {
+	private static String beanIdsToString(List<Integer> beansIds) {
 		StringBuilder stringBuilder = new StringBuilder();
 		for(Integer beanId : beansIds) {
 			stringBuilder.append(",");
@@ -538,39 +537,6 @@ public class BeansUtils {
 			}
 		stringBuilder.deleteCharAt(0);
 		return stringBuilder.toString();
-	}
-
-	/**
-	 * Gets particular property from perun.properties file.
-	 *
-	 * @param propertyName name of the property
-	 * @return value of the property
-	 */
-	public static String getPropertyFromConfiguration(String propertyName) throws InternalErrorException {
-		log.trace("Entering getPropertyFromConfiguration: propertyName='" + propertyName + "'");
-		notNull(propertyName, "propertyName");
-
-		if(BeansUtils.properties == null) {
-			// Load properties file with configuration
-			Properties properties = new Properties();
-			try {
-				// Get the path to the perun.properties file
-				BufferedInputStream is = new BufferedInputStream(new FileInputStream(BeansUtils.configurationsLocations + "perun.properties"));
-				properties.load(is);
-				is.close();
-			} catch (FileNotFoundException e) {
-				throw new InternalErrorException("Cannot find perun.properties file", e);
-			} catch (IOException e) {
-				throw new InternalErrorException("Cannot read perun.properties file", e);
-			}
-
-			BeansUtils.properties = properties;
-		}
-		String property = BeansUtils.properties.getProperty(propertyName);
-		if (property == null) {
-			throw new InternalErrorException("Property " + propertyName + " cannot be found in the configuration file");
-		}
-		return property;
 	}
 
 	/**
@@ -645,37 +611,7 @@ public class BeansUtils {
 	 * @return true or false (readOnly or not)
 	 */
 	public static boolean isPerunReadOnly() {
-		//Set only if variable isPerunReadOnly is not set already
-		if(isPerunReadOnly == null) {
-			String readOnly;
-			try {
-				readOnly = BeansUtils.getPropertyFromConfiguration("perun.readOnlyPerun");
-			} catch (Exception ex) {
-				//If something wierd happens, set this to normal configuration (not readOnly) and log this exception
-				log.error("Problem occures when trying to get readOnly configuration from perun properties file.", ex);
-				log.debug("Read only configuration not found, set to false.");
-				isPerunReadOnly = false;
-				return isPerunReadOnly;
-			}
-
-			if(readOnly == null) {
-				log.debug("Read only configuration is null, set to false.");
-				isPerunReadOnly = false;
-				return isPerunReadOnly;
-			}
-
-			if(readOnly.contains("true")) {
-				log.debug("Read only configuration found='{}', set to true.", readOnly);
-				isPerunReadOnly = true;
-				return isPerunReadOnly;
-			}
-
-			log.debug("Read only configuration found='{}', set to false.", readOnly);
-			isPerunReadOnly = false;
-			return isPerunReadOnly;
-		} else {
-			return isPerunReadOnly;
-		}
+		return coreConfig.isReadOnlyPerun();
 	}
 
 	/**
@@ -685,28 +621,7 @@ public class BeansUtils {
 	 * @return true if enabled, false if disabled
 	 */
 	public static boolean initializatorEnabled() {
-		String initializatorEnabled;
-		try {
-			initializatorEnabled = BeansUtils.getPropertyFromConfiguration("perun.DBInitializatorEnabled");
-		} catch (Exception ex) {
-			//If something wierd happens, set this to normal configuration (not readOnly) and log this exception
-			log.error("Problem occures when trying to get DBInitializatorEnabled configuration from perun properties file.", ex);
-			log.debug("DBInitializatorEnabled configuration not found, set to false.");
-			return false;
-		}
-
-		if(initializatorEnabled == null) {
-			log.debug("DBInitializatorEnabled configuration is null, set to false.");
-			return false;
-		}
-
-		if(initializatorEnabled.contains("true")) {
-			log.debug("DBInitializatorEnabled configuration found='{}', set to true.", initializatorEnabled);
-			return true;
-		}
-
-		log.debug("Read only configuration found='{}', set to false.", initializatorEnabled);
-		return false;
+		return coreConfig.isDbInitializatorEnabled();
 	}
 
 	/**
@@ -723,17 +638,18 @@ public class BeansUtils {
 	}
 
 	/**
-	 * Set already filled-in properties (used by Spring container to inject properties bean)
+	 * Set configuration that can be later queried by getCoreConfig().
 	 *
-	 * @param properties
-	 * @return
 	 */
-	public static Properties setProperties(Properties properties) {
-		BeansUtils.properties = properties;
-		return BeansUtils.properties;
+	public static void setConfig(CoreConfig coreConfig) {
+		BeansUtils.coreConfig = coreConfig;
 	}
 
-	public static String getIDsOfPerunBeans(List<? extends PerunBean> listOfBeans) {
+	public static CoreConfig getCoreConfig() {
+		return coreConfig;
+	}
+
+	static String getIDsOfPerunBeans(List<? extends PerunBean> listOfBeans) {
 		if (listOfBeans == null || listOfBeans.isEmpty()) {
 			return "";
 		}

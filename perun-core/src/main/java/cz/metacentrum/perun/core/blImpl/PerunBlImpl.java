@@ -99,26 +99,7 @@ public class PerunBlImpl implements PerunBl {
 
 	final static Logger log = LoggerFactory.getLogger(PerunBlImpl.class);
 
-	final static Set<String> dontLookupUsersForLogins = new HashSet<>();
-
-	// fill list of logins we don't want to lookup users for
-	static {
-
-		String propValue = null;
-		try {
-			propValue = BeansUtils.getPropertyFromConfiguration("perun.dont.lookup.users");
-		} catch (InternalErrorException e) {
-			log.error("Unable to load logins for which we don't lookup users");
-		}
-
-		if (propValue != null) {
-			String[] dontLogins = propValue.split(",");
-			for (String str : dontLogins) {
-				dontLookupUsersForLogins.add(str.trim());
-			}
-		}
-
-	}
+	private final static Set<String> dontLookupUsersForLogins = BeansUtils.getCoreConfig().getDontLookupUsers();
 
 	public PerunBlImpl() {
 
@@ -143,22 +124,16 @@ public class PerunBlImpl implements PerunBl {
 				// Update last access for userExtSource
 				this.getUsersManagerBl().updateUserExtSourceLastAccess(getPerunSession(), ues);
 
-			} catch (ExtSourceNotExistsException e) {
-				// OK - We don't know user yet
-			} catch (UserExtSourceNotExistsException e) {
-				// OK - We don't know user yet
-			} catch (UserNotExistsException e) {
+			} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException e) {
 				// OK - We don't know user yet
 			}
-				}
+		}
 		return new PerunSessionImpl(this, principal, client);
 	}
 
 	/**
 	 * This method is used only internally.
 	 *
-	 * @return
-	 * @throws InternalErrorException
 	 */
 	public PerunSession getPerunSession() throws InternalErrorException {
 		PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);

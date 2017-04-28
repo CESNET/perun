@@ -20,8 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONSIMPLE;
 import cz.metacentrum.perun.core.api.PerunClient;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +77,7 @@ public class Api extends HttpServlet {
 	protected String getExtSourceName(HttpServletRequest req, Deserializer des) throws RpcException, InternalErrorException {
 		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
 			// If IdP is proxy and we want to save original source IdP behind Proxy.
-			List<String> proxyIdPs = Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.proxyIdPs").split(","));
+			List<String> proxyIdPs = BeansUtils.getCoreConfig().getProxyIdPs();
 			if (req.getHeader("sourceIdPEntityID") != null
 					&& !req.getHeader("sourceIdPEntityID").isEmpty()) {
 				if (proxyIdPs.contains(req.getHeader("Shib-Identity-Provider"))) {
@@ -130,7 +128,7 @@ public class Api extends HttpServlet {
 		}
 
 		if (des != null && actor != null) {
-			List<String> powerUsers = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.rpc.powerusers").split("[ \t]*,[ \t]*")));
+			List<String> powerUsers = BeansUtils.getCoreConfig().getRpcPowerusers();
 			if (powerUsers.contains(actor) && des.contains("delegatedLogin")) {
 				// Rewrite the remoteUser and extSource
 				actor = (String) des.readString("delegatedLogin");
@@ -152,7 +150,7 @@ public class Api extends HttpServlet {
 		// If we have header Shib-Identity-Provider, then the user uses identity federation to authenticate
 		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
 			// If IdP is proxy and we want to save original source IdP behind Proxy.
-			List<String> proxyIdPs = Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.proxyIdPs").split(","));
+			List<String> proxyIdPs = BeansUtils.getCoreConfig().getProxyIdPs();
 			if (req.getHeader("sourceIdPEntityID") != null
 					&& !req.getHeader("sourceIdPEntityID").isEmpty()) {
 				if (proxyIdPs.contains(req.getHeader("Shib-Identity-Provider"))) {
@@ -285,7 +283,7 @@ public class Api extends HttpServlet {
 
 		// If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
 		if (des != null && extLogin != null) {
-			List<String> powerUsers = new ArrayList<String>(Arrays.asList(BeansUtils.getPropertyFromConfiguration("perun.rpc.powerusers").split("[ \t]*,[ \t]*")));
+			List<String> powerUsers = BeansUtils.getCoreConfig().getRpcPowerusers();
 			if (powerUsers.contains(extLogin) && des.contains("delegatedLogin")) {
 				// Rewrite the remoteUser and extSource
 				extLogin = (String) des.readString("delegatedLogin");

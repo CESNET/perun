@@ -299,7 +299,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<property name="auditer" ref="auditer"/>
 	</bean>
 	<bean id="RTMessagesManagerBl" class="cz.metacentrum.perun.core.blImpl.RTMessagesManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
-		<property name="perunBl" ref="perun"/>
+		<constructor-arg name="perunBl" ref="perun"/>
+		<constructor-arg name="rtURL" value="#{coreConfig.rtUrl}"/>
+		<constructor-arg name="rtDefaultQueue" value="#{coreConfig.rtDefaultQueue}"/>
 	</bean>
 	<bean id="securityTeamsManagerBl" class="cz.metacentrum.perun.core.blImpl.SecurityTeamsManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
@@ -359,7 +361,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<constructor-arg ref="dataSource" />
 	</bean>
 
-	<bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" depends-on="utilsProperties">
+	<bean id="auditer" class="cz.metacentrum.perun.core.impl.Auditer" scope="singleton" depends-on="coreConfig">
 		<property name="perunPool" ref="dataSource"/>
 	</bean>
 
