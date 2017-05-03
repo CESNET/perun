@@ -21,7 +21,6 @@ import java.util.*;
  *
  * @author Jiri Mauritz <jirmaurtiz@gmail.com>
  */
-@SuppressWarnings("Duplicates")
 public class BBMRI implements RegistrarModule {
 
 	final static Logger log = LoggerFactory.getLogger(BBMRI.class);
@@ -39,10 +38,15 @@ public class BBMRI implements RegistrarModule {
 		return data;
 	}
 
+
 	/**
 	 * Add users to the listed groups.
+	 *
+	 * @param session who approves the application
+	 * @param app application
+	 * @return unchanged application
+	 * @throws PerunException in case of internal error in Perun
 	 */
-	@Override
 	public Application approveApplication(PerunSession session, Application app) throws PerunException {
 		// get perun and beans from session
 		Perun perun = session.getPerun();
@@ -67,7 +71,13 @@ public class BBMRI implements RegistrarModule {
 
 		// add user to all groups from the field on application
 		for (String collectionID : collectionIDsInApplication) {
-			perun.getGroupsManager().addMember(session, collectionIDsToGroupsMap.get(collectionID), member);
+			Group group = collectionIDsToGroupsMap.get(collectionID);
+			if (group == null) {
+				log.debug("For collection ID " + collectionID + " is no group in Perun.");
+			} else {
+				// add user to the group
+				perun.getGroupsManager().addMember(session, group, member);
+			}
 		}
 
 		return app;
@@ -79,16 +89,20 @@ public class BBMRI implements RegistrarModule {
 	}
 
 
+	@Override
+	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+		return app;
+	}
+
 	/**
 	 * Checks whether all collection IDs found in user input really exists in Perun.
 	 * If not, CantBeApproved exception is thrown.
 	 *
 	 * @param session who approves the application
-	 * @param app     application
-	 * @return application
+	 * @param app     unchanged application
 	 * @throws CantBeApprovedException if at least one collection ID does not exist in Perun
 	 */
-	public Application beforeApprove(PerunSession session, Application app) throws PerunException {
+	public void canBeApproved(PerunSession session, Application app) throws PerunException {
 		// get perun and beans from session
 		Perun perun = session.getPerun();
 		Vo vo = app.getVo();
@@ -113,15 +127,9 @@ public class BBMRI implements RegistrarModule {
 
 		// difference must be empty
 		if (!collectionIDsInApplication.isEmpty()) {
-			throw new CantBeApprovedException("Collections " + collectionIDsInApplication + " does not exists.", "", "", "", true);
+			throw new CantBeApprovedException("Collections " + collectionIDsInApplication + " do not exist." +
+					"If you approve the application, these collections will be skipped.", "", "", "", true);
 		}
-
-		return app;
-	}
-
-	@Override
-	public void canBeApproved(PerunSession session, Application app) throws PerunException {
-
 	}
 
 	@Override
@@ -132,8 +140,6 @@ public class BBMRI implements RegistrarModule {
 	/**
 	 * Gets collection IDs from a field on the application form with short name.
 	 *
-	 * @param session
-	 * @param app
 	 * @return collection IDs set
 	 */
 	private Set<String> getCollectionIDsFromApplication(PerunSession session, Application app) throws PerunException {
