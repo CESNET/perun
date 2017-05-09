@@ -15,11 +15,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueExce
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserVirtualAttributesModuleImplApi;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,9 +37,10 @@ public class urn_perun_user_attribute_def_virt_userCertDNs extends UserVirtualAt
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 		Attribute attribute = new Attribute(attributeDefinition);
 		Map<String, String> userCertDNs = new LinkedHashMap<>();
-		
-		//IMPORTANT: sort this list before returning it (in the future), it is better for next comparing
+
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
+		//Sort user ext sources by their ids (biggest id go last)
+		Collections.sort(userExtSources, (ues1, ues2) -> ues1.getId() - ues2.getId());
 
 		//Prepare also prefix number
 		int i=1;
