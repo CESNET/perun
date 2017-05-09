@@ -120,7 +120,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		return facility;
 	}
-	
+
 	public List<RichFacility> getRichFacilities(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
@@ -139,7 +139,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 			throw new PrivilegeException(sess, "getRichFacilities");
 		}
 	}
-	
+
 	public List<Facility> getFacilitiesByDestination(PerunSession sess, String destination) throws InternalErrorException, FacilityNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(destination, "destination");
@@ -159,7 +159,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 				if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facilityByDestination.next())) facilityByDestination.remove();
 			}
 		}
-		
+
 		return facilities;
 	}
 
@@ -173,7 +173,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 
 		// Perun admin can see everything
-		if (AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+		if (AuthzResolver.isAuthorized(sess, Role.PERUNADMIN) || AuthzResolver.isAuthorized(sess, Role.ENGINE)) {
 			return getFacilitiesManagerBl().getFacilities(sess);
 		} else if (AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
 			// Cast complementary object to Facility
@@ -1207,7 +1207,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 
 		Facility facility = new Facility();
 		facility.setId(ban.getId());
-		
+
 		// Authorization
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getBanById");
@@ -1225,7 +1225,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
 			throw new PrivilegeException(sess, "getBan");
 		}
-		
+
 		return getFacilitiesManagerBl().getBan(sess, userId, faclityId);
 	}
 
@@ -1291,7 +1291,7 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 	public void removeBan(PerunSession sess, int userId, int facilityId) throws InternalErrorException, BanNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		BanOnFacility ban = this.getFacilitiesManagerBl().getBan(sess, userId, facilityId);
-		
+
 		Facility facility = new Facility();
 		facility.setId(ban.getId());
 
