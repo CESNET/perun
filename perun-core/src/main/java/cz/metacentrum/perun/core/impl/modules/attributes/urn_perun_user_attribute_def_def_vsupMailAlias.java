@@ -23,43 +23,92 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_attribute_def_def_vsupMail.*;
+
 /**
- * Attribute module for storing school mail of persons at VŠUP.
- * It has to be "login@vsup.cz" and is set whenever login-namespace:vsup attribute is set/changed.
- * Represents user account identifier in Zimbra.
+ * Attribute module for School Mail Alias at VŠUP. Usually only for teachers and staff.
+ * Expected format is "firstName.lastName[counter]@vsup.cz"
+ * Artistic names have preference over normal: "u:d:artisticFirstName", "u:d:artisticLastName".
+ * Value can be empty or manually changed.
+ * In case of users name change, attribute value must be changed manually.
+ * Represents main mail alias in Zimbra for accounts of u:d:vsupMail (login@vsup.cz).
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
-public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttributesModuleAbstract implements UserAttributesModuleImplApi {
 
-	// VŠUP MAIL PATTERN !! -> login@vsup.cz
-	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@vsup\\.cz$");
-	public static final String usedMailsUrn = "urn:perun:entityless:attribute-def:def:usedMails";
-	public static final String usedMailsKeyVsup = "vsup";
-
-	// all VŠUP mail attributes
-	public static final String vsupMailUrn = "urn:perun:user:attribute-def:def:vsupMail";
-	public static final String vsupMailAliasUrn = "urn:perun:user:attribute-def:def:vsupMailAlias";
-	public static final String vsupMailAliasesUrn = "urn:perun:user:attribute-def:def:vsupMailAliases";
-	public static final String vsupPreferredMailUrn = "urn:perun:user:attribute-def:def:vsupPreferredMail";
+	// VŠUP MAIL ALIAS PATTERN !!
+	public static final Pattern emailAliasPattern = Pattern.compile("^[A-Za-z]+\\.[A-Za-z]+([0-9])*@vsup\\.cz$");
 
 	@Override
-	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException {
 
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "School mail can't be null.");
+		// can be empty
+		if (attribute.getValue() == null) return;
 
-		Matcher emailMatcher = emailPattern.matcher((String)attribute.getValue());
-		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "School mail is not in a correct form: \"login@vsup.cz\".");
+		// if set, must match generic format
+		Matcher emailMatcher = emailAliasPattern.matcher((String)attribute.getValue());
+		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "School mail alias is not in a correct form: \"firstName.lastName[counter]@vsup.cz\".");
 
-		// check that it matches login
+		// We must check uniqueness since vsupMailAlias is filled by itself and filling function iterates until value is correct.
+
 		try {
-			Attribute login = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:vsup");
-			if (Objects.equals(login.getValue(), attribute.getValue())) throw new WrongReferenceAttributeValueException(attribute, login, user ,null, user, null, "VŠUP mail must match users login at VŠUP.");
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException("Attribute for login-namespace: vsup doesn't exists.", e);
+			Attribute reservedMailsAttribute = sess.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(sess, usedMailsKeyVsup, usedMailsUrn);
+			if (reservedMailsAttribute.getValue() != null) {
+				Map<String,String> reservedMailsAttributeValue = (Map<String,String>)reservedMailsAttribute.getValue();
+				String ownersUserId = reservedMailsAttributeValue.get((String)attribute.getValue());
+				if (!Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
+					throw new WrongAttributeValueException("VŠUP mail alias: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
+				}
+			}
+		} catch (AttributeNotExistsException ex) {
+			throw new ConsistencyErrorException("Attribute doesn't exists.", ex);
 		}
 
-		// We check uniqueness on all related attributes change, so we don't need to do it here.
+	}
+
+	@Override
+	public Attribute fillAttribute(PerunSessionImpl session, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+
+		String firstName = user.getFirstName();
+		String lastName = user.getLastName();
+		Attribute filledAttribute = new Attribute(attribute);
+
+		try {
+			Attribute artFirstName = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:artisticFirstName");
+			Attribute artLastName = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, "urn:perun:user:attribute-def:def:artisticLastName");
+
+			if (artFirstName.getValue() != null) firstName = (String)artFirstName.getValue();
+			if (artLastName.getValue() != null) lastName = (String)artLastName.getValue();
+
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException("Definition for artistic names of user doesn't exists.", e);
+		}
+
+		if (lastName == null || firstName == null) {
+			return filledAttribute;
+		}
+
+		String mail = firstName + "." + lastName;
+
+		// fill value - start as mail, mail2, mail3, ....
+		int iterator = 1;
+		while (iterator >= 1) {
+			if (iterator > 1) {
+				filledAttribute.setValue(mail + iterator + "@vsup.cz");
+			} else {
+				filledAttribute.setValue(mail + "@vsup.cz");
+			}
+			try {
+				checkAttributeValue(session, user, filledAttribute);
+				return filledAttribute;
+			} catch (WrongAttributeValueException ex) {
+				// continue in a WHILE cycle
+				iterator++;
+			}
+		}
+
+		return filledAttribute;
 
 	}
 
@@ -71,7 +120,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 		Map<String,String> reservedMailsAttributeValue;
 
 		// other vsup mail attributes to get values from
-		Attribute mailAliasAttribute;
+		Attribute vsupMailAttribute;
 		Attribute mailAliasesAttribute;
 		Attribute vsupPreferredMailAttribute;
 
@@ -83,7 +132,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 
 		try {
 			reservedMailsAttribute = session.getPerunBl().getAttributesManagerBl().getEntitylessAttributeForUpdate(session, usedMailsKeyVsup, usedMailsUrn);
-			mailAliasAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasUrn);
+			vsupMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailUrn);
 			mailAliasesAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupMailAliasesUrn);
 			vsupPreferredMailAttribute = session.getPerunBl().getAttributesManagerBl().getAttribute(session, user, vsupPreferredMailUrn);
 		} catch (AttributeNotExistsException ex) {
@@ -95,7 +144,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 		// if REMOVE action and reserved map is empty -> consistency error
 
 		if (attribute.getValue() == null && reservedMailsAttribute.getValue() == null) {
-			throw new ConsistencyErrorException("Entityless attribute 'urn:perun:entityless:attribute-def:def:usedMails' is empty, but we are removing 'vsupMail' value, so there should have been entry in entityless attribute.");
+			throw new ConsistencyErrorException("Entityless attribute 'urn:perun:entityless:attribute-def:def:usedMails' is empty, but we are removing 'vsupMailAlias' value, so there should have been entry in entityless attribute.");
 		}
 
 		// get value from reserved mails attribute
@@ -111,7 +160,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 			String ownersUserId = reservedMailsAttributeValue.get((String)attribute.getValue());
 			if (!Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
 				// TODO - maybe get actual owners attribute and throw WrongReferenceAttributeException to be nice in a GUI ?
-				throw new InternalErrorException("VŠUP mail: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
+				throw new InternalErrorException("VŠUP mail alias: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
 			}
 		}
 
@@ -124,8 +173,8 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 			}
 		}
 
-		if (mailAliasAttribute.getValue() != null) {
-			actualMailsOfUser.add((String)mailAliasAttribute.getValue());
+		if (vsupMailAttribute.getValue() != null) {
+			actualMailsOfUser.add((String)vsupMailAttribute.getValue());
 		}
 		if (vsupPreferredMailAttribute.getValue() != null) {
 			actualMailsOfUser.add((String)vsupPreferredMailAttribute.getValue());
@@ -164,10 +213,10 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
-		attr.setFriendlyName("vsupMail");
-		attr.setDisplayName("School mail");
+		attr.setFriendlyName("vsupMailAlias");
+		attr.setDisplayName("School mail alias");
 		attr.setType(String.class.getName());
-		attr.setDescription("Generated school mail in a \"login@vsup.cz\" form. Do not change value manually! Represents account in Zimbra.");
+		attr.setDescription("Generated school mail alias in a \"name.surname[counter]@vsup.cz\" form. This is a main alias used in Zimbra mail. Value can be empty. On users name change, attribute value must be fixed manually.");
 		return attr;
 	}
 
