@@ -41,6 +41,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 	private String fromText;
 	private boolean sendMessages;
 	private boolean startTls;
+	private boolean mailDebug;
 
 	private static final Logger logger = LoggerFactory.getLogger(PerunNotifEmailManager.class);
 
@@ -71,6 +72,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		this.sendMessages = sendMessages_s == null ? false : (sendMessages_s.equals("true") ? true : false);
 		String startTls_s = (String) propertiesBean.get("notif.starttls");
 		this.startTls = startTls_s == null ? false : (startTls_s.equals("true") ? true : false);
+		this.mailDebug = Boolean.valueOf((String) propertiesBean.get("mail.debug"));
 
 		createSession();
 	}
@@ -79,6 +81,9 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		Authenticator authenticator = null;
 		if (mailSmtpAuth != null && mailSmtpAuth.equals("true")) {
 			authenticator = new Authenticator(username, password);
+		} else {
+			username = null;
+			password = null;
 		}
 
 		Properties properties = new Properties();
@@ -88,6 +93,7 @@ public class PerunNotifEmailManagerImpl implements PerunNotifEmailManager {
 		properties.setProperty("mail.smtp.port", String.valueOf(port));
 		properties.setProperty("mail.smtp.auth", mailSmtpAuth);
 		properties.setProperty("mail.smtp.starttls.enable", String.valueOf(startTls));
+		properties.setProperty("mail.debug", String.valueOf(mailDebug));
 
 		session = Session.getInstance(properties, authenticator);
 	}
