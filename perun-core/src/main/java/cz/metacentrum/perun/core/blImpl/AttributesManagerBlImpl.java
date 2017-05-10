@@ -99,7 +99,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	private final Map<AttributeDefinition, Set<AttributeDefinition>> inverseStrongDependencies = new ConcurrentHashMap<>();
 	private final Map<AttributeDefinition, Set<AttributeDefinition>> allDependencies = new ConcurrentHashMap<>();
 
-	private final static int MAX_SIZE_OF_BULK_IN_SQL = 10000;
+	public final static int MAX_SIZE_OF_BULK_IN_SQL = 10000;
 
 	/**
 	 * Constructor.

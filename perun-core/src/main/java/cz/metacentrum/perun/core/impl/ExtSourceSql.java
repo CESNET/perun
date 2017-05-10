@@ -22,9 +22,12 @@ import org.slf4j.LoggerFactory;
 
 import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.GroupsManager;
+import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
+import cz.metacentrum.perun.core.blImpl.AttributesManagerBlImpl;
+import cz.metacentrum.perun.core.api.BeansUtils;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 
 /**
@@ -37,7 +40,6 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 	private Connection con;
 	private boolean isOracle = false;
 	private boolean isSQLite = false;
-
 	private static PerunBlImpl perunBl;
 
 	// filled by spring (perun-core.xml)
@@ -75,7 +77,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			throw new InternalErrorException("query attribute is required");
 		}
 
-		return this.querySource(query, searchString, maxResults);
+		return this.querySource(query, searchString, maxResults, null);
 	}
 
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
@@ -84,7 +86,7 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			throw new InternalErrorException("loginQuery attribute is required");
 		}
 
-		List<Map<String, String>> subjects = this.querySource(query, login, 0);
+		List<Map<String, String>> subjects = this.querySource(query, login, 0, null);
 
 		if (subjects.size() < 1) {
 			throw new SubjectNotExistsException("Login: " + login);
@@ -96,16 +98,28 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 		return subjects.get(0);
 	}
 
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
-		// Get the sql query for the group subjects
-		String sqlQueryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-
-		return this.querySource(sqlQueryForGroup, null, 0);
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		return this.getGroupSubjects(attributes, null);
 	}
 
-	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults) throws InternalErrorException {
-		PreparedStatement st = null;
-		ResultSet rs = null;
+	@Override
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes, List<String> logins) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		//If we want to get bulk of subjects from extSource by list of logins
+		if(logins != null) {
+			String bulkQuery = getAttributes().get("bulkQuery");
+			if (bulkQuery == null) {
+				throw new ExtSourceUnsupportedOperationException("ExtSource do not support bulkQuery in perun-extSources.xml.");
+			}
+			return this.querySource(bulkQuery, null, 0, logins);
+		//If not, use the normal way of getting data
+		} else {
+			// Get the sql query for the group subjects
+			String sqlQueryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+			return this.querySource(sqlQueryForGroup, null, 0, null);
+		}
+	}
+
+	protected List<Map<String,String>> querySource(String query, String searchString, int maxResults, List<String> logins) throws InternalErrorException {
 
 		if (getAttributes().get("url") == null) {
 			throw new InternalErrorException("url attribute is required");
@@ -128,7 +142,38 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
 				this.createConnection();
 			}
+		} catch (SQLException e) {
+			log.error("SQL exception during creating connection.");
+			throw new InternalErrorRuntimeException(e);
+		}
 
+		List<Map<String, String>> subjects = new ArrayList<>();
+		//If logins are null, it means use the old fashion way
+		if(logins == null) {
+			subjects = this.query(query, maxResults, searchString);
+		//If logins are not null, we want to use bulk calling
+		} else {
+			if(logins.size() <= AttributesManagerBlImpl.MAX_SIZE_OF_BULK_IN_SQL) subjects = bulkQuery(query, logins);
+			else {
+				int from = 0;
+				int to = AttributesManagerBlImpl.MAX_SIZE_OF_BULK_IN_SQL;
+
+				do {
+					subjects.addAll(bulkQuery(query, logins.subList(from, to)));
+					from+=AttributesManagerBlImpl.MAX_SIZE_OF_BULK_IN_SQL;
+					to+=AttributesManagerBlImpl.MAX_SIZE_OF_BULK_IN_SQL;
+				} while (logins.size()>to);
+				subjects.addAll(bulkQuery(query, logins.subList(from, logins.size())));
+			}
+		}
+		return subjects;
+	}
+
+	protected List<Map<String, String>> query(String query, int maxResults, String searchString) throws InternalErrorException {
+		PreparedStatement st = null;
+		ResultSet rs = null;
+
+		try {
 			st = this.con.prepareStatement(query);
 
 			// Substitute the ? in the query by the seachString
@@ -141,7 +186,6 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 			// Limit results
 			if (maxResults > 0) {
 				st.setMaxRows(maxResults);
-
 			}
 			rs = st.executeQuery();
 
@@ -266,6 +310,19 @@ public class ExtSourceSql extends ExtSource implements ExtSourceSimpleApi {
 				throw new InternalErrorRuntimeException(e);
 			}
 		}
+	}
+
+	/**
+	 * Special query used for one big bulk of logins
+	 *
+	 * @param query bulk query
+	 * @param logins list of logins in one bulk
+	 * @return list of subjects
+	 * @throws InternalErrorException
+	 */
+	protected List<Map<String, String>> bulkQuery(String query, List<String> logins) throws InternalErrorException {
+		query = query.replace("?", BeansUtils.prepareInSQLClauseForValues(logins, ""));
+		return query(query, 0, null);
 	}
 
 	protected void createConnection() throws SQLException, InternalErrorException {

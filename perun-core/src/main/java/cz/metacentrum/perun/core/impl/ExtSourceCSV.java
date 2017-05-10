@@ -69,7 +69,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
             //Replace '?' by searchString
             query = query.replaceAll("\\?", searchString);
 
-            //Get csv file 
+            //Get csv file
             prepareEnvironment();
 
             return csvParsing(query, maxResults);
@@ -97,7 +97,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
             //Replace '?' by searchString
             query = query.replaceAll("\\?", login);
 
-            //Get csv file 
+            //Get csv file
             prepareEnvironment();
 
             List<Map<String, String>> subjects = this.csvParsing(query, 0);
@@ -119,7 +119,14 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		return getGroupSubjects(attributes, null);
+	}
+
+    @Override
+    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes, List<String> logins) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+        if(logins != null) throw new ExtSourceUnsupportedOperationException("Not supported to get subjects for this extSource by list of logins.");
+
         try {
             // Get the query for the group subjects
             String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
@@ -245,7 +252,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
     /**
      * Creates Map<String,String> from 1 row in csv file
-     * 
+     *
      * @param line 1 row from csv file
      * @return Map<String, String>, like <name,value>
      * @throws InternalErrorException
@@ -274,7 +281,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
                 String value = attr.substring(index + 1);
 
                 if (value.startsWith("{")) {
-                    
+
                     // exclude curly brackets from value
                     value = value.substring(1, value.length() - 1);
 
