@@ -27,9 +27,16 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
 
 /**
  * Attribute module for storing preferred mail of a user at VŠUP.
- * It's used for other services than a mail server itself.
+ * It's used for other services than a Zimbra mail server itself.
  * Is by default filled from vsupMailAlias or vsupMail, but can be set manually to any value.
- * On change, value is copied to user:preferredMail so admin can see preferred mail in GUI.
+ * If empty, value might be set by setting u:d:vsupMail or u:d:vsupMailAlias attributes.
+ *
+ * On value change, map of usedMails in entityless attributes is checked and updated.
+ * Also, value is copied to u:d:preferredMail so admin can see preferred mail in GUI.
+ *
+ * Since filled value by this module might be NULL at the time of processing, we must allow NULL value in checkAttributeValue(),
+ * because when all mail attributes are required and set at once, we can't ensure correct processing order of related attributes
+ * and it might perform check on old value, because of setRequiredAttributes() implementation uses in memory value instead of refreshing from DB.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -38,7 +45,10 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "Preferred mail can't be null.");
+		// we must allow null, since when setting required attributes all at once, value might not be filled yet
+		// if vsupMail or vsupMailAlias is empty, but it's checked by method impl.
+
+		if (attribute.getValue() == null) return; // throw new WrongAttributeValueException(attribute, user, "Preferred mail can't be null.");
 
 		// standard email pattern !!
 		Matcher emailMatcher = emailPattern.matcher((String)attribute.getValue());
@@ -115,7 +125,7 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 		// if SET action and mail is already reserved by other user
 		if (attribute.getValue() != null) {
 			String ownersUserId = reservedMailsAttributeValue.get((String)attribute.getValue());
-			if (!Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
+			if (ownersUserId != null && !Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
 				// TODO - maybe get actual owners attribute and throw WrongReferenceAttributeException to be nice in a GUI ?
 				throw new InternalErrorException("VŠUP preferred mail: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
 			}
@@ -160,6 +170,8 @@ public class urn_perun_user_attribute_def_def_vsupPreferredMail extends UserAttr
 
 		// save changes in entityless attribute
 		try {
+			// always set value to attribute, since we might start with null in attribute and empty map in variable !!
+			reservedMailsAttribute.setValue(reservedMailsAttributeValue);
 			session.getPerunBl().getAttributesManagerBl().setAttribute(session, usedMailsKeyVsup, reservedMailsAttribute);
 		} catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);

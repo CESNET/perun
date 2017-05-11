@@ -98,7 +98,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 			List<String> mails = (List<String>)attribute.getValue();
 			for (String mail : mails) {
 				String ownersUserId = reservedMailsAttributeValue.get(mail);
-				if (!Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
+				if (ownersUserId != null && !Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
 					// TODO - maybe get actual owners attribute and throw WrongReferenceAttributeException to be nice in a GUI ?
 					throw new InternalErrorException("On of VŠUP mail aliases: '"+mail+"' is already in use by User ID: " + ownersUserId + ".");
 				}
@@ -146,6 +146,8 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 
 		// save changes in entityless attribute
 		try {
+			// always set value to attribute, since we might start with null in attribute and empty map in variable !!
+			reservedMailsAttribute.setValue(reservedMailsAttributeValue);
 			session.getPerunBl().getAttributesManagerBl().setAttribute(session, usedMailsKeyVsup, reservedMailsAttribute);
 		} catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);

@@ -10,6 +10,7 @@ import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.UserAttributesModuleImplApi;
@@ -30,8 +31,11 @@ import static cz.metacentrum.perun.core.impl.modules.attributes.urn_perun_user_a
  * Expected format is "firstName.lastName[counter]@vsup.cz"
  * Artistic names have preference over normal: "u:d:artisticFirstName", "u:d:artisticLastName".
  * Value can be empty or manually changed.
- * In case of users name change, attribute value must be changed manually.
+ * In case of users name change, attribute value must be changed manually !!
  * Represents main mail alias in Zimbra for accounts of u:d:vsupMail (login@vsup.cz).
+ *
+ * On value change, map of usedMails in entityless attributes is checked and updated.
+ * Also u:d:vsupPreferredMail is set to current value, if is empty.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -57,7 +61,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 			if (reservedMailsAttribute.getValue() != null) {
 				Map<String,String> reservedMailsAttributeValue = (Map<String,String>)reservedMailsAttribute.getValue();
 				String ownersUserId = reservedMailsAttributeValue.get((String)attribute.getValue());
-				if (!Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
+				if (ownersUserId != null && !Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
 					throw new WrongAttributeValueException("VŠUP mail alias: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
 				}
 			}
@@ -89,7 +93,8 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 			return filledAttribute;
 		}
 
-		String mail = firstName + "." + lastName;
+		// remove all diacritics marks from name
+		String mail = ModulesUtilsBlImpl.normalizeStringForLogin(firstName) + "." + ModulesUtilsBlImpl.normalizeStringForLogin(lastName);
 
 		// fill value - start as mail, mail2, mail3, ....
 		int iterator = 1;
@@ -158,7 +163,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 		// if SET action and mail is already reserved by other user
 		if (attribute.getValue() != null) {
 			String ownersUserId = reservedMailsAttributeValue.get((String)attribute.getValue());
-			if (!Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
+			if (ownersUserId != null && !Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
 				// TODO - maybe get actual owners attribute and throw WrongReferenceAttributeException to be nice in a GUI ?
 				throw new InternalErrorException("VŠUP mail alias: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
 			}
@@ -203,9 +208,21 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 
 		// save changes in entityless attribute
 		try {
+			// always set value to attribute, since we might start with null in attribute and empty map in variable !!
+			reservedMailsAttribute.setValue(reservedMailsAttributeValue);
 			session.getPerunBl().getAttributesManagerBl().setAttribute(session, usedMailsKeyVsup, reservedMailsAttribute);
 		} catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
+		}
+
+		// if set, check vsupPreferredMail - if is empty, set vsupMailAlias to vsupPreferredMail
+		if (vsupPreferredMailAttribute.getValue() == null && attribute.getValue() != null) {
+			vsupPreferredMailAttribute.setValue(attribute.getValue());
+			try {
+				session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, vsupPreferredMailAttribute);
+			} catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
+				throw new InternalErrorException("Unable to store generated vsupMail to vsupPreferredMail.", e);
+			}
 		}
 
 	}

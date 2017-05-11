@@ -25,8 +25,15 @@ import java.util.regex.Pattern;
 
 /**
  * Attribute module for storing school mail of persons at VŠUP.
- * It has to be "login@vsup.cz" and is set whenever login-namespace:vsup attribute is set/changed.
  * Represents user account identifier in Zimbra.
+ * It has to be "login@vsup.cz" and is set whenever login-namespace:vsup attribute is set/changed !!
+ *
+ * Value can't be filled by this module, so we must allow NULL value in checkAttributeValue(), because when all mail
+ * attributes are required and set at once, we can't ensure correct processing order of attributes and it might perform check on old
+ * value, because of setRequiredAttributes() implementation uses in memory value instead of refreshing from DB.
+ *
+ * On value change, map of usedMails in entityless attributes is checked and updated.
+ * Also u:d:vsupPreferredMail is set to current value, if is empty.
  *
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
@@ -46,17 +53,30 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 	@Override
 	public void checkAttributeValue(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
 
-		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "School mail can't be null.");
+		// check only if not null
+		if (attribute.getValue() != null) {
 
-		Matcher emailMatcher = emailPattern.matcher((String)attribute.getValue());
-		if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "School mail is not in a correct form: \"login@vsup.cz\".");
+			// check that mail matches login
+			try {
+				Attribute login = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:vsup");
 
-		// check that it matches login
-		try {
-			Attribute login = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:login-namespace:vsup");
-			if (Objects.equals(login.getValue(), attribute.getValue())) throw new WrongReferenceAttributeValueException(attribute, login, user ,null, user, null, "VŠUP mail must match users login at VŠUP.");
-		} catch (AttributeNotExistsException e) {
-			throw new ConsistencyErrorException("Attribute for login-namespace: vsup doesn't exists.", e);
+				// if login and mail value is set, they must match !!
+				if (login.getValue() != null && attribute.getValue() != null) {
+					if (!Objects.equals(login.getValue()+"@vsup.cz", attribute.getValue())) throw new WrongReferenceAttributeValueException(attribute, login, user, null, user, null, "VŠUP mail must match users login at VŠUP.");
+				}
+				// if only one of them is set, it's OK, because:
+				// - we need vsupMail to be required, but it doesn't support fill (by purpose).
+				// - it's set in changedAttributeHook() of login-namespace:vsup attribute during same transaction.
+				// - always requiring non-null value would cause setRequiredAttributes() to fail, because of above and method implementation.
+			} catch (AttributeNotExistsException e) {
+				throw new ConsistencyErrorException("Attribute for login-namespace: vsup doesn't exists.", e);
+			}
+
+			//if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, user, "School mail can't be null.");
+
+			Matcher emailMatcher = emailPattern.matcher((String)attribute.getValue());
+			if(!emailMatcher.find()) throw new WrongAttributeValueException(attribute, user, "School mail is not in a correct form: \"login@vsup.cz\".");
+
 		}
 
 		// We check uniqueness on all related attributes change, so we don't need to do it here.
@@ -109,7 +129,7 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 		// if SET action and mail is already reserved by other user
 		if (attribute.getValue() != null) {
 			String ownersUserId = reservedMailsAttributeValue.get((String)attribute.getValue());
-			if (!Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
+			if (ownersUserId != null && !Objects.equals(ownersUserId, String.valueOf(user.getId()))) {
 				// TODO - maybe get actual owners attribute and throw WrongReferenceAttributeException to be nice in a GUI ?
 				throw new InternalErrorException("VŠUP mail: '"+attribute.getValue()+"' is already in use by User ID: " + ownersUserId + ".");
 			}
@@ -154,9 +174,21 @@ public class urn_perun_user_attribute_def_def_vsupMail extends UserAttributesMod
 
 		// save changes in entityless attribute
 		try {
+			// always set value to attribute, since we might start with null in attribute and empty map in variable !!
+			reservedMailsAttribute.setValue(reservedMailsAttributeValue);
 			session.getPerunBl().getAttributesManagerBl().setAttribute(session, usedMailsKeyVsup, reservedMailsAttribute);
 		} catch (WrongAttributeValueException | WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
+		}
+
+		// if set, check vsupPreferredMail - if is empty, set vsupMail to vsupPreferredMail
+		if (vsupPreferredMailAttribute.getValue() == null && attribute.getValue() != null) {
+			vsupPreferredMailAttribute.setValue(attribute.getValue());
+			try {
+				session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, vsupPreferredMailAttribute);
+			} catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
+				throw new InternalErrorException("Unable to store generated vsupMail to vsupPreferredMail.", e);
+			}
 		}
 
 	}
