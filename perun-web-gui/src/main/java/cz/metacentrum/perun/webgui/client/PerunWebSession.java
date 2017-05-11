@@ -120,7 +120,7 @@ public class PerunWebSession {
 		}
 
 		String modifier = PerunWebConstants.INSTANCE.perunRpcUrlModifier();
-		if (modifier == null || modifier.equalsIgnoreCase("${gui.url.modifier}")) {
+		if (modifier == null || modifier.equalsIgnoreCase("@gui.url.modifier@")) {
 			rpcUrl = "/"+rpcType+"/rpc/jsonp/";
 		} else {
 			rpcUrl = "/"+rpcType+"/rpc"+modifier+"/jsonp/";
