@@ -1,0 +1,19 @@
+<!-- https://logback.qos.ch/manual/configuration.html#syntax -->
+<!-- http://logback.qos.ch/manual/layouts.html#conversionWord -->
+<configuration packagingData="true">
+
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d [%thread] %-5level %logger{35} %file:%line - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="error">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+	<logger name="org.apache.log4j.xml" level="info"/>
+	<logger name="org.springframework" level="warn"/>
+
+</configuration>

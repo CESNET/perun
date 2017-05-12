@@ -116,16 +116,11 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 
-		<!-- LOGGING -->
-
+		<!-- logging -->
+		<!-- see http://docs.spring.io/platform/docs/current/reference/htmlsingle/#getting-started-logging -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
 		</dependency>
 
 		<!-- OTHERS -->
