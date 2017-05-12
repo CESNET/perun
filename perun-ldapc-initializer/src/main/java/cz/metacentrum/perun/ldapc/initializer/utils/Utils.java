@@ -314,7 +314,6 @@ public class Utils {
 			String isServiceUser = "isServiceUser: ";
 			String isSponsoredUser = "isSponsoredUser: ";
 			String userPassword = "userPassword: ";
-			String phone = "telephoneNumber: ";
 			List<String> membersOf = new ArrayList<>();
 			List<Member> members;
 			Set<String> membersOfPerunVo = new HashSet<>();
@@ -334,7 +333,6 @@ public class Utils {
 			Attribute attrOrganization = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":organization");
 			Attribute attrVirtCertDNs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_VIRT + ":userCertDNs");
 			Attribute attrLibraryIDs = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":libraryIDs");
-			Attribute attrPhone = perun.getAttributesManagerBl().getAttribute(perunSession, user, AttributesManager.NS_USER_ATTR_DEF + ":phone");
 			perunUserId+= String.valueOf(user.getId());
 			dn+= "perunUserId=" + user.getId() + ",ou=People,dc=perun,dc=cesnet,dc=cz";
 			String firstName = user.getFirstName();
@@ -355,8 +353,6 @@ public class Utils {
 			else preferredMail+= (String) attrPreferredMail.getValue();
 			if(attrOrganization == null || attrOrganization.getValue() == null) o= null;
 			else o+= (String) attrOrganization.getValue();
-			if(attrPhone == null || attrPhone.getValue() == null || ((String) attrPhone.getValue()).isEmpty()) phone= null;
-			else phone+= (String) attrPhone.getValue();
 			Map<String, String> certDNs = null;
 			Set<String> certSubjectsWithPrefix = null;
 			Set<String> certSubjectsWithoutPrefix = new HashSet<>();
@@ -385,7 +381,6 @@ public class Utils {
 			if(mail != null) writer.write(mail + '\n');
 			if(preferredMail != null) writer.write(preferredMail + '\n');
 			if(o != null) writer.write(o + '\n');
-			if(phone != null) writer.write(phone + '\n');
 			if(certSubjectsWithoutPrefix != null && !certSubjectsWithoutPrefix.isEmpty()) {
 				for(String s: certSubjectsWithoutPrefix) {
 					writer.write("userCertificateSubject: " + s + '\n');
