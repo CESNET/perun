@@ -334,9 +334,11 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		XPath xpath = xPathfactory.newXPath();
 		XPathExpression isErrorExpr;
 		XPathExpression getErrorTextExpr;
+		XPathExpression getDbErrorTextExpr;
 		try {
 			isErrorExpr = xpath.compile("//resp/stav/text()");
 			getErrorTextExpr = xpath.compile("//resp/error/text()");
+			getDbErrorTextExpr = xpath.compile("//resp/dberror/text()");
 		} catch (XPathExpressionException ex) {
 			throw new InternalErrorException("Error when compiling xpath query. Request ID: " + requestID, ex);
 		}
@@ -349,6 +351,8 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 			throw new InternalErrorException("Error when evaluate xpath query on document to resolve response status. Request ID: " + requestID, ex);
 		}
 
+		log.trace("Request ID: " + requestID + " Response status: " + responseStatus);
+
 		if ("OK".equals(responseStatus)) {
 
 			return doc;
@@ -357,6 +361,9 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 
 			try {
 				String error = (String) getErrorTextExpr.evaluate(doc, XPathConstants.STRING);
+				if (error == null || error.isEmpty()) {
+					error = (String) getDbErrorTextExpr.evaluate(doc, XPathConstants.STRING);
+				}
 				throw new InternalErrorException("IS MU (password manager backend) responded with error to a Request ID: " + requestID + " Error: "+ error);
 			} catch (XPathExpressionException ex) {
 				throw new InternalErrorException("Error when evaluate xpath query on document to resolve error status. Request ID: " + requestID, ex);
