@@ -2349,6 +2349,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			if (AppState.VERIFIED.equals(app.getState())) {
 				// with registrar session, since only VO admin can approve application
 
+				// check if can be approved (we normally call this manually from GUI before calling approve)
+				canBeApproved(registrarSession, app);
+
 				/*
 
 				FIXME - temporarily disabled checking
