@@ -15,12 +15,37 @@ import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleAbstract;
 import cz.metacentrum.perun.core.implApi.modules.attributes.MemberAttributesModuleImplApi;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author Simona Kruppova
  */
 public class urn_perun_member_attribute_def_def_phone extends MemberAttributesModuleAbstract implements MemberAttributesModuleImplApi {
 
 	private static final String A_U_phone = AttributesManager.NS_USER_ATTR_DEF + ":phone";
+	//This regular expression requires international form of phone number starting with '+' without spaces
+	//Due to technical reasons we support only numbers longer than 3 characters and shorter than 17 characters [4,16]
+	//Example of correct number "+420123456789"
+	private static final Pattern pattern = Pattern.compile("^[+][0-9]{4,16}$");
+
+	@Override
+	public void checkAttributeValue(PerunSessionImpl perunSession, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
+		String phone = null;
+
+		// null attribute
+		if (attribute.getValue() == null) throw new WrongAttributeValueException(attribute, "User attribute phone cannot be null.");
+
+		// wrong type of the attribute
+		if (!(attribute.getValue() instanceof String)) throw new WrongAttributeValueException(attribute, "Wrong type of the attribute. Expected: String");
+
+		phone = (String) attribute.getValue();
+
+		Matcher matcher = pattern.matcher(phone);
+		if (!matcher.matches()) {
+			throw new WrongAttributeValueException(attribute, "Phone is not in correct format!");
+		}
+	}
 
 	@Override
 	public void changedAttributeHook(PerunSessionImpl session, Member member, Attribute attribute) throws InternalErrorException, WrongReferenceAttributeValueException {
