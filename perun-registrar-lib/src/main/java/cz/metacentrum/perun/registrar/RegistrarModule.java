@@ -61,7 +61,9 @@ public interface RegistrarModule {
 	Application beforeApprove(PerunSession session, Application app) throws PerunException;
 
 	/**
-	 * Custom logic for checking method before application approval from GUI
+	 * Custom logic for checking method before application approval from GUI.
+	 * Also called if application is set to auto-approval mode. In such case,
+	 * if CantBeApprovedException is thrown, approval is stopped.
 	 *
 	 * @param session who approves the application
 	 * @param app application
