@@ -1250,7 +1250,7 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		autoApproveUsersGroupApplications(sess, app.getVo(), app.getUser());
 
 		try {
-			// validate member async when all changes are commited
+			// validate member async when all changes are committed
 			perun.getMembersManagerBl().validateMemberAsync(registrarSession, member);
 		} catch (Exception ex) {
 			// we skip any exception thrown from here
@@ -1361,10 +1361,17 @@ public class RegistrarManagerImpl implements RegistrarManager {
 				// !! MUST BE MEMBER OF VO !!
 				member = membersManager.getMemberByUser(registrarSession, app.getVo(), app.getUser());
 
+				// MEMBER must be in a VALID or INVALID state since approval starts validation !!
+				// and we don't want to validate expired, suspended or disabled users without VO admin owns action !!
+				// meaning, user should submit membership extension application first !!
+				if (!Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
+					throw new CantBeApprovedException("Application of member with membership status: "+member.getStatus()+" can't be approved. Please wait until member extends/re-validate own membership in a VO.");
+				}
+
 				// store all attributes (but not logins)
 				storeApplicationAttributes(app);
 
-				// unreserve new duplicite logins and get purely new logins back
+				// cancel reservation of new duplicate logins and get purely new logins back
 				logins = unreserveNewLoginsFromSameNamespace(logins, app.getUser());
 
 				// store purely new logins to user
@@ -1576,6 +1583,27 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		if (module != null) {
 			// call custom logic before approving
 			module.canBeApproved(session, application);
+		}
+
+		// generally for Group applications:
+
+		// submitter, must be MEMBER of VO and in VALID or INVALID state since approval starts validation !!
+		// and we don't want to validate expired, suspended or disabled users without VO admin owns action !!
+		// meaning, user should submit membership extension application first !!
+		if (application.getGroup() != null && application.getType().equals(AppType.INITIAL)) {
+			try {
+			User u = application.getUser();
+			if (u == null) {
+				u = usersManager.getUserByExtSourceNameAndExtLogin(registrarSession, application.getExtSourceName(), application.getCreatedBy());
+			}
+				Member member = membersManager.getMemberByUser(registrarSession, application.getVo(), u);
+				if (!Arrays.asList(Status.VALID, Status.INVALID).contains(member.getStatus())) {
+					throw new CantBeApprovedException("Application of member with membership status: " + member.getStatus() + " can't be approved. Please wait until member extends/re-validate own membership in a VO.");
+				}
+			} catch (MemberNotExistsException | UserNotExistsException | ExtSourceNotExistsException | UserExtSourceNotExistsException ex) {
+				throw new RegistrarException("To approve application user must already be member of VO.", ex);
+			}
+
 		}
 
 	}
