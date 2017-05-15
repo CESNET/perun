@@ -101,10 +101,6 @@
 			<artifactId>tomcat-dbcp</artifactId>
 		</dependency>
 
-		<!-- SPRING -->
-
-		<!-- TEST -->
-
 		<!-- OTHER -->
 
 		<dependency>

@@ -64,7 +64,7 @@
 
 		<!-- redefine versions of some libraries defined by Spring platform -->
 		<postgresql.version>42.0.0</postgresql.version>
-		<tomcat.version>7.0.77</tomcat.version>
+		<tomcat.version>7.0.56</tomcat.version>
 		<hsqldb.version>2.3.2</hsqldb.version> <!-- 2.3.3 fails GroupsManagerEntryIntegrationTest.addAdminWhenAlreadyAdmin test -->
 		<javax-validation.version>1.0.0.GA</javax-validation.version>
 
@@ -161,7 +161,7 @@
 					<artifactId>maven-war-plugin</artifactId>
 				</plugin>
 
-				<!-- mvn shade - creates shaded jar (1 jar containing e.g. core + spring) -->
+				<!-- mvn shade - creates shaded jar (1 jar containing everything including dependencies) -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>

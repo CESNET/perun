@@ -20,7 +20,6 @@
 	<root level="warn">
 		<appender-ref ref="main"/>
 	</root>
-	<logger name="org.apache.log4j.xml" level="info"/>
 	<logger name="org.springframework" level="warn"/>
 	<logger name="org.springframework.web.context.ContextLoader" level="warn"/>
 

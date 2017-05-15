@@ -8,28 +8,20 @@
 		<servlet-class>cz.metacentrum.perun.rpc.Api</servlet-class>
 	</servlet>
 
-	<!-- Enable LOG4J - we don't have to config log4j for whole JVM -->
-
-	<context-param>
-		<param-name>isLog4jAutoInitializationDisabled</param-name>
-		<param-value>true</param-value>
-	</context-param>
+    <!--
+    -Dlogback.configurationFile=file://${perun.conf}logback.xml
+    or http://stackoverflow.com/questions/14288623/logback-externalization
+    -->
 
 	<context-param>
 		<param-name>spring.profiles.default</param-name>
 		<param-value>@spring.profiles.default@</param-value>
 	</context-param>
 
-	<context-param>
-		<param-name>log4jConfigLocation</param-name>
-		<param-value>file://${perun.conf}log4j.xml</param-value>
-	</context-param>
-
-	<!-- !! MUST BE FIRST LISTENER IN THIS CONFIG FILE !! -->
+    <!-- Logback -->
 	<listener>
-		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+		<listener-class>ch.qos.logback.classic.servlet.LogbackServletContextListener</listener-class>
 	</listener>
-
 	<!-- Spring -->
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
