@@ -160,7 +160,7 @@ public class urn_perun_user_attribute_def_def_vsupMailAliases extends UserAttrib
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("vsupMailAliases");
 		attr.setDisplayName("School mail aliases");
-		attr.setType(String.class.getName());
+		attr.setType(ArrayList.class.getName());
 		attr.setDescription("Spare school mail aliases of a user. They can be used in Zimbra, but are not preferred. See 'vsupMailAlias' for preferred value.");
 		return attr;
 	}
