@@ -215,13 +215,16 @@ public class urn_perun_user_attribute_def_def_vsupMailAlias extends UserAttribut
 			throw new InternalErrorException(ex);
 		}
 
-		// if set, check vsupPreferredMail - if is empty, set vsupMailAlias to vsupPreferredMail
-		if (vsupPreferredMailAttribute.getValue() == null && attribute.getValue() != null) {
-			vsupPreferredMailAttribute.setValue(attribute.getValue());
-			try {
-				session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, vsupPreferredMailAttribute);
-			} catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
-				throw new InternalErrorException("Unable to store generated vsupMail to vsupPreferredMail.", e);
+		// if set, check vsupPreferredMail and set it's value if is currently empty or equals vsupMail
+		if (attribute.getValue() != null) {
+			String preferredMail = (String)vsupPreferredMailAttribute.getValue();
+			if (preferredMail == null || Objects.equals(preferredMail, vsupMailAttribute.getValue())) {
+				vsupPreferredMailAttribute.setValue(attribute.getValue());
+				try {
+					session.getPerunBl().getAttributesManagerBl().setAttribute(session, user, vsupPreferredMailAttribute);
+				} catch (WrongAttributeValueException | WrongAttributeAssignmentException e) {
+					throw new InternalErrorException("Unable to store generated vsupMailAlias to vsupPreferredMail.", e);
+				}
 			}
 		}
 
