@@ -188,8 +188,13 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		String params = "";
 		if (parameters != null && !parameters.isEmpty()) {
 
-			if (parameters.get("urn:perun:user:attribute-def:core:firstName") != null && !parameters.get("urn:perun:user:attribute-def:core:firstName").isEmpty())
+			if (parameters.get("urn:perun:user:attribute-def:core:firstName") != null && !parameters.get("urn:perun:user:attribute-def:core:firstName").isEmpty()) {
 				params += "<jmeno>" + parameters.get("urn:perun:user:attribute-def:core:firstName") + "</jmeno>\n";
+			} else {
+				// IS requires first and last name
+				// in case of a single word name value, it's stored in a lastName, so send "guest" as a firstName if it's empty.
+				params += "<jmeno>guest</jmeno>\n";
+			}
 
 			if (parameters.get("urn:perun:user:attribute-def:core:lastName") != null && !parameters.get("urn:perun:user:attribute-def:core:lastName").isEmpty())
 				params += "<prijmeni>" + parameters.get("urn:perun:user:attribute-def:core:lastName") + "</prijmeni>\n";
