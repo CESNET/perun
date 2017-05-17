@@ -21,25 +21,30 @@ sub help {
 	};
 }
 
-my ($attributeName, $attributeValue, $sortingFunction, $batch);
+my ($attributeName, @attributeValue, $sortingFunction, $batch);
 GetOptions ("help|h"    => sub {
 		print help();
 		exit 0;
 	}, "batch|b"        => \$batch,
-	"attributeName|a=s" => \$attributeName, "attributeValue|w=s" => \$attributeValue,
+	"attributeName|a=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue,
 	"orderByName|n"     => sub { $sortingFunction = getSortingFunction("getLastName", 1) } ) || die help();
 
 # Check options
 unless (defined($attributeName)) { die "ERROR: attributeName is required \n";}
-unless (defined($attributeValue)) { die "ERROR: attributeValue is required \n";}
+unless (@attributeValue) { die "ERROR: attributeValue is required \n";}
 
 #options check
 unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getLastName", 1); }
 
 my $agent = Perun::Agent->new();
 my $usersAgent = $agent->getUsersAgent;
+my $attributesAgent = $agent->getAttributesAgent;
 
-my @users = $usersAgent->getUsersByAttribute( attributeName => $attributeName, attributeValue => $attributeValue );
+my $attributeDefinition = $attributesAgent->getAttributeDefinition( attributeName => $attributeName );
+my $attribute = Perun::beans::Attribute->fromAttributeDefinition( $attributeDefinition );
+$attribute->setValueFromArray( @attributeValue );
+
+my @users = $usersAgent->getUsersByAttribute( attributeName => $attributeName, attributeValue => $attribute->getValue );
 
 #output
 my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
