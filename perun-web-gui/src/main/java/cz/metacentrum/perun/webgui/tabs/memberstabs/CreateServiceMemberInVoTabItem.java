@@ -399,7 +399,8 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 																	req2.validateMemberAsync(member);
 																}
 															}));
-															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespaceValue);
+															// validate login returned from account generation
+															req.validateAndSetUserExtSources(member.getUserId(), login, namespaceValue);
 
 															// show assigned login
 															UiElements.generateInfo("Assigned login", "You were assigned with login <b>"+login+"</b> in namespace MU.");
@@ -484,7 +485,8 @@ public class CreateServiceMemberInVoTabItem implements TabItem, TabItemWithUrl {
 																	req2.validateMemberAsync(member);
 																}
 															}));
-															req.validateAndSetUserExtSources(member.getUserId(), serviceUserLogin.getTextBox().getValue().trim(), namespaceValue);
+															// validate login returned from account generation
+															req.validateAndSetUserExtSources(member.getUserId(), login, namespaceValue);
 
 															// show assigned login
 															UiElements.generateInfo("Assigned login", "You were assigned with login <b>" + login + "</b> in namespace MU.");
