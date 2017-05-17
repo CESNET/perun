@@ -13,7 +13,7 @@ my $servicesAgent = $agent->getServicesAgent;
 my $resourcesAgent = $agent->getResourcesAgent;
 
 # CONSTANTS
-my $PERUN_CLI_PATH = '/opt/perun-cli/lib';
+my $PERUN_CLI_PATH = '/opt/perun-cli/bin';
 my $CHECK_COMMAND = 'checkLastTaskResult';
 
 # HELP
