@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -91,6 +92,12 @@ public class SchedulingManagerImpl {
 			processPerunNotifAuditMessages();
 			logger.info("3: Getting poolMessages from db.");
 			perunNotifPoolMessageManager.processPerunNotifPoolMessagesFromDb();
+		} catch (InternalErrorException ex) {
+			if (ex.getCause() instanceof DataAccessResourceFailureException) {
+				// Postgres database restart causes this exception -> continue
+			} else {
+				stopNotifications(ex);
+			}
 		} catch (Exception ex) {
 			stopNotifications(ex);
 		} finally {
