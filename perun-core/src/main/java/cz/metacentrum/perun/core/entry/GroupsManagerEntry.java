@@ -40,6 +40,7 @@ import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.MembershipMismatchException;
 import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
 import cz.metacentrum.perun.core.api.exceptions.NotMemberOfParentGroupException;
+import cz.metacentrum.perun.core.api.exceptions.NotServiceUserExpectedException;
 import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
 import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
@@ -317,7 +318,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group));
 	}
 
 	public List<RichMember> getGroupRichMembers(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -331,7 +332,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembers");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group, status), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembers(sess, group, status));
 	}
 
 	public List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -345,7 +346,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getGroupRichMembersWithAttributes");
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group));
 	}
 
 	public List<RichMember> getGroupRichMembersWithAttributes(PerunSession sess, Group group, Status status) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -358,7 +359,7 @@ public class GroupsManagerEntry implements GroupsManager {
 				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getGroupRichMembersWithAttributes");
 				}
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getGroupRichMembersWithAttributes(sess, group, status));
 	}
 
 	public int getGroupMembersCount(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException {
@@ -434,54 +435,20 @@ public class GroupsManagerEntry implements GroupsManager {
 		getGroupsManagerBl().removeAdmin(sess, group, authorizedGroup);
 	}
 
-	public List<User> getAdmins(PerunSession perunSession, Group group, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
-		Utils.checkPerunSession(perunSession);
-		getGroupsManagerBl().checkGroupExists(perunSession, group);
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) &&
-		    !AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group) &&
-		    !AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
-			throw new PrivilegeException(perunSession, "getAdmins");
-		}
-
-		return getGroupsManagerBl().getAdmins(perunSession, group, onlyDirectAdmins);
-	}
-
-	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group, List<String> specificAttributes, boolean allUserAttributes, boolean onlyDirectAdmins) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException {
-		Utils.checkPerunSession(perunSession);
-		getGroupsManagerBl().checkGroupExists(perunSession, group);
-		//list of specific attributes must be not null if filtering is needed
-		if(!allUserAttributes) {
-			Utils.notNull(specificAttributes, "specificAttributes");
-		}
-
-		// Authorization
-		if (!AuthzResolver.isAuthorized(perunSession, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(perunSession, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(perunSession, Role.GROUPADMIN, group)) {
-			throw new PrivilegeException(perunSession, "getRichAdmins");
-		}
-
-		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdmins(perunSession, group, specificAttributes, allUserAttributes, onlyDirectAdmins));
-	}
-
-	@Deprecated
 	public List<User> getAdmins(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
 		getGroupsManagerBl().checkGroupExists(sess, group);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group) &&
-				!AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
+		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, group)
+				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group)) {
 			throw new PrivilegeException(sess, "getAdmins");
 				}
 
 		return getGroupsManagerBl().getAdmins(sess, group);
 	}
 
-	@Deprecated
 	@Override
 	public List<User> getDirectAdmins(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
 		Utils.checkPerunSession(sess);
@@ -511,7 +478,6 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().getAdminGroups(sess, group);
 	}
 
-	@Deprecated
 	public List<RichUser> getRichAdmins(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		getGroupsManagerBl().checkGroupExists(perunSession, group);
@@ -526,7 +492,6 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdmins(perunSession, group));
 	}
 
-	@Deprecated
 	public List<RichUser> getRichAdminsWithAttributes(PerunSession perunSession, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		getGroupsManagerBl().checkGroupExists(perunSession, group);
@@ -541,7 +506,6 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdminsWithAttributes(perunSession, group));
 	}
 
-	@Deprecated
 	public List<RichUser> getRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		getGroupsManagerBl().checkGroupExists(perunSession, group);
@@ -556,7 +520,6 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getPerunBl().getUsersManagerBl().filterOnlyAllowedAttributes(perunSession, getGroupsManagerBl().getRichAdminsWithSpecificAttributes(perunSession, group, specificAttributes));
 	}
 
-	@Deprecated
 	public List<RichUser> getDirectRichAdminsWithSpecificAttributes(PerunSession perunSession, Group group, List<String> specificAttributes) throws InternalErrorException, PrivilegeException, GroupNotExistsException, UserNotExistsException {
 		Utils.checkPerunSession(perunSession);
 		getGroupsManagerBl().checkGroupExists(perunSession, group);
@@ -796,7 +759,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembers(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembers(sess, group));
 	}
 
 	public List<RichMember> getParentGroupRichMembersWithAttributes(PerunSession sess, Group group) throws InternalErrorException, PrivilegeException, GroupNotExistsException {
@@ -810,7 +773,7 @@ public class GroupsManagerEntry implements GroupsManager {
 			throw new PrivilegeException(sess, "getParentGroupRichMembers for " + group.getName());
 				}
 
-		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembersWithAttributes(sess, group), true);
+		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getGroupsManagerBl().getParentGroupRichMembersWithAttributes(sess, group));
 	}
 
 
@@ -847,24 +810,26 @@ public class GroupsManagerEntry implements GroupsManager {
 		return this.perunBl;
 	}
 
-	public void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException, GroupNotExistsException, PrivilegeException, GroupSynchronizationAlreadyRunningException {
-		Utils.checkPerunSession(sess);
-		getGroupsManagerBl().checkGroupExists(sess, group);
+	public void forceGroupSynchronization(PerunSession sess, Group group) throws InternalErrorException,
+				 GroupNotExistsException, PrivilegeException, GroupSynchronizationAlreadyRunningException {
+					 Utils.checkPerunSession(sess);
+					 getGroupsManagerBl().checkGroupExists(sess, group);
 
-		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, group)
-				&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, group))  {
-			throw new PrivilegeException(sess, "synchronizeGroup");
-		}
+					 // Authorization
+					 if (!AuthzResolver.isAuthorized(sess, Role.SYNCHRONIZER)
+							&& !AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, vo)
+							&& !AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo))  {
+						 throw new PrivilegeException(sess, "synchronizeGroup");
+					 }
 
-		getGroupsManagerBl().forceGroupSynchronization(sess, group);
+					 getGroupsManagerBl().forceGroupSynchronization(sess, group);
 	}
 
 	public void synchronizeGroups(PerunSession sess) throws InternalErrorException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if (!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN))  {
+		if (!AuthzResolver.isAuthorized(sess, Role.SYNCHRONIZER))  {
 			throw new PrivilegeException(sess, "synchronizeGroups");
 		}
 
