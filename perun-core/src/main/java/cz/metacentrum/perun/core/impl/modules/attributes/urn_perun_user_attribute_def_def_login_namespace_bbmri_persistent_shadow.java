@@ -28,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
 public class urn_perun_user_attribute_def_def_login_namespace_bbmri_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
         private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_bbmri_persistent_shadow.class);
-        private final String extSourceNameBbmri = "https://login.bbmri-eric.eu/idp/";
+        private final String extSourceNameBbmri = "https://idp.bbmri-eric.eu/idp/shibboleth";
         private final String domainNameBbmri = "@bbmri.eu";
         private final String attrNameBbmri = "login-namespace:bbmri-persistent-shadow";
 
