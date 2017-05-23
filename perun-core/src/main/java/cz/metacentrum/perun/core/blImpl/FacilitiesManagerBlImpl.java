@@ -404,10 +404,19 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 		return getFacilitiesManagerImpl().getAssignedFacilities(sess, securityTeam);
 	}
 
-	public List<Facility> getFacilitiesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-		getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_FACILITY_ATTR);
-		if(!(getPerunBl().getAttributesManagerBl().isDefAttribute(sess, attribute) || getPerunBl().getAttributesManagerBl().isOptAttribute(sess, attribute))) throw new WrongAttributeAssignmentException("This method can process only def and opt attributes");
-		return getFacilitiesManagerImpl().getFacilitiesByAttribute(sess, attribute);
+
+	public List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, WrongAttributeAssignmentException {
+		try {
+			AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+			Attribute attribute = new Attribute(attributeDef);
+			attribute.setValue(attributeValue);
+			getPerunBl().getAttributesManagerBl().checkNamespace(sess, attribute, AttributesManager.NS_FACILITY_ATTR);
+			if (!(getPerunBl().getAttributesManagerBl().isDefAttribute(sess, attribute) || getPerunBl().getAttributesManagerBl().isOptAttribute(sess, attribute)))
+				throw new WrongAttributeAssignmentException("This method can process only def and opt attributes");
+			return getFacilitiesManagerImpl().getFacilitiesByAttribute(sess, attribute);
+		} catch (AttributeNotExistsException e) {
+			throw new ConsistencyErrorException("Attribute name:'" + attributeName + "', value:'" + attributeValue + "' not exists ", e);
+		}
 	}
 
 	public void checkFacilityExists(PerunSession sess, Facility facility) throws InternalErrorException, FacilityNotExistsException {

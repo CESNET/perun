@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,6 +162,20 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		}
 
 		return facilities;
+	}
+
+	public List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue)
+			throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.SERVICEUSER)) {
+			throw new PrivilegeException(sess, "getFacilitiesByAttribute");
+		}
+
+		getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+
+		return getFacilitiesManagerBl().getFacilitiesByAttribute(sess, attributeName, attributeValue);
 	}
 
 	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {

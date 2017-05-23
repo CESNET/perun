@@ -94,6 +94,22 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Searches for the Facilities by theirs attribute.
+	 *
+	 * @param attributeName String
+	 * @param attributeValue String
+	 * @return Facilities Found facilities
+	 */
+	getFacilitiesByAttribute {
+
+		@Override
+		public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getFacilitiesByAttribute(ac.getSession(),
+					parms.readString("attributeName"), parms.readString("attributeValue"));
+		}
+	},
+
+	/*#
 	 * List all facilities.
 	 *
 	 * @return List<Facility> All facilities

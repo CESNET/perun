@@ -3,6 +3,7 @@ package cz.metacentrum.perun.core.api;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanAlreadyExistsException;
 import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityAlreadyRemovedException;
@@ -104,6 +105,21 @@ public interface FacilitiesManager {
 	 * @throws PrivilegeException
 	 */
 	List<Facility> getFacilitiesByDestination(PerunSession perunSession, String destination) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
+
+	/**
+	 * Returns all facilities who have set the attribute with the value. Searching by attributeName. Searching only def and opt attributes.
+	 * Can find only attributes with String Value by this way! (not Integer, Map or List)
+	 *
+	 * @param sess
+	 * @param attributeName name of the attribute
+	 * @param attributeValue value of the attribute
+	 * @return list of facilities
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 * @throws AttributeNotExistsException
+	 */
+	List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, PrivilegeException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
 
 	/**
 	 * Get count of all facilities.
