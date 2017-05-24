@@ -200,6 +200,32 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException;
 
 	/**
+	 * Get all attributes (empty and virtual too) associated with the member on the resource which have name in list attrNames.
+	 *
+	 * @param sess perun session
+	 * @param member to get the attributes from
+	 * @param resource resource to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException;
+
+	/**
+	 * Get all attributes (empty and virtual too) associated with the user on the facility which have name in list attrNames.
+	 *
+	 * @param sess perun session
+	 * @param user to get the attributes from
+	 * @param facility facility to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @return list of attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, User user, Facility facility, List<String> attrNames) throws InternalErrorException;
+
+	/**
 	 * Get all <b>non-empty</b> attributes associated with the member.
 	 *
 	 * @param sess perun session
@@ -762,7 +788,7 @@ public interface AttributesManagerImplApi {
 	 *
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws AttributeNotExistsException if the attribute doesn't exists in the underlaying data source
-	 */	
+	 */
 	Attribute getAttributeById(PerunSession sess, UserExtSource ues, int id) throws InternalErrorException, AttributeNotExistsException;
 
 	/**

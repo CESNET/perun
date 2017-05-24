@@ -845,6 +845,50 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException {
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("mId", member.getId());
+		parameters.addValue("rId", resource.getId());
+		parameters.addValue("nSO", AttributesManager.NS_MEMBER_RESOURCE_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_MEMBER_RESOURCE_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("mem_res") + " from attr_names " +
+							"left join member_resource_attr_values mem_res on id=mem_res.attr_id and member_id=:mId and resource_id=:rId " +
+							"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+					parameters, new AttributeRowMapper(sess, this, member, resource));
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public List<Attribute> getAttributes(PerunSession sess, User user, Facility facility, List<String> attrNames) throws InternalErrorException {
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("uId", user.getId());
+		parameters.addValue("fId", facility.getId());
+		parameters.addValue("nSO", AttributesManager.NS_USER_FACILITY_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_USER_FACILITY_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_USER_FACILITY_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("user_fac") + " from attr_names " +
+							"left join user_facility_attr_values user_fac on id=user_fac.attr_id and user_id=:uId and facility_id=:fId " +
+							"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+					parameters, new AttributeRowMapper(sess, this, user, facility));
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group, List<String> attrNames) throws InternalErrorException {
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("mId", member.getId());

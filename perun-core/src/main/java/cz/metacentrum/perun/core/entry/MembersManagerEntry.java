@@ -3,12 +3,7 @@ package cz.metacentrum.perun.core.entry;
 import java.util.Date;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
-import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,21 +23,6 @@ import cz.metacentrum.perun.core.api.Status;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
-import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Utils;
@@ -268,7 +248,7 @@ public class MembersManagerEntry implements MembersManager {
 
 	public Member createMember(PerunSession sess, Vo vo, ExtSource extSource, String login, List<Group> groups) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, AlreadyMemberException, ExtendMembershipException, VoNotExistsException, ExtSourceNotExistsException, PrivilegeException, GroupNotExistsException, GroupOperationsException {
 		Utils.checkPerunSession(sess);
-		
+
 		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
 		getPerunBl().getExtSourcesManagerBl().checkExtSourceExists(sess, extSource);
 
@@ -536,6 +516,21 @@ public class MembersManagerEntry implements MembersManager {
 		return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), true);
 	}
 
+	@Override
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		perunBl.getGroupsManagerBl().checkGroupExists(sess, group);
+		perunBl.getResourcesManagerBl().checkResourceExists(sess, resource);
+
+		// Authorization (only engine and PerunAdmin, because we are not able to filter member-resource and user-facility attributes properly)
+		if (!AuthzResolver.isAuthorized(sess, Role.ENGINE)) throw new PrivilegeException(sess, "getCompleteRichMembers");
+
+		//TODO: method filterOnlyAllowedAttributes can work only with user and member attributes
+		//return getPerunBl().getMembersManagerBl().filterOnlyAllowedAttributes(sess, getMembersManagerBl().getCompleteRichMembers(sess, group, resource, attrsNames, allowedStatuses), true);
+		return getMembersManagerBl().getCompleteRichMembers(sess, group, resource, attrsNames, allowedStatuses);
+	}
+
 	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, ParentGroupNotExistsException, GroupNotExistsException, VoNotExistsException, AttributeNotExistsException {
 		Utils.checkPerunSession(sess);
 
@@ -598,7 +593,7 @@ public class MembersManagerEntry implements MembersManager {
 		Iterator<RichMember> richMemberIter = richMembers.iterator();
 		while(richMemberIter.hasNext()) {
 			RichMember richMember = richMemberIter.next();
-			
+
 			//if voadmin or voobserver or groupadmin has right to this member, its ok
 			if(AuthzResolver.isAuthorized(sess, Role.VOADMIN, richMember) ||
 				AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, richMember) ||
@@ -1004,7 +999,7 @@ public class MembersManagerEntry implements MembersManager {
 
 		return getMembersManagerBl().getNewExtendMembership(sess, member);
 	}
-	
+
 	public Date getNewExtendMembership(PerunSession sess, Vo vo, String loa) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtendMembershipException {
     Utils.checkPerunSession(sess);
     getPerunBl().getVosManagerBl().checkVoExists(sess, vo);

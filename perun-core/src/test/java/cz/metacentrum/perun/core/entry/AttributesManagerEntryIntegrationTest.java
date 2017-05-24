@@ -5,11 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -53,7 +49,6 @@ import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import java.util.Set;
 
 /**
  * Integration tests of AttributesManager
@@ -2660,6 +2655,42 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		attributesManager.getAttribute(sess, resource, "urn:perun:vo:attribute-def:core:id");
 		// shouldn't find vo attribute on resource
 
+	}
+
+	@Test
+	public void getSelectedMemberResourceAssociatedAttributes() throws Exception {
+		System.out.println(CLASS_NAME + "getSelectedMemberResourceAssociatedAttributes");
+
+		vo = setUpVo();
+		member = setUpMember();
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+		facility = setUpFacility();
+		resource = setUpResource();
+
+		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+		Attribute userAttribute2 = setUpAttribute(String.class.getName(), "testUserAttribute2", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+		attributesManager.setAttributes(sess, user, new ArrayList<>(Arrays.asList(userAttribute1, userAttribute2)));
+		Attribute memberAttribute1 = setUpAttribute(Integer.class.getName(), "testMemberAttribute1", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
+		Attribute memberAttribute2 = setUpAttribute(Integer.class.getName(), "testMemberAttribute2", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
+		attributesManager.setAttributes(sess, member, new ArrayList<>(Arrays.asList(memberAttribute1, memberAttribute2)));
+		Attribute userFacilityAttribute1 = setUpAttribute(ArrayList.class.getName(), "testUserFacilityAttribute1", AttributesManager.NS_USER_FACILITY_ATTR_DEF, new ArrayList<>(Arrays.asList("A", "B")));
+		Attribute userFacilityAttribute2 = setUpAttribute(ArrayList.class.getName(), "testUserFacilityAttribute2", AttributesManager.NS_USER_FACILITY_ATTR_DEF, new ArrayList<>(Arrays.asList("A", "B")));
+		attributesManager.setAttributes(sess, facility, user, new ArrayList<>(Arrays.asList(userFacilityAttribute1, userFacilityAttribute2)));
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("A", "B");
+		map.put("C", "D");
+		Attribute memberResourceAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberResourceAttribute1", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, map);
+		Attribute memberResourceAttribute2 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberResourceAttribute2", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, map);
+		attributesManager.setAttributes(sess, resource, member, new ArrayList<>(Arrays.asList(memberResourceAttribute1, memberResourceAttribute2)));
+
+		List<String> attrNames = new ArrayList<>(Arrays.asList(userAttribute1.getName(), memberAttribute1.getName(), userFacilityAttribute1.getName(), memberResourceAttribute1.getName()));
+		List<Attribute> returnedAttributes = attributesManager.getAttributes(sess, resource, member, attrNames, true);
+
+		assertTrue(returnedAttributes.size() == 4);
+		assertTrue(returnedAttributes.contains(userAttribute1));
+		assertTrue(returnedAttributes.contains(memberAttribute1));
+		assertTrue(returnedAttributes.contains(userFacilityAttribute1));
+		assertTrue(returnedAttributes.contains(memberResourceAttribute1));
 	}
 
 	@Test
@@ -8956,6 +8987,17 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		return attributes;
 
+	}
+
+	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {
+		Attribute attr = new Attribute();
+		attr.setNamespace(namespace);
+		attr.setFriendlyName(friendlyName);
+		attr.setType(type);
+		attr.setValue(value);
+		attr.setDescription("TEST DESCRIPTION");
+		assertNotNull("unable to create " + attr.getName() + " attribute",attributesManager.createAttribute(sess, attr));
+		return attr;
 	}
 
 	private List<Attribute> setUpMemberResourceAttribute() throws Exception {
