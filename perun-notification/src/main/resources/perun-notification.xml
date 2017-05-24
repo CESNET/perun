@@ -7,12 +7,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 
 	<context:annotation-config />
 
-	<import resource="classpath:perun-core.xml"/>
-	<import resource="classpath:perun-core-jdbc.xml"/>
-	<import resource="classpath:perun-core-transaction-manager.xml"/>
-
-	<!-- Enable @Transactional support -->
-	<!-- 	<tx:annotation-driven transaction-manager="transactionManagerPerunController" /> -->
+	<!-- needs perun-core.xml loaded before this file -->
 
 	<!-- Scans for @Repository, @Service and @Component -->
 	<context:component-scan base-package="cz.metacentrum.perun.notif.managers" />

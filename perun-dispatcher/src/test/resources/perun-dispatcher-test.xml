@@ -6,6 +6,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 ">
 
 	<!-- Import standard app config -->
+	<import resource="classpath:perun-core.xml"/>
 	<import resource="classpath:perun-dispatcher.xml"/>
 
 	<!-- Define empty scheduler in order for test context to start

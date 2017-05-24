@@ -49,7 +49,7 @@ import org.junit.Test;
  **/
 /*
 	 @RunWith(SpringJUnit4ClassRunner.class)
-	 @ContextConfiguration(locations = { "classpath:perun-tasks-lib.xml", "classpath:perun-core-jdbc.xml", "classpath:perun-core.xml", "classpath:perun-core-transaction-manager.xml" })
+	 @ContextConfiguration(locations = { "classpath:perun-tasks-lib.xml", "classpath:perun-core.xml" })
 	 @TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
 	 @Transactional
 	 */

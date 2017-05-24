@@ -3,14 +3,17 @@
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 ">
 
 	<import resource="classpath:perun-base.xml"/>
-	<import resource="classpath:perun-core-transaction-manager.xml"/>
 
 	<aop:config>
 		<aop:advisor advice-ref="txAdviceReadOnly" pointcut="execution(* cz.metacentrum.perun.core.entry.ServicesManagerEntry.getHierarchicalData(..))"/>
@@ -406,8 +409,52 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 		<constructor-arg ref="dataSource" />
 	</bean>
 
+	<!-- merged from perun-core-transaction-manager.xml -->
+	<bean id="perunTransactionManager" class="cz.metacentrum.perun.core.impl.PerunTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="auditer" ref="auditer"/>
+		<property name="nestedTransactionAllowed" value="true"/>
+	</bean>
+
+	<bean id="springTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="nestedTransactionAllowed" value="true"/>
+	</bean>
+
 	<beans profile="trace">
 		<import resource="classpath:perun-core-trace-log.xml"/>
+	</beans>
+
+	<!-- merged from perun-core-jdbc.xml -->
+
+	<beans profile="devel,production">
+		<context:property-placeholder ignore-resource-not-found="true" ignore-unresolvable="true" location="@perun.jdbc@, file:${perun.conf.custom}/jdbc.properties"/>
+
+		<!-- DataSource implementation -->
+		<bean id="dataSource" class="cz.metacentrum.perun.core.impl.PerunBasicDataSource" destroy-method="close">
+			<property name="driverClassName" value="${jdbc.driver}"/>
+			<property name="url" value="${jdbc.url}"/>
+			<property name="username" value="${jdbc.username}"/>
+			<property name="password" value="${jdbc.password}"/>
+			<property name="maxActive" value="150" />
+			<property name="maxIdle" value="30" />
+			<property name="maxWait" value="30000" />
+			<!-- Oracle  <property name="validationQuery" value="select 1 from dual" /> -->
+			<!-- Postgres  <property name="validationQuery" value="select 1" /> -->
+			<property name="removeAbandoned" value="true" />
+			<property name="logAbandoned" value="true" />
+			<property name="removeAbandonedTimeout" value="300" />
+			<property name="testOnBorrow" value="true" />
+			<property name="auditer" ref="auditer"/>
+		</bean>
+	</beans>
+
+	<beans profile="default">
+		<!--DataSource implementation-->
+		<jdbc:embedded-database id="dataSource" type="HSQL">
+			<jdbc:script location="classpath:schema.sql"/>
+			<jdbc:script location="classpath:test-data.sql"/>
+		</jdbc:embedded-database>
 	</beans>
 
 </beans>

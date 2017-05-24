@@ -5,7 +5,7 @@
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 ">
 
-	<import resource="classpath:perun-dispatcher.xml"/>
+	<!-- needs perun-dispatcher.xml loaded before this file -->
 
 	<!-- When imported - actually start quartz scheduler for specified jobs -->
 	<!-- Jobs definition is in perun-dispatcher.xml -->
