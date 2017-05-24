@@ -7,6 +7,7 @@ import cz.metacentrum.perun.taskslib.model.ExecService;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -18,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:perun-dispatcher-test.xml", "classpath:perun-tasks-lib.xml"})
-@TransactionConfiguration(transactionManager = "springTransactionManager", defaultRollback = true)
-@Transactional
+@ContextConfiguration(locations = {"classpath:perun-core.xml","classpath:perun-tasks-lib.xml", "classpath:perun-dispatcher-test.xml" })
+@Rollback
+@Transactional(transactionManager = "springTransactionManager")
 public abstract class AbstractDispatcherTest {
 
 	@Autowired
@@ -44,8 +45,8 @@ public abstract class AbstractDispatcherTest {
 	public void setUpSess() throws Exception {
 
 		if (sess == null) {
-
-			PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+			User user = perun.getUsersManagerBl().getUserById(null, 1);
+			PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL,user);
 			sess = perun.getPerunSession(pp, new PerunClient());
 
 			// create VO for tests

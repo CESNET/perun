@@ -76,27 +76,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- DB -->
-
-		<!--
-			<dependency>
-				<groupId>org.apache.tomcat</groupId>
-				<artifactId>tomcat-dbcp</artifactId>
-			</dependency>
-
-			<dependency>
-				<groupId>com.oracle</groupId>
-				<artifactId>ojdbc5</artifactId>
-			</dependency>
-		-->
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-		</dependency>
-
-		<!-- SPRING -->
-
 		<!-- TEST -->
 
 		<dependency>
@@ -111,49 +90,22 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
-		</dependency>
-
-		<!-- OTHERS -->
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-		</dependency>
-
 	</dependencies>
 
 	<!-- PROFILES -->
 
 	<profiles>
-
 		<profile>
-
 			<id>devel</id>
-
 			<activation>
 				<property>
 					<name>devel</name>
 				</property>
 			</activation>
-
 			<properties>
 				<perun.build.type>devel</perun.build.type>
 				<spring.profiles.default>devel</spring.profiles.default>
 			</properties>
-
 			<build>
 				<plugins>
 					<plugin>
@@ -168,26 +120,18 @@
 					</plugin>
 				</plugins>
 			</build>
-
 		</profile>
-
 		<profile>
-
 			<id>production</id>
-
 			<activation>
 				<property>
 					<name>production</name>
 				</property>
 			</activation>
-
 			<properties>
 				<perun.build.type>production</perun.build.type>
 				<maven.test.skip>true</maven.test.skip>
 			</properties>
-
 		</profile>
-
 	</profiles>
-
 </project>

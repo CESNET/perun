@@ -68,7 +68,8 @@ public abstract class AbstractPerunIntegrationTest {
 
 	@Before
 	public void setUpSess() throws Exception {
-		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
+		User user = perun.getUsersManagerBl().getUserById(null, 1);
+		final PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL,user);
 		sess = perun.getPerunSession(pp, new PerunClient());
 	}
 

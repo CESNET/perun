@@ -127,6 +127,8 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
 				<prop key="dispatcher.cron.processpool">0 0/1 * * * ?</prop>
 				<prop key="dispatcher.cron.cleantaskresults">0 0 1 * * ?</prop>
 				<prop key="dispatcher.cron.maintenance">0 0 0/2 * * ?</prop>
+				<prop key="dispatcher.ip.address">127.0.0.1</prop>
+				<prop key="dispatcher.port">6071</prop>
 				<prop key="dispatcher.datadir">/tmp/perun-dispatcher-data</prop>
 			</props>
 		</property>

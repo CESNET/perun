@@ -64,40 +64,11 @@
 		<!-- PERUN -->
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
-
-		<!-- DB -->
-       	<dependency>
-	  		<groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-dbcp</artifactId>
-        </dependency>
- 
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc7</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-        </dependency>
-
-		<!-- SPRING -->
-
+		<!-- TEST -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
@@ -105,45 +76,25 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-tx</artifactId>
-		</dependency>
-
-		<!-- TESTS -->
-
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
-
-		<!-- logging -->
-		<!-- see http://docs.spring.io/platform/docs/current/reference/htmlsingle/#getting-started-logging -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-logging</artifactId>
-		</dependency>
-
-		<!-- OTHERS -->
-
+		
 	</dependencies>
 
 	<profiles>
-
 		<profile>
-
 			<id>devel</id>
-
 			<activation>
 				<property>
 					<name>devel</name>
 				</property>
 			</activation>
-
 			<properties>
 				<perun.build.type>devel</perun.build.type>
 				<spring.profiles.default>devel</spring.profiles.default>
 			</properties>
-
 			<build>
 				<plugins>
 					<plugin>
@@ -158,26 +109,20 @@
 					</plugin>
 				</plugins>
 			</build>
-
 		</profile>
 
 		<profile>
-
 			<id>production</id>
-
 			<activation>
 				<property>
 					<name>production</name>
 				</property>
 			</activation>
-
 			<properties>
 				<perun.build.type>production</perun.build.type>
 				<maven.test.skip>true</maven.test.skip>
 			</properties>
-
 		</profile>
-
 	</profiles>
 
 </project>

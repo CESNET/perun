@@ -1,0 +1,22 @@
+<!-- https://logback.qos.ch/manual/configuration.html#syntax -->
+<!-- http://logback.qos.ch/manual/layouts.html#conversionWord -->
+<configuration packagingData="true" debug="false">
+
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d [%thread] %-5level %logger %file:%line - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="error">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+	<logger name="org.springframework" level="warn"/>
+	<logger name="cz.metacentrum.perun.core.impl.Auditer" level="off"/>
+	<logger name="cz.metacentrum.perun.core.api.exceptions" level="off"/>
+	<logger name="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" level="off"/>
+	<logger name="cz.metacentrum.perun.cabinet.bl.impl.PublicationSystemManagerBlImpl" level="off"/>
+
+</configuration>

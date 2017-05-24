@@ -1,29 +1,74 @@
-<!-- https://logback.qos.ch/manual/configuration.html#syntax -->
-<!-- http://logback.qos.ch/manual/layouts.html#conversionWord -->
-<configuration packagingData="true">
+<!--
+	This is the default config for the Logback logging framework in Perun.
+	It is inherited by transitive dependencies into all Perun modules.
+	
+    You can load another file by e.g.
+     -Dlogback.configurationFile=file:///etc/perun/logback.xml
+    and change the directory for log files by e.g.
+      -Dperun.log=/var/log/perun
+
+    For documentation see https://logback.qos.ch/manual/configuration.html#syntax
+    @author Martin Kuba makub@ics.muni.cz
+    -->
+<configuration packagingData="false" debug="false" scan="true" scanPeriod="30 seconds">
+	<!--
+		packagingData="true" ... in stacktrace shows jar files and their versions
+		debug="true" ... prints which logback.xml file is used during startup
+		scan="true" ... changes to this file are dynamically loaded without restaring the app
+		scanPeriod="30 seconds" ... how often are changes scanned
+	-->
+
 	<contextName>perun-base</contextName>
+
+	<!-- variable defining the directory where log files will be put, takes system property perun.log -->
 	<variable name="LOGDIR" value="${perun.log:-/var/log/perun/}"/>
-	<variable name="ENCODER_PATTERN" value="%d [%thread] %-5level %logger{35} - %msg%n"/>
+
+	<!-- production setting for format of log lines -->
+    <variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
+	<!-- debug setting - warning - it is slow to generate %file:%line and %caller
+	<variable name="ENCODER_PATTERN" value="%d [%t] %-5level %file:%line %method\\(\\) %X{req.remoteHost} %X{req.requestURL} - %msg%n"/>
+	-->
+
+	<!-- variable defining the max number of rotated files -->
 	<variable name="MAXHISTORY" value="2"/>
 
 
 
+	<!-- logging to console -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- logging to file perun.log rotated daily -->
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="main">
 		<file>${LOGDIR}perun.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${LOGDIR}perun.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
 	</appender>
+
+	<!-- the main logger and its level -->
 	<root level="warn">
-		<appender-ref ref="main"/>
+		<!--<appender-ref ref="main"/>-->
+		<appender-ref ref="STDOUT"/>
 	</root>
+	<!-- keep Spring quiet -->
 	<logger name="org.springframework" level="warn"/>
 	<logger name="org.springframework.web.context.ContextLoader" level="warn"/>
+	<logger name="cz.metacentrum.perun.rpc.Main" level="info"/>
 
+	<!--
+		logging to separate files - set by the atribute additivity="false" and
+		the element	appender-ref on loggers
+	-->
 
+	<!--
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="notification">
 		<file>${LOGDIR}perun-notif.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -268,6 +313,6 @@
 		<appender-ref ref="perun-tasklib"/>
 	</logger>
 
-
+   -->
 
 </configuration>

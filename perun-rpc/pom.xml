@@ -57,6 +57,7 @@
 
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
+				<version>${maven-war-plugin.version}</version>
 				<configuration>
 					<warName>perun-rpc</warName>
 					<webResources>
@@ -204,30 +205,6 @@
 		<!-- PERUN -->
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-controller</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-tasks-lib</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-cabinet</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -260,13 +237,6 @@
 			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-dispatcher</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-
-		<!-- SPRING -->
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
 		</dependency>
 
 		<!-- OTHERS -->
