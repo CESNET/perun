@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
 @TransactionConfiguration(transactionManager = "springTransactionManager", defaultRollback = true)
-@ContextConfiguration(locations = {"classpath:perun-notification.xml", "classpath:perun-notification-scheduler.xml"})
+@ContextConfiguration(locations = {"classpath:perun-core.xml","classpath:perun-notification.xml", "classpath:perun-notification-scheduler.xml"})
 public class AbstractTest {
 
 	@Autowired

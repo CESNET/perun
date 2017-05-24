@@ -9,10 +9,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 ">
 
-	<!-- import PERUN datasources -->
-	<import resource="classpath:perun-core.xml" />
-	<import resource="classpath:perun-core-jdbc.xml" />
-	<import resource="classpath:perun-core-transaction-manager.xml" />
+	<!-- needs perun-core.xml loaded before this file -->
 
 	<!-- Enable @Transactional support -->
 	<tx:annotation-driven transaction-manager="perunTransactionManager"/>

@@ -1,64 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
 
-    <servlet>
-        <servlet-name>api</servlet-name>
-        <servlet-class>cz.metacentrum.perun.rpc.Api</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>api</servlet-name>
+		<servlet-class>cz.metacentrum.perun.rpc.Api</servlet-class>
+	</servlet>
 
-    <!-- Enable LOG4J - we don't have to config log4j for whole JVM -->
+	<!-- Enable LOG4J - we don't have to config log4j for whole JVM -->
 
-    <context-param>
-        <param-name>isLog4jAutoInitializationDisabled</param-name>
-        <param-value>true</param-value>
-    </context-param>
+	<context-param>
+		<param-name>isLog4jAutoInitializationDisabled</param-name>
+		<param-value>true</param-value>
+	</context-param>
 
-    <context-param>
-        <param-name>log4jConfigLocation</param-name>
-        <param-value>file://${perun.conf}log4j.xml</param-value>
-    </context-param>
+	<context-param>
+		<param-name>spring.profiles.default</param-name>
+		<param-value>@spring.profiles.default@</param-value>
+	</context-param>
 
-    <context-param>
-        <param-name>spring.profiles.default</param-name>
-        <param-value>${spring.profiles.default}</param-value>
-    </context-param>
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>file://${perun.conf}log4j.xml</param-value>
+	</context-param>
 
-    <!-- !! MUST BE FIRST LISTENER IN THIS CONFIG FILE !! -->
-    <listener>
-        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-    </listener>
+	<!-- !! MUST BE FIRST LISTENER IN THIS CONFIG FILE !! -->
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
 
-    <!-- Spring -->
-    <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
+	<!-- Spring -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>
-            classpath:perun-controller.xml
-            classpath:perun-core.xml
-            classpath:perun-core-jdbc.xml
-            classpath:perun-core-synchronizers.xml
-            classpath:perun-cabinet.xml
-            classpath:perun-registrar-lib.xml
-            classpath:perun-notification.xml
-            classpath:perun-notification-scheduler.xml
-            classpath:perun-dispatcher.xml
-            classpath:perun-dispatcher-scheduler.xml
-        </param-value>
-    </context-param>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:perun-rpc.xml</param-value>
+	</context-param>
 
-    <listener>
-        <description>ServletContextListener</description>
-        <listener-class>cz.metacentrum.perun.rpc.Main</listener-class>
-    </listener>
+	<listener>
+		<description>ServletContextListener</description>
+		<listener-class>cz.metacentrum.perun.rpc.Main</listener-class>
+	</listener>
 
-    <servlet-mapping>
-        <servlet-name>api</servlet-name>
-        <url-pattern>/*</url-pattern>
-    </servlet-mapping>
-
+	<servlet-mapping>
+		<servlet-name>api</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
 
 </web-app>

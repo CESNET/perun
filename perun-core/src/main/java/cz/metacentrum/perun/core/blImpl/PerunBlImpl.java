@@ -423,7 +423,7 @@ public class PerunBlImpl implements PerunBl {
 	 * Creates a Perun instance.
 	 * <p/>
 	 * Uses {@link org.springframework.context.support.ClassPathXmlApplicationContext#ClassPathXmlApplicationContext(String...)}
-	 * to load files perun-core.xml and  perun-core-jdbc.xml from CLASSPATH.
+	 * to load file perun-core.xml from CLASSPATH.
 	 * <p/>
 	 * <h3>Web applications</h3>
 	 * <p>In web applications, use {@link org.springframework.web.context.WebApplicationContext} to either load
@@ -437,7 +437,6 @@ public class PerunBlImpl implements PerunBl {
 	 * &lt;/listener&gt;
 	 * &lt;context-param&gt;
 	 *   &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-	 *   &lt;param-value&gt;classpath:perun-core.xml,classpath:perun-core-jdbc.xml&lt;/param-value&gt;
 	 * &lt;/context-param&gt;
 	 * </pre>
 	 * and in servlets use this code:

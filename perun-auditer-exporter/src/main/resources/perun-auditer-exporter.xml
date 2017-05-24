@@ -9,7 +9,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <import resource="classpath:perun-core.xml" />
-    <import resource="classpath:perun-core-jdbc.xml" />
 
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>

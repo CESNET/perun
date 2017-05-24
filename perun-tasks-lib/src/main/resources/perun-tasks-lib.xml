@@ -8,6 +8,9 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 ">
+
+    <!-- needs perun-core.xml loaded before this file -->
+
     <!-- Enable @AspectJ support -->
     <aop:aspectj-autoproxy/>
 

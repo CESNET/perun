@@ -45,7 +45,7 @@ public class DispatcherStarter {
 	 */
 	public static void main(String[] arg) {
 		DispatcherStarter starter = new DispatcherStarter();
-		starter.springCtx = new ClassPathXmlApplicationContext("/perun-dispatcher.xml", "/perun-dispatcher-scheduler.xml");
+		starter.springCtx = new ClassPathXmlApplicationContext("perun-core.xml", "perun-dispatcher.xml", "perun-dispatcher-scheduler.xml");
 		// no need to call init explicitly, gets called by spring when initializing this bean
 	}
 

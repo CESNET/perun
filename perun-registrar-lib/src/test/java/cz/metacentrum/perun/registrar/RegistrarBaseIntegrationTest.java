@@ -44,7 +44,7 @@ import static org.junit.Assert.*;
 @Transactional
 @TransactionConfiguration(defaultRollback=true, transactionManager = "perunTransactionManager")
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-registrar-lib.xml" } )
+@ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-registrar-lib.xml" } )
 public class RegistrarBaseIntegrationTest {
 
 

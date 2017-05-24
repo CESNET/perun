@@ -30,7 +30,7 @@ public class PerunInitializer {
 
 	public PerunInitializer(String outputFileName) throws InternalErrorException, FileNotFoundException {
 		this.perunPrincipal = new PerunPrincipal("perunLdapInitializer", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
-		this.springCtx = new ClassPathXmlApplicationContext("perun-core.xml", "perun-core-jdbc.xml", "perun-core-transaction-manager.xml");
+		this.springCtx = new ClassPathXmlApplicationContext("perun-core.xml");
 		this.perunBl = springCtx.getBean("perun", PerunBl.class);
 		this.perunSession = perunBl.getPerunSession(perunPrincipal, new PerunClient());
 		this.outputWriter = new BufferedWriter(Utils.getWriterForOutput(outputFileName));

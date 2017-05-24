@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-core-jdbc.xml", "classpath:perun-core-transaction-manager.xml", "classpath:perun-tasks-lib.xml" })
+@ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-tasks-lib.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
 @Transactional
 public class TaskResultDaoTest {

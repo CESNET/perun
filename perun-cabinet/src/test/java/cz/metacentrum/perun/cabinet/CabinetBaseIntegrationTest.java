@@ -27,7 +27,7 @@ import cz.metacentrum.perun.core.bl.PerunBl;
  * @author Pavel Zlámal <zlamal@cesnet.cz>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:perun-cabinet.xml" })
+@ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-cabinet.xml" })
 @Transactional
 @TransactionConfiguration(defaultRollback=true, transactionManager = "springTransactionManager")
 public abstract class CabinetBaseIntegrationTest {
