@@ -107,8 +107,8 @@ public interface FacilitiesManager {
 	List<Facility> getFacilitiesByDestination(PerunSession perunSession, String destination) throws InternalErrorException, FacilityNotExistsException, PrivilegeException;
 
 	/**
-	 * Returns all facilities who have set the attribute with the value. Searching by attributeName. Searching only def and opt attributes.
-	 * Can find only attributes with String Value by this way! (not Integer, Map or List)
+	 * Returns all facilities that have set the attribute 'attributeName' with the value 'attributeValue'.
+	 * Searching only def and opt attributes. Large attributes are not supported.
 	 *
 	 * @param sess
 	 * @param attributeName name of the attribute

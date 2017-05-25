@@ -3,6 +3,9 @@ package cz.metacentrum.perun.core.entry;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.Attribute;
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.DestinationNotExistsException;
 import org.slf4j.Logger;
@@ -169,13 +172,25 @@ public class FacilitiesManagerEntry implements FacilitiesManager {
 		Utils.checkPerunSession(sess);
 
 		// Authorization
-		if(!AuthzResolver.isAuthorized(sess, Role.SERVICEUSER)) {
+		if(!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN)) {
 			throw new PrivilegeException(sess, "getFacilitiesByAttribute");
 		}
 
-		getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+		// Get attribute definition and throw exception if the attribute does not exists
+		AttributeDefinition attributeDef = getPerunBl().getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
 
-		return getFacilitiesManagerBl().getFacilitiesByAttribute(sess, attributeName, attributeValue);
+		List<Facility> facilities = getFacilitiesManagerBl().getFacilitiesByAttribute(sess, attributeName, attributeValue);
+
+		// Filter attributes, which user can read
+		Iterator<Facility> it = facilities.iterator();
+		while (it.hasNext()) {
+			Facility facility = it.next();
+			if (!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attributeDef, facility, null)) {
+				it.remove();
+			}
+		}
+
+		return facilities;
 	}
 
 	public int getFacilitiesCount(PerunSession sess) throws InternalErrorException, PrivilegeException {
