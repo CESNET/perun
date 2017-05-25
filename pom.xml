@@ -73,7 +73,6 @@
 		<dumbster.version>1.6</dumbster.version>
 		<expiringmap.version>0.4.3</expiringmap.version>
 		<google-api-services-admin-directory.version>directory_v1-rev78-1.22.0</google-api-services-admin-directory.version>
-		<google-client.version>1.22.0</google-client.version>
 		<hornetq.version>2.2.21.Final</hornetq.version>
 		<jboss-jms-api.version>1.1.0.GA</jboss-jms-api.version>
 		<jcip.version>1.0</jcip.version>
@@ -370,18 +369,6 @@
 				<groupId>com.google.apis</groupId>
 				<artifactId>google-api-services-admin-directory</artifactId>
 				<version>${google-api-services-admin-directory.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.google.http-client</groupId>
-				<artifactId>google-http-client-jackson2</artifactId>
-				<version>${google-client.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.google.api-client</groupId>
-				<artifactId>google-api-client</artifactId>
-				<version>${google-client.version}</version>
 			</dependency>
 
 			<dependency>
