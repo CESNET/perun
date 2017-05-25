@@ -25,7 +25,7 @@ public class urn_perun_user_attribute_def_virt_preferredPhone extends UserVirtua
 
 		try {
 
-			Attribute sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:phone");
+			Attribute sourceAttribute = sess.getPerunBl().getAttributesManagerBl().getAttribute(sess, user, "urn:perun:user:attribute-def:def:phoneDc2");
 			if (sourceAttribute.getValue() != null) {
 				attribute.setValue(sourceAttribute.getValue());
 				return attribute;
