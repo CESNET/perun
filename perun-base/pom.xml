@@ -98,7 +98,7 @@
 			<artifactId>spring-context-support</artifactId>
 		</dependency>
 
-		<!-- logging -->
+		<!-- LOGGING -->
 		<!-- see http://docs.spring.io/platform/docs/current/reference/htmlsingle/#getting-started-logging -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -10,7 +10,7 @@
     For documentation see https://logback.qos.ch/manual/configuration.html#syntax
     @author Martin Kuba makub@ics.muni.cz
     -->
-<configuration packagingData="false" debug="false" scan="true" scanPeriod="30 seconds">
+<configuration packagingData="false" debug="false" scan="false" scanPeriod="30 seconds">
 	<!--
 		packagingData="true" ... in stacktrace shows jar files and their versions
 		debug="true" ... prints which logback.xml file is used during startup
