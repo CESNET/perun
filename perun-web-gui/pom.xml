@@ -167,15 +167,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- imports logback-test.xml for test from perun-base -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-		
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
