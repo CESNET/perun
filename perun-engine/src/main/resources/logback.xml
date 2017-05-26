@@ -1,0 +1,29 @@
+<configuration packagingData="false" debug="false" scan="false" scanPeriod="30 seconds">
+
+	<contextName>perun-engine</contextName>
+
+	<!-- variable defining the directory where log files will be put, takes system property perun.log -->
+	<variable name="LOGDIR" value="${perun.log:-/var/log/perun/}"/>
+
+	<!-- production setting for format of log lines -->
+	<variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
+
+	<!-- variable defining the max number of rotated files -->
+	<variable name="MAXHISTORY" value="30"/>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-engine">
+		<file>${LOGDIR}perun-ldapc.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-engine.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<root level="info">
+		<appender-ref ref="perun-engine" />
+	</root>
+
+</configuration>
