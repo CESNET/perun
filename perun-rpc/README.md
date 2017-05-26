@@ -1,10 +1,10 @@
 # Perun RPC (server) #
 
-This module wraps others into a single web application and represents single Perun instance. Application contains server side RPC API which you can use to manage your Perun instance. For this purpose, Perl CLI tools are also provided in module sources. See on bottom how to make it work. GUI is provided by *perun-web-gui* module, which is not packaged inside *perun-rpc* and must be built and deployed separately into some web server (Apache).
+This module wraps others into a single web application and represents single Perun instance. Application contains server side RPC API which you can use to manage your Perun instance. For this purpose, Perl CLI tools are also provided in *perun-cli*. See on bottom how to make it work. GUI is provided by *perun-web-gui* module, which is not packaged inside *perun-rpc* and must be built and deployed separately into some web server (Apache).
 
 Application is expected to run inside Tomcat 7 container and receive all requests on AJP port (8009). Perun rely on Apache web server for passing requests, authentication of users and setting up environment variables. User credentials are passed to Perun to perform authorization. If approved, required action is performed and response returned to user through Apache web server.
 
-You can find full documentation of Perun RPC API [on our web](http://perun.metacentrum.cz/web/rpc-javadoc-howto.shtml).
+You can find full documentation of Perun RPC API [on our web](https://perun.cesnet.cz/web/rpc-javadoc-howto.shtml).
 
 ### Build and local run ###
 
@@ -16,6 +16,8 @@ You can find full documentation of Perun RPC API [on our web](http://perun.metac
 > * Pass requests and authentication data from Apache to Tomcat (AJP port) so Perun can locate user based on that.
 >
 > For now NON of these steps are covered on public wiki/web.
+>
+> **You can use [Perun ansible](https://github.com/CESNET/perun-ansible) scripts to install instance of Perun with default configuration and initial user with basic auth.**
 
 To build production version of Perun RPC from sources use Maven command in a project root folder:
 
@@ -32,12 +34,16 @@ Also you must redirect all requests to the right URL (provided by tomcat), since
 You can also run Perun locally (e.g. for some tests). Just run Maven with tomcat plugin in ``perun-rpc/`` folder:
 
 ```
+# in memory version
 mvn tomcat7:run-war
+
+# against real DB with config in /etc/perun/
+mvn tomcat7:run-war -Dspring.profiles.active=devel
 ```
 
 ### CLI tools ###
 
-Perun can be managed using CLI tools (Perl scripts). You can find them in ``/src/main/perl`` folder.
+Perun can be managed using CLI tools (Perl scripts). You can find them in *perun-cli* module.
 
 In order to use them, you must install following Perl packages (example for Debian):
 
