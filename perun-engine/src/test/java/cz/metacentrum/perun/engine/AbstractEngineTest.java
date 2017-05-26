@@ -64,9 +64,8 @@ public abstract class AbstractEngineTest {
 		engineId = Integer.parseInt(propertiesBean.getProperty("engine.unique.id"));
 
 		// create session
-		User user = perun.getUsersManagerBl().getUserById(null, 1);
 		sess = perun.getPerunSession(
-				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL,user),
+				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 				new PerunClient());
 
 		// create expected core objects

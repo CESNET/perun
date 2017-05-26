@@ -91,7 +91,7 @@ public class urn_perun_member_resource_attribute_def_virt_isBanned extends Resou
 				if(operationType.equals(OPERATION_UPDATED)) {
 					operationType = OPERATION_SET;
 				} else if (!operationType.equals(OPERATION_SET) && !operationType.equals(OPERATION_REMOVED)) {
-					throw new InternalErrorException("Type of operation '" + operationType + "' is unkown by module.");
+					throw new InternalErrorException("Type of operation '" + operationType + "' is unknown by module.");
 				}
 
 				if(banType.equals(BanOnResource.class.getSimpleName())) {

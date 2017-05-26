@@ -45,8 +45,7 @@ public abstract class AbstractDispatcherTest {
 	public void setUpSess() throws Exception {
 
 		if (sess == null) {
-			User user = perun.getUsersManagerBl().getUserById(null, 1);
-			PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL,user);
+			PerunPrincipal pp = new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 			sess = perun.getPerunSession(pp, new PerunClient());
 
 			// create VO for tests

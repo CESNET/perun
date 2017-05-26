@@ -879,7 +879,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		// test
 		List<User> admins = facilitiesManagerEntry.getAdmins(sess, facility);
 		//assertTrue("group shoud have 2 admins",admins.size() == 2);
-		assertThat("facility should have 3 admins",admins.size(),is(3));
+		assertThat("facility should have 2 admins",admins.size(),is(2));
 		assertTrue("our member as direct user should be admin",admins.contains(user));
 		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
 	}
@@ -902,8 +902,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		final Member member = setUpMember(vo);
 		User u = perun.getUsersManagerBl().getUserByMember(sess, member);
 
-//		assertTrue(facilitiesManagerEntry.getAdmins(sess, facility).isEmpty());
-		assertThat("facility should have exactly 1 admin",facilitiesManagerEntry.getAdmins(sess, facility).size(),is(1));
+		assertTrue(facilitiesManagerEntry.getAdmins(sess, facility).isEmpty());
 	}
 
 	@Test

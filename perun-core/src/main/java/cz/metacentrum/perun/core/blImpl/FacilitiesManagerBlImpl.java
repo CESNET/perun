@@ -253,7 +253,7 @@ public class FacilitiesManagerBlImpl implements FacilitiesManagerBl {
 				throw new ConsistencyErrorException("Add manager to newly created Facility failed because there is particular manager already assigned", ex);
 			}
 		} else {
-			log.error("Can't set Facility manager during creating of the Facility. User from perunSession is null. {} {}", facility, sess);
+			log.warn("Can't set Facility manager during creating of the Facility. User from perunSession is null. {} {}", facility, sess);
 		}
 
 		return facility;

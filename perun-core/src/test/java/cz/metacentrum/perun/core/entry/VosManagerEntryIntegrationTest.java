@@ -295,7 +295,7 @@ public class VosManagerEntryIntegrationTest extends AbstractPerunIntegrationTest
 
 		// test
 		List<User> admins = vosManagerEntry.getAdmins(sess, createdVo);
-		assertTrue("should have 3 admins",admins.size() == 3);
+		assertTrue("should have 2 admins",admins.size() == 2);
 		assertTrue("our member as direct user should be admin",admins.contains(user));
 		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
 	}

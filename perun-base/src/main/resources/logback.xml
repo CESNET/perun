@@ -24,14 +24,13 @@
 	<variable name="LOGDIR" value="${perun.log:-/var/log/perun/}"/>
 
 	<!-- production setting for format of log lines -->
-    <variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
+	<variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
 	<!-- debug setting - warning - it is slow to generate %file:%line and %caller
 	<variable name="ENCODER_PATTERN" value="%d [%t] %-5level %file:%line %method\\(\\) %X{req.remoteHost} %X{req.requestURL} - %msg%n"/>
 	-->
 
 	<!-- variable defining the max number of rotated files -->
 	<variable name="MAXHISTORY" value="2"/>
-
 
 
 	<!-- logging to console -->
