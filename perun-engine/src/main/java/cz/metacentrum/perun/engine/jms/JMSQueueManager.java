@@ -178,8 +178,11 @@ public class JMSQueueManager {
 	}
 
 	public void reportFinishedDestination(Task task, Destination destination, TaskResult result) throws JMSException {
+		String engineUniqueId = propertiesBean.getProperty("engine.unique.id");
+		if(engineUniqueId==null) log.error("property engine.unique.id not set!");
+		if(session==null) log.error("session is null!");
 		TextMessage message = session.createTextMessage("taskresult:"
-				+ propertiesBean.getProperty("engine.unique.id") + ":"
+				+ engineUniqueId + ":"
 				+ (result == null ? "" : result.serializeToString()));
 		//message.setJMSPriority(2);
 		producer.send(message, DeliveryMode.PERSISTENT, 2, 0);

@@ -8,11 +8,6 @@
 		<servlet-class>cz.metacentrum.perun.rpc.Api</servlet-class>
 	</servlet>
 
-	<!--
-	-Dlogback.configurationFile=file://${perun.conf}logback.xml
-	or http://stackoverflow.com/questions/14288623/logback-externalization
-	-->
-
 	<context-param>
 		<param-name>spring.profiles.default</param-name>
 		<param-value>@spring.profiles.default@</param-value>

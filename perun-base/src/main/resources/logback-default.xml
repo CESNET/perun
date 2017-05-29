@@ -1,11 +1,13 @@
 <!--
 	This is the default config for the Logback logging framework in Perun.
-	It is inherited by transitive dependencies into all Perun modules.
+	It is inherited by transitive dependencies into all Perun modules,
+	and loaded by PerunLogbackConfigurator class if no logback.xml is found
+	(i.e. not provided by a module or specified by system property logback.configurationFile).
 	
     You can load another file by e.g.
      -Dlogback.configurationFile=file:///etc/perun/logback.xml
     and change the directory for log files by e.g.
-      -Dperun.log=/var/log/perun
+     -Dperun.log=/var/log/perun/
 
     For documentation see https://logback.qos.ch/manual/configuration.html#syntax
     @author Martin Kuba makub@ics.muni.cz
@@ -30,8 +32,7 @@
 	-->
 
 	<!-- variable defining the max number of rotated files -->
-	<variable name="MAXHISTORY" value="2"/>
-
+	<variable name="MAXHISTORY" value="7"/>
 
 	<!-- logging to console -->
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -40,12 +41,15 @@
 		</encoder>
 	</appender>
 
-	<!-- logging to file perun.log rotated daily -->
+	<!-- logging to file perun.log rotated daily or when it exceeds 10MB size -->
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="main">
 		<file>${LOGDIR}perun.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOGDIR}perun.log.%d</fileNamePattern>
+		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun.log.%d.%i</fileNamePattern>
+			<maxFileSize>10MB</maxFileSize>
 			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder>
 			<pattern>${ENCODER_PATTERN}</pattern>
