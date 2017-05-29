@@ -1,13 +1,13 @@
--- database version 3.1.41 (don't forget to update insert statement at the end of file)
+-- database version 3.1.43 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
 	id integer not null,
 	name varchar(128) not null,   -- full name of VO
 	short_name varchar(32) not null, -- commonly used name
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -22,9 +22,9 @@ create table "users" (
 	middle_name varchar(64),   -- second name
 	title_before varchar(40),  -- academic degree used before name
 	title_after varchar(40),   -- academic degree used after name
-	created_at timestamp  default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	service_acc char(1) default '0' not null, --is it service account?
@@ -38,9 +38,9 @@ create table "owners" (
 	id integer not null,
 	name varchar(128) not null, --name of owner
 	contact varchar(100),       --contact email or phone
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	type varchar(128) not null, --type of owner (for example IdP)
@@ -118,9 +118,9 @@ create table "facilities" (
 	id integer not null,
 	name varchar(128) not null, --unique name of facility
 	dsc varchar(1024),
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -133,9 +133,9 @@ create table "resources" (
 	facility_id integer not null, --facility identifier (facility.id)
 	name varchar(128) not null,   --name of resource
 	dsc varchar(1024),            --purpose and description
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	vo_id integer not null,   --identifier of VO (vos.id)
@@ -148,9 +148,9 @@ create table "destinations" (
 	id integer not null,
 	destination varchar(1024) not null, --value of destination (hostname,email,URL...)
 	type varchar(20) not null, --type (host,URL...)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -161,9 +161,9 @@ create table "destinations" (
 create table "facility_owners" (
 	facility_id integer not null, --identifier of facility (facilities.id)
 	owner_id integer not null,   --identifier of owner (owners.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -185,9 +185,9 @@ create table "groups" (
 	name text not null,         --group name
 	dsc varchar(1024),          --purpose and description
 	vo_id integer not null,     --identifier of VO (vos.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	parent_group_id integer,    --in case of subgroup identifier of parent group (groups.id)
@@ -200,9 +200,9 @@ create table "members" (
 	id integer not null,
 	user_id integer not null,  --user's identifier (users.id)
 	vo_id integer not null,    --identifier of VO (vos.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null, --status of membership
 	created_by_uid integer,
@@ -213,9 +213,9 @@ create table "members" (
 create table "routing_rules" (
 	id integer not null,
 	routing_rule varchar(512) not null, --string for matching
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -226,10 +226,10 @@ create table "routing_rules" (
 create table "dispatcher_settings" (
 	ip_address varchar(40) not null, --IP address
 	port integer not null,           -- port
-	last_check_in timestamp default (now()), --time of last activation
-	created_at timestamp default now() not null,
+	last_check_in timestamp default statement_timestamp(), --time of last activation
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -241,10 +241,10 @@ create table "engines" (
 	id integer not null, --identifier of daemon
 	ip_address varchar(40) not null, --IP address
 	port integer not null, --port
-	last_check_in timestamp default (now()), --time of last activation
-	created_at timestamp default now() not null,
+	last_check_in timestamp default statement_timestamp(), --time of last activation
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -255,9 +255,9 @@ create table "engines" (
 create table "engine_routing_rule" (
 	engine_id integer not null,   --engine identifier (engines.id)
 	routing_rule_id integer not null, --identifier of rule (routing_rules.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -268,9 +268,9 @@ create table "engine_routing_rule" (
 create table "processing_rules" (
 	id integer not null,
 	processing_rule varchar(1024) not null, --string for matching
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -308,9 +308,9 @@ create table "attr_names" (
 	namespace varchar(256) not null,  --access of attribute to the entity
 	type varchar(256) not null,       --type o0f attribute data (strig,number,array...)
 	dsc varchar(1024),                --purpose,description
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -349,9 +349,9 @@ create table "hosts" (
 	hostname varchar(128) not null,  --full name of machine
 	facility_id integer not null,    --identifier of facility containing the host (facilities.id)
 	dsc varchar(1024),  --description
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -363,9 +363,9 @@ create table "host_attr_values" (
 	host_id integer not null,  --identifier of host (hosts.id)
 	attr_id integer not null,  --identifier of attributes (attr_names.id)
 	attr_value varchar(4000),  --value of attribute
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,   --value of attribute if it is very long text
@@ -378,9 +378,9 @@ create table "auditer_consumers" (
 	id integer not null,
 	name varchar(256) not null,
 	last_processed_id integer,
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -390,9 +390,9 @@ create table "auditer_consumers" (
 create table "services" (
 	id integer not null,
 	name varchar(128) not null,    --name of service
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -403,9 +403,9 @@ create table "services" (
 create table "service_processing_rule" (
 	service_id integer not null,          --identifier of service (services.id)
 	processing_rule_id integer not null,  --identifier of processing rule (processing_rules.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -416,9 +416,9 @@ create table "service_processing_rule" (
 create table "service_required_attrs" (
 	service_id integer not null,   --identifier of service (services.id)
 	attr_id integer not null,      --identifier of attribute (attr_names.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -431,7 +431,7 @@ create table specific_user_users (
 	specific_user_id integer not null,  --identifier of specific user (users.id)
 	created_by_uid integer,
 	modified_by_uid integer,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	type varchar(20) default 'service' not null,
 	status char(1) default '0' not null --is it service user?
 );
@@ -445,9 +445,9 @@ create table "exec_services" (
 	default_recurrence integer not null,  --number of repeating in case of error
 	script varchar(256) not null,   --name of executable service script
 	type varchar(10) not null,      --part of service (SEND/GENERATE)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -460,9 +460,9 @@ create table "service_denials" (
 	exec_service_id integer not null,  --identifier of service (exec_services.id)
 	facility_id integer,               --identifier of facility (facilities.id)
 	destination_id integer,            --identifier of destination (destinations.id) if service is not excluded on whole facility
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -473,9 +473,9 @@ create table "service_denials" (
 create table "service_dependencies" (
 	exec_service_id integer not null,  --identifier of service which must be finished finished first (exec_services.id)
 	dependency_id integer not null,    --identifier of service which can be executed after finishing exec_service_id (exec_services.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -487,9 +487,9 @@ create table "service_dependencies" (
 create table "resource_services" (
 	service_id integer not null,   --identifier of service (services.id)
 	resource_id integer not null,  --identifier of resource (resources.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -508,9 +508,9 @@ create table "application" (
 	state varchar(128),           --state of application (new/verified/approveed/rejected)
 	extSourceLoa integer,  --level of assurance of user by external source
 	group_id integer,      --identifier of group (groups.id) if application is for group
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -602,7 +602,7 @@ create table "application_reserved_logins" (
 	namespace varchar(30) not null,     --namespace where logname is reserved
 	app_id integer not null,            --identifier of application (application.id)
 	created_by varchar(1300) default user not null,
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -612,9 +612,9 @@ create table "facility_service_destinations" (
 	service_id integer not null,   --identifier of service (services.id)
 	facility_id integer not null,  --identifier of facility (facilities.id)
 	destination_id integer not null, --identifier of destination (destinations.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -627,9 +627,9 @@ create table "entityless_attr_values" (
 	subject varchar(256) not null,  --indicator of subject assigned with attribute
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),       --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,           --attribute value in case it is very long text
@@ -642,9 +642,9 @@ create table "facility_attr_values" (
 	facility_id integer not null,   --identifier of facility (facilities.id)
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),       --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,           --attribute value in case it is very long text
@@ -657,9 +657,9 @@ create table "group_attr_values" (
 	group_id integer not null,     --identifier of group (groups.id)
 	attr_id integer not null,      --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),      --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,          --attribute value in case it is very long text
@@ -672,9 +672,9 @@ create table "resource_attr_values" (
 	resource_id integer not null,   --identifier of resource (resources.id)
 	attr_id integer not null,       --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),       --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,           --attribute value in case it is very long text
@@ -688,9 +688,9 @@ create table "group_resource_attr_values" (
 	resource_id integer not null,  --identifier of resource (resources.id)
 	attr_id integer not null,      --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),      --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,          --attribute value in case it is very long text
@@ -702,9 +702,9 @@ create table "group_resource_attr_values" (
 create table "groups_members" (
 	group_id integer not null,   --identifier of group (groups.id)
 	member_id integer not null,  --identifier of member (members.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -717,9 +717,9 @@ create table "groups_members" (
 create table "groups_resources" (
 	group_id integer not null,     --identifier of group (groups.id)
 	resource_id integer not null,  --identifier of resource (resources.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -731,9 +731,9 @@ create table "member_attr_values" (
 	member_id integer not null,   --identifier of member (members.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),     --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,         --attribute value in case it is very long text
@@ -747,9 +747,9 @@ create table "member_group_attr_values" (
 	group_id integer not null, --identifier of group (groups.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),     --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,         --attribute value in case it is very long text
@@ -763,9 +763,9 @@ create table "member_resource_attr_values" (
 	resource_id integer not null, --identifier of resource (resources.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),     --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,         --attribute value in case it is very long text
@@ -778,9 +778,9 @@ create table "user_attr_values" (
 	user_id integer not null,  --identifier of user (users.id)
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),  --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,      --attribute value in case it is very long text
@@ -794,9 +794,9 @@ create table "user_facility_attr_values" (
 	facility_id integer not null, --identifier of facility (facilities.id)
 	attr_id integer not null,     --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),     --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,         --attribute value in case it is very long text
@@ -809,9 +809,9 @@ create table "vo_attr_values" (
 	vo_id integer not null,    --identifier of VO (vos.id)
 	attr_id integer not null,  --identifier of attribute (attr_names.id)
 	attr_value varchar(4000),  --attribute value
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,      --attribute value in case it is very long text
@@ -824,9 +824,9 @@ create table "ext_sources" (
 	id integer not null,
 	name varchar(256) not null,    --name of source
 	type varchar(64),              --type of source (LDAP/IdP...)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -838,9 +838,9 @@ create table "ext_sources_attributes" (
 	ext_sources_id integer not null,   --identifier of ext. source (ext_sources.id)
 	attr_name varchar(128) not null,   --name of attribute at ext. source
 	attr_value varchar(4000),          --value of attribute
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -851,9 +851,9 @@ create table "ext_sources_attributes" (
 create table "vo_ext_sources" (
 	vo_id integer not null,          --identifier of VO (vos.id)
 	ext_sources_id integer not null, --identifier of ext. source (ext_sources.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -864,9 +864,9 @@ create table "vo_ext_sources" (
 create table "group_ext_sources" (
 	group_id integer not null,
 	ext_source_id integer not null,
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -878,13 +878,13 @@ create table "user_ext_sources" (
 	user_id integer not null,          --identifier of user (users.id)
 	login_ext varchar(1300) not null,   --logname from his home system
 	ext_sources_id integer not null,   --identifier of ext. source (ext_sources.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	loa integer,                       --level of assurance
-	last_access timestamp default now() not null, --time of last user's access (to Perun) by using this external source
+	last_access timestamp default statement_timestamp() not null, --time of last user's access (to Perun) by using this external source
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -894,9 +894,9 @@ create table "service_packages" (
 	id integer not null,
 	name varchar(128) not null,   --name of service package
 	description varchar(512),     --purpose,description
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -907,9 +907,9 @@ create table "service_packages" (
 create table "service_service_packages" (
 	service_id integer not null,   --identifier of service (services.id)
 	package_id integer not null,   --identifier of package (service_packages.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -928,7 +928,7 @@ create table "tasks" (
 	start_time timestamp,                    --real start time of task
 	end_time timestamp,                      --real end time of task
 	engine_id integer, --identifier of engine which executing the task (engines.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	err_message varchar(4000),          --return message in case of error
 	created_by_uid integer,
 	modified_by_uid integer
@@ -945,9 +945,9 @@ create table "tasks_results" (
 	return_code integer,              --returned value
 	timestamp timestamp,                   --real time of executing
 	engine_id integer not null,       --identifier of executing engine (engines.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -958,7 +958,7 @@ create table "auditer_log" (
 	id integer not null,         --identifier of logged event
 	msg text not null,           --text of logging message
 	actor varchar(256) not null, --who causes the event
-	created_at timestamp default now() not null ,
+	created_at timestamp default statement_timestamp() not null ,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -968,9 +968,9 @@ create table "service_principals" (
 	id integer not null,
 	description varchar(1024),    --description
 	name varchar(128) not null,   --name of principal
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	created_by_uid integer,
@@ -1011,8 +1011,7 @@ create table pn_pool_message (
 	regex_id integer NOT NULL,   --references a regular expression binded to a message
 	template_id integer NOT NULL, --references a template binded to a message
 	key_attributes varchar(4000) NOT NULL, --contains all attributes extracted from audit message that are important for grouping messages
-
-	created timestamp default now() NOT NULL, --the time of the pool message creation, important when PN_TEMPLATE.NOTIFY_TRIGGER is set to 'stream'
+	created timestamp default statement_timestamp() NOT NULL, --the time of the pool message creation, important when PN_TEMPLATE.NOTIFY_TRIGGER is set to 'stream'
 	notif_message text NOT NULL, --contains original audit message, important when gaining attributes in template message
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1087,9 +1086,9 @@ create table groups_groups (
 	result_gid integer not null,         --identifier of group
 	operand_gid integer not null,        --identifier of operand group (unioned / parent group)
 	parent_flag boolean default false,
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null
 );
 
@@ -1098,9 +1097,9 @@ create table res_tags (
 	id integer not null,
 	vo_id integer not null,            --identifier of VO
 	tag_name varchar (1024) not null,  --name of tag (computationl node/storage...)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1123,7 +1122,7 @@ create table "mailchange" (
 	id integer not null,
 	value text not null,      --
 	user_id integer not null, --identifier of user (users.id)
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
 	created_by_uid integer
 );
@@ -1133,7 +1132,7 @@ create table "pwdreset" (
 	id integer not null,
 	namespace text not null,
 	user_id integer not null,
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
 	created_by_uid integer
 );
@@ -1142,9 +1141,9 @@ create table "security_teams" (
 	id integer not null,
 	name varchar(128) not null,
 	description varchar(1024),
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1153,9 +1152,9 @@ create table "security_teams" (
 create table "security_teams_facilities" (
 	security_team_id integer not null,
 	facility_id integer not null,
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1165,9 +1164,9 @@ create table "blacklists" (
 	security_team_id integer not null,
 	user_id integer not null,
 	description varchar(1024),
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1179,9 +1178,9 @@ create table "resources_bans" (
 	resource_id integer not null,
 	description varchar(1024),
 	banned_to timestamp not null,
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1193,9 +1192,9 @@ create table "facilities_bans" (
 	facility_id integer not null,
 	description varchar(1024),
 	banned_to timestamp not null,
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	created_by_uid integer,
 	modified_by_uid integer
@@ -1205,9 +1204,9 @@ create table "user_ext_source_attr_values" (
 	user_ext_source_id integer not null,
 	attr_id integer not null,
 	attr_value varchar(4000),
-	created_at timestamp default now() not null,
+	created_at timestamp default statement_timestamp() not null,
 	created_by varchar(1300) default user not null,
-	modified_at timestamp default now() not null,
+	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
 	attr_value_text text,
@@ -1850,7 +1849,7 @@ grant all on membership_types to perun;
 grant all on user_ext_source_attr_values to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.42');
+insert into configurations values ('DATABASE VERSION','3.1.43');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
