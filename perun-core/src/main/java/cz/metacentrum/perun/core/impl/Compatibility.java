@@ -29,7 +29,7 @@ public class Compatibility {
 			case "oracle":
 				return "sysdate";
 			case "postgresql":
-				return "'now'";
+				return "statement_timestamp()";
 			case "hsqldb":
 				return "current_date";
 			default:
