@@ -12,7 +12,7 @@
 		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LOGDIR}perun-ldapc.log.%d.%i</fileNamePattern>
-			<maxFileSize>1MB</maxFileSize>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>30</maxHistory>
 			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
@@ -21,8 +21,11 @@
 		</encoder>
 	</appender>
 
-	<root level="info">
+	<root level="debug">
 		<appender-ref ref="perun-ldapc" />
 	</root>
+
+	<!-- keep Spring quiet -->
+	<logger name="org.springframework" level="warn"/>
 
 </configuration>

@@ -3,7 +3,7 @@
 	<contextName>perun-engine</contextName>
 
 	<!-- variable defining the directory where log files will be put, takes system property perun.log -->
-	<variable name="LOGDIR" value="${perun.log:-/var/log/perun-engine/}"/>
+	<variable name="LOGDIR" value="${perun.log:-/var/log/perun/}"/>
 
 	<!-- production setting for format of log lines -->
 	<variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
@@ -13,7 +13,7 @@
 		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LOGDIR}perun-engine.log.%d.%i</fileNamePattern>
-			<maxFileSize>1MB</maxFileSize>
+			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>30</maxHistory>
 			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
@@ -22,8 +22,11 @@
 		</encoder>
 	</appender>
 
-	<root level="info">
+	<root level="debug">
 		<appender-ref ref="perun-engine" />
 	</root>
+
+	<!-- keep Spring quiet -->
+	<logger name="org.springframework" level="warn"/>
 
 </configuration>

@@ -74,7 +74,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>cz.metacentrum.perun.ldapc.main.LdapcStarter</mainClass>
+					<mainClass>${start-class}</mainClass>
 				</configuration>
 			</plugin>
 

@@ -42,9 +42,9 @@
 	</appender>
 
 	<!-- logging to file perun.log rotated daily or when it exceeds 10MB size -->
+	<!--
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="main">
 		<file>${LOGDIR}perun.log</file>
-		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LOGDIR}perun.log.%d.%i</fileNamePattern>
 			<maxFileSize>10MB</maxFileSize>
@@ -55,6 +55,7 @@
 			<pattern>${ENCODER_PATTERN}</pattern>
 		</encoder>
 	</appender>
+	-->
 
 	<!-- the main logger and its level -->
 	<root level="warn">
