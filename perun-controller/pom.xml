@@ -64,38 +64,11 @@
 		<!-- PERUN -->
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-tasks-lib</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- DB -->
-
-		<!-- SPRING -->
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
-
-		<!-- TESTS -->
-
+		<!-- TEST -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
@@ -108,23 +81,13 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- LOGGING -->
-
+		<!-- imports logback-test.xml for test from perun-base -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-
-		<!-- OTHERS -->
-
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>perun-base</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>

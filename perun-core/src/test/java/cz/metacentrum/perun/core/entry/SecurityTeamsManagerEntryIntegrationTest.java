@@ -346,7 +346,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpSecurityTeams();
 		setUpUsers();
 
-		List<User> expected = new ArrayList<>();
+		List<User> expected = Collections.emptyList();
 		List<User> actual = securityTeamsManagerEntry.getAdmins(sess, st0);
 		Collections.sort(expected);
 		Collections.sort(actual);
@@ -375,7 +375,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpUsers();
 
 		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0);
-		assertTrue("SecurityTeam shouldn't have any admins.", admins.size() <= 0);
+		assertTrue("SecurityTeam should have no admins.", admins.isEmpty());
 		assertTrue("User 0 shouldn't be admin of security team.", !admins.contains(u0));
 
 		securityTeamsManagerEntry.addAdmin(sess, st0, u0);

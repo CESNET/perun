@@ -18,6 +18,7 @@
 	<description>LDAP connector which immediately pushes changes in Perun to LDAP</description>
 
 	<properties>
+		<start-class>cz.metacentrum.perun.ldapc.main.LdapcStarter</start-class>
 	</properties>
 
 	<!-- common build settings used by all profiles -->
@@ -54,32 +55,11 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 
-			<!-- Package JAR with Main class -->
+			<!-- Package JAR with Main class and all libraries -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<index>true</index>
-						<manifest>
-							<mainClass>cz.metacentrum.perun.ldapc.main.LdapcStarter</mainClass>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-
-			<!-- Copy dependencies plug-in -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>
-						target/lib
-					</outputDirectory>
-				</configuration>
+				<artifactId>maven-shade-plugin</artifactId>
+				<!-- Main-Class taken from property ${start-class} -->
 			</plugin>
 
 			<!-- Executing plug-in:  mvn exec:java -->
@@ -94,7 +74,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>cz.metacentrum.perun.ldapc.main.LdapcStarter</mainClass>
+					<mainClass>${start-class}</mainClass>
 				</configuration>
 			</plugin>
 
@@ -117,12 +97,6 @@
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-cabinet</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -133,76 +107,25 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-auditparser</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<!-- DBs -->
-		<!-- PostgreSQL driver -->
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-		</dependency>
-		<!-- Oracle jdbc driver -->
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc7</artifactId>
-		</dependency>
-		<!-- Oracle internationalization -->
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>orai18n</artifactId>
-		</dependency>
-		<!-- SQL Lite -->
-		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-		</dependency>
-		<!-- Mysql -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-dbcp</artifactId>
-		</dependency>
-
 		<!-- SPRING -->
 
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- SPRING - LDAP -->
 
 		<dependency>
 			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-core-tiger</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
 			<artifactId>spring-ldap-odm</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-ldif-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -217,10 +140,6 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- LOGGING -->
-
-		<!-- OTHERS -->
 
 	</dependencies>
 

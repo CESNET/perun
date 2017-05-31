@@ -20,7 +20,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,9 +150,6 @@ public class ExtSourceISMU extends ExtSource implements ExtSourceSimpleApi {
 			}
 
 			return subjects;
-		}
-		catch (HttpException e) {
-			throw new InternalErrorException(e);
 		}
 		catch (IOException e) {
 			throw new InternalErrorException(e);

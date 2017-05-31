@@ -69,31 +69,28 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- DB -->
-
-		<!-- SPRING -->
-
 		<!-- TEST -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 
-		<!-- LOGGING -->
-
+		<!-- imports logback-test.xml for test from perun-base -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>perun-base</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-
-		<!-- OTHERS -->
-
+		
 	</dependencies>
 
 	<!-- PROFILES -->

@@ -9,6 +9,7 @@ import cz.metacentrum.perun.taskslib.model.Task;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -20,8 +21,8 @@ import java.util.List;
 import java.util.Properties;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@Transactional
-@TransactionConfiguration(defaultRollback = true, transactionManager = "springTransactionManager")
+@Rollback
+@Transactional(transactionManager = "springTransactionManager")
 // !! order of app context files matter in order to correctly recognize both data sources !!
 @ContextConfiguration(locations = { "classpath:perun-core.xml", "classpath:perun-tasks-lib.xml", "classpath:perun-controller.xml", "classpath:perun-engine.xml", "classpath:perun-engine-jdbc-local-test.xml" })
 public abstract class AbstractEngineTest {
@@ -63,7 +64,6 @@ public abstract class AbstractEngineTest {
 		engineId = Integer.parseInt(propertiesBean.getProperty("engine.unique.id"));
 
 		// create session
-
 		sess = perun.getPerunSession(
 				new PerunPrincipal("perunTests", ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL),
 				new PerunClient());

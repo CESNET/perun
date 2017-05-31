@@ -86,47 +86,27 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- SPRING -->
+		<!-- TESTS -->
 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
 		</dependency>
-
-		<!-- TESTS -->
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 
-		<!-- LOGGING -->
-
+		<!-- imports logback-test.xml for test from perun-base -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-
-		<!-- OTHERS -->
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>perun-base</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>

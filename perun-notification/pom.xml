@@ -87,64 +87,12 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-auditparser</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
 		<!-- DB -->
 
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-		</dependency>
-
-		<!-- Commented for testing on perun-dev.meta.zcu.cz -->
-
-		<!-- DBs -->
-		<!-- PostgreSQL driver -->
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-		</dependency>
-		<!-- Oracle jdbc driver -->
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc7</artifactId>
-		</dependency>
-		<!-- Oracle internationalization -->
-		<dependency>
-			<groupId>com.oracle</groupId>
-			<artifactId>orai18n</artifactId>
-		</dependency>
-		<!-- SQL Lite -->
-		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-		</dependency>
-		<!-- Mysql -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-dbcp</artifactId>
-		</dependency>
-
-		<!-- SPRING -->
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>commons-dbcp</groupId>-->
+			<!--<artifactId>commons-dbcp</artifactId>-->
+		<!--</dependency>-->
 
 		<!-- TESTS -->
 
@@ -182,14 +130,16 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- LOGGING -->
-
-		<!-- OTHERS -->
-
+		<!-- imports logback-test.xml for test from perun-base -->
 		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>perun-base</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
 		</dependency>
+		
+		<!-- OTHERS -->
 
 		<dependency>
 			<groupId>org.freemarker</groupId>
@@ -216,11 +166,6 @@
 			<artifactId>javax.transaction-api</artifactId>
 		</dependency>
 		
-		<dependency>
-			<groupId>jivesoftware</groupId>
-			<artifactId>smack</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>jivesoftware</groupId>
 			<artifactId>smackx</artifactId>

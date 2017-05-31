@@ -18,6 +18,7 @@
 	<description>Execution module for Perun propagation sub-system</description>
 
 	<properties>
+		<start-class>cz.metacentrum.perun.engine.main.EngineStarter</start-class>
 		<!-- module properties used by all profiles -->
 		<perun.test.groups>unit-tests</perun.test.groups>
 	</properties>
@@ -77,16 +78,13 @@
 				</configuration>
 			</plugin>
 
+			<!-- Package JAR with Main class and all libraries -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>
-						target/lib
-					</outputDirectory>
-				</configuration>
+				<artifactId>maven-shade-plugin</artifactId>
+				<!-- Main-Class taken from property ${start-class} -->
 			</plugin>
-
+			
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -98,7 +96,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>cz.metacentrum.perun.engine.main.EngineStarter</mainClass>
+					<mainClass>${start-class}</mainClass>
 				</configuration>
 			</plugin>
 
@@ -126,32 +124,11 @@
 	<dependencies>
 
 		<!-- PERUN -->
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-auditparser</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-controller</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-
-
-		<!-- DB -->
-
-		<!-- SPRING -->
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
 		</dependency>
 
 		<!-- TESTS -->
@@ -167,12 +144,15 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- LOGGING -->
+		<!-- imports logback-test.xml for test from perun-base -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>perun-base</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
 		</dependency>
-
+		
 		<!-- OTHERS - Hornet Q -->
 		<dependency>
 			<groupId>org.hornetq</groupId>

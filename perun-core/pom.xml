@@ -19,7 +19,6 @@
 
 	<!-- module properties and versions -->
 	<properties>
-		<start-class>cz.metacentrum.perun.core.impl.Main</start-class>
 	</properties>
 
 	<!-- Build settings for all profiles -->
@@ -73,14 +72,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<!-- JAR with Main class -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<!-- Main-Class taken from property ${start-class} -->
-			</plugin>
-
 		</plugins>
 
 		<!-- set filtering on resources -->
@@ -98,12 +89,6 @@
 	<dependencies>
 
 		<!-- PERUN -->
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-base</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
@@ -140,6 +125,7 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
+		
 		<!--HSQL-->
 		<dependency>
 			<groupId>org.hsqldb</groupId>
@@ -152,15 +138,6 @@
 		</dependency>
 
 		<!-- SPRING -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -173,7 +150,6 @@
 		</dependency>
 
 		<!-- TEST -->
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
@@ -183,36 +159,15 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 
-		<!-- LOGGING -->
-
+		<!-- imports logback-test.xml for test from perun-base -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		
-		<!-- OTHERS -->
-
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>${mockito.version}</version>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>perun-base</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 
@@ -228,14 +183,22 @@
 			<scope>test</scope>
 		</dependency>
 
+
+		<!-- OTHERS -->
+
 		<dependency>
-			<groupId>jdom</groupId>
-			<artifactId>jdom</artifactId>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore</artifactId>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>jdom</groupId>
+			<artifactId>jdom</artifactId>
 		</dependency>
 
 		<dependency>
@@ -251,11 +214,6 @@
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
 		</dependency>
 
 		<dependency>
@@ -283,16 +241,6 @@
 		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-admin-directory</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.http-client</groupId>
-			<artifactId>google-http-client-jackson2</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.api-client</groupId>
-			<artifactId>google-api-client</artifactId>
 		</dependency>
 
         <dependency>

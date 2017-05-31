@@ -38,7 +38,7 @@ public class ExporterStarter
 
 	public ExporterStarter(OutputType outputType) {
 		springCtx = new ClassPathXmlApplicationContext("/perun-auditer-exporter.xml");
-		this.dataSource = springCtx.getBean("dataSource", org.apache.tomcat.dbcp.dbcp.BasicDataSource.class);
+		this.dataSource = springCtx.getBean("dataSource", DataSource.class);
 
 		this.outputType = outputType;
 	}

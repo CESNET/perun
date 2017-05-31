@@ -1,10 +1,5 @@
 package cz.metacentrum.perun.core.entry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +59,9 @@ import cz.metacentrum.perun.core.impl.AuthzRoles;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 /**
  * Integration tests of FacilitiesManager
@@ -880,7 +878,8 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 		// test
 		List<User> admins = facilitiesManagerEntry.getAdmins(sess, facility);
-		assertTrue("group shoud have 2 admins",admins.size() == 2);
+		//assertTrue("group shoud have 2 admins",admins.size() == 2);
+		assertThat("facility should have 2 admins",admins.size(),is(2));
 		assertTrue("our member as direct user should be admin",admins.contains(user));
 		assertTrue("our member as member of admin group should be admin",admins.contains(user2));
 	}
@@ -937,7 +936,7 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 		final RichUser richUser = new RichUser(u, perun.getUsersManagerBl().getUserExtSources(sess, u));
 
 		facilitiesManagerEntry.addAdmin(sess, facility, u);
-		assertEquals(u, facilitiesManagerEntry.getAdmins(sess, facility).get(0));
+		assertTrue(facilitiesManagerEntry.getAdmins(sess, facility).contains(u));
 
 		facilitiesManagerEntry.removeAdmin(sess, facility, u);
 		assertFalse(facilitiesManagerEntry.getAdmins(sess, facility).contains(u));

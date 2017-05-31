@@ -55,22 +55,11 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 
-			<!-- Package JAR with Main class -->
+			<!-- Package JAR with Main class and all libraries -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<!-- Main-Class taken from property ${start-class} -->
-			</plugin>
-
-			<!-- Copy dependencies plug-in -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>
-						target/lib
-					</outputDirectory>
-				</configuration>
 			</plugin>
 
 			<!-- Executing plug-in:  mvn exec:java -->
@@ -85,7 +74,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>cz.metacentrum.perun.ldapc.main.LdapcStarter</mainClass>
+					<mainClass>${start-class}</mainClass>
 				</configuration>
 			</plugin>
 
@@ -103,29 +92,11 @@
 	</build>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>cz.metacentrum.perun</groupId>
-			<artifactId>perun-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>cz.metacentrum.perun</groupId>
 			<artifactId>perun-rpc-lib</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
-
 	</dependencies>
 
 	<profiles>

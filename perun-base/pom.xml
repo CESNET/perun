@@ -57,6 +57,19 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<goals>
+							<!-- needed to create perun-base-...-tests.jar with logback-test.xml -->
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 
 		<!-- set filtering on resources -->
@@ -86,15 +99,10 @@
 		</dependency>
 
 		<!-- LOGGING -->
-
+		<!-- see http://docs.spring.io/platform/docs/current/reference/htmlsingle/#getting-started-logging -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
 		</dependency>
 
 		<!-- OTHER -->
@@ -115,7 +123,7 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- OTHERS -->
+		
 
 	</dependencies>
 

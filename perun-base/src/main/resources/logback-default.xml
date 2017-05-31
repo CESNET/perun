@@ -1,0 +1,322 @@
+<!--
+	This is the default config for the Logback logging framework in Perun.
+	It is inherited by transitive dependencies into all Perun modules,
+	and loaded by PerunLogbackConfigurator class if no logback.xml is found
+	(i.e. not provided by a module or specified by system property logback.configurationFile).
+	
+    You can load another file by e.g.
+     -Dlogback.configurationFile=file:///etc/perun/logback.xml
+    and change the directory for log files by e.g.
+     -Dperun.log=/var/log/perun/
+
+    For documentation see https://logback.qos.ch/manual/configuration.html#syntax
+    @author Martin Kuba makub@ics.muni.cz
+    -->
+<configuration packagingData="false" debug="false" scan="false" scanPeriod="30 seconds">
+	<!--
+		packagingData="true" ... in stacktrace shows jar files and their versions
+		debug="true" ... prints which logback.xml file is used during startup
+		scan="true" ... changes to this file are dynamically loaded without restaring the app
+		scanPeriod="30 seconds" ... how often are changes scanned
+	-->
+
+	<contextName>perun-base</contextName>
+
+	<!-- variable defining the directory where log files will be put, takes system property perun.log -->
+	<variable name="LOGDIR" value="${perun.log:-/var/log/perun/}"/>
+
+	<!-- production setting for format of log lines -->
+	<variable name="ENCODER_PATTERN" value="%date [%thread] %-5level %logger{35} - %msg%n"/>
+	<!-- debug setting - warning - it is slow to generate %file:%line and %caller
+	<variable name="ENCODER_PATTERN" value="%d [%t] %-5level %file:%line %method\\(\\) %X{req.remoteHost} %X{req.requestURL} - %msg%n"/>
+	-->
+
+	<!-- variable defining the max number of rotated files -->
+	<variable name="MAXHISTORY" value="7"/>
+
+	<!-- logging to console -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- logging to file perun.log rotated daily or when it exceeds 10MB size -->
+	<!--
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="main">
+		<file>${LOGDIR}perun.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun.log.%d.%i</fileNamePattern>
+			<maxFileSize>10MB</maxFileSize>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	-->
+
+	<!-- the main logger and its level -->
+	<root level="warn">
+		<!--<appender-ref ref="main"/>-->
+		<appender-ref ref="STDOUT"/>
+	</root>
+	<!-- keep Spring quiet -->
+	<logger name="org.springframework" level="warn"/>
+	<logger name="org.springframework.web.context.ContextLoader" level="warn"/>
+	<logger name="cz.metacentrum.perun.rpc.Main" level="info"/>
+
+	<!--
+		logging to separate files - set by the atribute additivity="false" and
+		the element	appender-ref on loggers
+	-->
+
+	<!--
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="notification">
+		<file>${LOGDIR}perun-notif.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-notif.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.notif" level="info" additivity="false">
+		<appender-ref ref="notification"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-auditer">
+		<file>${LOGDIR}perun-auditer.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-auditer.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="cz.metacentrum.perun.core.impl.Auditer" level="error" additivity="false">
+		<appender-ref ref="perun-auditer"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-cabinet">
+		<file>${LOGDIR}perun-cabinet.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-cabinet.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.cabinet" level="info" additivity="false">
+		<appender-ref ref="perun-cabinet"/>
+	</logger>
+
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-core">
+		<file>${LOGDIR}perun-core.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-core.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.core" level="info" additivity="false">
+		<appender-ref ref="perun-core"/>
+	</logger>
+	<logger name="cz.metacentrum.perun.core.impl.JdbcPerunTemplate" level="error"/>
+	<logger name="cz.metacentrum.perun.core.impl.PerunTransactionManager" level="error"/>
+	<logger name="cz.metacentrum.perun.core.impl.PerunBasicDataSource" level="error"/>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-eventProcessor">
+		<file>${LOGDIR}perun-dispatcher-eventProcessor.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher-eventProcessor.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.dispatcher.processing.impl.EventProcessorImpl" level="info" additivity="false">
+		<appender-ref ref="perun-dispatcher-eventProcessor"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-events">
+		<file>${LOGDIR}perun-dispatcher-events.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher-events.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.dispatcher.processing.EventLogger" level="info" additivity="false">
+		<appender-ref ref="perun-dispatcher-events"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-jms">
+		<file>${LOGDIR}perun-dispatcher-jms.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher-jms.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.dispatcher.jms" level="info" additivity="false">
+		<appender-ref ref="perun-dispatcher-jms"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher">
+		<file>${LOGDIR}perun-dispatcher.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.dispatcher" level="info" additivity="false">
+		<appender-ref ref="perun-dispatcher"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-matcher">
+		<file>${LOGDIR}perun-dispatcher-matcher.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher-matcher.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.dispatcher.processing.impl.SmartMatcherImpl" level="info" additivity="false">
+		<appender-ref ref="perun-dispatcher-matcher"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-dispatcher-queue">
+		<file>${LOGDIR}perun-dispatcher-queue.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-dispatcher-queue.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.dispatcher.jms.DispatcherQueue" level="info" additivity="false">
+		<appender-ref ref="perun-dispatcher-queue"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-engine">
+		<file>${LOGDIR}perun-engine.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-engine.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.engine" level="info" additivity="false">
+		<appender-ref ref="perun-engine"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-registrar">
+		<file>${LOGDIR}perun-registrar.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-registrar.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.registrar" level="info" additivity="false">
+		<appender-ref ref="perun-registrar"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-rpc-lib">
+		<file>${LOGDIR}perun-rpc-lib.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-rpc-lib.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.rpclib" level="info" additivity="false">
+		<appender-ref ref="perun-rpc-lib"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-rpc">
+		<file>${LOGDIR}perun-rpc.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-rpc.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.rpc" level="info" additivity="false">
+		<appender-ref ref="perun-rpc"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-notif-sended">
+		<file>${LOGDIR}perun-notif-sended.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-notif-sended.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="sendMessages" level="info" additivity="false">
+		<appender-ref ref="perun-notif-sended"/>
+	</logger>
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-controller">
+		<file>${LOGDIR}perun-controller.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-controller.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.controller" level="info" additivity="false">
+		<appender-ref ref="perun-controller"/>
+	</logger>
+
+
+	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-tasklib">
+		<file>${LOGDIR}perun-tasklib.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGDIR}perun-tasklib.log.%d</fileNamePattern>
+			<maxHistory>${MAXHISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${ENCODER_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<logger name="cz.metacentrum.perun.taskslib" level="info" additivity="false">
+		<appender-ref ref="perun-tasklib"/>
+	</logger>
+
+   -->
+
+</configuration>
