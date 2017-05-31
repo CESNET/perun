@@ -22,6 +22,9 @@ public interface MembersManager {
 	static final String membershipPeriodLoaKeyName = "periodLoa";
 	static final String membershipDoNotAllowLoaKeyName = "doNotAllowLoa";
 
+	// Defines name of member-group attribute which stores hash code of data gained from external source
+	String MEMBERGROUPHASHCODE_ATTRNAME = AttributesManager.NS_MEMBER_GROUP_ATTR_DEF + ":hashCode";
+
 	/**
 	 * Attribute which contains rules for membership expiration
 	 */

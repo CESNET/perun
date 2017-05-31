@@ -1,9 +1,9 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.Pair;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import static cz.metacentrum.perun.core.impl.ExtSourceLdap.log;
+import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -31,35 +32,43 @@ import javax.naming.directory.SearchResult;
 public class ExtSourceEGISSO extends ExtSourceLdap implements ExtSourceApi {
 
 	@Override
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
-		List<Map<String, String>> subjects = new ArrayList<>();
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException {
 		NamingEnumeration<SearchResult> results = null;
 
-		String query = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		cz.metacentrum.perun.core.api.Attribute queryForGroupAttribute = null;
+		try {
+			queryForGroupAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		} catch (WrongAttributeAssignmentException e) {
+			// Should not happen
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " is not from group namespace.");
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must exists.");
+		}
+
+		// Get the query and base for the group subjects
+		String queryForGroup = BeansUtils.attributeValueToString(queryForGroupAttribute);
 		String base = "ou=People,dc=egi,dc=eu";
 
-		List<String> ldapGroupSubjects = new ArrayList<>();
 		try {
 			SearchControls controls = new SearchControls();
 			controls.setTimeLimit(5000);
-			results = getContext().search(base, query, controls);
+			results = getContext().search(base, queryForGroup, controls);
 			while(results.hasMore()) {
 				SearchResult searchResult = results.next();
 				subjects.add(processResultToSubject(searchResult));
 			}
 		} catch (NamingException e) {
-			log.error("LDAP exception during query {}.", query);
-			throw new InternalErrorException("LDAP exception during running query " + query , e);
+			log.error("LDAP exception during query {}.", queryForGroup);
+			throw new InternalErrorException("LDAP exception during running query " + queryForGroup , e);
 		} finally {
 			try {
 				if (results != null) { results.close(); }
 			} catch (Exception e) {
-				log.error("LDAP exception during closing result, while running query '{}'", query);
+				log.error("LDAP exception during closing result, while running query '{}'", queryForGroup);
 				throw new InternalErrorException(e);
 			}
 		}
-
-		return subjects;
+		return GroupsManager.GROUP_SYNC_STATUS_FULL;
 	}
 
 	@Override

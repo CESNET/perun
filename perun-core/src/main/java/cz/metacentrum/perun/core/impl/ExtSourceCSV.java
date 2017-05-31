@@ -1,13 +1,13 @@
 package cz.metacentrum.perun.core.impl;
 
 import com.opencsv.CSVReader;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,12 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- *
- * @author Sona Mastrakova
+ * @author Sona Mastrakova, Jan Zverina
  */
 public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
@@ -29,10 +26,11 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
     private String file = null;
     private String query = null;
     private String[] header = null;
+    private HashMap<String, String> csvMapping = null;
 
     private static PerunBlImpl perunBl;
 
-    // filled by spring (perun-core.xml)
+    // Filled by Spring (perun-core.xml)
     public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
         perunBl = perun;
         return perun;
@@ -69,16 +67,17 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
             //Replace '?' by searchString
             query = query.replaceAll("\\?", searchString);
 
-            //Get csv file 
-            prepareEnvironment();
+            //Get csv file
+            prepareFile();
 
-            return csvParsing(query, maxResults);
+			List<Map<String, String>> subjects = new ArrayList<>();
+            csvParsing(query, maxResults, subjects);
+            return subjects;
 
         } catch (IOException ex) {
             log.error("IOException in findSubjects() method while parsing csv file", ex);
+            throw new InternalErrorException(ex);
         }
-
-        return null;
     }
 
     @Override
@@ -97,10 +96,11 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
             //Replace '?' by searchString
             query = query.replaceAll("\\?", login);
 
-            //Get csv file 
-            prepareEnvironment();
+            //Get csv file
+            prepareFile();
 
-            List<Map<String, String>> subjects = this.csvParsing(query, 0);
+            List<Map<String, String>> subjects = new ArrayList<>();
+            this.csvParsing(query, 0, subjects);
 
             if (subjects.isEmpty()) {
                 throw new SubjectNotExistsException("Login: " + login);
@@ -113,31 +113,53 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
 
         } catch (IOException ex) {
             log.error("IOException in getSubjectByLogin() method while parsing csv file", ex);
+            throw new InternalErrorException(ex);
         }
-
-        return null;
     }
 
+    /**
+     * Get subjects of group. These subjects will be stored in maps obtained in parameters.
+     *
+     *
+     * @param sess
+     * @param group Map of attributes used for quering the external source
+     * @param status Status about synchronization (lightweight, full). Not used in CSV external source.
+     * @param subjects list of maps, which contains attr_name-&gt;attr_value, e.g. firstName-&gt;Michal
+     * @return String containing status about data received from external source (e.g. data are sorted,
+     * @throws InternalErrorException
+     * @throws ExtSourceUnsupportedOperationException
+     */
     @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+    public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException, ExtSourceUnsupportedOperationException {
         try {
-            // Get the query for the group subjects
-            String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
-
-            //If there is no query for group, throw exception
-            if (queryForGroup == null) {
-                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+            Attribute queryForGroupAttribute = null;
+            try {
+                queryForGroupAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+            } catch (WrongAttributeAssignmentException e) {
+                // Should not happen
+                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " is not from group namespace.");
+            } catch (AttributeNotExistsException e) {
+                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must exists.");
             }
 
-            //Get csv file
-            prepareEnvironment();
+            // Get the query for the group subjects
+            String queryForGroup = BeansUtils.attributeValueToString(queryForGroupAttribute);
 
-            return csvParsing(queryForGroup, 0);
+            // If there is no query for group, throw exception
+            if (queryForGroup == null) {
+                throw new InternalErrorException("Value of " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
+            }
+
+            // Get CSV file
+            prepareFile();
+
+            csvParsing(queryForGroup, 0, subjects);
+            return GroupsManager.GROUP_SYNC_STATUS_FULL;
 
         } catch (IOException ex) {
             log.error("IOException in getGroupSubjects() method while parsing csv file", ex);
+            throw new InternalErrorException(ex);
         }
-        return null;
     }
 
     @Override
@@ -145,39 +167,57 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         throw new ExtSourceUnsupportedOperationException("For CSV, using this method is not optimized, use findSubjects instead.");
     }
 
-    private void prepareEnvironment() throws InternalErrorException {
-        //Get csv files
-        file = (String) getAttributes().get("file");
+    private void prepareFile() throws InternalErrorException {
+        //Get csv file
+        file = getAttributes().get("file");
         if (file == null || file.isEmpty()) {
             throw new InternalErrorException("File cannot be empty!");
         }
     }
 
-    private List<Map<String, String>> csvParsing(String query, int maxResults) throws InternalErrorException, FileNotFoundException, IOException {
-        List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
-
-        FileReader fileReader = new FileReader(file);
-        if (fileReader == null) {
-            throw new FileNotFoundException("File was not found!");
-        }
-
-        CSVReader reader = new CSVReader(fileReader);
-
+    private void csvParsing(String query, int maxResults, List<Map<String,String>> subjects) throws InternalErrorException, IOException {
+        CSVReader reader = initializeCSVReader(file);
         header = reader.readNext();
         if (header == null) {
             throw new RuntimeException("No header in csv file");
         }
+        createSubjectsFromRows(query, reader, maxResults, subjects);
+    }
 
+    /**
+     * Initialize CSVReader object to read CSV file from path defined in parameter.
+     *
+     * @param fileName Path to file
+     * @return CSVReader object
+     * @throws FileNotFoundException
+     */
+    private CSVReader initializeCSVReader(String fileName) throws FileNotFoundException {
+        FileReader fileReader = new FileReader(fileName);
+        if (fileReader == null) {
+            throw new FileNotFoundException("File was not found!");
+        }
+        return new CSVReader(fileReader);
+    }
+
+    /**
+     * Converts reader of rows from file to list of subjects obtained in parameter.
+     * This method CONTROLS maximum of results.
+     *
+     * @param query Query to select correct rows with users from file.
+     * @param reader Reader of file without header
+     * @param maxResults Maximum of results, which will be stored to subjects. If 0, its unlimited.
+     * @param subjects List to store subjects.
+     * @throws InternalErrorException
+     * @throws IOException
+     */
+    private void createSubjectsFromRows(String query, CSVReader reader, int maxResults, List<Map<String,String>> subjects) throws InternalErrorException, IOException {
         String[] row;
-
         while ((row = reader.readNext()) != null) {
-
             if (header.length != row.length) {
                 throw new RuntimeException("Csv file is not valid - some rows have different number of columns from the header row.");
             }
 
             if (compareRowToQuery(row, query)) {
-
                 Map<String, String> map = convertLineToMap(row);
 
                 if (map != null) {
@@ -191,26 +231,21 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
                 }
             }
         }
-
-        return subjects;
     }
 
     /**
-     * Comparison of 1 row in csv file with the query.
-     * - if the row would be result of the query, then this method returns true
-     * - if not, then this method returns false
+     * Comparison of one row in CSV file with the query.
+     * - If the row would be result of the query, then this method returns true
+     * - If not, then this method returns false
      *
-     * @param row 1 row from csv file
+     * @param row one row from CSV file
      * @param query query we want to 'execute' on the row, e.g. nameOfColumn=valueInRow
      * @return boolean
      * @throws InternalErrorException
      */
     private boolean compareRowToQuery(String[] row, String query) throws InternalErrorException {
-
-        // symbol '=' indicates getSubjectByLogin() or getGroupSubjects method
+        // Symbol '=' indicates getSubjectByLogin()
         int index = query.indexOf("=");
-        // word 'contains' indicates findSubjects() method
-        int indexContains = query.indexOf("contains");
 
         if (index != -1) {
             String queryType = query.substring(0, index);
@@ -222,6 +257,9 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
                 }
             }
         } else {
+            // Word 'contains' indicates findSubjects() method or getGroupSubjects() method
+            int indexContains = query.indexOf("contains");
+
             if (indexContains != -1) {
                 String queryType = query.substring(0, indexContains);
                 String value = query.substring(indexContains + "contains".trim().length());
@@ -235,17 +273,16 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
                     }
                 }
             } else {
-                // if there's no symbol '=' or word 'contains' in the query
+                // If there's no symbol '=' or word 'contains' in the query
                 throw new InternalErrorException("Wrong query!");
             }
         }
-
         return false;
     }
 
     /**
      * Creates Map<String,String> from 1 row in csv file
-     * 
+     *
      * @param line 1 row from csv file
      * @return Map<String, String>, like <name,value>
      * @throws InternalErrorException
@@ -274,7 +311,7 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
                 String value = attr.substring(index + 1);
 
                 if (value.startsWith("{")) {
-                    
+
                     // exclude curly brackets from value
                     value = value.substring(1, value.length() - 1);
 
@@ -292,6 +329,12 @@ public class ExtSourceCSV extends ExtSource implements ExtSourceApi {
         return lineAsMap;
     }
 
+    /**
+     * Get attributes of external source (defined in perun-extSources.xml).
+     *
+     * @return map with attributes about external source
+     * @throws InternalErrorException
+     */
 	protected Map<String,String> getAttributes() throws InternalErrorException {
 		return perunBl.getExtSourcesManagerBl().getAttributes(this);
 	}

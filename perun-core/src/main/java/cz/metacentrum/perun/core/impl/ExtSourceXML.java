@@ -3,16 +3,14 @@ package cz.metacentrum.perun.core.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.HttpURLConnection;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import java.io.IOException;
 import javax.xml.xpath.XPathConstants;
@@ -51,7 +49,7 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	private String file = null;
 	private String uri = null;
 
-	private static PerunBlImpl perunBl;
+	protected static PerunBlImpl perunBl;
 
 	// filled by spring (perun-core.xml)
 	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
@@ -95,8 +93,9 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 
 		//Get file or uri of xml
 		prepareEnvironment();
-
-		return xpathParsing(query, maxResults);
+		List<Map<String, String>> subjects = new ArrayList<>();
+		xpathParsing(query, maxResults, subjects);
+		return subjects;
 	}
 
 	public Map<String, String> getSubjectByLogin(String login) throws InternalErrorException, SubjectNotExistsException {
@@ -117,8 +116,8 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 
 		//Get file or uri of xml
 		prepareEnvironment();
-
-		List<Map<String, String>> subjects = this.xpathParsing(query, 0);
+		List<Map<String, String>> subjects = new ArrayList<>();
+		this.xpathParsing(query, 0, subjects);
 
 		if (subjects.size() > 1) {
 			throw new SubjectNotExistsException("There are more than one results for the login: " + login);
@@ -131,17 +130,28 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		return subjects.get(0);
 	}
 
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException, ExtSourceUnsupportedOperationException {
+		Attribute queryForGroupAttribute = null;
+		try {
+			queryForGroupAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		} catch (WrongAttributeAssignmentException e) {
+			// Should not happen
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " is not from group namespace.");
+		} catch (AttributeNotExistsException e) {
+			throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must exists.");
+		}
+
 		// Get the query for the group subjects
-		String queryForGroup = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		String queryForGroup = BeansUtils.attributeValueToString(queryForGroupAttribute);
 
 		//If there is no query for group, throw exception
-		if(queryForGroup == null) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + " can't be null.");
+		if(queryForGroup == null) throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME+ " can't be null.");
 
 		//Get file or uri of xml
 		prepareEnvironment();
 
-		return xpathParsing(queryForGroup, 0);
+		xpathParsing(queryForGroup, 0, subjects);
+		return GroupsManager.GROUP_SYNC_STATUS_FULL;
 	}
 
 	protected void prepareEnvironment() throws InternalErrorException {
@@ -166,13 +176,10 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 	 * @param query xpath query from config file
 	 * @param maxResults never get more than maxResults results (0 mean unlimited)
 	 *
-	 * @return List of results, where result is Map<String,String> like <name, value>
+	 * @param subjects
 	 * @throws InternalErrorException
 	 */
-	protected List<Map<String,String>> xpathParsing(String query, int maxResults) throws InternalErrorException {
-		//Prepare result list
-		List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
-
+	protected void xpathParsing(String query, int maxResults, List<Map<String, String>> subjects) throws InternalErrorException {
 		//Create new document factory builder
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder;
@@ -219,8 +226,8 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 
 		//Test if there is any nodeset in result
 		if(nodeList.getLength() == 0) {
-			//There is no results, return empty subjects
-			return subjects;
+			//There is no results, return
+			return;
 		}
 
 		//Iterate through nodes and convert them to Map<String,String>
@@ -237,7 +244,6 @@ public class ExtSourceXML extends ExtSource implements ExtSourceApi {
 		}
 
 		this.close();
-		return subjects;
 	}
 
 	/**

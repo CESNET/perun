@@ -1,10 +1,8 @@
 package cz.metacentrum.perun.core.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,22 +16,19 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
 
 /**
  * Ext source implementation for LDAP.
  *
  * @author Michal Prochazka michalp@ics.muni.cz
  * @author Pavel Zlámal <zlamal@cesnet.cz>
+ * @author Jan Zverina <zverina@cesnet.cz>
  */
 public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 
@@ -51,7 +46,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return dirContext;
 	}
 
-	private static PerunBlImpl perunBl;
+	protected static PerunBlImpl perunBl;
 
 	// filled by spring (perun-core.xml)
 	public static PerunBlImpl setPerunBlImpl(PerunBlImpl perun) {
@@ -106,30 +101,140 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		return subjects.get(0);
 	}
 
-	public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
-
+	public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException {
 		NamingEnumeration<SearchResult> results = null;
+		// String for detection, which type of synchronization this will be (full or modified)
+		String typeOfSynchronization = GroupsManager.GROUP_SYNC_STATUS_FULL;
+		// Check if we need to save new value of LDAP modify timestamp of group
+		boolean saveCheck = false;
 
-		List<String> ldapGroupSubjects = new ArrayList<String>();
+		// Get all group attributes and store them to map (info like query, time interval etc.)
+		List<cz.metacentrum.perun.core.api.Attribute> groupAttributes = perunBl.getAttributesManagerBl().getAttributes(sess, group);
+		Map<String, String> groupAttributesMap = new HashMap<>();
+		for (cz.metacentrum.perun.core.api.Attribute attr: groupAttributes) {
+			String value = BeansUtils.attributeValueToString(attr);
+			String name = attr.getName();
+			groupAttributesMap.put(name, value);
+		}
 
 		// Get the LDAP group name
-		String ldapGroupName = attributes.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+		String ldapGroupName = groupAttributesMap.get(GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
 		// Get optional filter for members filtering
-		String filter = attributes.get(GroupsManager.GROUPMEMBERSFILTER_ATTRNAME);
+		String filter = groupAttributesMap.get(GroupsManager.GROUPMEMBERSFILTER_ATTRNAME);
+		// If attribute filter not exists, use optional default filter from extSource definition
+		if(filter == null) filter = filteredQuery;
+		// Get modifyTimestamp of Group
+		String groupModifyTimestamp = groupAttributesMap.get(GroupsManager.GROUPCHANGEDETECTION_ATTRNAME);
+
+		String newModifyTimestamp = null;
+		try {
+			log.info("LDAP External Source: search for modifyTimestamp of ldap group: [{}]", ldapGroupName);
+
+			// If modifyTimestamp attribute exists, compare it with the one from last synchronization cycle
+			if (getAttributes().containsKey("timestampAttribute")) {
+				// Get name of timestamp attribute
+				String modifyTimestampName = getAttributes().get("timestampAttribute");
+				// Get format of modifyTimestamp from definition of extSource
+				String modifyTimestampFormat = getAttributes().get("timestampFormat");
+				if (modifyTimestampFormat == null) {
+					throw new InternalErrorException("LDAP: Format of modifyTimestamp is not defined. Declare timestampFormat in definition of extSource.");
+				}
+
+				// Get the modify timestamp attribute of group
+				Attributes attrsModifyTimestamp = getContext().getAttributes(ldapGroupName, new String[] {modifyTimestampName});
+				Attribute modifyTimestampAttribute = attrsModifyTimestamp.get(modifyTimestampName);
+
+				// Get string from modify timestamp attribute gained from external source
+				if (modifyTimestampAttribute != null) {
+					newModifyTimestamp = (String) modifyTimestampAttribute.get();
+
+					// If obtained modifyTimestamp is equal to the stored one, get list of modified members from the extSource
+					if (newModifyTimestamp != null && newModifyTimestamp.equals(groupModifyTimestamp)) {
+
+						// If its Lightweight synchronization, we don't need to gain data from extSource in this case
+						if (status.equals(GroupsManager.GROUP_SYNC_STATUS_LIGHTWEIGHT)) {
+							return GroupsManager.GROUP_SYNC_STATUS_MODIFIED;
+						}
+
+						// If start of last successful synchronization is stored in attribute, get modified members from this date
+						String startOfLastSuccessSync = groupAttributesMap.get(GroupsManager.GROUPSTARTOFLASTSUCCESSSYNC_ATTRNAME);
+						if (startOfLastSuccessSync != null) {
+							try {
+								Date startDate = BeansUtils.getDateFormatter().parse(startOfLastSuccessSync);
+								// Create string with filter to detect modified records (e.g. (modifyTimestamp>=20170414220836Z))
+								SimpleDateFormat sdf = new SimpleDateFormat(modifyTimestampFormat);
+								String dateForFilter = sdf.format(startDate);
+								String additionToFilter = "(" + modifyTimestampName + ">=" + dateForFilter + ")";
+								if (filter == null) {
+									filter = additionToFilter;
+								} else {
+									String tmp = "(&" + additionToFilter + filter + ")";
+									filter = tmp;
+								}
+								log.debug("LDAP: Filter is {}", filter);
+
+								typeOfSynchronization = GroupsManager.GROUP_SYNC_STATUS_MODIFIED;
+							} catch (ParseException e) {
+								// Should not happen
+								log.error("LDAP: Attribute " + GroupsManager.GROUPSTARTOFLASTSUCCESSSYNC_ATTRNAME + " has bad format: {}", startOfLastSuccessSync);
+								throw new InternalErrorException("Error in parsing of date with start of last success sync: " + startOfLastSuccessSync, e);
+							}
+						}
+					} else {
+						// Set check of saving new value of modify timestamp to true
+						saveCheck = true;
+					}
+				} else {
+					throw new InternalErrorException("Attribute with timestamp of group was not obtained from external source.");
+				}
+			}
+			// Gain subjects from extSource
+			queryForGroupSubjectsExtSource(ldapGroupName, filter, subjects);
+
+		} catch (NamingException e) {
+			log.error("LDAP exception during modifyTimestamp query '{}'", ldapGroupName);
+			throw new InternalErrorException("Entry '" + ldapGroupName + "' was not found in LDAP.", e);
+		} finally {
+			try {
+				if (results != null) { results.close(); }
+			} catch (Exception e) {
+				log.error("LDAP exception during closing result, while running query for group '{}'", ldapGroupName);
+				throw new InternalErrorException(e);
+			}
+		}
+
+		if (saveCheck) {
+			log.info("Saving new LDAP Group modify timestamp {}", newModifyTimestamp);
+			// Save new LDAP modify timestamp to group
+			try {
+				AttributeDefinition attributeDefinition = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, GroupsManager.GROUPCHANGEDETECTION_ATTRNAME);
+				cz.metacentrum.perun.core.api.Attribute timestamp = new cz.metacentrum.perun.core.api.Attribute(attributeDefinition);
+				timestamp.setValue(newModifyTimestamp);
+				perunBl.getAttributesManagerBl().setAttributeInNestedTransaction(sess, group, timestamp);
+			} catch (WrongAttributeValueException | WrongAttributeAssignmentException | WrongReferenceAttributeValueException | AttributeNotExistsException e) {
+				throw new InternalErrorException("There is a problem with saving of new modify timestamp of group. New modify timestamp is " + newModifyTimestamp + ".");
+			}
+		}
+
+		return typeOfSynchronization;
+	}
+
+	private void queryForGroupSubjectsExtSource(String ldapGroupName, String filter, List<Map<String, String>> subjects) throws InternalErrorException {
+		List<String> ldapGroupSubjects = new ArrayList<String>();
 
 		try {
 			log.trace("LDAP External Source: searching for group subjects [{}]", ldapGroupName);
 
 			String attrName;
 			if (getAttributes().containsKey("memberAttribute")) {
-				attrName = (String) getAttributes().get("memberAttribute");
+				attrName = getAttributes().get("memberAttribute");
 			} else {
 				// Default value
 				attrName = "uniqueMember";
 			}
+
 			List<String> retAttrs = new ArrayList<String>();
 			retAttrs.add(attrName);
-
 			String[] retAttrsArray = retAttrs.toArray(new String[retAttrs.size()]);
 			Attributes attrs = getContext().getAttributes(ldapGroupName, retAttrsArray);
 
@@ -139,7 +244,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				// Get the attribute which holds group subjects
 				ldapAttribute = attrs.get(attrName);
 			}
-
 			if (ldapAttribute != null) {
 				// Get the DNs of the subjects
 				for (int i=0; i < ldapAttribute.size(); i++) {
@@ -149,28 +253,13 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				}
 			}
 
-			List<Map<String, String>> subjects = new ArrayList<Map<String, String>>();
-
-			// If attribute filter not exists, use optional default filter from extSource definition
-			if(filter == null) filter = filteredQuery;
-
 			// Now query LDAP again and search for each subject
 			for (String ldapSubjectName : ldapGroupSubjects) {
 				subjects.addAll(this.querySource(filter, ldapSubjectName, 0));
 			}
-
-			return subjects;
-
 		} catch (NamingException e) {
 			log.error("LDAP exception during running query '{}'", ldapGroupName);
 			throw new InternalErrorException("Entry '"+ldapGroupName+"' was not found in LDAP." , e);
-		} finally {
-			try {
-				if (results != null) { results.close(); }
-			} catch (Exception e) {
-				log.error("LDAP exception during closing result, while running query '{}'", ldapGroupName);
-				throw new InternalErrorException(e);
-			}
 		}
 	}
 
@@ -181,22 +270,22 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		if (getAttributes().containsKey("referral")) {
-			env.put(Context.REFERRAL, (String) getAttributes().get("referral"));
+			env.put(Context.REFERRAL, getAttributes().get("referral"));
 		}
 		if (getAttributes().containsKey("url")) {
-			env.put(Context.PROVIDER_URL, (String) getAttributes().get("url"));
+			env.put(Context.PROVIDER_URL, getAttributes().get("url"));
 		} else {
 			throw new InternalErrorException("url attributes is required");
 		}
 		if (getAttributes().containsKey("user")) {
-			env.put(Context.SECURITY_PRINCIPAL, (String) getAttributes().get("user"));
+			env.put(Context.SECURITY_PRINCIPAL, getAttributes().get("user"));
 		}
 		if (getAttributes().containsKey("password")) {
-			env.put(Context.SECURITY_CREDENTIALS, (String) getAttributes().get("password"));
+			env.put(Context.SECURITY_CREDENTIALS, getAttributes().get("password"));
 		}
 
 		if (getAttributes().containsKey("filteredQuery")) {
-			filteredQuery = (String) getAttributes().get("filteredQuery");
+			filteredQuery = getAttributes().get("filteredQuery");
 		}
 
 		try {
@@ -204,8 +293,8 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			if (getAttributes().get("ldapMapping") == null) {
 				throw new InternalErrorException("ldapMapping attributes is required");
 			}
-			String ldapMapping[] = ((String) getAttributes().get("ldapMapping")).trim().split(",\n");
-			mapping = new HashMap<String, String>();
+			String ldapMapping[] = (getAttributes().get("ldapMapping")).trim().split(",\n");
+			mapping = new HashMap<>();
 			for (String entry: ldapMapping) {
 				String values[] = entry.trim().split("=", 2);
 				mapping.put(values[0].trim(), values[1].trim());
@@ -247,7 +336,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 		String ldapAttrName;
 		String rule = null;
 		Matcher matcher = null;
-		String attrValue = "";;
+		String attrValue = "";
 
 		// Check if the ldapAttrName contains regex
 		if (ldapAttrNameRaw.contains("|")) {
@@ -347,7 +436,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 			// If query is null, then we are finding object by the base
 			if (query == null) {
 				log.trace("search base [{}]", base);
-				// TODO jmena atributu spise prijimiat pres vstupni parametr metody
 				Attributes ldapAttributes = getContext().getAttributes(base);
 				if (ldapAttributes.size() > 0) {
 					Map<String, String> attributes = this.getSubjectAttributes(ldapAttributes);
@@ -369,9 +457,7 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				if (base == null) base = "";
 
 				results = getContext().search(base, query, controls);
-
 				while (results.hasMore()) {
-
 					SearchResult searchResult = (SearchResult) results.next();
 					Attributes attributes = searchResult.getAttributes();
 					Map<String,String> subjectAttributes = this.getSubjectAttributes(attributes);
@@ -381,7 +467,6 @@ public class ExtSourceLdap extends ExtSource implements ExtSourceApi {
 				}
 			}
 
-			log.trace("Returning [{}] subjects", subjects.size());
 			return subjects;
 
 		} catch (NamingException e) {

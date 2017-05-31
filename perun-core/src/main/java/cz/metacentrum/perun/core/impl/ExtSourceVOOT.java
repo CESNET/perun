@@ -1,10 +1,7 @@
 package cz.metacentrum.perun.core.impl;
 
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import static cz.metacentrum.perun.core.impl.Utils.parseCommonName;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
@@ -125,23 +122,28 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
     }
 
     @Override
-    public List<Map<String, String>> getGroupSubjects(Map<String, String> attributes) throws InternalErrorException {
-        List<Map<String, String>> subjects = new ArrayList<>();
-
+    public String getGroupSubjects(PerunSession sess, Group group, String status, List<Map<String, String>> subjects) throws InternalErrorException {
         try {
-            String queryForGroup = attributes.get(
-                    GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+            Attribute queryForGroupAttribute = null;
+            try {
+                queryForGroupAttribute = perunBl.getAttributesManagerBl().getAttribute(sess, group, GroupsManager.GROUPMEMBERSQUERY_ATTRNAME);
+            } catch (WrongAttributeAssignmentException e) {
+                // Should not happen
+                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " is not from group namespace.");
+            } catch (AttributeNotExistsException e) {
+                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " must exists.");
+            }
+
+            // Get the query for the group subjects
+            String queryForGroup = BeansUtils.attributeValueToString(queryForGroupAttribute);
 
             if (queryForGroup == null) {
-                throw new InternalErrorException("Attribute " + 
-                        GroupsManager.GROUPMEMBERSEXTSOURCE_ATTRNAME + 
-                        " can't be null.");
+                throw new InternalErrorException("Attribute " + GroupsManager.GROUPMEMBERSQUERY_ATTRNAME + " can't be null.");
             }
 
             prepareEnvironment();
 
-            List<Map<String, String>> parsedResult =
-                    getUsersFromRemoteGroup(queryForGroup);
+            List<Map<String, String>> parsedResult = getUsersFromRemoteGroup(queryForGroup);
 
             for (Map map : parsedResult) {
                 if (map != null) {
@@ -153,7 +155,7 @@ public class ExtSourceVOOT extends ExtSource implements ExtSourceApi {
             log.error("IOException in getGroupSubjects() method while obtaining"
                     + "users from VOOT external source by group name", ex);
         }
-        return subjects;
+        return GroupsManager.GROUP_SYNC_STATUS_FULL;
     }
 
     @Override

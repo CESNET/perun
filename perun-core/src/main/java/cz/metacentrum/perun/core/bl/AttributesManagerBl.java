@@ -1438,6 +1438,39 @@ public interface AttributesManagerBl {
 	 */
 	void setAttributeInNestedTransaction(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
 
+	/**
+	 * Store the particular attribute associated with the group. Core attributes can't be set this way.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess perun session
+	 * @param group group to set on
+	 * @param attribute attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is core attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttributeInNestedTransaction(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException;
+
+	/**
+	 * Store the particular attribute associated with the member-group relationship. Core attributes can't be set this way.
+	 *
+	 * This method creates nested transaction to prevent storing value to DB if it throws any exception.
+	 *
+	 * @param sess perun session
+	 * @param member member to set on
+	 * @param group group group where is member
+	 * @param attribute attribute to set
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeValueException if the attribute value is illegal
+	 * @throws WrongAttributeAssignmentException if attribute is not member-group attribute or if it is core attribute
+	 * @throws WrongReferenceAttributeValueException
+	 */
+	void setAttributeInNestedTransaction(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException;
+
 
 	/**
 	 * Store the attribute associated with the facility and user combination.  Core attributes can't be set this way.
