@@ -16,10 +16,10 @@ import java.nio.file.Paths;
  * Configurator for logback logging framework. The loading sequence is as follows:
  * <p>
  * <ol>
- * <li>if <b>logback-test.xml</b> is found in classpath, it is used (this happens only during tests)</li>
  * <li>if <b>-Dlogback.configurationFile=/somedir/logback.xml</b> is set, it is used</li>
+ * <li>if <b>logback-test.xml</b> is found in classpath, it is used (this happens only during tests)</li>
  * <li>if logback.xml is found anywhere on the classpath, it is used (like perun-engine)</li>
- * <li>if system property<b>perun.conf.custom</b> defines a directory wioth logback.xml, it is used</li>
+ * <li>if system property<b>perun.conf.custom</b> defines a directory with logback.xml, it is used</li>
  * <li>if file /etc/perun/logback.xml exists, it is used</li>
  * <li>file logback-default.xml from perun-base is loaded</li>
  * <li>if everything else fails, logback's BasicConfigurator is used</li>

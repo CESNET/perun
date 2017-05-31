@@ -25,7 +25,7 @@ JAR=/home/perun/perun-engine/perun-engine-3.0.1-SNAPSHOT-production.jar
 NAME=perun-engine
 SCRIPTNAME=/etc/init.d/$NAME
 PIDFILE=/var/run/perun/$NAME.pid
-LOG4J_CONF=/etc/perun/log4j-engine.xml
+LOG_CONF=/etc/perun/logback-engine.xml
 PERUN_ENGINE_CONF_DIR=/etc/perun/
 DAEMON_USER=perun
 JAVA=`which java`
@@ -44,7 +44,7 @@ EXEC_DIR=/home/perun/perun-engine/
 # Read configuration if it is present.
 [ -r /etc/perun/$NAME ] && . /etc/perun/$NAME
 
-DAEMON_OPTS="-Dlog4j.debug -Djava.util.logging.config.file=$LOG4J_CONF -Dlog4j.configuration=file:$LOG4J_CONF -Dperun.conf.custom=$PERUN_ENGINE_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -jar $JAR"
+DAEMON_OPTS="-Dlogback.configurationFile=$LOG_CONF -Dperun.conf.custom=$PERUN_ENGINE_CONF_DIR $JAVA_OPTS -Dspring.profiles.default=production -jar $JAR"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
