@@ -883,6 +883,9 @@ public class RegistrarManagerImpl implements RegistrarManager {
 		// try to verify (or even auto-approve) application
 		try {
 			tryToVerifyApplication(session, app);
+			// refresh current session, if submission was successful,
+			// since user might have been created.
+			AuthzResolverBlImpl.refreshSession(session);
 		} catch (Exception ex) {
 			log.error("[REGISTRAR] Unable to verify or auto-approve application {}, because of exception {}", app, ex);
 			throw ex;
