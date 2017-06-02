@@ -390,6 +390,19 @@ public enum MembersManagerMethod implements ManagerMethod {
  	 * @param lookingInParentGroup boolean If true, look up in a parent group
  	 * @return List<RichMember> List of richMembers with specific attributes from Group
  	 */
+	/*#
+	 * Get all RichMembers with attributes specific for list of attrNames.
+	 * Attributes are defined by member (user) and resource (facility) objects.
+	 * It returns also user-facility (in userAttributes of RichMember) and
+	 * member-resource (in memberAttributes of RichMember) attributes.
+	 * Members are defined by group and are filtered by list of allowed statuses.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param attrsNames List<String> Attribute names
+	 * @param allowedStatuses List<String> Allowed statuses (VALID | INVALID | SUSPENDED | EXPIRED | DISABLED)
+	 * @return List<RichMember> List of richMembers with selected specific attributes
+	 */
 	getCompleteRichMembers {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -423,12 +436,21 @@ public enum MembersManagerMethod implements ManagerMethod {
 			} else {
 				if (parms.contains("allowedStatuses")) {
 					if (parms.contains("attrsNames")) {
-						// with selected attributes
-						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
-								ac.getGroupById(parms.readInt("group")),
-								parms.readList("attrsNames", String.class),
-								parms.readList("allowedStatuses", String.class),
-								parms.readBoolean("lookingInParentGroup"));
+						if (parms.contains("resource")) {
+							// with selected attributes
+							return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
+									ac.getGroupById(parms.readInt("group")),
+									ac.getResourceById(parms.readInt("resource")),
+									parms.readList("attrsNames", String.class),
+									parms.readList("allowedStatuses", String.class));
+						} else {
+							// with selected attributes
+							return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),
+									ac.getGroupById(parms.readInt("group")),
+									parms.readList("attrsNames", String.class),
+									parms.readList("allowedStatuses", String.class),
+									parms.readBoolean("lookingInParentGroup"));
+						}
 					} else {
 						// with all attributes
 						return ac.getMembersManager().getCompleteRichMembers(ac.getSession(),

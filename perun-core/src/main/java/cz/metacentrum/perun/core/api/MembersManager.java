@@ -625,6 +625,29 @@ public interface MembersManager {
 	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, PrivilegeException, VoNotExistsException, GroupNotExistsException, AttributeNotExistsException, ParentGroupNotExistsException;
 
 	/**
+	 * Get all RichMembers with attributes specific for list of attrNames.
+	 * Attributes are defined by member (user) and resource (facility) objects.
+	 * It returns also user-facility (in userAttributes of RichMember) and
+	 * member-resource (in memberAttributes of RichMember) attributes.
+	 * Members are defined by group and are filtered by list of allowed statuses.
+	 *
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @param attrsNames
+	 * @param allowedStatuses
+	 * @return list of richMembers with specific attributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws ParentGroupNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 * @throws ResourceNotExistsException
+	 * @throws GroupNotExistsException
+	 * @throws PrivilegeException
+	 */
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException, GroupNotExistsException, ResourceNotExistsException, PrivilegeException;
+
+	/**
 	 * Return list of richMembers for specific vo by the searchString with attrs specific for list of attrsNames.
 	 * If attrsNames is empty or null return all attributes for specific richMembers.
 	 *

@@ -50,6 +50,14 @@ sub getMemberAttributes {
 	return @{$self->{_memberAttributes}};
 }
 
+sub getFirstName {
+	my $user = shift->{_user};
+	my $str = "";
+	$str .= $user->{firstName} if defined $user->{firstName};
+
+	return $str;
+}
+
 sub getLastName {
 	my $user = shift->{_user};
 	my $str = "";
