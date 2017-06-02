@@ -179,7 +179,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				//it is ok, we just want to remove it anyway
 			}
 		}
-		
+
 		/* TODO this can be used for future optimization. If the user is not asigned to the facility anymore all user-facility attributes (for this facility) can be safely removed.
 			 for (Facility facility: facilitiesBeforeMemberRemove) {
 		// Remove user-facility attributes
@@ -723,6 +723,10 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, vo, attrsNames), allowedStatuses);
 	}
 
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
+		return getOnlyRichMembersWithAllowedStatuses(sess, this.getRichMembersWithAttributesByNames(sess, group, resource, attrsNames), allowedStatuses);
+	}
+
 	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
 		if(lookingInParentGroup) group = getPerunBl().getGroupsManagerBl().getParentGroup(sess, group);
 
@@ -822,6 +826,19 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembersWithAttributes;
 	}
 
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
+		List<Member> members = new ArrayList<Member>();
+		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
+		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
+		List<AttributeDefinition> attrsDef = new ArrayList<AttributeDefinition>();
+		for(String atrrName: attrsNames) {
+			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
+			attrsDef.add(attrDef);
+		}
+		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, resource, attrsDef);
+		return richMembersWithAttributes;
+	}
+
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
@@ -894,6 +911,35 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		for (RichMember richMember: richMembers) {
 			List<Attribute> userAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser());
 			List<Attribute> memberAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember);
+
+			richMember.setUserAttributes(userAttributes);
+			richMember.setMemberAttributes(memberAttributes);
+		}
+
+		return richMembers;
+	}
+
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException {
+		List<String> attrNames = new ArrayList<>();
+		for(AttributeDefinition attributeDefinition: attrsDef) {
+			attrNames.add(attributeDefinition.getName());
+		}
+
+		for (RichMember richMember: richMembers) {
+			List<Attribute> userAttributes = new ArrayList<Attribute>();
+			List<Attribute> memberAttributes = new ArrayList<Attribute>();
+
+			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, richMember, attrNames, true);
+
+			for(Attribute attribute: attributes) {
+				if(attribute.getName().startsWith(AttributesManager.NS_USER_ATTR)) userAttributes.add(attribute);
+				else if(attribute.getName().startsWith(AttributesManager.NS_USER_FACILITY_ATTR)) userAttributes.add(attribute);
+				else if(attribute.getName().startsWith(AttributesManager.NS_MEMBER_ATTR)) memberAttributes.add(attribute);
+				else if(attribute.getName().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR)) memberAttributes.add(attribute);
+				else {
+					throw new InternalErrorException(attribute + " is not from user or member namespace (member-resource, user-facility included)!");
+				}
+			}
 
 			richMember.setUserAttributes(userAttributes);
 			richMember.setMemberAttributes(memberAttributes);

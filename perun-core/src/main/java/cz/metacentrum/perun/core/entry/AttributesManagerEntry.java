@@ -154,6 +154,38 @@ public class AttributesManagerEntry implements AttributesManager {
 		return attributes;
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws PrivilegeException, ResourceNotExistsException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
+
+		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, resource, member, attrNames, workWithUserAttributes);
+		Iterator<Attribute> attrIter = attributes.iterator();
+		//Choose to which attributes has the principal access
+		while(attrIter.hasNext()) {
+			Attribute attrNext = attrIter.next();
+			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_ATTR)) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, member, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, member, null));
+			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_ATTR)) {
+				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, user, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, user, null));
+			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_USER_FACILITY_ATTR)) {
+				User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+				Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, facility, user)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, facility, user));
+			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_MEMBER_RESOURCE_ATTR)) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, resource, member)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, resource, member));
+			} else {
+				throw new ConsistencyErrorException("One of getting attributes is not correct type : " + attrNext);
+			}
+		}
+		return attributes;
+	}
+
 	@Override
 	public List<Attribute> getAttributes(PerunSession sess, Member member, Group group) throws PrivilegeException, GroupNotExistsException, InternalErrorException, MemberNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
@@ -335,7 +367,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 		return attributes;
 	}
-	
+
 	public List<Attribute> getAttributes(PerunSession sess, Member member, List<String> attrNames, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
@@ -511,7 +543,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 		return attributes;
 	}
-	
+
 	public List<Attribute> getEntitylessAttributes(PerunSession sess, String attrName) throws PrivilegeException, InternalErrorException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(attrName, "name of entityless attributes");
@@ -2019,7 +2051,7 @@ public class AttributesManagerEntry implements AttributesManager {
 		}
 		return result;
 	}
-		
+
 	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws PrivilegeException, InternalErrorException, ServiceNotExistsException, MemberNotExistsException, GroupNotExistsException, WrongAttributeAssignmentException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getServicesManagerBl().checkServiceExists(sess, service);

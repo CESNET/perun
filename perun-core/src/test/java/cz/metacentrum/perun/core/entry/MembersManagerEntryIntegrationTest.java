@@ -6,11 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 import cz.metacentrum.perun.core.api.*;
 import org.junit.Before;
@@ -23,8 +19,6 @@ import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
 import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Integration tests for MembersManager
@@ -143,6 +137,47 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		// save user for deletion after test
 		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+	}
+
+	@Test
+	public void getCompleteRichMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getCompleteRichMembers");
+
+		User user = perun.getUsersManagerBl().getUserByMember(sess, createdMember);
+		Facility facility = new Facility(0, "TESTING Facility", "TESTING Facility");
+		facility = perun.getFacilitiesManagerBl().createFacility(sess, facility);
+		Resource resource = new Resource(0, "TESTING Resource", "TESTING Resource", facility.getId(), createdVo.getId());
+		resource = perun.getResourcesManagerBl().createResource(sess, resource, createdVo, facility);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, createdGroup, resource);
+		perun.getGroupsManagerBl().addMember(sess, createdGroup, createdMember);
+
+		Attribute userAttribute1 = setUpAttribute(String.class.getName(), "testUserAttribute1", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+		Attribute userAttribute2 = setUpAttribute(String.class.getName(), "testUserAttribute2", AttributesManager.NS_USER_ATTR_DEF, "TEST VALUE");
+		perun.getAttributesManagerBl().setAttributes(sess, user, new ArrayList<>(Arrays.asList(userAttribute1, userAttribute1)));
+		Attribute memberAttribute1 = setUpAttribute(Integer.class.getName(), "testMemberAttribute1", AttributesManager.NS_MEMBER_ATTR_DEF, 15);
+		perun.getAttributesManagerBl().setAttributes(sess, createdMember, new ArrayList<>(Arrays.asList(memberAttribute1)));
+		Attribute userFacilityAttribute1 = setUpAttribute(ArrayList.class.getName(), "testUserFacilityAttribute1", AttributesManager.NS_USER_FACILITY_ATTR_DEF, new ArrayList<>(Arrays.asList("A", "B")));
+		perun.getAttributesManagerBl().setAttributes(sess, facility, user, new ArrayList<>(Arrays.asList(userFacilityAttribute1)));
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("A", "B");
+		map.put("C", "D");
+		Attribute memberResourceAttribute1 = setUpAttribute(LinkedHashMap.class.getName(), "testMemberResourceAttribute1", AttributesManager.NS_MEMBER_RESOURCE_ATTR_DEF, map);
+		perun.getAttributesManagerBl().setAttributes(sess, resource, createdMember, new ArrayList<>(Arrays.asList(memberResourceAttribute1)));
+
+		List<String> attrNames = new ArrayList<>(Arrays.asList(userAttribute1.getName(), memberAttribute1.getName(), userFacilityAttribute1.getName(), memberResourceAttribute1.getName()));
+		List<RichMember> richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Arrays.asList("INVALID", "DISABLED", "SUSPENDED", "EXPIRED"));
+		assertTrue(richMembers.isEmpty());
+		richMembers = membersManagerEntry.getCompleteRichMembers(sess, createdGroup, resource, attrNames, Arrays.asList("VALID"));
+
+		List<Attribute> userAttributes = richMembers.get(0).getUserAttributes();
+		List<Attribute> memberAttributes = richMembers.get(0).getMemberAttributes();
+		assertTrue(richMembers.size() == 1);
+		assertTrue(userAttributes.size() == 2);
+		assertTrue(memberAttributes.size() == 2);
+		assertTrue(userAttributes.contains(userAttribute1));
+		assertTrue(userAttributes.contains(userFacilityAttribute1));
+		assertTrue(memberAttributes.contains(memberAttribute1));
+		assertTrue(memberAttributes.contains(memberResourceAttribute1));
 	}
 
 	@Test
@@ -1183,6 +1218,17 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 		assertTrue("results must contain at least one member",members.size() >= 1);
 		assertTrue("results must contain member \"Pepa z Depa\"", members.contains(createdMember));
+	}
+
+	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {
+		Attribute attr = new Attribute();
+		attr.setNamespace(namespace);
+		attr.setFriendlyName(friendlyName);
+		attr.setType(type);
+		attr.setValue(value);
+		attr.setDescription("TEST DESCRIPTION");
+		assertNotNull("unable to create " + attr.getName() + " attribute",perun.getAttributesManagerBl().createAttribute(sess, attr));
+		return attr;
 	}
 
 

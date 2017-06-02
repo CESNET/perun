@@ -92,7 +92,7 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Remove all non-virtual group-resource attributes assigned to resource
-	 * 
+	 *
 	 * @param sess
 	 * @param resource
 	 * @throws InternalErrorException
@@ -154,6 +154,25 @@ public interface AttributesManagerBl {
 	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
+
+	/**
+	 * Gets selected <b>non-empty</b> attributes associated with the member and the resource.
+	 * It returns member and member-resource attributes and also user and user-facility attributes if
+	 * workWithUserAttributes is true.
+	 * Attributes are selected by list of attr_names. Empty list means all attributes.
+	 *
+	 * @param sess perun session
+	 * @param resource to get the attributes from
+	 * @param member to get the attributes from
+	 * @param workWithUserAttributes if true returns also user and user-facility attributes (user is automatically get from member a facility is get from resource)
+	 * @return list of selected attributes
+	 *
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 *
+	 * !!WARNING THIS IS VERY TIME-CONSUMING METHOD. DON'T USE IT IN BATCH!!
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the member in the group.
@@ -455,25 +474,25 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Returns entityless attribute by attr_id and key (subject) for update!
-	 * 
-	 * For update - means lock row with attr_values in DB (entityless_attr_values with specific subject and attr_id) 
+	 *
+	 * For update - means lock row with attr_values in DB (entityless_attr_values with specific subject and attr_id)
 	 *
 	 * Not lock row in attr_names!
-	 * 
+	 *
 	 * IMPORTANT: This method use "select for update" and locks row for transaction. Use clever.
 	 *
 	 * If attribute with subject=key not exists, create new one with null value and return it.
-	 * 
+	 *
 	 * @param sess
 	 * @param attrName
 	 * @param key
 	 * @return attr_value in string
-	 * 
+	 *
 	 * @throws InternalErrorException if runtime error exception has been thrown
 	 * @throws AttributeNotExistsException throw exception if attribute with value not exists in DB
 	 */
 	Attribute getEntitylessAttributeForUpdate(PerunSession sess, String key, String attrName) throws InternalErrorException, AttributeNotExistsException;
-	
+
 	/**
 	 * Store the attributes associated with the facility. If an attribute is core attribute then the attribute isn't stored (It's skipped without any notification).
 	 *
@@ -1218,14 +1237,14 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Get and set required attribute for member, resource, user and facility.
-	 * 
+	 *
 	 * Procedure:
 	 * 1] Get all member, member-resource, user, user-facility required attributes for member and resource.
 	 * 2] Fill attributes and store those which were really filled. (value changed)
 	 * 3] Set filled attributes.
 	 * 4] Refresh value in all virtual attributes.
 	 * 5] Check all attributes and their dependencies.
-	 * 
+	 *
 	 * @param sess
 	 * @param member
 	 * @param resource
@@ -1235,10 +1254,10 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws AttributeNotExistsException
-	 * @throws WrongAttributeValueException 
+	 * @throws WrongAttributeValueException
 	 */
 	void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException;
-	
+
 	/**
 	 * Get and set required attribute for member, resource, user, facility and specific service.
 	 *
@@ -1259,7 +1278,7 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws AttributeNotExistsException
-	 * @throws WrongAttributeValueException 
+	 * @throws WrongAttributeValueException
 	 */
 	void setRequiredAttributes(PerunSession sess, Service service, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException;
 
@@ -1274,7 +1293,7 @@ public interface AttributesManagerBl {
 	 * 3] Set filled attributes.
 	 * 4] Refresh value in all virtual attributes.
 	 * 5] Check all attributes and their dependencies.
-	 * 
+	 *
 	 * @param sess
 	 * @param facility
 	 * @param resource
@@ -1285,7 +1304,7 @@ public interface AttributesManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 * @throws WrongReferenceAttributeValueException
 	 * @throws AttributeNotExistsException
-	 * @throws WrongAttributeValueException 
+	 * @throws WrongAttributeValueException
 	 */
 	void setRequiredAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes) throws InternalErrorException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException, AttributeNotExistsException, WrongAttributeValueException;
 
@@ -1799,12 +1818,12 @@ public interface AttributesManagerBl {
 
 	/**
 	 * Get resource attributes which are required by selected services.
-	 * 
+	 *
 	 * @param sess perun session
 	 * @param resource you get attributes for this resource
 	 * @param services
 	 * @return list of resource attributes which are required by selected services.
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	List<Attribute> getRequiredAttributes(PerunSession sess, List<Service> services, Resource resource) throws InternalErrorException;
 
@@ -2217,10 +2236,10 @@ public interface AttributesManagerBl {
 	 *
 	 * This method try to fill value of the user, member, member-resource and user-facility attributes. This value is automatically generated, but not all attributes can be filled this way.
 	 * This method skips all attributes with not-null value.
-	 * 
+	 *
 	 * if returnOnlyAttributesWithChangedValue is true - return only attributes which changed value by filling new one
 	 * If false, has the same functionality like fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes)
-	 * 
+	 *
 	 * @param sess
 	 * @param facility
 	 * @param resource
@@ -2230,7 +2249,7 @@ public interface AttributesManagerBl {
 	 * @param returnOnlyAttributesWithChangedValue
 	 * @return
 	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException 
+	 * @throws WrongAttributeAssignmentException
 	 */
 	public List<Attribute> fillAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member, List<Attribute> attributes, boolean returnOnlyAttributesWithChangedValue) throws InternalErrorException, WrongAttributeAssignmentException;
 
@@ -3711,10 +3730,10 @@ public interface AttributesManagerBl {
 	 * @throws ModuleNotExistsException
 	 */
 	public UserVirtualAttributesModuleImplApi getUserVirtualAttributeModule(PerunSession sess, AttributeDefinition attribute) throws ModuleNotExistsException, WrongModuleTypeException, InternalErrorException;
-	
+
 	/**
 	* Method returns attribute with null value if attribute has empty string;
-	* 
+	*
 	* @param attributeToConvert
 	* @return Attribute with original value or null value for empty string
 	*/

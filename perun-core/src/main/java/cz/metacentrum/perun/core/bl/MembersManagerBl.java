@@ -4,36 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.SpecificUserType;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
-import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
 
 /**
  * MembersManager can find members.
@@ -638,6 +610,25 @@ public interface MembersManagerBl {
 	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException;
 
 	/**
+	 * Get all RichMembers with attributes specific for list of attrNames.
+	 * Attributes are defined by member (user) and resource (facility) objects.
+	 * It returns also user-facility (in userAttributes of RichMember) and
+	 * member-resource (in memberAttributes of RichMember) attributes.
+	 * Members are defined by group and are filtered by list of allowed statuses.
+	 *
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @param attrsNames
+	 * @param allowedStatuses
+	 * @return list of richMembers with specific attributes
+	 * @throws InternalErrorException
+	 * @throws AttributeNotExistsException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, Resource resource, List<String> attrsNames, List<String> allowedStatuses) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException;
+
+	/**
 	 * Return list of richMembers for specific vo by the searchString with attributes specific for list of attrsNames.
 	 * If attrsNames is empty or null return all attributes for specific richMembers.
 	 *
@@ -751,6 +742,23 @@ public interface MembersManagerBl {
 	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException;
 
 	/**
+	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
+	 * Get also user-facility (as user attribute in rich member) and member-resource (as member attributes in rich member)
+	 * attributes by resource.
+	 *
+	 * @param sess
+	 * @param group
+	 * @param resource
+	 * @param attrsNames list of attrNames for selected attributes
+	 * @return list of RichMembers
+	 * @throws AttributeNotExistsException
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
+
+
+	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef.
 	 *
 	 * @param sess
@@ -858,14 +866,27 @@ public interface MembersManagerBl {
 
 	/**
 	 * Fill the RichMember object with data from Member and corresponding User and user/member attributes defined by list of attribute definition.
-	 * 
+	 *
 	 * @param sess
 	 * @param richMembers
 	 * @param attrsDef
 	 * @return
-	 * @throws InternalErrorException 
+	 * @throws InternalErrorException
 	 */
 	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException;
+
+	/**
+	 * Fill the RichMember object with data from Member and corresponding User, user/member, user-facility and member-resource attributes defined by list of attribute definition.
+	 *
+	 * @param sess
+	 * @param richMembers
+	 * @param resource
+	 * @param attrsDef
+	 * @return
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get the VO members count.
@@ -1191,7 +1212,7 @@ public interface MembersManagerBl {
 	 * @throws ExtendMembershipException
 	 */
 	Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, ExtendMembershipException;
-	
+
 	/**
    * Returns the date to which will be extended potential member of the VO.
    *

@@ -222,6 +222,37 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
+		if(attrNames.isEmpty()) return this.getAttributes(sess, resource, member, workWithUserAttributes);
+
+		List<String> userAndMemberAttributeNames = new ArrayList<>();
+		List<String> memberResourceAttributeNames = new ArrayList<>();
+		List<String> userFacilityAttirbuteNames = new ArrayList<>();
+		for(String attributeName: attrNames) {
+			if(attributeName.startsWith(AttributesManager.NS_USER_ATTR) || attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR_DEF)) {
+				userAndMemberAttributeNames.add(attributeName);
+			} else if(attributeName.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
+				memberResourceAttributeNames.add(attributeName);
+			} else if(attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR_DEF)) {
+				userFacilityAttirbuteNames.add(attributeName);
+			} else {
+				log.error("Attribute defined by " + attributeName + " is not in supported namespace. Skip it there!");
+			}
+		}
+
+		List<Attribute> attributes = new ArrayList<>();
+		attributes.addAll(this.getAttributes(sess, member, userAndMemberAttributeNames, workWithUserAttributes));
+		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, resource, memberResourceAttributeNames));
+		if(workWithUserAttributes) {
+			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
+			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
+			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, user, facility, userFacilityAttirbuteNames));
+		}
+
+		return attributes;
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws InternalErrorException {
 		List<Attribute> attributes = new ArrayList<Attribute>();
 		attributes.addAll(this.getAttributes(sess, member));
