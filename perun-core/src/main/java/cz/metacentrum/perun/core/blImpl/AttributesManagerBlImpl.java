@@ -230,11 +230,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		List<String> memberResourceAttributeNames = new ArrayList<>();
 		List<String> userFacilityAttirbuteNames = new ArrayList<>();
 		for(String attributeName: attrNames) {
-			if(attributeName.startsWith(AttributesManager.NS_USER_ATTR) || attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR_DEF)) {
+			if(attributeName.startsWith(AttributesManager.NS_USER_ATTR) || attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR)) {
 				userAndMemberAttributeNames.add(attributeName);
 			} else if(attributeName.startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR)) {
 				memberResourceAttributeNames.add(attributeName);
-			} else if(attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR_DEF)) {
+			} else if(attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR)) {
 				userFacilityAttirbuteNames.add(attributeName);
 			} else {
 				log.error("Attribute defined by " + attributeName + " is not in supported namespace. Skip it there!");
@@ -242,9 +242,10 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		}
 
 		List<Attribute> attributes = new ArrayList<>();
-		attributes.addAll(this.getAttributes(sess, member, userAndMemberAttributeNames, workWithUserAttributes));
-		attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, resource, memberResourceAttributeNames));
-		if(workWithUserAttributes) {
+		//Call only if list of attributes is not empty
+		if(!userAndMemberAttributeNames.isEmpty()) attributes.addAll(this.getAttributes(sess, member, userAndMemberAttributeNames, workWithUserAttributes));
+		if(!memberResourceAttributeNames.isEmpty()) attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, resource, memberResourceAttributeNames));
+		if(workWithUserAttributes && !userFacilityAttirbuteNames.isEmpty()) {
 			User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);
 			Facility facility = getPerunBl().getResourcesManagerBl().getFacility(sess, resource);
 			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, user, facility, userFacilityAttirbuteNames));
