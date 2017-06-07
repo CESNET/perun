@@ -10,15 +10,10 @@ import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Class for checking logins uniqueness in the namespace and filling einfraid-persistent id.
@@ -29,12 +24,13 @@ import java.security.NoSuchAlgorithmException;
 public class urn_perun_user_attribute_def_def_login_namespace_einfraid_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
 	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_einfraid_persistent_shadow.class);
-	private final String extSourceNameEinfraid = "https://login.cesnet.cz/idp/";
-	private final String domainNameEinfraid = "@einfra.cesnet.cz";
-	private final String attrNameEinfraid = "login-namespace:einfraid-persistent-shadow";
+	private final static String extSourceNameEinfraid = "https://login.cesnet.cz/idp/";
+	private final static String domainNameEinfraid = "@einfra.cesnet.cz";
+	private final static String attrNameEinfraid = "login-namespace:einfraid-persistent-shadow";
 
 	/**
 	 * Filling implemented for login:namespace:einfraid-persistent attribute
+	 * Format is: "[hash]@einfra.cesnet.cz" where [hash] represents sha1hash counted from users id, namespace and perun instance ID.
 	 *
 	 * @param perunSession PerunSession
 	 * @param user User to fill attribute for
@@ -48,54 +44,12 @@ public class urn_perun_user_attribute_def_def_login_namespace_einfraid_persisten
 
 		Attribute filledAttribute = new Attribute(attribute);
 
-		if (attribute.getFriendlyName().equals(this.attrNameEinfraid)) {
-			return generateLoginValueEinfraid(perunSession, user, filledAttribute);
+		if (attribute.getFriendlyName().equals(attrNameEinfraid)) {
+			filledAttribute.setValue(sha1HashCount(user, domainNameEinfraid).toString() + domainNameEinfraid);
+			return filledAttribute;
 		} else {
 			// without value
 			return filledAttribute;
-		}
-	}
-
-	/**
-	 * Fills login-namespace:einfraid-persistent attribute with generated value.
-	 * Format is: "[hash]@einfra.cesnet.cz" where [hash] represents sha1hash counted from users id.
-	 *
-	 * @param sess PerunSession
-	 * @param user User to fill attribute for
-	 * @param attribute Attribute to fill value with
-	 * @return Filled attribute
-	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 */
-	private Attribute generateLoginValueEinfraid(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-		try {
-			attribute.setValue(sha1HashCount(user).toString() + this.domainNameEinfraid);
-			checkAttributeValue(sess, user, attribute);
-			return attribute;
-		} catch (WrongAttributeValueException ex) {
-			return attribute;
-		}
-	}
-
-	/**
-	 * Sha1HashCount() counts sha1hash for einfraid-persistent namespace from users id
-	 *
-	 * @param user user with the id
-	 * @return counted hash
-	 */
-	private StringBuilder sha1HashCount(User user) throws InternalErrorException {
-		try {
-			MessageDigest mDigest = MessageDigest.getInstance("SHA1");
-			// counts sha1hash and converts output to hex
-			byte[] result = mDigest.digest(ByteBuffer.allocate(4).putInt(user.getId()).array());
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < result.length; i++) {
-				sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
-			}
-
-			return sb;
-		} catch (NoSuchAlgorithmException ex) {
-			throw new InternalErrorException("Algorithm for sha1hash was not found.", ex);
 		}
 	}
 
