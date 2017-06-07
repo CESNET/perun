@@ -99,7 +99,7 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	 *
 	 * @param attributeName String
 	 * @param attributeValue String
-	 * @return Facilities Found facilities
+	 * @return List<Facility> facilities with the specified attribute
 	 */
 	getFacilitiesByAttribute {
 
