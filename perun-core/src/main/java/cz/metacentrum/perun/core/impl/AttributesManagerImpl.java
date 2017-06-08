@@ -526,7 +526,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 			//FIXME use ValueRowMapper
 			String stringValue;
-			if(attributesManagerImpl.isLargeAttribute(sess, attribute)) {
+			if(Utils.isLargeAttribute(sess, attribute)) {
 
 				try {
 					if (Compatibility.isOracle()) {
@@ -588,7 +588,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 		public Object mapRow(ResultSet rs, int i) throws SQLException {
 			String stringValue;
-			if(attributesManagerImpl.isLargeAttribute(sess, attributeDefinition)) {
+			if(Utils.isLargeAttribute(sess, attributeDefinition)) {
 				//large attributes
 				try {
 					if (Compatibility.isOracle()) {
@@ -1761,7 +1761,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 			}
 
 			// set the column name according to the size of the attribute
-			boolean largeAttribute = isLargeAttribute(sess, attribute);
+			boolean largeAttribute = Utils.isLargeAttribute(sess, attribute);
 			String valueColName = (largeAttribute ? "attr_value_text" : "attr_value");
 
 			// if the DB value is the same as parameter, return
@@ -3372,12 +3372,6 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		if(attribute == null) throw new InternalErrorRuntimeException(new NullPointerException("Attribute attribute is null"));
 		if(attribute.getNamespace() == null) throw new InternalErrorRuntimeException(new NullPointerException("String attribute.namespace is null"));
 		return attribute.getNamespace().startsWith(namespace + ":") || attribute.getNamespace().equals(namespace);
-	}
-
-	public boolean isLargeAttribute(PerunSession sess, AttributeDefinition attribute) {
-		return (attribute.getType().equals(LinkedHashMap.class.getName()) ||
-				attribute.getType().equals(BeansUtils.largeStringClassName) ||
-				attribute.getType().equals(BeansUtils.largeArrayListClassName));
 	}
 
 	public void checkNamespace(PerunSession sess, AttributeDefinition attribute, String namespace) throws WrongAttributeAssignmentException {

@@ -292,6 +292,7 @@ public interface FacilitiesManagerImplApi {
 
 	/**
 	 * Returns all facilities which have set the attribute with the value. Searching only def and opt attributes.
+	 * Large attributes are not supported.
 	 *
 	 * @param sess
 	 * @param attribute

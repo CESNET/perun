@@ -94,6 +94,23 @@ public enum FacilitiesManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns all facilities that have set the attribute 'attributeName' with the value 'attributeValue'.
+	 * Searching only def and opt attributes. Large attributes are not supported.
+	 *
+	 * @param attributeName String
+	 * @param attributeValue String
+	 * @return List<Facility> facilities with the specified attribute
+	 */
+	getFacilitiesByAttribute {
+
+		@Override
+		public List<Facility> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getFacilitiesManager().getFacilitiesByAttribute(ac.getSession(),
+					parms.readString("attributeName"), parms.readString("attributeValue"));
+		}
+	},
+
+	/*#
 	 * List all facilities.
 	 *
 	 * @return List<Facility> All facilities

@@ -416,15 +416,18 @@ public interface FacilitiesManagerBl {
 	List<Facility> getAssignedFacilities(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException;
 
 	/**
-	 * Returns all facilities which have set the attribute with the value. Searching only def and opt attributes.
+	 * Returns all facilities that have set the attribute 'attributeName' with the value 'attributeValue'.
+	 * Searching only def and opt attributes. Large attributes are not supported.
 	 *
-	 * @param sess
-	 * @param attribute
+	 * @param sess perun session
+	 * @param attributeName attribute name to be searched by
+	 * @param attributeValue attribute value to be searched by
 	 * @return
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-	List<Facility> getFacilitiesByAttribute(PerunSession sess, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException;
+	List<Facility> getFacilitiesByAttribute(PerunSession sess, String attributeName, String attributeValue) throws InternalErrorException, WrongAttributeAssignmentException;
+
 	/**
 	 * List hosts of Facility.
 	 *

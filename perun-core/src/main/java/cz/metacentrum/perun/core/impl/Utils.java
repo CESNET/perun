@@ -1240,4 +1240,16 @@ public class Utils {
 
 	}
 
+	/**
+	 * Determine if attribute is large (can contain value over 4kb).
+	 *
+	 * @param sess perun session
+	 * @param attribute attribute to be checked
+	 * @return true if the attribute is large
+	 */
+	public static boolean isLargeAttribute(PerunSession sess, AttributeDefinition attribute) {
+		return (attribute.getType().equals(LinkedHashMap.class.getName()) ||
+				attribute.getType().equals(BeansUtils.largeStringClassName) ||
+				attribute.getType().equals(BeansUtils.largeArrayListClassName));
+	}
 }

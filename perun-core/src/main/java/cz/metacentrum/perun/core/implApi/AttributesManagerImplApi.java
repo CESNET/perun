@@ -2153,15 +2153,6 @@ public interface AttributesManagerImplApi {
 	boolean isFromNamespace(PerunSession sess, AttributeDefinition attribute, String namespace);
 
 	/**
-	 * Determine if attribute is large (can contain value over 4kb).
-	 *
-	 * @param sess
-	 * @param attribute
-	 * @return true if the attribute is large
-	 */
-	boolean isLargeAttribute(PerunSession sess, AttributeDefinition attribute);
-
-	/**
 	 * Determine if attribute is from specified namespace.
 	 *
 	 * @param sess

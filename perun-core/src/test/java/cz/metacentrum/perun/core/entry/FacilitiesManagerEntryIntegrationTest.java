@@ -181,6 +181,35 @@ public class FacilitiesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getFacilitiesByAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "getFacilitiesByAttribute");
+
+		// Check if the attribute already exists
+		Attribute attr;
+		AttributeDefinition attrDef;
+		String attributeName = "urn:perun:facility:attribute-def:def:facility-test-attribute";
+		try {
+			attrDef = perun.getAttributesManagerBl().getAttributeDefinition(sess, attributeName);
+		} catch (AttributeNotExistsException e) {
+			// Attribute doesn't exist, so create it
+			attrDef = new AttributeDefinition();
+			attrDef.setNamespace("urn:perun:facility:attribute-def:def");
+			attrDef.setFriendlyName("facility-test-attribute");
+			attrDef.setType(String.class.getName());
+
+			attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		}
+
+		attr = new Attribute(attrDef);
+		attr.setValue("value");
+
+		// Set the attribute to the facility
+		perun.getAttributesManagerBl().setAttribute(sess, facility, attr);
+
+		assertTrue("results must contain user", facilitiesManagerEntry.getFacilitiesByAttribute(sess, attributeName, "value").contains(facility));
+	}
+
+	@Test
 	public void getFacilitiesByDestinationWhenFacilityNotExist() throws Exception {
 		System.out.println(CLASS_NAME + "getFacilitiesByDestinationWhenFacilityNotExist");
 		List<Facility> facilities = perun.getFacilitiesManager().getFacilitiesByDestination(sess,"TestovaciDestinace neexistujici.");
