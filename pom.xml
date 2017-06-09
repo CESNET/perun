@@ -44,6 +44,9 @@
 
 	<!-- common environmental and version properties-->
 	<properties>
+		<!-- property used by spring-boot-starter-parent project to define maven.compiler.source and maven.compiler.target
+		     properties that in turn are used by maven-compiler-plugin to specify java source and target version -->
+		<java.version>8</java.version>
 
 		<!-- USE UTF-8 in whole project -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -115,8 +118,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>8</source>
-						<target>8</target>
 						<verbose>false</verbose>
 						<!--<compilerArgument>-Xlint:unchecked,deprecation</compilerArgument>-->
 					</configuration>
