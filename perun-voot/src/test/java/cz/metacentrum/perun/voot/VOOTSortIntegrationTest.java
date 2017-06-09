@@ -2,7 +2,7 @@ package cz.metacentrum.perun.voot;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;

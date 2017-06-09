@@ -9,7 +9,7 @@ import cz.metacentrum.perun.cabinet.strategy.AbstractPublicationSystemStrategy;
 import cz.metacentrum.perun.cabinet.strategy.PublicationSystemStrategy;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.impl.Utils;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.UsernamePasswordCredentials;
