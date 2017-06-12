@@ -11,19 +11,8 @@ import cz.metacentrum.perun.core.api.exceptions.rt.AttributeExistsRuntimeExcepti
 public class AttributeExistsException extends EntityExistsException {
 	static final long serialVersionUID = 0;
 
-	public AttributeExistsException(AttributeExistsRuntimeException rt) {
-		super(rt.getMessage(),rt);
-	}
-
-	public AttributeExistsException(String message) {
-		super(message);
-	}
-
 	public AttributeExistsException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public AttributeExistsException(Throwable cause) {
-		super(cause);
-	}
 }
