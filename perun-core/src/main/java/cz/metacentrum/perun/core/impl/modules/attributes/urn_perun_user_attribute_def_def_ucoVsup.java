@@ -67,10 +67,10 @@ public class urn_perun_user_attribute_def_def_ucoVsup extends UserAttributesModu
 				throw new InternalErrorException("UCO ext source on VŠUP doesn't exists.", ex);
 			}
 			try {
-				session.getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(session, es, (String) attribute.getValue());
+				session.getPerunBl().getUsersManagerBl().getUserExtSourceByExtLogin(session, es, String.valueOf((Integer) attribute.getValue()));
 			} catch (UserExtSourceNotExistsException ex) {
 				// add UES
-				UserExtSource ues = new UserExtSource(es, 2, (String) attribute.getValue());
+				UserExtSource ues = new UserExtSource(es, 2, String.valueOf((Integer) attribute.getValue()));
 				try {
 					session.getPerunBl().getUsersManagerBl().addUserExtSource(session, user, ues);
 				} catch (UserExtSourceExistsException ex2) {
