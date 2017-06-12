@@ -35,7 +35,7 @@ import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.VosManager;
-import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.FacilityNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
@@ -5004,7 +5004,7 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 
 	}
 
-	@Test (expected=AttributeExistsException.class)
+	@Test (expected=AttributeDefinitionExistsException.class)
 	public void createAttributeWhenAttributeExists() throws Exception {
 		System.out.println(CLASS_NAME + "createAttributeWhenAttributeExists");
 

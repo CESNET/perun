@@ -13,6 +13,7 @@ import cz.metacentrum.perun.rpc.serializer.JsonSerializer;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONP;
 import cz.metacentrum.perun.rpc.serializer.JsonSerializerJSONSIMPLE;
 import cz.metacentrum.perun.rpc.serializer.Serializer;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * HTTP servlet wrapping Perun's method calls. Returned values are serialized and sent as an HTTP response.
@@ -54,73 +58,110 @@ public class Api extends HttpServlet {
 	private final static String OIDCMANAGER = "oidcManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
 
+	private static final String SHIB_IDENTITY_PROVIDER = "Shib-Identity-Provider";
+	private static final String SOURCE_IDP_ENTITY_ID = "sourceIdPEntityID";
+	private static final String SSL_CLIENT_VERIFY = "SSL_CLIENT_VERIFY";
+	private static final String SSL_CLIENT_ISSUER_DN = "SSL_CLIENT_I_DN";
+	private static final String SSL_CLIENT_SUBJECT_DN = "SSL_CLIENT_S_DN";
+	private static final String SSL_CLIENT_CERT = "SSL_CLIENT_CERT";
+	private static final String SUCCESS = "SUCCESS";
+	private static final String OIDC_CLAIM_SUB = "OIDC_CLAIM_sub";
+	private static final String OIDC_CLAIM_EXTSOURCE_NAME = "OIDC_CLAIM_extSourceName";
+	private static final String OIDC_CLAIM_EXTSOURCE_TYPE = "OIDC_CLAIM_extSourceType";
+	private static final String OIDC_CLAIM_EXTSOURCE_LOA = "OIDC_CLAIM_extSourceLoa";
+	private static final String OIDC_CLAIM_CLIENT_ID = "OIDC_CLAIM_client_id";
+	private static final String OIDC_CLAIM_SCOPE = "OIDC_CLAIM_scope";
+	private static final String EXTSOURCE = "EXTSOURCE";
+	private static final String EXTSOURCETYPE = "EXTSOURCETYPE";
+	private static final String EXTSOURCELOA = "EXTSOURCELOA";
+	private static final String ENV_REMOTE_USER = "ENV_REMOTE_USER";
+	private static final String DELEGATED_LOGIN = "delegatedLogin";
+	private static final String DELEGATED_EXTSOURCE_NAME = "delegatedExtSourceName";
+	private static final String DELEGATED_EXTSOURCE_TYPE = "delegatedExtSourceType";
+	private static final String LOA = "loa";
+
 	@Override
 	public void init() {
 		// we do not init anything
 	}
 
-	private PerunPrincipal setupPerunPrincipal(HttpServletRequest req) throws InternalErrorException, UserNotExistsException {
-		return this.setupPerunPrincipal(req, null);
+	private static String getStringAttribute(HttpServletRequest req, String attributeName) {
+		return (String) req.getAttribute(attributeName);
 	}
 
-	private String getExtSourceName(HttpServletRequest req, Deserializer des) throws InternalErrorException {
-		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
-			// If IdP is proxy and we want to save original source IdP behind Proxy.
-			List<String> proxyIdPs = BeansUtils.getCoreConfig().getProxyIdPs();
-			if (req.getHeader("sourceIdPEntityID") != null
-					&& !req.getHeader("sourceIdPEntityID").isEmpty()) {
-				if (proxyIdPs.contains(req.getHeader("Shib-Identity-Provider"))) {
-					return req.getHeader("sourceIdPEntityID");
-				} else {
-					log.warn("sourceIdPEntityID attrribute found with value " + req.getHeader("sourceIdPEntityID") +
-							" in request but IdP with entityID: '" + req.getHeader("Shib-Identity-Provider") +
-							"' was not found in perun configuration property 'perun.proxyIdPs'=" + proxyIdPs +
-							". serving classical entityID instead of sourceIdPEntityID.");
-					return req.getHeader("Shib-Identity-Provider");
-				}
-			} else {
-				return req.getHeader("Shib-Identity-Provider");
-			}
-		} else if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
-			return req.getHeader("OIDC_CLAIM_extSourceName");
-		} else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && req.getAttribute("SSL_CLIENT_VERIFY").equals("SUCCESS")) {
-			return (String) req.getAttribute("SSL_CLIENT_I_DN");
-		} else if (req.getAttribute("EXTSOURCE") != null) {
-			return (String) req.getAttribute("EXTSOURCE");
+	private static String getExtSourceName(HttpServletRequest req, Deserializer des) throws InternalErrorException {
+		String shibIdentityProvider = getStringAttribute(req, SHIB_IDENTITY_PROVIDER);
+		String sourceIdpEntityId = getStringAttribute(req, SOURCE_IDP_ENTITY_ID);
+		if (isNotEmpty(shibIdentityProvider)) {
+			return getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
 		} else {
-			return des.readString("delegatedExtSourceName");
+			if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
+				return req.getHeader(OIDC_CLAIM_EXTSOURCE_NAME);
+			} else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
+				return getStringAttribute(req, SSL_CLIENT_ISSUER_DN);
+			} else {
+				String extSource = getStringAttribute(req, EXTSOURCE);
+				return extSource != null ? extSource : des.readString(DELEGATED_EXTSOURCE_NAME);
+			}
 		}
 	}
 
-	private String getActor(HttpServletRequest req, Deserializer des) throws InternalErrorException {
-
-		String actor = null;
-
-		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
-			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
-				actor = req.getRemoteUser();
+	private static String getOriginalIdP(String shibIdentityProvider, String sourceIdpEntityId) {
+		// If IdP is proxy and we want to save original source IdP behind Proxy.
+		List<String> proxyIdPs = BeansUtils.getCoreConfig().getProxyIdPs();
+		if (isNotEmpty(sourceIdpEntityId)) {
+			if (proxyIdPs.contains(shibIdentityProvider)) {
+				return sourceIdpEntityId;
+			} else {
+				log.warn("sourceIdPEntityID attrribute found with value " + sourceIdpEntityId +
+						" in request but IdP with entityID: '" + shibIdentityProvider +
+						"' was not found in perun configuration property 'perun.proxyIdPs'=" + proxyIdPs +
+						". serving classical entityID instead of sourceIdPEntityID.");
+				return shibIdentityProvider;
 			}
-		} else if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
-			actor = req.getRemoteUser();
-		} else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && req.getAttribute("SSL_CLIENT_VERIFY").equals("SUCCESS")) {
-			actor = (String) req.getAttribute("SSL_CLIENT_S_DN");
-		} else if (req.getAttribute("EXTSOURCE") != null) {
-			String extSourceName = (String) req.getAttribute("EXTSOURCE");
-			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
-				actor = req.getRemoteUser();
-			} else if (req.getAttribute("ENV_REMOTE_USER") != null && !((String) req.getAttribute("ENV_REMOTE_USER")).isEmpty()) {
-				actor = (String) req.getAttribute("ENV_REMOTE_USER");
-			} else if (extSourceName.equals(cz.metacentrum.perun.core.api.ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
+		} else {
+			return shibIdentityProvider;
+		}
+	}
+
+	private static String getExtLogin(HttpServletRequest req,String extSourceName,String remoteUser) {
+		if (isNotEmpty(remoteUser)) {
+			return remoteUser;
+		} else {
+			String envRemoteUser = getStringAttribute(req, ENV_REMOTE_USER);
+			if (isNotEmpty(envRemoteUser)) {
+				return envRemoteUser;
+			} else if (extSourceName.equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
 				// LOCAL EXTSOURCE - If ExtSource is LOCAL then generate REMOTE_USER name on the fly
-				actor = Long.toString(System.currentTimeMillis());
+				return Long.toString(System.currentTimeMillis());
+			} else {
+				return null;
+			}
+		}
+	}
+
+	private static String getActor(HttpServletRequest req, Deserializer des) throws InternalErrorException {
+		String actor = null;
+		String remoteUser = req.getRemoteUser();
+		if (isNotEmpty(getStringAttribute(req, (SHIB_IDENTITY_PROVIDER)))) {
+			if (isNotEmpty(remoteUser)) {
+				actor = remoteUser;
+			}
+		} else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
+			actor = remoteUser;
+		} else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
+			actor = getStringAttribute(req, SSL_CLIENT_SUBJECT_DN);
+		} else {
+			String extSourceName = getStringAttribute(req, EXTSOURCE);
+			if (extSourceName != null) {
+				actor = getExtLogin(req, extSourceName, remoteUser);
 			}
 		}
 
 		if (des != null && actor != null) {
-			List<String> powerUsers = BeansUtils.getCoreConfig().getRpcPowerusers();
-			if (powerUsers.contains(actor) && des.contains("delegatedLogin")) {
+			if (BeansUtils.getCoreConfig().getRpcPowerusers().contains(actor) && des.contains(DELEGATED_LOGIN)) {
 				// Rewrite the remoteUser and extSource
-				actor = des.readString("delegatedLogin");
+				actor = des.readString(DELEGATED_LOGIN);
 			}
 		}
 
@@ -128,7 +169,7 @@ public class Api extends HttpServlet {
 
 	}
 
-	private PerunPrincipal setupPerunPrincipal(HttpServletRequest req, Deserializer des) throws InternalErrorException, UserNotExistsException {
+	private static PerunPrincipal setupPerunPrincipal(HttpServletRequest req, Deserializer des) throws InternalErrorException, UserNotExistsException {
 		String extSourceLoaString = null;
 		String extLogin = null;
 		String extSourceName = null;
@@ -136,91 +177,65 @@ public class Api extends HttpServlet {
 		int extSourceLoa;
 		Map<String, String> additionalInformations = new HashMap<>();
 
-		// If we have header Shib-Identity-Provider, then the user uses identity federation to authenticate
-		if (req.getHeader("Shib-Identity-Provider") != null && !req.getHeader("Shib-Identity-Provider").isEmpty()) {
-			// If IdP is proxy and we want to save original source IdP behind Proxy.
-			List<String> proxyIdPs = BeansUtils.getCoreConfig().getProxyIdPs();
-			if (req.getHeader("sourceIdPEntityID") != null
-					&& !req.getHeader("sourceIdPEntityID").isEmpty()) {
-				if (proxyIdPs.contains(req.getHeader("Shib-Identity-Provider"))) {
-					extSourceName = req.getHeader("sourceIdPEntityID");
-				} else {
-					log.warn("sourceIdPEntityID attrribute found with value " + req.getHeader("sourceIdPEntityID") +
-							" in request but IdP with entityID: '" + req.getHeader("Shib-Identity-Provider") +
-							"' was not found in perun configuration property 'perun.proxyIdPs'=" + proxyIdPs +
-							". serving classical entityID instead of sourceIdPEntityID.");
-					extSourceName = req.getHeader("Shib-Identity-Provider");
-				}
-			} else {
-				extSourceName = req.getHeader("Shib-Identity-Provider");
-			}
-			extSourceType = ExtSourcesManager.EXTSOURCE_IDP;
-			if (req.getHeader("loa") != null && !req.getHeader("loa").isEmpty()) {
-				extSourceLoaString = req.getHeader("loa");
-			} else {
-				extSourceLoaString = "2";
-			}
-			// FIXME: find better place where do the operation with attributes from federation
-			if (req.getHeader("eppn") != null && !req.getHeader("eppn").isEmpty()) {
-				try {
-					String eppn = new String(req.getHeader("eppn").getBytes("ISO-8859-1"));
+		String shibIdentityProvider = getStringAttribute(req, SHIB_IDENTITY_PROVIDER);
+		String sourceIdpEntityId = getStringAttribute(req, SOURCE_IDP_ENTITY_ID);
+		String remoteUser = req.getRemoteUser();
 
-					// Remove scope from the eppn attribute
-					additionalInformations.put("eppnwoscope", eppn.replaceAll("(.*)@.*", "$1"));
-				} catch (UnsupportedEncodingException e) {
-					log.error("Cannot encode header eppn with value from ISO-8859-1.");
-				}
+
+
+		// If we have header Shib-Identity-Provider, then the user uses identity federation to authenticate
+		if (isNotEmpty(shibIdentityProvider)) {
+			extSourceName = getOriginalIdP(shibIdentityProvider, sourceIdpEntityId);
+			extSourceType = ExtSourcesManager.EXTSOURCE_IDP;
+			extSourceLoaString = getStringAttribute(req, LOA);
+			if(isEmpty(extSourceLoaString)) extSourceLoaString = "2";
+
+			// FIXME: find better place where do the operation with attributes from federation
+			String eppn = getStringAttribute(req, "eppn");
+			if (isNotEmpty(eppn)) {
+				// Remove scope from the eppn attribute
+				additionalInformations.put("eppnwoscope", StringUtils.substringBefore(eppn, "@"));
 			}
-			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
-				extLogin = req.getRemoteUser();
+			if (isNotEmpty(remoteUser)) {
+				extLogin = remoteUser;
 			}
 		}
 
 		// If OIDC_CLAIM_sub header is present, it means user authenticated via OAuth2 with MITRE.
-		else if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
-
-			extLogin = req.getRemoteUser();
-			extSourceName = req.getHeader("OIDC_CLAIM_extSourceName");
-			extSourceType = req.getHeader("OIDC_CLAIM_extSourceType");
-			extSourceLoaString = req.getHeader("OIDC_CLAIM_extSourceLoa");
+		else if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
+			extSourceName = req.getHeader(OIDC_CLAIM_EXTSOURCE_NAME);
+			extSourceType = req.getHeader(OIDC_CLAIM_EXTSOURCE_TYPE);
+			extSourceLoaString = req.getHeader(OIDC_CLAIM_EXTSOURCE_LOA);
+			extLogin = remoteUser;
 		}
 
 		// EXT_SOURCE was defined in Apache configuration (e.g. Kerberos or Local)
-		else if (req.getAttribute("EXTSOURCE") != null) {
-			extSourceName = (String) req.getAttribute("EXTSOURCE");
-			extSourceType = (String) req.getAttribute("EXTSOURCETYPE");
-			extSourceLoaString = (String) req.getAttribute("EXTSOURCELOA");
-
-			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
-				extLogin = req.getRemoteUser();
-			} else if (req.getAttribute("ENV_REMOTE_USER") != null && !((String) req.getAttribute("ENV_REMOTE_USER")).isEmpty()) {
-				extLogin = (String) req.getAttribute("ENV_REMOTE_USER");
-			} else if (extSourceName.equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
-				/* LOCAL EXTSOURCE */
-				// If ExtSource is LOCAL then generate REMOTE_USER name on the fly
-				extLogin = Long.toString(System.currentTimeMillis());
-			}
+		else if (req.getAttribute(EXTSOURCE) != null) {
+			extSourceName = getStringAttribute(req, EXTSOURCE);
+			extSourceType = getStringAttribute(req, EXTSOURCETYPE);
+			extSourceLoaString = getStringAttribute(req, EXTSOURCELOA);
+			extLogin = getExtLogin(req, extSourceName, remoteUser);
 		}
 
 		// X509 cert was used
 		// Cert must be last since Apache asks for certificate everytime and fills cert properties even when Kerberos is in place.
-		else if (req.getAttribute("SSL_CLIENT_VERIFY") != null && req.getAttribute("SSL_CLIENT_VERIFY").equals("SUCCESS")) {
-			extSourceName = (String) req.getAttribute("SSL_CLIENT_I_DN");
+		else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
+			extSourceName = getStringAttribute(req,SSL_CLIENT_ISSUER_DN);
 			extSourceType = ExtSourcesManager.EXTSOURCE_X509;
-			extSourceLoaString = (String) req.getAttribute("EXTSOURCELOA");
-			extLogin = (String) req.getAttribute("SSL_CLIENT_S_DN");
+			extSourceLoaString = getStringAttribute(req,EXTSOURCELOA);
+			extLogin = getStringAttribute(req,SSL_CLIENT_SUBJECT_DN);
 
 			// Store X509 certificate in the additionalInformations structure
 			additionalInformations.put("userCertificates",
-					AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_S_DN")) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
-							AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_CERT")));
+					AttributesManagerBlImpl.escapeMapAttributeValue(getStringAttribute(req,SSL_CLIENT_SUBJECT_DN)) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
+							AttributesManagerBlImpl.escapeMapAttributeValue(getStringAttribute(req,SSL_CLIENT_CERT)));
 			additionalInformations.put("userCertDNs",
-					AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_S_DN")) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
-							AttributesManagerBlImpl.escapeMapAttributeValue((String) req.getAttribute("SSL_CLIENT_I_DN")));
+					AttributesManagerBlImpl.escapeMapAttributeValue(getStringAttribute(req,SSL_CLIENT_SUBJECT_DN)) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
+							AttributesManagerBlImpl.escapeMapAttributeValue(getStringAttribute(req,SSL_CLIENT_ISSUER_DN)));
 
 			// Store X509
-			additionalInformations.put("SSL_CLIENT_S_DN", (String) req.getAttribute("SSL_CLIENT_S_DN"));
-			additionalInformations.put("dn", (String) req.getAttribute("SSL_CLIENT_S_DN"));
+			additionalInformations.put(SSL_CLIENT_SUBJECT_DN, getStringAttribute(req,SSL_CLIENT_SUBJECT_DN));
+			additionalInformations.put("dn", getStringAttribute(req,SSL_CLIENT_SUBJECT_DN));
 
 			// Get the X.509 certificate object
 			X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
@@ -246,12 +261,11 @@ public class Api extends HttpServlet {
 				additionalInformations.put("mail", emails);
 
 				// Get organization from the certificate
-				String oRegExpPattern = "([oO])(\\s)*=([^+,])*";
-				Pattern oPattern = Pattern.compile(oRegExpPattern);
+				Pattern oPattern = Pattern.compile("([oO])(\\s)*=([^+,])*");
 				Matcher oMatcher = oPattern.matcher(certs[0].getSubjectX500Principal().getName());
 				if (oMatcher.find()) {
 					String[] org = oMatcher.group().split("=");
-					if (org[1] != null && !org[1].isEmpty()) {
+					if (isNotEmpty(org[1])) {
 						additionalInformations.put("o", org[1]);
 					}
 				}
@@ -270,21 +284,35 @@ public class Api extends HttpServlet {
 			}
 		}
 
+		//store selected attributes for update
+		for (AttributeDefinition attr : BeansUtils.getCoreConfig().getAttributesForUpdate().getOrDefault(extSourceType,Collections.emptyList())) {
+			String attrValue = (String) req.getAttribute(attr.getFriendlyName());
+			//fix shibboleth encoding
+			if(ExtSourcesManager.EXTSOURCE_IDP.equals(extSourceType)) {
+				try {
+					attrValue = new String(attrValue.getBytes("iso-8859-1"),"utf-8");
+				} catch (UnsupportedEncodingException e) {
+					log.error("utf-8 is not known");
+				}
+			}
+			additionalInformations.put(attr.getFriendlyName(),attrValue);
+		}
+
 		// If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
 		if (des != null && extLogin != null) {
 			List<String> powerUsers = BeansUtils.getCoreConfig().getRpcPowerusers();
-			if (powerUsers.contains(extLogin) && des.contains("delegatedLogin")) {
+			if (powerUsers.contains(extLogin) && des.contains(DELEGATED_LOGIN)) {
 				// Rewrite the remoteUser and extSource
-				extLogin = des.readString("delegatedLogin");
-				extSourceName = des.readString("delegatedExtSourceName");
-				extSourceType = des.readString("delegatedExtSourceType");
+				extLogin = des.readString(DELEGATED_LOGIN);
+				extSourceName = des.readString(DELEGATED_EXTSOURCE_NAME);
+				extSourceType = des.readString(DELEGATED_EXTSOURCE_TYPE);
 				// Clear additionalInformations because they were valid only to the user who can do delegation
 				additionalInformations.clear();
 			}
 		}
 
 		// extSourceLoa must be number, if any specified then set to 0
-		if (extSourceLoaString == null || extSourceLoaString.isEmpty()) {
+		if (isEmpty(extSourceLoaString)) {
 			extSourceLoa = 0;
 		} else {
 			try {
@@ -295,7 +323,7 @@ public class Api extends HttpServlet {
 		}
 
 		// Check if any of authentication system returns extLogin and extSourceName
-		if (extLogin == null || extLogin.isEmpty() || extSourceName == null || extSourceName.isEmpty()) {
+		if (isEmpty(extLogin) || isEmpty(extSourceName)) {
 			throw new UserNotExistsException("extLogin or extSourceName is empty");
 		}
 
@@ -304,9 +332,9 @@ public class Api extends HttpServlet {
 
 	private PerunClient setupPerunClient(HttpServletRequest req) {
 
-		if (req.getHeader("OIDC_CLAIM_sub") != null && !req.getHeader("OIDC_CLAIM_sub").isEmpty()) {
-			String clientId = req.getHeader("OIDC_CLAIM_client_id");
-			List<String> scopes = Arrays.asList(req.getHeader("OIDC_CLAIM_scope").split(" "));
+		if (isNotEmpty(req.getHeader(OIDC_CLAIM_SUB))) {
+			String clientId = req.getHeader(OIDC_CLAIM_CLIENT_ID);
+			List<String> scopes = Arrays.asList(req.getHeader(OIDC_CLAIM_SCOPE).split(" "));
 			return new PerunClient(clientId, scopes);
 		}
 
@@ -323,7 +351,7 @@ public class Api extends HttpServlet {
 
 			PerunPrincipal perunPrincipal;
 			try {
-				perunPrincipal = setupPerunPrincipal(req);
+				perunPrincipal = setupPerunPrincipal(req,null);
 				wrt.write("OK! Version: " + PerunBl.PERUNVERSION + ", User: " + perunPrincipal.getActor() + ", extSource: " + perunPrincipal.getExtSourceName());
 			} catch (InternalErrorException | UserNotExistsException e) {
 				wrt.write("ERROR! Exception " + e.getMessage());
@@ -438,11 +466,11 @@ public class Api extends HttpServlet {
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				// Store the current session
 				req.getSession(true).setAttribute(APICALLER, caller);
-			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getExtSourceName(), this.getExtSourceName(req, des))) {
+			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getExtSourceName(), getExtSourceName(req, des))) {
 				// If the user is coming from the URL protected by different authN mechanism, destroy and create session again
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));
 				req.getSession(true).setAttribute(APICALLER, caller);
-			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), this.getActor(req, des)) &&
+			} else if (!Objects.equals(caller.getSession().getPerunPrincipal().getActor(), getActor(req, des)) &&
 					!caller.getSession().getPerunPrincipal().getExtSourceName().equals(ExtSourcesManager.EXTSOURCE_NAME_LOCAL)) {
 				// prevent cookie stealing (if remote user changed, rebuild session)
 				caller = new ApiCaller(getServletContext(), setupPerunPrincipal(req, des), setupPerunClient(req));

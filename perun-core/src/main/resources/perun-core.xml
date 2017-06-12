@@ -172,7 +172,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="searcherBl" ref="searcherBl"/>
 		<property name="modulesUtilsBl" ref="modulesUtilsBl"/>
 		<property name="databaseManagerBl" ref="databaseManagerBl"/>
-
 		<property name="vosManager" ref="vosManager"/>
 		<property name="usersManager" ref="usersManager"/>
 		<property name="groupsManager" ref="groupsManager"/>
@@ -189,6 +188,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="searcher" ref="searcher"/>
 		<property name="auditer" ref="auditer"/>
 		<property name="databaseManager" ref="databaseManager"/>
+		<property name="coreConfig" ref="coreConfig"/>
 	</bean>
 
 	<bean id="vosManager" class="cz.metacentrum.perun.core.entry.VosManagerEntry" scope="singleton" depends-on="databaseManagerBl">

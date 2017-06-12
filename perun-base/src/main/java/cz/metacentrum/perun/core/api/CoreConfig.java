@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Core configuration values. Bean initialized by Spring.
@@ -49,6 +48,8 @@ public class CoreConfig {
 	private String rtUrl;
 	private String smsProgram;
 	private String userExtSourcesPersistent;
+	private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
+
 
 	boolean isDbInitializatorEnabled() {
 		return dbInitializatorEnabled;
@@ -304,5 +305,37 @@ public class CoreConfig {
 
 	public void setUserExtSourcesPersistent(String userExtSourcesPersistent) {
 		this.userExtSourcesPersistent = userExtSourcesPersistent;
+	}
+
+
+	/**
+	 * Attributes to be saved when new PerunSession is created.
+	 *
+	 * @return a map from ExtSource types like ExtSourcesManager.EXTSOURCE_IDP to lists of attribute definitions
+	 */
+	public Map<String, List<AttributeDefinition>> getAttributesForUpdate() {
+		return attributesForUpdate;
+	}
+
+	private void createAttributeDefinitions(String extSourceType, List<String> attrNames, String descriptionPrefix) {
+		List<AttributeDefinition> attrs = new ArrayList<>();
+		for (String attrName : attrNames) {
+			AttributeDefinition attr = new Attribute();
+			attr.setType(String.class.getName());
+			attr.setNamespace("urn:perun:ues:attribute-def");
+			attr.setFriendlyName(attrName);
+			attr.setDisplayName(attrName);
+			attr.setDescription(descriptionPrefix + attrName);
+			attrs.add(attr);
+		}
+		attributesForUpdate.put(extSourceType, attrs);
+	}
+
+	public void setAttributesForUpdateIdP(List<String> attrNames) {
+		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceIdp", attrNames, "SAML ");
+	}
+
+	public void setAttributesForUpdateX509(List<String> attrNames) {
+		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceX509", attrNames, "X509 ");
 	}
 }

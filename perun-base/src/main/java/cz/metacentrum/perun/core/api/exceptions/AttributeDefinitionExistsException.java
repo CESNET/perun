@@ -1,18 +1,23 @@
 package cz.metacentrum.perun.core.api.exceptions;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.AttributeExistsRuntimeException;
-
+import cz.metacentrum.perun.core.api.AttributeDefinition;
 
 /**
  * Attribute already exists in underlaying data source. Thrown where creating atribute thats already exists.
  *
- * @author Slavek Licehammer glory@ics.muni.cz
  */
-public class AttributeExistsException extends EntityExistsException {
+public class AttributeDefinitionExistsException extends EntityExistsException {
+
 	static final long serialVersionUID = 0;
 
-	public AttributeExistsException(String message, Throwable cause) {
+	private final AttributeDefinition attributeDefinition;
+
+	public AttributeDefinitionExistsException(String message, AttributeDefinition attributeDefinition, Throwable cause) {
 		super(message, cause);
+		this.attributeDefinition = attributeDefinition;
 	}
 
+	public AttributeDefinition getAttributeDefinition() {
+		return attributeDefinition;
+	}
 }

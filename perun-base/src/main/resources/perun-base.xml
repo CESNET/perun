@@ -40,7 +40,14 @@
 		<property name="rtUrl" value="${perun.rt.url}"/>
 		<property name="smsProgram" value="${perun.sms.program}"/>
 		<property name="userExtSourcesPersistent" value="${perun.userExtSources.persistent}"/>
+		<property name="attributesForUpdateIdP" value="#{'${perun.attributesForUpdate.idp}'.split('\s*,\s*')}"/>
+		<property name="attributesForUpdateX509" value="#{'${perun.attributesForUpdate.x509}'.split('\s*,\s*')}"/>
 	</bean>
+
+
+
+
+
 
 	<!-- Properties Bean for perun-core -->
 	
@@ -85,6 +92,8 @@
 				<prop key="perun.userExtSources.persistent">PERUN,[\w\d]*</prop>
 				<prop key="perun.proxyIdPs"/>
 				<prop key="perun.id.salt">abcdef</prop>
+				<prop key="perun.attributesForUpdate.idp">mail,cn,sn,givenName,o,eppn</prop>
+				<prop key="perun.attributesForUpdate.x509">mail,cn,o</prop>
 			</props>
 		</property>
 	</bean>

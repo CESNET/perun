@@ -1,58 +1,14 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.core.api.PerunClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.AuditMessagesManager;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.DatabaseManager;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
-import cz.metacentrum.perun.core.api.FacilitiesManager;
-import cz.metacentrum.perun.core.api.GroupsManager;
-import cz.metacentrum.perun.core.api.MembersManager;
-import cz.metacentrum.perun.core.api.OwnersManager;
-import cz.metacentrum.perun.core.api.Perun;
-import cz.metacentrum.perun.core.api.PerunPrincipal;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.RTMessagesManager;
-import cz.metacentrum.perun.core.api.ResourcesManager;
-import cz.metacentrum.perun.core.api.Searcher;
-import cz.metacentrum.perun.core.api.SecurityTeamsManager;
-import cz.metacentrum.perun.core.api.ServicesManager;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.UsersManager;
-import cz.metacentrum.perun.core.api.VosManager;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.bl.AttributesManagerBl;
-import cz.metacentrum.perun.core.bl.AuditMessagesManagerBl;
-import cz.metacentrum.perun.core.bl.AuthzResolverBl;
-import cz.metacentrum.perun.core.bl.DatabaseManagerBl;
-import cz.metacentrum.perun.core.bl.ExtSourcesManagerBl;
-import cz.metacentrum.perun.core.bl.FacilitiesManagerBl;
-import cz.metacentrum.perun.core.bl.GroupsManagerBl;
-import cz.metacentrum.perun.core.bl.MembersManagerBl;
-import cz.metacentrum.perun.core.bl.ModulesUtilsBl;
-import cz.metacentrum.perun.core.bl.OwnersManagerBl;
-import cz.metacentrum.perun.core.bl.PerunBl;
-import cz.metacentrum.perun.core.bl.RTMessagesManagerBl;
-import cz.metacentrum.perun.core.bl.ResourcesManagerBl;
-import cz.metacentrum.perun.core.bl.SearcherBl;
-import cz.metacentrum.perun.core.bl.SecurityTeamsManagerBl;
-import cz.metacentrum.perun.core.bl.ServicesManagerBl;
-import cz.metacentrum.perun.core.bl.UsersManagerBl;
-import cz.metacentrum.perun.core.bl.VosManagerBl;
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.bl.*;
 import cz.metacentrum.perun.core.impl.Auditer;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -61,6 +17,8 @@ import java.util.Set;
  * @author Martin Kuba makub@ics.muni.cz
  */
 public class PerunBlImpl implements PerunBl {
+
+	private CoreConfig coreConfig;
 	private VosManager vosManager = null;
 	private UsersManager usersManager = null;
 	private MembersManager membersManager = null;
@@ -92,7 +50,6 @@ public class PerunBlImpl implements PerunBl {
 	private AuditMessagesManagerBl auditMessagesManagerBl = null;
 	private RTMessagesManagerBl rtMessagesManagerBl = null;
 	private SecurityTeamsManagerBl securityTeamsManagerBl = null;
-	private AuthzResolverBl authzResolverBl = null;
 	private SearcherBl searcherBl = null;
 
 	private Auditer auditer = null;
@@ -106,41 +63,69 @@ public class PerunBlImpl implements PerunBl {
 	}
 
 	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) throws InternalErrorException {
-		if (principal.getUser() == null &&
-				this.getUsersManagerBl() != null &&
-				!dontLookupUsersForLogins.contains(principal.getActor())) {
+		PerunSessionImpl perunSession = new PerunSessionImpl(this, principal, client);
+
+		if (principal.getUser() == null && usersManagerBl!=null && !dontLookupUsersForLogins.contains(principal.getActor())) {
 			// Get the user if we are completely initialized
 			try {
-				principal.setUser(this.getUsersManagerBl().getUserByExtSourceNameAndExtLogin(getPerunSession(), principal.getExtSourceName(), principal.getActor()));
-
+				PerunSession internalSession = getPerunSession();
+				User user = usersManagerBl.getUserByExtSourceNameAndExtLogin(internalSession, principal.getExtSourceName(), principal.getActor());
+				principal.setUser(user);
 				// Try to update LoA for userExtSource
-				ExtSource es = this.getExtSourcesManagerBl().getExtSourceByName(getPerunSession(), principal.getExtSourceName());
-				UserExtSource ues = this.getUsersManagerBl().getUserExtSourceByExtLogin(getPerunSession(), es, principal.getActor());
+				ExtSource es = extSourcesManagerBl.getExtSourceByName(internalSession, principal.getExtSourceName());
+				UserExtSource ues = usersManagerBl.getUserExtSourceByExtLogin(internalSession, es, principal.getActor());
 				if (ues.getLoa() != principal.getExtSourceLoa()) {
 					ues.setLoa(principal.getExtSourceLoa());
-					this.getUsersManagerBl().updateUserExtSource(getPerunSession(), ues);
+					usersManagerBl.updateUserExtSource(internalSession, ues);
 				}
-
 				// Update last access for userExtSource
-				this.getUsersManagerBl().updateUserExtSourceLastAccess(getPerunSession(), ues);
+				usersManagerBl.updateUserExtSourceLastAccess(internalSession, ues);
 
+				// update selected attributes for given extsourcetype
+				List<AttributeDefinition> attrs = coreConfig.getAttributesForUpdate().get(principal.getExtSourceType());
+				if (attrs != null) {
+					for (AttributeDefinition attr : attrs) {
+						//get value from authentication
+						String attrValue = principal.getAdditionalInformations().get(attr.getFriendlyName());
+						if ("".equals(attrValue)) attrValue = null;
+						//save the value to attribute (create the attribute if it does not exist)
+						try {
+							Attribute attributeWithValue;
+							try {
+								attributeWithValue = attributesManagerBl.getAttribute(perunSession, ues, attr.getName());
+							} catch (AttributeNotExistsException ex) {
+								try {
+									attributeWithValue = new Attribute(attributesManagerBl.createAttribute(perunSession, attr));
+								} catch (AttributeDefinitionExistsException e) {
+									attributeWithValue = attributesManagerBl.getAttribute(perunSession, ues, attr.getName());
+								}
+							}
+							attributeWithValue.setValue(attrValue);
+							attributesManagerBl.setAttribute(perunSession, ues, attributeWithValue);
+						} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+							log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);
+						}
+					}
+				}
 			} catch (ExtSourceNotExistsException | UserExtSourceNotExistsException | UserNotExistsException e) {
 				// OK - We don't know user yet
 			}
 		}
-		return new PerunSessionImpl(this, principal, client);
+		return perunSession;
 	}
 
 	/**
 	 * This method is used only internally.
-	 *
 	 */
-	public PerunSession getPerunSession() throws InternalErrorException {
+	private PerunSession getPerunSession() throws InternalErrorException {
 		PerunPrincipal principal = new PerunPrincipal(INTERNALPRINCIPAL, ExtSourcesManager.EXTSOURCE_NAME_INTERNAL, ExtSourcesManager.EXTSOURCE_INTERNAL);
 		PerunClient client = new PerunClient();
 		return new PerunSessionImpl(this, principal, client);
 	}
 
+	public void setCoreConfig(CoreConfig coreConfig) {
+		this.coreConfig = coreConfig;
+	}
 
 	public GroupsManager getGroupsManager() {
 		return groupsManager;
@@ -149,7 +134,7 @@ public class PerunBlImpl implements PerunBl {
 	public FacilitiesManager getFacilitiesManager() {
 		return facilitiesManager;
 	}
-	
+
 	public DatabaseManager getDatabaseManager() {
 		return databaseManager;
 	}
@@ -209,7 +194,7 @@ public class PerunBlImpl implements PerunBl {
 	public void setFacilitiesManager(FacilitiesManager facilitiesManager) {
 		this.facilitiesManager = facilitiesManager;
 	}
-	
+
 	public void setDatabaseManager(DatabaseManager databaseManager) {
 		this.databaseManager = databaseManager;
 	}
@@ -325,7 +310,7 @@ public class PerunBlImpl implements PerunBl {
 	public void setFacilitiesManagerBl(FacilitiesManagerBl facilitiesManagerBl) {
 		this.facilitiesManagerBl = facilitiesManagerBl;
 	}
-	
+
 	public DatabaseManagerBl getDatabaseManagerBl() {
 		return databaseManagerBl;
 	}
@@ -390,14 +375,6 @@ public class PerunBlImpl implements PerunBl {
 		this.auditer = auditer;
 	}
 
-	public AuthzResolverBl getAuthzResolverBl() {
-		return authzResolverBl;
-	}
-
-	public void setAuthzResolverBl(AuthzResolverBl authzResolverBl) {
-		this.authzResolverBl = authzResolverBl;
-	}
-
 	public SearcherBl getSearcherBl() {
 		return searcherBl;
 	}
@@ -419,67 +396,21 @@ public class PerunBlImpl implements PerunBl {
 		this.auditer.initialize();
 	}
 
-	/**
-	 * Creates a Perun instance.
-	 * <p/>
-	 * Uses {@link org.springframework.context.support.ClassPathXmlApplicationContext#ClassPathXmlApplicationContext(String...)}
-	 * to load file perun-core.xml from CLASSPATH.
-	 * <p/>
-	 * <h3>Web applications</h3>
-	 * <p>In web applications, use {@link org.springframework.web.context.WebApplicationContext} to either load
-	 * the same files, or load just  perun-core.xml and provide your own definition of {@link javax.sql.DataSource}
-	 * with id dataSource.</p>
-	 * <p>The use {link org.springframework.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext}
-	 * to retrieve the context, i.e. add to web.xml the following:</p>
-	 * <pre>
-	 * &lt;listener&gt;
-	 *   &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-	 * &lt;/listener&gt;
-	 * &lt;context-param&gt;
-	 *   &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-	 * &lt;/context-param&gt;
-	 * </pre>
-	 * and in servlets use this code:
-	 * <pre>
-	 *  Perun perun = WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean("perun",Perun.class);
-	 * </pre>
-	 * <p>The code gets always the same instance of Perun, as the getWebApplicationContext() only gets application context
-	 * from ServletContext attribute, and getBean() then gets the same singleton.</p>
-	 *
-	 * @deprecated It is discouraged to use the Perun bootstrap in order
-	 * to obtain a new Perun instance. Use Spring dependency injection please (both in the application code and in tests).
-	 * Perun bootstrap is going to be removed in one of the future versions.
-	 *
-	 * E.g:
-	 *
-	 * Put following code in your Spring Application Context xml file:
-	 *
-	 *     <import resource="classpath:perun-core.xml"/>
-	 *
-	 *
-	 * @return Perun instance
-	 */
-	@Deprecated
-	public static Perun bootstrap() {
-		ApplicationContext springCtx = new ClassPathXmlApplicationContext("perun-beans.xml", "perun-datasources.xml");
-		return springCtx.getBean("perun",Perun.class);
-	}
-
 	public String toString() {
 		return getClass().getSimpleName() + ":[" +
-			"vosManager='" + vosManager + "', " +
-			"usersManager='" + usersManager + "', " +
-			"membersManager='" + membersManager + "', " +
-			"groupsManager='" + groupsManager + "', " +
-			"facilitiesManager='" + facilitiesManager + "', " +
-			"databaseManager='" + databaseManager + "', " +
-			"auditMessagesManager=" + auditMessagesManager + ", " +
-			"resourcesManager='" + resourcesManager + "', " +
-			"extSourcesManager='" + extSourcesManager + "', " +
-			"attributesManager='" + attributesManager + "', " +
-			"rtMessagesManager='" + rtMessagesManager + "', " +
-			"securityTeamsManager='" + securityTeamsManager + "', " +
-			"searcher='" + searcher + "', " +
-			"servicesManager='" + servicesManager + "']";
+				"vosManager='" + vosManager + "', " +
+				"usersManager='" + usersManager + "', " +
+				"membersManager='" + membersManager + "', " +
+				"groupsManager='" + groupsManager + "', " +
+				"facilitiesManager='" + facilitiesManager + "', " +
+				"databaseManager='" + databaseManager + "', " +
+				"auditMessagesManager=" + auditMessagesManager + ", " +
+				"resourcesManager='" + resourcesManager + "', " +
+				"extSourcesManager='" + extSourcesManager + "', " +
+				"attributesManager='" + attributesManager + "', " +
+				"rtMessagesManager='" + rtMessagesManager + "', " +
+				"securityTeamsManager='" + securityTeamsManager + "', " +
+				"searcher='" + searcher + "', " +
+				"servicesManager='" + servicesManager + "']";
 	}
 }
