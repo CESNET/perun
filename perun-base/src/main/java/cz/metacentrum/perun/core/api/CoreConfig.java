@@ -317,25 +317,74 @@ public class CoreConfig {
 		return attributesForUpdate;
 	}
 
-	private void createAttributeDefinitions(String extSourceType, List<String> attrNames, String descriptionPrefix) {
+	private void createAttributeDefinitions(String extSourceType, List<String> attrNames) {
 		List<AttributeDefinition> attrs = new ArrayList<>();
 		for (String attrName : attrNames) {
 			AttributeDefinition attr = new Attribute();
 			attr.setType(String.class.getName());
 			attr.setNamespace("urn:perun:ues:attribute-def");
 			attr.setFriendlyName(attrName);
-			attr.setDisplayName(attrName);
-			attr.setDescription(descriptionPrefix + attrName);
+			switch(attrName) {
+				case "mail":
+					attr.setDisplayName("email address");
+					break;
+				case "cn":
+					attr.setDisplayName("common name");
+					attr.setDescription("full name of person");
+					break;
+				case "sn":
+					attr.setDisplayName("surname");
+					attr.setDescription("family name, usually last name (first in Hungary)");
+					break;
+				case "givenName":
+					attr.setDisplayName("given name");
+					attr.setDescription("usually first name (last in Hungary)");
+					break;
+				case "eppn":
+					attr.setDisplayName("eduPersonPrincipalName");
+					attr.setDescription("person identifier in academic federations");
+					break;
+				case "displayName":
+					attr.setDisplayName("displayName");
+					attr.setDescription("full name of person");
+					break;
+				case "uid":
+					attr.setDisplayName("uid");
+					attr.setDescription("user identifier");
+					break;
+				case "o":
+					attr.setDisplayName("organization");
+					break;
+				case "ou":
+					attr.setDisplayName("organization unit");
+					break;
+				case "loa":
+					attr.setDisplayName("level of assurance");
+					attr.setDescription("confidence in person's identity");
+					break;
+				case "affiliation":
+					attr.setDisplayName("affiliation");
+					attr.setDescription("person's relation to organization");
+					break;
+				case "SSL_CLIENT_S_DN":
+					attr.setDisplayName("certificate DN");
+					attr.setDescription("Distinguished Name from X509 digital certificate");
+					break;
+				case "SSL_CLIENT_I_DN":
+					attr.setDisplayName("CA DN");
+					attr.setDescription("Distinguished Name of Certificate Authority");
+					break;
+			}
 			attrs.add(attr);
 		}
 		attributesForUpdate.put(extSourceType, attrs);
 	}
 
 	public void setAttributesForUpdateIdP(List<String> attrNames) {
-		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceIdp", attrNames, "SAML ");
+		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceIdp", attrNames);
 	}
 
 	public void setAttributesForUpdateX509(List<String> attrNames) {
-		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceX509", attrNames, "X509 ");
+		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceX509", attrNames);
 	}
 }
