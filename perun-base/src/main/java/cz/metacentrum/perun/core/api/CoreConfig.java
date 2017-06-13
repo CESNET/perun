@@ -322,11 +322,12 @@ public class CoreConfig {
 		for (String attrName : attrNames) {
 			AttributeDefinition attr = new Attribute();
 			attr.setType(String.class.getName());
-			attr.setNamespace("urn:perun:ues:attribute-def");
+			attr.setNamespace("urn:perun:ues:attribute-def:def");
 			attr.setFriendlyName(attrName);
 			switch(attrName) {
 				case "mail":
-					attr.setDisplayName("email address");
+					attr.setDisplayName("mail");
+					attr.setDescription("email address");
 					break;
 				case "cn":
 					attr.setDisplayName("common name");
@@ -354,9 +355,11 @@ public class CoreConfig {
 					break;
 				case "o":
 					attr.setDisplayName("organization");
+					attr.setDescription("user's home organization");
 					break;
 				case "ou":
 					attr.setDisplayName("organization unit");
+					attr.setDescription("department, faculty, institute, etc.");
 					break;
 				case "loa":
 					attr.setDisplayName("level of assurance");
@@ -366,14 +369,21 @@ public class CoreConfig {
 					attr.setDisplayName("affiliation");
 					attr.setDescription("person's relation to organization");
 					break;
-				case "SSL_CLIENT_S_DN":
+				case "dn":
 					attr.setDisplayName("certificate DN");
 					attr.setDescription("Distinguished Name from X509 digital certificate");
 					break;
-				case "SSL_CLIENT_I_DN":
+				case "cadn":
 					attr.setDisplayName("CA DN");
 					attr.setDescription("Distinguished Name of Certificate Authority");
 					break;
+				case "certificate":
+					attr.setDisplayName("X509 certificate");
+					attr.setDescription("PEM encoded X509 certificate");
+					break;
+				default:
+					attr.setDisplayName(attrName);
+					attr.setDescription(attrName);
 			}
 			attrs.add(attr);
 		}

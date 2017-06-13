@@ -48,12 +48,13 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  */
 public class Api extends HttpServlet {
 
+	private final static Logger log = LoggerFactory.getLogger(Api.class);
+
 	private final static String APICALLER = "apiCaller";
 	private final static String PERUNREQUESTS = "perunRequests";
 	private final static String PERUNREQUESTSURL = "getPendingRequests";
 	private final static String PERUNSTATUS = "getPerunStatus";
 	private final static String PERUNSTATISTICS = "getPerunStatistics";
-	private final static Logger log = LoggerFactory.getLogger(ApiCaller.class);
 	private final static String VOOTMANAGER = "vootManager";
 	private final static String OIDCMANAGER = "oidcManager";
 	private final static int timeToLiveWhenDone = 60 * 1000; // in milisec, if requests is done more than this time, remove it from list
@@ -220,22 +221,41 @@ public class Api extends HttpServlet {
 		// X509 cert was used
 		// Cert must be last since Apache asks for certificate everytime and fills cert properties even when Kerberos is in place.
 		else if (Objects.equals(req.getAttribute(SSL_CLIENT_VERIFY), SUCCESS)) {
-			extSourceName = getStringAttribute(req,SSL_CLIENT_ISSUER_DN);
+			String certDN = getStringAttribute(req, SSL_CLIENT_SUBJECT_DN);
+			String caDN = getStringAttribute(req, SSL_CLIENT_ISSUER_DN);
+			String wholeCert = getStringAttribute(req, SSL_CLIENT_CERT);
+			extSourceName = caDN;
 			extSourceType = ExtSourcesManager.EXTSOURCE_X509;
 			extSourceLoaString = getStringAttribute(req,EXTSOURCELOA);
-			extLogin = getStringAttribute(req,SSL_CLIENT_SUBJECT_DN);
+			extLogin = certDN;
 
 			// Store X509 certificate in the additionalInformations structure
+			//FIXME: duplicit
 			additionalInformations.put("userCertificates",
-					AttributesManagerBlImpl.escapeMapAttributeValue(getStringAttribute(req,SSL_CLIENT_SUBJECT_DN)) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
-							AttributesManagerBlImpl.escapeMapAttributeValue(getStringAttribute(req,SSL_CLIENT_CERT)));
+					AttributesManagerBlImpl.escapeMapAttributeValue(certDN) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
+							AttributesManagerBlImpl.escapeMapAttributeValue(wholeCert));
 			additionalInformations.put("userCertDNs",
-					AttributesManagerBlImpl.escapeMapAttributeValue(getStringAttribute(req,SSL_CLIENT_SUBJECT_DN)) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
-							AttributesManagerBlImpl.escapeMapAttributeValue(getStringAttribute(req,SSL_CLIENT_ISSUER_DN)));
+					AttributesManagerBlImpl.escapeMapAttributeValue(certDN) + AttributesManagerImpl.KEY_VALUE_DELIMITER +
+							AttributesManagerBlImpl.escapeMapAttributeValue(caDN));
+			additionalInformations.put(SSL_CLIENT_SUBJECT_DN, certDN);
 
 			// Store X509
-			additionalInformations.put(SSL_CLIENT_SUBJECT_DN, getStringAttribute(req,SSL_CLIENT_SUBJECT_DN));
-			additionalInformations.put("dn", getStringAttribute(req,SSL_CLIENT_SUBJECT_DN));
+			additionalInformations.put("dn", certDN);
+			additionalInformations.put("cadn", caDN);
+			additionalInformations.put("certificate", wholeCert);
+
+			// Get organization from the certificate
+			Pattern p = Pattern.compile("[oO]\\s*=\\s*([^/]*)");
+			Matcher m = p.matcher(certDN);
+			if(m.find()) {
+				additionalInformations.put("o", m.group(1));
+			}
+			// Get CN from the certificate
+			Pattern p2 = Pattern.compile("CN=([^/]*)");
+			Matcher m2 = p2.matcher(certDN);
+			if(m2.find()) {
+				additionalInformations.put("cn", m2.group(1));
+			}
 
 			// Get the X.509 certificate object
 			X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
@@ -259,16 +279,6 @@ public class Api extends HttpServlet {
 				}
 
 				additionalInformations.put("mail", emails);
-
-				// Get organization from the certificate
-				Pattern oPattern = Pattern.compile("([oO])(\\s)*=([^+,])*");
-				Matcher oMatcher = oPattern.matcher(certs[0].getSubjectX500Principal().getName());
-				if (oMatcher.find()) {
-					String[] org = oMatcher.group().split("=");
-					if (isNotEmpty(org[1])) {
-						additionalInformations.put("o", org[1]);
-					}
-				}
 			}
 		}
 
@@ -287,17 +297,18 @@ public class Api extends HttpServlet {
 		//store selected attributes for update
 		for (AttributeDefinition attr : BeansUtils.getCoreConfig().getAttributesForUpdate().getOrDefault(extSourceType,Collections.emptyList())) {
 			String attrValue = (String) req.getAttribute(attr.getFriendlyName());
-			//fix shibboleth encoding
-			if(ExtSourcesManager.EXTSOURCE_IDP.equals(extSourceType)) {
-				try {
-					if(attrValue!=null) {
+			if(attrValue!=null) {
+				//fix shibboleth encoding
+				if (ExtSourcesManager.EXTSOURCE_IDP.equals(extSourceType)) {
+					try {
 						attrValue = new String(attrValue.getBytes("iso-8859-1"), "utf-8");
+					} catch (UnsupportedEncodingException e) {
+						log.error("utf-8 is not known");
 					}
-				} catch (UnsupportedEncodingException e) {
-					log.error("utf-8 is not known");
 				}
+				log.debug("storing {}={} to additionalInformations", attr.getFriendlyName(), attrValue);
+				additionalInformations.put(attr.getFriendlyName(), attrValue);
 			}
-			additionalInformations.put(attr.getFriendlyName(),attrValue);
 		}
 
 		// If the RPC was called by the user who can do delegation and delegatedLogin is set, set the values sent in the request
@@ -328,7 +339,7 @@ public class Api extends HttpServlet {
 		if (isEmpty(extLogin) || isEmpty(extSourceName)) {
 			throw new UserNotExistsException("extLogin or extSourceName is empty");
 		}
-
+		log.trace("creating PerunPrincipal(actor={},extSourceName={},extSourceType={},extSourceLoa={},additionalInformations={})",extLogin,extSourceName, extSourceType, extSourceLoa, additionalInformations);
 		return new PerunPrincipal(extLogin, extSourceName, extSourceType, extSourceLoa, additionalInformations);
 	}
 

@@ -64,7 +64,7 @@ public class PerunBlImpl implements PerunBl {
 
 	public PerunSession getPerunSession(PerunPrincipal principal, PerunClient client) throws InternalErrorException {
 		PerunSessionImpl perunSession = new PerunSessionImpl(this, principal, client);
-
+		log.debug("creating PerunSession for user {}",principal.getActor());
 		if (principal.getUser() == null && usersManagerBl!=null && !dontLookupUsersForLogins.contains(principal.getActor())) {
 			// Get the user if we are completely initialized
 			try {
@@ -101,6 +101,7 @@ public class PerunBlImpl implements PerunBl {
 								}
 							}
 							attributeWithValue.setValue(attrValue);
+							log.debug("storing attribute {}='{}' for user {}",attributeWithValue.getFriendlyName(),attrValue,principal.getActor());
 							attributesManagerBl.setAttribute(perunSession, ues, attributeWithValue);
 						} catch (AttributeNotExistsException | WrongAttributeAssignmentException | WrongAttributeValueException | WrongReferenceAttributeValueException e) {
 							log.error("Attribute " + attr.getName() + " with value '" + attrValue + "' cannot be saved", e);

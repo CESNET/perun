@@ -93,7 +93,7 @@
 				<prop key="perun.proxyIdPs"/>
 				<prop key="perun.id.salt">abcdef</prop>
 				<prop key="perun.attributesForUpdate.idp">mail,cn,sn,givenName,o,ou,eppn,affiliation,displayName,uid</prop>
-				<prop key="perun.attributesForUpdate.x509">mail,cn,o,SSL_CLIENT_S_DN,SSL_CLIENT_I_DN</prop>
+				<prop key="perun.attributesForUpdate.x509">mail,cn,o,dn,cadn,certificate</prop>
 			</props>
 		</property>
 	</bean>
