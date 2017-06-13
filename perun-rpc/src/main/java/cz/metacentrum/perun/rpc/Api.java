@@ -290,7 +290,9 @@ public class Api extends HttpServlet {
 			//fix shibboleth encoding
 			if(ExtSourcesManager.EXTSOURCE_IDP.equals(extSourceType)) {
 				try {
-					attrValue = new String(attrValue.getBytes("iso-8859-1"),"utf-8");
+					if(attrValue!=null) {
+						attrValue = new String(attrValue.getBytes("iso-8859-1"), "utf-8");
+					}
 				} catch (UnsupportedEncodingException e) {
 					log.error("utf-8 is not known");
 				}
