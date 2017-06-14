@@ -56,7 +56,6 @@ nb-configuration.xml
 
 # LINUX ignore #
 
-.*
 !.gitignore
 !.gitattributes
 *~

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/CESNET/perun.svg?branch=master)](https://travis-ci.org/CESNET/perun)
+
 <a href="https://perun.cesnet.cz/"><img style="float: left; position: relative;" src="https://raw.githubusercontent.com/CESNET/perun/master/perun-web-gui/src/main/webapp/img/logo.png"></a>
 ## Identity & Access Management System ##
 
