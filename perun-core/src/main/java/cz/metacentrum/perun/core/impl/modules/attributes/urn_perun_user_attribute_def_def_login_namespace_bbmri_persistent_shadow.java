@@ -11,9 +11,6 @@ import cz.metacentrum.perun.core.api.ExtSource;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Class for checking logins uniqueness in the namespace and filling bbmri-persistent id.
@@ -27,13 +24,14 @@ import java.security.NoSuchAlgorithmException;
  */
 public class urn_perun_user_attribute_def_def_login_namespace_bbmri_persistent_shadow extends urn_perun_user_attribute_def_def_login_namespace {
 
-        private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_bbmri_persistent_shadow.class);
-        private final String extSourceNameBbmri = "https://login.bbmri-eric.eu/idp/";
-        private final String domainNameBbmri = "@bbmri.eu";
-        private final String attrNameBbmri = "login-namespace:bbmri-persistent-shadow";
+	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_def_login_namespace_bbmri_persistent_shadow.class);
+	private final static String extSourceNameBbmri = "https://login.bbmri-eric.eu/idp/";
+	private final static String domainNameBbmri = "@bbmri.eu";
+	private final static String attrNameBbmri = "login-namespace:bbmri-persistent-shadow";
 
-        /**
+	/**
 	 * Filling implemented for login:namespace:bbmri-persistent attribute
+	 * Format is: "[hash]@bbmri-europe.org" where [hash] represents sha1hash counted from users id, namespace and instance ID
 	 *
 	 * @param perunSession PerunSession
 	 * @param user User to fill attribute for
@@ -42,63 +40,21 @@ public class urn_perun_user_attribute_def_def_login_namespace_bbmri_persistent_s
 	 * @throws InternalErrorException
 	 * @throws WrongAttributeAssignmentException
 	 */
-        @Override
-        public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
+	@Override
+	public Attribute fillAttribute(PerunSessionImpl perunSession, User user, AttributeDefinition attribute) throws InternalErrorException, WrongAttributeAssignmentException {
 
 		Attribute filledAttribute = new Attribute(attribute);
 
-		if (attribute.getFriendlyName().equals(this.attrNameBbmri)) {
-			return generateLoginValueBbmri(perunSession, user, filledAttribute);
+		if (attribute.getFriendlyName().equals(attrNameBbmri)) {
+			filledAttribute.setValue(sha1HashCount(user, domainNameBbmri).toString() + domainNameBbmri);
+			return filledAttribute;
 		} else {
 			// without value
 			return filledAttribute;
 		}
 	}
 
-        /**
-	 * GenerateLoginValueBbmri() fills login-namespace:bbmri-persistent attribute with generated value.
-	 * 	Format is: "[hash]@bbmri-europe.org" where [hash] represents sha1hash counted from user's id.
-	 *
-	 * @param sess PerunSession
-	 * @param user User to fill attribute for
-	 * @param attribute Attribute to fill value with
-	 * @return Filled attribute
-	 * @throws InternalErrorException
-	 * @throws WrongAttributeAssignmentException
-	 */
-	private Attribute generateLoginValueBbmri(PerunSessionImpl sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException {
-		try {
-			attribute.setValue(sha1HashCount(user).toString() + this.domainNameBbmri);
-			checkAttributeValue(sess, user, attribute);
-			return attribute;
-		} catch (WrongAttributeValueException ex) {
-			return attribute;
-		}
-	}
-
-        /**
-	 * Sha1HashCount() counts sha1hash for bbmri-persistent namespace from user's id
-	 *
-	 * @param user user with the id
-	 * @return counted hash
-	 */
-	private StringBuilder sha1HashCount(User user) throws InternalErrorException {
-		try {
-			MessageDigest mDigest = MessageDigest.getInstance("SHA1");
-			// counts sha1hash and converts output to hex
-			byte[] result = mDigest.digest(ByteBuffer.allocate(4).putInt(user.getId()).array());
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < result.length; i++) {
-				sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
-			}
-
-			return sb;
-		} catch (NoSuchAlgorithmException ex) {
-			throw new InternalErrorException("Algorithm for sha1hash was not found.", ex);
-		}
-	}
-
-        /**
+	/**
 	 * ChangedAttributeHook() sets UserExtSource with following properties:
 	 *  - extSourceType is IdP
 	 *  - extSourceName is https://login.bbmri-eric.eu/idp/
@@ -128,7 +84,7 @@ public class urn_perun_user_attribute_def_def_login_namespace_bbmri_persistent_s
 		}
 	}
 
-        public AttributeDefinition getAttributeDefinition() {
+	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
 		attr.setFriendlyName("login-namespace:bbmri-persistent-shadow");
