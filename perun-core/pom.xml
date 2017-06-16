@@ -96,7 +96,7 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		
+
 		<!--HSQL-->
 		<dependency>
 			<groupId>org.hsqldb</groupId>
@@ -218,7 +218,7 @@
  			<groupId>org.json</groupId>
  			<artifactId>json</artifactId>
  		</dependency>
-		
+
 	</dependencies>
 
 	<profiles>
@@ -231,6 +231,9 @@
 					<name>devel</name>
 				</property>
 			</activation>
+			<properties>
+				<perun.build.type>devel</perun.build.type>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -298,7 +301,7 @@
 					<artifactId>tomcat-dbcp</artifactId>
 					<scope>provided</scope>
 				</dependency>
-				
+
 				<!-- DBs -->
 
 				<!-- PostgreSQL driver -->
