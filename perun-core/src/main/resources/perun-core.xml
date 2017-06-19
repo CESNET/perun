@@ -436,12 +436,13 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			<property name="url" value="${jdbc.url}"/>
 			<property name="username" value="${jdbc.username}"/>
 			<property name="password" value="${jdbc.password}"/>
-			<property name="maxActive" value="150" />
+			<property name="maxTotal" value="150" />
 			<property name="maxIdle" value="30" />
-			<property name="maxWait" value="30000" />
+			<property name="maxWaitMillis" value="30000" />
 			<!-- Oracle  <property name="validationQuery" value="select 1 from dual" /> -->
 			<!-- Postgres  <property name="validationQuery" value="select 1" /> -->
-			<property name="removeAbandoned" value="true" />
+			<property name="removeAbandonedOnBorrow" value="true" />
+			<property name="removeAbandonedOnMaintenance" value="true" />
 			<property name="logAbandoned" value="true" />
 			<property name="removeAbandonedTimeout" value="300" />
 			<property name="testOnBorrow" value="true" />
