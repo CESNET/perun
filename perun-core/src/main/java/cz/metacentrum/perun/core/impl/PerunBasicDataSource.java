@@ -1,9 +1,10 @@
 package cz.metacentrum.perun.core.impl;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
+import org.apache.commons.dbcp2.BasicDataSource;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 
 /**
  * BasicDataSource used instead of BasicDataSource in Perun to override getConnection.

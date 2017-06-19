@@ -87,13 +87,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!-- DB -->
-
-		<!--<dependency>-->
-			<!--<groupId>commons-dbcp</groupId>-->
-			<!--<artifactId>commons-dbcp</artifactId>-->
-		<!--</dependency>-->
-
 		<!-- TESTS -->
 
 		<dependency>

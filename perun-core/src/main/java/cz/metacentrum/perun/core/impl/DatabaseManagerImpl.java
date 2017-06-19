@@ -9,20 +9,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcPerunTemplate;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 /**
  * Database manager can work with database version and upgraded state of perun DB.
@@ -53,11 +50,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		try {
 			Connection con;
 			// for tests
-			if (Compatibility.isHSQLDB()) {
-				con = ((SimpleDriverDataSource) jdbc.getDataSource()).getConnection();
-			} else {
-				con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
-			}
+			con = jdbc.getDataSource().getConnection();
 			String driverVersion = con.getMetaData().getDriverVersion();
 			String driverName = con.getMetaData().getDriverName();
 			con.close();
@@ -71,11 +64,7 @@ public class DatabaseManagerImpl implements DatabaseManagerImplApi {
 		try {
 			Connection con;
 			// for tests
-			if (Compatibility.isHSQLDB()) {
-				con = ((SimpleDriverDataSource) jdbc.getDataSource()).getConnection();
-			} else {
-				con = ((BasicDataSource) jdbc.getDataSource()).getConnection();
-			}
+			con = jdbc.getDataSource().getConnection();
 			String dbName = con.getMetaData().getDatabaseProductName();
 			String dbVersion = con.getMetaData().getDatabaseProductVersion();
 			con.close();
