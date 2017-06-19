@@ -104,8 +104,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-dbcp</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
 		</dependency>
 
 		<!-- SPRING -->
@@ -294,14 +294,6 @@
 				<maven.test.skip>true</maven.test.skip>
 			</properties>
 			<dependencies>
-				<!-- FIXME - re-define "provided" scope, so it won't be in final production jar/war -->
-				<!-- FIXME - it's provided by devel/production tomcat instance -->
-				<dependency>
-					<groupId>org.apache.tomcat</groupId>
-					<artifactId>tomcat-dbcp</artifactId>
-					<scope>provided</scope>
-				</dependency>
-
 				<!-- DBs -->
 
 				<!-- PostgreSQL driver -->

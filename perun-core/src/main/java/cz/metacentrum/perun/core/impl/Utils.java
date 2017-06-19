@@ -4,7 +4,7 @@ import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 import cz.metacentrum.perun.core.blImpl.ModulesUtilsBlImpl;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;

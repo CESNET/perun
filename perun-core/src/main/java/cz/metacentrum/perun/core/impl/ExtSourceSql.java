@@ -15,7 +15,7 @@ import java.util.Objects;
 
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.tomcat.dbcp.dbcp.DriverManagerConnectionFactory;
+import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
