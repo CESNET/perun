@@ -12,10 +12,10 @@ sub help {
 	Sets the UserExtSource attribute. UserExtSource id or (external source Name or Id and userExtSourceLogin) required. Attribute value and attribute id or name are required too.
 	---------------------------------------------------------------
 	Available options:
-        --userExtSourceId    | -u userExtSource Id
-        --userExtSourceLogin | -l users login at ExtSource
-        --extSourceName      | -E extSource name
-        --extSourceId        | -e extSource Id
+	--userExtSourceId    | -u userExtSource Id
+	--userExtSourceLogin | -l users login at ExtSource
+	--extSourceName      | -E extSource name
+	--extSourceId        | -e extSource Id
 	--attributeId        | -a attribute id
 	--attributeName      | -A attribute name including namespace
 	--attributeValue     | -w attribute value
@@ -30,18 +30,18 @@ our $batch;
 GetOptions ("help|h"    => sub {
 		print help();
 		exit 0;
-}, "batch|b"        => \$batch,
-"userExtSourceId|u=i"   => \$userExtSourceId,
-"userExtSourceLogin|l=s" => \$userExtSourceLogin,
-"extSourceName|E=s" => \$extSourceName,
-"extSourceId|e=i" => \$extSourceId,
-"attributeId|a=i"   => \$attributeId,
-"attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
+	}, "batch|b"        => \$batch,
+	"userExtSourceId|u=i"   => \$userExtSourceId,
+	"userExtSourceLogin|l=s" => \$userExtSourceLogin,
+	"extSourceName|E=s" => \$extSourceName,
+	"extSourceId|e=i" => \$extSourceId,
+	"attributeId|a=i"   => \$attributeId,
+	"attributeName|A=s" => \$attributeName, 'attributeValue|w=s@{1,}' => \@attributeValue) || die help();
 
 # Check options
 unless (defined $userExtSourceId ) {
-    unless (defined $extSourceName or defined $extSourceId) { die "ERROR: extSourceId  or extSourceName is required \n";}
-    unless (defined $userExtSourceLogin) { die "ERROR: userExtSourceLogin is required \n";}
+	unless (defined $extSourceName or defined $extSourceId) { die "ERROR: extSourceId  or extSourceName is required \n";}
+	unless (defined $userExtSourceLogin) { die "ERROR: userExtSourceLogin is required \n";}
 }
 unless (defined($attributeId) or defined($attributeName)) { die "ERROR: attributeId or attributeName is required \n";}
 unless (@attributeValue) { die "ERROR: attributeValue is required \n";}
@@ -51,11 +51,11 @@ my $usersAgent = $agent->getUsersAgent;
 my $extSourcesAgent = $agent->getExtSourcesAgent;
 
 unless ($userExtSourceId) {
-        my $extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName) if $extSourceName;
-        $extSource = $extSourcesAgent->getExtSourceById( id => $extSourceId) if $extSourceId;
+	my $extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName) if $extSourceName;
+	$extSource = $extSourcesAgent->getExtSourceById( id => $extSourceId) if $extSourceId;
 
-        my $userExtSource = $usersAgent->getUserExtSourceByExtLogin( extSourceLogin => $userExtSourceLogin, extSource => $extSource );
-        $userExtSourceId = $userExtSource->getId;
+	my $userExtSource = $usersAgent->getUserExtSourceByExtLogin( extSourceLogin => $userExtSourceLogin, extSource => $extSource );
+	$userExtSourceId = $userExtSource->getId;
 }
 
 my $attributesAgent = $agent->getAttributesAgent;
