@@ -1,0 +1,69 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Text::ASCIITable;
+use Perun::Agent;
+use Perun::Common qw(printMessage printTable getSortingFunction);
+
+sub help {
+	return qq{
+	Lists userExtSource attributes. UserExtSource id or (external source Name or Id and userExtSourceLogin) required.
+	-----------------------------------------------------------------------
+	Available options:
+	--userExtSourceId    | -u userExtSource Id
+	--userExtSourceLogin | -l users login at ExtSource
+	--extSourceName      | -E extSource name
+	--extSourceId        | -e extSource Id
+	--orderById          | -i order by attribute id
+	--orderByName        | -n order by attribute friendly name
+	--batch              | -b batch
+	--help               | -h help
+
+};
+}
+
+our $batch;
+my ($userExtSourceId, $userExtSourceLogin, $extSourceId, $extSourceName, $sortingFunction);
+GetOptions ("help|h"   => sub {
+		print help();
+		exit 0;
+	}, "batch|b"       => \$batch,
+	"userExtSourceId|u=i"   => \$userExtSourceId,
+	"userExtSourceLogin|l=s" => \$userExtSourceLogin,
+	"extSourceName|E=s" => \$extSourceName,
+	"extSourceId|e=i" => \$extSourceId,
+	"orderById|i"      => sub { $sortingFunction = getSortingFunction('getId') },
+	"orderByName|n"    => sub {$sortingFunction = getSortingFunction("getFriendlyName", 1); } ) || die help();
+
+unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getFriendlyName", 1); }
+
+# Check options
+unless (defined $userExtSourceId ) {
+	unless (defined $extSourceName or defined $extSourceId) { die "ERROR: extSourceId  or extSourceName is required \n";}
+	unless (defined $userExtSourceLogin) { die "ERROR: userExtSourceLogin is required \n";}
+}
+
+my $agent = Perun::Agent->new();
+my $usersAgent = $agent->getUsersAgent;
+my $extSourcesAgent = $agent->getExtSourcesAgent;
+
+unless ($userExtSourceId) {
+	my $extSource = $extSourcesAgent->getExtSourceByName( name => $extSourceName) if $extSourceName;
+	$extSource = $extSourcesAgent->getExtSourceById( id => $extSourceId) if $extSourceId;
+
+	my $userExtSource = $usersAgent->getUserExtSourceByExtLogin( extSourceLogin => $userExtSourceLogin, extSource => $extSource );
+	$userExtSourceId = $userExtSource->getId;
+}
+
+my $attributesAgent = $agent->getAttributesAgent;
+my @attributes = $attributesAgent->getAttributes( userExtSource => $userExtSourceId);
+
+unless (@attributes) {
+	printMessage "No attributes found", $batch;
+	exit 0;
+}
+
+#output
+printTable($sortingFunction, @attributes);
