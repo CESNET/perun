@@ -38,7 +38,7 @@ You can also run Perun locally (e.g. for some tests). Just run Maven with tomcat
 mvn tomcat7:run-war
 
 # against real DB with config in /etc/perun/
-mvn tomcat7:run-war -Dspring.profiles.active=devel
+mvn tomcat7:run-war -Ddevel 
 ```
 
 ### CLI tools ###

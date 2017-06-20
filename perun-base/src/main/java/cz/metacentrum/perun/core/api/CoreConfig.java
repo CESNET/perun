@@ -32,7 +32,7 @@ public class CoreConfig {
 	private Set<String> dontLookupUsers;
 	private String alternativePasswordManagerProgram;
 	private String dbType;
-	private String idSalt;
+	private String instanceId;
 	private String instanceName;
 	private String mailchangeBackupFrom;
 	private String mailchangeSecretKey;
@@ -179,12 +179,12 @@ public class CoreConfig {
 		this.dbType = dbType;
 	}
 
-	public String getIdSalt() {
-		return idSalt;
+	public String getInstanceId() {
+		return instanceId;
 	}
 
-	public void setIdSalt(String idSalt) {
-		this.idSalt = idSalt;
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
 	}
 
 	public String getInstanceName() {

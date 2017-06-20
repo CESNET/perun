@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>io.spring.platform</groupId>
 		<artifactId>platform-bom</artifactId>
-		<version>Brussels-SR1</version>
+		<version>Brussels-SR3</version>
 		<relativePath/>
 	</parent>
 
@@ -53,7 +53,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<!-- by default we build devel version of perun and do tests -->
-		<perun.build.type>devel</perun.build.type>
+		<perun.build.type>default</perun.build.type>
 		<maven.test.skip>false</maven.test.skip>
 
 		<!-- macros @perun.conf@ @perun.jdbc@ etc replaced in all filtered resources in /src/main/resources during maven build-->
@@ -67,7 +67,6 @@
 
 		<!-- redefine versions of some libraries defined by Spring platform -->
 		<postgresql.version>42.0.0</postgresql.version>
-		<tomcat.version>7.0.56</tomcat.version>
 		<hsqldb.version>2.3.2</hsqldb.version> <!-- 2.3.3 fails GroupsManagerEntryIntegrationTest.addAdminWhenAlreadyAdmin test -->
 		<javax-validation.version>1.0.0.GA</javax-validation.version>
 

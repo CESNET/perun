@@ -67,16 +67,16 @@ public class urn_perun_user_attribute_def_def_login_namespace_elixir_persistent_
 
         Attribute attribute = new Attribute();
         attribute.setFriendlyName("login-namespace:elixir-persistent-shadow");
-        attribute.setValue("879a224546cf11fe53863737de037d2d39640258@elixir-europe.org");
+        attribute.setValue("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org");
 
         when(session.getPerunBl().getAttributesManagerBl().getAttribute(any(PerunSession.class), any(User.class), anyString())).thenReturn(new Attribute() {
             {
-                setValue("879a224546cf11fe53863737de037d2d39640258@elixir-europe.org");
+                setValue("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org");
             }
         });
 
         Attribute output = classInstance.fillAttribute(session, user, attribute);
-        assertEquals("879a224546cf11fe53863737de037d2d39640258@elixir-europe.org", output.getValue());
+        assertEquals("903cb3444a89107fdd6b6198bd26712860f36ebb@elixir-europe.org", output.getValue());
     }
 
     @Ignore

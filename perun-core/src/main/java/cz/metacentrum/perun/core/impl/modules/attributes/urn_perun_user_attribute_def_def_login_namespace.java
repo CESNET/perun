@@ -1,5 +1,9 @@
 package cz.metacentrum.perun.core.impl.modules.attributes;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import cz.metacentrum.perun.core.api.BeansUtils;
@@ -93,4 +97,36 @@ public class urn_perun_user_attribute_def_def_login_namespace extends UserAttrib
 		attr.setDescription("Login namespace.");
 		return attr;
 	}*/
+
+	/**
+	 * Generate unique ID as SHA1 hash from users ID and domain. Used to generate unique IDs for ProxyIdP login namespaces.
+	 *
+	 * @param user User to generate ID for
+	 * @param domain Login namespace domain, eg. @einfra.cesnet.cz or @bbmri.eu etc.
+	 * @return Builder to get string ID
+	 * @throws InternalErrorException When generation fails
+	 */
+	protected StringBuilder sha1HashCount(User user, String domain) throws InternalErrorException {
+		try {
+			String salt = BeansUtils.getCoreConfig().getInstanceId();
+			MessageDigest mDigest = MessageDigest.getInstance("SHA1");
+			// counts sha1hash and converts output to hex
+			byte[] result = new byte[0];
+			try {
+				int length = 4+salt.getBytes("UTF-8").length+domain.getBytes("UTF-8").length;
+				result = mDigest.digest(ByteBuffer.allocate(length).putInt(user.getId()).put(domain.getBytes("UTF-8")).put(salt.getBytes("UTF-8")).array());
+			} catch (UnsupportedEncodingException e) {
+				log.error("Unable to get UTF-8 bytes from domainName and perun.instanceId", e);
+			}
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < result.length; i++) {
+				sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+			}
+
+			return sb;
+		} catch (NoSuchAlgorithmException ex) {
+			throw new InternalErrorException("Algorithm for sha1hash was not found.", ex);
+		}
+	}
+
 }
