@@ -114,7 +114,6 @@ public class UserExtSourceSettingsTabItem implements TabItem, TabItemWithUrl {
 
 		// save changes in attributes
 		final CustomButton saveChangesButton = TabMenu.getPredefinedButton(ButtonType.SAVE, ButtonTranslation.INSTANCE.saveChangesInAttributes());
-		saveChangesButton.setEnabled(false);
 		saveChangesButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				if (UiElements.cantSaveEmptyListDialogBox(callback.getTableSelectedList())) {
