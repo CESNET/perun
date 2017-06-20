@@ -17,7 +17,7 @@
 		<property name="generatedLoginNamespaces" value="#{'${perun.loginNamespace.generated}'.split('\s*,\s*')}"/>
 		<property name="groupSynchronizationInterval" value="${perun.group.synchronization.interval}"/>
 		<property name="groupSynchronizationTimeout" value="${perun.group.synchronization.timeout}"/>
-		<property name="idSalt" value="${perun.id.salt}"/>
+		<property name="instanceId" value="${perun.instanceId}"/>
 		<property name="instanceName" value="${perun.instanceName}"/>
 		<property name="mailchangeBackupFrom" value="${perun.mailchange.backupFrom}"/>
 		<property name="mailchangeSecretKey" value="${perun.mailchange.secretKey}"/>
@@ -50,7 +50,7 @@
 
 
 	<!-- Properties Bean for perun-core -->
-	
+
 	<bean id="defaultCoreProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">
 			<props>
@@ -91,9 +91,10 @@
 				<prop key="perun.DBInitializatorEnabled">false</prop>
 				<prop key="perun.userExtSources.persistent">PERUN,[\w\d]*</prop>
 				<prop key="perun.proxyIdPs"/>
-				<prop key="perun.id.salt">abcdef</prop>
 				<prop key="perun.attributesForUpdate.idp">mail,cn,sn,givenName,o,ou,eppn,affiliation,displayName,uid</prop>
 				<prop key="perun.attributesForUpdate.x509">mail,cn,o,dn,cadn,certificate</prop>
+				<prop key="perun.instanceId">AOJ26J3D9DCK3OA7</prop>
+				<prop key="perun.instanceName">LOCAL</prop>
 			</props>
 		</property>
 	</bean>
