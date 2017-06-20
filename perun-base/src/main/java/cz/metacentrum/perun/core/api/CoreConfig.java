@@ -380,6 +380,7 @@ public class CoreConfig {
 				case "certificate":
 					attr.setDisplayName("X509 certificate");
 					attr.setDescription("PEM encoded X509 certificate");
+					attr.setType(BeansUtils.largeStringClassName);
 					break;
 				default:
 					attr.setDisplayName(attrName);

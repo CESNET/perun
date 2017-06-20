@@ -282,18 +282,6 @@ public class Api extends HttpServlet {
 			}
 		}
 
-		// Read all headers and store them in additionalInformation
-		String headerName;
-		for (Enumeration<String> headerNames = req.getHeaderNames(); headerNames.hasMoreElements(); ) {
-			headerName = headerNames.nextElement();
-			// Tomcat expects all headers are in ISO-8859-1
-			try {
-				additionalInformations.put(headerName, new String(req.getHeader(headerName).getBytes("ISO-8859-1")));
-			} catch (UnsupportedEncodingException e) {
-				log.error("Cannot encode header {} with value from ISO-8859-1.", headerName, req.getHeader(headerName));
-			}
-		}
-
 		//store selected attributes for update
 		for (AttributeDefinition attr : BeansUtils.getCoreConfig().getAttributesForUpdate().getOrDefault(extSourceType,Collections.emptyList())) {
 			String attrValue = (String) req.getAttribute(attr.getFriendlyName());
