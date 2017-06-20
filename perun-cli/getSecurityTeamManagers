@@ -13,8 +13,8 @@ sub help {
 	------------------------------------
 	Available options:
 	--securityTeamId | -s SecurityTeam id
-        --orderById      | -i  order by manager's identifier
-        --orderByName    | -n  order by manager's name
+	--orderById      | -i  order by manager's identifier
+	--orderByName    | -n  order by manager's name
 	--batch          | -b batch
 	--help           | -h prints this help
 
