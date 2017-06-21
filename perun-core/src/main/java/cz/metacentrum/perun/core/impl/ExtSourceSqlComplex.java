@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 
 import cz.metacentrum.perun.core.blImpl.PerunBlImpl;
 import org.apache.commons.codec.binary.Base64;
@@ -36,6 +37,7 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 	private static final Map<String, String> attributeNameMapping = new HashMap<>();
 	private Connection con;
 	private boolean isOracle = false;
+	private boolean isSQLite = false;
 
 	private static PerunBlImpl perunBl;
 
@@ -64,7 +66,7 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 	public ExtSourceSqlComplex() {
 	}
 
-		@Override
+	@Override
 	public List<Map<String, String>> findSubjects(String searchString) throws InternalErrorException, ExtSourceUnsupportedOperationException {
 		return findSubjects(searchString, 0);
 	}
@@ -133,9 +135,9 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 		}
 
 		try {
-		  // Check if we have existing connection. In case of Oracle also checks the connection validity
-		  if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
-					this.createConnection();
+			// Check if we have existing connection. In case of Oracle also checks the connection validity
+			if (this.con == null || (this.isOracle && !this.con.isValid(0))) {
+				this.createConnection();
 			}
 
 			st = this.con.prepareStatement(query);
@@ -278,25 +280,43 @@ public class ExtSourceSqlComplex extends ExtSource implements ExtSourceApi {
 	}
 
 	protected void createConnection() throws SQLException, InternalErrorException {
-    try {
-      if (getAttributes().get("user") != null && getAttributes().get("password") != null) {
-        this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"),
-            (String) getAttributes().get("user"), (String) getAttributes().get("password"))).createConnection();
-      } else {
-        this.con = (new DriverManagerConnectionFactory((String) getAttributes().get("url"), null)).createConnection();
-      }
+		try {
 
-      // Set connection to read-only mode
-      this.con.setReadOnly(true);
+			String connectionUrl = getAttributes().get("url");
+			String user = getAttributes().get("user");
+			String pass = getAttributes().get("password");
+			Properties connectionProperties = new Properties();
 
-      if (this.con.getMetaData().getDriverName().toLowerCase().contains("oracle")) {
-        this.isOracle = true;
-      }
-    } catch (SQLException e) {
-      log.error("SQL exception during creating the connection to URL", (String) getAttributes().get("url"));
-      throw new InternalErrorRuntimeException(e);
-    }
-  }
+			// set user/pass to properties if present
+			if (user != null && pass != null) {
+				connectionProperties.put("user", user);
+				connectionProperties.put("password", pass);
+			}
+
+			// set connection read_only for SQLite (doesn't follow JDBC standard)
+			if (connectionUrl.startsWith("jdbc:sqlite:")) {
+				isSQLite = true;
+				connectionProperties.put("open_mode","1");
+			}
+
+			// create connection
+			this.con = (new DriverManagerConnectionFactory(connectionUrl, connectionProperties)).createConnection();
+
+			// Set connection to read-only mode for standard JDBC drivers
+			if (!isSQLite) {
+				this.con.setReadOnly(true);
+			}
+
+			if (this.con.getMetaData().getDriverName().toLowerCase().contains("oracle")) {
+				this.isOracle = true;
+				this.isSQLite = false;
+			}
+
+		} catch (SQLException e) {
+			log.error("SQL exception during creating the connection to URL", (String) getAttributes().get("url"));
+			throw new InternalErrorRuntimeException(e);
+		}
+	}
 
 	public void close() throws InternalErrorException {
 		if (this.con != null) {
