@@ -408,7 +408,7 @@ public class JsonErrorHandler {
 				return "Attribute is already set as required by service.";
 			}
 
-		} else if ("AttributeExistsException".equalsIgnoreCase(errorName)) {
+		} else if ("AttributeDefinitionExistsException".equalsIgnoreCase(errorName)) {
 
 			return "Same attribute definition already exists in Perun.";
 
