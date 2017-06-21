@@ -457,7 +457,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		User beforeUpdatingUser = getPerunBl().getUsersManagerBl().getUserById(sess, user.getId());
 		User afterUpdatingUser = getUsersManagerImpl().updateNameTitles(sess, user);
 
-		//Log only when something is changed		
+		//Log only when something is changed
 		// must audit like update user since it changes same object
 		if(!beforeUpdatingUser.equals(afterUpdatingUser)) getPerunBl().getAuditer().log(sess, "{} updated.", user);
 		return afterUpdatingUser;
@@ -534,6 +534,10 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 		return getUsersManagerImpl().getGroupsWhereUserIsAdmin(sess, user);
+	}
+
+	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException {
+		return getUsersManagerImpl().getGroupsWhereUserIsAdmin(sess, vo, user);
 	}
 
 	public List<Vo> getVosWhereUserIsMember(PerunSession sess, User user) throws InternalErrorException {

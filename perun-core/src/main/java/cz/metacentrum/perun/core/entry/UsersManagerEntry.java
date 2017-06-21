@@ -498,6 +498,20 @@ public class UsersManagerEntry implements UsersManager {
 		return getUsersManagerBl().getGroupsWhereUserIsAdmin(sess, user);
 	}
 
+	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException, UserNotExistsException, VoNotExistsException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+		getPerunBl().getUsersManagerBl().checkUserExists(sess, user);
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.SELF, user)) {
+			throw new PrivilegeException(sess, "getGroupsWhereUserIsAdmin");
+		}
+
+		return getUsersManagerBl().getGroupsWhereUserIsAdmin(sess, vo, user);
+	}
+
 	public List<Vo> getVosWhereUserIsMember(PerunSession sess, User user) throws InternalErrorException, UserNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 

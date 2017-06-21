@@ -629,13 +629,57 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		System.out.println(CLASS_NAME + "getGroupsWhereUserIsAdmin");
 
 		Member member = setUpMember(vo);
-		Group group = setUpGroup(vo, member);
 		User returnedUser = usersManager.getUserByMember(sess, member);
 
-		List<Group> groups = usersManager.getGroupsWhereUserIsAdmin(sess, returnedUser);
-		assertTrue("our user should be admin in one group", groups.size() >= 1);
-		assertTrue("created group is not between them", groups.contains(group));
+		Group group1 = setUpGroup(vo, member, "testGroup1");
+		Group group2 = setUpGroup(vo, member, "testGroup2");
+		Group group3 = setUpGroup(vo, member, "testGroup3");
+		perun.getGroupsManager().removeAdmin(sess, group3, returnedUser);
+		perun.getGroupsManager().addAdmin(sess, group3, group2);
+		Group group4 = setUpGroup(vo, member, "testGroup4");
+		perun.getGroupsManager().removeAdmin(sess, group4, returnedUser);
 
+		Vo vo2 = new Vo(0, "voForTest2", "voForTest2");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+		Member member2 = setUpMember(vo2);
+		Group group5 = setUpGroup(vo2, member2, "testGroup5");
+
+		List<Group> groups = usersManager.getGroupsWhereUserIsAdmin(sess, returnedUser);
+		assertTrue("our user should be admin at least in 4 groups", groups.size() >= 4);
+		assertTrue("created group1 should be between returned groups and it is not", groups.contains(group1));
+		assertTrue("created group2 should be between returned groups and it is not", groups.contains(group2));
+		assertTrue("created group3 should be between returned groups and it is not", groups.contains(group3));
+		assertTrue("created group5 should be between returned groups and it is not", groups.contains(group5));
+		assertTrue("created group4 should not be between returned groups and it is", !groups.contains(group4));
+	}
+
+	@ Test
+	public void getGroupsWhereUserIsAdminWithSelectedVo() throws Exception {
+		System.out.println(CLASS_NAME + "getGroupsWhereUserIsAdminWithSelectedVo");
+
+		Member member = setUpMember(vo);
+		User returnedUser = usersManager.getUserByMember(sess, member);
+
+		Group group1 = setUpGroup(vo, member, "testGroup1");
+		Group group2 = setUpGroup(vo, member, "testGroup2");
+		Group group3 = setUpGroup(vo, member, "testGroup3");
+		perun.getGroupsManager().removeAdmin(sess, group3, returnedUser);
+		perun.getGroupsManager().addAdmin(sess, group3, group2);
+		Group group4 = setUpGroup(vo, member, "testGroup4");
+		perun.getGroupsManager().removeAdmin(sess, group4, returnedUser);
+
+		Vo vo2 = new Vo(0, "voForTest2", "voForTest2");
+		vo2 = perun.getVosManagerBl().createVo(sess, vo2);
+		Member member2 = setUpMember(vo2);
+		Group group5 = setUpGroup(vo2, member2, "testGroup5");
+
+		List<Group> groups = usersManager.getGroupsWhereUserIsAdmin(sess, vo, returnedUser);
+		assertTrue("our user should be admin at least in 4 groups", groups.size() >= 3);
+		assertTrue("created group1 should be between returned groups and it is not", groups.contains(group1));
+		assertTrue("created group2 should be between returned groups and it is not", groups.contains(group2));
+		assertTrue("created group3 should be between returned groups and it is not", groups.contains(group3));
+		assertTrue("created group5 should not be between returned groups and it is", !groups.contains(group5));
+		assertTrue("created group4 should not be between returned groups and it is", !groups.contains(group4));
 	}
 
 	@Test (expected=UserNotExistsException.class)
@@ -969,14 +1013,16 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 	}
 
 	private Group setUpGroup(Vo vo, Member member) throws Exception {
+		return setUpGroup(vo, member, "UserManagerTestGroup");
+	}
 
-		Group group = new Group("UserManagerTestGroup","");
+	private Group setUpGroup(Vo vo, Member member, String groupName) throws Exception {
+		Group group = new Group(groupName,"");
 		group = perun.getGroupsManager().createGroup(sess, vo, group);
 		perun.getGroupsManager().addMember(sess, group, member);
 		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
 		perun.getGroupsManager().addAdmin(sess, group, user);
 		return group;
-
 	}
 
 	private Candidate setUpCandidate(){

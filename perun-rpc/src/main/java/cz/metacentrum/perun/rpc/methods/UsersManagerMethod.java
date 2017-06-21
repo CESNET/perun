@@ -723,17 +723,32 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
-	 * Returns list of Groups, where the user is an Administrator.
+	 * Returns list of Groups in Perun, where the User is a direct Administrator
+	 * or he is a member of any group which is Administrator of some of these Groups.
 	 *
 	 * @param user int User <code>id</code>
+	 * @return List<Group> Found Groups
+	 */
+	/*#
+	 * Returns list of Groups in selected Vo, where the User is a direct Administrator
+	 * or he is a member of any group which is Administrator of some of these Groups.
+	 *
+	 * @param user int User <code>id</code>
+	 * @param vo int Vo <code>id</code>
 	 * @return List<Group> Found Groups
 	 */
 	getGroupsWhereUserIsAdmin {
 
 		@Override
 		public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getUsersManager().getGroupsWhereUserIsAdmin(ac.getSession(),
-					ac.getUserById(parms.readInt("user")));
+			if (parms.contains("vo")) {
+				return ac.getUsersManager().getGroupsWhereUserIsAdmin(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						ac.getUserById(parms.readInt("user")));
+			} else {
+				return ac.getUsersManager().getGroupsWhereUserIsAdmin(ac.getSession(),
+						ac.getUserById(parms.readInt("user")));
+			}
 		}
 	},
 

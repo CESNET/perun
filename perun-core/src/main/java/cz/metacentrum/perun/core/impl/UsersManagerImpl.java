@@ -600,12 +600,31 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, User user) throws InternalErrorException {
 		try {
-			return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.group_id=groups.id " +
-					" where authz.user_id=? and authz.role_id=(select id from roles where name='groupadmin')", GroupsManagerImpl.GROUP_MAPPER, user.getId());
+			return jdbc.query("select distinct " + GroupsManagerImpl.groupMappingSelectQuery + " from groups where groups.id in " +
+							" (select group_id from authz where ( authz.user_id=? or  authz.authorized_group_id in " +
+							" (select distinct groups.id from groups join groups_members on groups_members.group_id=groups.id " +
+							" join members on groups_members.member_id=members.id where members.user_id=?) " +
+							" and authz.role_id=(select id from roles where roles.name=?))) ",
+					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.getRoleName());
 		} catch (EmptyResultDataAccessException e) {
 			return new ArrayList<Group>();
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
+		}
+	}
+
+	public List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException {
+		try {
+			return jdbc.query("select distinct " + GroupsManagerImpl.groupMappingSelectQuery + " from groups where groups.id in " +
+							" (select group_id from authz where ( authz.user_id=? or  authz.authorized_group_id in " +
+							" (select distinct groups.id from groups join groups_members on groups_members.group_id=groups.id " +
+							" join members on groups_members.member_id=members.id where members.user_id=?) " +
+							" and authz.role_id=(select id from roles where roles.name=?))) and groups.vo_id=? ",
+					GroupsManagerImpl.GROUP_MAPPER, user.getId(), user.getId(), Role.GROUPADMIN.getRoleName(), vo.getId());
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Group>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
 		}
 	}
 
