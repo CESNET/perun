@@ -72,7 +72,7 @@ import cz.metacentrum.perun.core.api.UserExtSource;
 import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.ActionTypeNotExistsException;
 
-import cz.metacentrum.perun.core.api.exceptions.AttributeExistsException;
+import cz.metacentrum.perun.core.api.exceptions.AttributeDefinitionExistsException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -1929,7 +1929,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		return getUserExtSourceVirtualAttributeModule(sess, attribute).setAttributeValue((PerunSessionImpl) sess, ues, attribute);
 	}
 
-	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeExistsException {
+	public AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException, AttributeDefinitionExistsException {
 		if (!attribute.getFriendlyName().matches(AttributesManager.ATTRIBUTES_REGEXP)) {
 			throw new InternalErrorException(new IllegalArgumentException("Wrong attribute name " + attribute.getFriendlyName() + ", attribute name must match " + AttributesManager.ATTRIBUTES_REGEXP));
 		}
@@ -1945,7 +1945,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 
 			return attribute;
 		} catch (DataIntegrityViolationException e) {
-			throw new AttributeExistsException("Attribute " + attribute.getName() + " already exists", e);
+			throw new AttributeDefinitionExistsException("Attribute " + attribute.getName() + " already exists", attribute, e);
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}

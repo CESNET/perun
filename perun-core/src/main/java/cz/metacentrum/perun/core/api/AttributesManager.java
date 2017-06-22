@@ -1758,11 +1758,11 @@ public interface AttributesManager {
 	 *
 	 * @return attribute with set id
 	 *
-	 * @throws AttributeExistsException if attribute already exists
+	 * @throws AttributeDefinitionExistsException if attribute already exists
 	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
 	 * @throws PrivilegeException if privileges are not given
 	 */
-	AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attributeDefinition) throws PrivilegeException, InternalErrorException, AttributeExistsException;
+	AttributeDefinition createAttribute(PerunSession sess, AttributeDefinition attributeDefinition) throws PrivilegeException, InternalErrorException, AttributeDefinitionExistsException;
 
 	/**
 	 * Deletes the attribute.

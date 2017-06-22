@@ -1,7 +1,6 @@
 package cz.metacentrum.perun.core.api;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Core configuration values. Bean initialized by Spring.
@@ -49,6 +48,8 @@ public class CoreConfig {
 	private String rtUrl;
 	private String smsProgram;
 	private String userExtSourcesPersistent;
+	private Map<String, List<AttributeDefinition>> attributesForUpdate = new HashMap<>();
+
 
 	boolean isDbInitializatorEnabled() {
 		return dbInitializatorEnabled;
@@ -304,5 +305,101 @@ public class CoreConfig {
 
 	public void setUserExtSourcesPersistent(String userExtSourcesPersistent) {
 		this.userExtSourcesPersistent = userExtSourcesPersistent;
+	}
+
+
+	/**
+	 * Attributes to be saved when new PerunSession is created.
+	 *
+	 * @return a map from ExtSource types like ExtSourcesManager.EXTSOURCE_IDP to lists of attribute definitions
+	 */
+	public Map<String, List<AttributeDefinition>> getAttributesForUpdate() {
+		return attributesForUpdate;
+	}
+
+	private void createAttributeDefinitions(String extSourceType, List<String> attrNames) {
+		List<AttributeDefinition> attrs = new ArrayList<>();
+		for (String attrName : attrNames) {
+			AttributeDefinition attr = new Attribute();
+			attr.setType(String.class.getName());
+			attr.setNamespace("urn:perun:ues:attribute-def:def");
+			attr.setFriendlyName(attrName);
+			switch(attrName) {
+				case "mail":
+					attr.setDisplayName("mail");
+					attr.setDescription("email address");
+					break;
+				case "cn":
+					attr.setDisplayName("common name");
+					attr.setDescription("full name of person");
+					break;
+				case "sn":
+					attr.setDisplayName("surname");
+					attr.setDescription("family name, usually last name (first in Hungary)");
+					break;
+				case "givenName":
+					attr.setDisplayName("given name");
+					attr.setDescription("usually first name (last in Hungary)");
+					break;
+				case "eppn":
+					attr.setDisplayName("eduPersonPrincipalName");
+					attr.setDescription("person identifier in academic federations");
+					break;
+				case "epuid":
+					attr.setDisplayName("eduPersonUniqueId");
+					attr.setDescription("non re-assignable person identifier in academic federations");
+					break;
+				case "displayName":
+					attr.setDisplayName("displayName");
+					attr.setDescription("full name of person");
+					break;
+				case "uid":
+					attr.setDisplayName("uid");
+					attr.setDescription("user identifier");
+					break;
+				case "o":
+					attr.setDisplayName("organization");
+					attr.setDescription("user's home organization");
+					break;
+				case "ou":
+					attr.setDisplayName("organization unit");
+					attr.setDescription("department, faculty, institute, etc.");
+					break;
+				case "loa":
+					attr.setDisplayName("level of assurance");
+					attr.setDescription("confidence in person's identity");
+					break;
+				case "affiliation":
+					attr.setDisplayName("affiliation");
+					attr.setDescription("person's relation to organization");
+					break;
+				case "dn":
+					attr.setDisplayName("certificate DN");
+					attr.setDescription("Distinguished Name from X509 digital certificate");
+					break;
+				case "cadn":
+					attr.setDisplayName("CA DN");
+					attr.setDescription("Distinguished Name of Certificate Authority");
+					break;
+				case "certificate":
+					attr.setDisplayName("X509 certificate");
+					attr.setDescription("PEM encoded X509 certificate");
+					attr.setType(BeansUtils.largeStringClassName);
+					break;
+				default:
+					attr.setDisplayName(attrName);
+					attr.setDescription(attrName);
+			}
+			attrs.add(attr);
+		}
+		attributesForUpdate.put(extSourceType, attrs);
+	}
+
+	public void setAttributesForUpdateIdP(List<String> attrNames) {
+		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceIdp", attrNames);
+	}
+
+	public void setAttributesForUpdateX509(List<String> attrNames) {
+		createAttributeDefinitions("cz.metacentrum.perun.core.impl.ExtSourceX509", attrNames);
 	}
 }

@@ -1,14 +1,8 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Auditable;
-import cz.metacentrum.perun.core.api.BeansUtils;
-
 /**
  * This class represents definition of attribute. All attributes comes from some definition.
  * Attribute definition is attribute without connection to some object.
- * TODO
- *
- *
  *
  * @author Slavek Licehammer <glory@ics.muni.cz>
  */
@@ -134,8 +128,8 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 	public String getFriendlyNameParameter() {
 		int index = friendlyName.indexOf(':');
 
-		if (index != -1 && index < friendlyName.length()-1) {
-			return friendlyName.substring(index+1);
+		if (index != -1 && index < friendlyName.length() - 1) {
+			return friendlyName.substring(index + 1);
 		} else return "";
 	}
 
@@ -150,10 +144,10 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 	}
 
 	public int compareTo(PerunBean perunBean) {
-		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
-		if(perunBean instanceof AttributeDefinition) {
+		if (perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if (perunBean instanceof AttributeDefinition) {
 			AttributeDefinition attrDef = (AttributeDefinition) perunBean;
-			if (this.getFriendlyName()== null && attrDef.getFriendlyName() != null) return -1;
+			if (this.getFriendlyName() == null && attrDef.getFriendlyName() != null) return -1;
 			if (attrDef.getFriendlyName() == null && this.getFriendlyName() != null) return 1;
 			if (this.getFriendlyName() == null && attrDef.getFriendlyName() == null) return 0;
 			return this.getFriendlyName().compareToIgnoreCase(attrDef.getFriendlyName());
@@ -176,39 +170,32 @@ public class AttributeDefinition extends Auditable implements Comparable<PerunBe
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null) return false;
+		if (obj == null) return false;
 
 		if (!(obj instanceof AttributeDefinition)) return false;
 
 		final AttributeDefinition other = (AttributeDefinition) obj;
 
-		if (this.getId() != other.getId()) return false;
-		if(this.friendlyName == null ? other.friendlyName != null : !this.friendlyName.equals(other.friendlyName)) return false;
-
-		return true;
+		return this.getId() == other.getId() && (this.friendlyName == null ? other.friendlyName == null : this.friendlyName.equals(other.friendlyName));
 	}
 
 	@Override
 	public String serializeToString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-				"id=<").append(getId()).append(">").append(
-				", friendlyName=<").append(getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())).append(">").append(
-				", namespace=<").append(getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())).append(">").append(
-				", type=<").append(getType() == null ? "\\0" : BeansUtils.createEscaping(getType())).append(">").append(
-				']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id=<" + getId() + ">" +
+				", friendlyName=<" + (getFriendlyName() == null ? "\\0" : BeansUtils.createEscaping(getFriendlyName())) + ">" +
+				", namespace=<" + (getNamespace() == null ? "\\0" : BeansUtils.createEscaping(getNamespace())) + ">" +
+				", type=<" + (getType() == null ? "\\0" : BeansUtils.createEscaping(getType())) + ">" +
+				']';
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-				"id='").append(getId()).append('\'').append(
-				", friendlyName='").append(friendlyName).append('\'').append(
-				", namespace='").append(namespace).append('\'').append(
-				", type='").append(type).append('\'').append(
-				']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id='" + getId() + '\'' +
+				", friendlyName='" + friendlyName + '\'' +
+				", namespace='" + namespace + '\'' +
+				", type='" + type + '\'' +
+				']';
 	}
 }
