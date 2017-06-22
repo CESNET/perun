@@ -431,14 +431,31 @@ public interface UsersManagerBl {
 	List<Vo> getVosWhereUserIsAdmin(PerunSession perunSession, User user) throws InternalErrorException;
 
 	/**
-	 * Returns list of Groups, where the user is an Administrator.
+	 * Returns list of Groups in Perun, where the User is a direct Administrator
+	 * or he is a member of any group which is Administrator of some of these Groups.
 	 *
 	 * @param perunSession
 	 * @param user
-	 * @return list of Groups, where the user is an Administrator.
+	 *
+	 * @return list of Groups, where user or some of his groups is an Administrator
+	 *
 	 * @throws InternalErrorException
 	 */
 	List<Group> getGroupsWhereUserIsAdmin(PerunSession perunSession, User user) throws InternalErrorException;
+
+	/**
+	 * Returns list of Groups in selected Vo, where the User is a direct Administrator
+	 * or he is a member of any group which is Administrator of some of these Groups.
+	 *
+	 * @param sess
+	 * @param vo selected Vo under which we are looking for groups
+	 * @param user manager of groups we are looking for
+	 *
+	 * @return list of Groups, where user or some of his groups (in the Vo) is an Administrator
+	 *
+	 * @throws InternalErrorException
+	 */
+	List<Group> getGroupsWhereUserIsAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException;
 
 	/**
 	 * Returns list of VOs, where the user is a member.
@@ -603,7 +620,7 @@ public interface UsersManagerBl {
 	 * @throws InternalErrorException
 	 */
 	List<User> findUsersByName(PerunSession sess, String titleBefore, String firstName, String middleName, String lastName, String titleAfter) throws InternalErrorException;
-        
+
 	/**
 	 * Returns list of users who exactly matches the searchString
 	 *
