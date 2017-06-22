@@ -345,6 +345,10 @@ public class CoreConfig {
 					attr.setDisplayName("eduPersonPrincipalName");
 					attr.setDescription("person identifier in academic federations");
 					break;
+				case "epuid":
+					attr.setDisplayName("eduPersonUniqueId");
+					attr.setDescription("non re-assignable person identifier in academic federations");
+					break;
 				case "displayName":
 					attr.setDisplayName("displayName");
 					attr.setDescription("full name of person");
