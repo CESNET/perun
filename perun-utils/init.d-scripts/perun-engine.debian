@@ -12,10 +12,11 @@
 # Written by Michal Prochazka <michalp@ics.muni.cz>
 # Modified by Pavel Zlamal <zlamal@cesnet.cz>
 #
-# 14.04.2015 Modified path to perun.conf.custom and log4j to /etc/perun
-# 04.05.2015 Create, chown and delete pidfile in order to allow user "perun" to start/stop the service
+# 22.06.2017 Use /etc/perun/logback.xml and /var/log/perun/
 # 24.03.2016 Create /var/run/perun if not exists, will work when started on system boot
 # 24.03.2016 Own logging for perun-engine to /var/log/perun-engine/
+# 04.05.2015 Create, chown and delete pidfile in order to allow user "perun" to start/stop the service
+# 14.04.2015 Modified path to perun.conf.custom and log4j to /etc/perun
 # 04.04.2015 Log stdout/stderr to perun-engine-out.log
 #
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -78,7 +79,7 @@ do_start () {
 	# Start with output logging, but we need to create log-file first for perun:perun
 	start-stop-daemon --make-pidfile --start --quiet ${DAEMON_USER:+--chuid $DAEMON_USER} \
         --pidfile $PIDFILE --chdir $EXEC_DIR --background --no-close --startas /bin/bash -- \
-        -c "exec $DAEMON $DAEMON_OPTS >> /var/log/perun-engine/perun-engine-out.log 2>&1" \
+        -c "exec $DAEMON $DAEMON_OPTS >> /var/log/perun/perun-engine-out.log 2>&1" \
         || return 2
 
 }
