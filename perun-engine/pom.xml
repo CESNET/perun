@@ -222,7 +222,7 @@
 
 			<properties>
 				<perun.build.type>production</perun.build.type>
-				<maven.test.skip>true</maven.test.skip>
+				<skipTests>true</skipTests>
 			</properties>
 
 		</profile>
