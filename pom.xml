@@ -54,7 +54,7 @@
 
 		<!-- by default we build devel version of perun and do tests -->
 		<perun.build.type>default</perun.build.type>
-		<maven.test.skip>false</maven.test.skip>
+		<skipTests>false</skipTests>
 
 		<!-- macros @perun.conf@ @perun.jdbc@ etc replaced in all filtered resources in /src/main/resources during maven build-->
 		<perun.conf>/etc/perun/</perun.conf> 

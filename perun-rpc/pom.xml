@@ -18,7 +18,7 @@
 	<description>RPC interface provided by Perun to communicate with GUI,CLI and any other external system (maven webapp 8081)</description>
 
 	<properties>
-		<maven.test.skip>true</maven.test.skip>
+		<skipTests>true</skipTests>
 		<tomcat7.plugin.tomcat.version>7.0.56</tomcat7.plugin.tomcat.version>
 	</properties>
 
@@ -302,7 +302,7 @@
 
 			<properties>
 				<perun.build.type>production</perun.build.type>
-				<maven.test.skip>true</maven.test.skip>
+				<skipTests>true</skipTests>
 				<spring.profiles.default>production</spring.profiles.default>
 			</properties>
 
