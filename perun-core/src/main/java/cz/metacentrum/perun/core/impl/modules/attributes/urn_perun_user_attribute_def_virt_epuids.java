@@ -50,9 +50,9 @@ public class urn_perun_user_attribute_def_virt_epuids extends UserVirtualAttribu
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
 		attr.setFriendlyName("epuids");
-		attr.setDisplayName("eduPersonUniqIds");
+		attr.setDisplayName("eduPersonUniqueIds");
 		attr.setType(ArrayList.class.getName());
-		attr.setDescription("All eduPersonUniqIds of a user");
+		attr.setDescription("All eduPersonUniqueIds of a user");
 		return attr;
 	}
 }
