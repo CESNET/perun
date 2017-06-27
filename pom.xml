@@ -57,7 +57,7 @@
 		<skipTests>false</skipTests>
 
 		<!-- macros @perun.conf@ @perun.jdbc@ etc replaced in all filtered resources in /src/main/resources during maven build-->
-		<perun.conf>/etc/perun/</perun.conf> 
+		<perun.conf>/etc/perun/</perun.conf>
 		<perun.jdbc>file:${perun.conf}jdbc.properties</perun.jdbc>
 		<perun.ldapc>file:${perun.conf}perun-ldapc.properties</perun.ldapc>
 		<perun.log>/var/log/perun/</perun.log>
@@ -81,7 +81,7 @@
 		<jdom.version>1.0</jdom.version>
 		<netty.version>3.2.1.Final</netty.version>
 		<opencsv.version>3.3</opencsv.version>
-		<oracle.version>12.1.0.2.0</oracle.version>
+		<oracle.version>12.2.0.1.0</oracle.version>
 		<powermock.version>1.4.8</powermock.version>
 		<recaptcha4j.version>0.0.7</recaptcha4j.version>
 		<smack.version>3.1.0</smack.version>
@@ -198,7 +198,7 @@
 					<artifactId>serviceloader-maven-plugin</artifactId>
 					<version>1.0.7</version>
 				</plugin>
-				
+
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -325,7 +325,7 @@
 			<!-- Oracle jdbc driver -->
 			<dependency>
 				<groupId>com.oracle</groupId>
-				<artifactId>ojdbc7</artifactId>
+				<artifactId>ojdbc8</artifactId>
 				<version>${oracle.version}</version>
 			</dependency>
 			<!-- Oracle internationalization -->
