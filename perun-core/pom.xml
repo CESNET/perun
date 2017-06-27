@@ -260,7 +260,7 @@
 				<!-- Oracle jdbc driver -->
 				<dependency>
 					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc7</artifactId>
+					<artifactId>ojdbc8</artifactId>
 				</dependency>
 				<!-- Oracle internationalization -->
 				<dependency>
@@ -306,7 +306,7 @@
 				<!-- Oracle jdbc driver -->
 				<dependency>
 					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc7</artifactId>
+					<artifactId>ojdbc8</artifactId>
 				</dependency>
 				<!-- Oracle internationalization -->
 				<dependency>
