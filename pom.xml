@@ -463,13 +463,12 @@
 
 	<inceptionYear>2010</inceptionYear>
 
-	<url>http://perun.cesnet.cz/web/</url>
+	<url>https://perun.cesnet.cz/web/</url>
 
 	<scm>
 		<connection>scm:git:https://github.com/CESNET/perun.git</connection>
-		<url>scm:git:https://github.com/CESNET/perun.git</url>
+		<url>https://github.com/CESNET/perun</url>
 		<developerConnection>scm:git:https://github.com/CESNET/perun.git</developerConnection>
-		<tag>HEAD</tag>
 	</scm>
 
 </project>

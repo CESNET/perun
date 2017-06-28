@@ -10,6 +10,7 @@
 
 
 	<appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="perun-engine">
+		<file>${LOGDIR}perun-engine.log</file>
 		<!-- see https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LOGDIR}perun-engine.log.%d.%i</fileNamePattern>

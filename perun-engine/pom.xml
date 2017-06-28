@@ -16,6 +16,7 @@
 
 	<name>perun-engine</name>
 	<description>Execution module for Perun propagation sub-system</description>
+	<url>https://perun.cesnet.cz/web/</url>
 
 	<properties>
 		<start-class>cz.metacentrum.perun.engine.main.EngineStarter</start-class>
@@ -58,19 +59,13 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 
-			<!-- Package JAR with Main class -->
+			<!-- Prepare META-INF/MANIFEST.MF entries for JAR file -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<archive>
 						<index>true</index>
-						<manifest>
-							<mainClass>cz.metacentrum.perun.engine.main.EngineStarter</mainClass>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
 						<manifestEntries>
 							<SplashScreen-Image>perun-engine-splash.png</SplashScreen-Image>
 						</manifestEntries>
