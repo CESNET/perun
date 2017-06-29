@@ -172,7 +172,9 @@ public class JMSQueueManager {
 				+ task.getEndTime().getTime() + ":" + destinations);
 		// + ":" + task.getId() + ":DONE:Destinations []");
 		//message.setJMSPriority(6);
-		producer.send(message, DeliveryMode.PERSISTENT, 6, 0);
+		synchronized(producer) {
+			producer.send(message, DeliveryMode.PERSISTENT, 6, 0);
+		}
 		log.debug("Task result message [" + message.getText()
 				+ "] has been sent...");
 	}
@@ -185,7 +187,9 @@ public class JMSQueueManager {
 				+ engineUniqueId + ":"
 				+ (result == null ? "" : result.serializeToString()));
 		//message.setJMSPriority(2);
-		producer.send(message, DeliveryMode.PERSISTENT, 2, 0);
+		synchronized(producer) {
+			producer.send(message, DeliveryMode.PERSISTENT, 2, 0);
+		}
 		log.debug("Task destination result message [" + message.getText()
 				+ "] has been sent...");
 	}
@@ -195,7 +199,9 @@ public class JMSQueueManager {
 			TextMessage message = session.createTextMessage("goodbye:"
 					+ propertiesBean.getProperty("engine.unique.id"));
 			// Step 8. Send the Message
-			producer.send(message);
+			synchronized(producer) {
+				producer.send(message);
+			}
 			// TODO: Put a while loop here? As same as in the
 			// "public void initiateConnection() {...}" ?
 		} catch (Exception e) {
