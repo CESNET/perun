@@ -1880,7 +1880,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		String requestId = Utils.cipherInput(m, true);
 		String namespace = getUsersManagerImpl().loadPasswordResetRequest(user, Integer.parseInt(requestId));
 
-		if (namespace.isEmpty()) throw new InternalErrorException("Password reset request is not valid anymore or doesn't existed at all.");
+		if (namespace.isEmpty()) throw new InternalErrorException("Password reset request is not valid anymore or doesn't existed at all for User: "+user);
 
 		List<Attribute> logins = perunBl.getAttributesManagerBl().getLogins(sess, user);
 		boolean found = false;
