@@ -15,44 +15,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * All eduPersonUniqueIds collected from UserExtSources attributes.
+ * All affiliations collected from UserExtSources attributes.
  *
  * @author Martin Kuba makub@ics.muni.cz
  */
-public class urn_perun_user_attribute_def_virt_epuids extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
+public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations extends UserVirtualAttributesModuleAbstract implements UserVirtualAttributesModuleImplApi {
 
-	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_epuids.class);
+	private final static Logger log = LoggerFactory.getLogger(urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations.class);
 
 	@Override
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 
 		Attribute attribute = new Attribute(attributeDefinition);
-		List<String> epuids = new ArrayList<>();
+		List<String> values = new ArrayList<>();
 
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 		AttributesManagerBl am = sess.getPerunBl().getAttributesManagerBl();
 		for (UserExtSource userExtSource : userExtSources) {
 			try {
-				Attribute a = am.getAttribute(sess, userExtSource, "urn:perun:ues:attribute-def:def:epuid");
+				Attribute a = am.getAttribute(sess, userExtSource, "urn:perun:ues:attribute-def:def:affiliation");
 				Object value = a.getValue();
 				if(value!=null && value instanceof String) {
-					epuids.add(String.valueOf(value));
+					values.add(String.valueOf(value));
 				}
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
-				log.error("cannot read epuid from userExtSource "+userExtSource.getId()+" of user "+user.getId(),e);
+				log.error("cannot read affiliation from userExtSource "+userExtSource.getId()+" of user "+user.getId(),e);
 			}
 		}
-		attribute.setValue(epuids);
+		attribute.setValue(values);
 		return attribute;
 	}
 
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_USER_ATTR_VIRT);
-		attr.setFriendlyName("epuids");
-		attr.setDisplayName("eduPersonUniqueIds");
+		attr.setFriendlyName("eduPersonScopedAffiliations");
+		attr.setDisplayName("eduPersonScopedAffiliations");
 		attr.setType(ArrayList.class.getName());
-		attr.setDescription("All eduPersonUniqueIds of a user");
+		attr.setDescription("All affiliations of a user");
 		return attr;
 	}
 }
