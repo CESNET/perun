@@ -27,7 +27,7 @@ public class urn_perun_user_attribute_def_virt_epuids extends UserVirtualAttribu
 	public Attribute getAttributeValue(PerunSessionImpl sess, User user, AttributeDefinition attributeDefinition) throws InternalErrorException {
 
 		Attribute attribute = new Attribute(attributeDefinition);
-		List<String> epuids = new ArrayList<>();
+		List<String> values = new ArrayList<>();
 
 		List<UserExtSource> userExtSources = sess.getPerunBl().getUsersManagerBl().getUserExtSources(sess, user);
 		AttributesManagerBl am = sess.getPerunBl().getAttributesManagerBl();
@@ -36,13 +36,13 @@ public class urn_perun_user_attribute_def_virt_epuids extends UserVirtualAttribu
 				Attribute a = am.getAttribute(sess, userExtSource, "urn:perun:ues:attribute-def:def:epuid");
 				Object value = a.getValue();
 				if(value!=null && value instanceof String) {
-					epuids.add(String.valueOf(value));
+					values.add((String)value);
 				}
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 				log.error("cannot read epuid from userExtSource "+userExtSource.getId()+" of user "+user.getId(),e);
 			}
 		}
-		attribute.setValue(epuids);
+		attribute.setValue(values);
 		return attribute;
 	}
 

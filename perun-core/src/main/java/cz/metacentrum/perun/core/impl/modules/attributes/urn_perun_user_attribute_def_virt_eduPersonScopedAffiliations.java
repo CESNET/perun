@@ -12,10 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * All affiliations collected from UserExtSources attributes.
+ * Afilliation is a multi-valued attribute, but Apache joins multiple values using ';',
+ * thus we must split it up here.
  *
  * @author Martin Kuba makub@ics.muni.cz
  */
@@ -36,7 +39,14 @@ public class urn_perun_user_attribute_def_virt_eduPersonScopedAffiliations exten
 				Attribute a = am.getAttribute(sess, userExtSource, "urn:perun:ues:attribute-def:def:affiliation");
 				Object value = a.getValue();
 				if(value!=null && value instanceof String) {
-					values.add(String.valueOf(value));
+					String affiliation = (String) value;
+					if(affiliation.contains(";")) {
+						//multiple values
+						values.addAll(Arrays.asList(affiliation.split(";")));
+					} else {
+						//just one value
+						values.add(affiliation);
+					}
 				}
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 				log.error("cannot read affiliation from userExtSource "+userExtSource.getId()+" of user "+user.getId(),e);

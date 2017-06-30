@@ -36,7 +36,7 @@ public class urn_perun_user_attribute_def_virt_schacHomeOrganizations extends Us
 				Attribute a = am.getAttribute(sess, userExtSource, "urn:perun:ues:attribute-def:def:schacHomeOrganization");
 				Object value = a.getValue();
 				if(value!=null && value instanceof String) {
-					values.add(String.valueOf(value));
+					values.add((String)value);
 				}
 			} catch (WrongAttributeAssignmentException | AttributeNotExistsException e) {
 				log.error("cannot read schacHomeOrganization from userExtSource "+userExtSource.getId()+" of user "+user.getId(),e);
