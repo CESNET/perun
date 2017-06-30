@@ -373,6 +373,10 @@ public class CoreConfig {
 					attr.setDisplayName("affiliation");
 					attr.setDescription("person's relation to organization");
 					break;
+				case "schacHomeOrganization":
+					attr.setDisplayName("schacHomeOrganization");
+					attr.setDescription("domain name of person's organization (SChema for Academia)");
+					break;
 				case "dn":
 					attr.setDisplayName("certificate DN");
 					attr.setDescription("Distinguished Name from X509 digital certificate");
