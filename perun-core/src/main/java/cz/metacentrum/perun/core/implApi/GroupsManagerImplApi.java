@@ -36,13 +36,14 @@ public interface GroupsManagerImplApi {
 
 
 	/**
-	 * Creates a new top-level group and associate it with the VO. (Stores group to underlaying data source)
+	 * Creates a new top-level group and associates it with the VO from parameter.
 	 *
-	 * For this method (new group) has always same shortName like Name.
+	 * For this method the new group has always same shortName like Name.
+	 * Important: voId in object group is ignored
 	 *
 	 * @param perunSession
-	 * @param vo
-	 * @param group with name without ":"
+	 * @param vo to associates group with
+	 * @param group new group with name without ":"
 	 *
 	 * @return newly created top-level group
 	 *
@@ -554,16 +555,16 @@ public interface GroupsManagerImplApi {
 	boolean isRelationBetweenGroups(Group group1, Group group2) throws InternalErrorException;
 
 	/**
-	 * Check if the relation between given groups can be deleted. 
+	 * Check if the relation between given groups can be deleted.
 	 * Determined by parent flag (it flags relations created by hierarchical structure).
 	 * It matters which group is resultGroup and which is operandGroup!!!
-	 * 
+	 *
 	 * @return true if it can be deleted; false otherwise
 	 *
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
 	boolean isRelationRemovable(PerunSession sess, Group resultGroup, Group operandGroup) throws InternalErrorException;
-	
+
 	/**
 	 * Checks if relation exists between result group and operand group.
 	 * It matters which one is result group and which one is operand group.
@@ -582,14 +583,14 @@ public interface GroupsManagerImplApi {
 	 * @param sess perun session
 	 * @param groupId group id
 	 * @return list of Group objects
-	 * 
+	 *
 	 * @throws cz.metacentrum.perun.core.api.exceptions.InternalErrorException
 	 */
 	List<Group> getResultGroups(PerunSession sess, int groupId) throws InternalErrorException;
 
 	/**
 	 * Return all operand groups of requested result group.
-	 * 
+	 *
 	 * @param sess perun session
 	 * @param groupId group id
 	 * @return list of Group objects
@@ -598,7 +599,7 @@ public interface GroupsManagerImplApi {
 
 	/**
 	 * Return list of all result groups ids of requested operand group.
-	 * 
+	 *
 	 * @param sess perun session
 	 * @param groupId group id
 	 * @return list of group ids

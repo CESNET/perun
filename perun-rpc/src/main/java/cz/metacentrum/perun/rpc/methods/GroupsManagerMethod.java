@@ -28,7 +28,8 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * @return Group Newly created group
 	 */
 	/*#
-	 * Creates a new group in a VO.
+	 * Creates a new group in the specific VO defined by object vo in parameter.
+	 * Important: voId in object group is ignored.
 	 *
 	 * @param vo int Parent VO <code>id</code>
 	 * @param group Group JSON Group class
