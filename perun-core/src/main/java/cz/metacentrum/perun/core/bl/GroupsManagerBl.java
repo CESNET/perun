@@ -62,13 +62,14 @@ public interface GroupsManagerBl {
 
 
 	/**
-	 * Creates a new top-level group and associate it with the VO.
+	 * Creates a new top-level group and associates it with the VO from parameter.
 	 *
-	 * For this method (new group) has always same shortName like Name.
+	 * For this method the new group has always same shortName like Name.
+	 * Important: voId in object group is ignored
 	 *
 	 * @param perunSession
-	 * @param vo
-	 * @param group with name without ":"
+	 * @param vo to associates group with
+	 * @param group new group with name without ":"
 	 *
 	 * @return newly created top-level group
 	 *
