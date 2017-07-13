@@ -1036,6 +1036,16 @@ public interface MembersManagerBl {
 	void checkMemberExists(PerunSession sess, Member member) throws InternalErrorException, MemberNotExistsException;
 
 	/**
+	 * Return false if member has status INVALID or DISABLED. True in other cases.
+	 *
+	 * @param sess
+	 * @param member the member
+	 * @return false if member has INVALID or DISABLED status, true in other cases
+	 * @throws InternalErrorException
+	 */
+	boolean isMemberAllowed(PerunSession sess, Member member) throws InternalErrorException;
+
+	/**
 	 *  Set status of the member to specified status.
 	 *
 	 * @param sess
