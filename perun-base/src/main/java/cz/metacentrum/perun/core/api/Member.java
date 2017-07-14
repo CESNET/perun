@@ -126,29 +126,23 @@ public class Member extends Auditable {
 			return false;
 		}
 		Member other = (Member) obj;
-		if (getId() != other.getId()) {
-			return false;
-		}
-		return true;
+		return getId() == other.getId();
 	}
 
 	@Override
 	public String serializeToString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			"id=<").append(getId()).append(">").append(
-			", userId=<").append(getUserId()).append(">").append(
-			", voId=<").append(getVoId()).append(">").append(
-			", status=<").append(getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())).append(">").append(
-			", type=<").append(getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())).append(">").append(
-			", sourceGroupId=<").append(getSourceGroupId() == null ? "\\0" : getSourceGroupId().toString()).append(">").append(
-			']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id=<" + getId() + ">" +
+				", userId=<" + getUserId() + ">" +
+				", voId=<" + getVoId() + ">" +
+				", status=<" + (getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())) + ">" +
+				", type=<" + (getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
+				", sourceGroupId=<" + (getSourceGroupId() == null ? "\\0" : getSourceGroupId().toString()) + ">" +
+				']';
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder();
-		return str.append("Member:[id='").append(getId()).append("', userId='").append(userId).append("', voId='").append(voId).append("', status='").append(status).append("', type='").append(membershipType).append("', sourceGroupId='").append(sourceGroupId).append("']").toString();
+		return "Member:[id='" + getId() + "', userId='" + userId + "', voId='" + voId + "', status='" + status + "', type='" + membershipType + "', sourceGroupId='" + sourceGroupId + "']";
 	}
 }

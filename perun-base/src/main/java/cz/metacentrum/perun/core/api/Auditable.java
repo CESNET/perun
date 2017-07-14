@@ -1,15 +1,9 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.PerunBean;
-import cz.metacentrum.perun.core.api.exceptions.rt.InternalErrorRuntimeException;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import java.text.ParseException;
-import java.util.Date;
-
 /**
  * This class represent audit information.
  *
- * @author Michal Stava <stavamichal@gmail.com>
+ * @author Michal Stava stavamichal@gmail.com
  */
 public abstract class Auditable extends PerunBean {
 
@@ -179,17 +173,10 @@ public abstract class Auditable extends PerunBean {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null) return false;
-
-		if (getClass() != obj.getClass()) return false;
-
-		final Auditable other = (Auditable) obj;
-
-		if (this.getId() != other.getId()) return false;
-
-		return true;
+		return obj != null && getClass() == obj.getClass() && this.getId() == ((Auditable) obj).getId();
 	}
 
+	/* not used
 	public int compareByCreatedAt(Auditable auditable) {
 		if (auditable == null || auditable.createdAt == null || this.createdAt == null) {
 			throw new InternalErrorRuntimeException(new NullPointerException("There is null pointer in auditable object or in createdAt"));
@@ -198,14 +185,14 @@ public abstract class Auditable extends PerunBean {
 		try {
 			date1 = BeansUtils.getDateFormatter().parse(createdAt);
 		} catch (Exception ex) {
-			throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + this,ex);
+			throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + this, ex);
 		}
 
 		Date date2;
 		try {
 			date2 = BeansUtils.getDateFormatter().parse(auditable.getCreatedAt());
 		} catch (Exception ex) {
-			throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + auditable,ex);
+			throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + auditable, ex);
 		}
 
 		return date1.compareTo(date2);
@@ -219,34 +206,31 @@ public abstract class Auditable extends PerunBean {
 		try {
 			date1 = BeansUtils.getDateFormatter().parse(modifiedAt);
 		} catch (Exception ex) {
-			throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + this,ex);
+			throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + this, ex);
 		}
 
 		Date date2;
 		try {
 			date2 = BeansUtils.getDateFormatter().parse(auditable.getModifiedAt());
 		} catch (Exception ex) {
-			throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + auditable,ex);
+			throw new InternalErrorRuntimeException("There is problem with parsing createdAt in object " + auditable, ex);
 		}
 
 		return date1.compareTo(date2);
 	}
+	*/
 
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-				"id='").append(this.getId()).append('\'').append(
-				']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id='" + this.getId() + '\'' +
+				']';
 	}
 
 	@Override
 	public String serializeToString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-				"id=<").append(this.getId()).append(">").append(
-				']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id=<" + this.getId() + ">" +
+				']';
 	}
 }
