@@ -497,22 +497,21 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	protected List<Member> addIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException {
 		// save list of old group members
 		List<Member> oldMembers = this.getGroupMembers(sess, group);
+		List<Member> membersToAdd = new ArrayList<>(members);
 
-		for (Member member : members) {
+		for (Member member : membersToAdd) {
 			groupsManagerImpl.addMember(sess, group, member, MembershipType.INDIRECT, sourceGroupId);
 		}
 
-		// get list of new members
-		List<Member> newMembers = this.getGroupMembers(sess, group);
 		// select only newly added members
-		newMembers.removeAll(oldMembers);
+		membersToAdd.removeAll(oldMembers);
 
-		for (Member member : newMembers) {
+		for (Member member : membersToAdd) {
 			setRequiredAttributes(sess, member, group);
 			getPerunBl().getAuditer().log(sess, "{} added to {}.", member, group);
 		}
 
-		return newMembers;
+		return membersToAdd;
 	}
 
 	/**
@@ -554,10 +553,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws NotGroupMemberException
 	 */
 	protected List<Member> removeIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
-		// save list of old group members
-		List<Member> oldMembers = this.getGroupMembers(sess, group);
-
-		for (Member member: members) {
+		List<Member> membersToRemove = new ArrayList<>(members);
+		for (Member member: membersToRemove) {
 			member.setSourceGroupId(sourceGroupId);
 			groupsManagerImpl.removeMember(sess, group, member);
 		}
@@ -565,13 +562,13 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		// get list of new members
 		List<Member> newMembers = this.getGroupMembers(sess, group);
 		// get only removed members
-		oldMembers.removeAll(newMembers);
+		membersToRemove.removeAll(newMembers);
 
-		for(Member removedIndirectMember: oldMembers) {
+		for(Member removedIndirectMember: membersToRemove) {
 			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", removedIndirectMember, group);
 		}
 
-		return oldMembers;
+		return membersToRemove;
 	}
 
 	public void removeMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, GroupOperationsException {
