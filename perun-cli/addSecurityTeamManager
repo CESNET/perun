@@ -11,37 +11,55 @@ sub help {
 	Adds user or group as SecurityTeam admin. User id or group id and SecurityTeam are required fields.
 	------------------------------------
 	Available options:
-	--securityTeamId | -s SecurityTeam id
-	--userId         | -u user id
-	--groupId        | -g group Id
-	--batch          | -b batch
-	--help           | -h prints this help
+	--securityTeamId  | -s SecurityTeam id
+	--userId          | -u user id
+        --authGroupId     | -a authorized groupId
+        --authGroupName   | -A authorized group Name
+        --authGroupVoId   | -o authorized group VO Id
+        --authGroupVoName | -O authorized group VO Name
+	--batch           | -b batch
+	--help            | -h prints this help
 
 	};
 }
 
-my ($securityTeamId, $userId, $groupId, $batch);
+my ($securityTeamId, $userId, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName, $batch);
 GetOptions ("help|h"     => sub {
 		print help();
 		exit 0;
-	}, "batch|b"         => \$batch,
+	}, 
+	"batch|b"         => \$batch,
 	"securityTeamId|s=i" => \$securityTeamId,
-	"groupId|g=i"        => \$groupId,
-	"userId|u=i"         => \$userId || die help());
+	"userId|u=i"         => \$userId,
+	"authGroupId|a=i"  => \$authGroupId,
+	"authGroupName|A=s"  => \$authGroupName,
+	"authGroupVoId|o=i"  => \$authGroupVoId,
+	"authGroupVoName|O=s"  => \$authGroupVoName
+) || die help();
 
 # Check options
-unless (defined($groupId) or (defined($userId))) { die "ERROR: groupId or userId is required \n";}
 unless (defined($securityTeamId)) {die "ERROR: securityTeamId is required\n";}
 
 my $agent = Perun::Agent->new();
 my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
 
 if (defined($userId)) {
-	$securityTeamsAgent->addAdmin( securityTeam => $securityTeamId, user => $userId );
-	printMessage("User Id:$userId successfully added as SecurityTeam $securityTeamId admin", $batch);
-}
-if (defined($groupId)) {
-	$securityTeamsAgent->addAdmin( securityTeam => $securityTeamId, group => $groupId );
-	printMessage("Group Id:$groupId successfully added as SecurityTeam $securityTeamId admin", $batch);
+    $securityTeamsAgent->addAdmin( securityTeam => $securityTeamId, user => $userId );
+    printMessage("User Id:$userId successfully added as SecurityTeam $securityTeamId admin", $batch);
+} else {
+    unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
+    unless (defined $authGroupId) {
+        unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
+
+        my $groupsAgent = $agent->getGroupsAgent;
+        unless (defined $authGroupVoId) {
+             my $voa = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
+             $authGroupVoId = $voa->getId;
+        }
+        my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
+        $authGroupId = $group->getId;
+    } 
+    $securityTeamsAgent->addAdmin( securityTeam => $securityTeamId, group => $authGroupId );
+    printMessage("Group Id:$authGroupId successfully added as  manager of SecurityTeam $securityTeamId", $batch);
 }
 

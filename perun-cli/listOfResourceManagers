@@ -9,11 +9,10 @@ use Perun::Common qw(printMessage getSortingFunction printTable tableToPrint);
 
 sub help {
 	return qq{
-	Tool prints list of Facility Manager. Facility is required field.
+	Tool prints list of Resource Manager. Resource is required field.
 	------------------------------
 	Available options:
-	--facilityId   | -f facility id
-	--facilityName | -F facility name
+	--resourceId   | -f resource id
 	--orderById    | -i order by Manager's identifier
 	--orderByName  | -n  order by Manager's name
 	--batch        | -b batch
@@ -21,19 +20,18 @@ sub help {
 	};
 }
 
-my ($facilityId, $userId, $facilityName, $sortingFunction, $sortingFunction2, $byId, $byName, $batch);
+my ($resourceId, $userId, $sortingFunction, $sortingFunction2, $byId, $byName, $batch);
 GetOptions("help|h"    => sub {
 		print help;
 		exit 0;
 	},
-	"facilityId|f=i"   => \$facilityId,
-	"facilityName|F=s" => \$facilityName,
+	"resourceId|f=i"   => \$resourceId,
 	"orderById|i"      => \$byId,
 	"orderByName|n"    => \$byName,
 	"batch|b"          => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
-my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $resourcesAgent = $agent->getResourcesAgent;
 my $groupsAgent = $agent->getGroupsAgent;
 my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 
@@ -46,16 +44,11 @@ if (defined $byName) {
     $sortingFunction2 = getSortingFunction("getUserId");
 }
 
-unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
 
-unless ($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
-	$facilityId = $facility->getId;
-}
+my @richUsers = $resourcesAgent->getAdmins( resource => $resourceId, onlyDirectAdmins => 1 , pageSize => 0, pageNum => 0 );
 
-my @richUsers = $facilitiesAgent->getAdmins( facility => $facilityId, onlyDirectAdmins => 1, pageSize => 0, pageNum => 0 );
-
-my @groups = $facilitiesAgent->getAdminGroups ( facility => $facilityId );
+my @groups = $resourcesAgent->getAdminGroups ( resource => $resourceId );
 
 unless (@richUsers or @groups ) {
    printMessage "No Managers found", $batch;

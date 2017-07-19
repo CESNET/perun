@@ -3,6 +3,7 @@ package cz.metacentrum.perun.rpc.methods;
 import cz.metacentrum.perun.core.api.Pair;
 import cz.metacentrum.perun.core.api.SecurityTeam;
 import cz.metacentrum.perun.core.api.User;
+import cz.metacentrum.perun.core.api.Group;
 import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.ApiCaller;
 import cz.metacentrum.perun.rpc.ManagerMethod;
@@ -120,9 +121,49 @@ public enum SecurityTeamsManagerMethod implements ManagerMethod {
 	getAdmins {
 		@Override
 		public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
-			return ac.getSecurityTeamsManager().getAdmins(ac.getSession(), ac.getSecurityTeamById(parms.readInt("securityTeam")));
-		}
+			if(parms.contains("onlyDirectAdmins")) {                       
+				return ac.getSecurityTeamsManager().getAdmins(ac.getSession(), 
+					ac.getSecurityTeamById(parms.readInt("securityTeam")),
+					 parms.readBoolean("onlyDirectAdmins"));
+			} else {
+				return ac.getSecurityTeamsManager().getAdmins(ac.getSession(),
+				ac.getSecurityTeamById(parms.readInt("securityTeam")),false);
+			}
+        	}             
 	},
+
+ /*#
+         * Get all SecurityTeam direct admins.
+         *
+         * @deprecated
+         * @param securityTeam int SecurityTeam  <code>id</code>
+         * @return List<User> list of admins of the SecurityTeam. 
+         */
+        getDirectAdmins {
+
+                @Override
+                public List<User> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+                        return ac.getSecurityTeamsManager().getDirectAdmins(ac.getSession(),
+                        ac.getSecurityTeamById(parms.readInt("securityTeam")));
+                }
+        },
+
+        /*#
+         * Get all SecurityTeam groups of admins.
+         *
+         * @param  securityTeam int SecurityTeam <code>id</code>
+         * @return List<Group> admins
+         */
+        getAdminGroups {
+
+                @Override
+                public List<Group> call(ApiCaller ac, Deserializer parms) throws PerunException {
+
+                        return ac.getSecurityTeamsManager().getAdminGroups(ac.getSession(),
+                        ac.getSecurityTeamById(parms.readInt("securityTeam")));
+                }
+        },
 
 	/*#
 	 * Add User as a manager to SecurityTeam

@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Text::ASCIITable;
 use Perun::Agent;
-use Perun::Common qw(printMessage getSortingFunction printTable);
+use Perun::Common qw(printMessage getSortingFunction printTable tableToPrint);
 
 sub help {
 	return qq{
@@ -16,7 +16,8 @@ sub help {
 	--groupName   | -G   Group name
 	--voId        | -v   VO idetifier
 	--voShortName | -V   VO short name
-	--orderById   | -i   order by Managers's identifier
+	--orderById   | -i   order by Manager's identifier
+	--orderByName | -n   order by Manager's Name
 	--batch       | -b  batch
 	--help        | -h  prints this help
 
@@ -24,7 +25,7 @@ sub help {
 }
 
 our $batch;
-my ($groupId, $groupName, $voId, $voShortName, $sortingFunction);
+my ($groupId, $groupName, $voId, $voShortName, $sortingFunction, $sortingFunction2, $byId, $byName);
 GetOptions("help|h"   => sub {
 		print help;
 		exit 0;
@@ -33,14 +34,23 @@ GetOptions("help|h"   => sub {
 	"groupName|G=s"   => \$groupName,
 	"voId|v=i"        => \$voId,
 	"voShortName|V=s" => \$voShortName,
-	"orderById|i"     => sub { $sortingFunction = getSortingFunction("getId") },
+	"orderById|i"     => \$byId,
+	"orderByName|n"   => \$byName,
 	"batch|b"         => \$batch) || die help;
 
 my $agent = Perun::Agent->new();
 my $groupsAgent = $agent->getGroupsAgent;
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 
 #options check
-unless (defined $sortingFunction) { $sortingFunction = getSortingFunction("getId"); }
+if (defined $byName) {
+    $sortingFunction = getSortingFunction("getLastName",1);
+    $sortingFunction2 = getSortingFunction("getLastName",1);
+} else {
+    $sortingFunction = getSortingFunction("getId");
+    $sortingFunction2 = getSortingFunction("getUserId");
+}
+
 unless (defined $groupId) {
 	unless (defined $groupName) { die "ERROR: Group specification required.\n"; }
 	unless (defined $voId) {
@@ -52,11 +62,38 @@ unless (defined $groupId) {
 	$groupId = $group->getId;
 }
 
-my @richUsers = $groupsAgent->getRichAdmins( group => $groupId, pageSize => 0, pageNum => 0 );
-unless (@richUsers) {
-	printMessage "No Managers found", $batch;
-	exit 0;
+my @richUsers = $groupsAgent->getAdmins( group => $groupId, onlyDirectAdmins => 1, pageSize => 0, pageNum => 0 );
+
+my @groups = $groupsAgent->getAdminGroups ( group => $groupId);
+
+unless (@richUsers or @groups ) {
+   printMessage "No Managers found", $batch;
 }
 
-#output
-printTable($sortingFunction, @richUsers);
+$table->setCols('Managers group', 'User Id', 'Name');
+
+# direct managers
+my $ii=0;
+foreach my $richUser (sort $sortingFunction @richUsers) {
+    if ($ii++ == 0) {
+        $table->addRow ('Direct Managers',$richUser->getId, $richUser->getDisplayName);
+    } else {
+        $table->addRow ('',$richUser->getId, $richUser->getDisplayName);
+    }
+}
+
+# groups of managers
+while (@groups) {
+    $table->addRow (' ',' ',' ') if $ii;
+    my $group=shift (@groups);
+    my @members = $groupsAgent->getGroupRichMembers ( group => $group->getId);
+    $ii=0;
+    foreach my $member (sort $sortingFunction2 @members) {
+        if ($ii++ == 0) {
+            $table->addRow ($group->getName,$member->getUserId, $member->getDisplayName);
+        } else {
+            $table->addRow ('',$member->getUserId, $member->getDisplayName);
+        }
+    }
+}
+print tableToPrint($table, $batch);

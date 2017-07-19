@@ -11,27 +11,35 @@ sub help {
 	Removes selected manager from facility.  Facility id or name and manager's id are required fields.
 	------------------------------------
 	Available options:
-	--facilityId   | -f facility id
-	--facilityName | -F facility name
-	--userId       | -u user id
-	--batch        | -b batch
-	--help         | -h prints this help
+	--facilityId      | -f facility id
+	--facilityName    | -F facility name
+	--userId          | -u user id
+        --authGroupId     | -a authorized groupId
+        --authGroupName   | -A authorized group Name
+        --authGroupVoId   | -o authorized group VO Id
+        --authGroupVoName | -O authorized group VO Name
+	--batch           | -b batch
+	--help            | -h prints this help
 
 	};
 }
 
-my ($facilityId, $userId, $facilityName, $batch);
+my ($facilityId, $userId, $facilityName, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName,$batch);
 GetOptions ("help|h"   => sub {
 		print help();
 		exit 0;
 	}, "batch|b"       => \$batch,
 	"facilityId|f=i"   => \$facilityId,
 	"facilityName|F=s" => \$facilityName,
-	"userId|u=i"       => \$userId) || die help();
+	"userId|u=i"       => \$userId,
+	"authGroupId|a=i"  => \$authGroupId,
+	"authGroupName|A=s"  => \$authGroupName,
+	"authGroupVoId|o=i"  => \$authGroupVoId,
+	"authGroupVoName|O=s"  => \$authGroupVoName
+) || die help();
 
 # Check options
 unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
-unless (defined($userId)) {die "ERROR: userId is required\n";}
 
 my $agent = Perun::Agent->new();
 my $facilitiesAgent = $agent->getFacilitiesAgent;
@@ -41,6 +49,23 @@ unless ($facilityId) {
 	$facilityId = $facility->getId;
 }
 
-$facilitiesAgent->removeAdmin( facility => $facilityId, user => $userId );
+if (defined $userId) {
+    $facilitiesAgent->removeAdmin( facility => $facilityId, user => $userId );
 
-printMessage("Manager user Id:$userId successfully removed from the Facility Id:$facilityId", $batch);
+    printMessage("Manager user Id:$userId successfully removed from the Facility Id:$facilityId", $batch);
+} else {
+    unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
+    unless (defined $authGroupId) {
+        unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";}
+
+        my $groupsAgent = $agent->getGroupsAgent;
+        unless (defined $authGroupVoId) {
+             my $vo = $agent->getVosAgent->getVoByShortName( shortName => $authGroupVoName );
+             $authGroupVoId = $vo->getId;
+        }
+        my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
+        $authGroupId = $group->getId;
+    }
+    $facilitiesAgent->removeAdmin( facility => $facilityId, authorizedGroup => $authGroupId);
+    printMessage("Manager Group Id:$authGroupId successfully removed from the Facility Id:$facilityId", $batch);
+}

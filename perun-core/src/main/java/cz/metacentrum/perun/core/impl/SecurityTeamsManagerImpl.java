@@ -192,6 +192,32 @@ public class SecurityTeamsManagerImpl implements SecurityTeamsManagerImplApi {
 		}
 	}
 
+        @Override
+        public List<User> getDirectAdmins(PerunSession sess,  SecurityTeam securityTeam) throws InternalErrorException {
+                try {
+                        return jdbc.query("select " + UsersManagerImpl.userMappingSelectQuery + " from authz join users on authz.user_id=users.id" +
+                                        "  where authz.security_team_id=? ",
+                                        UsersManagerImpl.USER_MAPPER, securityTeam.getId());
+                } catch (EmptyResultDataAccessException e) {
+                        return new ArrayList<User>();
+                } catch (RuntimeException e) {
+                        throw new InternalErrorException(e);
+                }
+        }
+
+        @Override
+        public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+                try {
+                        return jdbc.query("select " + GroupsManagerImpl.groupMappingSelectQuery + " from authz join groups on authz.authorized_group_id=groups.id" +
+                                        " where authz.security_team_id=?",
+                                        GroupsManagerImpl.GROUP_MAPPER, securityTeam.getId());
+                } catch (EmptyResultDataAccessException e) {
+                        return new ArrayList<Group>();
+                } catch (RuntimeException e) {
+                        throw new InternalErrorException(e);
+                }
+        }
+
 	@Override
 	public void addUserToBlacklist(PerunSession sess, SecurityTeam securityTeam, User user, String description) throws InternalErrorException {
 		if (description != null && description.trim().isEmpty()) {

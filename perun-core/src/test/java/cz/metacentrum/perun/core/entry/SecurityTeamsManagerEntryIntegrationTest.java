@@ -333,7 +333,7 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpSecurityTeams();
 		setUpUsers();
 		List<User> expected = setUpAdmins(u0, u1, setUpGroup(u1, u2));
-		List<User> actual = securityTeamsManagerEntry.getAdmins(sess, st0);
+		List<User> actual = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		Collections.sort(expected);
 		Collections.sort(actual);
 		assertEquals(expected, actual);
@@ -347,23 +347,48 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpUsers();
 
 		List<User> expected = Collections.emptyList();
-		List<User> actual = securityTeamsManagerEntry.getAdmins(sess, st0);
+		List<User> actual = securityTeamsManagerEntry.getAdmins(sess, st0,false);
 		Collections.sort(expected);
 		Collections.sort(actual);
 		assertEquals(expected, actual);
 	}
 
+        @Test
+        public void testGetDirectAdmins() throws Exception {
+                System.out.println(CLASS_NAME + "testGetDirectAdmins");
+
+		setUpSecurityTeams();
+                setUpUsers();
+
+                securityTeamsManagerEntry.addAdmin(sess, st0, u0);
+                assertTrue(securityTeamsManagerEntry.getDirectAdmins(sess, st0).contains(u0));
+
+        }
+
+        @Test
+        public void testGetAdminGroups() throws Exception {
+                System.out.println(CLASS_NAME + "testGetAdminGroups");
+                setUpSecurityTeams();
+                setUpUsers();
+		Group group = setUpGroup(u1, u2);
+		setUpAdmins(u0, u1, group);
+
+                //securityTeamsManagerEntry.addAdmin(sess, st0, group);
+
+                assertTrue(securityTeamsManagerEntry.getAdminGroups(sess, st0).contains(group));
+        }
+
 	@Test(expected = InternalErrorException.class)
 	public void testGetAdminsWithNullSecurityTeam() throws Exception {
 		System.out.println(CLASS_NAME + "testGetAdminsWithNullSecurityTeam");
-		securityTeamsManagerEntry.getAdmins(sess, null);
+		securityTeamsManagerEntry.getAdmins(sess, null, false);
 	}
 
 	@Test(expected = SecurityTeamNotExistsException.class)
 	public void testGetAdminsWithoutSecurityTeam() throws Exception {
 		System.out.println(CLASS_NAME + "testGetAdminsWithoutSecurityTeam");
 		SecurityTeam st = new SecurityTeam(0, "Name", "Desc");
-		securityTeamsManagerEntry.getAdmins(sess, st);
+		securityTeamsManagerEntry.getAdmins(sess, st, false);
 	}
 
 
@@ -374,13 +399,13 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpSecurityTeams();
 		setUpUsers();
 
-		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue("SecurityTeam should have no admins.", admins.isEmpty());
 		assertTrue("User 0 shouldn't be admin of security team.", !admins.contains(u0));
 
 		securityTeamsManagerEntry.addAdmin(sess, st0, u0);
 
-		admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(admins.size() == 1);
 		assertTrue(admins.contains(u0));
 	}
@@ -439,12 +464,12 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpUsers();
 		Group group = setUpGroup(u0, u1);
 
-		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(admins.size() == 0);
 
 		securityTeamsManagerEntry.addAdmin(sess, st0, group);
 
-		admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(admins.size() == 2);
 		assertTrue(admins.contains(u0));
 		assertTrue(admins.contains(u1));
@@ -510,12 +535,12 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpUsers();
 		setUpAdmins(u0, u1, setUpGroup(u1, u2));
 
-		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(admins.contains(u0));
 
 		securityTeamsManagerEntry.removeAdmin(sess, st0, u0);
 
-		admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(!admins.contains(u0));
 	}
 
@@ -527,13 +552,13 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		setUpUsers();
 		setUpAdmins(u0, u1, setUpGroup(u1, u2));
 
-		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(admins.contains(u1));
 
 		//Shouldn't remove from admins because he is also in group as admin
 		securityTeamsManagerEntry.removeAdmin(sess, st0, u1);
 
-		admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(admins.contains(u1));
 	}
 
@@ -576,13 +601,13 @@ public class SecurityTeamsManagerEntryIntegrationTest extends AbstractPerunInteg
 		Group group = setUpGroup(u1, u2);
 		setUpAdmins(u0, u1, group);
 
-		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		List<User> admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(admins.contains(u1));
 		assertTrue(admins.contains(u2));
 
 		securityTeamsManagerEntry.removeAdmin(sess, st0, group);
 
-		admins = securityTeamsManagerEntry.getAdmins(sess, st0);
+		admins = securityTeamsManagerEntry.getAdmins(sess, st0, false);
 		assertTrue(admins.contains(u1)); // Shouldn't be removed because is also admin as user
 		assertTrue(!admins.contains(u2));
 	}

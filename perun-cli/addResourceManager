@@ -8,11 +8,10 @@ use Perun::Common qw(printMessage);
 
 sub help {
 	return qq{
-	Adds a Facility manager. User id and Facility are required fields.
+	Adds a Resource manager. User id and Resource are required fields.
 	------------------------------------
 	Available options:
-	--facilityId      | -f facility id
-	--facilityName    | -F facility name
+	--resourceId      | -r resource id
         --authGroupId     | -a authorized groupId
         --authGroupName   | -A authorized group Name
         --authGroupVoId   | -o authorized group VO Id
@@ -24,14 +23,13 @@ sub help {
 	};
 }
 
-my ($facilityId, $userId, $facilityName, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName, $batch);
+my ($resourceId, $userId, $resourceName, $authGroupId, $authGroupName, $authGroupVoId, $authGroupVoName, $batch);
 GetOptions ("help|h"   => sub {
 		print help();
 		exit 0;
 	}, 
 	"batch|b"       => \$batch,
-	"facilityId|f=i"   => \$facilityId,
-	"facilityName|F=s" => \$facilityName,
+	"resourceId|r=i"   => \$resourceId,
 	"userId|u=i"       => \$userId,
 	"authGroupId|a=i"  => \$authGroupId,
 	"authGroupName|A=s"  => \$authGroupName,
@@ -40,20 +38,19 @@ GetOptions ("help|h"   => sub {
 ) || die help();
 
 # Check options
-unless (defined($facilityId) or (defined($facilityName))) { die "ERROR: facilityId or facilityName is required \n";}
+unless (defined($resourceId)) { die "ERROR: resourceId is required \n";}
 
 my $agent = Perun::Agent->new();
-my $facilitiesAgent = $agent->getFacilitiesAgent;
+my $resourcesAgent = $agent->getResourcesAgent;
 
-unless ($facilityId) {
-	my $facility = $facilitiesAgent->getFacilityByName( name => $facilityName );
-	$facilityId = $facility->getId;
-}
+#add user
 if (defined $userId) {
-    $facilitiesAgent->addAdmin( facility => $facilityId, user => $userId );
+    $resourcesAgent->addAdmin( resource => $resourceId, user => $userId );
 
-    printMessage("User Id:$userId successfully added as a Facility Id:$facilityId manager", $batch);
+    printMessage("User Id:$userId successfully added as a Resource Id:$resourceId manager", $batch);
+
 } else {
+#add group
     unless (defined $authGroupId or defined $authGroupName) { die "ERROR: authorizedGroupId or authorizedGroupName is required \n";}
     unless (defined $authGroupId) {
         unless (defined $authGroupVoId or defined $authGroupVoName) { die "ERROR: authorizedGroupVoId or authorizedGroupVoName is required \n";} 
@@ -66,6 +63,6 @@ if (defined $userId) {
         my $group = $groupsAgent->getGroupByName( vo => $authGroupVoId, name => $authGroupName );
         $authGroupId = $group->getId;
     }
-    $facilitiesAgent->addAdmin( facility => $facilityId, authorizedGroup => $authGroupId);
-    printMessage("Group Id:$authGroupId successfully added as a Facility Id:$facilityId manager", $batch);
+    $resourcesAgent->addAdmin( resource => $resourceId, authorizedGroup => $authGroupId);
+    printMessage("Group Id:$authGroupId successfully added as a Resource Id:$resourceId manager", $batch);
 }

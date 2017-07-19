@@ -130,9 +130,24 @@ public class SecurityTeamsManagerBlImpl implements SecurityTeamsManagerBl {
 	}
 
 	@Override
-	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
-		return getSecurityTeamsManagerImpl().getAdmins(sess, securityTeam);
+	public List<User> getAdmins(PerunSession sess, SecurityTeam securityTeam, boolean onlyDirectAdmins) throws InternalErrorException {
+		if(onlyDirectAdmins) {
+			return getSecurityTeamsManagerImpl().getDirectAdmins(sess, securityTeam);
+		} else {
+			return getSecurityTeamsManagerImpl().getAdmins(sess, securityTeam);
+		}
 	}
+
+        @Deprecated
+        @Override
+        public List<User> getDirectAdmins(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+                return getSecurityTeamsManagerImpl().getDirectAdmins(sess, securityTeam);
+        }
+
+        @Override
+        public List<Group> getAdminGroups(PerunSession sess, SecurityTeam securityTeam) throws InternalErrorException {
+                return getSecurityTeamsManagerImpl().getAdminGroups(sess, securityTeam);
+        }
 
 	@Override
 	public void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException {

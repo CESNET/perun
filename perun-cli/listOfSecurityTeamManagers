@@ -42,21 +42,43 @@ unless (defined($securityTeamId)) {die "ERROR: securityTeamId is required\n";}
 
 my $agent = Perun::Agent->new();
 my $securityTeamsAgent = $agent->getSecurityTeamsAgent;
+my $groupsAgent = $agent->getGroupsAgent;
+my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
 
 my $securityTeam = $securityTeamsAgent->getSecurityTeamById( 'id', $securityTeamId );
 
-my @admins = $securityTeamsAgent->getAdmins( securityTeam => $securityTeamId );
-unless (@admins) {
-	printMessage "No managers found", $batch;
-	exit 0;
+my  @richUsers = $securityTeamsAgent->getAdmins( securityTeam => $securityTeamId, onlyDirectAdmins => 1 );
+
+my @groups = $securityTeamsAgent->getAdminGroups ( securityTeam => $securityTeamId );
+
+unless (@richUsers or @groups ) {
+   printMessage "No Managers found", $batch;
 }
 
-#output
-my $table = Text::ASCIITable->new( { reportErrors => 0, utf8 => 0 } );
-printMessage "\nSecurityTeamId: ".$securityTeamId.", SecurityTeamName: ".$securityTeam->getName, $batch;
+$table->setCols('Managers group', 'User Id', 'Name');
 
-$table->setCols( 'Admins Id', 'Admins Name' );
-foreach my $user (sort $sortingFunction @admins) {
-	$table->addRow( $user->getId, $user->getCommonName );
+# direct managers
+my $ii=0;
+foreach my $richUser (sort $sortingFunction @richUsers) {
+    if ($ii++ == 0) {
+        $table->addRow ('Direct Managers',$richUser->getId, $richUser->getDisplayName);
+    } else {
+        $table->addRow ('',$richUser->getId, $richUser->getDisplayName);
+    }
+}
+
+# groups of managers
+while (@groups) {
+    $table->addRow (' ',' ',' ') if $ii;
+    my $group=shift (@groups);
+    my @members = $groupsAgent->getGroupRichMembers ( group => $group->getId);
+    $ii=0;
+    foreach my $member (sort $sortingFunction2 @members) {
+        if ($ii++ == 0) {
+            $table->addRow ($group->getName,$member->getUserId, $member->getDisplayName);
+        } else {
+            $table->addRow ('',$member->getUserId, $member->getDisplayName);
+        }
+    }
 }
 print tableToPrint($table, $batch);
