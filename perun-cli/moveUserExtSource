@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use Getopt::Long qw(:config no_ignore_case);
+use Perun::Agent;
+use Perun::Common qw(printMessage);
+
+sub help {
+	return qq{
+	Moves an external source from the source user to the target user.
+	Both user's ids and user external source id are required fields.
+	------------------------------------
+	Available options:
+	--sourcetUserId   | -s source user id
+	--targetUserId    | -t target user id
+	--userExtSourceId | -e external source id
+	--batch           | -b batch
+	--help            | -h prints this help
+	};
+}
+
+my ($sourceUserId, $targetUserId, $userExtSourceId, $batch);
+GetOptions ("help|h"     => sub {
+		print help();
+		exit 0;
+	},
+	"sourceUserId|s=i"       => \$sourceUserId,
+	"targetUserId|t=i"       => \$targetUserId,
+	"userExtSourceId|e=i"    => \$extSourceId,
+	"batch|b"                => \$batch) || die help();
+
+# Check options
+unless (defined($sourceUserId)) { die "ERROR: sourceUserId is required \n";}
+unless (defined($targetUserId)) { die "ERROR: targetUserId is required \n";}
+unless (defined($userExtSourceId)) { die "ERROR: userExtSourceId is required \n";}
+
+my $agent = Perun::Agent->new();
+my $usersAgent = $agent->getUsersAgent;
+
+$usersAgent->moveUserExtSource( sourceUser => $sourceUserId, targetUser => $targetUserId, userExtSource => $userExtSourceId );
+
+printMessage("User External Source: $userExtSourceId was moved from source user Id: $sourceUserId to target user Id: $targetUserId", $batch);

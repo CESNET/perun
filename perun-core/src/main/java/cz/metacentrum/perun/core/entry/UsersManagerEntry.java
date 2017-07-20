@@ -456,6 +456,28 @@ public class UsersManagerEntry implements UsersManager {
 		getUsersManagerBl().removeUserExtSource(sess, user, userExtSource);
 	}
 
+	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+
+		// Authorization
+		if(!AuthzResolver.isAuthorized(sess, Role.PERUNADMIN)) {
+			throw new PrivilegeException(sess, "moveUserExtSource");
+		}
+
+		getUsersManagerBl().checkUserExists(sess, targetUser);
+		getUsersManagerBl().checkUserExists(sess, sourceUser);
+		// set userId, so checkUserExtSourceExists can check the userExtSource for the particular user
+		userExtSource.setUserId(sourceUser.getId());
+		getUsersManagerBl().checkUserExtSourceExists(sess, userExtSource);
+
+		if (userExtSource.isPersistent()) {
+			throw new InternalErrorException("Given UserExtSource: " + userExtSource + " is marked as persistent. " +
+					"It means it can not be removed.");
+		}
+
+		getUsersManagerBl().moveUserExtSource(sess, sourceUser, targetUser, userExtSource);
+	}
+
 	public UserExtSource getUserExtSourceByExtLogin(PerunSession sess, ExtSource source, String extLogin) throws InternalErrorException, PrivilegeException, ExtSourceNotExistsException, UserExtSourceNotExistsException {
 		Utils.checkPerunSession(sess);
 
