@@ -993,6 +993,20 @@ public class MembersManagerEntry implements MembersManager {
 					 return getMembersManagerBl().canBeMemberWithReason(sess, vo, user, loa);
 	}
 
+	public Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException, UserNotExistsException, InternalErrorException, VoNotExistsException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(extSourceName, "extSourceName");
+		Utils.notNull(extLogin, "extLogin");
+		getPerunBl().getVosManagerBl().checkVoExists(sess, vo);
+
+		if(!AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo) &&
+				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, vo)) {
+			throw new PrivilegeException(sess, "getMemberByExtSourceNameAndExtLogin");
+		}
+
+		return getMembersManagerBl().getMemberByExtSourceNameAndExtLogin(sess, vo, extSourceName, extLogin);
+	}
+
 	public Date getNewExtendMembership(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException, MemberNotExistsException, ExtendMembershipException {
 		Utils.checkPerunSession(sess);
 		getMembersManagerBl().checkMemberExists(sess, member);

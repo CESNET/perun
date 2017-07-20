@@ -1075,6 +1075,24 @@ public interface MembersManager {
 	boolean canBeMemberWithReason(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException, PrivilegeException, VoNotExistsException, ExtendMembershipException;
 
 	/**
+	 * Get member by extSourceName, extSourceLogin and Vo
+	 *
+	 * @param sess
+	 * @param extSourceName name of extSource
+	 * @param extLogin login of user in extSource
+	 * @param vo Vo where we are looking for member
+	 * @return member
+	 * @throws ExtSourceNotExistsException
+	 * @throws UserExtSourceNotExistsException
+	 * @throws MemberNotExistsException
+	 * @throws UserNotExistsException
+	 * @throws VoNotExistsException
+	 * @throws InternalErrorException
+	 * @throws PrivilegeException
+	 */
+	Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException, UserNotExistsException, InternalErrorException, VoNotExistsException, PrivilegeException;
+
+	/**
 	 * Returns the date to which will be extended member's expiration time.
 	 *
 	 * @param sess
@@ -1114,5 +1132,4 @@ public interface MembersManager {
 	 * @throws MemberNotExistsException If member not exists
 	 */
 	void sendPasswordResetLinkEmail(PerunSession sess, Member member, String namespace, String url) throws InternalErrorException, PrivilegeException, MemberNotExistsException;
-
 }
