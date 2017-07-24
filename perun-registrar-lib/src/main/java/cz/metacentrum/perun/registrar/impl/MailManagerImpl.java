@@ -55,6 +55,7 @@ public class MailManagerImpl implements MailManager {
 	private static final String URN_VO_MAIL_FOOTER = "urn:perun:vo:attribute-def:def:mailFooter";
 	private static final String URN_GROUP_MAIL_FOOTER = "urn:perun:group:attribute-def:def:mailFooter";
 	protected static final String URN_USER_PREFERRED_MAIL = "urn:perun:user:attribute-def:def:preferredMail";
+	protected static final String URN_USER_PHONE = "urn:perun:user:attribute-def:def:phone";
 	private static final String URN_USER_PREFERRED_LANGUAGE = "urn:perun:user:attribute-def:def:preferredLanguage";
 	private static final String URN_MEMBER_MAIL = "urn:perun:member:attribute-def:def:mail";
 	private static final String URN_MEMBER_EXPIRATION = "urn:perun:member:attribute-def:def:membershipExpiration";
@@ -1551,6 +1552,7 @@ public class MailManagerImpl implements MailManager {
 	 * {logins} - list of all logins from application
 	 * {membershipExpiration} - membership expiration date
 	 * {mail} - user preferred mail submitted on application or stored in a system
+	 * {phone} - user phone submitted on application or stored in a system
 	 *
 	 * {customMessage} - message passed by admin to mail (e.g. reason of application reject)
 	 * {errors} - include errors which ocured when processing registrar actions
@@ -1839,6 +1841,46 @@ public class MailManagerImpl implements MailManager {
 
 			// replace by mail or empty
 			mailText = mailText.replace("{mail}", mail);
+		}
+
+		// user phone
+		if (mailText.contains("{phone}")) {
+			String phone = "";
+			if (app.getUser() != null) {
+				try {
+					User u = usersManager.getUserById(registrarSession, app.getUser().getId());
+					Attribute a = attrManager.getAttribute(registrarSession, u, URN_USER_PHONE);
+					if (a != null && a.getValue() != null) {
+						// attribute value is string
+						phone = ((String)a.getValue());
+					}
+				} catch (Exception ex) {
+					log.error("[MAIL MANAGER] Error thrown when getting phone param for mail. {}", ex);
+				}
+			} else {
+
+				for (ApplicationFormItemData d : data) {
+					if ("urn:perun:member:attribute-def:def:phone".equals(d.getFormItem().getPerunDestinationAttribute())) {
+						if (d.getValue() != null && !d.getValue().isEmpty()) {
+							phone = d.getValue();
+							break;
+						}
+					}
+				}
+
+				for (ApplicationFormItemData d : data) {
+					if ("urn:perun:user:attribute-def:def:phone".equals(d.getFormItem().getPerunDestinationAttribute())) {
+						if (d.getValue() != null && !d.getValue().isEmpty()) {
+							phone = d.getValue();
+							break;
+						}
+					}
+				}
+
+			}
+
+			// replace by phone or empty
+			mailText = mailText.replace("{phone}", phone);
 		}
 
 		// mail footer
