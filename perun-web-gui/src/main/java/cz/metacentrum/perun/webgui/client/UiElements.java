@@ -941,7 +941,10 @@ public class UiElements {
 		Anchor lnk = new Anchor("Online help", "https://wiki.metacentrum.cz/wiki/Perun");
 		lnk.setTarget("_blank");
 
-		HTML foot = new HTML("<strong>About: </strong>" + a + "<strong>&nbsp;|&nbsp;Support: </strong>" + mail+", "+lnk);
+		Anchor a2 = new Anchor("BSD 2", "https://github.com/CESNET/perun/blob/master/LICENSE");
+		a2.setTarget("_blank");
+
+		HTML foot = new HTML("<strong>About: </strong>" + a + "<strong>&nbsp;|&nbsp;License: </strong>"+a2+"&nbsp;|&nbsp;Support: </strong>" + mail+", "+lnk);
 		ft.setWidget(0, 0, foot);
 
 		ft.setWidget(0, 1, new HTML(PerunWebConstants.INSTANCE.footerPerunCopyright() + " " + JsonUtils.getCurrentYear() + ", version: " + PerunWebConstants.INSTANCE.guiVersion()));
