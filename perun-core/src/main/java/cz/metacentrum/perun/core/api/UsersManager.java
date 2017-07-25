@@ -375,6 +375,24 @@ public interface UsersManager {
 	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws InternalErrorException, UserNotExistsException, UserExtSourceNotExistsException, PrivilegeException, UserExtSourceAlreadyRemovedException;
 
 	/**
+	 * Take UserExtSource from sourceUser and move it to the targetUser.
+	 *
+	 * It removes old UserExtSource with all it's attributes from sourceUser and creates and assigns the new one with
+	 * the same settings to target user.
+	 *
+	 * @param perunSession
+	 * @param sourceUser user with UserExtSource to move
+	 * @param targetUser user for who will be UserExtSource moved
+	 * @param userExtSource the UserExtSource which will be moved from sourceUser to targetUser
+	 *
+	 * @throws InternalErrorException
+	 * @throws UserExtSourceNotExistsException UserExtSourceNotExists or is not assigned to sourceUser
+	 * @throws UserNotExistsException one of the users not exists
+	 * @throws PrivilegeException
+	 */
+	void moveUserExtSource(PerunSession perunSession, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceNotExistsException, UserNotExistsException, PrivilegeException;
+
+	/**
 	 * Gets user's external source by the user's external login and external source.
 	 *
 	 * @param perunSession

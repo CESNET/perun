@@ -7,27 +7,11 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.ExtSourcesManager;
+import cz.metacentrum.perun.core.api.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Owner;
-import cz.metacentrum.perun.core.api.OwnerType;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichUser;
-import cz.metacentrum.perun.core.api.SpecificUserType;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.UsersManager;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
@@ -554,6 +538,63 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		usersManager.getUserExtSourceById(sess, userExtSource.getId());
 		// shloudn't get removed user ext source from DB
 
+	}
+
+	@Test (expected=UserExtSourceNotExistsException.class)
+	public void removeUserExtSourceWithAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceWithAttribute");
+
+		//Attribute 1
+		String name = "testingUEAttribute1";
+		Attribute userExtSourceAttribute1 = this.createUserExtSourceAttribute(name);
+		userExtSourceAttribute1.setValue(name);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, userExtSourceAttribute1);
+		//Attribute 1
+		name = "testingUEAttribute2";
+		Attribute userExtSourceAttribute2 = this.createUserExtSourceAttribute(name);
+		userExtSourceAttribute2.setValue(name);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, userExtSourceAttribute2);
+
+		usersManager.removeUserExtSource(sess, user, userExtSource);
+
+		usersManager.getUserExtSourceById(sess, userExtSource.getId());
+		// shloudn't get removed user ext source from DB
+	}
+
+	@Test
+	public void moveUserExtSource() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceWithAttribute");
+		
+		//TargetUser
+		User targetUser = setUpEmptyUser();
+
+		usersManager.moveUserExtSource(sess, user, targetUser, userExtSource);
+
+		UserExtSource returnedUserExtSource = usersManager.getUserExtSourceById(sess, userExtSource.getId());
+		assertEquals("returned user extSource should be assigned to the targetUser", targetUser.getId(), returnedUserExtSource.getUserId());
+	}
+
+	@Test
+	public void moveUserExtSourceWithAttribute() throws Exception {
+		System.out.println(CLASS_NAME + "removeUserExtSourceWithAttribute");
+
+		//Attribute 1
+		String name = "testingUEAttribute1";
+		Attribute userExtSourceAttribute1 = this.createUserExtSourceAttribute(name);
+		userExtSourceAttribute1.setValue(name);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, userExtSourceAttribute1);
+		//Attribute 1
+		name = "testingUEAttribute2";
+		Attribute userExtSourceAttribute2 = this.createUserExtSourceAttribute(name);
+		userExtSourceAttribute2.setValue(name);
+		perun.getAttributesManagerBl().setAttribute(sess, userExtSource, userExtSourceAttribute2);
+		//TargetUser
+		User targetUser = setUpEmptyUser();
+
+		usersManager.moveUserExtSource(sess, user, targetUser, userExtSource);
+
+		UserExtSource returnedUserExtSource = usersManager.getUserExtSourceById(sess, userExtSource.getId());
+		assertEquals("returned user extSource should be assigned to the targetUser", targetUser.getId(), returnedUserExtSource.getUserId());
 	}
 
 	@Test (expected=UserNotExistsException.class)
@@ -1085,5 +1126,17 @@ public class UsersManagerEntryIntegrationTest extends AbstractPerunIntegrationTe
 		candidate.setUserExtSource(userExtSource);
 		candidate.setAttributes(new HashMap<String,String>());
 		return candidate;
+	}
+
+	private Attribute createUserExtSourceAttribute(String name) throws Exception {
+		AttributeDefinition attrDef = new AttributeDefinition();
+		attrDef.setNamespace(AttributesManager.NS_UES_ATTR_DEF);
+		attrDef.setDescription(name);
+		attrDef.setFriendlyName(name);
+		attrDef.setType(String.class.getName());
+		attrDef = perun.getAttributesManagerBl().createAttribute(sess, attrDef);
+		Attribute attribute = new Attribute(attrDef);
+		attribute.setValue("Testing value");
+		return attribute;
 	}
 }

@@ -493,6 +493,26 @@ public enum UsersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Move user's external source from sourceUser to targetUser.
+	 * @param sourceUser int User <code>id</code>
+	 * @param targetUser int User <code>id</code>
+	 * @param userExtSource int UserExtSource <code>id</code>
+	 */
+	moveUserExtSource {
+
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms) throws PerunException {
+			ac.stateChangingCheck();
+
+			ac.getUsersManager().moveUserExtSource(ac.getSession(),
+					ac.getUserById(parms.readInt("sourceUser")),
+					ac.getUserById(parms.readInt("targetUser")),
+					ac.getUserExtSourceById(parms.readInt("userExtSource")));
+			return null;
+		}
+	},
+
+	/*#
 	 * Get the user ext source by its id.
 	 *
 	 * @param userExtSource int UserExtSource <code>id</code>

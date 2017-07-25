@@ -400,6 +400,7 @@ public interface UsersManagerBl {
 
 	/**
 	 * Removes user's external sources.
+	 * It also means removing all it's attributes.
 	 *
 	 * @param perunSession
 	 * @param user
@@ -408,6 +409,21 @@ public interface UsersManagerBl {
 	 * @throws UserExtSourceAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
 	void removeUserExtSource(PerunSession perunSession, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceAlreadyRemovedException;
+
+	/**
+	 * Take UserExtSource from sourceUser and move it to the targetUser.
+	 *
+	 * It removes old UserExtSource with all it's attributes from sourceUser and creates and assigns the new one with
+	 * the same settings to target user.
+	 *
+	 * @param perunSession
+	 * @param sourceUser user with UserExtSource to move
+	 * @param targetUser user for who will be UserExtSource moved
+	 * @param userExtSource the UserExtSource which will be moved from sourceUser to targetUser
+	 *
+	 * @throws InternalErrorException
+	 */
+	void moveUserExtSource(PerunSession perunSession, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException;
 
 	/**
 	 * Gets user's external source by the user's external login and external source.

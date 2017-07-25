@@ -11,18 +11,11 @@ import java.util.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordOperationTimeoutRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordStrengthFailedRuntimeException;
+import cz.metacentrum.perun.core.api.exceptions.rt.*;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.exceptions.rt.EmptyPasswordRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.LoginNotExistsRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordChangeFailedRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordCreationFailedRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDeletionFailedRuntimeException;
-import cz.metacentrum.perun.core.api.exceptions.rt.PasswordDoesntMatchRuntimeException;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.bl.UsersManagerBl;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
@@ -520,8 +513,52 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceAlreadyRemovedException {
 		//FIXME zkontrolovat zda na userExtSource neni navazan nejaky member
+		//First remove all user extSource attributes before removing userExtSource
+		try {
+			getPerunBl().getAttributesManagerBl().removeAllAttributes(sess, userExtSource);
+		} catch (WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
+			throw new InternalErrorException("Can't remove userExtSource because there is problem with removing all it's attributes.", ex);
+		}
 		getUsersManagerImpl().removeUserExtSource(sess, user, userExtSource);
 		getPerunBl().getAuditer().log(sess, "{} removed from {}.", userExtSource, user);
+	}
+
+	public void moveUserExtSource(PerunSession sess, User sourceUser, User targetUser, UserExtSource userExtSource) throws InternalErrorException {
+		List<Attribute> userExtSourceAttributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, userExtSource);
+		Iterator<Attribute> iterator = userExtSourceAttributes.iterator();
+		//remove all virtual attributes (we don't need to take care about them)
+		while(iterator.hasNext()) {
+			Attribute attribute = iterator.next();
+			if(getPerunBl().getAttributesManagerBl().isVirtAttribute(sess, attribute)) iterator.remove();
+		}
+
+		//remove userExtSource
+		try {
+			this.removeUserExtSource(sess, sourceUser, userExtSource);
+		} catch (UserExtSourceAlreadyRemovedException ex) {
+			//this is little weird, will be better to report exception
+			throw new InternalErrorException("UserExtSource was unexpectedly removed while moving " + userExtSource +
+					" from " + sourceUser + " to " + targetUser);
+		}
+
+		//change userId for userExtSource
+		userExtSource.setUserId(targetUser.getId());
+		//add userExtSource to the targetUser
+		try {
+			userExtSource = this.addUserExtSource(sess, targetUser, userExtSource);
+		} catch (UserExtSourceExistsException ex) {
+			//someone moved this UserExtSource before us
+			throw new InternalErrorException("Moving " + userExtSource + " from " + sourceUser + " to " + targetUser +
+					" failed because someone already moved this UserExtSource.", ex);
+		}
+
+		//set all attributes back to this UserExtSource when it is already assigned to the targetUser
+		try {
+			getPerunBl().getAttributesManagerBl().setAttributes(sess, userExtSource, userExtSourceAttributes);
+		} catch (WrongAttributeAssignmentException | WrongReferenceAttributeValueException | WrongAttributeValueException ex) {
+			throw new InternalErrorException("Moving " + userExtSource + " from " + sourceUser + " to " + targetUser +
+					" failed because of problem with setting removed attributes back to the UserExtSource.", ex);
+		}
 	}
 
 	public UserExtSource getUserExtSourceByExtLogin(PerunSession sess, ExtSource source, String extLogin) throws InternalErrorException, UserExtSourceNotExistsException {
