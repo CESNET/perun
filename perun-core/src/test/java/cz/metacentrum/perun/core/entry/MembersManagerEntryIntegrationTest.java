@@ -1220,6 +1220,32 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 		assertTrue("results must contain member \"Pepa z Depa\"", members.contains(createdMember));
 	}
 
+	@Test
+	public void getMemberByExtSourceNameAndExtLogin() throws Exception {
+		System.out.println(CLASS_NAME + "getMemberByExtSourceNameAndExtLogin");
+
+		Member member = setUpMember(createdVo);
+		User user = perun.getUsersManagerBl().getUserByMember(sess, member);
+
+		String extSourceName = "MembersManagerEntryIntegrationTest";
+		String extLogin = Long.toHexString(Double.doubleToLongBits(Math.random()));
+		UserExtSource userExtSource = new UserExtSource();
+		ExtSource externalSource = new ExtSource(0, "testExtSource", "cz.metacentrum.perun.core.impl.ExtSourceInternal");
+		externalSource = perun.getExtSourcesManagerBl().createExtSource(sess, externalSource, null);
+		// gets real external source object from database
+		userExtSource.setExtSource(externalSource);
+		// put real external source into user's external source
+		userExtSource.setLogin(extLogin);
+		// set users login in his ext source
+		userExtSource = perun.getUsersManagerBl().addUserExtSource(sess, user, userExtSource);
+
+		extSourceName = userExtSource.getExtSource().getName();
+		extLogin = userExtSource.getLogin();
+		Member returnedMember = membersManagerEntry.getMemberByExtSourceNameAndExtLogin(sess, createdVo, extSourceName, extLogin);
+		assertEquals("members should be the same",member, returnedMember);
+
+	}
+
 	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {
 		Attribute attr = new Attribute();
 		attr.setNamespace(namespace);

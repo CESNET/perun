@@ -882,6 +882,25 @@ public enum MembersManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Returns member by his login in external source, name of external source and vo
+	 *
+	 * @param vo int Vo <code>id</code>
+	 * @param extSourceName String Ext source name
+	 * @param extLogin String Ext source login
+	 * @return Member Member object
+	 */
+	getMemberByExtSourceNameAndExtLogin {
+
+		@Override
+		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getMembersManager().getMemberByExtSourceNameAndExtLogin(ac.getSession(),
+					ac.getVoById(parms.readInt("vo")),
+					parms.readString("extSourceName"),
+					parms.readString("extLogin"));
+		}
+	},
+
+	/*#
 	 * Validate all attributes for member and set member's status to VALID.
 	 *
 	 * This method runs asynchronously. It immediately return member with <b>original</b> status and

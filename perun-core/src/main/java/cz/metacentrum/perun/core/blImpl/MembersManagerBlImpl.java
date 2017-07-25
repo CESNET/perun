@@ -1499,6 +1499,12 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return this.canBeMemberInternal(sess, vo, user, loa, true);
 	}
 
+	public Member getMemberByExtSourceNameAndExtLogin(PerunSession sess, Vo vo, String extSourceName, String extLogin) throws ExtSourceNotExistsException, UserExtSourceNotExistsException, MemberNotExistsException, UserNotExistsException, InternalErrorException {
+		User user = getPerunBl().getUsersManagerBl().getUserByExtSourceNameAndExtLogin(sess, extSourceName, extLogin);
+		Member member = getPerunBl().getMembersManagerBl().getMemberByUser(sess, vo, user);
+		return member;
+	}
+
 	/* Check if the user can apply for VO membership
 	*/
 	public boolean canBeMember(PerunSession sess, Vo vo, User user, String loa) throws InternalErrorException {
