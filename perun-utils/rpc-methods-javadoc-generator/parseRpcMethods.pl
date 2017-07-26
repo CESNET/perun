@@ -720,6 +720,12 @@ foreach my $manager (sort(keys %{$managers})) {
     	\$(document).ready(function() {
     		\$("#nav-documentation").addClass('active');
     	});
+
+		var url = document.location.toString();
+		if ( url.match('#') ) {
+			$('#'+url.split('#')[1]).addClass('in');
+		}
+
     </script>
 
     <!--#include virtual="footer.shtml" -->
