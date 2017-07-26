@@ -14,6 +14,7 @@ import java.util.TreeMap;
 
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.rt.WrongAttributeAssignmentRuntimeException;
 import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1462,7 +1463,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			String voadmin = ((AuthzResolver.isAuthorized(sess, Role.VOADMIN, rg) ? "VOADMIN" : ""));
 			String voobserver = ((AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, rg) ? "VOOBSERVER" : ""));
 			String groupadmin = ((AuthzResolver.isAuthorized(sess, Role.GROUPADMIN, rg) ? "GROUPADMIN" : ""));
-			String key = voadmin + voobserver + groupadmin;
+			String facilityadmin = ((AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN) ? "FACILITYADMIN" : ""));
+			String key = voadmin + voobserver + groupadmin + facilityadmin;
 
 			//Filtering group attributes
 			if(rg.getAttributes() != null) {
@@ -1518,6 +1520,14 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		return richGroups;
 	}
 
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups) throws InternalErrorException, WrongAttributeAssignmentException {
+		List<RichGroup> richGroups = new ArrayList<>();
+		for(Group group: groups) {
+			richGroups.add(new RichGroup(group, getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, true)));
+		}
+		return richGroups;
+	}
+
 	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, List<Group> groups, List<String> attrNames) throws InternalErrorException {
 		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, groups);
 		List<RichGroup> richGroups = new ArrayList<>();
@@ -1525,6 +1535,20 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			richGroups.add(new RichGroup(group, this.getPerunBl().getAttributesManagerBl().getAttributes(sess, group, attrNames)));
 		}
 		return richGroups;
+	}
+
+	public List<RichGroup> convertGroupsToRichGroupsWithAttributes(PerunSession sess, Resource resource, List<Group> groups, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
+		if (attrNames == null) return convertGroupsToRichGroupsWithAttributes(sess, resource, groups);
+		List<RichGroup> richGroups = new ArrayList<>();
+		for(Group group: groups) {
+			richGroups.add(new RichGroup(group, getPerunBl().getAttributesManagerBl().getAttributes(sess, resource, group, attrNames, true)));
+		}
+		return richGroups;
+	}
+
+	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException {
+		List<Group> assignedGroups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
+		return this.convertGroupsToRichGroupsWithAttributes(sess, resource, assignedGroups, attrNames);
 	}
 
 	public List<RichGroup> getAllRichGroupsWithAttributesByNames(PerunSession sess, Vo vo, List<String> attrNames)throws InternalErrorException{

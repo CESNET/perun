@@ -1111,6 +1111,40 @@ public class AttributesManagerEntryIntegrationTest extends AbstractPerunIntegrat
 	}
 
 	@Test
+	public void getGroupResourceAttributesByListOfNames() throws Exception {
+		vo = setUpVo();
+		facility = setUpFacility();
+		group = setUpGroup();
+		resource = setUpResource();
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		List<Attribute> groupResourceAttrs = setUpGroupResourceAttribute();
+		perun.getAttributesManagerBl().setAttributes(sess, resource, group, groupResourceAttrs);
+		List<Attribute> groupAttrs = setUpGroupAttribute();
+		perun.getAttributesManagerBl().setAttributes(sess, group, groupAttrs);
+
+		List<String> attrNames = new ArrayList<>();
+		for(Attribute attribute: groupResourceAttrs) {
+			attrNames.add(attribute.getName());
+		}
+		for(Attribute attribute: groupAttrs) {
+			attrNames.add(attribute.getName());
+		}
+
+		List<Attribute> returnedAttributes = perun.getAttributesManagerBl().getAttributes(sess, resource, group, attrNames, true);
+		List<Attribute> returnedAttributesWithoutGroupAttributes = perun.getAttributesManagerBl().getAttributes(sess, resource, group, attrNames, false);
+
+		for(Attribute attribute: groupResourceAttrs) {
+			assertTrue(returnedAttributes.contains(attribute));
+			assertTrue(returnedAttributesWithoutGroupAttributes.contains(attribute));
+		}
+		for(Attribute attribute: groupAttrs) {
+			assertTrue(returnedAttributes.contains(attribute));
+			assertTrue(!returnedAttributesWithoutGroupAttributes.contains(attribute));
+		}
+	}
+
+	@Test
 	public void getMemberGroupAttributesForUser() throws Exception {
 		System.out.println(CLASS_NAME + "getMemberGroupAttributesForUser");
 

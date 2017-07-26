@@ -566,6 +566,19 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 *
+	 */
+	getRichGroupsWithAttributesAssignedToResource {
+
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getRichGroupsWithAttributesAssignedToResource(ac.getSession(),
+					ac.getResourceById(parms.readInt("resource")),
+					parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
 	* Get all Group admins as RichUsers with specific attributes (from user namespace)
 	*
 	* @deprecated

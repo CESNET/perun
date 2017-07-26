@@ -1856,6 +1856,67 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 	}
 
 	@Test
+	public void convertGroupToRichGroupWithAlsoGroupResourceAttributesTest() throws Exception {
+		System.out.println("GroupsManagerBl.convertGroupToRichGroupWithAlsoGroupResourceAttributesTest");
+
+		vo = setUpVo();
+		setUpGroup(vo);
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(vo, facility);
+		perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+		List<Attribute> groupAttributes = setUpGroupAttributes();
+		List<Attribute> groupResourceAttributes = setUpGroupResourceAttribute();
+		List<Attribute> allAttributes = new ArrayList<>();
+		allAttributes.addAll(groupAttributes);
+		allAttributes.addAll(groupResourceAttributes);
+
+		attributesManager.setAttributes(sess, resource, group, allAttributes, true);
+		RichGroup richGroup = new RichGroup(group, allAttributes);
+
+		List<Group> groupList = new ArrayList<>();
+		groupList.add(group);
+
+		List<String> attrNames = new ArrayList<>();
+		for(Attribute attr: allAttributes) attrNames.add(attr.getName());
+
+		List<RichGroup> returnedGroups = groupsManagerBl.convertGroupsToRichGroupsWithAttributes(sess, resource, groupList, attrNames);
+		RichGroup returnedGroup = returnedGroups.get(0);
+
+		assertEquals("Both rich groups should be the same", richGroup, returnedGroup);
+	}
+
+	@Test
+	public void getRichGroupsWithAttributesAssignedToResource() throws Exception {
+		System.out.println("GroupsManagerBl.getRichGroupsWithAttributesAssignedToResource");
+
+		vo = setUpVo();
+		List<Group> groups = setUpGroups(vo);
+		Facility facility = setUpFacility();
+		Resource resource = setUpResource(vo, facility);
+		for(Group group: groups) perun.getResourcesManagerBl().assignGroupToResource(sess, group, resource);
+
+		List<Attribute> groupAttributes = setUpGroupAttributes();
+		List<Attribute> groupResourceAttributes = setUpGroupResourceAttribute();
+		List<Attribute> allAttributes = new ArrayList<>();
+		allAttributes.addAll(groupAttributes);
+		allAttributes.addAll(groupResourceAttributes);
+		List<String> attrNames = new ArrayList<>();
+		for(Attribute attr: allAttributes) attrNames.add(attr.getName());
+
+		for(Group group: groups) attributesManager.setAttributes(sess, resource, group, allAttributes, true);
+		List<RichGroup> richGroups = new ArrayList<>();
+		for(Group group: groups) {
+			RichGroup richGroup = new RichGroup(group, allAttributes);
+			richGroups.add(richGroup);
+		}
+
+		List<RichGroup> returnedGroups = groupsManager.getRichGroupsWithAttributesAssignedToResource(sess, resource, attrNames);
+
+		assertTrue(returnedGroups.size() == groups.size());
+		assertTrue(returnedGroups.containsAll(richGroups));
+	}
+
+	@Test
 	public void convertGroupToRichGroupWithAttributesByNameTest() throws Exception {
 		System.out.println("GroupsManagerBl.convertGroupToRichGroupWithAttributesByName");
 
@@ -2089,6 +2150,13 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	}
 
+	private List<Group> setUpGroups(Vo vo) throws Exception {
+		List<Group> groups = new ArrayList<>();
+		groups.add(groupsManager.createGroup(sess, vo, group3));
+		groups.add(groupsManager.createGroup(sess, vo, group4));
+		return groups;
+	}
+
 	private Resource setUpResource(Vo vo, Facility facility) throws Exception {
 
 		Resource resource = new Resource();
@@ -2174,4 +2242,28 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 		return attributes;
 	}
 
+	private List<Attribute> setUpGroupResourceAttribute() throws Exception {
+
+		Attribute attr = new Attribute();
+		attr.setNamespace("urn:perun:group_resource:attribute-def:opt");
+		attr.setFriendlyName("group-resource-test-attribute");
+		attr.setType(String.class.getName());
+		attr.setValue("GroupResourceAttribute");
+
+		assertNotNull("unable to create Group_Resource attribute",attributesManager.createAttribute(sess, attr));
+		// create new group resource attribute
+
+		List<Attribute> attributes = new ArrayList<Attribute>();
+		attributes.add(attr);
+		// put attribute into list because setAttributes requires it
+
+		return attributes;
+	}
+
+	private Facility setUpFacility() throws Exception {
+		Facility facility = new Facility();
+		facility.setName("AttributesManagerTestFacility");
+		assertNotNull(perun.getFacilitiesManager().createFacility(sess, facility));
+		return facility;
+	}
 }

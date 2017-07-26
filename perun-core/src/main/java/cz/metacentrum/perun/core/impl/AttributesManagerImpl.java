@@ -867,6 +867,28 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 	}
 
 	@Override
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames) throws InternalErrorException {
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("gId", group.getId());
+		parameters.addValue("rId", resource.getId());
+		parameters.addValue("nSO", AttributesManager.NS_GROUP_RESOURCE_ATTR_OPT);
+		parameters.addValue("nSD", AttributesManager.NS_GROUP_RESOURCE_ATTR_DEF);
+		parameters.addValue("nSV", AttributesManager.NS_GROUP_RESOURCE_ATTR_VIRT);
+		parameters.addValue("attrNames", attrNames);
+
+		try {
+			return namedParameterJdbcTemplate.query("select " + getAttributeMappingSelectQuery("grp_res") + " from attr_names " +
+							"left join group_resource_attr_values grp_res on id=grp_res.attr_id and group_id=:gId and resource_id=:rId " +
+							"where namespace in ( :nSO,:nSD,:nSV ) and attr_names.attr_name in ( :attrNames )",
+					parameters, new AttributeRowMapper(sess, this, group, resource));
+		} catch(EmptyResultDataAccessException ex) {
+			return new ArrayList<Attribute>();
+		} catch(RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
 	public List<Attribute> getAttributes(PerunSession sess, User user, Facility facility, List<String> attrNames) throws InternalErrorException {
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("uId", user.getId());
