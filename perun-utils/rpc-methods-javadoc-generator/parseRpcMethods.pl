@@ -723,7 +723,7 @@ foreach my $manager (sort(keys %{$managers})) {
 
 		var url = document.location.toString();
 		if ( url.match('#') ) {
-			$('#'+url.split('#')[1]).addClass('in');
+			\$('#'+url.split('#')[1]).addClass('in');
 		}
 
     </script>
