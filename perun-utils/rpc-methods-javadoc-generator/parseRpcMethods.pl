@@ -82,7 +82,7 @@ $objectExamples{"RichGroup"} = "{ \"id\" : 1061 , \"name\" : \"My Group\" , \"sh
 $objectExamples{"List&lt;RichGroup&gt;"} = $listPrepend . $objectExamples{"RichGroup"} . $listAppend;
 $objectExamples{"List<RichGroup>"} = $objectExamples{"List&lt;RichGroup&gt;"};
 
-$objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"beanName\" : \"Member\" }";
+$objectExamples{"Member"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"beanName\" : \"Member\" }";
 $objectExamples{"List&lt;Member&gt;"} = $listPrepend . $objectExamples{"Member"} . $listAppend;
 $objectExamples{"List<Member>"} = $objectExamples{"List&lt;Member&gt;"};
 
@@ -102,7 +102,7 @@ $objectExamples{"RichUser"} = "{ \"firstName\" : \"Some\" , \"lastName\" : \"Bod
 $objectExamples{"List&lt;RichUser&gt;"} = $listPrepend . $objectExamples{"RichUser"} . $listAppend;
 $objectExamples{"List<RichUser>"} = $objectExamples{"List&lt;RichUser&gt;"};
 
-$objectExamples{"RichMember"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"beanName\" : \"RichMember\" , \"user\" : " . $objectExamples{"User"} . " , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . " , \"memberAttributes\" : [ ] , \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
+$objectExamples{"RichMember"} = "{ \"id\" : 12 , \"userId\" : 34 , \"voId\" : 42 , \"sourceGroupId\" : null , \"membershipType\" : \"DIRECT\" , \"status\" : \"VALID\" , \"beanName\" : \"RichMember\" , \"user\" : " . $objectExamples{"User"} . " , \"userExtSources\" : " . $objectExamples{"List<UserExtSource>"} . " , \"memberAttributes\" : [ ] , \"userAttributes\" : [ { \"value\" : \"my_login\" , \"type\" : \"java.lang.String\" , \"entity\" : \"user\" , \"namespace\" : \"urn:perun:user:attribute-def:def\" , \"friendlyName\" : \"login-namespace:perun\" , \"writable\" : true , \"baseFriendlyName\" : \"login-namespace\" , \"friendlyNameParameter\" : \"perun\" , \"displayName\" : \"Login in namespace: perun\" , \"description\" : \"Logname in namespace 'perun'.\" , \"id\" : 1905 , \"beanName\" : \"Attribute\" } ] }";
 $objectExamples{"List&lt;RichMember&gt;"} = $listPrepend . $objectExamples{"RichMember"} . $listAppend;
 $objectExamples{"List<RichMember>"} = $objectExamples{"List&lt;RichMember&gt;"};
 
