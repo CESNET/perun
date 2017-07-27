@@ -574,7 +574,7 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	 * Attributes are filtered by rights of user in session. User get only those selected attributes he has rights to read.
 	 *
 	 * @param resource int Resource <code>id</code>
-	 * @param List<String> names of attributes
+	 * @param attrNames List<String> names of attributes
 	 * @return List<RichGroup> groups with attributes
 	 *
 	 */
