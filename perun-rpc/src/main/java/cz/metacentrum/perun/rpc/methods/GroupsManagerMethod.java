@@ -566,6 +566,29 @@ public enum GroupsManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 **
+	 * Get list of all richGroups with selected attributes assigned to resource.
+	 * Allowed namespaces of attributes are group and group-resource.
+	 *
+	 * Last step is filtration of attributes:
+	 * Attributes are filtered by rights of user in session. User get only those selected attributes he has rights to read.
+	 *
+	 * @param resource int Resource <code>id</code>
+	 * @param List<String> names of attributes
+	 * @return List<RichGroup> groups with attributes
+	 *
+	 */
+	getRichGroupsAssignedToResourceWithAttributesByNames {
+
+		@Override
+		public List<RichGroup> call(ApiCaller ac, Deserializer parms) throws PerunException {
+			return ac.getGroupsManager().getRichGroupsAssignedToResourceWithAttributesByNames(ac.getSession(),
+					ac.getResourceById(parms.readInt("resource")),
+					parms.readList("attrNames", String.class));
+		}
+	},
+
+	/*#
 	* Get all Group admins as RichUsers with specific attributes (from user namespace)
 	*
 	* @deprecated

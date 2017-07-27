@@ -419,6 +419,22 @@ public interface AttributesManagerBl {
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
+	 * Get selected attributes associated with the group on resource.
+	 * Get also empty and virtual attributes if they are selected in the list.
+	 * If list is empty, return all possible <b>non-empty</b> attributes.
+	 *
+	 * @param sess
+	 * @param resource the resource
+	 * @param group the group
+	 * @param workWithGroupAttributes if true, get also group attributes
+	 * @param attrNames list of selected attribtues
+	 * @return list of selected attributes associated with the group on resource
+	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException;
+
+	/**
 	 * Get all <b>non-empty</b> member, user, member-resource and user-facility attributes.
 	 *
 	 * @param sess

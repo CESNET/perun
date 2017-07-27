@@ -447,6 +447,31 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		return attributes;
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+		this.checkGroupIsFromTheSameVoLikeResource(sess, group, resource);
+		if(attrNames.isEmpty()) return this.getAttributes(sess, resource, group, workWithGroupAttributes);
+
+		List<String> groupAttributeNames = new ArrayList<>();
+		List<String> groupResourceAttributeNames = new ArrayList<>();
+
+		for(String attributeName: attrNames) {
+			if(attributeName.startsWith(AttributesManager.NS_GROUP_ATTR)) {
+				groupAttributeNames.add(attributeName);
+			} else if(attributeName.startsWith(AttributesManager.NS_GROUP_RESOURCE_ATTR)) {
+				groupResourceAttributeNames.add(attributeName);
+			} else {
+				log.error("Attribute defined by " + attributeName + " is not in supported namespace. Skip it there!");
+			}
+		}
+
+		List<Attribute> attributes = new ArrayList<>();
+		//Call only if list of attributes is not empty
+		if(workWithGroupAttributes && !groupAttributeNames.isEmpty()) attributes.addAll(this.getAttributes(sess, group, attrNames));
+		if(!groupResourceAttributeNames.isEmpty()) attributes.addAll(getAttributesManagerImpl().getAttributes(sess, resource, group, attrNames));
+
+		return attributes;
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Facility facility, Resource resource, User user, Member member) throws InternalErrorException, WrongAttributeAssignmentException {
 		this.checkMemberIsFromTheSameVoLikeResource(sess, member, resource);
 		List<Attribute> attributes = new ArrayList<Attribute>();
