@@ -213,7 +213,7 @@ public interface AttributesManagerImplApi {
 	List<Attribute> getAttributes(PerunSession sess, Member member, Resource resource, List<String> attrNames) throws InternalErrorException;
 
 	/**
-	 * Get all attributes (empty and virtual too) associated with the member on the resource which have name in list attrNames.
+	 * Get all attributes (empty and virtual too) associated with the group on the resource which have name in list attrNames.
 	 *
 	 * @param sess perun session
 	 * @param resource to get the attributes for

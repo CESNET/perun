@@ -896,7 +896,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		return getGroupsManagerBl().getAllMemberGroups(sess, member);
 	}
 
-	public List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException {
+	public List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException {
 		Utils.checkPerunSession(sess);
 		this.getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
 
@@ -905,7 +905,7 @@ public class GroupsManagerEntry implements GroupsManager {
 		if (!AuthzResolver.isAuthorized(sess, Role.VOADMIN, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.VOOBSERVER, resource) &&
 				!AuthzResolver.isAuthorized(sess, Role.FACILITYADMIN, facility)) {
-			throw new PrivilegeException(sess, "getRichGroupsWithAttributesAssignedToResource");
+			throw new PrivilegeException(sess, "getRichGroupsAssignedToResourceWithAttributesByNames");
 		}
 
 		List<RichGroup> richGroups = getGroupsManagerBl().getRichGroupsWithAttributesAssignedToResource(sess, resource, attrNames);

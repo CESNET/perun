@@ -1887,7 +1887,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 
 	@Test
 	public void getRichGroupsWithAttributesAssignedToResource() throws Exception {
-		System.out.println("GroupsManagerBl.getRichGroupsWithAttributesAssignedToResource");
+		System.out.println("GroupsManagerBl.getRichGroupsAssignedToResourceWithAttributesByNames");
 
 		vo = setUpVo();
 		List<Group> groups = setUpGroups(vo);
@@ -1910,7 +1910,7 @@ public class GroupsManagerEntryIntegrationTest extends AbstractPerunIntegrationT
 			richGroups.add(richGroup);
 		}
 
-		List<RichGroup> returnedGroups = groupsManager.getRichGroupsWithAttributesAssignedToResource(sess, resource, attrNames);
+		List<RichGroup> returnedGroups = groupsManager.getRichGroupsAssignedToResourceWithAttributesByNames(sess, resource, attrNames);
 
 		assertTrue(returnedGroups.size() == groups.size());
 		assertTrue(returnedGroups.containsAll(richGroups));

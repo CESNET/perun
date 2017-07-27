@@ -531,8 +531,7 @@ public interface GroupsManager {
 	 * Allowed namespaces of attributes are group and group-resource.
 	 *
 	 * Last step is filtration of attributes:
-	 * Attributes are filtered by rights of user in session. User get only those selected attributes you have rights to
-	 * read them.
+	 * Attributes are filtered by rights of user in session. User get only those selected attributes he has rights to read.
 	 *
 	 * @param sess
 	 * @param resource resource to get assigned groups for
@@ -543,7 +542,7 @@ public interface GroupsManager {
 	 * @throws ResourceNotExistsException
 	 * @throws PrivilegeException
 	 */
-	List<RichGroup> getRichGroupsWithAttributesAssignedToResource(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException;
+	List<RichGroup> getRichGroupsAssignedToResourceWithAttributesByNames(PerunSession sess, Resource resource, List<String> attrNames) throws InternalErrorException, WrongAttributeAssignmentException, ResourceNotExistsException, PrivilegeException;
 
 	/**
 	 * Gets list of all user administrators of this group.
