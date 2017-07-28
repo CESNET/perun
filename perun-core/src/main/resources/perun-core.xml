@@ -44,8 +44,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AttributesManagerImpl.setAttributeRight(..))"/>
 		<!-- AuthzResolverImpl -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addAdmin(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addObserver(..))"/>
-		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addTopGroupCreator(..))"/>
+		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.addVoRole(..))"/>
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.AuthzResolverImpl.makeUserPerunAdmin(..))"/>
 		<!-- ExtSourcesManagerImpl -->
 		<aop:advisor advice-ref="txAdviceNestedTransaction" pointcut="execution(* cz.metacentrum.perun.core.impl.ExtSourcesManagerImpl.createExtSource(..))"/>
@@ -150,7 +149,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<constructor-arg ref="authzResolverImpl" />
 	</bean>
 
-	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setPerunBlImpl" scope="singleton">
+	<bean class="cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl" factory-method="setPerunBl" scope="singleton">
 		<constructor-arg ref="perun" />
 	</bean>
 
@@ -250,7 +249,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="perunBl" ref="perun"/>
 		<property name="searcherBl" ref="searcherBl"/>
 	</bean>
-
 	<bean id="vosManagerBl" class="cz.metacentrum.perun.core.blImpl.VosManagerBlImpl" scope="singleton" depends-on="databaseManagerBl">
 		<property name="perunBl" ref="perun"/>
 		<constructor-arg ref="vosManagerImpl" />
@@ -453,7 +451,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	<beans profile="default">
 		<!--DataSource implementation-->
 		<jdbc:embedded-database id="dataSource" type="HSQL">
-			<jdbc:script location="classpath:schema.sql"/>
+			<jdbc:script location="classpath:test-schema.sql"/>
 			<jdbc:script location="classpath:test-data.sql"/>
 		</jdbc:embedded-database>
 	</beans>

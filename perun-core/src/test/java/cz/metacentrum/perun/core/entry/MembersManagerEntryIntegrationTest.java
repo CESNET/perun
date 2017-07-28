@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -1246,6 +1247,29 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	}
 
+	@Test
+	public void createSponsoredMember() throws Exception {
+		System.out.println(CLASS_NAME + "createSponsoredMember");
+		Member sponsorMember = setUpMember3(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+		//create guest
+		assertTrue("user must have SPONSOR role", perun.getVosManagerBl().isUserInRoleForVo(sess, sponsorUser, Role.SPONSOR, createdVo, true));
+		Member sponsoredMember = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", "Ing. Jiří Novák, CSc.", "secret", sponsorUser, false);
+		assertNotNull("sponsored member must not be null",sponsoredMember);
+		assertTrue("sponsored memer must have flag 'sponsored' set",sponsoredMember.isSponsored());
+		assertTrue("sponsored member should have status VALID",sponsoredMember.getStatus()==Status.VALID);
+		//remove sponsor from sponsor group, thus the user loses role and member get expired
+		perun.getGroupsManagerBl().removeMember(sess,sponsors,sponsorMember);
+		//refresh from DB
+		sponsoredMember = perun.getMembersManagerBl().getMemberById(sess,sponsoredMember.getId());
+		assertTrue("sponsored member without sponsors should still have flag sponsored",sponsoredMember.isSponsored());
+		assertTrue("sponsored member without sponsors must be expired",sponsoredMember.getStatus()==Status.EXPIRED);
+	}
+
 	private Attribute setUpAttribute(String type, String friendlyName, String namespace, Object value) throws Exception {
 		Attribute attr = new Attribute();
 		attr.setNamespace(namespace);
@@ -1304,6 +1328,28 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	}
 
+	private Member setUpMember3(Vo vo) throws Exception {
+		Candidate candidate = setUpCandidate3();
+		Member member = perun.getMembersManagerBl().createMemberSync(sess, vo, candidate); // candidates.get(0)
+		// set first candidate as member of test VO
+		assertNotNull("No member created", member);
+		usersForDeletion.add(perun.getUsersManager().getUserByMember(sess, member));
+		Attribute attrEmail = new Attribute(attributesManagerEntry.getAttributeDefinition(sess, AttributesManager.NS_MEMBER_ATTR_DEF+":mail"));
+		attrEmail.setValue("jan@sponsor.cz");
+		attributesManagerEntry.setAttribute(sess, member, attrEmail);
+
+		User user = usersManagerEntry.getUserByMember(sess, member);
+		Attribute attrLogin = new Attribute();
+		attrLogin.setNamespace(AttributesManager.NS_USER_ATTR_DEF);
+		attrLogin.setFriendlyName("login-namespace:dummy");
+		attrLogin.setType(String.class.getName());
+		attrLogin = new Attribute(attributesManagerEntry.createAttribute(sess, attrLogin));
+		attrLogin.setValue("111111");
+		attributesManagerEntry.setAttribute(sess, user, attrLogin);
+		return member;
+
+	}
+
 	private Candidate setUpCandidate() {
 
 		String userFirstName = "FirstTest";
@@ -1344,4 +1390,22 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 
 	}
 
+	private Candidate setUpCandidate3() {
+
+		String userFirstName = "Jan";
+		String userLastName = "Sponzor";
+		String extLogin = "aaaaaaa";
+
+		Candidate candidate = new Candidate();  //Mockito.mock(Candidate.class);
+		candidate.setFirstName(userFirstName);
+		candidate.setId(0);
+		candidate.setMiddleName("");
+		candidate.setLastName(userLastName);
+		candidate.setTitleBefore("");
+		candidate.setTitleAfter("");
+		final UserExtSource userExtSource = new UserExtSource(extSource, extLogin);
+		candidate.setUserExtSource(userExtSource);
+		candidate.setAttributes(new HashMap<String,String>());
+		return candidate;
+	}
 }

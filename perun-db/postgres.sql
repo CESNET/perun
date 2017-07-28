@@ -205,6 +205,7 @@ create table "members" (
 	modified_at timestamp default statement_timestamp() not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null, --status of membership
+	sponsored boolean default false not null,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -1214,6 +1215,18 @@ create table "user_ext_source_attr_values" (
 	modified_by_uid integer
 );
 
+CREATE TABLE members_sponsored (
+	active char(1) default '1' not null,
+	sponsored_id INTEGER NOT NULL REFERENCES members(id),
+	sponsor_id INTEGER NOT NULL REFERENCES users(id),
+	created_at timestamp default now() not null,
+	created_by varchar(1024) default user not null,
+	created_by_uid integer,
+	modified_at timestamp default now() not null,
+	modified_by varchar(1024) default user not null,
+	modified_by_uid integer
+);
+
 create sequence "attr_names_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_consumers_id_seq" maxvalue 9223372036854775807;
 create sequence "auditer_log_id_seq" maxvalue 9223372036854775807;
@@ -1412,6 +1425,8 @@ create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
 create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (user_ext_source_id);
 create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
+CREATE INDEX idx_members_sponsored_sponsor ON members_sponsored(sponsor_id);
+CREATE INDEX idx_members_sponsored_sponsored ON members_sponsored(sponsored_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1849,7 +1864,7 @@ grant all on membership_types to perun;
 grant all on user_ext_source_attr_values to perun;
 
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.43');
+insert into configurations values ('DATABASE VERSION','3.1.44');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');

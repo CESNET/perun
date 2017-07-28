@@ -11,6 +11,7 @@ import java.util.*;
 import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.*;
 
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
 import cz.metacentrum.perun.core.api.exceptions.rt.*;
 import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
@@ -413,6 +414,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 		//Remove user authz
 		AuthzResolverBlImpl.removeAllUserAuthz(sess, user);
+		//delete even inactive links
+		usersManagerImpl.deleteSponsorLinks(sess, user);
 
 		//Remove all users bans
 		List<BanOnFacility> bansOnFacility = getPerunBl().getFacilitiesManagerBl().getBansForUser(sess, user.getId());
@@ -490,11 +493,8 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 
 	public UserExtSource addUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceExistsException {
 		// Check if the userExtSource already exists
-		try {
-			getUsersManagerImpl().checkUserExtSourceExists(sess, userExtSource);
+		if(usersManagerImpl.userExtSourceExists(sess,userExtSource)) {
 			throw new UserExtSourceExistsException("UserExtSource " + userExtSource + " already exists.");
-		} catch (UserExtSourceNotExistsException e) {
-			// this is OK
 		}
 
 		// Check if userExtsource is type of IDP (special testing behavior)
@@ -1277,7 +1277,26 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 				} catch(UserExtSourceExistsException ex) {
 					//this is OK
 				}
-
+			} else if (loginNamespace.equals("dummy")) {
+				//dummy namespace for testing, it has accompanying DummyPasswordModule that just generates random numbers
+				ExtSource extSource;
+				try {
+					extSource = getPerunBl().getExtSourcesManagerBl().getExtSourceByName(sess, "https://dummy");
+				} catch (ExtSourceNotExistsException e) {
+					extSource =  new ExtSource("https://dummy",ExtSourcesManager.EXTSOURCE_IDP);
+					try {
+						extSource = getPerunBl().getExtSourcesManagerBl().createExtSource(sess, extSource, null);
+					} catch (ExtSourceExistsException e1) {
+						log.error("impossible or race condition",e1);
+					}
+				}
+				UserExtSource ues = new UserExtSource(extSource, userLogin + "@dummy");
+				ues.setLoa(2);
+				try {
+					getPerunBl().getUsersManagerBl().addUserExtSource(sess, user, ues);
+				} catch(UserExtSourceExistsException ex) {
+					//this is OK
+				}
 			}
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -1977,6 +1996,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	@Override
 	public Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException {
 		return getUsersManagerImpl().generateAccount(session, namespace, parameters);
+	}
+
+	@Override
+	public List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException {
+		if(!sponsoredMember.isSponsored()) {
+			throw new IllegalArgumentException("member "+sponsoredMember.getId()+" is not marked as sponsored");
+		}
+		return getUsersManagerImpl().getSponsors(sess, sponsoredMember);
 	}
 
 	private PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException {

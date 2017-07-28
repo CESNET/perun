@@ -13,7 +13,7 @@ public enum MembershipType {
 	DIRECT(1),
 	INDIRECT(2);
 
-	private static final Map<Integer,MembershipType> lookup = new HashMap<Integer,MembershipType>();
+	private static final Map<Integer,MembershipType> lookup = new HashMap<>();
 	int code;
 
 	static {
@@ -21,7 +21,7 @@ public enum MembershipType {
 			lookup.put(o.getCode(), o);
 	}
 
-	private MembershipType(int code) {
+	MembershipType(int code) {
 		this.code = code;
 	}
 

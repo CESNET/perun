@@ -5,6 +5,8 @@ import cz.metacentrum.perun.core.api.exceptions.PerunException;
 import cz.metacentrum.perun.rpc.*;
 import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -227,6 +229,39 @@ public enum VosManagerMethod implements ManagerMethod {
 	},
 
 	/*#
+	 * Add user as a sponsor for guest members of VO.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @throw AlreadyAdminException When User is already sponsor for VO.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @throw UserNotExistsException When User specified by <code>id</code> doesn't exists.
+	 */
+	/*#
+	 * Add group as a sponsor of guest members of VO. All members of group will become sponsors.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param authorizedGroup int Group <code>id</code>
+	 * @throw AlreadyAdminException When Group is already sponsor of VO.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @throw GroupNotExistsException When Group specified by <code>id</code> doesn't exists.
+	 */
+	addSponsorRole {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms)
+				throws PerunException {
+			ac.stateChangingCheck();
+			Vo vo = ac.getVoById(parms.readInt("vo"));
+			if (parms.contains("user")) {
+				ac.getVosManager().addSponsorRole(ac.getSession(), vo, ac.getUserById(parms.readInt("user")));
+			} else {
+				ac.getVosManager().addSponsorRole(ac.getSession(), vo, ac.getGroupById(parms.readInt("authorizedGroup")));
+			}
+			return null;
+		}
+	},
+
+	/*#
 	 * Removes user from managers of VO. Please note, that user can keep management rights if they
 	 * are provided by group membership and group is assigned as manager of VO.
 	 *
@@ -257,6 +292,43 @@ public enum VosManagerMethod implements ManagerMethod {
 						ac.getUserById(parms.readInt("user")));
 			} else {
 				ac.getVosManager().removeAdmin(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						ac.getGroupById(parms.readInt("authorizedGroup")));
+			}
+			return null;
+		}
+	},
+
+	/*#
+	 * Removes user as a sponsor. His or her sponsored members will be set as expired if the user was their last sponsor.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param user int User <code>id</code>
+	 * @throw UserNotAdminException When User is not sponsor
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @throw UserNotExistsException When User specified by <code>id</code> doesn't exists.
+	 */
+	/*#
+	 * Removes group as a sponsor. All group members will cease to be sponsors, and their sponsored
+	 * members will be set as expired if the group member was their last sponsor.
+	 *
+	 * @param vo int VO <code>id</code>
+	 * @param authorizedGroup int Group <code>id</code>
+	 * @throw GroupNotAdminException When Group is not manager of VO.
+	 * @throw VoNotExistsException When VO specified by <code>id</code> doesn't exists.
+	 * @throw GroupNotExistsException When Group specified by <code>id</code> doesn't exists.
+	 */
+	removeSponsorRole {
+		@Override
+		public Void call(ApiCaller ac, Deserializer parms)
+				throws PerunException {
+			ac.stateChangingCheck();
+			if (parms.contains("user")) {
+				ac.getVosManager().removeSponsorRole(ac.getSession(),
+						ac.getVoById(parms.readInt("vo")),
+						ac.getUserById(parms.readInt("user")));
+			} else {
+				ac.getVosManager().removeSponsorRole(ac.getSession(),
 						ac.getVoById(parms.readInt("vo")),
 						ac.getGroupById(parms.readInt("authorizedGroup")));
 			}

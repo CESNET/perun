@@ -1176,5 +1176,14 @@ public class UsersManagerEntry implements UsersManager {
 
 	}
 
+	public List<RichUser> getSponsors(PerunSession sess, Member member) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(member, "member");
+		// Authorization
+		if (!AuthzResolver.isAuthorized(sess, Role.REGISTRAR)) {
+			throw new PrivilegeException(sess, "getSponsors can be caled only by REGISTAR");
+		}
+		return usersManagerBl.convertUsersToRichUsers(sess, usersManagerBl.getSponsors(sess, member));
+	}
 
 }

@@ -1996,7 +1996,10 @@ public class RegistrarManagerImpl implements RegistrarManager {
 			Member member = membersManager.getMemberByUser(sess, vo, user);
 			// if false, throws exception with reason for GUI
 			membersManager.canExtendMembershipWithReason(sess, member);
-
+			//sponsored members cannot be extended in this way
+			if(member.isSponsored()) {
+				throw new CantBeSubmittedException("Sponsored member cannot apply for membership extension, it must be extended by the sponsor.");
+			}
 		}
 
 		// PROCEED

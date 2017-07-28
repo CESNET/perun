@@ -1,8 +1,5 @@
 package cz.metacentrum.perun.core.api;
 
-import cz.metacentrum.perun.core.api.Auditable;
-import cz.metacentrum.perun.core.api.BeansUtils;
-
 /**
  * Represents user of some source.
  *
@@ -17,8 +14,8 @@ public class User extends Auditable implements Comparable<PerunBean> {
 	protected String middleName;
 	protected String titleBefore;
 	protected String titleAfter;
-	protected boolean serviceUser = false;
-	protected boolean sponsoredUser = false;
+	private boolean serviceUser = false;
+	private boolean sponsoredUser = false;
 
 	public User() {
 		super();
@@ -40,7 +37,7 @@ public class User extends Auditable implements Comparable<PerunBean> {
 	}
 
 	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
-			String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
+	            String createdAt, String createdBy, String modifiedAt, String modifiedBy, Integer createdByUid, Integer modifiedByUid) {
 		super(id, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -50,7 +47,7 @@ public class User extends Auditable implements Comparable<PerunBean> {
 	}
 
 	public User(int id, String firstName, String lastName, String middleName, String titleBefore, String titleAfter,
-			String createdAt, String createdBy, String modifiedAt, String modifiedBy, boolean serviceUser, boolean sponsoredUser, Integer createdByUid, Integer modifiedByUid) {
+	            String createdAt, String createdBy, String modifiedAt, String modifiedBy, boolean serviceUser, boolean sponsoredUser, Integer createdByUid, Integer modifiedByUid) {
 		this(id, firstName, lastName, middleName, titleBefore, titleAfter, createdAt, createdBy, modifiedAt, modifiedBy, createdByUid, modifiedByUid);
 		this.serviceUser = serviceUser;
 		this.sponsoredUser = sponsoredUser;
@@ -154,24 +151,24 @@ public class User extends Auditable implements Comparable<PerunBean> {
 	}
 
 	public SpecificUserType getMajorSpecificType() {
-		if(isServiceUser()) return SpecificUserType.SERVICE;
-		else if(isSponsoredUser()) return SpecificUserType.SPONSORED;
+		if (isServiceUser()) return SpecificUserType.SERVICE;
+		else if (isSponsoredUser()) return SpecificUserType.SPONSORED;
 		else return SpecificUserType.NORMAL;
 	}
 
 	/**
 	 * Compare this object with another perunBean.
-	 *
+	 * <p>
 	 * If the perunBean is User object, compare them by LastName, then FirstName and then Id
 	 *
-	 * @see Comparable#compareTo(Object)
 	 * @param perunBean some perunBean object or User
 	 * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object
+	 * @see Comparable#compareTo(Object)
 	 */
 	@Override
 	public int compareTo(PerunBean perunBean) {
-		if(perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
-		if(perunBean instanceof User) {
+		if (perunBean == null) throw new NullPointerException("PerunBean to compare with is null.");
+		if (perunBean instanceof User) {
 			User user = (User) perunBean;
 			int compare;
 			//Compare on last Name
@@ -179,13 +176,13 @@ public class User extends Auditable implements Comparable<PerunBean> {
 			else if (user.getLastName() == null && this.getLastName() != null) compare = 1;
 			else if (this.getLastName() == null && user.getLastName() == null) compare = 0;
 			else compare = this.getLastName().compareToIgnoreCase(user.getLastName());
-			if(compare != 0) return compare;
+			if (compare != 0) return compare;
 			//Compare on first Name if not
 			if (this.getFirstName() == null && user.getFirstName() != null) compare = -1;
 			else if (user.getFirstName() == null && this.getFirstName() != null) compare = 1;
-			else if (this.getFirstName()== null && user.getFirstName() == null) compare = 0;
+			else if (this.getFirstName() == null && user.getFirstName() == null) compare = 0;
 			else compare = this.getFirstName().compareToIgnoreCase(user.getFirstName());
-			if(compare != 0) return compare;
+			if (compare != 0) return compare;
 			//Compare to id if not
 			return (this.getId() - perunBean.getId());
 		} else {
@@ -193,57 +190,40 @@ public class User extends Auditable implements Comparable<PerunBean> {
 		}
 	}
 
-	/**
-	 * Compares Strings and handles null values.
-	 * @param s1 string or null
-	 * @param s2 string or null
-	 * @return compare of the two strings
-	 */
-	private int compare(String s1,String s2) {
-		if (s1==null) s1 = "";
-		if (s2==null) s2 = "";
-		return s1.compareTo(s2);
-	}
-
 	@Override
 	public String serializeToString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-			"id=<").append(getId()).append(">").append(
-			", titleBefore=<").append(getTitleBefore() == null ? "\\0" : BeansUtils.createEscaping(getTitleBefore())).append(">").append(
-			", firstName=<").append(getFirstName() == null ? "\\0" : BeansUtils.createEscaping(getFirstName())).append(">").append(
-			", lastName=<").append(getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())).append(">").append(
-			", middleName=<").append(getMiddleName() == null ? "\\0" : BeansUtils.createEscaping(getMiddleName())).append(">").append(
-			", titleAfter=<").append(getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())).append(">").append(
-			", serviceAccount=<").append(isServiceUser()).append(">").append(
-			", sponsoredAccount=<").append(isSponsoredUser()).append(">").append(
-			']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id=<" + getId() + ">" +
+				", titleBefore=<" + (getTitleBefore() == null ? "\\0" : BeansUtils.createEscaping(getTitleBefore())) + ">" +
+				", firstName=<" + (getFirstName() == null ? "\\0" : BeansUtils.createEscaping(getFirstName())) + ">" +
+				", lastName=<" + (getLastName() == null ? "\\0" : BeansUtils.createEscaping(getLastName())) + ">" +
+				", middleName=<" + (getMiddleName() == null ? "\\0" : BeansUtils.createEscaping(getMiddleName())) + ">" +
+				", titleAfter=<" + (getTitleAfter() == null ? "\\0" : BeansUtils.createEscaping(getTitleAfter())) + ">" +
+				", serviceAccount=<" + isServiceUser() + ">" +
+				", sponsoredAccount=<" + isSponsoredUser() + ">" +
+				']';
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder ret = new StringBuilder();
-		ret.append(getClass().getSimpleName());
-		ret.append(":[id='");
-		ret.append(getId());
-		ret.append("', titleBefore='");
-		ret.append(titleBefore);
-		ret.append("', firstName='");
-		ret.append(firstName);
-		ret.append("', lastName='");
-		ret.append(lastName);
-		ret.append("', middleName='");
-		ret.append(middleName);
-		ret.append("', titleAfter='");
-		ret.append(titleAfter);
-		ret.append("', serviceAccount='");
-		ret.append(serviceUser);
-		ret.append("', sponsoredAccount='");
-		ret.append(sponsoredUser);
-		ret.append("']");
-
-		return ret.toString();
+		return getClass().getSimpleName() +
+				":[id='" +
+				getId() +
+				"', titleBefore='" +
+				titleBefore +
+				"', firstName='" +
+				firstName +
+				"', lastName='" +
+				lastName +
+				"', middleName='" +
+				middleName +
+				"', titleAfter='" +
+				titleAfter +
+				"', serviceAccount='" +
+				serviceUser +
+				"', sponsoredAccount='" +
+				sponsoredUser +
+				"']";
 
 	}
 
@@ -252,20 +232,20 @@ public class User extends Auditable implements Comparable<PerunBean> {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-			+ ((firstName == null) ? 0 : firstName.hashCode());
+				+ ((firstName == null) ? 0 : firstName.hashCode());
 		result = prime * result + getId();
 		result = prime * result
-			+ ((lastName == null) ? 0 : lastName.hashCode());
+				+ ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result
-			+ ((middleName == null) ? 0 : middleName.hashCode());
+				+ ((middleName == null) ? 0 : middleName.hashCode());
 		result = prime * result
-			+ ((titleAfter == null) ? 0 : titleAfter.hashCode());
+				+ ((titleAfter == null) ? 0 : titleAfter.hashCode());
 		result = prime * result
-			+ ((titleBefore == null) ? 0 : titleBefore.hashCode());
+				+ ((titleBefore == null) ? 0 : titleBefore.hashCode());
 		result = prime * result
-			+ ((serviceUser ? 1 : 2));
+				+ ((serviceUser ? 1 : 2));
 		result = prime * result
-			+ ((sponsoredUser ? 1 : 2));
+				+ ((sponsoredUser ? 1 : 2));
 		return result;
 	}
 

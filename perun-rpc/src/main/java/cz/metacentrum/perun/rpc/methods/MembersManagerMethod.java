@@ -1,24 +1,15 @@
 package cz.metacentrum.perun.rpc.methods;
 
+import cz.metacentrum.perun.core.api.*;
+import cz.metacentrum.perun.core.api.exceptions.PerunException;
+import cz.metacentrum.perun.core.api.exceptions.RpcException;
+import cz.metacentrum.perun.rpc.ApiCaller;
+import cz.metacentrum.perun.rpc.ManagerMethod;
+import cz.metacentrum.perun.rpc.deserializer.Deserializer;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.SpecificUserType;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.exceptions.PerunException;
-import cz.metacentrum.perun.rpc.ApiCaller;
-import cz.metacentrum.perun.rpc.ManagerMethod;
-import cz.metacentrum.perun.core.api.exceptions.RpcException;
-import cz.metacentrum.perun.rpc.deserializer.Deserializer;
 
 public enum MembersManagerMethod implements ManagerMethod {
 
@@ -98,6 +89,7 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @param loa
 	 * @return Member newly created sponsored member
 	 */
+	@Deprecated
 	createSponsoredAccount {
 		@Override
 		public Member call(ApiCaller ac, Deserializer parms) throws PerunException {
@@ -109,6 +101,141 @@ public enum MembersManagerMethod implements ManagerMethod {
 					parms.readString("extSourcePostfix"),
 					ac.getVoById(parms.readInt("vo")),
 					parms.readInt("loa"));
+		}
+	},
+
+	/*#
+	 * Creates a new sponsored member in a given VO and namespace.
+	 *
+	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
+	 * or by a user with role REGISTRAR that must specify the sponsoring user using the extSourcename and extLogin.
+	 *
+	 * @param guestName String identification of sponsored account, e.g. "John Doe" or "conference member 1"
+	 * @param password String password
+	 * @param vo int VO ID
+	 * @param namespace String namespace selecting remote system for storing the password
+	 * @param extSourceName String external source name, usually SAML IdP entityID
+	 * @param extLogin String external source login, usually eduPersonPrincipalName
+	 * @return RichMember newly created sponsored member
+	 */
+	createSponsoredMember {
+		@Override
+		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
+			ac.stateChangingCheck();
+			String guestName = params.readString("guestName");
+			String password = params.readString("password");
+			Vo vo =  ac.getVoById(params.readInt("vo"));
+			String namespace = params.readString("namespace");
+			User sponsor = ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(), params.readString("extSourceName"), params.readString("extLogin"));
+			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, guestName, password, sponsor);
+		}
+	},
+
+	/*#
+	 * For an existing user, assigns a new sponsor.
+	 *
+	 * Can be called only by VO admin.
+	 *
+	 * @param vo int VO ID, optional
+	 * @param sponsored int id of sponsored user, optional
+	 * @param sponsor int id of sponsoring user, optional
+	 * @return RichMember sponsored member
+	 */
+	sponsorMember {
+		@Override
+		public RichMember call(ApiCaller ac, Deserializer params) throws PerunException {
+			ac.stateChangingCheck();
+			Vo vo = ac.getVoById(params.readInt("vo_id"));
+			User sponsored = ac.getUserById(params.readInt("sponsored"));
+			User sponsor = ac.getUserById(params.readInt("sponsor"));
+			return ac.getMembersManager().sponsorMember(ac.getSession(), vo, sponsored, sponsor);
+		}
+	},
+
+	/*#
+	 * Changes expiration date for a sponsored member acording to VO rules.
+	 *
+	 * Can be called only by REGISTRAR or VOADMIN.
+	 *
+	 * @param vo int VO ID, optional
+	 * @param member int id of sponsored member, optional
+	 * @param sponsor int id of sponsoring user, optional
+	 * @return String new expiration date
+	 */
+	extendExpirationForSponsoredMember {
+		@Override
+		public String call(ApiCaller ac, Deserializer params) throws PerunException {
+			ac.stateChangingCheck();
+			Member sponsored = ac.getMemberById(params.readInt("member"));
+			User sponsor = ac.getUserById(params.readInt("sponsor"));
+			return ac.getMembersManager().extendExpirationForSponsoredMember(ac.getSession(), sponsored, sponsor);
+		}
+	},
+
+	/*#
+	 * Gets members sponsored by a given user in a VO. User is specified by user id.
+	 *
+	 * Can be called only by REGISTRAR.
+	 *
+	 * @param vo int VO ID
+	 * @param sponsor int id of sponsoring user
+	 * @return List<RichMember> sponsored members
+	 */
+	/*#
+	 * Gets members sponsored by a given user in a VO. User is specified by extSourceName and extLogin.
+	 *
+	 * Can be called only by REGISTRAR.
+	 *
+	 * @param vo int VO ID
+	 * @param extSourceName String external source name, usually SAML IdP entityID
+	 * @param extLogin String external source login, usually eduPersonPrincipalName
+	 * @return List<RichMember> sponsored members
+	 */
+	getSponsoredMembers {
+		@Override
+		public List<RichMember> call(ApiCaller ac, Deserializer params) throws PerunException {
+			Vo vo = ac.getVoById(params.readInt("vo"));
+			User sponsor = null;
+			if(params.contains("sponsor")) {
+				sponsor = ac.getUserById(params.readInt("sponsor"));
+			} else if(params.contains("extSourceName")&&params.contains("extLogin")) {
+				sponsor = ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(), params.readString("extSourceName"), params.readString("extLogin"));
+			}
+			return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo, sponsor);
+		}
+	},
+
+	/*#
+	 * Gets users sponsoring a given user in a VO.
+	 *
+	 * Can be called by user in role REGISTRAR.
+	 *
+	 * @param vo int VO ID
+	 * @param member int member id
+	 * @return List<RichMember> sponsors
+	 */
+	/*#
+	 * Gets users sponsoring a given user in a VO.
+	 *
+	 * Can be called by user in role REGISTRAR.
+	 *
+	 * @param vo int VO ID
+	 * @param extSourceName String external source name, usually SAML IdP entityID
+	 * @param extLogin String external source login, usually eduPersonPrincipalName
+	 * @return List<RichMember> sponsors
+	 */
+	getSponsors {
+		@Override
+		public List<RichUser> call(ApiCaller ac, Deserializer params) throws PerunException {
+			Member member = null;
+			if (params.contains("member")) {
+				member = ac.getMemberById(params.readInt("member"));
+			} else if (params.contains("vo") && params.contains("extSourceName") && params.contains("extLogin")) {
+				Vo vo = ac.getVoById(params.readInt("vo"));
+				User user = ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(), params.readString("extSourceName"), params.readString("extLogin"));
+				member = ac.getMembersManager().getMemberByUser(ac.getSession(), vo, user);
+			}
+			return ac.getUsersManager().getSponsors(ac.getSession(), member);
 		}
 	},
 
@@ -1056,4 +1183,5 @@ public enum MembersManagerMethod implements ManagerMethod {
 
 		}
 	};
+
 }

@@ -21,12 +21,6 @@ http://www.springframework.org/schema/jdbc http://www.springframework.org/schema
 
 	<beans profile="default">
 
-		<!-- redefine data source of perun-core since we want only empty DB
-		<jdbc:embedded-database id="dataSource" type="HSQL">
-			<jdbc:script location="classpath:schema.sql"/>
-		</jdbc:embedded-database>
-		 -->
-
 		<!-- We want local DB also to run in memory, not in a file as engine does normally -->
 		<jdbc:embedded-database id="dataSourceLocal" type="HSQL">
 			<jdbc:script location="classpath:schema-local.sql"/>

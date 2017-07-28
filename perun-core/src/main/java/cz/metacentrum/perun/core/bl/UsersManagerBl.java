@@ -1151,4 +1151,9 @@ public interface UsersManagerBl {
 	 */
 	Map<String,String> generateAccount(PerunSession session, String namespace, Map<String, String> parameters) throws InternalErrorException;
 
+	/**
+	 * Gets list of users that sponsor the member.
+	 */
+	List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException;
+
 }

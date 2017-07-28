@@ -197,6 +197,7 @@ create table members (
 	modified_at date default sysdate not null,
 	modified_by nvarchar2(1300) default user not null,
 	status char(1) default '0' not null,
+	sponsored char(1) default '0' not null,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -1133,6 +1134,19 @@ create table user_ext_source_attr_values (
 	modified_by_uid integer
 );
 
+CREATE TABLE members_sponsored (
+	active char(1) default '1' not null,
+	sponsored_id INTEGER NOT NULL REFERENCES members(id),
+	sponsor_id INTEGER NOT NULL REFERENCES users(id),
+	created_at date default sysdate not null,
+	created_by nvarchar2(1300) default user not null,
+	created_by_uid integer,
+	modified_at date default sysdate not null,
+	modified_by nvarchar2(1300) default user not null,
+	modified_by_uid integer
+);
+
+
 create sequence ATTR_NAMES_ID_SEQ maxvalue 1.0000E+28 nocache;
 create sequence AUDITER_CONSUMERS_ID_SEQ maxvalue 1.0000E+28 nocache;
 create sequence AUDITER_LOG_ID_SEQ maxvalue 1.0000E+28 nocache;
@@ -1323,6 +1337,8 @@ create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
 create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
 create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (user_ext_source_id);
 create index IDX_FK_UES_ATTR_VALUES_ATTR on user_ext_source_attr_values (attr_id);
+CREATE INDEX idx_members_sponsored_sponsor ON members_sponsored(sponsor_id);
+CREATE INDEX idx_members_sponsored_sponsored ON members_sponsored(sponsored_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),

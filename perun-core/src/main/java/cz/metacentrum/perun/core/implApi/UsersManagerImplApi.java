@@ -712,4 +712,13 @@ public interface UsersManagerImplApi {
 	 */
 	public PasswordManagerModule getPasswordManagerModule(PerunSession session, String namespace) throws InternalErrorException;
 
+	/**
+	 * Gets list of user that sponsored a member.
+	 */
+	List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException;
+
+	/**
+	 * Deletes all links to sponsors, even those marked as inactive.
+	 */
+	void deleteSponsorLinks(PerunSession sess, User sponsor) throws InternalErrorException;
 }

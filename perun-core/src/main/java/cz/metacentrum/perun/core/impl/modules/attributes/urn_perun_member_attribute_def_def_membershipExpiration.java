@@ -93,7 +93,7 @@ public class urn_perun_member_attribute_def_def_membershipExpiration extends Mem
 	public AttributeDefinition getAttributeDefinition() {
 		AttributeDefinition attr = new AttributeDefinition();
 		attr.setNamespace(AttributesManager.NS_MEMBER_ATTR_DEF);
-		attr.setFriendlyName("membershipExpTime");
+		attr.setFriendlyName("membershipExpiration");
 		attr.setDisplayName("Membership expiration");
 		attr.setType(String.class.getName());
 		attr.setDescription("When the membership expires, format YYYY-MM-DD.");

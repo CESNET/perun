@@ -188,6 +188,7 @@ create table members (
 	modified_at timestamp default now not null,
 	modified_by varchar(1300) default user not null,
 	status char(1) default '0' not null,
+	sponsored boolean default false not null,
 	created_by_uid integer,
 	modified_by_uid integer
 );
@@ -1126,6 +1127,18 @@ create table user_ext_source_attr_values (
 	modified_by_uid integer
 );
 
+CREATE TABLE members_sponsored (
+	active char(1) default '1' not null,
+	sponsored_id INTEGER NOT NULL,
+	sponsor_id INTEGER NOT NULL,
+	created_at timestamp default now not null,
+	created_by varchar(1300) default user not null,
+	created_by_uid integer,
+	modified_at timestamp default now not null,
+	modified_by varchar(1300) default user not null,
+	modified_by_uid integer
+);
+
 create sequence attr_names_id_seq;
 create sequence auditer_consumers_id_seq;
 create sequence auditer_log_id_seq;
@@ -1325,6 +1338,9 @@ create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
 create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (user_ext_source_id);
 create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
+CREATE INDEX idx_members_sponsored_sponsor ON members_sponsored(sponsor_id);
+CREATE INDEX idx_members_sponsored_sponsored ON members_sponsored(sponsored_id);
+
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1666,3 +1682,6 @@ alter table pwdreset add constraint pwdreset_u_fk foreign key (user_id) referenc
 alter table user_ext_source_attr_values add constraint uesattrval_pk primary key (user_ext_source_id, attr_id);
 alter table user_ext_source_attr_values add constraint uesattrval_ues_fk foreign key (user_ext_source_id) references user_ext_sources(id);
 alter table user_ext_source_attr_values add constraint uesattrval_attr_fk foreign key (attr_id) references attr_names(id);
+
+alter table members_sponsored add constraint members_sponsored_fk1 foreign key (sponsored_id) references members(id);
+alter table members_sponsored add constraint members_sponsored_fk2 foreign key (sponsor_id) references users(id);

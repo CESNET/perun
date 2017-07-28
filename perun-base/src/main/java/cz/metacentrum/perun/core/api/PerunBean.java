@@ -32,16 +32,12 @@ public abstract class PerunBean implements Comparable<PerunBean> {
 		return this.getClass().getSimpleName();
 	}
 
-
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-				"id='").append(id).append('\'').append(
-				']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id='" + id + '\'' +
+				']';
 	}
-
 
 	@Override
 	public int hashCode() {
@@ -52,11 +48,9 @@ public abstract class PerunBean implements Comparable<PerunBean> {
 	}
 
 	public String serializeToString() {
-		StringBuilder str = new StringBuilder();
-
-		return str.append(this.getClass().getSimpleName()).append(":[").append(
-				"id=<").append(id).append(">").append(
-				']').toString();
+		return this.getClass().getSimpleName() + ":[" +
+				"id=<" + id + ">" +
+				']';
 	}
 
 	@Override
@@ -68,15 +62,8 @@ public abstract class PerunBean implements Comparable<PerunBean> {
 			return false;
 		}
 		final PerunBean other = (PerunBean) obj;
+		return this.getBeanName().equals(other.getBeanName()) && this.id == other.id;
 
-		if (!this.getBeanName().equals(other.getBeanName())) {
-			return false;
-		}
-
-		if (this.id != other.id) {
-			return false;
-		}
-		return true;
 	}
 
 	@Override

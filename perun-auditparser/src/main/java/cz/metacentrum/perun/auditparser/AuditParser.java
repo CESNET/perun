@@ -140,10 +140,10 @@ public class AuditParser {
 				//For the rest of object String searching for attributes names and their values
 				for (int i = 0; i < s.length(); i++) {
 					//found first Letter when no start still exist and searching for name and save it
-					if(Character.isLetter(s.charAt(i)) && startName == -1 && isName == true) {
+					if(Character.isLetter(s.charAt(i)) && startName == -1 && isName) {
 						startName = i;
 					} //found for last Letter symbol in beans attribute name
-					else if(Character.isLetter(s.charAt(i)) && endName == -1 && isName == true) {
+					else if(Character.isLetter(s.charAt(i)) && endName == -1 && isName) {
 						//If there is still some symbol after this one and if it is not Letter, i save my end name position
 						if (i + 1 != s.length()) {
 							if(!Character.isLetter(s.charAt(i+1))) {
@@ -153,7 +153,7 @@ public class AuditParser {
 							}
 						}
 					} //If i found name already, trying to find nonescaped < and count it
-					else if (s.charAt(i) == '<' && isName == false) {
+					else if (s.charAt(i) == '<' && !isName) {
 						//if its first, its my start of value position and i save it
 						if (pointyBrackets == 0) {
 							if (!BeansUtils.isEscaped(s, i - 1)) {
@@ -165,7 +165,7 @@ public class AuditParser {
 							pointyBrackets++;
 						}
 					} //If i found name already, there are some open angle breackets and is nonescaped so count this one off
-					else if (pointyBrackets != 0 && s.charAt(i) == '>' && isName == false) {
+					else if (pointyBrackets != 0 && s.charAt(i) == '>' && !isName) {
 						//if this bracket is nonescaped so count it off
 						if (!BeansUtils.isEscaped(s, i - 1)) {
 							pointyBrackets--;
@@ -279,21 +279,21 @@ public class AuditParser {
 	private static User createUser(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		User user = new User();
-		user.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		user.setId(Integer.valueOf(beanAttr.get("id")));
 		user.setTitleBefore(BeansUtils.eraseEscaping(beanAttr.get("titleBefore")));
 		user.setTitleAfter(BeansUtils.eraseEscaping(beanAttr.get("titleAfter")));
 		user.setFirstName(BeansUtils.eraseEscaping(beanAttr.get("firstName")));
 		user.setLastName(BeansUtils.eraseEscaping(beanAttr.get("lastName")));
 		user.setMiddleName(BeansUtils.eraseEscaping(beanAttr.get("middleName")));
-		user.setServiceUser(Boolean.valueOf(beanAttr.get("serviceAccount")).booleanValue());
-		user.setSponsoredUser(Boolean.valueOf(beanAttr.get("sponsoredAccount")).booleanValue());
+		user.setServiceUser(Boolean.valueOf(beanAttr.get("serviceAccount")));
+		user.setSponsoredUser(Boolean.valueOf(beanAttr.get("sponsoredAccount")));
 		return user;
 	}
 
 	private static Attribute createAttribute(Map<String, String> beanAttr) throws InternalErrorException {
 		if(beanAttr==null) return null;
 		Attribute attribute = new Attribute();
-		attribute.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		attribute.setId(Integer.valueOf(beanAttr.get("id")));
 		attribute.setFriendlyName(BeansUtils.eraseEscaping(beanAttr.get("friendlyName")));
 		attribute.setNamespace(BeansUtils.eraseEscaping(beanAttr.get("namespace")));
 		attribute.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
@@ -304,7 +304,7 @@ public class AuditParser {
 	private static AttributeDefinition createAttributeDefinition(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		AttributeDefinition attributeDefinition = new AttributeDefinition();
-		attributeDefinition.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		attributeDefinition.setId(Integer.valueOf(beanAttr.get("id")));
 		attributeDefinition.setFriendlyName(BeansUtils.eraseEscaping(beanAttr.get("friendlyName")));
 		attributeDefinition.setNamespace(BeansUtils.eraseEscaping(beanAttr.get("namespace")));
 		attributeDefinition.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
@@ -340,7 +340,7 @@ public class AuditParser {
 	private static Destination createDestination(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Destination destination = new Destination();
-		destination.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		destination.setId(Integer.valueOf(beanAttr.get("id")));
 		destination.setDestination(BeansUtils.eraseEscaping(beanAttr.get("destination")));
 		destination.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
 		destination.setPropagationType(BeansUtils.eraseEscaping(beanAttr.get("propagationtype")));
@@ -350,7 +350,7 @@ public class AuditParser {
 	private static ExtSource createExtSource(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		ExtSource extSource = new ExtSource();
-		extSource.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		extSource.setId(Integer.valueOf(beanAttr.get("id")));
 		extSource.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		extSource.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
 		return extSource;
@@ -359,7 +359,7 @@ public class AuditParser {
 	private static Facility createFacility(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Facility facility = new Facility();
-		facility.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		facility.setId(Integer.valueOf(beanAttr.get("id")));
 		facility.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		facility.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
 		return facility;
@@ -370,7 +370,7 @@ public class AuditParser {
 		Group group = new Group();
 		if(beanAttr.get("parentGroupId").equals("\\0")) group.setParentGroupId(null);
 		else group.setParentGroupId(Integer.valueOf(beanAttr.get("parentGroupId")));
-		group.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		group.setId(Integer.valueOf(beanAttr.get("id")));
 		group.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		group.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
 		group.setVoId(Integer.valueOf(beanAttr.get("voId")));
@@ -380,7 +380,7 @@ public class AuditParser {
 	private static Host createHost(Map<String, String> beanAttr) throws InternalErrorException {
 		if(beanAttr==null) return null;
 		Host host = new Host();
-		host.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		host.setId(Integer.valueOf(beanAttr.get("id")));
 		host.setHostname(BeansUtils.eraseEscaping(beanAttr.get("hostname")));
 		return host;
 	}
@@ -388,19 +388,20 @@ public class AuditParser {
 	private static Member createMember(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Member member = new Member();
-		member.setId(Integer.valueOf(beanAttr.get("id")).intValue());
-		member.setUserId(Integer.valueOf(beanAttr.get("userId")).intValue());
-		member.setVoId(Integer.valueOf(beanAttr.get("voId")).intValue());
+		member.setId(Integer.valueOf(beanAttr.get("id")));
+		member.setUserId(Integer.valueOf(beanAttr.get("userId")));
+		member.setVoId(Integer.valueOf(beanAttr.get("voId")));
 		member.setStatus(BeansUtils.eraseEscaping(beanAttr.get("status")));
 		member.setMembershipType(BeansUtils.eraseEscaping(beanAttr.get("type")));
 		member.setSourceGroupId(beanAttr.get("sourceGroupId").equals("\\0") ? null : Integer.valueOf(beanAttr.get("sourceGroupId")));
+		member.setSponsored(Boolean.valueOf(beanAttr.get("sponsored")));
 		return member;
 	}
 
 	private static Owner createOwner(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Owner owner = new Owner();
-		owner.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		owner.setId(Integer.valueOf(beanAttr.get("id")));
 		owner.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		owner.setContact(BeansUtils.eraseEscaping(beanAttr.get("contact")));
 		owner.setTypeByString(BeansUtils.eraseEscaping(beanAttr.get("type")));
@@ -410,9 +411,9 @@ public class AuditParser {
 	private static Resource createResource(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Resource resource = new Resource();
-		resource.setId(Integer.valueOf(beanAttr.get("id")).intValue());
-		resource.setVoId(Integer.valueOf(beanAttr.get("voId")).intValue());
-		resource.setFacilityId(Integer.valueOf(beanAttr.get("facilityId")).intValue());
+		resource.setId(Integer.valueOf(beanAttr.get("id")));
+		resource.setVoId(Integer.valueOf(beanAttr.get("voId")));
+		resource.setFacilityId(Integer.valueOf(beanAttr.get("facilityId")));
 		resource.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		resource.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
 		return resource;
@@ -421,7 +422,7 @@ public class AuditParser {
 	private static Service createService(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Service service = new Service();
-		service.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		service.setId(Integer.valueOf(beanAttr.get("id")));
 		service.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		return service;
 	}
@@ -429,8 +430,8 @@ public class AuditParser {
 	private static UserExtSource createUserExtSource(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		UserExtSource userExtSource = new UserExtSource();
-		userExtSource.setId(Integer.valueOf(beanAttr.get("id")).intValue());
-		userExtSource.setLoa(Integer.valueOf(beanAttr.get("loa")).intValue());
+		userExtSource.setId(Integer.valueOf(beanAttr.get("id")));
+		userExtSource.setLoa(Integer.valueOf(beanAttr.get("loa")));
 		userExtSource.setLogin(BeansUtils.eraseEscaping(beanAttr.get("login")));
 		//Parse and get ExtSource
 		ExtSource extSource;
@@ -446,7 +447,7 @@ public class AuditParser {
 	private static Vo createVo(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		Vo vo = new Vo();
-		vo.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		vo.setId(Integer.valueOf(beanAttr.get("id")));
 		vo.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		vo.setShortName(BeansUtils.eraseEscaping(beanAttr.get("shortName")));
 		return vo;
@@ -455,11 +456,11 @@ public class AuditParser {
 	private static Authorship createAuthorship(Map<String, String> beanAttr) throws InternalErrorException {
 		if(beanAttr==null) return null;
 		Authorship authorship = new Authorship();
-		authorship.setId(Integer.valueOf(beanAttr.get("id")).intValue());
-		authorship.setPublicationId(Integer.valueOf(beanAttr.get("publicationId")).intValue());
-		authorship.setUserId(Integer.valueOf(beanAttr.get("userId")).intValue());
+		authorship.setId(Integer.valueOf(beanAttr.get("id")));
+		authorship.setPublicationId(Integer.valueOf(beanAttr.get("publicationId")));
+		authorship.setUserId(Integer.valueOf(beanAttr.get("userId")));
 		authorship.setCreatedBy(BeansUtils.eraseEscaping(beanAttr.get("createdBy")));
-		authorship.setCreatedByUid((beanAttr.get("createdByUid").equals("\\0")) ? null : Integer.valueOf(beanAttr.get("createdByUid")).intValue());
+		authorship.setCreatedByUid((beanAttr.get("createdByUid").equals("\\0")) ? null : Integer.valueOf(beanAttr.get("createdByUid")));
 		if(BeansUtils.eraseEscaping(beanAttr.get("createdDate"))== null) authorship.setCreatedDate(null);
 		else {
 			Date date;
@@ -476,8 +477,8 @@ public class AuditParser {
 	private static ResourceTag createResourceTag(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		ResourceTag resourceTag = new ResourceTag();
-		resourceTag.setId(Integer.valueOf(beanAttr.get("id")).intValue());
-		resourceTag.setVoId(Integer.valueOf(beanAttr.get("voId")).intValue());
+		resourceTag.setId(Integer.valueOf(beanAttr.get("id")));
+		resourceTag.setVoId(Integer.valueOf(beanAttr.get("voId")));
 		resourceTag.setTagName(BeansUtils.eraseEscaping(beanAttr.get("tagName")));
 		return resourceTag;
 	}
@@ -485,10 +486,10 @@ public class AuditParser {
 	private static ExecService createExecService(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		ExecService execService = new ExecService();
-		execService.setId(Integer.valueOf(beanAttr.get("id")).intValue());
-		execService.setDefaultDelay(Integer.valueOf(beanAttr.get("defaultDelay")).intValue());
-		execService.setDefaultRecurrence(Integer.valueOf(beanAttr.get("defaultRecurrence")).intValue());
-		execService.setEnabled(Boolean.valueOf(beanAttr.get("enabled")).booleanValue());
+		execService.setId(Integer.valueOf(beanAttr.get("id")));
+		execService.setDefaultDelay(Integer.valueOf(beanAttr.get("defaultDelay")));
+		execService.setDefaultRecurrence(Integer.valueOf(beanAttr.get("defaultRecurrence")));
+		execService.setEnabled(Boolean.valueOf(beanAttr.get("enabled")));
 		if(beanAttr.get("script").equals("\\0")) execService.setScript(null);
 		else {
 			execService.setScript(BeansUtils.eraseEscaping(beanAttr.get("script")));
@@ -515,7 +516,7 @@ public class AuditParser {
 	private static SecurityTeam createSecurityTeam(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		SecurityTeam securityTeam = new SecurityTeam();
-		securityTeam.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		securityTeam.setId(Integer.valueOf(beanAttr.get("id")));
 		securityTeam.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		securityTeam.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
 		return securityTeam;
@@ -524,9 +525,9 @@ public class AuditParser {
 	private static TaskResult createTaskResult(Map<String, String> beanAttr) throws InternalErrorException {
 		if (beanAttr == null) return null;
 		TaskResult taskResult = new TaskResult();
-		taskResult.setId(Integer.valueOf(beanAttr.get("id")).intValue());
-		taskResult.setTaskId(Integer.valueOf(beanAttr.get("taskId")).intValue());
-		taskResult.setDestinationId(Integer.valueOf(beanAttr.get("destinationId")).intValue());
+		taskResult.setId(Integer.valueOf(beanAttr.get("id")));
+		taskResult.setTaskId(Integer.valueOf(beanAttr.get("taskId")));
+		taskResult.setDestinationId(Integer.valueOf(beanAttr.get("destinationId")));
 		String errorMessage;
 		if (beanAttr.get("errorMessage").equals("\\0")) errorMessage = null;
 		else {
@@ -539,7 +540,7 @@ public class AuditParser {
 			standardMessage = BeansUtils.eraseEscaping(beanAttr.get("standardMessage"));
 		}
 		taskResult.setStandardMessage(standardMessage);
-		taskResult.setReturnCode(Integer.valueOf(beanAttr.get("returnCode")).intValue());
+		taskResult.setReturnCode(Integer.valueOf(beanAttr.get("returnCode")));
 		try {
 			taskResult.setTimestamp(BeansUtils.getDateFormatter().parse(BeansUtils.eraseEscaping(beanAttr.get("timestamp"))));
 		} catch (ParseException e) {
@@ -605,7 +606,7 @@ public class AuditParser {
 	private static RichDestination createRichDestination(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		RichDestination richDestination = new RichDestination();
-		richDestination.setId(Integer.valueOf(beanAttr.get("id")).intValue());
+		richDestination.setId(Integer.valueOf(beanAttr.get("id")));
 		richDestination.setDestination(BeansUtils.eraseEscaping(beanAttr.get("destination")));
 		richDestination.setType(BeansUtils.eraseEscaping(beanAttr.get("type")));
 		//Parse and get service
@@ -732,9 +733,9 @@ public class AuditParser {
 	private static RichResource createRichResource(Map<String, String> beanAttr) {
 		if(beanAttr==null) return null;
 		RichResource richResource = new RichResource();
-		richResource.setId(Integer.valueOf(beanAttr.get("id")).intValue());
-		richResource.setVoId(Integer.valueOf(beanAttr.get("voId")).intValue());
-		richResource.setFacilityId(Integer.valueOf(beanAttr.get("facilityId")).intValue());
+		richResource.setId(Integer.valueOf(beanAttr.get("id")));
+		richResource.setVoId(Integer.valueOf(beanAttr.get("voId")));
+		richResource.setFacilityId(Integer.valueOf(beanAttr.get("facilityId")));
 		richResource.setName(BeansUtils.eraseEscaping(beanAttr.get("name")));
 		richResource.setDescription(BeansUtils.eraseEscaping(beanAttr.get("description")));
 		//Parse and get Vo

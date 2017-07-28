@@ -1,18 +1,13 @@
 package cz.metacentrum.perun.core.implApi;
 
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.SecurityTeam;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.Vo;
+import cz.metacentrum.perun.core.api.*;
 import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
 import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
 import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
 import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
 import cz.metacentrum.perun.core.impl.AuthzRoles;
+
+import java.util.List;
 
 /**
  * This interface represents AuthzResolver methods.
@@ -278,146 +273,13 @@ public interface AuthzResolverImplApi {
 	 */
 	void removeAdmin(PerunSession sess, Group group, Group authorizedGroup) throws InternalErrorException, GroupNotAdminException;
 
-	/**
-	 * Add user role admin for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Add group of users role admin for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
-
 	void addAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws AlreadyAdminException, InternalErrorException;
 
 	void addAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws AlreadyAdminException, InternalErrorException;
 
-	/**
-	 * Remove user role admin for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws UserNotAdminException
-	 */
-	void removeAdmin(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
-
-	/**
-	 * Remove group of users role admin for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws GroupNotAdminException
-	 */
-	void removeAdmin(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
-
 	void removeAdmin(PerunSession sess, SecurityTeam securityTeam, User user) throws UserNotAdminException, InternalErrorException;
 
 	void removeAdmin(PerunSession sess, SecurityTeam securityTeam, Group group) throws InternalErrorException, GroupNotAdminException;
-
-	/**
-	 * Add user role vo observer for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Add group of users role vo observer for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addObserver(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Add user role vo  topGroupCreator for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addTopGroupCreator(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Add group of users role topGroupCreator for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws AlreadyAdminException
-	 */
-	void addTopGroupCreator(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
-
-	/**
-	 * Remove user role vo observer for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws UserNotAdminException
-	 */
-	void removeObserver(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
-
-	/**
-	 * Remove group of users role vo observer for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws GroupNotAdminException
-	 */
-	void removeObserver(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
-
-	/**
-	 * Remove user role top group creator for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param user
-	 * @throws InternalErrorException
-	 * @throws UserNotAdminException
-	 */
-	void removeTopGroupCreator(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
-
-	/**
-	 * Remove group of users role top group creator for the vo
-	 *
-	 * @param sess
-	 * @param vo
-	 * @param group
-	 * @throws InternalErrorException
-	 * @throws GroupNotAdminException
-	 */
-	void removeTopGroupCreator(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
-
 
 	/**
 	 * Make user to be perunAdmin
@@ -437,4 +299,43 @@ public interface AuthzResolverImplApi {
 	 */
 	void removePerunAdmin(PerunSession sess, User user) throws InternalErrorException, UserNotAdminException;
 
+	/**
+	 * Adds role for user in a VO.
+	 */
+	void addVoRole(PerunSession sess, Role role, Vo vo, User user) throws InternalErrorException, AlreadyAdminException;
+
+	/**
+	 * Adds role for group in a VO.
+	 */
+	void addVoRole(PerunSession sess, Role role, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException;
+
+	/**
+	 * Removes role from user in a VO.
+	 */
+	void removeVoRole(PerunSession sess, Role role, Vo vo, User user) throws InternalErrorException, UserNotAdminException;
+
+	/**
+	 * Removes role from group in a VO.
+	 */
+	void removeVoRole(PerunSession sess, Role role, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException;
+
+	/**
+	 * Checks whether the user is in role for Vo.
+	 */
+	boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo);
+
+	/**
+	 * Checks whether the group is in role for Vo.
+	 */
+	boolean isGroupInRoleForVo(PerunSession session, Group group, Role role, Vo vo);
+
+	/**
+	 * Gets list fo VOs for which the group has the role.
+	 */
+	List<Integer> getVoIdsForGroupInRole(PerunSession sess, Group group, Role role) throws InternalErrorException;
+
+	/**
+	 * Gets list fo VOs for which the user has the role.
+	 */
+	List<Integer> getVoIdsForUserInRole(PerunSession sess, User user, Role role) throws InternalErrorException;
 }
