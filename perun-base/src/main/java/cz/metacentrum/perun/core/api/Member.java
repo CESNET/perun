@@ -12,6 +12,7 @@ public class Member extends Auditable {
 	private Status status;
 	private MembershipType membershipType;
 	private Integer sourceGroupId;
+	private boolean sponsored = false;
 
 	public Member() {
 		super();
@@ -105,6 +106,14 @@ public class Member extends Auditable {
 		return membershipType;
 	}
 
+	public boolean isSponsored() {
+		return sponsored;
+	}
+
+	public void setSponsored(boolean sponsored) {
+		this.sponsored = sponsored;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -138,11 +147,12 @@ public class Member extends Auditable {
 				", status=<" + (getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())) + ">" +
 				", type=<" + (getMembershipType() == null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())) + ">" +
 				", sourceGroupId=<" + (getSourceGroupId() == null ? "\\0" : getSourceGroupId().toString()) + ">" +
+				", sponsored=<" + sponsored + ">" +
 				']';
 	}
 
 	@Override
 	public String toString() {
-		return "Member:[id='" + getId() + "', userId='" + userId + "', voId='" + voId + "', status='" + status + "', type='" + membershipType + "', sourceGroupId='" + sourceGroupId + "']";
+		return "Member:[id='" + getId() + "', userId='" + userId + "', voId='" + voId + "', status='" + status + "', type='" + membershipType + "', sourceGroupId='" + sourceGroupId + "', sponsored='" + sponsored+ "']";
 	}
 }

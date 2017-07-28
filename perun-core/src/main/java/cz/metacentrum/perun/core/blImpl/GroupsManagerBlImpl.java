@@ -136,7 +136,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @throws RelationExistsException Raise only if forceDelete is false and the group has any subgroup or member.
 	 * @throws GroupAlreadyRemovedException if there are 0 rows affected by deleting from DB
 	 */
-	protected void deleteAnyGroup(PerunSession sess, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
+	private void deleteAnyGroup(PerunSession sess, Group group, boolean forceDelete) throws InternalErrorException, RelationExistsException, GroupAlreadyRemovedException, GroupAlreadyRemovedFromResourceException, GroupOperationsException, GroupNotExistsException, GroupRelationDoesNotExist, GroupRelationCannotBeRemoved {
 		Vo vo = this.getVo(sess, group);
 
 		if (getGroupsManagerImpl().getSubGroupsCount(sess, group) > 0) {
@@ -335,6 +335,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			// now all members which left in membersFromDeletedGroup list are totally removed members from this group,
 			// so we need to log them to auditer
 			for(Member m: membersFromDeletedGroup) {
+				notifyMemberRemovalFromGroup(sess, parentGroup, m);
 				getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", m, parentGroup);
 			}
 			parentGroupId=parentGroup.getParentGroupId();
@@ -546,13 +547,8 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 	 * @param members list of members to remove
 	 * @param sourceGroupId id of a group from which members originate
 	 * @return list of members that were removed (their only record in the group was deleted)
-	 * @throws InternalErrorException
-	 * @throws AlreadyMemberException
-	 * @throws WrongAttributeValueException
-	 * @throws WrongReferenceAttributeValueException
-	 * @throws NotGroupMemberException
 	 */
-	protected List<Member> removeIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
+	private List<Member> removeIndirectMembers(PerunSession sess, Group group, List<Member> members, int sourceGroupId) throws InternalErrorException, AlreadyMemberException, WrongAttributeValueException, WrongReferenceAttributeValueException, NotGroupMemberException {
 		List<Member> membersToRemove = new ArrayList<>(members);
 		for (Member member: membersToRemove) {
 			member.setSourceGroupId(sourceGroupId);
@@ -565,6 +561,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		membersToRemove.removeAll(newMembers);
 
 		for(Member removedIndirectMember: membersToRemove) {
+			notifyMemberRemovalFromGroup(sess, group, removedIndirectMember);
 			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", removedIndirectMember, group);
 		}
 
@@ -589,7 +586,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 		}
 	}
 
-	protected void removeDirectMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, GroupOperationsException {
+	private void removeDirectMember(PerunSession sess, Group group, Member member) throws InternalErrorException, NotGroupMemberException, GroupNotExistsException, GroupOperationsException {
 		member.setSourceGroupId(group.getId());
 		getGroupsManagerImpl().removeMember(sess, group, member);
 		if (this.getGroupsManagerImpl().isGroupMember(sess, group, member)) {
@@ -597,6 +594,7 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			//If member was indirect in group before, we don't need to change anything in other groups
 			return;
 		} else {
+			notifyMemberRemovalFromGroup(sess, group, member);
 			getPerunBl().getAuditer().log(sess, "{} was removed from {} totally.", member, group);
 		}
 
@@ -606,6 +604,24 @@ public class GroupsManagerBlImpl implements GroupsManagerBl {
 			processRelationMembers(sess, groupsManagerImpl.getGroupById(sess, groupId), Collections.singletonList(member), group.getId(), false);
 		}
 
+	}
+
+	/**
+	 * When a member is removed from a group, and the group is in a role, the member's user loses that role, which may need processing.
+	 */
+	private void notifyMemberRemovalFromGroup(PerunSession sess, Group group, Member member) throws InternalErrorException {
+		log.debug("notifyMemberRemovalFromGroup(group={},member={})",group.getName(),member);
+		User user = perunBl.getUsersManagerBl().getUserByMember(sess, member);
+		//list of VOs for which the group is in role SPONSOR
+		List<Vo> vos = AuthzResolverBlImpl.getVosForGroupInRole(sess, group, Role.SPONSOR);
+		for (Vo vo : vos) {
+			log.debug("Group {} has role SPONSOR in vo {}",group.getName(),vo.getShortName());
+			//if the user is not SPONSOR directly or through another group, he/she loses the role
+			if(!perunBl.getVosManagerBl().isUserInRoleForVo(sess, user, Role.SPONSOR, vo, true)) {
+				log.debug("user {} lost role SPONSOR when removed from group {}",user.getLastName(),group.getName());
+				perunBl.getVosManagerBl().handleUserLostVoRole(sess, user, vo, Role.SPONSOR);
+			}
+		}
 	}
 
 	public List<Member> getGroupMembers(PerunSession sess, Group group) throws InternalErrorException {

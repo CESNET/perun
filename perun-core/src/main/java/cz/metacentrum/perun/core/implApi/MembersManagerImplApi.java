@@ -191,4 +191,31 @@ public interface MembersManagerImplApi {
 	 */
 	int storePasswordResetRequest(PerunSession sess, User user, String namespace) throws InternalErrorException;
 
+	/**
+	 * Creates a new member in given Vo with flag "sponsored", and linked to its sponsoring user.
+	 */
+	Member createSponsoredMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws AlreadyMemberException, InternalErrorException;
+
+	/**
+	 * Adds another sponsoring user for a sponsored member.
+	 */
+	void addSponsor(PerunSession session, Member sponsoredMember, User sponsor) throws InternalErrorException;
+
+	/**
+	 * Removes a sponsoring user. In fact marks the link as inactive.
+	 */
+	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor) throws InternalErrorException;
+
+	/**
+	 * Gets members sponsored by the given user.
+	 */
+	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor) throws InternalErrorException;
+
+
+	/**
+	 * Deletes all links to sponsors, even those marked as inactive.
+	 */
+	void deleteSponsorLinks(PerunSession sess, Member member) throws InternalErrorException;
+
+
 }

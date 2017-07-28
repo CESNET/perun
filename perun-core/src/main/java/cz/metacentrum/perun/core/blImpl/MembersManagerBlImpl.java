@@ -1,10 +1,12 @@
 package cz.metacentrum.perun.core.blImpl;
 
-import cz.metacentrum.perun.core.api.ActionType;
+import cz.metacentrum.perun.core.api.*;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -17,63 +19,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cz.metacentrum.perun.core.api.exceptions.GroupOperationsException;
-import cz.metacentrum.perun.core.api.exceptions.LoginNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordCreationFailedException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordOperationTimeoutException;
-import cz.metacentrum.perun.core.api.exceptions.PasswordStrengthFailedException;
+import cz.metacentrum.perun.core.api.exceptions.*;
+import cz.metacentrum.perun.core.api.exceptions.IllegalArgumentException;
+import cz.metacentrum.perun.core.implApi.modules.pwdmgr.PasswordManagerModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cz.metacentrum.perun.core.api.BeansUtils;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.AttributesManager;
-import cz.metacentrum.perun.core.api.AuthzResolver;
-import cz.metacentrum.perun.core.api.BanOnResource;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.MembersManager;
-import cz.metacentrum.perun.core.api.Pair;
-import cz.metacentrum.perun.core.api.PerunSession;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.RichMember;
-import cz.metacentrum.perun.core.api.MembershipType;
-import cz.metacentrum.perun.core.api.SpecificUserType;
-import cz.metacentrum.perun.core.api.Status;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.VosManager;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyMemberException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.AttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.BanNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.CandidateNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ConsistencyErrorException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.ExtSourceUnsupportedOperationException;
-import cz.metacentrum.perun.core.api.exceptions.ExtendMembershipException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberAlreadyRemovedException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotValidYetException;
-import cz.metacentrum.perun.core.api.exceptions.NotGroupMemberException;
-import cz.metacentrum.perun.core.api.exceptions.NotMemberOfParentGroupException;
-import cz.metacentrum.perun.core.api.exceptions.ParentGroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.SubjectNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserExtSourceNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentException;
-import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
-import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.bl.MembersManagerBl;
 import cz.metacentrum.perun.core.bl.PerunBl;
 import cz.metacentrum.perun.core.impl.Auditer;
@@ -83,9 +34,13 @@ import cz.metacentrum.perun.core.implApi.ExtSourceApi;
 import cz.metacentrum.perun.core.implApi.ExtSourceSimpleApi;
 import cz.metacentrum.perun.core.implApi.MembersManagerImplApi;
 
+import static cz.metacentrum.perun.core.impl.Utils.parseUserFromCommonName;
+
 public class MembersManagerBlImpl implements MembersManagerBl {
 
 	final static Logger log = LoggerFactory.getLogger(MembersManagerBlImpl.class);
+
+	private static final String EXPIRATION = AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration";
 
 	private MembersManagerImplApi membersManagerImpl;
 	private PerunBl perunBl;
@@ -191,7 +146,9 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 			 }
 			 */
-
+		if(member.isSponsored()) {
+			membersManagerImpl.deleteSponsorLinks(sess, member);
+		}
 		// Remove member from the DB
 		getMembersManagerImpl().deleteMember(sess, member);
 		getPerunBl().getAuditer().log(sess, "{} deleted.", member);
@@ -302,6 +259,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return member;
 	}
 
+	@Deprecated
 	public Member createSponsoredAccount(PerunSession sess, Map<String, String> params, String namespace, ExtSource extSource, String extSourcePostfix, User owner, Vo vo, int loa) throws InternalErrorException, PasswordCreationFailedException, PasswordOperationTimeoutException, PasswordStrengthFailedException, GroupOperationsException, ExtendMembershipException, AlreadyMemberException, WrongReferenceAttributeValueException, WrongAttributeValueException, UserNotExistsException, ExtSourceNotExistsException, LoginNotExistsException {
 		String loginNamespaceUri = AttributesManager.NS_USER_ATTR_DEF + ":login-namespace:" + namespace;
 		boolean passwordPresent = params.get("password") != null;
@@ -1749,7 +1707,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		Attribute membershipExpirationAttribute = null;
 		try {
 			membershipExpirationAttribute = getPerunBl().getAttributesManagerBl().getAttribute(sess, member,
-					AttributesManager.NS_MEMBER_ATTR_DEF + ":membershipExpiration");
+					EXPIRATION);
 		} catch (AttributeNotExistsException e) {
 			throw new ConsistencyErrorException("Attribute: " + AttributesManager.NS_MEMBER_ATTR_DEF +
 						":membershipExpiration" + " must be defined in order to use membershipExpirationRules");
@@ -2097,6 +2055,123 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		int id = getMembersManagerImpl().storePasswordResetRequest(sess, user, namespace);
 		Utils.sendPasswordResetEmail(user, email, namespace, url, id);
 
+	}
+
+	@Override
+	public Member createSponsoredMember(PerunSession session, Vo vo, String namespace, String guestName, String password, User sponsor, boolean asyncValidation) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, LoginNotExistsException, PasswordOperationTimeoutException, PasswordCreationFailedException, PasswordStrengthFailedException, ExtendMembershipException, GroupOperationsException, WrongAttributeValueException, ExtSourceNotExistsException, WrongReferenceAttributeValueException {
+		String loginAttributeName = PasswordManagerModule.LOGIN_PREFIX + namespace;
+		//create new user
+		User sponsoredUser = getPerunBl().getUsersManagerBl().createUser(session,parseUserFromCommonName(guestName));
+
+		//create the user account in external system
+		Map<String, String> p = new HashMap<>();
+		p.put(PasswordManagerModule.TITLE_BEFORE_KEY,sponsoredUser.getTitleBefore());
+		p.put(PasswordManagerModule.FIRST_NAME_KEY,sponsoredUser.getFirstName());
+		p.put(PasswordManagerModule.LAST_NAME_KEY,sponsoredUser.getLastName());
+		p.put(PasswordManagerModule.TITLE_AFTER_KEY,sponsoredUser.getTitleAfter());
+		p.put(PasswordManagerModule.PASSWORD_KEY,password);
+		Map<String, String> r = getPerunBl().getUsersManagerBl().generateAccount(session, namespace, p);
+		String login = r.get(loginAttributeName);
+		setLoginToSponsoredUser(session,sponsoredUser,loginAttributeName,login);
+
+		//create the member in Perun
+		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, sponsoredUser, sponsor);
+		getPerunBl().getAuditer().log(session, "{} created, sponsored by {}", sponsoredMember, sponsor);
+		extendMembership(session, sponsoredMember);
+		insertToMemberGroup(session, sponsoredMember, vo);
+		if(asyncValidation) {
+			validateMemberAsync(session, sponsoredMember);
+		} else {
+			//for unit tests
+			validateMember(session, sponsoredMember);
+		}
+		getPerunBl().getUsersManagerBl().validatePasswordAndSetExtSources(session, sponsoredUser, login, namespace);
+		return sponsoredMember;
+	}
+
+	private void setLoginToSponsoredUser(PerunSession sess, User sponsoredUser, String loginAttributeName, String login) throws InternalErrorException {
+		try {
+			Attribute a = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredUser, loginAttributeName);
+			a.setValue(login);
+			getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredUser,a);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException |WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			throw new InternalErrorException("cannot set attribute "+loginAttributeName+" for user "+sponsoredUser.getId(),e);
+		}
+	}
+
+	@Override
+	public Member sponsorMember(PerunSession session, Vo vo, User sponsored, User sponsor) throws MemberNotExistsException, InternalErrorException, AlreadyMemberException, MemberNotSponsoredException {
+		Member sponsoredMember;
+		try {
+			sponsoredMember = getMemberByUser(session, vo, sponsored);
+			if(!sponsoredMember.isSponsored()) {
+				throw new MemberNotSponsoredException("member "+sponsoredMember.getId()+" is not marked as sponsored");
+			}
+			getMembersManagerImpl().addSponsor(session, sponsoredMember,sponsor);
+			getPerunBl().getAuditer().log(session, "{} added sponsor {}", sponsoredMember, sponsor);
+		} catch (MemberNotExistsException ex) {
+			sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, sponsored, sponsor);
+			getPerunBl().getAuditer().log(session, "{} created, sponsored by {}", sponsoredMember, sponsor);
+		}
+		return sponsoredMember;
+	}
+
+	@Override
+	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException {
+		return getMembersManagerImpl().getSponsoredMembers(sess, vo, user);
+	}
+
+	@Override
+	public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws InternalErrorException {
+		getMembersManagerImpl().removeSponsor(sess,sponsoredMember, sponsorToRemove);
+		getPerunBl().getAuditer().log(sess, "{} lost sponsor {}", sponsoredMember, sponsorToRemove);
+		//check if the user was the last sponsor
+		Vo vo = getMemberVo(sess, sponsoredMember);
+		boolean hasSponsor = false;
+		for (User sponsor : getPerunBl().getUsersManagerBl().getSponsors(sess, sponsoredMember)) {
+			if(getPerunBl().getVosManagerBl().isUserInRoleForVo(sess, sponsor, Role.SPONSOR, vo, true)) {
+				hasSponsor = true;
+				break;
+			}
+		}
+		if(!hasSponsor) {
+			//removed the last sponsor, set member's expiration to today and set status to expired
+			try {
+				Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredMember, EXPIRATION);
+				expiration.setValue(BeansUtils.getDateFormatterWithoutTime().format(new Date()));
+				getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
+			} catch (WrongAttributeAssignmentException | AttributeNotExistsException| WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+				throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
+			}
+			try {
+				expireMember(sess, sponsoredMember);
+			} catch (MemberNotValidYetException ex) {
+				throw new InternalErrorException("cannot expire member "+sponsoredMember.getId(),ex);
+			}
+		}
+	}
+
+	@Override
+	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException {
+		List<User> sponsors = getPerunBl().getUsersManagerBl().getSponsors(sess, sponsoredMember);
+		if(!sponsors.contains(sponsorUser)) {
+			throw new IllegalArgumentException("user "+sponsorUser.getId()+" is not sponsor of member "+sponsoredMember.getId());
+		}
+		if(!sponsoredMember.isSponsored()) {
+			throw new IllegalArgumentException("member "+sponsoredMember.getId()+" is not marked as sponsored");
+		}
+		//TODO VO-specific rules
+		Date newExpiration = Date.from( Instant.now().plus( 1, ChronoUnit.YEARS));
+		String expirationString = BeansUtils.getDateFormatterWithoutTime().format(newExpiration);
+		//set the new expiration
+		try {
+			Attribute expiration = getPerunBl().getAttributesManagerBl().getAttribute(sess, sponsoredMember, EXPIRATION);
+			expiration.setValue(expirationString);
+			getPerunBl().getAttributesManagerBl().setAttribute(sess,sponsoredMember,expiration);
+		} catch (WrongAttributeAssignmentException | AttributeNotExistsException|WrongAttributeValueException | WrongReferenceAttributeValueException e) {
+			throw new InternalErrorException("cannot set expiration date to today for sponsored member "+sponsoredMember.getId(),e);
+		}
+		return expirationString;
 	}
 
 	/**

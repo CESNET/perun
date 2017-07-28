@@ -40,6 +40,10 @@ public class Utils {
 
 	private final static Logger log = LoggerFactory.getLogger(Utils.class);
 	public final static String configurationsLocations = "/etc/perun/";
+	public static final String TITLE_BEFORE = "titleBefore";
+	public static final String FIRST_NAME = "firstName";
+	public static final String LAST_NAME = "lastName";
+	public static final String TITLE_AFTER = "titleAfter";
 	private static Properties properties;
 	public static final Pattern emailPattern = Pattern.compile("^[-_A-Za-z0-9+']+(\\.[-_A-Za-z0-9+']+)*@[-A-Za-z0-9]+(\\.[-A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
@@ -331,6 +335,28 @@ public class Utils {
 		return classes;
 	}
 
+	private static String limit(String s,int limit) {
+		if(s==null) return null;
+		return s.length() > limit ? s.substring(0, limit) : s;
+	}
+
+	/**
+	 * Creates a new instance of User with names initialized from parsed rawName.
+	 * Imposes limit on leghts of fields.
+	 * @see #parseCommonName(String)
+	 * @param rawName raw name
+	 * @return user
+	 */
+	public static User parseUserFromCommonName(String rawName) {
+		Map<String, String> m = parseCommonName(rawName);
+		User user = new User();
+		user.setTitleBefore(limit(m.get(TITLE_BEFORE),40));
+		user.setFirstName(limit(m.get(FIRST_NAME),64));
+		user.setLastName(limit(m.get(LAST_NAME),64));
+		user.setTitleAfter(limit(m.get(TITLE_AFTER),40));
+		return user;
+	}
+
 	/**
 	 * Try to parse rawName to keys: "titleBefore" "firstName" "lastName" "titleAfter"
 	 *
@@ -463,13 +489,13 @@ public class Utils {
 
 		//empty string means null, add variables to map
 		if (titleBefore.isEmpty()) titleBefore = null;
-		parsedName.put("titleBefore", titleBefore);
+		parsedName.put(TITLE_BEFORE, titleBefore);
 		if (firstName.isEmpty()) firstName = null;
-		parsedName.put("firstName", firstName);
+		parsedName.put(FIRST_NAME, firstName);
 		if (lastName.isEmpty()) lastName = null;
-		parsedName.put("lastName", lastName);
+		parsedName.put(LAST_NAME, lastName);
 		if (titleAfter.isEmpty()) titleAfter = null;
-		parsedName.put("titleAfter", titleAfter);
+		parsedName.put(TITLE_AFTER, titleAfter);
 
 		return parsedName;
 	}

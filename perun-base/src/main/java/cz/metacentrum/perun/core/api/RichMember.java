@@ -22,6 +22,7 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 				member.getCreatedBy(), member.getModifiedAt(), member.getModifiedBy(),
 				member.getCreatedByUid(), member.getModifiedByUid());
 		setMembershipType(member.getMembershipType());
+		setSponsored(member.isSponsored());
 		this.user = user;
 		this.userExtSources = userExtSources;
 		this.userAttributes = null;

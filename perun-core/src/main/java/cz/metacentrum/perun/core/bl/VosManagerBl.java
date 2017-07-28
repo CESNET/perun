@@ -10,14 +10,7 @@ import cz.metacentrum.perun.core.api.RichUser;
 import cz.metacentrum.perun.core.api.Role;
 import cz.metacentrum.perun.core.api.User;
 import cz.metacentrum.perun.core.api.Vo;
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 
 /**
  * <p>VOs manager can create, delete, update and find VO.</p>
@@ -365,4 +358,26 @@ public interface VosManagerBl {
 	 * @throws InternalErrorException
 	 */
 	int getVosCount(PerunSession perunSession) throws InternalErrorException;
+
+	/**
+	 * Check whether a user is in a role for a given VO, possibly checking also user's groups.
+	 * @param session session
+	 * @param user user
+	 * @param role role
+	 * @param vo  virtual organization
+	 * @param checkGroups check also groups of the user whether they have the role
+	 * @return true if user is directly in role for the vo, or if "checkGroups" flag is set and at least one of the groups is in the role
+	 * @throws InternalErrorException exception
+	 */
+	boolean isUserInRoleForVo(PerunSession session, User user, Role role, Vo vo, boolean checkGroups) throws InternalErrorException;
+
+	/**
+	 * Handles a user that lost a role.
+	 */
+	void handleUserLostVoRole(PerunSession sess, User user, Vo vo, Role role) throws InternalErrorException;
+
+	/**
+	 * Handles a group that lost a role.
+	 */
+	void handleGroupLostVoRole(PerunSession sess, Group group, Vo vo, Role role) throws InternalErrorException;
 }

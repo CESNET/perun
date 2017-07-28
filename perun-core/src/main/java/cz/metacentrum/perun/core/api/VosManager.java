@@ -2,18 +2,7 @@ package cz.metacentrum.perun.core.api;
 
 import java.util.List;
 
-import cz.metacentrum.perun.core.api.exceptions.AlreadyAdminException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.GroupNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.InternalErrorException;
-import cz.metacentrum.perun.core.api.exceptions.MemberNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.PrivilegeException;
-import cz.metacentrum.perun.core.api.exceptions.RelationExistsException;
-import cz.metacentrum.perun.core.api.exceptions.RoleNotSupportedException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotAdminException;
-import cz.metacentrum.perun.core.api.exceptions.UserNotExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoExistsException;
-import cz.metacentrum.perun.core.api.exceptions.VoNotExistsException;
+import cz.metacentrum.perun.core.api.exceptions.*;
 
 /**
  * <p>VOs manager can create, delete, update and find VO.</p>
@@ -406,4 +395,25 @@ public interface VosManager {
 	 * @return count of all vos
 	 */
 	int getVosCount(PerunSession sess) throws InternalErrorException, PrivilegeException;
+
+	/**
+	 * Adds role SPONSOR for user in a VO.
+	 */
+	void addSponsorRole(PerunSession sess, Vo vo, User user) throws InternalErrorException, AlreadyAdminException, VoNotExistsException, UserNotExistsException, PrivilegeException;
+
+	/**
+	 * Adds role SPONSOR for group in a VO.
+	 */
+	void addSponsorRole(PerunSession sess, Vo vo, Group group) throws InternalErrorException, AlreadyAdminException, VoNotExistsException, GroupNotExistsException, PrivilegeException;
+
+	/**
+	 * Removes role SPONSOR from user in a VO.
+	 */
+	void removeSponsorRole(PerunSession sess, Vo vo, User user) throws InternalErrorException, UserNotAdminException, MemberNotValidYetException, VoNotExistsException, UserNotExistsException, PrivilegeException;
+
+	/**
+	 * Removes role SPONSOR from group in a VO.
+	 */
+	void removeSponsorRole(PerunSession sess, Vo vo, Group group) throws InternalErrorException, GroupNotAdminException, MemberNotValidYetException, VoNotExistsException, GroupNotExistsException, PrivilegeException;
+
 }

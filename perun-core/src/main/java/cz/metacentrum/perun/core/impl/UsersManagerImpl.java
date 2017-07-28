@@ -1227,4 +1227,22 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 
 	}
 
+	@Override
+	public List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException {
+		try {
+			return jdbc.query("SELECT " + userMappingSelectQuery + " FROM users JOIN members_sponsored ms ON (users.id=ms.sponsor_id)" +
+					"WHERE ms.active='1' AND ms.sponsored_id=? ", USER_MAPPER, sponsoredMember.getId());
+		} catch (RuntimeException ex) {
+			throw new InternalErrorException(ex);
+		}
+	}
+
+	@Override
+	public void deleteSponsorLinks(PerunSession sess, User sponsor) throws InternalErrorException {
+		try {
+			jdbc.update("DELETE FROM members_sponsored WHERE sponsor_id=?", sponsor.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
 }

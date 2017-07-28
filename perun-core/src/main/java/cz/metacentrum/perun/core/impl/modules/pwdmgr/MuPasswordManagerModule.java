@@ -188,34 +188,34 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		String params = "";
 		if (parameters != null && !parameters.isEmpty()) {
 
-			if (parameters.get("urn:perun:user:attribute-def:core:firstName") != null && !parameters.get("urn:perun:user:attribute-def:core:firstName").isEmpty()) {
-				params += "<jmeno>" + parameters.get("urn:perun:user:attribute-def:core:firstName") + "</jmeno>\n";
+			if (parameters.get(FIRST_NAME_KEY) != null && !parameters.get(FIRST_NAME_KEY).isEmpty()) {
+				params += "<jmeno>" + parameters.get(FIRST_NAME_KEY) + "</jmeno>\n";
 			} else {
 				// IS requires first and last name
 				// in case of a single word name value, it's stored in a lastName, so send "guest" as a firstName if it's empty.
 				params += "<jmeno>guest</jmeno>\n";
 			}
 
-			if (parameters.get("urn:perun:user:attribute-def:core:lastName") != null && !parameters.get("urn:perun:user:attribute-def:core:lastName").isEmpty())
-				params += "<prijmeni>" + parameters.get("urn:perun:user:attribute-def:core:lastName") + "</prijmeni>\n";
+			if (parameters.get(LAST_NAME_KEY) != null && !parameters.get(LAST_NAME_KEY).isEmpty())
+				params += "<prijmeni>" + parameters.get(LAST_NAME_KEY) + "</prijmeni>\n";
 
-			if (parameters.get("urn:perun:user:attribute-def:core:titleBefore") != null && !parameters.get("urn:perun:user:attribute-def:core:titleBefore").isEmpty())
-				params += "<titul_pred>" + parameters.get("urn:perun:user:attribute-def:core:titleBefore") + "</titul_pred>\n";
+			if (parameters.get(TITLE_BEFORE_KEY) != null && !parameters.get(TITLE_BEFORE_KEY).isEmpty())
+				params += "<titul_pred>" + parameters.get(TITLE_BEFORE_KEY) + "</titul_pred>\n";
 
-			if (parameters.get("urn:perun:user:attribute-def:core:titleAfter") != null && !parameters.get("urn:perun:user:attribute-def:core:titleAfter").isEmpty())
-				params += "<titul_za>" + parameters.get("urn:perun:user:attribute-def:core:titleAfter") + "</titul_za>\n";
+			if (parameters.get(TITLE_AFTER_KEY) != null && !parameters.get(TITLE_AFTER_KEY).isEmpty())
+				params += "<titul_za>" + parameters.get(TITLE_AFTER_KEY) + "</titul_za>\n";
 
-			if (parameters.get("urn:perun:user:attribute-def:def:birthDay") != null && !parameters.get("urn:perun:user:attribute-def:def:birthDay").isEmpty())
-				params += "<datum_narozeni>" + parameters.get("urn:perun:user:attribute-def:def:birthDay") + "</datum_narozeni>\n";
+			if (parameters.get(BIRTH_DAY_KEY) != null && !parameters.get(BIRTH_DAY_KEY).isEmpty())
+				params += "<datum_narozeni>" + parameters.get(BIRTH_DAY_KEY) + "</datum_narozeni>\n";
 
-			if (parameters.get("urn:perun:user:attribute-def:def:rc") != null && !parameters.get("urn:perun:user:attribute-def:def:rc").isEmpty())
-				params += "<rodne_cislo>" + parameters.get("urn:perun:user:attribute-def:def:rc") + "</rodne_cislo>\n";
+			if (parameters.get(BIRTH_NUMBER_KEY) != null && !parameters.get(BIRTH_NUMBER_KEY).isEmpty())
+				params += "<rodne_cislo>" + parameters.get(BIRTH_NUMBER_KEY) + "</rodne_cislo>\n";
 
-			if (parameters.get("urn:perun:member:attribute-def:def:mail") != null && !parameters.get("urn:perun:member:attribute-def:def:mail").isEmpty())
-				params += "<email>" + parameters.get("urn:perun:member:attribute-def:def:mail") + "</email>\n";
+			if (parameters.get(MAIL_KEY) != null && !parameters.get(MAIL_KEY).isEmpty())
+				params += "<email>" + parameters.get(MAIL_KEY) + "</email>\n";
 
-			if (parameters.get("password") != null && !parameters.get("password").isEmpty())
-				params += "<heslo>" + parameters.get("password") + "</heslo>\n";
+			if (parameters.get(PASSWORD_KEY) != null && !parameters.get(PASSWORD_KEY).isEmpty())
+				params += "<heslo>" + parameters.get(PASSWORD_KEY) + "</heslo>\n";
 
 		}
 
@@ -285,7 +285,7 @@ public class MuPasswordManagerModule implements PasswordManagerModule {
 		try {
 
 			String uco = (String) ucoExpr.evaluate(document, XPathConstants.STRING);
-			result.put("urn:perun:user:attribute-def:def:login-namespace:mu", uco);
+			result.put(LOGIN_PREFIX+"mu", uco);
 
 		} catch (XPathExpressionException ex) {
 			throw new InternalErrorException("Error when evaluate xpath query on resulting document for request ID: " + requestID, ex);
