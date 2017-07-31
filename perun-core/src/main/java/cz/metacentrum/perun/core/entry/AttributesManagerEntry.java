@@ -498,6 +498,29 @@ public class AttributesManagerEntry implements AttributesManager {
 		return attributes;
 	}
 
+	public List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException {
+		Utils.checkPerunSession(sess);
+		getPerunBl().getResourcesManagerBl().checkResourceExists(sess, resource);
+		getPerunBl().getGroupsManagerBl().checkGroupExists(sess, group);
+		List<Attribute> attributes = getAttributesManagerBl().getAttributes(sess, resource, group, attrNames, workWithGroupAttributes);
+		Iterator<Attribute> attrIter = attributes.iterator();
+		//Choose to which attributes has the principal access
+		while(attrIter.hasNext()) {
+			Attribute attrNext = attrIter.next();
+			if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_ATTR)) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, group, null)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, group, null));
+			} else if(getAttributesManagerBl().isFromNamespace(sess, attrNext, NS_GROUP_RESOURCE_ATTR)) {
+				if(!AuthzResolver.isAuthorizedForAttribute(sess, ActionType.READ, attrNext, group, resource)) attrIter.remove();
+				else attrNext.setWritable(AuthzResolver.isAuthorizedForAttribute(sess, ActionType.WRITE, attrNext, group, resource));
+			} else {
+				throw new ConsistencyErrorException("One of getting attribute is not type of group or group_resource : " + attrNext);
+			}
+		}
+
+		return attributes;
+	}
+
 	public List<Attribute> getAttributes(PerunSession sess, Member member, boolean workWithUserAttributes) throws PrivilegeException, InternalErrorException, MemberNotExistsException {
 		Utils.checkPerunSession(sess);
 		getPerunBl().getMembersManagerBl().checkMemberExists(sess, member);
