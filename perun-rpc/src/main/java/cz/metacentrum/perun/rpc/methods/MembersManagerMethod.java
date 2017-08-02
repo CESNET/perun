@@ -108,14 +108,13 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * Creates a new sponsored member in a given VO and namespace.
 	 *
 	 * Can be called either by a user with role SPONSOR, in that case the user becomes the sponsor,
-	 * or by a user with role REGISTRAR that must specify the sponsoring user using the extSourcename and extLogin.
+	 * or by a user with role REGISTRAR that must specify the sponsoring user using ID.
 	 *
 	 * @param guestName String identification of sponsored account, e.g. "John Doe" or "conference member 1"
 	 * @param password String password
 	 * @param vo int VO ID
 	 * @param namespace String namespace selecting remote system for storing the password
-	 * @param extSourceName String external source name, usually SAML IdP entityID
-	 * @param extLogin String external source login, usually eduPersonPrincipalName
+	 * @param sponsor int sponsor's ID
 	 * @return RichMember newly created sponsored member
 	 */
 	createSponsoredMember {
@@ -126,7 +125,10 @@ public enum MembersManagerMethod implements ManagerMethod {
 			String password = params.readString("password");
 			Vo vo =  ac.getVoById(params.readInt("vo"));
 			String namespace = params.readString("namespace");
-			User sponsor = ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(), params.readString("extSourceName"), params.readString("extLogin"));
+			User sponsor = null;
+			if(params.contains("sponsor")) {
+				sponsor = ac.getUserById(params.readInt("sponsor"));
+			}
 			return ac.getMembersManager().createSponsoredMember(ac.getSession(), vo, namespace, guestName, password, sponsor);
 		}
 	},
