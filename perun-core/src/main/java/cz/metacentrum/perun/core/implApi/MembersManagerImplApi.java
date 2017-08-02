@@ -211,6 +211,14 @@ public interface MembersManagerImplApi {
 	 */
 	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User sponsor) throws InternalErrorException;
 
+	/**
+	 * Gets list of sponsored members of a VO.
+	 * @param sess session
+	 * @param vo virtual organization from which are the sponsored members chosen
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @return list of members from given vo who are sponsored
+	 */
+	List<Member> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException;
 
 	/**
 	 * Deletes all links to sponsors, even those marked as inactive.

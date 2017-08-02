@@ -1085,6 +1085,16 @@ public class MembersManagerEntry implements MembersManager {
 	}
 
 	@Override
+	public List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException {
+		Utils.checkPerunSession(sess);
+		Utils.notNull(vo, "vo");
+		if(!(AuthzResolver.isAuthorized(sess, Role.REGISTRAR)||AuthzResolver.isAuthorized(sess, Role.VOADMIN, vo))) {
+			throw new PrivilegeException(sess, "getSponsoredMembers");
+		}
+		return membersManagerBl.convertMembersToRichMembers(sess, membersManagerBl.getSponsoredMembers(sess, vo));
+	}
+
+	@Override
 	public String extendExpirationForSponsoredMember(PerunSession sess, Member sponsoredMember, User sponsorUser) throws InternalErrorException, PrivilegeException, VoNotExistsException {
 		Utils.checkPerunSession(sess);
 		Utils.notNull(sponsoredMember, "sponsoredMember");

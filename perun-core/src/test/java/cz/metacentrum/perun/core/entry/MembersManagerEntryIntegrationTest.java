@@ -88,6 +88,38 @@ public class MembersManagerEntryIntegrationTest extends AbstractPerunIntegration
 	}
 
 	@Test
+	public void getSponsoredMembers() throws Exception {
+		System.out.println(CLASS_NAME + "getSponsoredMembers");
+
+		Member sponsorMember = setUpMember3(createdVo);
+		User sponsorUser = perun.getUsersManagerBl().getUserByMember(sess, sponsorMember);
+		Group sponsors = new Group("sponsors","users able to sponsor");
+		sponsors = perun.getGroupsManagerBl().createGroup(sess,createdVo,sponsors);
+		AuthzResolverBlImpl.setRole(sess, sponsors, createdVo, Role.SPONSOR);
+		perun.getGroupsManagerBl().addMember(sess,sponsors,sponsorMember);
+
+		//no sponsored member has been created yet
+		assertTrue(perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo).size() == 0);
+
+		Member sponsoredMember1 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", "Ing. Petr Draxler", "secret", sponsorUser, false);
+
+		//should contain one sponsored member
+		List<Member> sponsoredMembers = perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo);
+
+		assertTrue(sponsoredMembers.size() == 1);
+		assertTrue(sponsoredMembers.contains(sponsoredMember1));
+
+		Member sponsoredMember2 = perun.getMembersManagerBl().createSponsoredMember(sess, createdVo, "dummy", "Miloš Zeman", "password", sponsorUser, false);
+
+		sponsoredMembers = perun.getMembersManagerBl().getSponsoredMembers(sess, createdVo);
+
+		//now should contain two sponsored members
+		assertTrue(sponsoredMembers.size() == 2);
+		assertTrue(sponsoredMembers.contains(sponsoredMember1));
+		assertTrue(sponsoredMembers.contains(sponsoredMember2	));
+	}
+
+	@Test
 	public void createMember() throws Exception {
 		System.out.println(CLASS_NAME + "createMemberSync");
 
