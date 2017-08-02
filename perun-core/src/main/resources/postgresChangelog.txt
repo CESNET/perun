@@ -4,9 +4,11 @@
 -- Comments are prefixed with -- and can be written only between version blocks, that means not in the lines with commands. They have to be at the start of the line.
 
 3.1.44
-CREATE TABLE members_sponsored (active char(1) default '1' not null, sponsored_id INTEGER NOT NULL REFERENCES members(id), sponsor_id INTEGER NOT NULL REFERENCES users(id),created_at timestamp default now() not null, created_by varchar(1024) default user not null,created_by_uid integer,modified_at timestamp default now() not null, modified_by varchar(1024) default user not null, modified_by_uid integer);
-CREATE INDEX ON members_sponsored(sponsor_id);
-CREATE INDEX ON members_sponsored(sponsored_id);
+CREATE TABLE members_sponsored (active char(1) default '1' not null, sponsored_id INTEGER NOT NULL, sponsor_id INTEGER NOT NULL,created_at timestamp default now() not null, created_by varchar(1024) default user not null,created_by_uid integer,modified_at timestamp default now() not null, modified_by varchar(1024) default user not null, modified_by_uid integer);
+alter table members_sponsored add constraint memspons_mem_fk foreign key (sponsored_id) references members(id);
+alter table members_sponsored add constraint memspons_usr_fk foreign key (sponsor_id) references users(id);
+create index idx_fk_memspons_mem ON members_sponsored(sponsored_id);
+create index idx_fk_memspons_usr ON members_sponsored(sponsor_id);
 ALTER TABLE members ADD COLUMN sponsored BOOLEAN DEFAULT FALSE NOT NULL;
 update configurations set value='3.1.44' where property='DATABASE VERSION';
 

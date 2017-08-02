@@ -7,10 +7,10 @@
 
 3.1.44
 CREATE TABLE members_sponsored (active char(1) default '1' not null, sponsored_id INTEGER NOT NULL, sponsor_id INTEGER NOT NULL,created_at timestamp default now not null, created_by varchar(1300) default user not null,created_by_uid integer,modified_at timestamp default now not null, modified_by varchar(1300) default user not null, modified_by_uid integer);
-CREATE INDEX ON members_sponsored(sponsor_id);
-CREATE INDEX ON members_sponsored(sponsored_id);
-alter table members_sponsored add constraint members_sponsored_fk1 foreign key (sponsored_id) references members(id);
-alter table members_sponsored add constraint members_sponsored_fk2 foreign key (sponsor_id) references users(id);
+create index idx_fk_memspons_mem ON members_sponsored(sponsored_id);
+create index idx_fk_memspons_usr ON members_sponsored(sponsor_id);
+alter table members_sponsored add constraint memspons_mem_fk foreign key (sponsored_id) references members(id);
+alter table members_sponsored add constraint memspons_usr_fk foreign key (sponsor_id) references users(id);
 ALTER TABLE members ADD COLUMN sponsored BOOLEAN DEFAULT FALSE NOT NULL;
 update configurations set value='3.1.44' where property='DATABASE VERSION';
 

@@ -1338,8 +1338,8 @@ create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
 create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (user_ext_source_id);
 create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
-CREATE INDEX idx_members_sponsored_sponsor ON members_sponsored(sponsor_id);
-CREATE INDEX idx_members_sponsored_sponsored ON members_sponsored(sponsored_id);
+create index idx_fk_memspons_mem ON members_sponsored(sponsored_id);
+create index idx_fk_memspons_usr ON members_sponsored(sponsor_id);
 
 
 alter table auditer_log add constraint audlog_pk primary key (id);
@@ -1683,5 +1683,5 @@ alter table user_ext_source_attr_values add constraint uesattrval_pk primary key
 alter table user_ext_source_attr_values add constraint uesattrval_ues_fk foreign key (user_ext_source_id) references user_ext_sources(id);
 alter table user_ext_source_attr_values add constraint uesattrval_attr_fk foreign key (attr_id) references attr_names(id);
 
-alter table members_sponsored add constraint members_sponsored_fk1 foreign key (sponsored_id) references members(id);
-alter table members_sponsored add constraint members_sponsored_fk2 foreign key (sponsor_id) references users(id);
+alter table members_sponsored add constraint memspons_mem_fk foreign key (sponsored_id) references members(id);
+alter table members_sponsored add constraint memspons_usr_fk foreign key (sponsor_id) references users(id);

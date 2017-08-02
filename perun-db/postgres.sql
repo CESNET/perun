@@ -1,4 +1,4 @@
--- database version 3.1.43 (don't forget to update insert statement at the end of file)
+-- database version 3.1.44 (don't forget to update insert statement at the end of file)
 
 -- VOS - virtual organizations
 create table "vos" (
@@ -1217,8 +1217,8 @@ create table "user_ext_source_attr_values" (
 
 CREATE TABLE members_sponsored (
 	active char(1) default '1' not null,
-	sponsored_id INTEGER NOT NULL REFERENCES members(id),
-	sponsor_id INTEGER NOT NULL REFERENCES users(id),
+	sponsored_id INTEGER NOT NULL,
+	sponsor_id INTEGER NOT NULL,
 	created_at timestamp default now() not null,
 	created_by varchar(1024) default user not null,
 	created_by_uid integer,
@@ -1425,8 +1425,8 @@ create index idx_fk_fac_ban_fac on facilities_bans (facility_id);
 create index idx_fk_fac_ban_user_fac on facilities_bans (user_id, facility_id);
 create index idx_fk_ues_attr_values_ues on user_ext_source_attr_values (user_ext_source_id);
 create index idx_fk_ues_attr_values_attr on user_ext_source_attr_values (attr_id);
-CREATE INDEX idx_members_sponsored_sponsor ON members_sponsored(sponsor_id);
-CREATE INDEX idx_members_sponsored_sponsored ON members_sponsored(sponsored_id);
+create index idx_fk_memspons_mem ON members_sponsored(sponsored_id);
+create index idx_fk_memspons_usr ON members_sponsored(sponsor_id);
 
 alter table auditer_log add constraint audlog_pk primary key (id);
 
@@ -1769,6 +1769,9 @@ alter table user_ext_source_attr_values add constraint uesattrval_pk primary key
 alter table user_ext_source_attr_values add constraint uesattrval_ues_fk foreign key (user_ext_source_id) references user_ext_sources(id);
 alter table user_ext_source_attr_values add constraint uesattrval_attr_fk foreign key (attr_id) references attr_names(id);
 
+alter table members_sponsored add constraint memspons_mem_fk foreign key (sponsored_id) references members(id);
+alter table members_sponsored add constraint memspons_usr_fk foreign key (sponsor_id) references users(id);
+
 grant all on users to perun;
 grant all on vos to perun;
 grant all on ext_sources to perun;
@@ -1862,6 +1865,7 @@ grant all on resources_bans to perun;
 grant all on facilities_bans to perun;
 grant all on membership_types to perun;
 grant all on user_ext_source_attr_values to perun;
+grant all on members_sponsored to perun;
 
 -- set initial Perun DB version
 insert into configurations values ('DATABASE VERSION','3.1.44');
