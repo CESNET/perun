@@ -95,6 +95,9 @@ public interface AttributesManager {
 
 	public static final String ATTRIBUTES_REGEXP = "^[-a-zA-Z0-9.]+([:][-a-zA-Z0-9.]+)?$";
 
+	public static final String[] ENTITY_TYPES = {"facility", "facility:cluster", "resource", "member_resource", "member_group",
+	        "member", "user_facility", "user", "vo", "group", "host", "group_resource", "entityless", "ues"};
+
 	//public static final String NS_ATTR_DEF_FACILITY= NS_ATTR_DEF + ":facility";
 
 	/**
