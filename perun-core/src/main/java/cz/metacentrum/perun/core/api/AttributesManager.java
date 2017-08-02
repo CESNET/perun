@@ -17,11 +17,6 @@ public interface AttributesManager {
 	public static final String NS_FACILITY_ATTR_CORE = "urn:perun:facility:attribute-def:core";
 	public static final String NS_FACILITY_ATTR_VIRT = "urn:perun:facility:attribute-def:virt";
 
-	public static final String NS_FACILITY_CLUSTER_ATTR_DEF= "urn:perun:facility:cluster:attribute-def:def";
-	public static final String NS_FACILITY_CLUSTER_ATTR_OPT = "urn:perun:facility:cluster:attribute-def:opt";
-	public static final String NS_FACILITY_CLUSTER_ATTR_CORE = "urn:perun:facility:cluster:attribute-def:core";
-	public static final String NS_FACILITY_CLUSTER_ATTR_VIRT = "urn:perun:facility:cluster:attribute-def:virt";
-
 	public static final String NS_RESOURCE_ATTR = "urn:perun:resource:attribute-def";
 	public static final String NS_RESOURCE_ATTR_DEF = "urn:perun:resource:attribute-def:def";
 	public static final String NS_RESOURCE_ATTR_OPT = "urn:perun:resource:attribute-def:opt";
@@ -95,7 +90,7 @@ public interface AttributesManager {
 
 	public static final String ATTRIBUTES_REGEXP = "^[-a-zA-Z0-9.]+([:][-a-zA-Z0-9.]+)?$";
 
-	public static final String[] ENTITY_TYPES = {"facility", "facility:cluster", "resource", "member_resource", "member_group",
+	public static final String[] ENTITY_TYPES = {"facility", "resource", "member_resource", "member_group",
 	        "member", "user_facility", "user", "vo", "group", "host", "group_resource", "entityless", "ues"};
 
 	//public static final String NS_ATTR_DEF_FACILITY= NS_ATTR_DEF + ":facility";

@@ -9,28 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cz.metacentrum.perun.core.api.*;
 import org.junit.Test;
 
 import cz.metacentrum.perun.core.AbstractPerunIntegrationTest;
-import cz.metacentrum.perun.core.api.Attribute;
-import cz.metacentrum.perun.core.api.AttributeDefinition;
-import cz.metacentrum.perun.core.api.Candidate;
-import cz.metacentrum.perun.core.api.Destination;
-import cz.metacentrum.perun.core.api.RichDestination;
-import cz.metacentrum.perun.core.api.ExtSource;
-import cz.metacentrum.perun.core.api.Facility;
-import cz.metacentrum.perun.core.api.Group;
-import cz.metacentrum.perun.core.api.Host;
-import cz.metacentrum.perun.core.api.Member;
-import cz.metacentrum.perun.core.api.Resource;
-import cz.metacentrum.perun.core.api.Role;
-import cz.metacentrum.perun.core.api.Service;
-import cz.metacentrum.perun.core.api.ServiceAttributes;
-import cz.metacentrum.perun.core.api.ServicesManager;
-import cz.metacentrum.perun.core.api.ServicesPackage;
-import cz.metacentrum.perun.core.api.User;
-import cz.metacentrum.perun.core.api.UserExtSource;
-import cz.metacentrum.perun.core.api.Vo;
 import cz.metacentrum.perun.core.api.exceptions.AttributeAlreadyAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotAssignedException;
 import cz.metacentrum.perun.core.api.exceptions.AttributeNotExistsException;
@@ -1582,7 +1564,7 @@ public class ServicesManagerEntryIntegrationTest extends AbstractPerunIntegratio
 		attribute = new AttributeDefinition();
 		attribute.setFriendlyName("ServicesManagerTestAttribute");
 		attribute.setDescription("TestingAttribute");
-		attribute.setNamespace("Testing");
+		attribute.setNamespace(AttributesManager.NS_ENTITYLESS_ATTR_DEF);
 		attribute.setType(String.class.getName());
 
 		attribute = perun.getAttributesManager().createAttribute(sess, attribute);
