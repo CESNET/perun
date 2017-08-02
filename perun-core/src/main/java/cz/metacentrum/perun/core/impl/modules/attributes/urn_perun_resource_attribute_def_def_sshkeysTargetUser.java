@@ -9,6 +9,8 @@ import cz.metacentrum.perun.core.api.exceptions.WrongAttributeAssignmentExceptio
 import cz.metacentrum.perun.core.api.exceptions.WrongAttributeValueException;
 import cz.metacentrum.perun.core.api.exceptions.WrongReferenceAttributeValueException;
 import cz.metacentrum.perun.core.impl.PerunSessionImpl;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleAbstract;
+import cz.metacentrum.perun.core.implApi.modules.attributes.ResourceAttributesModuleImplApi;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,14 +19,12 @@ import java.util.regex.Pattern;
  * Module for names of target users (to whose accounts are sshkeys stored).
  *
  * @author Zdenek Strmiska <zdenek.strm@gmail.com>
- * @date 27.7.2017
  */
-
-
-public class urn_perun_resource_attribute_def_def_sshkeysTargetUser {
+public class urn_perun_resource_attribute_def_def_sshkeysTargetUser extends ResourceAttributesModuleAbstract implements ResourceAttributesModuleImplApi {
 
 	Pattern pattern = Pattern.compile("^(?!-)[-_.a-zA-Z0-9]+$");
 
+	@Override
 	public void checkAttributeValue(PerunSessionImpl perunSession, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongAttributeAssignmentException {
 		String key = (String) attribute.getValue();
 		if (key == null) {
