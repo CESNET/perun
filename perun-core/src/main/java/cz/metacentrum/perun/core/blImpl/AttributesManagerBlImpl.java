@@ -497,6 +497,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -529,6 +530,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -559,6 +561,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -588,6 +591,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -622,6 +626,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// classification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -659,6 +664,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -712,6 +718,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -781,6 +788,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -816,6 +824,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -846,6 +855,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -871,6 +881,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -901,6 +912,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -929,6 +941,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -950,6 +963,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for (Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -983,6 +997,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		// clasification of attributes to attributes to remove and attributes to set
 		List<Attribute> attributesToRemove = new ArrayList<Attribute>();
 		List<Attribute> attributesToSet = new ArrayList<Attribute>();
+		convertEmptyAttrValueToNull(attributes);
 		for(Attribute attribute : attributes) {
 			if (attribute.getValue() == null) {
 				attributesToRemove.add(attribute);
@@ -1468,6 +1483,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Facility facility, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, facility, attribute);
 			return;
@@ -1498,6 +1514,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Vo vo, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, vo, attribute);
 			return;
@@ -1527,6 +1544,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, group, attribute);
 			return;
@@ -1538,6 +1556,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Resource resource, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, resource, attribute);
 			return;
@@ -1591,6 +1610,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, resource, member, attribute);
 			return;
@@ -1603,6 +1623,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	@Override
 	public void setAttribute(PerunSession sess, Member member, Group group, Attribute attribute) throws InternalErrorException, AttributeNotExistsException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, member, group, attribute);
 			return;
@@ -1614,6 +1635,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Resource resource, Member member, Attribute attribute, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, resource, member, attribute);
 			return;
@@ -1749,6 +1771,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Member member, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, member, attribute);
 			return;
@@ -1798,6 +1821,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Facility facility, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, facility, user, attribute);
 			return;
@@ -1809,6 +1833,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, User user, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, user, attribute);
 			return;
@@ -1843,6 +1868,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Host host, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, host, attribute);
 			return;
@@ -1874,6 +1900,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, Resource resource, Group group, Attribute attribute) throws InternalErrorException, WrongAttributeAssignmentException, WrongAttributeValueException, WrongReferenceAttributeValueException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, resource, group, attribute);
 			return;
@@ -1962,6 +1989,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, String key, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, key, attribute);
 			return;
@@ -1973,6 +2001,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	public void setAttribute(PerunSession sess, UserExtSource ues, Attribute attribute) throws InternalErrorException, WrongAttributeValueException, WrongAttributeAssignmentException, WrongReferenceAttributeValueException {
+		convertEmptyAttrValueToNull(attribute);
 		if (attribute.getValue() == null) {
 			removeAttribute(sess, ues, attribute);
 			return;
@@ -4389,6 +4418,7 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 						 }
 
 						 //if attribute to merge has null value, return the stored attribute
+						 convertEmptyAttrValueToNull(attribute);
 						 if(attribute.getValue() == null) return storedAttribute;
 
 						 if (storedAttribute != null) {
@@ -6058,6 +6088,51 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	/**
+	 * Checks if the attributes represent empty values. If so, converts them into null.
+	 *
+	 * @param attributes attributes to be checked if are null
+	 */
+	public void convertEmptyAttrValueToNull(List<Attribute> attributes) throws ConsistencyErrorException {
+		for (Attribute attribute : attributes) {
+			convertEmptyAttrValueToNull(attribute);
+		}
+	}
+
+	/**
+	 * Checks if the attribute represents empty value. If so, converts it into null.
+	 *
+	 * @param attribute attribute to be checked if is null
+	 */
+	public void convertEmptyAttrValueToNull(Attribute attribute) throws ConsistencyErrorException {
+		if(attribute.getValue() == null) {
+			return;
+		}
+		if (attribute.getValue() instanceof Integer) {
+			return;
+		}
+		if (attribute.getValue() instanceof String) {
+			if(((String)attribute.getValue()).matches("\\s*")) {
+				attribute.setValue(null);
+			}
+		} else if (attribute.getValue() instanceof Boolean) {
+			if(attribute.getValue().equals(Boolean.FALSE)) {
+				attribute.setValue(null);
+			}
+		} else if (attribute.getValue() instanceof ArrayList) {
+			if(((ArrayList)attribute.getValue()).isEmpty()) {
+				attribute.setValue(null);
+			}
+		} else if (attribute.getValue() instanceof LinkedHashMap) {
+			if(((LinkedHashMap)attribute.getValue()).isEmpty()) {
+				attribute.setValue(null);
+			}
+		} else {
+			throw new ConsistencyErrorException("Invalid attribute value type: " + attribute.getType() +
+			                                    " class: " + attribute.getValue().getClass().getName());
+		}
+	}
+
+	/**
 	 * Gets the getAttributesManagerImpl().
 	 *
 	 * @return The getAttributesManagerImpl().
@@ -6383,29 +6458,6 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 	public Map<AttributeDefinition, Set<AttributeDefinition>> getAllDependencies() {
 		return allDependencies;
-	}
-
-	@Override
-	public Attribute convertEmptyStringIntoNullInAttrValue(Attribute attributeToConvert) {
-		//if attributeToConvert has already null value, return it
-		if(attributeToConvert.getValue() == null) return attributeToConvert;
-		String testAttributeType = attributeToConvert.getType();
-		if ((testAttributeType.equals(String.class.getName()) || testAttributeType.equals(BeansUtils.largeStringClassName))
-				&& attributeToConvert.getValue().equals("")) {
-			attributeToConvert.setValue(null);
-		}
-		return attributeToConvert;
-	}
-
-	@Override
-	public Attribute convertBooleanFalseIntoNullInAttrValue(Attribute attributeToConvert) {
-		//if attributeToConvert has already null value, return it
-		if(attributeToConvert.getValue() == null) return attributeToConvert;
-		String testAttributeType = attributeToConvert.getType();
-		if (testAttributeType.equals(Boolean.class.getName()) && attributeToConvert.getValue().equals(false)) {
-			attributeToConvert.setValue(null);
-		}
-		return attributeToConvert;
 	}
 
 	/**
