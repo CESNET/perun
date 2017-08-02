@@ -1152,6 +1152,16 @@ public interface MembersManager {
 	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException, PrivilegeException;
 
 	/**
+	 * Gets list of sponsored members of a VO.
+	 * @param sess actor
+	 * @param vo virtual organization from which are the sponsored members chosen
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @throws PrivilegeException If not REGISTRAR or VOADMIN
+	 * @return list of members from given vo who are sponsored
+	 */
+	List<RichMember> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException, PrivilegeException;
+
+	/**
 	 * Extends expiration date. Sponsored members cannot apply for membership extension, this method allows a sponsor to extend it.
 	 */
 	String extendExpirationForSponsoredMember(PerunSession session, Member sponsored, User sponsor) throws InternalErrorException, PrivilegeException, VoNotExistsException;
