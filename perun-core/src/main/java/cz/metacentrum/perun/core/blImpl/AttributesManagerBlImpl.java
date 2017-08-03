@@ -1989,6 +1989,11 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 		Utils.notNull(attribute.getFriendlyName(), "attribute.getFriendlyName");
 		Utils.notNull(attribute.getType(), "attribute.getType");
 
+		//check if attribute.nameSpace is valid nameSpace
+		if(!isCorrectNameSpace(attribute.getNamespace())) {
+			throw new InternalErrorException("Incorrect namespace " + attribute.getNamespace());
+		}
+
 		//check if attribute.type is valid class name
 		try {
 			if (!attribute.getType().equals(BeansUtils.largeStringClassName) &&
@@ -2004,6 +2009,15 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 
 		getPerunBl().getAuditer().log(sess, "{} created.", attribute);
 		return getAttributesManagerImpl().createAttribute(sess, attribute);
+	}
+
+	private boolean isCorrectNameSpace(String value) {
+		for(String entityType : AttributesManager.ENTITY_TYPES) {
+			if(value.matches("urn:perun:" + entityType + ":attribute-def:(def|opt|virt|core)")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void deleteAttribute(PerunSession sess, AttributeDefinition attribute) throws InternalErrorException {
