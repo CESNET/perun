@@ -259,6 +259,8 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 				memberResourceAttributeNames.add(attributeName);
 			} else if(attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR)) {
 				userFacilityAttirbuteNames.add(attributeName);
+			} else if(attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+
 			} else {
 				log.error("Attribute defined by " + attributeName + " is not in supported namespace. Skip it there!");
 			}
@@ -274,6 +276,31 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, user, facility, userFacilityAttirbuteNames));
 		}
 
+		return attributes;
+	}
+
+	public List<Attribute> getAttributes(PerunSession sess, Group group, Resource resource, Member member, List<String> attrNames, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+		List<Attribute> attributes = getAttributes(sess, resource, member, attrNames, workWithUserAttributes);
+
+		if(attrNames.isEmpty()) {
+			attributes.addAll(getAttributes(sess, member, group));
+			return attributes;
+		}
+
+		List<String> memberGroupAttributeNames = new ArrayList<>();
+
+		//possible inefficiency - additional iteration over attrNames
+		for(String attributeName: attrNames) {
+			if(attributeName.startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) {
+				memberGroupAttributeNames.add(attributeName);
+			} else if (!(attributeName.startsWith(AttributesManager.NS_USER_ATTR) || attributeName.startsWith(AttributesManager.NS_MEMBER_ATTR) || attributeName.startsWith (AttributesManager.NS_MEMBER_RESOURCE_ATTR) || attributeName.startsWith(AttributesManager.NS_USER_FACILITY_ATTR)))
+			{
+				log.error("Attribute defined by " + attributeName + " is not in supported namespace. Skip it there!");
+			}
+		}
+		if(!memberGroupAttributeNames.isEmpty()){
+			attributes.addAll(getAttributesManagerImpl().getAttributes(sess, member, group, memberGroupAttributeNames));
+		}
 		return attributes;
 	}
 

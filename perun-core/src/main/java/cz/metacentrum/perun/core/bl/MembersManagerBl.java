@@ -576,8 +576,9 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 * @throws ParentGroupNotExistsException
+	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrsNames from the group and have only
@@ -597,8 +598,9 @@ public interface MembersManagerBl {
 	 * @throws InternalErrorException
 	 * @throws AttributeNotExistsException
 	 * @throws ParentGroupNotExistsException
+	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException;
+	List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get all RichMembers with attributes specific for list of attrNames.
@@ -729,8 +731,9 @@ public interface MembersManagerBl {
 	 * @return list of RichMembers
 	 * @throws AttributeNotExistsException
 	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException;
+	List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get RichMembers with Attributes but only with selected attributes from list attrsDef for group.
@@ -757,8 +760,9 @@ public interface MembersManagerBl {
 	 * @param attrsDef
 	 * @return
 	 * @throws InternalErrorException
+	 * @throws WrongAttributeAssignmentException
 	 */
-	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException;
+	List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get rich members for displaying on pages. Rich member object contains user, member, userExtSources.
@@ -878,6 +882,7 @@ public interface MembersManagerBl {
 	 * @throws WrongAttributeAssignmentException
 	 */
 	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, Resource resource, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException;
+
 
 	/**
 	 * Get the VO members count.

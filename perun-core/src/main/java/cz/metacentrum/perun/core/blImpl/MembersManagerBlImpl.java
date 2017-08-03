@@ -681,7 +681,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getRichMembersWithAttributesByNames(sess, group, resource, attrsNames), allowedStatuses);
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
 		if(lookingInParentGroup) group = getPerunBl().getGroupsManagerBl().getParentGroup(sess, group);
 
 		if(attrsNames == null || attrsNames.isEmpty()) {
@@ -691,7 +691,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		}
 	}
 
-	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException {
+	public List<RichMember> getCompleteRichMembers(PerunSession sess, Group group, List<String> attrsNames, List<String> allowedStatuses, boolean lookingInParentGroup) throws InternalErrorException, AttributeNotExistsException, ParentGroupNotExistsException, WrongAttributeAssignmentException {
 		return getOnlyRichMembersWithAllowedStatuses(sess, this.getCompleteRichMembers(sess, group, attrsNames, lookingInParentGroup), allowedStatuses);
 	}
 
@@ -780,6 +780,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembersWithAttributes;
 	}
 
+
 	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, Resource resource, List<String> attrsNames) throws InternalErrorException, WrongAttributeAssignmentException, AttributeNotExistsException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
@@ -789,11 +790,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
 		}
-		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, resource, attrsDef);
+		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, resource, richMembers, attrsDef);
 		return richMembersWithAttributes;
 	}
 
-	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException {
+	public List<RichMember> getRichMembersWithAttributesByNames(PerunSession sess, Group group, List<String> attrsNames) throws InternalErrorException, AttributeNotExistsException, WrongAttributeAssignmentException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
@@ -802,15 +803,15 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 			AttributeDefinition attrDef = perunBl.getAttributesManagerBl().getAttributeDefinition(sess, atrrName);
 			attrsDef.add(attrDef);
 		}
-		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
+		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
 		return richMembersWithAttributes;
 	}
 
-	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException {
+	public List<RichMember> getRichMembersWithAttributes(PerunSession sess, Group group, List<AttributeDefinition> attrsDef) throws InternalErrorException, WrongAttributeAssignmentException {
 		List<Member> members = new ArrayList<Member>();
 		members.addAll(perunBl.getGroupsManagerBl().getGroupMembers(sess, group));
 		List<RichMember> richMembers = this.convertMembersToRichMembers(sess, members);
-		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, richMembers, attrsDef);
+		List<RichMember> richMembersWithAttributes = this.convertMembersToRichMembersWithAttributes(sess, group, richMembers, attrsDef);
 		return richMembersWithAttributes;
 	}
 
@@ -902,6 +903,37 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 		return richMembers;
 	}
 
+	// works with RESOURCE and GROUP
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, Resource resource, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException {
+		List<String> attrNames = new ArrayList<>();
+		for(AttributeDefinition attributeDefinition: attrsDef) {
+			attrNames.add(attributeDefinition.getName());
+		}
+
+		for (RichMember richMember: richMembers) {
+			List<Attribute> userAttributes = new ArrayList<>();
+			List<Attribute> memberAttributes = new ArrayList<>();
+
+			List<Attribute> attributes = getPerunBl().getAttributesManagerBl().getAttributes(sess, group, resource, richMember, attrNames, true);
+
+			for(Attribute attribute: attributes) {
+				if(attribute.getName().startsWith(AttributesManager.NS_USER_ATTR)) userAttributes.add(attribute);
+				else if(attribute.getName().startsWith(AttributesManager.NS_USER_FACILITY_ATTR)) userAttributes.add(attribute);
+				else if(attribute.getName().startsWith(AttributesManager.NS_MEMBER_ATTR)) memberAttributes.add(attribute);
+				else if(attribute.getName().startsWith(AttributesManager.NS_MEMBER_RESOURCE_ATTR)) memberAttributes.add(attribute);
+				else if(attribute.getName().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) memberAttributes.add(attribute);
+				else {
+					throw new InternalErrorException(attribute + " is not from user or member namespace (member-resource, user-facility, member-group included)!");
+				}
+			}
+
+			richMember.setUserAttributes(userAttributes);
+			richMember.setMemberAttributes(memberAttributes);
+		}
+
+		return richMembers;
+	}
+
 	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException {
 		List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
 		List<AttributeDefinition> membersAttributesDef = new ArrayList<AttributeDefinition>();
@@ -926,6 +958,48 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				memberAttrNames.add(ad.getName());
 			}
 			memberAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, memberAttrNames));
+
+			richMember.setUserAttributes(userAttributes);
+			richMember.setMemberAttributes(memberAttributes);
+		}
+
+		return richMembers;
+	}
+
+	//also adds group-member attributes
+	public List<RichMember> convertMembersToRichMembersWithAttributes(PerunSession sess, Group group, List<RichMember> richMembers, List<AttributeDefinition> attrsDef)  throws InternalErrorException, WrongAttributeAssignmentException {
+		List<AttributeDefinition> usersAttributesDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> membersAttributesDef = new ArrayList<AttributeDefinition>();
+		List<AttributeDefinition> groupAttributesDef = new ArrayList<AttributeDefinition>();
+
+		for(AttributeDefinition attrd: attrsDef) {
+			if(attrd.getName().startsWith(AttributesManager.NS_USER_ATTR)) usersAttributesDef.add(attrd);
+			else if(attrd.getName().startsWith(AttributesManager.NS_MEMBER_ATTR)) membersAttributesDef.add(attrd);
+			else if(attrd.getName().startsWith(AttributesManager.NS_MEMBER_GROUP_ATTR)) groupAttributesDef.add(attrd);
+		}
+
+		for (RichMember richMember: richMembers) {
+			List<Attribute> userAttributes = new ArrayList<Attribute>();
+			List<Attribute> memberAttributes = new ArrayList<Attribute>();
+
+			List<String> userAttrNames = new ArrayList<String>();
+			for(AttributeDefinition ad: usersAttributesDef) {
+				userAttrNames.add(ad.getName());
+			}
+			userAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember.getUser(), userAttrNames));
+
+			List<String> memberAttrNames = new ArrayList<String>();
+			for(AttributeDefinition ad: membersAttributesDef) {
+				memberAttrNames.add(ad.getName());
+			}
+			memberAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, memberAttrNames));
+
+			//add group-member attributes
+			List<String> groupAttrNames = new ArrayList<String>();
+			for(AttributeDefinition ad: groupAttributesDef) {
+				groupAttrNames.add(ad.getName());
+			}
+			memberAttributes.addAll(getPerunBl().getAttributesManagerBl().getAttributes(sess, richMember, group, groupAttrNames));
 
 			richMember.setUserAttributes(userAttributes);
 			richMember.setMemberAttributes(memberAttributes);
