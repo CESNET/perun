@@ -1,4 +1,4 @@
--- database version 3.1.43 (don't forget to update insert statement at the end of file)
+-- database version 3.1.44 (don't forget to update insert statement at the end of file)
 
 create user perunv3 identified by password;
 grant create session to perunv3;
@@ -1136,8 +1136,8 @@ create table user_ext_source_attr_values (
 
 CREATE TABLE members_sponsored (
 	active char(1) default '1' not null,
-	sponsored_id INTEGER NOT NULL REFERENCES members(id),
-	sponsor_id INTEGER NOT NULL REFERENCES users(id),
+	sponsored_id INTEGER NOT NULL,
+	sponsor_id INTEGER NOT NULL,
 	created_at date default sysdate not null,
 	created_by nvarchar2(1300) default user not null,
 	created_by_uid integer,
@@ -1337,8 +1337,8 @@ create index IDX_FK_FAC_BAN_USER on facilities_bans (user_id);
 create index IDX_FK_FAC_BAN_FAC on facilities_bans (facility_id);
 create index IDX_FK_UES_ATTR_VALUES_UES on user_ext_source_attr_values (user_ext_source_id);
 create index IDX_FK_UES_ATTR_VALUES_ATTR on user_ext_source_attr_values (attr_id);
-CREATE INDEX idx_members_sponsored_sponsor ON members_sponsored(sponsor_id);
-CREATE INDEX idx_members_sponsored_sponsored ON members_sponsored(sponsored_id);
+create index IDX_FK_MEMSPONS_USR ON members_sponsored(sponsor_id);
+create index IDX_FK_MEMSPONS_MEM ON members_sponsored(sponsored_id);
 
 alter table auditer_log add (constraint AUDLOG_PK primary key (id));
 alter table auditer_consumers add (constraint AUDCON_PK primary key (id),
@@ -1817,8 +1817,13 @@ constraint UESATTRVAL_UES_FK foreign key (user_ext_source_id) references user_ex
 constraint UESATTRVAL_ATTR_FK foreign key (attr_id) references attr_names(id)
 );
 
+alter table members_sponsored add (
+	constraint MEMSPONS_MEM_FK foreign key (sponsored_id) references members(id),
+	constraint MEMSPONS_USR_FK foreign key (sponsor_id) references users(id)
+);
+
 -- set initial Perun DB version
-insert into configurations values ('DATABASE VERSION','3.1.43');
+insert into configurations values ('DATABASE VERSION','3.1.44');
 
 -- insert membership types
 insert into membership_types (id, membership_type, description) values (1, 'DIRECT', 'Member is directly added into group');
