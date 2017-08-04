@@ -163,10 +163,12 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	}
 
 	private ServiceAttributes getDataWithGroups(PerunSession sess, Service service, Facility facility, Resource resource) throws InternalErrorException {
+
+		// append resource attributes
 		ServiceAttributes resourceServiceAttributes = new ServiceAttributes();
 		resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource));
-		
-		//Add there also voRequiredAttributes for service
+
+		// append also vo attributes to resource object
 		try {
 			Vo resourceVo = getPerunBl().getVosManagerBl().getVoById(sess, resource.getVoId());
 			resourceServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resourceVo));
@@ -180,6 +182,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		HashMap<Member, List<Attribute>> attributes;
 
 		try {
+			// append all member/member_resource/user/user_facility attributes
 			attributes = getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility, resource, members, true);
 		} catch(WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -192,6 +195,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			membersAbstractSA.addChildElement(tmpAttributes);
 		}
 
+		// get all groups and append their sub structure
 		ServiceAttributes groupsAbstractSA = new ServiceAttributes();
 		List<Group> groups = getPerunBl().getResourcesManagerBl().getAssignedGroups(sess, resource);
 		for(Group group: groups) {
@@ -208,18 +212,19 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	private ServiceAttributes getDataWithVo(PerunSession sess, Service service, Facility facility, Vo vo, List<Resource> resources) throws InternalErrorException {
 		ServiceAttributes voServiceAttributes = new ServiceAttributes();
 		voServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, vo));
-		
+
 		for(Resource resource: resources) {
 			ServiceAttributes resourceServiceAttributes = getDataWithGroups(sess, service, facility, resource);
 			voServiceAttributes.addChildElement(resourceServiceAttributes);
 		}
-		
+
 		return voServiceAttributes;
 	}
 
 	private ServiceAttributes getData(PerunSession sess, Service service, Facility facility, Resource resource, Group group, Map<Member, ServiceAttributes> memberAttributes) throws InternalErrorException {
 		ServiceAttributes groupServiceAttributes = new ServiceAttributes();
 		try {
+			// add group and group_resource attributes
 			groupServiceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, resource, group, true));
 		} catch (WrongAttributeAssignmentException ex) {
 			throw new InternalErrorException(ex);
@@ -237,7 +242,12 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 		//Invalid and disabled are not allowed here
 		List<Member> members = getPerunBl().getGroupsManagerBl().getGroupMembersExceptInvalidAndDisabled(sess, group);
 		for(Member member : members) {
-			groupsMembersElement.addChildElement(memberAttributes.get(member));
+			// append also member_group attributes for each member in a group
+			// rest of member/user attributes was passed in a param
+			ServiceAttributes tempAttrs = new ServiceAttributes();
+			tempAttrs.addAttributes(memberAttributes.get(member).getAttributes());
+			tempAttrs.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, member, group));
+			groupsMembersElement.addChildElement(tempAttrs);
 		}
 
 		groupServiceAttributes.addChildElement(groupsSubGroupsElement);
@@ -323,11 +333,11 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 	public ServiceAttributes getDataWithVos(PerunSession sess, Service service, Facility facility) throws InternalErrorException, VoNotExistsException {
 		ServiceAttributes serviceAttributes = new ServiceAttributes();
 		serviceAttributes.addAttributes(getPerunBl().getAttributesManagerBl().getRequiredAttributes(sess, service, facility));
-		
+
 		//Get resources only for facility and service
 		List<Resource> resources = getPerunBl().getFacilitiesManagerBl().getAssignedResources(sess, facility);
 		resources.retainAll(getAssignedResources(sess, service));
-		
+
 		//Get all vos for these resources
 		Set<Integer> vosIds = new HashSet<>();
 		for(Resource resource: resources) {
@@ -345,7 +355,7 @@ public class ServicesManagerBlImpl implements ServicesManagerBl {
 			ServiceAttributes voServiceAttributes = getDataWithVo(sess, service, facility, vo, voResources);
 			serviceAttributes.addChildElement(voServiceAttributes);
 		}
-		
+
 		return serviceAttributes;
 	}
 

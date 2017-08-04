@@ -240,10 +240,10 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *         Group second chi is abstract structure which children are members.
 	 <pre>
 	 Facility
-	 +---Attrs                              ...................................................
-	 +---ChildNodes                         |                                                 .
+	 +---Attrs                       ...................................................
+	 +---ChildNodes                  |                                                 .
 	 +------Resource                 |                                                 .
-	 |       +---Attrs
+	 |       +---Attrs               |                                                 .
 	 |       +---ChildNodes          |                                                 .
 	 |              +------()        V                                                 .
 	 |              |       +------Group                                               .
@@ -318,7 +318,7 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *
 	 * @param service attributes required by this service you will get
 	 * @param facility you will get attributes for this facility, vos associated with this facility by resources, resources associated with it and members assigned to the resources
-	 * @return attributes in special structure. 
+	 * @return attributes in special structure.
 	 *        Facility is in the root, facility children are vos.
 	 *        Vo first child is abstract structure which children are resources.
 	 *        Resource first child is abstract structure which children are groups.
@@ -327,12 +327,12 @@ public enum ServicesManagerMethod implements ManagerMethod {
 	 *        Group second chi is abstract structure which children are members.
 	 <pre>
 	 Facility
-	 +---Attrs                              
-	 +---ChildNodes               
-	        +-----Vo 
+	 +---Attrs
+	 +---ChildNodes
+	        +-----Vo
 	        |      +---Attrs
 	        |      +---ChildNodes
-	        |             +-------Resource                                                               
+	        |             +-------Resource
 	        |             |       +---Attrs               |-------------------------------------------------.
 	        |             |       +---ChildNodes          |                                                 .
 	        |             |              +------()        V                                                 .
