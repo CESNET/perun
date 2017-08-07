@@ -2359,12 +2359,12 @@ public class AttributesManagerBlImpl implements AttributesManagerBl {
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group) throws InternalErrorException {
 		return getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group);
 	}
 
 	@Override
-	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException, WrongAttributeAssignmentException {
+	public List<Attribute> getRequiredAttributes(PerunSession sess, Service service, Member member, Group group, boolean workWithUserAttributes) throws InternalErrorException {
 		if(!workWithUserAttributes) return getAttributesManagerImpl().getRequiredAttributes(sess, service, member, group);
 
 		User user = getPerunBl().getUsersManagerBl().getUserByMember(sess, member);

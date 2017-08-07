@@ -2267,7 +2267,7 @@ public class AttributesManagerImpl implements AttributesManagerImplApi {
 		try {
 			return jdbc.query("select " + getAttributeMappingSelectQuery("mem_gr") + " from attr_names " +
 							"join service_required_attrs on id=service_required_attrs.attr_id and service_required_attrs.service_id=? " +
-							"left join member_group_attr_values mem_gr on id=mem.attr_id and mem_gr.group_id=? and member_id=? " +
+							"left join member_group_attr_values mem_gr on id=mem_gr.attr_id and mem_gr.group_id=? and member_id=? " +
 							"where namespace in (?,?,?)",
 					new AttributeRowMapper(sess, this, member), service.getId(), group.getId(), member.getId(), AttributesManager.NS_MEMBER_GROUP_ATTR_DEF, AttributesManager.NS_MEMBER_GROUP_ATTR_OPT, AttributesManager.NS_MEMBER_GROUP_ATTR_VIRT);
 		} catch(RuntimeException ex) {
