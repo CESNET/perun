@@ -13,6 +13,7 @@ import cz.metacentrum.perun.core.blImpl.AuthzResolverBlImpl;
 import cz.metacentrum.perun.core.impl.Compatibility;
 import cz.metacentrum.perun.registrar.ConsolidatorManager;
 import cz.metacentrum.perun.registrar.exceptions.*;
+import cz.metacentrum.perun.registrar.model.Identity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -514,7 +515,11 @@ public class RegistrarManagerImpl implements RegistrarManager {
 
 			// FIND SIMILAR USERS
 			try {
-				result.put("similarUsers", getConsolidatorManager().checkForSimilarUsers(sess));
+				List<Identity> similarUsers = getConsolidatorManager().checkForSimilarUsers(sess);
+				if (similarUsers != null && !similarUsers.isEmpty()) {
+					log.debug("Similar users found for {} / {}: {}", sess.getPerunPrincipal().getActor(), sess.getPerunPrincipal().getExtSourceName(), similarUsers);
+				}
+				result.put("similarUsers", similarUsers);
 			} catch (Exception ex) {
 				// not relevant exception in this use-case
 				log.error("[REGISTRAR] Exception when searching for similar users: {}", ex);
