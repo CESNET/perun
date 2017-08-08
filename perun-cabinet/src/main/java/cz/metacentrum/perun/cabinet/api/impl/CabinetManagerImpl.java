@@ -318,8 +318,18 @@ public class CabinetManagerImpl implements CabinetManager {
 				!publication.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
 				publication.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
 			// not perun admin or author of record
-			// FIXME - allow update to authors ??
-			throw new PrivilegeException("You are not allowed to update publications you didn't created.");
+
+			List<Author> authors = getAuthorsByPublicationId(publication.getId());
+			boolean oneOfAuthors = false;
+			for (Author author : authors) {
+				if (author.getId() == sess.getPerunPrincipal().getUserId()) {
+					oneOfAuthors = true;
+					break;
+				}
+			}
+
+			if (!oneOfAuthors) throw new PrivilegeException("You are not allowed to update publications you didn't created.");
+
 		}
 		return getPublicationManagerBl().updatePublication(sess, publication);
 	}
@@ -330,7 +340,7 @@ public class CabinetManagerImpl implements CabinetManager {
 				!publication.getCreatedBy().equalsIgnoreCase(sess.getPerunPrincipal().getActor()) &&
 				publication.getCreatedByUid() != sess.getPerunPrincipal().getUserId()) {
 			// not perun admin or author of record
-			throw new PrivilegeException("You are not allowed to delete publications you didn't created.");
+			throw new PrivilegeException("You are not allowed to delete publications you didn't created. If you wish, you can remove yourself from authors instead.");
 		}
 		getPublicationManagerBl().deletePublication(sess, publication);
 	}
