@@ -347,6 +347,29 @@ public interface AttributesManager {
 	 */
 	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException;
 
+	/**
+	 * Get all attributes associated with the group and the resource which have their name in list attrNames (empty too).
+	 * Virtual attribute too.
+	 *
+	 * PRIVILEGE: Get only those attributes the principal has access to.
+	 *
+	 * If workWithGroupAttributes is true, return also all group attributes in list of attrNames (with virtual attributes too).
+	 *
+	 * @param sess perun session
+	 * @param resource to get the attributes from
+	 * @param group to get the attributes from
+	 * @param attrNames list of attributes' names
+	 * @param workWithGroupAttributes if group attributes need to be return too
+	 * @return list of attributes
+	 *
+	 * @throws PrivilegeException if privileges are not given
+	 * @throws InternalErrorException if an exception raise in concrete implementation, the exception is wrapped in InternalErrorException
+	 * @throws ResourceNotExistsException if the resource doesn't exist
+	 * @throws GroupNotExistsException if the group doesn't exist
+	 * @throws GroupResourceMismatchException if group and resource are from the same vo
+	 * @throws WrongAttributeAssignmentException
+	 */
+	List<Attribute> getAttributes(PerunSession sess, Resource resource, Group group, List<String> attrNames, boolean workWithGroupAttributes) throws PrivilegeException, InternalErrorException, ResourceNotExistsException, GroupNotExistsException, GroupResourceMismatchException, WrongAttributeAssignmentException;
 
 	/**
 	 * Get all <b>non-empty</b> attributes associated with the group starts with name startPartOfName.

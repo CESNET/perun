@@ -111,6 +111,19 @@ public enum AttributesManagerMethod implements ManagerMethod {
 	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
 	 */
 	/*#
+	 * Returns all specified Group-Resource attributes for selected Group and Resource.
+	 * If <code>attrNames</code> is empty, it returns all non-empty attributes.
+	 * If <code>workWithGroupAttributes == true</code> then also Group attributes are returned. <code>False</code> is default.
+	 *
+	 * @param group int Group <code>id</code>
+	 * @param resource int Resource <code>id</code>
+	 * @param attrNames List<String> Attribute names
+	 * @param workWithGroupAttributes boolean If <code>true</code>, return also Group attributes. <code>False</code> is default.
+	 * @return List<Attribute> Specified Group-Resource attributes and (if workWithGroupAttributes == true) also Group attributes.
+	 * @throw GroupNotExistsException When Group with <code>id</code> doesn't exist.
+	 * @throw ResourceNotExistsException When Resource with <code>id</code> doesn't exist.
+	 */
+	/*#
 	 * Returns all non-empty Resource attributes for selected Resource.
 	 *
 	 * @param resource int Resource <code>id</code>
@@ -269,12 +282,21 @@ public enum AttributesManagerMethod implements ManagerMethod {
 								ac.getResourceById(parms.readInt("resource")),
 								ac.getMemberById(parms.readInt("member")));
 					}
-				}  else if (parms.contains("group")) {
+				} else if (parms.contains("group")) {
 					if (parms.contains("workWithGroupAttributes")) {
-						return ac.getAttributesManager().getAttributes(ac.getSession(),
-								ac.getResourceById(parms.readInt("resource")),
-								ac.getGroupById(parms.readInt("group")),
-								parms.readBoolean("workWithGroupAttributes"));
+						if (parms.contains("attrNames")) {
+							return ac.getAttributesManager().getAttributes(ac.getSession(),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getGroupById(parms.readInt("group")),
+									parms.readList("attrNames", String.class),
+									parms.readBoolean("workWithGroupAttributes"));
+
+						} else {
+							return ac.getAttributesManager().getAttributes(ac.getSession(),
+									ac.getResourceById(parms.readInt("resource")),
+									ac.getGroupById(parms.readInt("group")),
+									parms.readBoolean("workWithGroupAttributes"));
+						}
 					} else {
 						return ac.getAttributesManager().getAttributes(ac.getSession(),
 								ac.getResourceById(parms.readInt("resource")),
