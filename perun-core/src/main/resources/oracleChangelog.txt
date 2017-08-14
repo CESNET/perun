@@ -8,7 +8,7 @@ CREATE TABLE members_sponsored (active char(1) default '1' not null,sponsored_id
 alter table members_sponsored add ( constraint MEMSPONS_MEM_FK foreign key (sponsored_id) references members(id), constraint MEMSPONS_USR_FK foreign key (sponsor_id) references users(id));
 create index IDX_FK_MEMSPONS_USR ON members_sponsored(sponsor_id);
 create index IDX_FK_MEMSPONS_MEM ON members_sponsored(sponsored_id);
-alter table members add column sponsored char(1) default '0' not null;
+alter table members add sponsored char(1) default '0' not null;
 update configurations set value='3.1.44' where property='DATABASE VERSION';
 
 3.1.43
