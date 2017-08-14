@@ -377,16 +377,6 @@ public interface UsersManagerBl {
 	List<UserExtSource> getActiveUserExtSources(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
-	 * Get list of user ext sources be their ids.
-	 *
-	 * @param sess
-	 * @param ids
-	 * @return list of user external sources for ids
-	 * @throws InternalErrorException
-	 */
-	List<UserExtSource> getUserExtsourcesByIds(PerunSession sess, List<Integer> ids) throws InternalErrorException;
-
-	/**
 	 * Adds user's external sources.
 	 *
 	 * @param perunSession
@@ -1156,4 +1146,13 @@ public interface UsersManagerBl {
 	 */
 	List<User> getSponsors(PerunSession sess, Member sponsoredMember) throws InternalErrorException;
 
+	/**
+	 * Removes all user's external sources.
+	 * It also means removing all it's attributes.
+	 *
+	 * @param sess session
+	 * @param user owner of external sources
+	 * @throws InternalErrorException
+	 */
+	void removeAllUserExtSources(PerunSession sess, User user) throws InternalErrorException;
 }

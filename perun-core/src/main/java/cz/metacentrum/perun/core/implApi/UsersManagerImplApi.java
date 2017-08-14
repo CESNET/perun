@@ -247,16 +247,6 @@ public interface UsersManagerImplApi {
 	void updateUserExtSourceLastAccess(PerunSession perunSession, UserExtSource userExtSource) throws InternalErrorException;
 
 	/**
-	 * Gets list of all user external sources ids of the user.
-	 *
-	 * @param perunSession
-	 * @param user
-	 * @return list of user's external sources ids
-	 * @throws InternalErrorException
-	 */
-	List<Integer> getUserExtSourcesIds(PerunSession perunSession, User user) throws InternalErrorException;
-
-	/**
 	 * Gets list of all users external sources by specific type and extLogin.
 	 *
 	 * @param sess
@@ -293,14 +283,14 @@ public interface UsersManagerImplApi {
 	UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException;
 
 	/**
-	 * Get list of user ext sources be their ids.
+	 * Get List of user ext sources by user
 	 *
-	 * @param sess
-	 * @param ids
-	 * @return list of user external sources for ids
+	 * @param sess session
+	 * @param user owner of extSources
+	 * @return List of user's UserExtSources
 	 * @throws InternalErrorException
 	 */
-	List<UserExtSource> getUserExtsourcesByIds(PerunSession sess, List<Integer> ids) throws InternalErrorException;
+	List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException;
 
 	/**
 	 * Adds user's external sources.

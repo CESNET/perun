@@ -344,7 +344,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		}
 
 		// First delete all associated external sources to the user
-		getUsersManagerImpl().removeAllUserExtSources(sess, user);
+		removeAllUserExtSources(sess, user);
 		getPerunBl().getAuditer().log(sess, "All user ext sources removed for {}.", user);
 
 		// delete all authorships of users publications
@@ -469,14 +469,7 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 	}
 
 	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException {
-		List<Integer> ueasIds = getUsersManagerImpl().getUserExtSourcesIds(sess, user);
-		List<UserExtSource> ueas = getUsersManagerImpl().getUserExtsourcesByIds(sess, ueasIds);
-
-		return ueas;
-	}
-
-	public List<UserExtSource> getUserExtsourcesByIds(PerunSession sess, List<Integer> ids) throws InternalErrorException {
-		return getUsersManagerImpl().getUserExtsourcesByIds(sess, ids);
+		return getUsersManagerImpl().getUserExtSources(sess, user);
 	}
 
 	public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
@@ -2010,4 +2003,14 @@ public class UsersManagerBlImpl implements UsersManagerBl {
 		return getUsersManagerImpl().getPasswordManagerModule(session, namespace);
 	}
 
+	@Override
+	public void removeAllUserExtSources(PerunSession sess, User user) throws InternalErrorException {
+		for(UserExtSource userExtSource : getUserExtSources(sess, user)) {
+			try {
+				removeUserExtSource(sess, user, userExtSource);
+			} catch (UserExtSourceAlreadyRemovedException ex) {
+				throw new InternalErrorException(ex);
+			}
+		}
+	}
 }
