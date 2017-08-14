@@ -167,6 +167,7 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 			", status=<").append(getStatus() == null ? "\\0" : BeansUtils.createEscaping(getStatus().toString())).append(">").append(
 			", type=<").append(getMembershipType()== null ? "\\0" : BeansUtils.createEscaping(getMembershipType().toString())).append(">").append(
 			", sourceGroupId=<").append(getSourceGroupId()== null ? "\\0" : getSourceGroupId().toString()).append(">").append(
+			", sponsored=<").append(isSponsored()).append(">").append(
 			", user=<").append(getUser() == null ? "\\0" : getUser().serializeToString()).append(">").append(
 			", userExtSources=<").append(sUserESNew).append(">").append(
 			", userAttributes=<").append(sUserAttrNew).append(">").append(
@@ -178,7 +179,7 @@ public class RichMember extends Member implements Comparable<PerunBean> {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 
-		return str.append("RichMember:[id='").append(getId()).append("', userId='").append(getUserId()).append("', voId='").append(getVoId()).append("', status='").append(getStatus()).append("', type='").append(getMembershipType()).append("', sourceGroupId='").append(getSourceGroupId()).append( "', user='").append(user).append("', userExtSources='").append(userExtSources).append(
+		return str.append("RichMember:[id='").append(getId()).append("', userId='").append(getUserId()).append("', voId='").append(getVoId()).append("', status='").append(getStatus()).append("', type='").append(getMembershipType()).append("', sourceGroupId='").append(getSourceGroupId()).append("', sponsored='").append(isSponsored()).append( "', user='").append(user).append("', userExtSources='").append(userExtSources).append(
 			"', userAttributes='").append(userAttributes).append("', memberAttributes='").append(memberAttributes).append("']").toString();
 	}
 
