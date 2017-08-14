@@ -2122,6 +2122,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	}
 
 	@Override
+	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException {
+		return getMembersManagerImpl().getSponsoredMembers(sess, vo);
+	}
+
+	@Override
 	public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws InternalErrorException {
 		getMembersManagerImpl().removeSponsor(sess,sponsoredMember, sponsorToRemove);
 		getPerunBl().getAuditer().log(sess, "{} lost sponsor {}", sponsoredMember, sponsorToRemove);

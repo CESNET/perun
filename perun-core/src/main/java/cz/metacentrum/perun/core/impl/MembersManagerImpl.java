@@ -295,6 +295,16 @@ public class MembersManagerImpl implements MembersManagerImplApi {
 	}
 
 	@Override
+	public List<Member> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException {
+		try {
+			return jdbc.query("SELECT "+memberMappingSelectQuery+" FROM members JOIN members_sponsored ms ON (members.id=ms.sponsored_id) " +
+			        "WHERE members.vo_id=? AND ms.active='1'", MEMBER_MAPPER, vo.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+	}
+
+	@Override
 	public void deleteSponsorLinks(PerunSession sess, Member sponsoredMember) throws InternalErrorException {
 		try {
 			jdbc.update("DELETE FROM members_sponsored WHERE sponsored_id=?", sponsoredMember.getId());

@@ -1312,6 +1312,15 @@ public interface MembersManagerBl {
 	List<Member> getSponsoredMembers(PerunSession sess, Vo vo, User user) throws InternalErrorException;
 
 	/**
+	 * Gets list of sponsored members of a VO.
+	 * @param sess session
+	 * @param vo virtual organization from which are the sponsored members chosen
+	 * @throws InternalErrorException if given parameters are invalid
+	 * @return list of members from given vo who are sponsored
+	 */
+	List<Member> getSponsoredMembers(PerunSession sess, Vo vo) throws InternalErrorException;
+
+	/**
 	 * Removes a sponsor.
 	 */
 	void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsor) throws InternalErrorException;

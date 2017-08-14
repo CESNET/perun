@@ -184,26 +184,23 @@ public enum MembersManagerMethod implements ManagerMethod {
 	 * @return List<RichMember> sponsored members
 	 */
 	/*#
-	 * Gets members sponsored by a given user in a VO. User is specified by extSourceName and extLogin.
+	 * Gets members from VO who are sponsored.
 	 *
 	 * Can be called only by REGISTRAR.
 	 *
 	 * @param vo int VO ID
-	 * @param extSourceName String external source name, usually SAML IdP entityID
-	 * @param extLogin String external source login, usually eduPersonPrincipalName
 	 * @return List<RichMember> sponsored members
 	 */
 	getSponsoredMembers {
 		@Override
 		public List<RichMember> call(ApiCaller ac, Deserializer params) throws PerunException {
 			Vo vo = ac.getVoById(params.readInt("vo"));
-			User sponsor = null;
 			if(params.contains("sponsor")) {
-				sponsor = ac.getUserById(params.readInt("sponsor"));
-			} else if(params.contains("extSourceName")&&params.contains("extLogin")) {
-				sponsor = ac.getUsersManager().getUserByExtSourceNameAndExtLogin(ac.getSession(), params.readString("extSourceName"), params.readString("extLogin"));
+				User sponsor = ac.getUserById(params.readInt("sponsor"));
+				return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo, sponsor);
+			} else {
+				return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo);
 			}
-			return ac.getMembersManager().getSponsoredMembers(ac.getSession(), vo, sponsor);
 		}
 	},
 
