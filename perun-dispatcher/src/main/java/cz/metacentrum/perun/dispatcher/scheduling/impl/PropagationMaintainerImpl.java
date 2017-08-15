@@ -549,14 +549,11 @@ public class PropagationMaintainerImpl implements PropagationMaintainer {
 			schedulingPool.setTaskStatus(completedTask, TaskStatus.DONE);
 			completedTask.setRecurrence(0);
 			log.debug("TASK {} reported as DONE", completedTask.toString());
-			// for GEN tasks, signal SENDs that source data are updated
+			// for forced and completed GEN tasks, schedule SENDs immediately
 			if(completedTask.getExecService().getExecServiceType().equals(ExecServiceType.GENERATE)) {
 				List<ExecService> dependantServices = dependenciesResolver.listDependantServices(completedTask.getExecService());
 				for (ExecService dependantService : dependantServices) {
 					Task dependantTask = schedulingPool.getTask(dependantService, completedTask.getFacility());
-					if (dependantTask != null && dependantService.getExecServiceType().equals(ExecServiceType.SEND)) {
-						dependantTask.setSourceUpdated(false);
-					}
 					if(completedTask.isPropagationForced() && dependantTask.isPropagationForced()) {
 						log.debug("Going to force schedule dependant task " + dependantTask.getId());
 						taskScheduler.scheduleTask(dependantTask);

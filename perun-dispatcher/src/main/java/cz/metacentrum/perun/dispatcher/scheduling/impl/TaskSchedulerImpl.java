@@ -476,6 +476,14 @@ public class TaskSchedulerImpl implements TaskScheduler {
 						+ "] facility [" + facility.getId() + "] as PLANNED.");
 				task.setSchedule(time);
 				schedulingPool.setTaskStatus(task, TaskStatus.PLANNED);
+				// we are going to run the GEN task, so reset the source updated flag to
+				// allow rerunning the GEN when data changes before the GEN is complete
+				for (ExecService dependantService : dependantServices) {
+					Task dependantServiceTask = schedulingPool.getTask(dependantService, facility);
+					if (dependantServiceTask != null && dependantServiceTask.isSourceUpdated()) {
+						dependantServiceTask.setSourceUpdated(false);
+					}
+				}
 				sendToEngine(task);
 				// manipulateTasks(execService, facility, task);
 			} else {
