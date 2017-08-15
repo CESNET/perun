@@ -2076,7 +2076,8 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 
 		//create the member in Perun
 		Member sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, sponsoredUser, sponsor);
-		getPerunBl().getAuditer().log(session, "{} created, sponsored by {}", sponsoredMember, sponsor);
+		getPerunBl().getAuditer().log(session, "{} created.", sponsoredMember);
+		getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
 		extendMembership(session, sponsoredMember);
 		insertToMemberGroup(session, sponsoredMember, vo);
 		if(asyncValidation) {
@@ -2108,10 +2109,11 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 				throw new MemberNotSponsoredException("member "+sponsoredMember.getId()+" is not marked as sponsored");
 			}
 			getMembersManagerImpl().addSponsor(session, sponsoredMember,sponsor);
-			getPerunBl().getAuditer().log(session, "{} added sponsor {}", sponsoredMember, sponsor);
+			getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
 		} catch (MemberNotExistsException ex) {
 			sponsoredMember = getMembersManagerImpl().createSponsoredMember(session, vo, sponsored, sponsor);
-			getPerunBl().getAuditer().log(session, "{} created, sponsored by {}", sponsoredMember, sponsor);
+			getPerunBl().getAuditer().log(session, "{} created.", sponsoredMember);
+			getPerunBl().getAuditer().log(session, "Sponsorship of {} by {} established.", sponsoredMember, sponsor);
 		}
 		return sponsoredMember;
 	}
@@ -2129,7 +2131,7 @@ public class MembersManagerBlImpl implements MembersManagerBl {
 	@Override
 	public void removeSponsor(PerunSession sess, Member sponsoredMember, User sponsorToRemove) throws InternalErrorException {
 		getMembersManagerImpl().removeSponsor(sess,sponsoredMember, sponsorToRemove);
-		getPerunBl().getAuditer().log(sess, "{} lost sponsor {}", sponsoredMember, sponsorToRemove);
+		getPerunBl().getAuditer().log(sess, "Sponsorship of {} by {} canceled.", sponsoredMember, sponsorToRemove);
 		//check if the user was the last sponsor
 		Vo vo = getMemberVo(sess, sponsoredMember);
 		boolean hasSponsor = false;
