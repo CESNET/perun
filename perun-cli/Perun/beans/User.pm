@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Perun::Common;
-use JSON::PP;
 
 sub new
 {
@@ -181,15 +180,15 @@ sub setServiceUser
 {
 	my $self = shift;
 	my $value = shift;
-	if (ref $value eq "JSON::PP::Boolean")
+	if (ref $value eq "JSON::XS::Boolean")
 	{
 		$self->{_serviceUser} = $value;
 	} elsif ($value eq 'true' || $value eq 1)
 	{
-		$self->{_serviceUser} = JSON::PP::true;
+		$self->{_serviceUser} = JSON::XS::true;
 	} else
 	{
-		$self->{_serviceUser} = JSON::PP::false;
+		$self->{_serviceUser} = JSON::XS::false;
 	}
 
 	return;
@@ -206,15 +205,15 @@ sub setSponsoredUser
 {
 	my $self = shift;
 	my $value = shift;
-	if (ref $value eq "JSON::PP::Boolean")
+	if (ref $value eq "JSON::XS::Boolean")
 	{
 		$self->{_sponsoredUser} = $value;
 	} elsif ($value eq 'true' || $value eq 1)
 	{
-		$self->{_sponsoredUser} = JSON::PP::true;
+		$self->{_sponsoredUser} = JSON::XS::true;
 	} else
 	{
-		$self->{_sponsoredUser} = JSON::PP::false;
+		$self->{_sponsoredUser} = JSON::XS::false;
 	}
 
 	return;

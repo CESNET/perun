@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Switch;
 use Data::Dumper;
-use JSON::PP;
 
 use overload
 	'""' => \&toString;
@@ -282,7 +281,7 @@ sub getValueAsScalar {
 
 			return Dumper($value);
 		}
-		case "JSON::PP::Boolean" {
+		case "JSON::XS::Boolean" {
 			return ($value) ? 'true' : 'false';
 		}
 		else {
@@ -310,10 +309,10 @@ sub setValueFromArray {
 			if (scalar @_ > 1) { Perun::Common::printMessage(
 				"More than one value passed as attribute value. Taking first one and ignoring the rest.", $::batch); }
 			if (("$_[0]" eq '1') or ("$_[0]" eq 'true')) {
-				my $true = JSON::PP::true;
+				my $true = JSON::XS::true;
 				$attribute->setValue( $true );
 			} elsif (("$_[0]" eq '0') or ("$_[0]" eq 'false')) {
-				my $false = JSON::PP::false;
+				my $false = JSON::XS::false;
 				$attribute->setValue( $false );
 			} else {
 				Perun::Common::printMessage(
