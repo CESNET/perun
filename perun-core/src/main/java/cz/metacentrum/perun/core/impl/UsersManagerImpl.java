@@ -494,23 +494,13 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 	}
 
 	public UserExtSource getUserExtSourceByExtLogin(PerunSession sess, ExtSource source, String extLogin) throws InternalErrorException, UserExtSourceNotExistsException {
-		int ueaId;
 		try {
-			ueaId =  jdbc.queryForInt("select user_ext_sources.id from user_ext_sources left join ext_sources on " +
-					"user_ext_sources.ext_sources_id=ext_sources.id " +
-					"where ext_sources.id=? and user_ext_sources.login_ext=?", source.getId(), extLogin);
+			return jdbc.queryForObject("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+			        " from user_ext_sources left join ext_sources " +
+					" on user_ext_sources.ext_sources_id=ext_sources.id " +
+					" where ext_sources.id=? and user_ext_sources.login_ext=?", USEREXTSOURCE_MAPPER, source.getId(), extLogin);
 		} catch (EmptyResultDataAccessException e) {
 			throw new UserExtSourceNotExistsException("ExtSource: " + source + " for extLogin " + extLogin, e);
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-
-		return this.getUserExtSourceById(sess, ueaId);
-	}
-
-	public List<Integer> getUserExtSourcesIds(PerunSession sess, User user) throws InternalErrorException {
-		try {
-			return jdbc.query("select id from user_ext_sources where user_id=?", Utils.ID_MAPPER, user.getId());
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
@@ -550,25 +540,6 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		}
 	}
 
-	public List<UserExtSource> getUserExtsourcesByIds(PerunSession sess, List<Integer> ids) throws InternalErrorException {
-		if (ids.size() == 0) {
-			return new ArrayList<UserExtSource>();
-		}
-
-		MapSqlParameterSource parameters = new MapSqlParameterSource();
-		parameters.addValue("ids", ids);
-
-		try {
-			return namedParameterJdbcTemplate.query("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
-					" from user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id where" +
-					" user_ext_sources.id in ( :ids )", parameters, USEREXTSOURCE_MAPPER);
-		} catch(EmptyResultDataAccessException ex) {
-			return new ArrayList<UserExtSource>();
-		} catch (RuntimeException e) {
-			throw new InternalErrorException(e);
-		}
-	}
-
 	public UserExtSource getUserExtSourceById(PerunSession sess, int id) throws InternalErrorException, UserExtSourceNotExistsException {
 		try {
 			return jdbc.queryForObject("select " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
@@ -579,6 +550,18 @@ public class UsersManagerImpl implements UsersManagerImplApi {
 		} catch (RuntimeException e) {
 			throw new InternalErrorException(e);
 		}
+	}
+
+	@Override
+	public List<UserExtSource> getUserExtSources(PerunSession sess, User user) throws InternalErrorException {
+		try {
+			return jdbc.query("SELECT " + userExtSourceMappingSelectQuery + "," + ExtSourcesManagerImpl.extSourceMappingSelectQuery +
+			        " FROM user_ext_sources left join ext_sources on user_ext_sources.ext_sources_id=ext_sources.id" +
+			        " WHERE user_ext_sources.user_id=?", USEREXTSOURCE_MAPPER, user.getId());
+		} catch (RuntimeException e) {
+			throw new InternalErrorException(e);
+		}
+
 	}
 
 	public void removeUserExtSource(PerunSession sess, User user, UserExtSource userExtSource) throws InternalErrorException, UserExtSourceAlreadyRemovedException {
